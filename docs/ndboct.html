@@ -26,7 +26,7 @@ code {
 <h1 data-line="19" class="code-line" id="n-dboct%E3%81%AE%E3%82%B9%E3%83%AD%E3%83%BC%E3%83%97%E3%82%92%E6%8C%81%E3%81%A4%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF">n dB/octのスロープを持つフィルタ</h1>
 <p data-line="20" class="code-line">n dB/oct のスロープを持つフィルタを設計します。</p>
 <figure>
-<img src="docs/img/ndboct/fir_filter_n_dB_oct.png" alt="Image of the filter coefficients." style="width: 300px; padding-bottom: 12px;"/>
+<img src="img/ndboct/fir_filter_n_dB_oct.png" alt="Image of the filter coefficients." style="width: 300px; padding-bottom: 12px;"/>
 </figure>
 <section><eqn><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtable><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mi>A</mi><mo>(</mo><mi>ω</mi><mo>)</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>=</mo><mrow><mo fence="true">{</mo><mtable><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>l</mi><mi mathvariant="normal">/</mi><mi>h</mi><msup><mo>)</mo><mi>M</mi></msup><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mo>−</mo><mi>π</mi><mo>≤</mo><mi>ω</mi><mo>≤</mo><mo>−</mo><mi>h</mi><mo>)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>ω</mi><mi mathvariant="normal">/</mi><mi>l</mi><msup><mo>)</mo><mi>M</mi></msup><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mo>−</mo><mi>h</mi><mo>&lt;</mo><mi>ω</mi><mo>&lt;</mo><mo>−</mo><mi>l</mi><mo>)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>1</mn><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mo>−</mo><mi>l</mi><mo>≤</mo><mi>ω</mi><mo>≤</mo><mi>l</mi><mo>)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>ω</mi><mi mathvariant="normal">/</mi><mi>l</mi><msup><mo>)</mo><mi>M</mi></msup><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>l</mi><mo>&lt;</mo><mi>ω</mi><mo>&lt;</mo><mi>h</mi><mo>)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>l</mi><mi mathvariant="normal">/</mi><mi>h</mi><msup><mo>)</mo><mi>M</mi></msup><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>h</mi><mo>≤</mo><mi>ω</mi><mo>≤</mo><mi>π</mi><mo>)</mo></mrow></mstyle></mtd></mtr></mtable></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mi>M</mi></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>=</mo><mrow><mfrac><mrow><mspace width="0.16667em"></mspace><mi>m</mi></mrow><mrow><mn>2</mn><mn>0</mn></mrow></mfrac></mrow><msub><mi>log</mi><mn>2</mn></msub><mn>1</mn><mn>0</mn></mrow></mstyle></mtd></mtr></mtable></mrow><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -112,7 +112,7 @@ p.show()
 </div></code></pre>
 <p data-line="120" class="code-line">ここでは100Hzから10000Hz間において、-10dB/octの傾きで減衰する、窓長1024の特性を作りました。</p>
 <figure>
-<img src="docs/img/ndboct/n_dB_oct_spec.png" alt="Image of filter specification." style="width: 480px;"/>
+<img src="img/ndboct/n_dB_oct_spec.png" alt="Image of filter specification." style="width: 480px;"/>
 </figure>
 <p data-line="126" class="code-line">フィルタ係数を出します。</p>
 <pre class="hljs"><code><div>filt = fftshift(ifft(spec + spec[::<span class="hljs-number">-1</span>]))
@@ -129,17 +129,17 @@ showResponse(sample_rate, filt)
 </div></code></pre>
 <p data-line="142" class="code-line">フィルタ係数の見た目です。</p>
 <figure>
-<img src="docs/img/ndboct/n_dB_oct_cofficients.png" alt="Image of the filter coefficients." style="width: 480px;"/>
+<img src="img/ndboct/n_dB_oct_cofficients.png" alt="Image of the filter coefficients." style="width: 480px;"/>
 </figure>
 <p data-line="148" class="code-line">フィルタの周波数応答です。作った特性と一致します。</p>
 <figure>
-<img src="docs/img/ndboct/n_dB_oct_response.png" alt="Image of frequency response of the filter." style="width: 480px;"/>
+<img src="img/ndboct/n_dB_oct_response.png" alt="Image of frequency response of the filter." style="width: 480px;"/>
 </figure>
 <p data-line="154" class="code-line">不連続点を拡大すると<a href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">ギブス現象</a>が観察できます。</p>
 <pre class="hljs"><code><div>showResponse(sample_rate, filt)
 </div></code></pre>
 <figure>
-<img src="docs/img/ndboct/n_dB_oct_response_gibbs.png" alt="Image of gibbs phenomenon." style="width: 593px;"/>
+<img src="img/ndboct/n_dB_oct_response_gibbs.png" alt="Image of gibbs phenomenon." style="width: 593px;"/>
 </figure>
 <p data-line="165" class="code-line">図の左は周波数軸が対数でないときのフィルタの周波数応答です。右上は低域側の不連続点、右下は高域側の不連続点を拡大したものです。</p>
 <p data-line="167" class="code-line">フィルタができたので、ノイズを作ってかけてみます。</p>
@@ -156,7 +156,7 @@ showResponse(sample_rate, filtered)
 </div></code></pre>
 <p data-line="182" class="code-line">フィルタをかける前とかけた後のスペクトラムです。</p>
 <figure>
-<img src="docs/img/ndboct/n_dB_oct_noise_and_filtered_response.png" alt="Image of frequency response of the filter." style="width: 612px;"/>
+<img src="img/ndboct/n_dB_oct_noise_and_filtered_response.png" alt="Image of frequency response of the filter." style="width: 612px;"/>
 </figure>
 <h2 data-line="188" class="code-line" id="%E5%BC%8F%E3%82%92%E9%80%94%E4%B8%AD%E3%81%BE%E3%81%A7%E8%A7%A3%E3%81%8F">式を途中まで解く</h2>
 <p data-line="189" class="code-line"><a href="https://math.stackexchange.com/questions/935405/what-s-the-difference-between-analytical-and-numerical-approaches-to-problems">解析解</a>について調べます。</p>
