@@ -41,7 +41,9 @@ $$
 ## 逆離散フーリエ変換を使う方法
 [逆離散フーリエ変換（IDFT）](https://en.wikipedia.org/wiki/Discrete_Fourier_transform)を使って楽に設計します。
 
-コードを順番にPython3のインタープリタにコピペすれば動作するので、よければ試してみてください。
+コードを順番にPython3のインタープリタにコピペしていけば動作します。別ページでまとめて見ることもできます。
+
+- [n dB/octのフィルタを作るコード (github.com)](https://github.com/ryukau/filter_notes/blob/master/ndboct.py)
 
 [SciPy](https://www.scipy.org/)、[NumPy](http://www.numpy.org/)、[Matplotlib](https://matplotlib.org/tutorials/introductory/pyplot.html)を import します。
 
