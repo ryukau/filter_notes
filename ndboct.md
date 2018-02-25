@@ -28,11 +28,11 @@ $$
 \begin{aligned}
 A(\omega) &=
 \begin{cases}
-(l/h)^{M}, &  (-\pi \leq \omega \leq -h) \\
+(h/l)^{M}, &  (-\pi \leq \omega \leq -h) \\
 (\omega/l)^{M}, &  (-h \lt \omega \lt -l) \\
 1, & (-l \leq \omega \leq l) \\
 (\omega/l)^{M}, & (l \lt \omega \lt h) \\
-(l/h)^{M}, & (h \leq \omega \leq \pi)
+(h/l)^{M}, & (h \leq \omega \leq \pi)
 \end{cases} \\\\
 M &= {{\,m}\over{20}}\log_2 10
 \end{aligned}
@@ -195,11 +195,11 @@ $$
 \begin{aligned}
 A(\omega) &=
 \begin{cases}
-(l/h)^{M}, &  (-\pi \leq \omega \leq -h) \\
+(h/l)^{M}, &  (-\pi \leq \omega \leq -h) \\
 (\omega/l)^{M}, &  (-h \lt \omega \lt -l) \\
 1, & (-l \leq \omega \leq l) \\
 (\omega/l)^{M}, & (l \lt \omega \lt h) \\
-(l/h)^{M}, & (h \leq \omega \leq \pi)
+(h/l)^{M}, & (h \leq \omega \leq \pi)
 \end{cases} \\\\
 M &= {{\,m}\over{20}}\log_2 10
 \end{aligned}
