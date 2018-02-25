@@ -25,4 +25,5 @@ code {
 
 そんなときに調べたことをまとめたノートです。
 
-- [お手軽なFIRフィルタのレシピ](./basics.html)
+- <a href="basics.html">お手軽なFIRフィルタのレシピ</a>
+- <a href="ndboct.html">n dB/octのスロープを持つフィルタ</a>
