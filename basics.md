@@ -34,7 +34,7 @@ code {
 [通過域](https://en.wikipedia.org/wiki/Passband)の大きさ（[Amplitude](https://en.wikipedia.org/wiki/Amplitude)）は1とします。
 
 ## ローパスフィルタ
-![Image of FIR lowpass filter.](./img/fir_filter_lowpass.png)
+![Image of FIR lowpass filter.](./img/basics/fir_filter_lowpass.png)
 
 $$
 A(\omega) =
@@ -71,7 +71,7 @@ function makeLowpassCoefficient(length, cutoff) {
 ```
 
 ## ハイパスフィルタ
-![Image of FIR highpass filter.](./img/fir_filter_highpass.png)
+![Image of FIR highpass filter.](./img/basics/fir_filter_highpass.png)
 
 $$
 A(\omega) =
@@ -111,7 +111,7 @@ function makeHighpassCoefficient(length, cutoff) {
 ```
 
 ## バンドパスフィルタ
-![Image of FIR bandpass filter.](./img/fir_filter_bandpass.png)
+![Image of FIR bandpass filter.](./img/basics/fir_filter_bandpass.png)
 
 $$
 A(\omega) =
@@ -155,7 +155,7 @@ function makeBandpassCoefficient(length, low, high) {
 ## バンドリジェクトフィルタ
 バンドストップフィルタとも呼ばれるようです。
 
-![Image of FIR bandreject filter.](./img/fir_filter_bandreject.png)
+![Image of FIR bandreject filter.](./img/basics/fir_filter_bandreject.png)
 
 $$
 A(\omega) =
@@ -296,7 +296,7 @@ $$
 
 ローパスフィルタを例に見ていきます。
 
-![Image of range [-f_s, f_s] of lowpass frequency responce.](./img/fir_filter_frequency_mirror.png)
+![Image of range [-f_s, f_s] of lowpass frequency responce.](./img/basics/fir_filter_frequency_mirror.png)
 
 [偶関数の積分の性質](https://en.wikipedia.org/wiki/Even_and_odd_functions#Calculus_properties)を利用して式を変形できそうなので試してみます。
 
