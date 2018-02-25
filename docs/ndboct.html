@@ -8,25 +8,25 @@
 </head><body class="markdown-body">
 <style>
 body {
-  max-width: 704px;
-  margin: auto;
-  padding: 32px 8px;
+    max-width: 704px;
+    margin: auto;
+    padding: 32px 8px;
 }
 
 code {
-  overflow-x: scroll;
-  overflow-y: hidden;
-  white-space: pre;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: pre;
 }
 
 .katex {
-  font-size: 1.3em !important;
+    font-size: 1.3em !important;
 }
 </style>
 <h1 data-line="19" class="code-line" id="n-dboct%E3%81%AE%E3%82%B9%E3%83%AD%E3%83%BC%E3%83%97%E3%82%92%E6%8C%81%E3%81%A4%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF">n dB/octのスロープを持つフィルタ</h1>
 <p data-line="20" class="code-line">n dB/oct のスロープを持つフィルタを設計します。</p>
 <figure>
-<img src="img/ndboct/fir_filter_n_dB_oct.png" alt="Image of the filter coefficients." style="width: 300px; padding-bottom: 12px;"/>
+<img src="img/ndboct/fir_filter_n_dB_oct.png" alt="Image of the filter with n dB/oct slope." style="width: 300px; padding-bottom: 12px;"/>
 </figure>
 <section><eqn><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtable><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mi>A</mi><mo>(</mo><mi>ω</mi><mo>)</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>=</mo><mrow><mo fence="true">{</mo><mtable><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>l</mi><mi mathvariant="normal">/</mi><mi>h</mi><msup><mo>)</mo><mi>M</mi></msup><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mo>−</mo><mi>π</mi><mo>≤</mo><mi>ω</mi><mo>≤</mo><mo>−</mo><mi>h</mi><mo>)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>ω</mi><mi mathvariant="normal">/</mi><mi>l</mi><msup><mo>)</mo><mi>M</mi></msup><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mo>−</mo><mi>h</mi><mo>&lt;</mo><mi>ω</mi><mo>&lt;</mo><mo>−</mo><mi>l</mi><mo>)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>1</mn><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mo>−</mo><mi>l</mi><mo>≤</mo><mi>ω</mi><mo>≤</mo><mi>l</mi><mo>)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>ω</mi><mi mathvariant="normal">/</mi><mi>l</mi><msup><mo>)</mo><mi>M</mi></msup><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>l</mi><mo>&lt;</mo><mi>ω</mi><mo>&lt;</mo><mi>h</mi><mo>)</mo></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>l</mi><mi mathvariant="normal">/</mi><mi>h</mi><msup><mo>)</mo><mi>M</mi></msup><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>(</mo><mi>h</mi><mo>≤</mo><mi>ω</mi><mo>≤</mo><mi>π</mi><mo>)</mo></mrow></mstyle></mtd></mtr></mtable></mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mi>M</mi></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="true"><mrow><mrow></mrow><mo>=</mo><mrow><mfrac><mrow><mspace width="0.16667em"></mspace><mi>m</mi></mrow><mrow><mn>2</mn><mn>0</mn></mrow></mfrac></mrow><msub><mi>log</mi><mn>2</mn></msub><mn>1</mn><mn>0</mn></mrow></mstyle></mtd></mtr></mtable></mrow><annotation encoding="application/x-tex">
 \begin{aligned}

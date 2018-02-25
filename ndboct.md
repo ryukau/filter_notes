@@ -21,7 +21,7 @@ code {
 n dB/oct のスロープを持つフィルタを設計します。
 
 <figure>
-<img src="docs/img/ndboct/fir_filter_n_dB_oct.png" alt="Image of the filter coefficients." style="width: 300px; padding-bottom: 12px;"/>
+<img src="docs/img/ndboct/fir_filter_n_dB_oct.png" alt="Image of the filter with n dB/oct slope." style="width: 300px; padding-bottom: 12px;"/>
 </figure>
 
 $$
