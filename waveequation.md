@@ -277,7 +277,7 @@ function step() {
 今回のデモでは無視できないほどの[ギブス現象](https://en.wikipedia.org/wiki/Gibbs_phenomenon)が起こっています。ギブス現象の低減については [On the Gibbs phenomenon and its resolution](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.386.7325&rep=rep1&type=pdf) でいくつか手法が紹介されています。
 
 ### 発散
-$c$ 、 $dt$ 、 $dx$ の値によってはシミュレーションが発散します。今回のシミュレーションは [explicit euler](https://en.wikipedia.org/wiki/Euler_method) の形になっているので [leapfrog](https://en.wikipedia.org/wiki/Leapfrog_integration) や [implicit euler](https://en.wikipedia.org/wiki/Backward_Euler_method) の利用が考えられます。
+$c$ 、 $dt$ 、 $dx$ の値によってはシミュレーションが発散します。今回のシミュレーションは explicit な形になっているので implicit な形にすることが考えられます。
 
 ## 参考サイト
 - [Numerical partial differential equations - Wikipedia](https://en.wikipedia.org/wiki/Numerical_partial_differential_equations)
