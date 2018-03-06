@@ -54,19 +54,6 @@ class Wave1D {
     //   this.wave[0][half] + wave.edge / 100, 0.5), -0.5)
   }
 
-  pulse(position, width, height) {
-    // Hanning Window without modulo.
-    var left = Math.floor(position - width * 0.5)
-    var start = index < 0 ? width + left + 1 : 0
-    for (var i = start; i < width; ++i) {
-      var index = left + i
-      if (index >= this.length)
-        break
-      this.wave[0][index] += height
-        * 0.5 * (1 - Math.cos(2 * Math.PI * i / (width - 1)))
-    }
-  }
-
   reset() {
     // u(x, t) -> this.wave[t][x]
     this.wave = []
