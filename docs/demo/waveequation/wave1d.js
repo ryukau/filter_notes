@@ -23,7 +23,7 @@ class Wave1D {
     this.wave.unshift(this.wave.pop())
 
     // 左端はユーザからの入力。
-    this.wave[0][0] = wave.edge
+    this.wave[0][0] = this.edge
 
     var last = this.wave[0].length - 1
 
