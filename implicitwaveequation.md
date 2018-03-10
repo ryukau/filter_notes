@@ -16,7 +16,7 @@ code {
 }
 </style>
 
-# Implicit FDM で1次元の波のシミュレーション
+# Implicit FDM を用いた1次元の波のシミュレーション
 <a href="waveequation.html">前回のシミュレーション</a> では [Explicit FDM](https://en.wikipedia.org/wiki/Finite_difference_method#Explicit_method) を用いていたので、パラメータの値によっては発散するという問題がありました。 [Implicit FDM](https://en.wikipedia.org/wiki/Finite_difference_method#Implicit_method) を使えば計算コストと引き換えに発散しなくなります。
 
 
