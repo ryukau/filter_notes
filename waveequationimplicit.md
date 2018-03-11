@@ -19,7 +19,6 @@ code {
 # Implicit FDM を用いた1次元の波のシミュレーション
 <a href="waveequation.html">前回のシミュレーション</a> では [Explicit FDM](https://en.wikipedia.org/wiki/Finite_difference_method#Explicit_method) を用いていたので、パラメータの値によっては発散するという問題がありました。 [Implicit FDM](https://en.wikipedia.org/wiki/Finite_difference_method#Implicit_method) を使えば計算コストと引き換えに発散しなくなります。
 
-
 ## Explicit FDM と ImplicitFDM
 Explicit な有限差分と Implicit な有限差分では空間方向の微分の形が変わります。
 
@@ -47,9 +46,9 @@ $$
 
 右辺の $u(\,\_\,,t)$ が $u(\,\_\,, t + dt)$ に変わっています。 $u(\,\_\,, t + dt)$ は今から計算する未来のステップの値です。
 
-Explicit な有限差分では $u(\,\_\,, t + dt)$ の形になる項は $u(x,t + dt)$ だけです。したがって出てきた有限差分の式を $u(x,t + dt)$ について解けば計算できる形になります。
+Explicit な有限差分では $u(\,\_\,, t + dt)$ の形になる項は $u(x,t + dt)$ だけです。したがって出てきた有限差分の式を $u(x,t + dt)$ について解けば計算できる形になります。。
 
-Implicit な有限差分では $u(\,\_\,, t + dt)$ の形になる項が空間方向の微分によって複数出てきます。1つの式を整理しても計算できる形にはなりませんが、すべての $x$ について式を立てれば連立方程式として解くことができます。
+Implicit な有限差分では空間方向の微分について $u(\,\_\,, t + dt)$ の形で展開します。その結果 $u(\,\_\,, t + dt)$ の形になる項が複数出てきます。1つの式を整理しても計算できる形にはなりませんが、すべての $x$ について式を立てれば連立方程式として解くことができます。
 
 ## 連立方程式を立てる
 1次元の波動方程式をImplicit FDMで解く連立方程式の形にします。
@@ -108,7 +107,7 @@ u{\left (x,t \right )}
 \end{gathered}
 $$
 
-連立方程式をたてます。
+連立方程式を立てます。
 
 $$
 \mathbf{A} \mathbf{u}^{t+1} = \mathbf{u}^t - 0.5 \mathbf{u}^{t-1}
