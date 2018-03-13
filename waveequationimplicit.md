@@ -286,4 +286,6 @@ Implicit FDMとExplicit FDMによる波のシミュレーションを比較し�
 <a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/waveequation_implicit">デモのコードを見る (github.com)</a>
 
 ## その他
-今回実装したシミュレーションでは減衰係数が1のときでも時間の経過とともに波がなまっていきます。
+今回実装した Implicit FDM のシミュレーションでは減衰係数が1のときでも時間の経過とともに波がなまっていきます。
+
+Explicit FDM と Implicit FDM では波の伝達速度が変わっています。
