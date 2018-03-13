@@ -59,7 +59,7 @@ $$
 \frac{\partial^2 u(x,\,t)}{\partial t^2} = c^2 \frac{\partial^2 u(x,\,t)}{\partial x^2}
 $$
 
-SymPyを使ってImplicitな有限差分に変形します。
+[SymPy](http://www.sympy.org/en/index.html)を使ってImplicitな有限差分に変形します。
 
 ```python
 from sympy import *
