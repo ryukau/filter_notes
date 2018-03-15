@@ -29,3 +29,4 @@ code {
 - <a href="ndboct.html">n dB/octのスロープを持つフィルタ</a>
 - <a href="waveequation.html">1次元の波のシミュレーション</a>
 - <a href="waveequationimplicit.html">Implicit FDM を用いた1次元の波のシミュレーション</a>
+- <a href="gibbs.html">ギブス現象を抑える</a>
