@@ -299,7 +299,7 @@ plotGottleibShuNoise(1024, analyticSignal, 16)
 <img src="img/gibbs/spectrum_comparison_additiveNoise.png" alt="Image comparison of additive noise spectrum." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 
-`additiveNoise` ではギブス現象の抑制に失敗しています。位相の情報が消し飛んだような形になっています。乱数で生成したノイズは不連続点を含むのでGegenbauer Polynomialを使う方法をそのまま使うことはできません。
+`additiveNoise` ではギブス現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むのでGegenbauer Polynomialを使う方法をそのまま使うことはできません。
 
 `analyticSignal` の結果です。 `analyticSignal` は解析的な要素のみで合成した信号です。
 
