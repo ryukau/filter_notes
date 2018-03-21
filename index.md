@@ -30,3 +30,4 @@ code {
 - <a href="waveequation.html">1次元の波のシミュレーション</a>
 - <a href="waveequationimplicit.html">Implicit FDM を用いた1次元の波のシミュレーション</a>
 - <a href="gibbs.html">ギブス現象を抑える</a>
+- <a href="grunwald_letnikov.html">分数階微積分の数値計算</a>
