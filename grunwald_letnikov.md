@@ -51,6 +51,64 @@ code {
 [Loverroの "Fractional Calculus: History, Definitions and Applications for the
 Engineer" ](https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf)に沿って、数値計算がしやすそうなGrünwald–Letnikovの[分数階微積分](https://en.wikipedia.org/wiki/Fractional_calculus)について見ていきます。
 
+## 分数階微積分とは
+ここではざっくりとした導入だけを行います。基本的な理論については次の資料が参考になります。
+
+- [Fractional Calculus: History, Definitions and Applications for the Engineer](https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf)
+- [Fractional Calculus - Xuru's Website](http://www.xuru.org/fc/TOC.asp)
+- [Fractional order derivative of a function & fractional numbers' factorial. - YouTube](https://www.youtube.com/watch?v=7PCQmxlX9mU)
+- [Fractional calculus - Wikipedia](https://en.wikipedia.org/wiki/Fractional_calculus)
+
+分数階微分について考えます。微分演算子 $D$ を導入します。
+
+$$
+D f(x) = \frac{d}{dx} f(x)
+$$
+
+例えば $1 / 2$ 階微分を $2$ 回繰り返すと1階微分になります。
+
+$$
+D^{\frac{1}{2}} \left( D^{\frac{1}{2}} f(x) \right)
+= D f(x)
+$$
+
+$1 / 3$ 階微分を $3$ 回繰り返すと1階微分になります。
+
+$$
+D^{\frac{1}{3}} \left(
+D^{\frac{1}{3}} \left(
+  D^{\frac{1}{3}} f(x) \right) \right)
+= \frac{d}{dx} f(x)
+$$
+
+つまり $1 / q$ 階微分を $q$ 回繰り返すと1階微分になります。
+
+$$
+\underbrace{
+  D^{\frac{1}{q}} \left( \ldots \left( D^{\frac{1}{q}} f(x) \right) \right)
+}_\text{1/q differentiation for q times}
+
+= \frac{d}{dx} f(x)
+$$
+
+分数階積分も同様に捉えることができます。積分演算子 $J$ を定義します。
+
+$$
+J f(x) = \int_{0}^{x} f(s) ds
+$$
+
+$1 / q$ 階積分を $q$ 回繰り返すと1階積分になります。
+
+$$
+\underbrace{
+  J^{\frac{1}{q}} \left( \ldots \left( J^{\frac{1}{q}} f(x) \right) \right)
+}_\text{1/q integration for q times}
+
+= \int_{0}^{x} f(s) ds
+$$
+
+分数階微積分が物理的にどういう意味を持つのかはよくわかりませんが、[波動方程式への応用](http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf)が提案されています。
+
 ## Grünwald–Letnikovの分数階微分
 [$n$ 階微分の差分形](https://en.wikipedia.org/wiki/Differential_of_a_function#Higher-order_differentials)です。
 
