@@ -64,7 +64,7 @@ $$
 \begin{aligned}
 C_1 u(x - dx, t) + C_2 u(x, t) + C_1 u(x + dx, t)
 =& \sum_{m=1}^{\infty} (-1)^{m} \binom{1 + \alpha}{m} u(x, t - m\,dt)\\
-C_1 = \frac{c^2 dt^{1 + \alpha}}{dx^2},\quad C_2 = -(1 + 2A)
+C_1 = \frac{c^2 dt^{1 + \alpha}}{dx^2},\quad C_2 = -(1 + 2C_1)
 \end{aligned}
 $$
 
