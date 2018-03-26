@@ -31,3 +31,4 @@ code {
 - <a href="waveequationimplicit.html">Implicit FDM を用いた1次元の波のシミュレーション</a>
 - <a href="gibbs.html">ギブス現象を抑える</a>
 - <a href="grunwald_letnikov.html">分数階微積分の数値計算</a>
+- <a href="het_wave_equation.html">分数階微分で1次元の熱伝導-波動方程式</a>
