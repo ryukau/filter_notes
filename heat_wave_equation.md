@@ -272,5 +272,59 @@ $\alpha$ の値を変えて熱伝導-波動をシミュレーションした動�
 
 <a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/heat_wave_equation">デモのコードを見る (github.com)</a>
 
+## 整数階と小数階で分けて変形
+熱伝導-波動方程式を再掲します。
+
+$$
+\frac{\partial^{1 + \alpha} u}{\partial t^{1 + \alpha}} = c^2 \frac{\partial^2 u}{\partial x^2}
+$$
+
+熱伝導-波動方程式の両辺の整数階微分を有限差分で変形します。
+
+$$
+\begin{aligned}
+D^{\alpha} \left( \frac{u(x, t) - u(x, t - dt)}{dt} \right)
+=&
+c^2 \left( \frac{u(x - dx, t) -2u(x, t) + u(x + dx, t)}{dx^2}  \right)\\
+\end{aligned}
+$$
+
+左辺の小数階の微分を変形します。
+
+$$
+\begin{aligned}
+u(x, t) +& \sum_{m=1}^{\infty} (-1)^{m} \binom{\alpha}{m} u(x, t - m\,dt)
+- \sum_{m=0}^{\infty} (-1)^{m} \binom{\alpha}{m} u(x, t - (m + 1)\,dt)\\
+=&
+\frac{c^2 dt^{1 + \alpha}}{dx^2} \left( u(x - dx, t) -2u(x, t) + u(x + dx, t) \right)\\
+\end{aligned}
+$$
+
+Implicit FDMの形に整理します。
+
+$$
+\begin{aligned}
+& C_1 u(x - dx, t) + C_2 u(x, t) + C_1 u(x + dx, t)\\
+&= \sum_{m=1}^{\infty} (-1)^{m}
+\left( \binom{\alpha}{m} + \binom{\alpha}{m - 1} \right) u(x, t - m\,dt)\\
+& C_1 = \frac{c^2 dt^{1 + \alpha}}{dx^2},\quad C_2 = -(1 + 2A)
+\end{aligned}
+$$
+
+ここで二項係数の加算についての性質 ([Pascal's rule](https://en.wikipedia.org/wiki/Pascal%27s_rule)) を使って二項係数を一つにまとめます。
+
+$$
+\binom{\alpha}{m} + \binom{\alpha}{m - 1} = \binom{\alpha + 1}{m}
+$$
+
+「連立方程式を立てる」で変形した式と同じ式が出てきます。
+
+$$
+\begin{aligned}
+C_1 u(x - dx, t) + C_2 u(x, t) + C_1 u(x + dx, t)
+=& \sum_{m=1}^{\infty} (-1)^{m} \binom{1 + \alpha}{m} u(x, t - m\,dt)
+\end{aligned}
+$$
+
 ## 問題点
 自由端にすると発散します。固定端でも $0 < \alpha < 1$ かつ $C1$ が小さいときに発散することがあります。この発散がExplicit FDMの発散と関係がないことを確認するためにImplicit FDMで実装しました。
