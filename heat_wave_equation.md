@@ -40,11 +40,11 @@ $$
 ## 連立方程式を立てる
 Implcit FDM (Finite Difference Method) とGrünwald–Letnikovの分数階微分を組み合わせてシミュレーションします。
 
-Grünwald–Letnikovの分数階微分を再掲します。 $m$ の初期値を明示するために微分演算子 $D$ の表記を少し変えています。
+Grünwald–Letnikovの分数階微分を再掲します。
 
 $$
-D^{\alpha, k} f(x)
-= \lim_{h \to 0} \frac{1}{h^{\alpha}} \sum_{m=k}^{\infty} (-1)^{m}
+d^{\alpha} f(x)
+= \lim_{h \to 0} \frac{1}{h^{\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
 \frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)} f(x - mh)
 $$
 
@@ -68,10 +68,16 @@ C_1 = \frac{c^2 dt^{1 + \alpha}}{dx^2},\quad C_2 = -(1 + 2A)
 \end{aligned}
 $$
 
+分数階微分の演算をまとめるために関数 $\hat{d}(\alpha, k, \mathbf{u}^{t})$ を定義します。
+
+$$
+\hat{d}(\alpha, k, \mathbf{u}^{t}) = \sum_{m=k}^{\infty} (-1)^{m} \binom{\alpha}{m} \mathbf{u}^{t - m\,dt}
+$$
+
 連立方程式を立てます。
 
 $$
-\mathbf{A} \mathbf{u}^{t} = D^{(1 + \alpha), 1} \mathbf{u}^{t}
+\mathbf{A} \mathbf{u}^{t} = \hat{d} (1 + \alpha, 1, \mathbf{u}^{t})
 $$
 
 $\mathbf{A}$ と $\mathbf{u}^t$ です。
