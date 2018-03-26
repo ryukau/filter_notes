@@ -7,10 +7,10 @@
 python3 draw.py
 ```
 
-`pngwave.py` で画像を書き出します。
+`heat_wave1d.py.py` で画像を書き出します。
 
 ```bash
-python3 pngwave.py
+python3 heat_wave1d.py.py
 ```
 
 `./render.sh` で連番のpng画像と mp4/h264 の動画をimgディレクトリに書き出します。動画の書き出しには `ffmpeg` が必要です。
