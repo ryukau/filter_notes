@@ -1,5 +1,5 @@
-# Fractional Zener Wave Equation
-このディレクトリには fractional Zener wave equation のシミュレーションを行う3つのデモがあります。
+# Fractional Zener Model Wave Equation
+このディレクトリには [fractional Zener model wave equation](http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf) のシミュレーションを行う3つのデモがあります。
 
 `draw.py` でGUI版のシミュレーションを実行できます。かなり重たいです。
 
