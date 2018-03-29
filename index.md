@@ -32,3 +32,4 @@ code {
 - <a href="gibbs.html">ギブス現象を抑える</a>
 - <a href="grunwald_letnikov.html">分数階微積分の数値計算</a>
 - <a href="heat_wave_equation.html">分数階微分で1次元の熱伝導-波動方程式</a>
+- <a href="waveequation_fractional_zener.html">1次元の分数階Zener波動方程式</a>
