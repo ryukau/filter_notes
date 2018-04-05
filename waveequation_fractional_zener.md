@@ -56,7 +56,7 @@ $$
 \end{aligned}
 $$
 
-代入します。
+分数階Zener波動方程式に代入します。
 
 $$
 \begin{aligned}
@@ -113,7 +113,7 @@ $$
 \end{aligned}
 $$
 
-整理します。
+計算しやすい形に整理します。
 
 $$
 \begin{aligned}
