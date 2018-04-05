@@ -30,6 +30,12 @@ $$
 $$
 
 ## 連立方程式を立てる
+式の簡略化のために演算子 $\hat{D}$ を定義します。
+
+$$
+\hat{D}^{\alpha, k} f(x) = \sum_{m=k}^{\infty} (-1)^{m} \binom{\alpha}{m} f(x - mh)
+$$
+
 自然数階微分を有限差分に変形します。
 
 $$
@@ -76,12 +82,6 @@ $$
     u(x, t)
 \right)\\
 \end{aligned}
-$$
-
-式の簡略化のために演算子 $\hat{D}$ を定義しています。
-
-$$
-\hat{D}^{\alpha, k} f(x) = \sum_{m=k}^{\infty} (-1)^{m} \binom{\alpha}{m} f(x - mh)
 $$
 
 移項します。
