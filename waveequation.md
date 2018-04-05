@@ -191,7 +191,7 @@ function step() {
 }
 ```
 
-自由端のときは、橋の値に、端の一つ内側の値を使います。
+自由端のときは、端の値に、端の一つ内側の値を使います。
 
 ```javascript
 function step() {
@@ -251,7 +251,23 @@ function step() {
 
 ## 問題
 ### 波が減衰しない
-時間が経っても波が減衰しません。最初に出てきた波動方程式にはエネルギーの減衰についての項が無いためです。 [A causal and fractional all-frequency wave equation for lossy media](http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf) の式(10)でエネルギーの減衰について考慮された波動方程式が紹介されています。
+時間が経っても波が減衰しません。最初に出てきた波動方程式にはエネルギーの減衰についての項が無いためです。
+
+波動方程式にばねとダンパの項を加えた式が使えます。
+
+$$
+\frac{\partial^2 u}{\partial t^2} + a \frac{\partial u}{\partial t} + ku = c^2 \nabla^2 u
+$$
+
+ [A causal and fractional all-frequency wave equation for lossy media](http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf) の式(10)でエネルギーの減衰について考慮された波動方程式が紹介されています。
+
+$$
+\nabla^2 u
+- \frac{1}{c_0^2} \frac{\partial^2 u}{\partial t^2}
++ \tau_{\sigma}^{\alpha} \frac{\partial^{\alpha}}{\partial t^{\alpha}} \nabla^2 u
+- \frac{\tau_{\varepsilon}^{\beta}}{c_0^2} \frac{\partial^{\beta + 2} u}{\partial t^{\beta + 2}}
+= 0
+$$
 
 厳密なシミュレーションでなければ、各ステップで適当な減衰係数をかけることで雰囲気は出ます。
 
