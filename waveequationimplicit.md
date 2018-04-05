@@ -17,18 +17,18 @@ code {
 </style>
 
 # Implicit FDM を用いた1次元の波のシミュレーション
-<a href="waveequation.html">前回のシミュレーション</a> では [Explicit FDM](https://en.wikipedia.org/wiki/Finite_difference_method#Explicit_method) を用いていたので、パラメータの値によっては発散するという問題がありました。 [Implicit FDM](https://en.wikipedia.org/wiki/Finite_difference_method#Implicit_method) を使えば計算コストと引き換えに発散しなくなります。
+<a href="waveequation.html">前回のシミュレーション</a> では変形した式が [Explicit FDM](https://en.wikipedia.org/wiki/Finite_difference_method#Explicit_method) (Explicit Finite Difference Method) の形だったので、パラメータの値によっては発散するという問題がありました。 [Implicit FDM](https://en.wikipedia.org/wiki/Finite_difference_method#Implicit_method) を使えば計算コストと引き換えに発散しなくなります。
 
 ## Explicit FDM と ImplicitFDM
-Explicit な有限差分と Implicit な有限差分では空間方向の微分の形が変わります。
+Explicit FDM と Implicit FDM では空間方向の有限差分の時間ステップが変わります。
 
-例として、1次元の波動方程式を有限差分の形にします。
+例として1次元の波動方程式を変形します。ここでは時間 $t$ までの値は得られているものとします。今から計算するのは $u(\,\_\,, t + dt)$ の値です。
 
 $$
 \frac{\partial^2 u(x,\,t)}{\partial t^2} = c^2 \frac{\partial^2 u(x,\,t)}{\partial x^2}
 $$
 
-Explicit な有限差分です。
+Explicit FDM の形です。
 
 $$
 \frac{u{\left (x,t + dt \right )} - 2\,u{\left (x,t \right )} + u{\left (x,t - dt \right )}}{dt^{2}}
@@ -36,7 +36,9 @@ $$
 c^2\,\frac{u{\left (- dx + x,t \right )} - 2\,u{\left (x,t \right )} + u{\left (dx + x,t \right )}}{dx^{2}}
 $$
 
-Implicit な有限差分です。
+Explicit FDM の形では空間方向の微分について $u(\,\_\,, t)$ の形で展開します。 $u(\,\_\,, t + dt)$ の形になる項は時間方向の微分から出てくる $u(x,t + dt)$ だけです。従って得られた有限差分の式を $u(x,t + dt)$ について解けば、そのまま計算できる形になります。
+
+Implicit FDM の形です。
 
 $$
 \frac{u{\left (x,t + dt \right )} - 2\,u{\left (x,t \right )} + u{\left (x,t - dt \right )}}{dt^{2}}
@@ -44,16 +46,10 @@ $$
 c^2\,\frac{u{\left (- dx + x,t + dt \right )} - 2\,u{\left (x,t + dt \right )} + u{\left (dx + x,t + dt \right )}}{dx^{2}}
 $$
 
-ここでは時間 $t$ までの値は得られているものとします。今から計算するのは $u(\,\_\,, t + dt)$ の値です。
-
-Explicit な有限差分では空間方向の微分について $u(\,\_\,, t)$ の形で展開します。 $u(\,\_\,, t + dt)$ の形になる項は時間方向の微分から出てくる $u(x,t + dt)$ だけです。従って得られた有限差分の式を $u(x,t + dt)$ について解けば、そのまま計算できる形になります。
-
-Implicit な有限差分では空間方向の微分について $u(\,\_\,, t + dt)$ の形で展開します。その結果 $u(\,\_\,, t + dt)$ の形になる項が複数出てきます。1つの式を整理しても計算できる形にはなりませんが、すべての $x$ について式を立てれば連立方程式として解くことができます。
+Implicit FDM の形では空間方向の微分について $u(\,\_\,, t + dt)$ の形で展開します。その結果 $u(\,\_\,, t + dt)$ の形になる項が複数出てきます。1つの式を整理しても計算できる形にはなりませんが、すべての $x$ について式を立てれば連立方程式として解くことができます。
 
 ## 連立方程式を立てる
-1次元の波動方程式をImplicit FDMで解く連立方程式の形にします。
-
-1次元の波動方程式を再掲します。
+1次元の波動方程式を Implicit FDM の形に変形して連立方程式を立てます。1次元の波動方程式を再掲します。
 
 $$
 \frac{\partial^2 u(x,\,t)}{\partial t^2} = c^2 \frac{\partial^2 u(x,\,t)}{\partial x^2}
@@ -286,6 +282,6 @@ Implicit FDMとExplicit FDMによる波のシミュレーションを比較し�
 <a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/waveequation_implicit">デモのコードを見る (github.com)</a>
 
 ## その他
-今回実装した Implicit FDM のシミュレーションでは減衰係数が1のときでも時間の経過とともに波がなまっていきます。
+Implicit FDM のシミュレーションでは減衰係数が1のときでも時間の経過とともに波がなまっていきます。
 
-Explicit FDM と Implicit FDM では波の伝達速度が変わっています。
+Explicit FDM と Implicit FDM では波の伝達速度も変わっています。
