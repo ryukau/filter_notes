@@ -192,7 +192,7 @@ def daubechies(eta):
 </figure>
 
 ## Gegenbauer Polynomialを使う方法
-GottleibとShuの論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。
+GottleibとShuの論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。解析的な形とは $f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 + \dots$ というような形のことです。
 
 まずGegenbauer係数 $\hat{g}_k^{\lambda}$ を求めます。
 
