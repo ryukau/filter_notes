@@ -245,9 +245,9 @@ function step() {
 
 1フレーム毎にシミュレーションを4ステップ進めています。
 
-<script src="docs/demo/waveequation/vec2.js"></script>
-<script src="docs/demo/waveequation/canvas.js"></script>
-<script src="docs/demo/waveequation/wave1d.js"></script>
+<script src="demo/waveequation/vec2.js"></script>
+<script src="demo/waveequation/canvas.js"></script>
+<script src="demo/waveequation/wave1d.js"></script>
 
 ## 問題
 ### 波が減衰しない
