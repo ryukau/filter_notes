@@ -372,6 +372,8 @@ $$
 [実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/b7eb2f3c2258cd587bc24f7984b6b8761e3e414f/docs/demo/waveequation_newmark_beta/wave1d.js#L207)
 
 ## デモ
+キャンバスをクリックすると波が起きます。
+
 $\Delta_t = 1/60$ で固定しています。
 
 ソルバに[ガウス-ザイデル法](https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method)を使っています。 $c \Delta_t / \Delta_x$ が大きいとソルバの収束が遅くなって発散します。ガウス-ザイデル法の反復を増やすことで発散を抑えています。
