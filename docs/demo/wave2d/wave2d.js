@@ -202,7 +202,6 @@ class DampedWave2DNewmarkBeta {
       aReduced[i] = []
     }
 
-    // 固定端。
     for (var x = 0; x < this.width; ++x) {
       for (var y = 0; y < this.height; ++y) {
         var index = x + y * this.width
