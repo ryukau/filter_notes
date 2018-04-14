@@ -44,6 +44,10 @@ input[type="button"] {
   margin: 0;
 }
 
+div[id=divWave] {
+  margin-bottom: 32px;
+}
+
 code {
   overflow-x: scroll;
   overflow-y: hidden;
@@ -345,6 +349,10 @@ $$
 <script src="demo/wave2d/vec2.js"></script>
 <script src="demo/wave2d/canvas.js"></script>
 <script src="demo/wave2d/wave2d.js"></script>
+
+実装はややこしくなっています。JavaScriptでは参照が直接書けないので `array = [{value: value}, ...]` というように `Object` に値を格納することで配列の操作を楽にしています。
+
+[実装を読む (github.io)](https://github.com/ryukau/filter_notes/blob/master/docs/demo/wave2d/wave2d.js)
 
 ## その他
 ### ガウス-ザイデル法による歪みとインデックスの振り方
