@@ -55,7 +55,7 @@ code {
 }
 </style>
 
-# Newmark-β法による2次元のばね-ダンパ波動方程式
+# 2次元のばね-ダンパ波動方程式
 2次元のばね-ダンパ[波動方程式](https://en.wikipedia.org/wiki/Wave_equation)を実装します。
 
 ## 表記について
