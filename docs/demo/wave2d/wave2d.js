@@ -182,7 +182,7 @@ class DampedWave2DNewmarkBeta {
   refreshConstants() {
     var dt2 = this.dt * this.dt
 
-    this.C2 = this.c * this.c / dt2
+    this.C2 = this.c * this.c / this.dx / this.dx
     this.C3 = dt2 * (0.5 - this.beta)
     this.C7 = this.dt / 2
     this.C8 = dt2 * this.beta
