@@ -139,4 +139,4 @@ $$
 ## ソースコード
 動画を書き出したソースコードへのリンクです。
 
-- <a href="demo/burgers_exact">ソースコード</a>
+- <a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/burgers_exact">ソースコード</a>
