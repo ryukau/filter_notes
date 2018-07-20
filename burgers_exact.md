@@ -139,4 +139,4 @@ $$
 ## ソースコード
 動画を書き出したソースコードへのリンクです。
 
-- [ソースコード](demo/burgers_exact)
+- <a href="demo/burgers_exact">ソースコード</a>
