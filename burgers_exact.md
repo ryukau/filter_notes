@@ -44,6 +44,9 @@ p_a(\xi, \theta)
 }
 $$
 
+- $\Gamma$ : 適当な定数
+- $I_n$ : [Modified Bessel function of the first kind](https://en.wikipedia.org/wiki/Bessel_function#Modified_Bessel_functions)
+
 実装します。
 
 ```python
