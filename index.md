@@ -29,6 +29,7 @@ code {
 - <a href="basics.html">お手軽なFIRフィルタのレシピ</a>
 - <a href="ndboct.html">n dB/octのスロープを持つフィルタ</a>
 - <a href="gibbs.html">ギブス現象を抑える</a>
+- <a href="dr110_cymbal.html">DR-110風のシンバル</a>
 
 ## 波のシミュレーション
 - <a href="waveequation.html">1次元の波のシミュレーション</a>
