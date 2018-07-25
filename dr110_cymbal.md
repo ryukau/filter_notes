@@ -341,7 +341,7 @@ DR-110ではクローズドハイハット (CH) 、オープンハイハット (
 
 <label>Oscillator output</label>
 <audio controls>
-    <source src="snd/dr110_osc.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_osc.wav" type="audio/wav">
     Audio of simulated DR-110 cymbal oscillator.
 </audio>
 
@@ -349,13 +349,13 @@ DR-110ではクローズドハイハット (CH) 、オープンハイハット (
 
 <label>High Metal</label>
 <audio controls>
-    <source src="snd/dr110_high_metal.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_high_metal.wav" type="audio/wav">
     Audio of simulated DR-110 high metal.
 </audio>
 
 <label>Low Metal</label>
 <audio controls>
-    <source src="snd/dr110_low_metal.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_low_metal.wav" type="audio/wav">
     Audio of simulated DR-110 low metal.
 </audio>
 
@@ -363,19 +363,19 @@ DR-110ではクローズドハイハット (CH) 、オープンハイハット (
 
 <label>CY</label>
 <audio controls>
-    <source src="snd/dr110_cy_mixed.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_cy_mixed.wav" type="audio/wav">
     Audio of simulated DR-110 cymbal sound.
 </audio>
 
 <label>CH</label>
 <audio controls>
-    <source src="snd/dr110_ch_mixed.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_ch_mixed.wav" type="audio/wav">
     Audio of simulated DR-110 closed hihat sound.
 </audio>
 
 <label>OH</label>
 <audio controls>
-    <source src="snd/dr110_oh_mixed.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_oh_mixed.wav" type="audio/wav">
     Audio of simulated DR-110 open hihat sound.
 </audio>
 
@@ -383,19 +383,19 @@ DR-110ではクローズドハイハット (CH) 、オープンハイハット (
 
 <label>CY</label>
 <audio controls>
-    <source src="snd/dr110_cy_original.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_cy_original.wav" type="audio/wav">
     Audio of DR-110 cymbal sound.
 </audio>
 
 <label>CH</label>
 <audio controls>
-    <source src="snd/dr110_ch_original.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_ch_original.wav" type="audio/wav">
     Audio of DR-110 closed hihat sound.
 </audio>
 
 <label>OH</label>
 <audio controls>
-    <source src="snd/dr110_oh_original.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_oh_original.wav" type="audio/wav">
     Audio of DR-110 open hihat sound.
 </audio>
 
@@ -403,19 +403,19 @@ DR-110ではクローズドハイハット (CH) 、オープンハイハット (
 
 <label>CY</label>
 <audio controls>
-    <source src="snd/dr110_cy_noisy.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_cy_noisy.wav" type="audio/wav">
     Audio of simulated DR-110 cymbal sound.
 </audio>
 
 <label>CH</label>
 <audio controls>
-    <source src="snd/dr110_ch_noisy.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_ch_noisy.wav" type="audio/wav">
     Audio of simulated DR-110 closed hihat sound.
 </audio>
 
 <label>OH</label>
 <audio controls>
-    <source src="snd/dr110_oh_noisy.wav" type="audio/wav">
+    <source src="snd/dr110_cymbal/dr110_oh_noisy.wav" type="audio/wav">
     Audio of simulated DR-110 open hihat sound.
 </audio>
 
