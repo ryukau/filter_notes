@@ -119,10 +119,10 @@ soundfile.write("cymbal_source.wav", sig, samplerate)
 
 $$
 \begin{aligned}
-H &= -\frac{y_a}{y_b}\\
+H(s) &= -\frac{y_a(s)}{y_b(s)}\\
 
-y_a &= - \frac{Gs}{s + G / C}\\
-y_b &= - k \frac{s^2 + b_0 s + c_0}{s + a_0}\\
+y_a(s) &= - \frac{Gs}{s + G / C}\\
+y_b(s) &= - k \frac{s^2 + b_0 s + c_0}{s + a_0}\\
 
 a_0 &= \frac{G_2}{C_1 + C_2},\quad
 b_0 = \frac{G_1 (C_1 + C_2)}{C_1 C_2},\quad
@@ -231,7 +231,7 @@ BP0とBP1のボード線図です。
 伝達関数 $H$ です。 $R$ は抵抗の値で単位は[Ω]、$C$はキャパシタの値で単位は[F]です。
 
 $$
-H = \frac{RC}{RCs + 1}
+H(s) = \frac{RC}{RCs + 1}
 $$
 
 `scipy.signal` を使った実装の例です。
