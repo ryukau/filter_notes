@@ -264,7 +264,7 @@ High Metalはハイハットで使われるフィルタネットワークです�
 <img src="img/dr110_cymbal/DR-110_high_metal.svg" alt="Image of signal flow of DR-110 high metal section." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 
-Low Metalシンバルの音の低い部分の表現に使われるフィルタネットワークです。
+Low Metalはシンバルの音の低い部分の表現に使われるフィルタネットワークです。
 
 <figure>
 <img src="img/dr110_cymbal/DR-110_low_metal.svg" alt="Image of signal flow of DR-110 low metal section." style="width: 520px; padding-bottom: 12px;"/>
