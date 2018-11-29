@@ -2,7 +2,6 @@
 TODO:
 - タイトルの書き換え
 - インデックスの生成
-- github へのリンクの修正
 """
 
 import argparse
