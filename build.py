@@ -10,6 +10,7 @@ import json
 import os
 import re
 import subprocess
+import yaml
 
 from bs4 import BeautifulSoup
 from pathlib import Path
@@ -63,19 +64,24 @@ def pandoc_md_to_html5(md, md_info):
     with open(md.with_suffix(".html"), "w") as html_file:
         print(html, file=html_file)
 
+def dump_config_yml():
+    md_list = sorted([str(md) for md in Path(".").glob("**/*.md")])
+    print()
+    with open("_config.yml", "w") as outfile:
+        yaml.dump({"exclude": md_list}, outfile, default_flow_style=False)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-r", "--rebuild", action='store_true', help="rebuild add file")
     args = parser.parse_args()
 
+    dump_config_yml()
+
     with open("template.html", "r") as temp:
         template_html = temp.read()
-
     md_info = read_build_info(args.rebuild)
-
     mds = gather_markdown()
-
     for md in mds:
         pandoc_md_to_html5(md, md_info)
 
