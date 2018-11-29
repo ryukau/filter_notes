@@ -16,5 +16,5 @@
 - <a href="heat_wave_equation/heat_wave_equation.html">分数階微分で1次元の熱伝導-波動方程式</a>
 - <a href="waveequation_fractional_zener/waveequation_fractional_zener.html">1次元の分数階Zener波動方程式</a>
 - <a href="waveequation_newmark_beta/waveequation_newmark_beta.html">Newmark-β法で1次元の波動方程式</a>
-- <a href="wave2d/wave2d.html">2次元のばね-ダンパ波動方程式</a>
+- <a href="waveequation2d/waveequation2d.html">2次元のばね-ダンパ波動方程式</a>
 - <a href="burgers_exact/burgers_exact.html">Burgers方程式でN波</a>
