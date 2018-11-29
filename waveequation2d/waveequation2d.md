@@ -121,7 +121,7 @@ $$
 \end{aligned}
 $$
 
-連立方程式を立てます。[1次元のとき](https://ryukau.github.io/filter_notes/waveequation_newmark_beta.html)と比べると、定数については $C_6$ だけが変わっています。
+連立方程式を立てます。[1次元のとき](../waveequation_newmark_beta/waveequation_newmark_beta.html)と比べると、定数については $C_6$ だけが変わっています。
 
 $$
 \begin{aligned}
@@ -291,7 +291,7 @@ $$
 
 実装はややこしくなっています。JavaScriptでは参照が直接書けないので `array = [{value: value}, ...]` というように `Object` に値を格納することで配列の操作を楽にしています。
 
-[実装を読む (github.io)](https://github.com/ryukau/filter_notes/blob/master/docs/demo/wave2d/wave2d.js)
+[実装を読む (github.io)](https://github.com/ryukau/filter_notes/blob/master/waveequation2d/demo/wave2d.js)
 
 ## その他
 ### ガウス-ザイデル法による歪みとインデックスの振り方

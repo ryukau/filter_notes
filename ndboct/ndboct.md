@@ -24,7 +24,7 @@ $$
 
 コードを順番にPython3のインタープリタにコピペしていけば動作します。別ページでまとめて見ることもできます。
 
-- [n dB/octのフィルタを作るコード (github.com)](https://github.com/ryukau/filter_notes/blob/master/ndboct.py)
+- [n dB/octのフィルタを作るコード (github.com)](https://github.com/ryukau/filter_notes/blob/master/ndboct/ndboct.py)
 
 [SciPy](https://www.scipy.org/)、[NumPy](http://www.numpy.org/)、[Matplotlib](https://matplotlib.org/tutorials/introductory/pyplot.html)を import します。
 

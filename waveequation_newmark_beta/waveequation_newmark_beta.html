@@ -157,7 +157,7 @@ C_0 \ddot{u}_{n+1} + b\, C_1 \ddot{u}_{n+1, x+1}
 <p>$$ \begin{aligned} \begin{cases}  <em>{n+1} = ’’<em>n + <em>t ’’</em>{n} + C_2 ’’</em>{n}\ u</em>{n+1} = u_{n} + <em>t </em>{n} + C_2 <em>{n} - C_1 </em>{n+1}\ <em>{n+1} = </em>{n} + C_3 ( <em>{n} + </em>{n+1} )\ \end{cases} ;,&amp;  = \begin{bmatrix} C_0 &amp; b_L C_1 &amp; 0 &amp; 0 &amp; &amp; 0 &amp; 0\ C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; &amp; 0 &amp; 0\ 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; &amp; 0 &amp; 0\ &amp; &amp; &amp; &amp; &amp; &amp;\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; &amp; b_R C_1 &amp; C_0 \end{bmatrix}\</p>
 <p>C_0 =  + 2 _t^2  , C_1 = - _t^2  ,&amp; C_2 =  + C_1 , C_3 =  \end{aligned} $$</p>
 <p>実装はGitHubの別ページに分けました。リンク先の <code>Wave1DNewmarkBeta</code> クラスになります。</p>
-<p><a href="https://github.com/ryukau/filter_notes/blob/b7eb2f3c2258cd587bc24f7984b6b8761e3e414f/docs/demo/waveequation_newmark_beta/wave1d.js#L81">実装を読む (github.com)</a></p>
+<p><a href="https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/waveequation_newmark_beta/demo/wave1d.js#L81">実装を読む (github.com)</a></p>
 <h2 id="newmark-β-法によるばね-ダンパ波動方程式の離散化">Newmark-β 法によるばね-ダンパ波動方程式の離散化</h2>
 <p>波動方程式にばねの項 <span class="math inline">\(k u\)</span> とダンパの項 <span class="math inline">\(a \dot{u}\)</span> を加えることで波の減衰を調整できるようにします。この文章では次の式をばね-ダンパ波動方程式と呼ぶことにします。</p>
 <p><span class="math display">\[
@@ -287,7 +287,7 @@ u_{n+1} = u_{n} + \Delta_t \dot{u}_{n} + C_3 \ddot{u}_{n} + C_8 \ddot{u}_{n+1}\\
 \end{aligned}
 \]</span></p>
 <p>実装はGitHubの別ページに分けました。リンク先の <code>DampedWave1DNewmarkBeta</code> クラスになります。</p>
-<p><a href="https://github.com/ryukau/filter_notes/blob/b7eb2f3c2258cd587bc24f7984b6b8761e3e414f/docs/demo/waveequation_newmark_beta/wave1d.js#L207">実装を読む (github.com)</a></p>
+<p><a href="https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/waveequation_newmark_beta/demo/wave1d.js#L207">実装を読む (github.com)</a></p>
 <h2 id="デモ">デモ</h2>
 <p>キャンバスをクリックすると波が起きます。</p>
 <p><span class="math inline">\(\Delta_t = 1/60\)</span> で固定しています。</p>

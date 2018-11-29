@@ -253,12 +253,12 @@ $\alpha$ の値を変えて熱伝導-波動をシミュレーションした動�
 
 <video width="640px" controls>
   <source src="img/heat_wave1d.mp4" type="video/mp4">
-  Video of 1 dimensional heat-wave simulation with variety of alpha.
+  <p>Video of 1 dimensional heat-wave simulation with variety of alpha.</p>
 </video>
 
 デモのコードは次のリンクから読むこともできます。
 
-<a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/heat_wave_equation">デモのコードを見る (github.com)</a>
+<a href="https://github.com/ryukau/filter_notes/tree/master/heat_wave_equation/demo">デモのコードを見る (github.com)</a>
 
 ## 整数階と小数階で分けて変形
 熱伝導-波動方程式を再掲します。

@@ -314,12 +314,12 @@ $\alpha, \beta, \tau_\varepsilon$ の値を変えて分数階Zener波動方程�
 
 <video width="640px" controls>
   <source src="img/fractional_zener_wave1d.mp4" type="video/mp4">
-  Video of simulation of 1 dimensional fractional zener wave equation.
+  <p>Video of simulation of 1 dimensional fractional zener wave equation.</p>
 </video>
 
 デモのコードは次のリンクから読むこともできます。
 
-<a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/waveequation_fractional_zener">デモのコードを見る (github.com)</a>
+<a href="https://github.com/ryukau/filter_notes/tree/master/waveequation_fractional_zener/demo">デモのコードを見る (github.com)</a>
 
 ## その他
 パラメータの組み合わせによっては発散します。参考にした論文では $\alpha = \beta$ かつ $\tau_\varepsilon < \tau_\sigma$ の場合のみを扱っています。

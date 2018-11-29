@@ -256,12 +256,12 @@ Implicit FDMとExplicit FDMによる波のシミュレーションを比較し�
 
 <video controls>
   <source src="img/wave1d_implicit_vs_explicit.mp4" type="video/mp4">
-  Video of 1 dimensional wave simulation that comparing implicit method to explicit method.
+  <p>Video of 1 dimensional wave simulation that comparing implicit method to explicit method.</p>
 </video>
 
 デモのコードは次のリンクの `draw.py` と `wave.py` になります。
 
-<a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/waveequation_implicit">デモのコードを見る (github.com)</a>
+<a href="https://github.com/ryukau/filter_notes/tree/master/waveequationimplicit/demo">デモのコードを見る (github.com)</a>
 
 ## その他
 Implicit FDM のシミュレーションでは減衰係数が1のときでも時間の経過とともに波がなまっていきます。

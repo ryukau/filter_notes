@@ -165,7 +165,7 @@ $$
 
 実装はGitHubの別ページに分けました。リンク先の `Wave1DNewmarkBeta` クラスになります。
 
-[実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/b7eb2f3c2258cd587bc24f7984b6b8761e3e414f/docs/demo/waveequation_newmark_beta/wave1d.js#L81)
+[実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/waveequation_newmark_beta/demo/wave1d.js#L81)
 
 ## Newmark-β 法によるばね-ダンパ波動方程式の離散化
 波動方程式にばねの項 $k u$ とダンパの項 $a \dot{u}$ を加えることで波の減衰を調整できるようにします。この文章では次の式をばね-ダンパ波動方程式と呼ぶことにします。
@@ -320,7 +320,7 @@ $$
 
 実装はGitHubの別ページに分けました。リンク先の `DampedWave1DNewmarkBeta` クラスになります。
 
-[実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/b7eb2f3c2258cd587bc24f7984b6b8761e3e414f/docs/demo/waveequation_newmark_beta/wave1d.js#L207)
+[実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/waveequation_newmark_beta/demo/wave1d.js#L207)
 
 ## デモ
 キャンバスをクリックすると波が起きます。

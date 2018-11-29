@@ -316,7 +316,7 @@ DR-110ではクローズドハイハット (CH) 、オープンハイハット (
 
 以下は完成したコードのミックスの部分へのリンクです。
 
-- [ミックスを行う関数 metalMix (github.com)](https://github.com/ryukau/filter_notes/blob/de23e42693f5c95e0c2bb32a0796e3a270ef3ec4/docs/demo/dr110_cymbal/dr110_cymbal.py#L86)
+- [ミックスを行う関数 metalMix (github.com)](https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/dr110_cymbal/demo/dr110_cymbal.py#L86)
 
 ## 結果
 オシレータの音です。

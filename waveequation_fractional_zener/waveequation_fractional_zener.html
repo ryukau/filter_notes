@@ -289,9 +289,12 @@ u(x_{n + i -1}, t)
 <p><span class="math inline">\(\alpha, \beta, \tau_\varepsilon\)</span> の値を変えて分数階Zener波動方程式をシミュレーションした動画です。その他のパラメータは <span class="math inline">\(c_0 = 16,\: dt = 1 / 60,\: dx = 0.0625,\: \tau_\sigma = 1\)</span> で固定しています。</p>
 <video width="640px" controls>
 <source src="img/fractional_zener_wave1d.mp4" type="video/mp4">
-<p>Video of simulation of 1 dimensional fractional zener wave equation. </video></p>
+<p>
+Video of simulation of 1 dimensional fractional zener wave equation.
+</p>
+</video>
 <p>デモのコードは次のリンクから読むこともできます。</p>
-<p><a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/waveequation_fractional_zener">デモのコードを見る (github.com)</a></p>
+<p><a href="https://github.com/ryukau/filter_notes/tree/master/waveequation_fractional_zener/demo">デモのコードを見る (github.com)</a></p>
 <h2 id="その他">その他</h2>
 <p>パラメータの組み合わせによっては発散します。参考にした論文では <span class="math inline">\(\alpha = \beta\)</span> かつ <span class="math inline">\(\tau_\varepsilon &lt; \tau_\sigma\)</span> の場合のみを扱っています。</p>
 <p>分数階微分の計算が重いです。分数階微分の計算はFIRフィルタの畳み込みと同じ形になっているので、フィルタ設計の技術を使って計算コストを下げることができるかもしれません。</p>

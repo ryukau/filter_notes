@@ -131,7 +131,7 @@
 &amp;\quad- C_4 \ddot{u}_{t} - C_5 \dot{u}_{t} - C_6 u_{t}\\
 \end{aligned}
 \]</span></p>
-<p>連立方程式を立てます。<a href="https://ryukau.github.io/filter_notes/waveequation_newmark_beta.html">1次元のとき</a>と比べると、定数については <span class="math inline">\(C_6\)</span> だけが変わっています。</p>
+<p>連立方程式を立てます。<a href="../waveequation_newmark_beta/waveequation_newmark_beta.html">1次元のとき</a>と比べると、定数については <span class="math inline">\(C_6\)</span> だけが変わっています。</p>
 <p><span class="math display">\[
 \begin{aligned}
 C_0 &amp;= 1 + a C_7 + C_6 C_8\\
@@ -238,7 +238,7 @@ C_0 \ddot{u}_{t+1}
 <script src="demo/canvas.js"></script>
 <script src="demo/wave2d.js"></script>
 <p>実装はややこしくなっています。JavaScriptでは参照が直接書けないので <code>array = [{value: value}, ...]</code> というように <code>Object</code> に値を格納することで配列の操作を楽にしています。</p>
-<p><a href="https://github.com/ryukau/filter_notes/blob/master/docs/demo/wave2d/wave2d.js">実装を読む (github.io)</a></p>
+<p><a href="https://github.com/ryukau/filter_notes/blob/master/waveequation2d/demo/wave2d.js">実装を読む (github.io)</a></p>
 <h2 id="その他">その他</h2>
 <h3 id="ガウス-ザイデル法による歪みとインデックスの振り方">ガウス-ザイデル法による歪みとインデックスの振り方</h3>
 <p>ガウス-ザイデル法の反復回数が少ないときに波が歪みます。この歪みは1次元配列への変換時に蛇行するようにインデックスを振ることで改善できますが、端のノードについての例外処理が増えます。</p>
