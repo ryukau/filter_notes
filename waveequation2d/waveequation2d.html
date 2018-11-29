@@ -46,7 +46,12 @@
       text-decoration: none;
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       color: #004444;
       border-left: solid 8px #eeeeee;
       padding-left: 8px;
@@ -64,6 +69,89 @@
       border-top: 1px gray solid;
       padding: 0.5em;
       margin-top: 1em;
+    }
+
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
+
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
+
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
+
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
+
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
+
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
+
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
+
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
+
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
+
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
+
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
+
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
     }
   </style>
 </head>
