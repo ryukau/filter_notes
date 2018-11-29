@@ -11,12 +11,13 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
     crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
     crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 
   <style>
     body {
@@ -26,6 +27,10 @@
     }
 
     img {
+      max-width: 100%;
+    }
+
+    video {
       max-width: 100%;
     }
 
@@ -58,56 +63,27 @@
 </head>
 
 <body>
-  <style>
-body {
-  max-width: 704px;
-  margin: auto;
-  padding: 32px 8px;
-}
-
-img {
-  width: 50%;
-}
-
-code {
-  overflow-x: scroll;
-  overflow-y: hidden;
-  white-space: pre;
-}
-
-.katex {
-  font-size: 1.3em !important;
-}
-</style>
-<h1 id="波ノート">波ノート</h1>
-
-<p>リンクの修正中です。</p>
-
-<p>なんかややこしそうな式がでてきたけど、どうやってコンピュータで計算すりゃいいんだ。</p>
-<p>そんなときに調べたことをまとめたノートです。</p>
-<h2 id="フィルタ">フィルタ</h2>
-<ul>
-<li><a href="basics.html">お手軽なFIRフィルタのレシピ</a></li>
-<li><a href="ndboct.html">n dB/octのスロープを持つフィルタ</a></li>
-<li><a href="gibbs.html">ギブス現象を抑える</a></li>
-<li><a href="dr110_cymbal.html">DR-110風のシンバル</a></li>
-</ul>
-<h2 id="波のシミュレーション">波のシミュレーション</h2>
-<ul>
-<li><a href="waveequation.html">1次元の波のシミュレーション</a></li>
-<li><a href="waveequationimplicit.html">Implicit FDM を用いた1次元の波のシミュレーション</a></li>
-<li><a href="grunwald_letnikov.html">分数階微積分の数値計算</a></li>
-<li><a href="heat_wave_equation.html">分数階微分で1次元の熱伝導-波動方程式</a></li>
-<li><a href="waveequation_fractional_zener.html">1次元の分数階Zener波動方程式</a></li>
-<li><a href="waveequation_newmark_beta.html">Newmark-β法で1次元の波動方程式</a></li>
-<li><a href="wave2d.html">2次元のばね-ダンパ波動方程式</a></li>
-<li><a href="burgers_exact.html">Burgers方程式でN波</a></li>
-</ul>
-
-
-  <footer>
-    <a href="index.html">トップに戻る</a>
-  </footer>
+  <h1 id="波ノート">波ノート</h1>
+  <p>なんかややこしそうな式がでてきたけど、どうやってコンピュータで計算すりゃいいんだ。</p>
+  <p>そんなときに調べたことをまとめたノートです。</p>
+  <h2 id="フィルタ">フィルタ</h2>
+  <ul>
+  <li><a href="basic_fir/basic_fir.html">お手軽なFIRフィルタのレシピ</a></li>
+  <li><a href="ndboct/ndboct.html">n dB/octのスロープを持つフィルタ</a></li>
+  <li><a href="gibbs/gibbs.html">ギブス現象を抑える</a></li>
+  <li><a href="dr110_cymbal/dr110_cymbal.html">DR-110風のシンバル</a></li>
+  </ul>
+  <h2 id="波のシミュレーション">波のシミュレーション</h2>
+  <ul>
+  <li><a href="waveequation/waveequation.html">1次元の波のシミュレーション</a></li>
+  <li><a href="waveequationimplicit/waveequationimplicit.html">Implicit FDM を用いた1次元の波のシミュレーション</a></li>
+  <li><a href="grunwald_letnikov/grunwald_letnikov.html">分数階微積分の数値計算</a></li>
+  <li><a href="heat_wave_equation/heat_wave_equation.html">分数階微分で1次元の熱伝導-波動方程式</a></li>
+  <li><a href="waveequation_fractional_zener/waveequation_fractional_zener.html">1次元の分数階Zener波動方程式</a></li>
+  <li><a href="waveequation_newmark_beta/waveequation_newmark_beta.html">Newmark-β法で1次元の波動方程式</a></li>
+  <li><a href="wave2d/wave2d.html">2次元のばね-ダンパ波動方程式</a></li>
+  <li><a href="burgers_exact/burgers_exact.html">Burgers方程式でN波</a></li>
+  </ul>
 </body>
 
 </html>
