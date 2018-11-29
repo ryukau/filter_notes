@@ -1,6 +1,5 @@
 """
 TODO:
-- タイトルの書き換え
 - インデックスの生成
 """
 
@@ -34,7 +33,7 @@ def gather_markdown():
                 mds.append(md)
     return mds
 
-def pandoc_md_to_html5(md, md_info):
+def pandoc_md_to_html5(md, md_info, template_html):
     if md.suffix != ".md":
         return
 
@@ -58,7 +57,8 @@ def pandoc_md_to_html5(md, md_info):
         stdout=subprocess.PIPE,
         encoding="utf-8")
 
-    html = template_html.replace("<!-- replace me -->", result.stdout)
+    html = template_html.replace("<!-- insert title here -->", md.stem)
+    html = html.replace("<!-- replace me -->", result.stdout)
 
     with open(md.with_suffix(".html"), "w") as html_file:
         print(html, file=html_file)
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     md_info = read_build_info(args.rebuild)
     mds = gather_markdown()
     for md in mds:
-        pandoc_md_to_html5(md, md_info)
+        pandoc_md_to_html5(md, md_info, template_html)
 
     with open("build_info", "w") as build_info:
         json.dump(md_info, build_info)
