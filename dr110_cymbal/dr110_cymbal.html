@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8>
+  <title>WebAudioSnippets</title>
+
+  <!-- highlight.js -->
+  <link rel="stylesheet" href="../_script/highlight/styles/idea.css">
+  <script src="../_script/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+    crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+    crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+    crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+  <style>
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    kbd {
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 2px;
+      margin: 2px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    code {
+      color: #004444;
+    }
+
+    pre code {
+      border: 4px solid #eeeeee;
+    }
+
+    footer {
+      border-top: 1px gray solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 id="dr-110風のシンバル">DR-110風のシンバル</h1>
+<p><a href="https://www.youtube.com/watch?v=-ap0ucC6QBU">DR-110</a>のシンバルに似た音を作ります。</p>
+<p>次のリンクから完成したコードを読むことができます。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/tree/master/docs/demo/dr110_cymbal">コードを見る (github.com)</a></li>
+</ul>
+<p>コードを実行するには<a href="https://www.python.org/">Python3</a>と以下のライブラリが必要です。</p>
+<ul>
+<li><a href="https://www.scipy.org/">SciPy</a></li>
+<li><a href="http://www.numpy.org/">NumPy</a></li>
+<li><a href="https://matplotlib.org/">Matplotlib</a></li>
+<li><a href="https://hgomersall.github.io/pyFFTW/">pyFFTW</a></li>
+<li><a href="http://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a></li>
+</ul>
+<h2 id="回路図の入手">回路図の入手</h2>
+<p><a href="http://www.theninhotline.net/dr110/">The Boss DR-110 Dr Rhythm Graphic Information Homepage</a> の Schematics から回路図をダウンロードできます。</p>
+<p><a href="http://www.sdiy.org/richardc64/new_drums/dr110/dr110a1.html">richardc64のDR-110のページ</a>に回路図の解説があります。</p>
+<h2 id="信号の流れ">信号の流れ</h2>
+<p>DR-110のシンバルはオシレータから出た信号を High Metal と Low Metal の2つに分けて、それぞれでフィルタとエンベロープをかけてから足し合わせることで合成されます。High Metal と Low Metal という呼び方は<a href="http://www.sdiy.org/richardc64/new_drums/dr110/dr110a1.html">richardc64のDR-110のページ</a>にならっています。</p>
+<p>今回実装したプログラムの信号の流れです。</p>
+<figure>
+<img src="img/DR-110.svg" alt="Image of signal flow of DR-110 cymbal." style="width: 720px; padding-bottom: 12px;"/>
+</figure>
+<h2 id="オシレータ">オシレータ</h2>
+<p>4つの矩形波と1つのノイズを足し合わせます。音量の比率は、矩形波がそれぞれ1、ノイズは0.3です。回路図では矩形波の周波数に317、465、820、1150[Hz]が使われています。</p>
+<figure>
+<img src="img/DR-110_osc.svg" alt="Image of signal flow of DR-110 cymbal oscillator." style="width: 360px; padding-bottom: 12px;"/>
+</figure>
+<p>そのまま実装すると味気ない音になるので、オシレータの位相を進める時にノイズを加えて周波数を揺らしています。音量の比率も少しだけランダマイズしています。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="im">import</span> soundfile</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="im">import</span> scipy.signal <span class="im">as</span> signal</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw">def</span> normalize(data, peak<span class="op">=</span><span class="fl">1.0</span>):</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">    <span class="cf">return</span> peak <span class="op">*</span> data <span class="op">/</span> np.<span class="bu">abs</span>(np.<span class="bu">max</span>(data))</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw">def</span> pulse(time, frequency):</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">    noise <span class="op">=</span> np.power(<span class="dv">10</span>, <span class="op">-</span>(np.random.uniform(<span class="dv">0</span>, <span class="dv">5</span>, <span class="bu">len</span>(time)) <span class="op">+</span> <span class="dv">5</span>))</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">    <span class="cf">return</span> signal.square(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> frequency <span class="op">*</span> (time <span class="op">+</span> noise))</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="kw">def</span> noise(size):</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">    <span class="cf">return</span> np.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, size)</a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="kw">def</span> randomAmp(low, high):</a>
+<a class="sourceLine" id="cb1-19" data-line-number="19">    lowLog <span class="op">=</span> np.log(low)</a>
+<a class="sourceLine" id="cb1-20" data-line-number="20">    diffLog <span class="op">=</span> np.log(high) <span class="op">-</span> lowLog</a>
+<a class="sourceLine" id="cb1-21" data-line-number="21">    <span class="cf">return</span> np.exp(lowLog <span class="op">+</span> diffLog <span class="op">*</span> np.random.random())</a>
+<a class="sourceLine" id="cb1-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23"></a>
+<a class="sourceLine" id="cb1-24" data-line-number="24"><span class="kw">def</span> cymbalSource(time, pulseFreq<span class="op">=</span>[<span class="dv">317</span>, <span class="dv">465</span>, <span class="dv">820</span>, <span class="dv">1150</span>]):</a>
+<a class="sourceLine" id="cb1-25" data-line-number="25">    sig <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb1-26" data-line-number="26">    <span class="cf">for</span> freq <span class="kw">in</span> pulseFreq:</a>
+<a class="sourceLine" id="cb1-27" data-line-number="27">        sig <span class="op">+=</span> randomAmp(<span class="fl">0.999</span>, <span class="dv">1</span>) <span class="op">*</span> pulse(time, freq)</a>
+<a class="sourceLine" id="cb1-28" data-line-number="28">    <span class="cf">return</span> sig <span class="op">+</span> noise(<span class="bu">len</span>(time)) <span class="op">/</span> <span class="fl">3.3</span></a>
+<a class="sourceLine" id="cb1-29" data-line-number="29"></a>
+<a class="sourceLine" id="cb1-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb1-31" data-line-number="31">samplerate <span class="op">=</span> <span class="dv">44100</span></a>
+<a class="sourceLine" id="cb1-32" data-line-number="32">duration <span class="op">=</span> <span class="fl">2.0</span></a>
+<a class="sourceLine" id="cb1-33" data-line-number="33"></a>
+<a class="sourceLine" id="cb1-34" data-line-number="34">time <span class="op">=</span> np.linspace(<span class="dv">0</span>, duration, <span class="bu">int</span>(samplerate <span class="op">*</span> duration), endpoint<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb1-35" data-line-number="35">sig <span class="op">=</span> normalize(cymbalSource(time))</a>
+<a class="sourceLine" id="cb1-36" data-line-number="36"></a>
+<a class="sourceLine" id="cb1-37" data-line-number="37">soundfile.write(<span class="st">&quot;cymbal_source.wav&quot;</span>, sig, samplerate)</a></code></pre></div>
+<h2 id="フィルタ">フィルタ</h2>
+<p><a href="https://ccrma.stanford.edu/~jos/filters/Transfer_Function.html">伝達関数</a>を使ってDR-110の回路図から離散フィルタを設計します。</p>
+<h3 id="バンドパスフィルタ">バンドパスフィルタ</h3>
+<p>オシレータセクションで使われているバンドパスフィルタです。BP0とBP1という名前はこの文章で区別するためにつけました。</p>
+<figure>
+<img src="img/osc_crop.png" alt="Image of oscillator section of DR-110 schematic." style="width: 480px; padding-bottom: 12px;"/>
+</figure>
+<p>単位の無い<a href="https://en.wikipedia.org/wiki/Capacitor">キャパシタ</a>の値は、上位2桁が有効数字、下位1桁が10の指数で、単位は[<a href="https://en.wikipedia.org/wiki/Pico-">p</a><a href="https://en.wikipedia.org/wiki/Farad">F</a>]です。</p>
+<ul>
+<li>102 なら (10) * 10^(2) pF</li>
+<li>333 なら (33) * 10^(3) pF</li>
+</ul>
+<p>バンドパスフィルタの部分だけを抜き出した図です。このフィルタは2つのネットワークが組み合わさっています。</p>
+<figure>
+<img src="img/dr110_bp0.svg" alt="Image of DR-110 band-pass filter schematic." style="width: 480px; padding-bottom: 12px;"/>
+</figure>
+<p>伝達関数 <span class="math inline">\(H\)</span> です。 <span class="math inline">\(G\)</span> は抵抗の値で単位は <a href="https://en.wikipedia.org/wiki/Siemens_(unit)">[℧] (mho) あるいは [S] (siemens)</a> 、 <span class="math inline">\(C\)</span> はキャパシタの値で単位は <a href="https://en.wikipedia.org/wiki/Farad">[F] (ファラド)</a> です。</p>
+<p>$$ \begin{aligned} H(s) &amp;= -\</p>
+<p>y_a(s) &amp;= - \ y_b(s) &amp;= - k \</p>
+<p>a_0 &amp;= , b_0 = , c_0 = , k = \ \end{aligned} $$</p>
+<p>伝達関数の式は以下を参考にしました。</p>
+<ul>
+<li>電子回路、山本 外史、1994、第11刷、p.145</li>
+<li><a href="http://www.ti.com/lit/an/sboa093a/sboa093a.pdf">“Handbook of Operational Amplifier Active RC Networks” - sboa093a.pdf</a>、p.14</li>
+</ul>
+<p><a href="http://maxima.sourceforge.net/">Maxima</a>で解きます。 例としてBP0の抵抗とキャパシタの値を使っています。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="cn">pico</span>: <span class="dv">10</span>**<span class="dv">-12</span>;</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="cn">G</span>: <span class="dv">1</span> / <span class="dv">22000</span>;</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="cn">C</span>: <span class="dv">10</span> * <span class="dv">10</span>**<span class="dv">2</span> * <span class="cn">pico</span>;</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="cn">G_1</span>: <span class="dv">1</span> / <span class="dv">82000</span>;</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="cn">G_2</span>: <span class="dv">1</span> / <span class="dv">560</span>;</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="cn">C_1</span>: <span class="dv">33</span> * <span class="dv">10</span>**<span class="dv">2</span> * <span class="cn">pico</span>;</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="cn">C_2</span>: <span class="dv">33</span> * <span class="dv">10</span>**<span class="dv">2</span> * <span class="cn">pico</span>;</a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="cn">a_0</span>: <span class="cn">G_2</span> / (<span class="cn">C_1</span> + <span class="cn">C_2</span>);</a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="cn">b_0</span>: <span class="cn">G_1</span> * (<span class="cn">C_1</span> + <span class="cn">C_2</span>) / (<span class="cn">C_1</span> * <span class="cn">C_2</span>);</a>
+<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="cn">c_0</span>: <span class="cn">G_1</span> * <span class="cn">G_2</span> / (<span class="cn">C_1</span> * <span class="cn">C_2</span>);</a>
+<a class="sourceLine" id="cb2-14" data-line-number="14"><span class="cn">k</span>:  <span class="cn">C_1</span> * <span class="cn">C_2</span> /  (<span class="cn">C_1</span> + <span class="cn">C_2</span>);</a>
+<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="cn">y_a</span>: - <span class="cn">G</span> * <span class="cn">s</span> / (<span class="cn">s</span> + <span class="cn">G</span> / <span class="cn">C</span>);</a>
+<a class="sourceLine" id="cb2-16" data-line-number="16"><span class="cn">y_b</span>: - <span class="cn">k</span> * (<span class="cn">s</span>**<span class="dv">2</span> + <span class="cn">b_0</span> * <span class="cn">s</span> + <span class="cn">c_0</span>) / (<span class="cn">s</span> + <span class="cn">a_0</span>);</a>
+<a class="sourceLine" id="cb2-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb2-18" data-line-number="18"><span class="fu">rat</span>(- <span class="cn">y_a</span> / <span class="cn">y_b</span>);</a></code></pre></div>
+<p>出力です。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">/* bp0 */</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">-(<span class="dv">94710000000</span>*<span class="cn">s</span>^<span class="dv">2+25625000000000000</span>*<span class="cn">s</span>)/(<span class="dv">3437973</span>*<span class="cn">s</span>^<span class="dv">3+181681500000</span>*<span class="cn">s</span>^<span class="dv">2+8030000000000000</span>*<span class="cn">s</span><span class="dv">+312500000000000000000</span>)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="co">/* bp1 */</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">-(<span class="dv">268345000000</span>*<span class="cn">s</span>^<span class="dv">2+35234375000000000</span>*<span class="cn">s</span>)/(<span class="dv">30108309</span>*<span class="cn">s</span>^<span class="dv">3+522707500000</span>*<span class="cn">s</span>^<span class="dv">2+15667187500000000</span>*<span class="cn">s</span><span class="dv">+195312500000000000000</span>)</a></code></pre></div>
+<p>得られた値を <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.cont2discrete.html"><code>scipy.signal.cont2discrete</code></a> に渡すことで離散フィルタを設計できます。下のコードではMaximaで計算した値を <code>applyContinuousFilter</code> の <code>system</code> に渡しています。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="im">import</span> numpy</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="im">import</span> soundfile</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="im">import</span> scipy.signal <span class="im">as</span> signal</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="kw">def</span> applyContinuousFilter(samplerate, source, system):</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">    num, den, dt <span class="op">=</span> signal.cont2discrete(system, <span class="fl">1.0</span> <span class="op">/</span> samplerate)</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">    <span class="cf">return</span> signal.lfilter(num[<span class="dv">0</span>], den, source)</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"><span class="kw">def</span> highMetalFilter(samplerate, source):</a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">    <span class="cf">return</span> applyContinuousFilter(samplerate, source, (</a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">        [<span class="fl">9.471e+10</span>, <span class="fl">2.5625e+16</span>, <span class="dv">0</span>],</a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">        [<span class="fl">3437973.0</span>, <span class="fl">1.816815e+11</span>, <span class="fl">8.03e+15</span>, <span class="fl">3.125e+20</span>],</a>
+<a class="sourceLine" id="cb4-15" data-line-number="15">    ))</a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb4-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb4-18" data-line-number="18"><span class="kw">def</span> lowMetalFilter(samplerate, source):</a>
+<a class="sourceLine" id="cb4-19" data-line-number="19">    <span class="cf">return</span> applyContinuousFilter(samplerate, source, (</a>
+<a class="sourceLine" id="cb4-20" data-line-number="20">        [<span class="fl">2.68345e+11</span>, <span class="fl">3.5234375e+16</span>, <span class="dv">0</span>],</a>
+<a class="sourceLine" id="cb4-21" data-line-number="21">        [<span class="fl">30108309.0</span>, <span class="fl">5.227075e+11</span>, <span class="fl">1.56671875e+16</span>, <span class="fl">1.953125e+20</span>],</a>
+<a class="sourceLine" id="cb4-22" data-line-number="22">    ))</a>
+<a class="sourceLine" id="cb4-23" data-line-number="23"></a>
+<a class="sourceLine" id="cb4-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb4-25" data-line-number="25">samplerate <span class="op">=</span> <span class="dv">44100</span></a>
+<a class="sourceLine" id="cb4-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb4-27" data-line-number="27">source <span class="op">=</span> numpy.random.uniform(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, samplerate <span class="op">*</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb4-28" data-line-number="28">dest_high_metal <span class="op">=</span> highMetalFilter(samplerate, source)</a>
+<a class="sourceLine" id="cb4-29" data-line-number="29">dest_low_metal <span class="op">=</span> lowMetalFilter(samplerate, source)</a>
+<a class="sourceLine" id="cb4-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb4-31" data-line-number="31">soundfile.write(<span class="st">&quot;source.wav&quot;</span>, source, samplerate)</a>
+<a class="sourceLine" id="cb4-32" data-line-number="32">soundfile.write(<span class="st">&quot;dest_high_metal.wav&quot;</span>, dest_high_metal, samplerate)</a>
+<a class="sourceLine" id="cb4-33" data-line-number="33">soundfile.write(<span class="st">&quot;dest_low_metal.wav&quot;</span>, dest_low_metal, samplerate)</a></code></pre></div>
+<p>BP0とBP1のボード線図です。</p>
+<figure>
+<img src="img/dr110_bandpass_bode.png" alt="Image of Bode plot of DR-110 band-pass filter." style="width: 480px; padding-bottom: 12px;"/>
+</figure>
+<h3 id="ハイパスフィルタ">ハイパスフィルタ</h3>
+<p>回路図のいたるところに出てくる1次のハイパスフィルタです。</p>
+<p>下図はDR-110のシンバルのエンベロープに関する回路図です。網掛けの色ごとに別のハイパスフィルタを表しています。灰色の矢印は音の信号の流れを表しています。</p>
+<figure>
+<img src="img/env_crop.png" alt="Image of envelope section of DR-110 schematic." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<p>ハイパスフィルタの部分だけを抜き出した図です。</p>
+<figure>
+<img src="img/dr110_highpass.svg" alt="Image of DR-110 high-pass filter schematic." style="width: 320px; padding-bottom: 12px;"/>
+</figure>
+<p>伝達関数 <span class="math inline">\(H\)</span> です。 <span class="math inline">\(R\)</span> は抵抗の値で単位は[Ω]、<span class="math inline">\(C\)</span>はキャパシタの値で単位は[F]です。</p>
+<p><span class="math display">\[
+H(s) = \frac{RC}{RCs + 1}
+\]</span></p>
+<p><code>scipy.signal</code> を使った実装の例です。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="im">import</span> numpy</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="im">import</span> soundfile</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="im">import</span> scipy.signal <span class="im">as</span> signal</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="kw">def</span> rcHighpass(samplerate, source, r, c):</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">    rc <span class="op">=</span> r <span class="op">*</span> c</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">    num, den, dt <span class="op">=</span> signal.cont2discrete(([rc, <span class="dv">0</span>], [rc, <span class="dv">1</span>]), <span class="fl">1.0</span> <span class="op">/</span> samplerate)</a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">    <span class="cf">return</span> signal.lfilter(num[<span class="dv">0</span>], den, source)</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10">samplerate <span class="op">=</span> <span class="dv">44100</span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11">resistance <span class="op">=</span> <span class="fl">1e6</span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12">capacitance <span class="op">=</span> <span class="fl">47e-9</span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14">source <span class="op">=</span> numpy.random.uniform(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, samplerate <span class="op">*</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb5-15" data-line-number="15">dest <span class="op">=</span> rcHighpass(samplerate, source, resistance, capacitance)</a>
+<a class="sourceLine" id="cb5-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb5-17" data-line-number="17">soundfile.write(<span class="st">&quot;source.wav&quot;</span>, source, samplerate)</a>
+<a class="sourceLine" id="cb5-18" data-line-number="18">soundfile.write(<span class="st">&quot;dest.wav&quot;</span>, dest, samplerate)</a></code></pre></div>
+<h3 id="high-metal-と-low-metal">High Metal と Low Metal</h3>
+<p>High Metalはハイハットで使われるフィルタネットワークです。</p>
+<figure>
+<img src="img/DR-110_high_metal.svg" alt="Image of signal flow of DR-110 high metal section." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<p>Low Metalはシンバルの音の低い部分の表現に使われるフィルタネットワークです。</p>
+<figure>
+<img src="img/DR-110_low_metal.svg" alt="Image of signal flow of DR-110 low metal section." style="width: 520px; padding-bottom: 12px;"/>
+</figure>
+<p>エンベロープの手前での周波数応答です。</p>
+<figure>
+<img src="img/metal_filter.png" alt="Image of signal flow of DR-110 low metal section." style="width: 480px; padding-bottom: 12px;"/>
+</figure>
+<h2 id="エンベロープ">エンベロープ</h2>
+<p>DR-110の回路図から抜き出したシンバルのエンベロープの仕様です。</p>
+<figure>
+<img src="img/env_time_crop.png" alt="Image of specification of DR-110 cymbal envelopes." style="width: 320px; padding-bottom: 12px;"/>
+</figure>
+<p>ここではエンベロープに指数的減衰 (<a href="https://en.wikipedia.org/wiki/Exponential_decay">Exponential Decay</a>) を使います。</p>
+<p><span class="math display">\[
+y(t) = x(t)e^{at}
+\]</span></p>
+<p><span class="math inline">\(a &lt; 0\)</span> のときに係数 <span class="math inline">\(e^{at}\)</span> が指数的減衰を表します。 <span class="math inline">\(x(t)\)</span> は任意の入力信号です。</p>
+<p><span class="math inline">\(t = 0\)</span> のときの初期値が <span class="math inline">\(E\)</span> かつ、 <span class="math inline">\(t = T\)</span> のとき閾値 <span class="math inline">\(\epsilon\)</span> になるように <span class="math inline">\(a\)</span> を決めます。 <span class="math inline">\(1000\)</span> は <span class="math inline">\(T\)</span> の単位 [ms] のミリから来ています。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\epsilon &amp;= E e^{aT / 1000}\\
+\log \left( \frac{\epsilon}{E} \right) &amp;= aT / 1000\\
+\frac{1000}{T} \log \left( \frac{\epsilon}{E} \right) &amp;= a
+\end{aligned}
+\]</span></p>
+<p>NumPyでの実装は次のようになります。 <code>threshold</code> の値は適当に決めています。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="im">import</span> numpy</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="im">import</span> soundfile</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="kw">def</span> envelope(time, T, E, threshold<span class="op">=</span><span class="fl">0.4</span>):</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">    a <span class="op">=</span> numpy.log(threshold <span class="op">/</span> E) <span class="op">/</span> T <span class="op">*</span> <span class="dv">1000</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">    <span class="cf">return</span> numpy.exp(a <span class="op">*</span> time)</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">samplerate <span class="op">=</span> <span class="dv">44100</span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9">duration <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11">num_sample <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13">time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, num_sample)</a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb6-15" data-line-number="15">source <span class="op">=</span> numpy.random.uniform(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, num_sample)</a>
+<a class="sourceLine" id="cb6-16" data-line-number="16">dest <span class="op">=</span> source <span class="op">*</span> envelope(time, <span class="dv">700</span>, <span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb6-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb6-18" data-line-number="18">soundfile.write(<span class="st">&quot;source.wav&quot;</span>, source, samplerate)</a>
+<a class="sourceLine" id="cb6-19" data-line-number="19">soundfile.write(<span class="st">&quot;dest.wav&quot;</span>, dest, samplerate)</a></code></pre></div>
+<h2 id="ミックス">ミックス</h2>
+<p>DR-110ではクローズドハイハット (CH) 、オープンハイハット (OH) 、シンバル (CY) の3つの音が使えます。この3つの音の違いはエンベロープとミックスです。</p>
+<p>ハイハットの合成には High Metal からの出力だけを使います。エンベロープの Check Point はクローズドが6、オープンは5です。</p>
+<p>シンバルの合成には High Metal と Low Metal の出力を使います。High Metal は Check Point 7, 8 のエンベロープを 10:1 の比率で足し合わせます。 Low metal のエンベロープは Check Point 9です。High MetalとLow Metalは約2:1の比率で足し合わせます。</p>
+<p>以下は完成したコードのミックスの部分へのリンクです。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/de23e42693f5c95e0c2bb32a0796e3a270ef3ec4/docs/demo/dr110_cymbal/dr110_cymbal.py#L86">ミックスを行う関数 metalMix (github.com)</a></li>
+</ul>
+<h2 id="結果">結果</h2>
+<p>オシレータの音です。</p>
+<p><label>Oscillator output</label> <audio controls> <source src="snd/dr110_osc.wav" type="audio/wav"> Audio of simulated DR-110 cymbal oscillator. </audio></p>
+<p>フィルタを通した音です。</p>
+<p><label>High Metal</label> <audio controls> <source src="snd/dr110_high_metal.wav" type="audio/wav"> Audio of simulated DR-110 high metal. </audio></p>
+<p><label>Low Metal</label> <audio controls> <source src="snd/dr110_low_metal.wav" type="audio/wav"> Audio of simulated DR-110 low metal. </audio></p>
+<p>ミックスした音です。</p>
+<p><label>CY</label> <audio controls> <source src="snd/dr110_cy_mixed.wav" type="audio/wav"> Audio of simulated DR-110 cymbal sound. </audio></p>
+<p><label>CH</label> <audio controls> <source src="snd/dr110_ch_mixed.wav" type="audio/wav"> Audio of simulated DR-110 closed hihat sound. </audio></p>
+<p><label>OH</label> <audio controls> <source src="snd/dr110_oh_mixed.wav" type="audio/wav"> Audio of simulated DR-110 open hihat sound. </audio></p>
+<p>オリジナルのDR-110の音です。</p>
+<p><label>CY</label> <audio controls> <source src="snd/dr110_cy_original.wav" type="audio/wav"> Audio of DR-110 cymbal sound. </audio></p>
+<p><label>CH</label> <audio controls> <source src="snd/dr110_ch_original.wav" type="audio/wav"> Audio of DR-110 closed hihat sound. </audio></p>
+<p><label>OH</label> <audio controls> <source src="snd/dr110_oh_original.wav" type="audio/wav"> Audio of DR-110 open hihat sound. </audio></p>
+<p>作った音はノイズが足りていないように聞こえたので、オシレータのノイズの音量を0.3から6に変えてレンダリングした音です。</p>
+<p><label>CY</label> <audio controls> <source src="snd/dr110_cy_noisy.wav" type="audio/wav"> Audio of simulated DR-110 cymbal sound. </audio></p>
+<p><label>CH</label> <audio controls> <source src="snd/dr110_ch_noisy.wav" type="audio/wav"> Audio of simulated DR-110 closed hihat sound. </audio></p>
+<p><label>OH</label> <audio controls> <source src="snd/dr110_oh_noisy.wav" type="audio/wav"> Audio of simulated DR-110 open hihat sound. </audio></p>
+<h2 id="その他">その他</h2>
+<p>アタックが弱いです。エンベロープが単純な指数的減衰ではないのかもしれません。</p>
+<p>シンバルのミックスの後に続く回路を無視しています。実機ではBalanceで大きく音が変わります。</p>
+<p>トランジスタの回路がよく分からなかったのでハイパスフィルタを適当に試行錯誤して設計しました。</p>
+<p>エンベロープを打ち切る電圧がわかっていません。</p>
+<p>バンドパスフィルタを伝達関数から離散フィルタにするとき、ソルバが次のようなWarningを出します。</p>
+<pre><code>/__somewhere__/scipy/linalg/basic.py:40: RuntimeWarning: scipy.linalg.solve
+Ill-conditioned matrix detected. Result is not guaranteed to be accurate.
+Reciprocal condition number/precision: 1.5222285969682624e-17 / 1.1102230246251565e-16
+  RuntimeWarning)</code></pre>
+<h2 id="参考文献">参考文献</h2>
+<ul>
+<li>電子回路、山本 外史、1994、第11刷、p.145、ISBN4-254-22111-8</li>
+<li><a href="http://www.ti.com/lit/an/sboa093a/sboa093a.pdf">“Handbook of Operational Amplifier Active RC Networks” - sboa093a.pdf</a>、p.14</li>
+<li><a href="https://electronics.stackexchange.com/questions/125123/what-is-the-transfer-function-for-a-first-order-active-high-pass-filter">What is the transfer function for a first order active high-pass filter - Electrical Engineering Stack Exchange</a></li>
+<li><a href="https://www.electronics-tutorials.ws/amplifier/input-impedance-of-an-amplifier.html">Input Impedance of an Amplifier and How to Calculate it</a></li>
+<li><a href="http://www.ti.com/lit/an/sloa060/sloa060.pdf">“Sine Wave Oscillator” - sloa060.pdf</a></li>
+</ul>
+
+
+  <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
+

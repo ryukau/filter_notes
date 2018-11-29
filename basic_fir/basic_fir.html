@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8>
+  <title>WebAudioSnippets</title>
+
+  <!-- highlight.js -->
+  <link rel="stylesheet" href="../_script/highlight/styles/idea.css">
+  <script src="../_script/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+    crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+    crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+    crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+  <style>
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    kbd {
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 2px;
+      margin: 2px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    code {
+      color: #004444;
+    }
+
+    pre code {
+      border: 4px solid #eeeeee;
+    }
+
+    footer {
+      border-top: 1px gray solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 id="お手軽なfirフィルタのレシピ">お手軽なFIRフィルタのレシピ</h1>
+<p><a href="https://en.wikipedia.org/wiki/Finite_impulse_response">FIR</a>のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。</p>
+<h2 id="記号">記号</h2>
+<ul>
+<li><span class="math inline">\(f_{s}\)</span> : <a href="https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate">サンプリング周波数</a></li>
+<li><span class="math inline">\(f_l\)</span> : 低いほうの<a href="https://en.wikipedia.org/wiki/Cutoff_frequency">カットオフ周波数</a></li>
+<li><span class="math inline">\(f_h\)</span> : 高いほうのカットオフ周波数</li>
+<li><span class="math inline">\(\omega_l\)</span> : <span class="math inline">\(2 \pi f_l\)</span></li>
+<li><span class="math inline">\(\omega_h\)</span> : <span class="math inline">\(2 \pi f_h\)</span></li>
+</ul>
+<p><a href="https://en.wikipedia.org/wiki/Passband">通過域</a>の大きさ（<a href="https://en.wikipedia.org/wiki/Amplitude">Amplitude</a>）は1とします。</p>
+<h2 id="ローパスフィルタ">ローパスフィルタ</h2>
+<figure>
+<img src="img/fir_filter_lowpass.png" alt="Image of FIR lowpass filter." style="width: 320px;padding-bottom: 12px;"/>
+</figure>
+<p><span class="math display">\[
+A(\omega) =
+\begin{cases}
+1, &amp; (-\omega_l \leq \omega \leq \omega_l) \\
+0, &amp; \text{otherwise}
+\end{cases}
+\]</span></p>
+<p><span class="math inline">\(A(\omega)\)</span> を<a href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform">逆離散時間フーリエ変換</a>の式に入れて解きます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+&amp;= \frac{1}{2\pi}\int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega \\
+&amp;= \frac{\sin (\omega_l n)}{n \pi}
+\end{aligned}
+\]</span></p>
+<p>コードに変えます。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">function</span> <span class="at">makeLowpassCoefficient</span>(length<span class="op">,</span> cutoff) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="co">// cutoff の範囲は [0, 1]</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="kw">var</span> coefficient <span class="op">=</span> <span class="kw">new</span> <span class="at">Array</span>(length).<span class="at">fill</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="kw">var</span> half <span class="op">=</span> (length <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span> <span class="op">?</span> length <span class="op">-</span> <span class="dv">1</span> : length) / <span class="dv">2</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="kw">var</span> omegaL <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> cutoff</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">    <span class="kw">var</span> n <span class="op">=</span> i <span class="op">-</span> half</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">    coefficient[i] <span class="op">=</span> (n <span class="op">===</span> <span class="dv">0</span>) <span class="op">?</span> <span class="dv">1</span> : <span class="va">Math</span>.<span class="at">sin</span>(omegaL <span class="op">*</span> n) / (<span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> n)</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">  <span class="cf">return</span> coefficient</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="op">}</span></a></code></pre></div>
+<h2 id="ハイパスフィルタ">ハイパスフィルタ</h2>
+<figure>
+<img src="img/fir_filter_highpass.png" alt="Image of FIR highpass filter." style="width: 320px;padding-bottom: 12px;"/>
+</figure>
+<p><span class="math display">\[
+A(\omega) =
+\begin{cases}
+1, &amp; (-\omega_s \leq \omega \leq -\omega_h) \\
+1, &amp; (\omega_h \leq \omega \leq \omega_s) \\
+0, &amp; \text{otherwise}
+\end{cases}
+\]</span></p>
+<p><span class="math inline">\(A(\omega)\)</span> を逆離散時間フーリエ変換の式に入れて解きます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+&amp;= \frac{1}{2\pi} \biggl ( \int^{-\omega_h}_{-\pi} e^{j\omega n} d\omega
+ + \int^{\pi}_{\omega_h} e^{j\omega n} d\omega \biggr ) \\
+&amp;= {{\sin \left(n\,\pi\right)}\over{n\,\pi}}-{{\sin \left(\omega_h\,n\right)}\over{n\,\pi}}
+\end{aligned}
+\]</span></p>
+<p>コードに変えます。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">function</span> <span class="at">makeHighpassCoefficient</span>(length<span class="op">,</span> cutoff) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="co">// cutoff の範囲は [0, 1]</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="kw">var</span> coefficient <span class="op">=</span> <span class="kw">new</span> <span class="at">Array</span>(length).<span class="at">fill</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="kw">var</span> half <span class="op">=</span> (length <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span> <span class="op">?</span> length <span class="op">-</span> <span class="dv">1</span> : length) / <span class="dv">2</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="kw">var</span> omegaH <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> cutoff</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">    <span class="kw">var</span> n <span class="op">=</span> i <span class="op">-</span> half</a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">    coefficient[i] <span class="op">=</span> (n <span class="op">===</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">      <span class="op">?</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10">      : (<span class="va">Math</span>.<span class="at">sin</span>(<span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> n) <span class="op">-</span> <span class="va">Math</span>.<span class="at">sin</span>(omegaH <span class="op">*</span> n)) / (<span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> n)</a>
+<a class="sourceLine" id="cb2-11" data-line-number="11">  <span class="cf">return</span> coefficient</a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="op">}</span></a></code></pre></div>
+<h2 id="バンドパスフィルタ">バンドパスフィルタ</h2>
+<figure>
+<img src="img/fir_filter_bandpass.png" alt="Image of FIR bandpass filter." style="width: 320px;padding-bottom: 12px;"/>
+</figure>
+<p><span class="math display">\[
+A(\omega) =
+\begin{cases}
+1, &amp; (-\omega_h \leq \omega \leq -\omega_l) \\
+1, &amp; (\omega_l \leq \omega \leq \omega_h) \\
+0, &amp; \text{otherwise}
+\end{cases}
+\]</span></p>
+<p><span class="math inline">\(A(\omega)\)</span> を逆離散時間フーリエ変換の式に入れて解きます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+&amp;= \frac{1}{2\pi} \biggl ( \int^{-\omega_l}_{-\omega_h} e^{j\omega n} d\omega
+ + \int^{\omega_h}_{\omega_l} e^{j\omega n} d\omega \biggr ) \\
+&amp;= {{\sin \left(\omega_h\,n\right)}\over{n\,\pi}}-{{\sin \left(\omega_l\,n\right)}\over{n\,\pi}}
+\end{aligned}
+\]</span></p>
+<p>コードに変えます。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">function</span> <span class="at">makeBandpassCoefficient</span>(length<span class="op">,</span> low<span class="op">,</span> high) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="co">// low, high の範囲は [0, 1]</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">  <span class="kw">var</span> coefficient <span class="op">=</span> <span class="kw">new</span> <span class="at">Array</span>(length).<span class="at">fill</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  <span class="kw">var</span> half <span class="op">=</span> (length <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span> <span class="op">?</span> length <span class="op">-</span> <span class="dv">1</span> : length) / <span class="dv">2</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">  <span class="kw">var</span> twoPi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">PI</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">  <span class="kw">var</span> omegaL <span class="op">=</span> twoPi <span class="op">*</span> low</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">  <span class="kw">var</span> omegaH <span class="op">=</span> twoPi <span class="op">*</span> high</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">    <span class="kw">var</span> n <span class="op">=</span> i <span class="op">-</span> half</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">    coefficient[i] <span class="op">=</span> (n <span class="op">===</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">      <span class="op">?</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">      : (<span class="va">Math</span>.<span class="at">sin</span>(omegaH <span class="op">*</span> n) <span class="op">-</span> <span class="va">Math</span>.<span class="at">sin</span>(omegaL <span class="op">*</span> n)) / (<span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> n)</a>
+<a class="sourceLine" id="cb3-13" data-line-number="13">  <span class="cf">return</span> coefficient</a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="op">}</span></a></code></pre></div>
+<h2 id="バンドリジェクトフィルタ">バンドリジェクトフィルタ</h2>
+<p>バンドストップフィルタとも呼ばれるようです。</p>
+<figure>
+<img src="img/fir_filter_bandreject.png" alt="Image of FIR bandreject filter." style="width: 320px;padding-bottom: 12px;"/>
+</figure>
+<p><span class="math display">\[
+A(\omega) =
+\begin{cases}
+1, &amp;  (-\omega_s \leq \omega \leq -\omega_h) \\
+1, &amp; (-\omega_l \leq \omega \leq \omega_l) \\
+1, &amp; (\omega_h \leq \omega \leq \omega_s) \\
+0, &amp; \text{otherwise}
+\end{cases}
+\]</span></p>
+<p><span class="math inline">\(A(\omega)\)</span> を逆離散時間フーリエ変換の式に入れて解きます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+&amp;= \frac{1}{2\pi} \biggl ( \int^{-\omega_h}_{-\pi} e^{j\omega n} d\omega
+ + \int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega
+ + \int^{\pi}_{\omega_h} e^{j\omega n} d\omega \biggr ) \\
+&amp;= {{\sin \left(n\,\pi\right)}\over{n\,\pi}}+{{\sin \left(\omega_l\,n\right)}\over{n\,\pi}}-{{\sin \left(\omega_h\,n\right)}\over{n\,\pi}}
+\end{aligned}
+\]</span></p>
+<p>コードに変えます。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">function</span> <span class="at">makeBandrejectCoefficient</span>(length<span class="op">,</span> low<span class="op">,</span> high) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="co">// low, high の範囲は [0, 1]</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="kw">var</span> coefficient <span class="op">=</span> <span class="kw">new</span> <span class="at">Array</span>(length).<span class="at">fill</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="kw">var</span> half <span class="op">=</span> (length <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span> <span class="op">?</span> length <span class="op">-</span> <span class="dv">1</span> : length) / <span class="dv">2</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="kw">var</span> twoPi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">PI</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">  <span class="kw">var</span> omegaL <span class="op">=</span> twoPi <span class="op">*</span> low</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">  <span class="kw">var</span> omegaH <span class="op">=</span> twoPi <span class="op">*</span> high</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">    <span class="kw">var</span> n <span class="op">=</span> i <span class="op">-</span> half</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">    <span class="kw">var</span> piN <span class="op">=</span> <span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> n</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">    coefficient[i] <span class="op">=</span> (n <span class="op">===</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">      <span class="op">?</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">      : (<span class="va">Math</span>.<span class="at">sin</span>(piN) <span class="op">+</span> <span class="va">Math</span>.<span class="at">sin</span>(omegaL <span class="op">*</span> n) <span class="op">-</span> <span class="va">Math</span>.<span class="at">sin</span>(omegaH <span class="op">*</span> n)) / piN</a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">  <span class="cf">return</span> coefficient</a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="op">}</span></a></code></pre></div>
+<h2 id="firフィルタのかけ方">FIRフィルタのかけ方</h2>
+<p>まずフィルタをかけるソースを用意します。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">var</span> audioContext <span class="op">=</span> <span class="kw">new</span> <span class="at">AudioContext</span>()</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">var</span> source <span class="op">=</span> <span class="kw">new</span> <span class="at">Array</span>(<span class="va">audioContext</span>.<span class="at">sampleRate</span>)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">source</span>.<span class="at">length</span><span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">  source[i] <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">random</span>() <span class="op">-</span> <span class="fl">1.0</span> <span class="co">// 適当なノイズ。</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="op">}</span></a></code></pre></div>
+<p>FIRフィルタは適切な<a href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>をかけることで特性が改善します。ここではお手軽でそれなりに特性がいい<a href="https://en.wikipedia.org/wiki/Window_function#Blackman%E2%80%93Harris_window">Blackman–Harris窓</a>を使います。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">function</span> <span class="at">blackmanHarrisWindow</span>(length) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="kw">var</span> window <span class="op">=</span> <span class="kw">new</span> <span class="at">Array</span>(length)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="kw">var</span> a0 <span class="op">=</span> <span class="fl">0.35875</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="kw">var</span> a1 <span class="op">=</span> <span class="fl">0.48829</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">  <span class="kw">var</span> a2 <span class="op">=</span> <span class="fl">0.14128</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">  <span class="kw">var</span> a3 <span class="op">=</span> <span class="fl">0.01168</span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">  <span class="kw">var</span> pi_N1 <span class="op">=</span> <span class="va">Math</span>.<span class="at">PI</span> / (<span class="va">window</span>.<span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">  <span class="kw">var</span> twopi_N1 <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> pi_N1</a>
+<a class="sourceLine" id="cb6-9" data-line-number="9">  <span class="kw">var</span> fourpi_N1 <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> pi_N1</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10">  <span class="kw">var</span> sixpi_N1 <span class="op">=</span> <span class="dv">6</span> <span class="op">*</span> pi_N1</a>
+<a class="sourceLine" id="cb6-11" data-line-number="11">  <span class="cf">for</span> (<span class="kw">var</span> n <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> n <span class="op">&lt;</span> <span class="va">window</span>.<span class="at">length</span><span class="op">;</span> <span class="op">++</span>n) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12">    window[n] <span class="op">=</span> a0</a>
+<a class="sourceLine" id="cb6-13" data-line-number="13">      <span class="op">-</span> a1 <span class="op">*</span> <span class="va">Math</span>.<span class="at">cos</span>(n <span class="op">*</span> twopi_N1)</a>
+<a class="sourceLine" id="cb6-14" data-line-number="14">      <span class="op">+</span> a2 <span class="op">*</span> <span class="va">Math</span>.<span class="at">cos</span>(n <span class="op">*</span> fourpi_N1)</a>
+<a class="sourceLine" id="cb6-15" data-line-number="15">      <span class="op">-</span> a3 <span class="op">*</span> <span class="va">Math</span>.<span class="at">cos</span>(n <span class="op">*</span> sixpi_N1)</a>
+<a class="sourceLine" id="cb6-16" data-line-number="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-17" data-line-number="17">  <span class="cf">return</span> window</a>
+<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="op">}</span></a></code></pre></div>
+<p>フィルタを用意します。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">var</span> filterLength <span class="op">=</span> <span class="dv">1025</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">var</span> cutoff <span class="op">=</span> <span class="dv">1000</span> <span class="co">// Hz</span></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="kw">var</span> coefficient <span class="op">=</span> <span class="at">makeLowpassCoefficient</span>(filterLength<span class="op">,</span> cutoff / <span class="va">audioContext</span>.<span class="at">sampleRate</span>)</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="kw">var</span> filter <span class="op">=</span> <span class="at">blackmanHarrisWindow</span>(filterLength).<span class="at">map</span>((v<span class="op">,</span> i) <span class="op">=&gt;</span> v <span class="op">*</span> coefficient[i])</a></code></pre></div>
+<p><a href="https://en.wikipedia.org/wiki/Convolution">畳み込み（Convolution）</a>を行ってソースにFIRフィルタをかけます。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">var</span> destination <span class="op">=</span> <span class="kw">new</span> <span class="at">Array</span>(<span class="va">source</span>.<span class="at">length</span>).<span class="at">fill</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw">var</span> buffer <span class="op">=</span> <span class="kw">new</span> <span class="at">Array</span>(<span class="va">filter</span>.<span class="at">length</span>).<span class="at">fill</span>(<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">source</span>.<span class="at">length</span><span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">  <span class="va">buffer</span>.<span class="at">push</span>(source[i])</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">  <span class="va">buffer</span>.<span class="at">shift</span>()</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">  <span class="cf">for</span> (<span class="kw">var</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> <span class="va">filter</span>.<span class="at">length</span><span class="op">;</span> <span class="op">++</span>j) <span class="op">{</span></a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">    destination[i] <span class="op">+=</span> buffer[j] <span class="op">*</span> filter[j]</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="op">}</span></a></code></pre></div>
+<h2 id="computer-algebra-system-の利用">Computer Algebra System の利用</h2>
+<p>手で式を解くと間違えることがあるので <a href="https://en.wikipedia.org/wiki/Computer_algebra_system">Computer Algebra System (CAS)</a> を利用します。</p>
+<p>今回のような簡単な式であれば<a href="https://www.wolframalpha.com/">Wolfram Alpha</a>が便利です。Wolfram Alphaでは数字でない下付き文字が使えないようなので <span class="math inline">\(\omega_l\)</span> を <span class="math inline">\(l\)</span> に置き換えています。以降のCASのコードも同じ置き換えを使います。</p>
+<pre class="wolfram"><code>(integral e^(i*omega*n) for omega from -l to l) / (2pi)</code></pre>
+<p><a href="http://maxima.sourceforge.net/">Maxima</a>は式の整理について指定する必要があります。コードの <code>demoivre</code> で <code>exp(%i*n)</code> を <code>%i * sin(n) + cos(n)</code> に置き換えています。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">integrate</span>(<span class="fu">exp</span>(%<span class="cn">i</span> * <span class="cn">omega</span> * <span class="cn">n</span>) / (<span class="dv">2</span> * <span class="cn">pi</span>), <span class="cn">omega</span>, -<span class="cn">l</span>, <span class="cn">l</span>)));</a></code></pre></div>
+<p><a href="http://www.sympy.org/en/index.html">SymPy</a>も使えますが少し長めです。 <code>rewrite(sin)</code> でオイラーの公式を適用しています。 <code>n = Symbol('n', positive=True)</code> が無いとコードの <code>integrate(...)</code> を解いてくれません。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co"># SymPy 1.1.1</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="im">from</span> sympy <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">n <span class="op">=</span> Symbol(<span class="st">&#39;n&#39;</span>, positive<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">l <span class="op">=</span> Symbol(<span class="st">&#39;l&#39;</span>)</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">omega <span class="op">=</span> Symbol(<span class="st">&#39;omega&#39;</span>)</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">answer <span class="op">=</span> simplify(integrate(exp(I <span class="op">*</span> omega <span class="op">*</span> n), (omega, <span class="op">-</span>l, l)).rewrite(sin))</a>
+<a class="sourceLine" id="cb11-7" data-line-number="7">pprint(answer)</a></code></pre></div>
+<h2 id="フィルタ係数の計算について">フィルタ係数の計算について</h2>
+<p>フィルタ係数は周波数特性を逆離散時間フーリエ変換することで得られます。</p>
+<p><span class="math display">\[
+\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+\]</span></p>
+<p>この逆離散時間フーリエ変換の式に、周波数<span class="math inline">\(f\)</span>を対応させて使うときは<span class="math inline">\(\pi{f}/{f_s}\)</span>と変換します。</p>
+<p>逆離散時間フーリエ変換をするときは<span class="math inline">\([-f_s,\ f_s]\)</span>の範囲を考慮する必要がありますが、ここまでに出てきた周波数特性の図では<span class="math inline">\([-f_s,\ 0]\)</span>の範囲を省略していました。<span class="math inline">\([-f_s,\ 0]\)</span>の範囲での周波数特性は<span class="math inline">\([0,\ f_s]\)</span>の鏡像になっています。</p>
+<p>ローパスフィルタを例に見ていきます。</p>
+<figure>
+<img src="img/fir_filter_frequency_mirror.png" alt="Image of range [-f_s, f_s] of lowpass frequency responce." style="width: 600px;padding-bottom: 12px;"/>
+</figure>
+<p><a href="https://en.wikipedia.org/wiki/Even_and_odd_functions#Calculus_properties">偶関数の積分の性質</a>を利用して式を変形できそうなので試してみます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+&amp;= \frac{1}{2\pi}\int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega \\
+&amp;= \frac{2}{2\pi}\int^{\omega_l}_{0} e^{j\omega n} d\omega \\
+&amp;= {{\sin \left(\omega_l\,n\right)}\over{n\,\pi}}-{{i\,\cos \left(\omega_l\,n\right)}\over{n\,\pi}}+{{i}\over{n\,\pi}}
+\end{aligned}
+\]</span></p>
+<p>虚部が出てきました。実部は式を変形をしないときと同じになっています。</p>
+<p>念のために定義どおり計算した方がよさそうです。</p>
+<h2 id="その他">その他</h2>
+<p>式を解かなくても周波数特性を逆離散フーリエ変換すればフィルタは作れます。</p>
+<p>フィルタ係数が固定のときは<a href="https://www.scipy.org/">SciPy</a>や<a href="https://www.gnu.org/software/octave/">Octave</a>などを使って設計するほうが楽で確実です。</p>
+<p>ここで作ったバンドパスフィルタを Banded Waveguides に使おうとしたのですが、切れ味が良すぎてWaveguide間の干渉がほとんど起こらず、面白い音になりませんでした。</p>
+<h2 id="参考サイト">参考サイト</h2>
+<ul>
+<li><a href="https://ccrma.stanford.edu/~jos/sasp/Ideal_Lowpass_Filter.html">The Ideal Lowpass Filter</a></li>
+<li><a href="https://stackoverflow.com/questions/42454464/maxima-expand-e-to-cos-and-i-sin">Maxima: Expand e to cos and i sin? - Stack Overflow</a></li>
+</ul>
+
+
+  <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
+

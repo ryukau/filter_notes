@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8>
+  <title>WebAudioSnippets</title>
+
+  <!-- highlight.js -->
+  <link rel="stylesheet" href="../_script/highlight/styles/idea.css">
+  <script src="../_script/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+    crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+    crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+    crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+  <style>
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    kbd {
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 2px;
+      margin: 2px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    code {
+      color: #004444;
+    }
+
+    pre code {
+      border: 4px solid #eeeeee;
+    }
+
+    footer {
+      border-top: 1px gray solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 id="ギブス現象を抑える">ギブス現象を抑える</h1>
+<p>GottleibとShuの論文 <a href="http://dsec.pku.edu.cn/~tieli/notes/numer_anal/SIAMRev_39_644.pdf">“ON THE GIBBS PHENOMENON AND ITS RESOLUTION”</a> を基に<a href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">ギブス現象</a>を抑える方法を試します。</p>
+<p>この文章で実装したコードを<a href="https://github.com/ryukau/filter_notes/blob/master/docs/demo/gibbs/gibbs.py">GitHubで見る</a>ことができます。実行するには<a href="https://www.scipy.org/">SciPy</a>、<a href="http://hgomersall.github.io/pyFFTW/">pyFFTW</a>、<a href="https://matplotlib.org/">matplotlib</a>が必要です。パラメータを変えて遊んでみてください。</p>
+<p><a href="https://github.com/ryukau/filter_notes/blob/master/docs/demo/gibbs/gibbs.py">コードを見る (github.com)</a></p>
+<h2 id="フィルタを使う方法">フィルタを使う方法</h2>
+<p>GottleibとShuの論文で先行研究として紹介されていた方法です。ここではFIRフィルタとして実装します。</p>
+<p>フィルタを適用する部分を実装します。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> numpy</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="im">from</span> pyfftw.interfaces.numpy_fft <span class="im">import</span> rfft, irfft</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="im">from</span> scipy.signal <span class="im">import</span> <span class="op">*</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="im">from</span> scipy.special <span class="im">import</span> (factorial, eval_gegenbauer, gamma)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw">def</span> spectralLowpass(sig, numSeries):</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">    <span class="cf">if</span> numSeries <span class="op">&gt;=</span> <span class="bu">len</span>(sig):</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">        <span class="cf">return</span> sig</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">    spec <span class="op">=</span> rfft(sig)</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">    spec[numSeries:<span class="bu">len</span>(sig) <span class="op">-</span> <span class="dv">1</span>] <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">    <span class="cf">return</span> irfft(spec)</a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="kw">def</span> additiveSaw(length, numSeries):</a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">    <span class="cf">return</span> spectralLowpass(numpy.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, length), numSeries)</a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"><span class="kw">def</span> applyFilter(source, filterFunc, power<span class="op">=</span><span class="dv">1</span>):</a>
+<a class="sourceLine" id="cb1-21" data-line-number="21">    filt <span class="op">=</span> numpy.zeros(<span class="bu">len</span>(source))</a>
+<a class="sourceLine" id="cb1-22" data-line-number="22">    half <span class="op">=</span> (<span class="bu">len</span>(source) <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(filt)):</a>
+<a class="sourceLine" id="cb1-24" data-line-number="24">        eta <span class="op">=</span> (i <span class="op">-</span> half) <span class="op">/</span> half</a>
+<a class="sourceLine" id="cb1-25" data-line-number="25">        filt[i] <span class="op">=</span> filterFunc(eta)<span class="op">**</span>power</a>
+<a class="sourceLine" id="cb1-26" data-line-number="26">    filt <span class="op">/=</span> numpy.<span class="bu">sum</span>(filt)</a>
+<a class="sourceLine" id="cb1-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb1-28" data-line-number="28">    <span class="cf">return</span> (convolve(source, filt, mode<span class="op">=</span><span class="st">&#39;full&#39;</span>), filt)</a>
+<a class="sourceLine" id="cb1-29" data-line-number="29"></a>
+<a class="sourceLine" id="cb1-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb1-31" data-line-number="31"><span class="kw">def</span> plotGibbsSuppression(length, filterFunc, numSeries<span class="op">=</span><span class="dv">16</span>, power<span class="op">=</span><span class="dv">1</span>):</a>
+<a class="sourceLine" id="cb1-32" data-line-number="32">    source <span class="op">=</span> additiveSaw(length, numSeries)</a>
+<a class="sourceLine" id="cb1-33" data-line-number="33">    suppressed, filt <span class="op">=</span> applyFilter(source, filterFunc, power)</a>
+<a class="sourceLine" id="cb1-34" data-line-number="34">    source <span class="op">=</span> numpy.append(source, numpy.zeros(length))</a>
+<a class="sourceLine" id="cb1-35" data-line-number="35">    <span class="co"># 結果をプロットする。ここでは省略。</span></a></code></pre></div>
+<p>フィルタの適用は <code>plotGibbsSuppression</code> から行います。 <code>power</code> の値を大きくするとフィルタのカットオフ周波数が高くなります。入力信号は低いほうから <code>numSeries</code> 個の周波数成分を持つ鋸歯波です。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># Lanczosフィルタの適用例。</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">plotGibbsSuppression(<span class="dv">1024</span>, lanczos, <span class="dv">16</span>, <span class="dv">1</span>)</a></code></pre></div>
+<h3 id="次フィルタ">1次フィルタ</h3>
+<p><span class="math display">\[
+\sigma_1(\eta) = 1 - \eta
+\]</span></p>
+<p>実装します。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">def</span> fejer(eta):</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="cf">return</span> <span class="dv">1</span> <span class="op">-</span> eta</a></code></pre></div>
+<p>フィルタを適用した結果です。画像のSignalは入力信号、Resultはフィルタを適用した結果です。一番下の図はFIRフィルタの係数です。</p>
+<figure>
+<img src="img/result_fejer.png" alt="Image of a result of fejer filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<h3 id="lanczosフィルタ">Lanczosフィルタ</h3>
+<p><span class="math display">\[
+\sigma_2(\eta) = \frac{\sin(\pi\eta)}{\pi\eta}
+\]</span></p>
+<p>実装します。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">def</span> lanczos(eta):</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">    <span class="cf">return</span> numpy.sinc(eta)</a></code></pre></div>
+<p>フィルタを適用した結果です。</p>
+<figure>
+<img src="img/result_lanczos.png" alt="Image of a result of lanczos filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<h3 id="raised-cosineフィルタ">Raised Cosineフィルタ</h3>
+<p><span class="math display">\[
+\sigma_3(\eta) = \frac{1}{2}(1 + \cos(\pi\eta))
+\]</span></p>
+<p>実装します。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">def</span> raisedCosine(eta):</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">+</span> numpy.cos(numpy.pi <span class="op">*</span> eta)) <span class="op">/</span> <span class="dv">2</span></a></code></pre></div>
+<p>フィルタを適用した結果です。</p>
+<figure>
+<img src="img/result_raisedCosine.png" alt="Image of a result of raised cosine filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<h3 id="sharpened-raised-cosineフィルタ">Sharpened Raised Cosineフィルタ</h3>
+<p><span class="math display">\[
+\sigma_4(\eta) = \sigma_3^4(\eta)(35 - 84\sigma_3(\eta) + 70\sigma_3^2(\eta) - 20\sigma_3^3(\eta))
+\]</span></p>
+<p>実装します。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">def</span> sharpendRaisedCosine(eta):</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">    s <span class="op">=</span> raisedCosine(eta)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">    <span class="cf">return</span> s<span class="op">**</span><span class="dv">4</span> <span class="op">*</span> (<span class="dv">35</span> <span class="op">-</span> <span class="dv">84</span> <span class="op">*</span> s <span class="op">+</span> <span class="dv">70</span> <span class="op">*</span> s<span class="op">**</span><span class="dv">2</span> <span class="op">-</span> <span class="dv">20</span> <span class="op">*</span> s<span class="op">**</span><span class="dv">3</span>)</a></code></pre></div>
+<p>フィルタを適用した結果です。</p>
+<figure>
+<img src="img/result_sharpendRaisedCosine.png" alt="Image of a result of sharpened raised cosine filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<h3 id="exponentialフィルタ">Exponentialフィルタ</h3>
+<p><span class="math display">\[
+\sigma_5(\eta) = e^{-\alpha\eta^p}
+\]</span></p>
+<p>実装します。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">def</span> exponential(eta, alpha<span class="op">=</span><span class="dv">2</span><span class="op">**</span><span class="dv">10</span>, p<span class="op">=</span><span class="dv">4</span>):</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">    <span class="cf">return</span> numpy.exp(<span class="op">-</span>alpha <span class="op">*</span> eta<span class="op">**</span>p)</a></code></pre></div>
+<p>フィルタを適用した結果です。</p>
+<figure>
+<img src="img/result_exponential.png" alt="Image of a result of exponential filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<h3 id="daubechiesフィルタ">Daubechiesフィルタ</h3>
+<p><span class="math display">\[
+\sigma_6(\eta) = 1 - \frac{(2p-1)!}{(p-1)!} \int_0^{\eta} [t(1-t)]^{p-1} dt
+\]</span></p>
+<p>Maximaで展開します。 <span class="math inline">\(p\)</span> は任意の正の実数です。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="fu">declare</span>(<span class="cn">eta</span>, <span class="cn">real</span>, <span class="cn">t</span>, <span class="cn">real</span>);</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="cn">p</span>: <span class="dv">4</span>;</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="cn">I</span>: <span class="fu">integrate</span>((<span class="cn">t</span>*(<span class="dv">1</span> - <span class="cn">t</span>))**(<span class="dv">4</span> - <span class="dv">1</span>), <span class="cn">t</span>, <span class="dv">0</span>, <span class="cn">eta</span>);</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="fu">expand</span>(<span class="dv">1</span> - (<span class="dv">2</span> * <span class="cn">p</span> - <span class="dv">1</span>)! / (<span class="cn">p</span> - <span class="dv">1</span>)! * <span class="cn">I</span>);</a></code></pre></div>
+<p>適当に <span class="math inline">\(p = 4\)</span> として実装します。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">def</span> daubechies(eta):</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">    <span class="cf">return</span> <span class="dv">1</span> <span class="op">-</span> <span class="dv">210</span> <span class="op">*</span> eta<span class="op">**</span><span class="dv">4</span> <span class="op">+</span> <span class="dv">504</span> <span class="op">*</span> eta<span class="op">**</span><span class="dv">5</span> <span class="op">-</span> <span class="dv">420</span><span class="op">**</span>eta<span class="op">**</span><span class="dv">6</span> <span class="op">+</span> <span class="dv">120</span> <span class="op">*</span> eta<span class="op">**</span><span class="dv">7</span></a></code></pre></div>
+<p>フィルタを適用した結果です。</p>
+<figure>
+<img src="img/result_daubechies.png" alt="Image of a result of daubechies filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<h2 id="gegenbauer-polynomialを使う方法">Gegenbauer Polynomialを使う方法</h2>
+<p>GottleibとShuの論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。解析的な形とは <span class="math inline">\(f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 + \dots\)</span> というような形のことです。</p>
+<p>まずGegenbauer係数 <span class="math inline">\(\hat{g}_k^{\lambda}\)</span> を求めます。</p>
+<p><span class="math display">\[
+\hat{g}_k^{\lambda} = \frac{1}{h_k^{\lambda}}
+\int_{-1}^{1} (1 - x^2)^{\lambda - \frac{1}{2}}f_N(x)C_k^{\lambda}(x)\,dx
+,\quad 0 \le k \le m
+\]</span></p>
+<ul>
+<li><span class="math inline">\(C_k^{\lambda}(x)\)</span> : <a href="https://en.wikipedia.org/wiki/Gegenbauer_polynomials">Gegenbauer polynomials</a></li>
+<li><span class="math inline">\(f_N(x)\)</span> : インデックスを <span class="math inline">\([-1, 1]\)</span> の範囲に正規化した入力信号</li>
+<li><span class="math inline">\(N\)</span> : 入力信号の周波数成分の数</li>
+<li><span class="math inline">\(m\)</span> : 任意のGegenbauer係数の数</li>
+<li><span class="math inline">\(\lambda\)</span> : <span class="math inline">\(1/2\)</span> より大きい任意の正の実数</li>
+<li><span class="math inline">\(h_k^{\lambda}\)</span> : 正規化定数</li>
+</ul>
+<p><span class="math inline">\(h_k^{\lambda}\)</span> は次の式で求められます。</p>
+<p><span class="math display">\[
+h_k^{\lambda} = \pi^{\frac{1}{2}}C_k^{\lambda}(x)
+\frac{\Gamma(\lambda + \frac{1}{2})}{\Gamma(\lambda)(k + \lambda)}
+\]</span></p>
+<p>Gegenbauer係数 <span class="math inline">\(\hat{g}_k^{\lambda}\)</span> を用いて出力信号 <span class="math inline">\(g^m(x)\)</span> を合成します。</p>
+<p><span class="math display">\[
+g^m(x) = \sum_{k = 0}^m \hat{g}_k^{\lambda} C_k^{\lambda}(x)
+\]</span></p>
+<p><span class="math inline">\(g^m(x)\)</span> は真の信号と比例関係にあるそうです。つまり出力信号の振幅を調整する必要があります。</p>
+<p><span class="math inline">\(\lambda = N / 4\)</span> 、 <span class="math inline">\(m = N / 2\)</span> として実装します。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">def</span> gottliebShu(sig, N, gam<span class="op">=</span><span class="fl">0.25</span>):</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">    <span class="co">&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="co">    :param sig: numpy.array input signal.</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="co">    :param N: Number of spectral partial sum or number of overtone.</span></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">    :param gam: Positive real constant.</span></a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7">    lam <span class="op">=</span> gam <span class="op">*</span> N  <span class="co"># N が大きいと eval_gegenbauerでオーバーフローする。</span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb10-9" data-line-number="9">    x <span class="op">=</span> numpy.linspace(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, <span class="bu">len</span>(sig))</a>
+<a class="sourceLine" id="cb10-10" data-line-number="10">    k <span class="op">=</span> numpy.arange(<span class="dv">0</span>, <span class="bu">int</span>(N <span class="op">/</span> <span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb10-11" data-line-number="11">    ggnbr <span class="op">=</span> eval_gegenbauer(numpy.tile(numpy.vstack(k), <span class="bu">len</span>(sig)), lam, x)</a>
+<a class="sourceLine" id="cb10-12" data-line-number="12">    ggnbr_t <span class="op">=</span> numpy.transpose(ggnbr)</a>
+<a class="sourceLine" id="cb10-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb10-14" data-line-number="14">    h_k_lam <span class="op">=</span> numpy.sqrt(numpy.pi) <span class="op">\</span></a>
+<a class="sourceLine" id="cb10-15" data-line-number="15">        <span class="op">*</span> ggnbr_t[<span class="op">-</span><span class="dv">1</span>] <span class="op">\</span></a>
+<a class="sourceLine" id="cb10-16" data-line-number="16">        <span class="op">*</span> gamma(lam <span class="op">+</span> <span class="fl">0.5</span>) <span class="op">/</span> gamma(lam) <span class="op">/</span> (k <span class="op">+</span> lam)</a>
+<a class="sourceLine" id="cb10-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb10-18" data-line-number="18">    g_hat <span class="op">=</span> numpy.<span class="bu">sum</span>(</a>
+<a class="sourceLine" id="cb10-19" data-line-number="19">        numpy.power(<span class="dv">1</span> <span class="op">-</span> x <span class="op">*</span> x, numpy.<span class="bu">abs</span>(lam <span class="op">-</span> <span class="fl">0.5</span>)) <span class="op">*</span> sig <span class="op">*</span> ggnbr,</a>
+<a class="sourceLine" id="cb10-20" data-line-number="20">        axis<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> h_k_lam</a>
+<a class="sourceLine" id="cb10-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb10-22" data-line-number="22">    <span class="cf">return</span> (numpy.<span class="bu">sum</span>(g_hat <span class="op">*</span> ggnbr_t, axis<span class="op">=</span><span class="dv">1</span>), g_hat)</a></code></pre></div>
+<p>適用した結果です。画像の一番下の図は <span class="math inline">\(\hat{g}_k^{\lambda}\)</span> です。</p>
+<figure>
+<img src="img/result_gottleibShu.png" alt="Image of a result of gottlieb and shu's gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<p><span class="math inline">\(C_1^{\lambda}\)</span> の成分で完璧に再現できています。 <span class="math inline">\(C_1^{\lambda}\)</span> の成分は <span class="math inline">\(y = ax\)</span> の形の直線です。入力信号の鋸歯波も直線なので、これはどうやっても成功しそうです。</p>
+<p>他の信号でも試してみます。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">def</span> additiveNoise(length, numSeries):</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">    <span class="cf">return</span> spectralLowpass(numpy.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, length), numSeries)</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="kw">def</span> analyticSignal(length, numSeries):</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">    sig <span class="op">=</span> numpy.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, length)</a>
+<a class="sourceLine" id="cb11-7" data-line-number="7">    noise <span class="op">=</span> numpy.zeros(length)</a>
+<a class="sourceLine" id="cb11-8" data-line-number="8">    order <span class="op">=</span> <span class="dv">128</span></a>
+<a class="sourceLine" id="cb11-9" data-line-number="9">    rand <span class="op">=</span> numpy.random.random(order)</a>
+<a class="sourceLine" id="cb11-10" data-line-number="10">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(order):</a>
+<a class="sourceLine" id="cb11-11" data-line-number="11">        noise <span class="op">+=</span> rand[i] <span class="op">*</span> sig<span class="op">**</span>(i <span class="op">+</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb11-12" data-line-number="12">    <span class="cf">return</span> spectralLowpass(noise, numSeries)</a>
+<a class="sourceLine" id="cb11-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb11-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb11-15" data-line-number="15"><span class="kw">def</span> plotGottleibShuNoise(length, signalFunc, numSeries<span class="op">=</span><span class="dv">16</span>):</a>
+<a class="sourceLine" id="cb11-16" data-line-number="16">    source <span class="op">=</span> signalFunc(length, numSeries)</a>
+<a class="sourceLine" id="cb11-17" data-line-number="17">    suppressed, g_hat <span class="op">=</span> gottliebShu(source, numSeries)</a>
+<a class="sourceLine" id="cb11-18" data-line-number="18">    regibbsed <span class="op">=</span> spectralLowpass(suppressed, numSeries)</a>
+<a class="sourceLine" id="cb11-19" data-line-number="19">    <span class="co"># 結果をプロットする。ここでは省略。</span></a>
+<a class="sourceLine" id="cb11-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb11-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb11-22" data-line-number="22">plotGottleibShuNoise(<span class="dv">1024</span>, additiveNoise, <span class="dv">16</span>)</a>
+<a class="sourceLine" id="cb11-23" data-line-number="23">plotGottleibShuNoise(<span class="dv">1024</span>, analyticSignal, <span class="dv">16</span>)</a></code></pre></div>
+<p><code>additiveNoise</code> の結果です。 <code>additiveNoise</code> は乱数で生成したノイズにローパスフィルタをかけた信号です。画像のFiltered resultはギブス現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。</p>
+<figure>
+<img src="img/result_gottleibShu_additiveNoise.png" alt="Image of a result of gottlieb and shu's gibbs suppression to additive noise." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<p><code>additiveNoise</code> について入力信号と、ギブス現象を抑えた結果にフィルタをかけた信号の周波数の比較です。powerは周波数成分の大きさ、phaseは周波数成分の位相です。</p>
+<figure>
+<img src="img/spectrum_comparison_additiveNoise.png" alt="Image comparison of additive noise spectrum." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<p><code>additiveNoise</code> ではギブス現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むのでGegenbauer Polynomialを使う方法をそのまま使うことはできません。</p>
+<p><code>analyticSignal</code> の結果です。 <code>analyticSignal</code> は解析的な要素のみで合成した信号です。</p>
+<figure>
+<img src="img/result_gottleibShu_analyticSignal.png" alt="Image of a result of gottlieb and shu's gibbs suppression to analytic signal." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<p><code>analyticSignal</code> について入力信号と、ギブス現象を抑えた結果にフィルタをかけた信号の周波数の比較です。</p>
+<figure>
+<img src="img/spectrum_comparison_analyticSignal.png" alt="Image comparison of analytic signal spectrum." style="width: 600px; padding-bottom: 12px;"/>
+</figure>
+<p><code>analyticSignal</code> では理論どおりにギブス現象の抑制に成功していると言えそうです。ただし今回選んだパラメータでは目に見える誤差が出ています。 <span class="math inline">\(m\)</span> の値を大きくすれば誤差を減らすことができます。</p>
+<h3 id="問題点">問題点</h3>
+<p><span class="math inline">\(\hat{g}_k^{\lambda}\)</span> を求める式の中にある <span class="math inline">\(f_N(x)\)</span> は <span class="math inline">\([-1, 1]\)</span> の区間で連続であることが求められています。つまり、この方法を現実の信号に適用するには不連続点を見つけて、連続な区間ごとに信号を分割する必要があります。</p>
+<p><span class="math inline">\(\lambda\)</span> と <span class="math inline">\(m\)</span> についてのパラメータ調整が必要です。</p>
+<p><span class="math inline">\(\lambda\)</span> と <span class="math inline">\(m\)</span> が大きいと Gegenbauer Polynomial の計算でオーバーフローすることがあります。これが問題になるときは任意精度で実装するしかなさそうです。</p>
+<h2 id="その他">その他</h2>
+<p>Gegenbauer polynomialを使う方法の <span class="math inline">\(m\)</span> を増やしていくことで、Gegenbauer polynomialによる信号の加算合成ができます。ただし信号の両端の値が非常に大きくなるので<a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tukey.html#scipy.signal.tukey">Tukey窓</a>などを掛け合わせて抑える必要があります。また <span class="math inline">\(\lambda = 1\)</span> とすることで、ある程度はオーバーフローを避けることができます。</p>
+
+
+  <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
+
