@@ -210,9 +210,9 @@ if __name__ == "__main__":
 - [How can we choose a 'good' K for K-means clustering? - Quora](https://www.quora.com/How-can-we-choose-a-good-K-for-K-means-clustering)
 
 ## t-SNE で視覚化
-いい評価方法が思いつかないので、とりあえず t-SNE で視覚化しました。
+いい評価方法が思いつかないので、とりあえず [t-SNE](https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding) で視覚化しました。
 
-`sklearn.manifold.TSNE` を使います。
+[`sklearn.manifold.TSNE`](https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) を使います。
 
 ```python
 import numpy
