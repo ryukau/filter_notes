@@ -11,12 +11,13 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
     crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
     crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 
   <style>
     body {
@@ -116,9 +117,18 @@ u{\left (x,t \right )}
 \end{aligned}
 \]</span></p>
 <p>整理します。</p>
-$$
-
-<p>$$</p>
+<p><span class="math display">\[
+\begin{gathered}
+\alpha u{\left (x - dx,t + dt \right )}
++ \beta u{\left (x,t + dt \right )}
++ \alpha u{\left (x + dx,t + dt \right )}
+= \space
+u{\left (x,t \right )}
+- \frac{1}{2} u{\left (x,t - dt \right )}\\
+\alpha = \space -\frac{c^{2} dt^{2}}{2 \; dx^{2}}, \quad
+\beta = \frac{c^{2} dt^{2}}{dx^{2}} + \space \frac{1}{2}
+\end{gathered}
+\]</span></p>
 <p>連立方程式を立てます。</p>
 <p><span class="math display">\[
 \mathbf{A} \mathbf{u}^{t+1} = \mathbf{u}^t - 0.5 \mathbf{u}^{t-1}

@@ -11,12 +11,13 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
     crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
     crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 
   <style>
     body {
@@ -145,9 +146,19 @@
 <img src="img/dr110_bp0.svg" alt="Image of DR-110 band-pass filter schematic." style="width: 480px; padding-bottom: 12px;"/>
 </figure>
 <p>伝達関数 <span class="math inline">\(H\)</span> です。 <span class="math inline">\(G\)</span> は抵抗の値で単位は <a href="https://en.wikipedia.org/wiki/Siemens_(unit)">[℧] (mho) あるいは [S] (siemens)</a> 、 <span class="math inline">\(C\)</span> はキャパシタの値で単位は <a href="https://en.wikipedia.org/wiki/Farad">[F] (ファラド)</a> です。</p>
-<p>$$ \begin{aligned} H(s) &amp;= -\</p>
-<p>y_a(s) &amp;= - \ y_b(s) &amp;= - k \</p>
-<p>a_0 &amp;= , b_0 = , c_0 = , k = \ \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+H(s) &amp;= -\frac{y_a(s)}{y_b(s)}
+\\
+y_a(s) &amp;= - \frac{Gs}{s + G / C}\\
+y_b(s) &amp;= - k \frac{s^2 + b_0 s + c_0}{s + a_0}
+\\
+a_0 &amp;= \frac{G_2}{C_1 + C_2},\quad
+b_0 = \frac{G_1 (C_1 + C_2)}{C_1 C_2},\quad
+c_0 = \frac{G_1 G_2}{C_1 C_2},\quad
+k =  \frac{C_1 C_2}{C_1 + C_2}\\
+\end{aligned}
+\]</span></p>
 <p>伝達関数の式は以下を参考にしました。</p>
 <ul>
 <li>電子回路、山本 外史、1994、第11刷、p.145</li>

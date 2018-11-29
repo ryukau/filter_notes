@@ -11,12 +11,13 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
     crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
     crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 
   <style>
     body {
@@ -85,12 +86,43 @@
 \ddot{u} + a \dot{u} + k u = c^{2} \nabla^{2} u
 \]</span></p>
 <p><a href="https://en.wikipedia.org/wiki/Newmark-beta_method">Newmark-β法</a>の連立方程式を立てます。</p>
-<p>$$ \begin{aligned} <em>{t+1} &amp;= c^{2} ^{2} u</em>{t+1} - a <em>{t+1} + k u</em>{t+1}\</p>
-<p><em>{t+1} &amp;= </em>{t} +  ( <em>{t} + </em>{t+1} )\</p>
-<p>u_{t+1} &amp;= u_{t} + <em>t </em>{t} + <em>t^{2} ( (  - ) </em>{t} + _{t+1} ) \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\ddot{u}_{t+1} &amp;= c^{2} \nabla^{2} u_{t+1} - a \dot{u}_{t+1} + k u_{t+1}\\
+\dot{u}_{t+1} &amp;= \dot{u}_{t}
++ \frac{\Delta_t}{2} \left( \ddot{u}_{t} + \ddot{u}_{t+1} \right)\\
+u_{t+1} &amp;= u_{t} + \Delta_t \dot{u}_{t} + \Delta_t^{2} \left(
+  \left( \frac{1}{2} - \beta \right) \ddot{u}_{t} + \beta \ddot{u}_{t+1}
+\right)
+\end{aligned}
+\]</span></p>
 <p><span class="math inline">\(\ddot{u}_{t+1}\)</span> の右辺について <span class="math inline">\(\dot{u}_{t+1}\)</span> と <span class="math inline">\(u_{t+1}\)</span> を代入します。</p>
-<p>$$ \begin{aligned} <em>{t+1} &amp;= c^{2} ^{2} ( u</em>{t} + <em>t </em>{t} + <em>t^{2} ( (  - ) </em>{t} + <em>{t+1} ) ) - a </em>{t+1} + k u_{t+1}\</p>
-<p>&amp;=  ( ( (u_{t}) - 2n,u_{t}) + <em>t ( (</em>{t}) - 2n,<em>{t})\ &amp;+ <em>t^{2} (  - ) ( (</em>{t}) - 2n,</em>{t})\ &amp;+ <em>t^{2} ( (</em>{t+1}) - 2n,<em>{t+1}) )\ &amp;- a ( </em>{t} +  ( <em>{t} + </em>{t+1} ) )\ &amp;- k ( u_{t} + <em>t </em>{t} + <em>t^{2} (  - ) </em>{t} + <em>t^{2} </em>{t+1} ) \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\ddot{u}_{t+1}
+&amp;= c^{2} \nabla^{2} \left(
+  u_{t} + \Delta_t \dot{u}_{t} + \Delta_t^{2} \left(
+    \left( \frac{1}{2} - \beta \right) \ddot{u}_{t} + \beta \ddot{u}_{t+1}
+  \right)
+\right) - a \dot{u}_{t+1} + k u_{t+1}\\
+&amp;= \frac{c^{2}}{\Delta_x^{2}} \Biggl(
+  ( \mathtt{neighbor}(u_{t}) - 2n\,u_{t})
+  + \Delta_t (
+    \mathtt{neighbor}(\dot{u}_{t}) - 2n\,\dot{u}_{t})\\
+  &amp;\qquad\qquad+ \Delta_t^{2} \left( \frac{1}{2} - \beta \right) (
+    \mathtt{neighbor}(\ddot{u}_{t}) - 2n\,\ddot{u}_{t})\\
+  &amp;\qquad\qquad+ \Delta_t^{2} \beta (
+    \mathtt{neighbor}(\ddot{u}_{t+1}) - 2n\,\ddot{u}_{t+1})
+\Biggr)\\
+&amp;\quad- a \Biggl(
+  \dot{u}_{t} + \frac{\Delta_t}{2} \left( \ddot{u}_{t} + \ddot{u}_{t+1} \right)
+\Biggr)\\
+&amp;\quad- k \Biggl(
+  u_{t} + \Delta_t \dot{u}_{t} + \Delta_t^{2}
+    \left( \frac{1}{2} - \beta \right) \ddot{u}_{t} + \Delta_t^{2} \beta \ddot{u}_{t+1}
+\Biggr)
+\end{aligned}
+\]</span></p>
 <p><span class="math inline">\(t+1\)</span> の項を左辺に移項します。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -198,15 +230,49 @@ C_0 \ddot{u}_{t+1}
 + C_1 \mathtt{sum\_y}(\ddot{u}_{t+1})\\
 \end{aligned}
 \]</span></p>
-<p>$$ \begin{aligned} (u_{t}) &amp;= \begin{cases} b u_{t,x - 1} &amp;,,x=0\ b u_{t,x + 1} &amp;,,x=n_x - 1\ u_{t,x-1} + u_{t,x+1} &amp;,, \end{cases}\</p>
-<p>(u_{t}) &amp;= \begin{cases} b u_{t,y-1} &amp;,,y=0\ b u_{t,y+1} &amp;,,y=n_y - 1\ u_{t,y-1} + u_{t,y+1} &amp;,, \end{cases}\ \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathtt{sum\_x}(u_{t})
+&amp;=
+\begin{cases}
+b u_{t,x - 1}                    &amp;,\,x=0\\
+b u_{t,x + 1}                    &amp;,\,x=n_x - 1\\
+u_{t,x-1} + u_{t,x+1} &amp;,\,\text{otherwise}
+\end{cases}\\
+\mathtt{sum\_y}(u_{t})
+&amp;=
+\begin{cases}
+b u_{t,y-1}                      &amp;,\,y=0\\
+b u_{t,y+1}                      &amp;,\,y=n_y - 1\\
+u_{t,y-1} + u_{t,y+1} &amp;,\,\text{otherwise}
+\end{cases}\\
+\end{aligned}
+\]</span></p>
 <p><span class="math inline">\(n_x\)</span> と <span class="math inline">\(n_y\)</span> はそれぞれ <span class="math inline">\(x\)</span> 軸と <span class="math inline">\(y\)</span> 軸のインデックスの数です。</p>
 <p>境界条件は <span class="math inline">\(b\)</span> の値で変更できます。 <span class="math inline">\(b=1\)</span> のとき固定端、 <span class="math inline">\(b=2\)</span> のとき自由端になります。</p>
 <p><span class="math inline">\(4 \times 4\)</span> のときの <span class="math inline">\(\mathbf{A}\)</span> を組み立てます。</p>
-<p>$$  = \begin{bmatrix} C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\</p>
-<p>C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0\</p>
-<p>0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1\</p>
-<p>0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0\ \end{bmatrix} $$</p>
+<p><span class="math display">\[
+\mathbf{A}
+=
+\begin{bmatrix}
+C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0\\
+\end{bmatrix}
+\]</span></p>
 <p>何となく規則性が見えます。</p>
 <p><span class="math display">\[
 \mathbf{B} =
@@ -265,9 +331,27 @@ C_0 \ddot{u}_{t+1}
 <img src="img/2d_lattice_mod_index_5_3.svg" alt="Image of gibbs phenomenon." style="width: 432px;"/>
 </figure>
 <p><span class="math inline">\(\mathbf{A}\)</span> を組み立てます。</p>
-<p>$$  = \begin{bmatrix} C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\</p>
-<p>C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1\</p>
-<p>0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0\ \end{bmatrix} $$</p>
+<p><span class="math display">\[
+\mathbf{A}
+=
+\begin{bmatrix}
+C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_1\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_1 &amp; C_0 &amp; C_1\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0\\
+\end{bmatrix}
+\]</span></p>
 <p>まとめます。</p>
 <p><span class="math display">\[
 \mathbf{B} =

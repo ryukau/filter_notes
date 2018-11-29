@@ -79,7 +79,6 @@ $$
 = \space
 u{\left (x,t \right )}
 - \frac{1}{2} u{\left (x,t - dt \right )}\\
-
 \alpha = \space -\frac{c^{2} dt^{2}}{2 \; dx^{2}}, \quad
 \beta = \frac{c^{2} dt^{2}}{dx^{2}} + \space \frac{1}{2}
 \end{gathered}

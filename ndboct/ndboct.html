@@ -11,12 +11,13 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
     crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
     crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 
   <style>
     body {
@@ -226,13 +227,27 @@ M &amp;= {{\,m}\over{20}}\log_2 10
 <a class="sourceLine" id="cb7-15" data-line-number="15"></a>
 <a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co">/* where */</span></a>
 <a class="sourceLine" id="cb7-17" data-line-number="17"><span class="cn">M</span>: <span class="fu">log</span>(<span class="dv">10</span>)*<span class="cn">m</span>/<span class="dv">20</span>/<span class="fu">log</span>(<span class="dv">2</span>);</a></code></pre></div>
-<p>$$ \begin{aligned} ^{}_{-} A() e^{jn} d</p>
-<p>=</p>
-<p>&amp;{{h<sup>{M}}}<em>{-}<sup>{-h}{e</sup>{i,n,};d}\ &amp;+{{1}}</em>{-h}</sup>{-l}{<sup>{M},e</sup>{i,n,};d}\ &amp;+<em>{-l}<sup>{l}{e</sup>{i,n,};d}\ &amp;+{{1}}</em>{l}<sup>{h}{</sup>{M},e<sup>{i,n,};d}\ &amp;+{{h</sup>{M}}}_{h}<sup>{}{e</sup>{i,n,};d}\</p>
-<p>=</p>
-<p>&amp;{{(l,n)}} +{{h<sup>{M},(n,)}} -{{h</sup>{M},(h,n)}}\</p>
-<p>&amp;+{{i,(-1)^{{{M}}} n^{-M-1}}} ((M+1 , i,h,n) - (M+1 , i,l,n))\</p>
-<p>&amp;+{{i,(-i)<sup>{-M},n</sup>{-M-1}}} ((M+1 , -i,l,n) - (M+1 , -i,h,n)) \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+=
+&amp;{{h^{M}}\over{l^{M}}}\int_{-\pi}^{-h}{e^{i\,n\,\omega}\;d\omega}\\
+&amp;+{{1}\over{l^{M}}}\int_{-h}^{-l}{\omega^{M}\,e^{i\,n\,\omega}\;d\omega}\\
+&amp;+\int_{-l}^{l}{e^{i\,n\,\omega}\;d\omega}\\
+&amp;+{{1}\over{l^{M}}}\int_{l}^{h}{\omega^{M}\,e^{i\,n\,\omega}\;d\omega}\\
+&amp;+{{h^{M}}\over{l^{M}}}\int_{h}^{\pi}{e^{i\,n\,\omega}\;d\omega}\\
+=
+&amp;{{\sin \left(l\,n\right)}\over{n\,\pi}}
++{{h^{M}\,\sin \left(n\,\pi\right)}\over{l^{M}\,n\,\pi}}
+-{{h^{M}\,\sin \left(h\,n\right)}\over{l^{M}\,n\,\pi}}
+\\
+&amp;+{{i\,\left(-1\right)^{{{M}\over{2}}} n^{-M-1}}\over{2\,\pi\,l^{M}}}
+\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 , i\,l\,n\right)\Bigr)
+\\
+&amp;+{{i\,\left(-i\right)^{-M}\,n^{-M-1}}\over{2\,\pi\,l^{M}}}
+\Bigl(\Gamma\left(M+1 , -i\,l\,n\right) - \Gamma\left(M+1 , -i\,h\,n\right)\Bigr)
+\end{aligned}
+\]</span></p>
 <p><span class="math inline">\(\Gamma(s, x)\)</span> は <a href="https://en.wikipedia.org/wiki/Incomplete_gamma_function#Definition">upper incomplete gamma function</a> です。</p>
 <p><span class="math display">\[
 \Gamma(s, x) = \int_{x}^{\infty} t^{s - 1} e^{-t} dt
@@ -242,8 +257,19 @@ M &amp;= {{\,m}\over{20}}\log_2 10
 <a class="sourceLine" id="cb8-2" data-line-number="2"><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</a>
 <a class="sourceLine" id="cb8-3" data-line-number="3"><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</a>
 <a class="sourceLine" id="cb8-4" data-line-number="4"><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</a></code></pre></div>
-<p>$$ \begin{aligned} ^{}_{-} A_P() e^{jn} d = &amp;{{i,(-1)^{{{M}}} n^{-M-1}}} ((M+1 , i,h,n) - (M+1 , i,l,n))\</p>
-<p>^{}_{-} A_R() e^{jn} d = &amp;{{i,(-i)<sup>{-M},n</sup>{-M-1}}} ((M+1 , -i,l,n) - (M+1 , -i,h,n)) \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\int^{\pi}_{-\pi} A_P(\omega) e^{j\omega n} d\omega
+=
+&amp;{{i\,\left(-1\right)^{{{M}\over{2}}} n^{-M-1}}\over{2\,\pi\,l^{M}}}
+\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 , i\,l\,n\right)\Bigr)
+\\
+\int^{\pi}_{-\pi} A_R(\omega) e^{j\omega n} d\omega
+=
+&amp;{{i\,\left(-i\right)^{-M}\,n^{-M-1}}\over{2\,\pi\,l^{M}}}
+\Bigl(\Gamma\left(M+1 , -i\,l\,n\right) - \Gamma\left(M+1 , -i\,h\,n\right)\Bigr)
+\end{aligned}
+\]</span></p>
 <p>適当に <span class="math inline">\(\Gamma\left(M+1 , i\,h\,n\right)\)</span> を展開します。</p>
 <p><span class="math display">\[
 \Gamma\left(M+1 , i\,h\,n\right) = \int_{i\,h\,n}^{\infty} t^{M} e^{-t} dt

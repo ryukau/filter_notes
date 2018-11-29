@@ -11,12 +11,13 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
     crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
     crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 
   <style>
     body {
@@ -78,9 +79,23 @@
 \hat{D}^{\alpha, k} f(x) = \sum_{m=k}^{\infty} (-1)^{m} \binom{\alpha}{m} f(x - mh)
 \]</span></p>
 <p>自然数階微分を有限差分に変形します。</p>
-$$
-
-<p>$$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\nabla^2 u =&amp;
+\frac{1}{dx^{2}} \left(
+    u{\left (x - dx,t \right )}
+    - 2 u{\left (x,t \right )}
+    + u{\left (x + dx,t \right )}
+\right)
+\\
+\frac{\partial^2 u}{\partial t^2} =&amp;
+\frac{1}{dt^{2}} \left(
+    u{\left (x,t \right )}
+    - 2 u{\left (x,t - dt \right )}
+    + u{\left (x,t - 2dt \right )}
+\right)
+\end{aligned}
+\]</span></p>
 <p>分数階Zener波動方程式に代入します。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -108,12 +123,58 @@ $$
 \end{aligned}
 \]</span></p>
 <p>移項します。</p>
-$$
-
-<p>$$</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; \frac{1}{dx^{2}} \left(1 + \frac{\tau_{\sigma}^{\alpha}}{dt^{\alpha}} \right)
+\left(
+    u{\left (x - dx,t \right )}
+    - 2 u{\left (x,t \right )}
+    + u{\left (x + dx,t \right )}
+\right)\\
+&amp;- \frac{1}{c_0^2 dt^{2}} u{\left (x,t \right )}\\
+&amp;- \frac{\tau_{\varepsilon}^{\beta}}{c_0^2 dt^{2 + \beta}} u(x, t)
+\\
+=
+&amp; \frac{1}{c_0^2 dt^{2}} \left(
+    - 2 u{\left (x,t - dt \right )}
+    + u{\left (x,t - 2dt \right )}
+\right)\\
+&amp;- \frac{\tau_{\sigma}^{\alpha}}{dt^{\alpha} dx^{2}} \hat{D}^{\alpha, 1} \left(
+    u{\left (x - dx,t \right )}
+    - 2 u{\left (x,t \right )}
+    + u{\left (x + dx,t \right )}
+\right)\\
+&amp;+ \frac{\tau_{\varepsilon}^{\beta}}{c_0^2 dt^{2 + \beta}} \hat{D}^{2 + \beta, 1} \left(
+    u(x, t)
+\right)\\
+\end{aligned}
+\]</span></p>
 <p>計算しやすい形に整理します。</p>
-<p>$$ \begin{aligned} C_1 u{(x - dx,t )} +&amp; C_4 u{(x,t )} + C_1 u{(x + dx,t )}\ =&amp; C_2 ( u{(x,t - 2dt )} - 2 u{(x,t - dt )} )\ &amp;- C_0 ^{, 1} ( u{(x - dx,t )} - 2 u{(x,t )} + u{(x + dx,t )} )\ &amp;+C_3 ^{2 + , 1} ( u(x, t) )\ \</p>
-<p>C_0 =&amp;  , C_1 =  + C_0 , C_2 =  \ C_3 =&amp; C_2  , C_4 = -(2 C_1 + C_2 + C_3) \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+C_1 u{\left (x - dx,t \right )}
++&amp; C_4 u{\left (x,t \right )}
++ C_1 u{\left (x + dx,t \right )}\\
+=&amp;
+C_2 \left( u{\left (x,t - 2dt \right )} - 2 u{\left (x,t - dt \right )} \right)\\
+&amp;- C_0 \hat{D}^{\alpha, 1} \left(
+    u{\left (x - dx,t \right )}
+    - 2 u{\left (x,t \right )}
+    + u{\left (x + dx,t \right )}
+\right)\\
+&amp;+C_3 \hat{D}^{2 + \beta, 1} \left( u(x, t) \right)\\
+\\
+C_0 =&amp; \frac{\tau_{\sigma}^{\alpha}}{dt^{\alpha} dx^2}
+,\quad
+C_1 = \frac{1}{dx^{2}} + C_0
+,\quad
+C_2 = \frac{1}{c_0^2 dt^{2}}
+\\
+C_3 =&amp; C_2 \frac{\tau_{\varepsilon}^{\beta}}{dt^{\beta}}
+,\quad
+C_4 = -(2 C_1 + C_2 + C_3)
+\end{aligned}
+\]</span></p>
 <p>連立方程式を立てます。</p>
 <p><span class="math display">\[
 \mathbf{A} \mathbf{u}^{t} =

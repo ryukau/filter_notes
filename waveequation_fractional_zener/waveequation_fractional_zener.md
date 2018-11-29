@@ -27,8 +27,8 @@ $$
     u{\left (x - dx,t \right )}
     - 2 u{\left (x,t \right )}
     + u{\left (x + dx,t \right )}
-\right)\\
-
+\right)
+\\
 \frac{\partial^2 u}{\partial t^2} =&
 \frac{1}{dt^{2}} \left(
     u{\left (x,t \right )}
@@ -77,8 +77,8 @@ $$
     + u{\left (x + dx,t \right )}
 \right)\\
 &- \frac{1}{c_0^2 dt^{2}} u{\left (x,t \right )}\\
-&- \frac{\tau_{\varepsilon}^{\beta}}{c_0^2 dt^{2 + \beta}} u(x, t)\\
-
+&- \frac{\tau_{\varepsilon}^{\beta}}{c_0^2 dt^{2 + \beta}} u(x, t)
+\\
 =
 & \frac{1}{c_0^2 dt^{2}} \left(
     - 2 u{\left (x,t - dt \right )}
@@ -111,7 +111,6 @@ C_2 \left( u{\left (x,t - 2dt \right )} - 2 u{\left (x,t - dt \right )} \right)\
 \right)\\
 &+C_3 \hat{D}^{2 + \beta, 1} \left( u(x, t) \right)\\
 \\
-
 C_0 =& \frac{\tau_{\sigma}^{\alpha}}{dt^{\alpha} dx^2}
 ,\quad
 C_1 = \frac{1}{dx^{2}} + C_0

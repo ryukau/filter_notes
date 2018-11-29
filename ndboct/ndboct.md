@@ -211,24 +211,20 @@ M: log(10)*m/20/log(2);
 $$
 \begin{aligned}
 \frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-
 =
-
 &{{h^{M}}\over{l^{M}}}\int_{-\pi}^{-h}{e^{i\,n\,\omega}\;d\omega}\\
 &+{{1}\over{l^{M}}}\int_{-h}^{-l}{\omega^{M}\,e^{i\,n\,\omega}\;d\omega}\\
 &+\int_{-l}^{l}{e^{i\,n\,\omega}\;d\omega}\\
 &+{{1}\over{l^{M}}}\int_{l}^{h}{\omega^{M}\,e^{i\,n\,\omega}\;d\omega}\\
 &+{{h^{M}}\over{l^{M}}}\int_{h}^{\pi}{e^{i\,n\,\omega}\;d\omega}\\
-
 =
-
 &{{\sin \left(l\,n\right)}\over{n\,\pi}}
 +{{h^{M}\,\sin \left(n\,\pi\right)}\over{l^{M}\,n\,\pi}}
--{{h^{M}\,\sin \left(h\,n\right)}\over{l^{M}\,n\,\pi}}\\
-
+-{{h^{M}\,\sin \left(h\,n\right)}\over{l^{M}\,n\,\pi}}
+\\
 &+{{i\,\left(-1\right)^{{{M}\over{2}}} n^{-M-1}}\over{2\,\pi\,l^{M}}}
-\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 , i\,l\,n\right)\Bigr)\\
-
+\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 , i\,l\,n\right)\Bigr)
+\\
 &+{{i\,\left(-i\right)^{-M}\,n^{-M-1}}\over{2\,\pi\,l^{M}}}
 \Bigl(\Gamma\left(M+1 , -i\,l\,n\right) - \Gamma\left(M+1 , -i\,h\,n\right)\Bigr)
 \end{aligned}
@@ -254,8 +250,8 @@ $$
 \int^{\pi}_{-\pi} A_P(\omega) e^{j\omega n} d\omega
 =
 &{{i\,\left(-1\right)^{{{M}\over{2}}} n^{-M-1}}\over{2\,\pi\,l^{M}}}
-\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 , i\,l\,n\right)\Bigr)\\
-
+\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 , i\,l\,n\right)\Bigr)
+\\
 \int^{\pi}_{-\pi} A_R(\omega) e^{j\omega n} d\omega
 =
 &{{i\,\left(-i\right)^{-M}\,n^{-M-1}}\over{2\,\pi\,l^{M}}}

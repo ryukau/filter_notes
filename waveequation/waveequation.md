@@ -61,8 +61,8 @@ $$
 $$
 \begin{aligned}
 u(x,t + dt) &= \alpha \left(u{\left (- dx + x,t \right )} + u{\left (dx + x,t \right )}\right)
-+ \beta u{\left (x,t \right )} - u{\left (x,- dt + t \right )}\\
-
++ \beta u{\left (x,t \right )} - u{\left (x,- dt + t \right )}
+\\
 \alpha &= c^{2} \frac{dt^{2}}{dx^{2}}\\
 \beta &= 2 \left(1 - \alpha \right)
 \end{aligned}

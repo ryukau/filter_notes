@@ -101,11 +101,11 @@ soundfile.write("cymbal_source.wav", sig, samplerate)
 
 $$
 \begin{aligned}
-H(s) &= -\frac{y_a(s)}{y_b(s)}\\
-
+H(s) &= -\frac{y_a(s)}{y_b(s)}
+\\
 y_a(s) &= - \frac{Gs}{s + G / C}\\
-y_b(s) &= - k \frac{s^2 + b_0 s + c_0}{s + a_0}\\
-
+y_b(s) &= - k \frac{s^2 + b_0 s + c_0}{s + a_0}
+\\
 a_0 &= \frac{G_2}{C_1 + C_2},\quad
 b_0 = \frac{G_1 (C_1 + C_2)}{C_1 C_2},\quad
 c_0 = \frac{G_1 G_2}{C_1 C_2},\quad

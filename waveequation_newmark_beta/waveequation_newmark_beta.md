@@ -48,8 +48,8 @@ Newmark-β 法では速度と位置の計算に次の式を使います。
 $$
 \begin{aligned}
 \dot{u}_{n+1} &= \dot{u}_{n}
-+ \Delta_t \left( (1 - \gamma) \ddot{u}_{n} + \gamma \ddot{u}_{n+1} \right)\\
-
++ \Delta_t \left( (1 - \gamma) \ddot{u}_{n} + \gamma \ddot{u}_{n+1} \right)
+\\
 u_{n+1} &= u_{n} + \Delta_t \dot{u}_{n} + \Delta_t^2 \left(
   \left( \frac{1}{2} - \beta \right) \ddot{u}_{n} + \beta \ddot{u}_{n+1}
 \right)
@@ -63,11 +63,11 @@ $\beta$ と $\gamma$ が調整できる形になっていますが $\gamma$ に�
 
 $$
 \begin{aligned}
-\ddot{u}_{n+1} &= c^2 u''_{n+1}\\
-
+\ddot{u}_{n+1} &= c^2 u''_{n+1}
+\\
 \dot{u}_{n+1} &= \dot{u}_{n}
-+ \frac{\Delta_t}{2} \left( \ddot{u}_{n} + \ddot{u}_{n+1} \right)\\
-
++ \frac{\Delta_t}{2} \left( \ddot{u}_{n} + \ddot{u}_{n+1} \right)
+\\
 u_{n+1} &= u_{n} + \Delta_t \dot{u}_{n} + \Delta_t^2 \left(
   \left( \frac{1}{2} - \beta \right) \ddot{u}_{n} + \beta \ddot{u}_{n+1}
 \right)
@@ -151,8 +151,8 @@ u_{n+1} = u_{n} + \Delta_t \dot{u}_{n} + C_2 \ddot{u}_{n} - C_1 \ddot{u}_{n+1}\\
  0 & C_1 & C_0 & C_1 & \cdots & 0 & 0\\
 & \vdots & & & & \vdots &\\
  0 & 0 & 0 & 0 & \cdots & b_R C_1 & C_0
-\end{bmatrix}\\
-
+\end{bmatrix}
+\\
 C_0 = \frac{\Delta_x^2}{c^2} + 2 \Delta_t^2 \beta
 ,\quad
 C_1 = - \Delta_t^2 \beta
@@ -178,11 +178,11 @@ Newmark-β 法の連立方程式を立てます。
 
 $$
 \begin{aligned}
-\ddot{u}_{n+1} &= c^2 u''_{n+1} - a \dot{u}_{n+1} + k u_{n+1}\\
-
+\ddot{u}_{n+1} &= c^2 u''_{n+1} - a \dot{u}_{n+1} + k u_{n+1}
+\\
 \dot{u}_{n+1} &= \dot{u}_{n}
-+ \frac{\Delta_t}{2} \left( \ddot{u}_{n} + \ddot{u}_{n+1} \right)\\
-
++ \frac{\Delta_t}{2} \left( \ddot{u}_{n} + \ddot{u}_{n+1} \right)
+\\
 u_{n+1} &= u_{n} + \Delta_t \dot{u}_{n} + \Delta_t^2 \left(
   \left( \frac{1}{2} - \beta \right) \ddot{u}_{n} + \beta \ddot{u}_{n+1}
 \right)

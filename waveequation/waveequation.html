@@ -11,12 +11,13 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
     crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
     crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 
   <style>
     body {
@@ -104,9 +105,15 @@ u(x,t + dt) = &amp;- \frac{2 c^{2}}{dx^{2}} dt^{2} u{\left (x,t \right )} + \fra
 \end{aligned}
 \]</span></p>
 <p>式を整理します。</p>
-$$
-
-<p>$$</p>
+<p><span class="math display">\[
+\begin{aligned}
+u(x,t + dt) &amp;= \alpha \left(u{\left (- dx + x,t \right )} + u{\left (dx + x,t \right )}\right)
++ \beta u{\left (x,t \right )} - u{\left (x,- dt + t \right )}
+\\
+\alpha &amp;= c^{2} \frac{dt^{2}}{dx^{2}}\\
+\beta &amp;= 2 \left(1 - \alpha \right)
+\end{aligned}
+\]</span></p>
 <p>計算できる形になりました。実装します。</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">// u(x, t) -&gt; wave[t][x]</span></a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">var</span> wave <span class="op">=</span> []</a>

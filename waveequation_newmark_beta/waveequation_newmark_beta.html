@@ -11,12 +11,13 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css" integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
     crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js" integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js" integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
     crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
 
   <style>
     body {
@@ -98,14 +99,31 @@ u_{n, x-1} &amp;= u(x - \Delta_x, t + (n + 1)\,\Delta_t)\\
 <p>波動方程式はエネルギーの減衰が考慮されていないので時間が経っても波が減衰しないはずですが <a href="https://en.wikipedia.org/wiki/Finite_difference_method#Implicit_method">Implicit FDM</a> で離散化すると減衰が起こります。 Schweickart, James, Marschner の <a href="https://www.cs.cornell.edu/projects/rodsound/">“Animating Elastic Rods with Sound”</a> に習って <a href="https://en.wikipedia.org/wiki/Newmark-beta_method">Newmark-β 法</a>を使うことでエネルギーの減衰を改善します。</p>
 <h2 id="newmark-β-法">Newmark-β 法</h2>
 <p>Newmark-β 法では速度と位置の計算に次の式を使います。</p>
-<p>$$ \begin{aligned} <em>{n+1} &amp;= </em>{n} + <em>t ( (1 - ) </em>{n} + _{n+1} )\</p>
-<p>u_{n+1} &amp;= u_{n} + <em>t </em>{n} + <em>t^2 ( (  - ) </em>{n} + _{n+1} ) \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\dot{u}_{n+1} &amp;= \dot{u}_{n}
++ \Delta_t \left( (1 - \gamma) \ddot{u}_{n} + \gamma \ddot{u}_{n+1} \right)
+\\
+u_{n+1} &amp;= u_{n} + \Delta_t \dot{u}_{n} + \Delta_t^2 \left(
+  \left( \frac{1}{2} - \beta \right) \ddot{u}_{n} + \beta \ddot{u}_{n+1}
+\right)
+\end{aligned}
+\]</span></p>
 <p><span class="math inline">\(\beta\)</span> と <span class="math inline">\(\gamma\)</span> が調整できる形になっていますが <span class="math inline">\(\gamma\)</span> については <span class="math inline">\(1/2\)</span> 以外の値にすると精度が下がるそうです。 <span class="math inline">\(\beta\)</span> の値は<a href="https://en.wikipedia.org/wiki/Newmark-beta_method">Wikipediaの記事</a>で <span class="math inline">\(1/4\)</span> 、 Gavin の <a href="http://people.duke.edu/~hpgavin/cee541/NumericalIntegration.pdf">“Numerical Integration in Structural Dynamics”</a> で <span class="math inline">\(1/6\)</span> の場合が紹介されていました。この文章では <span class="math inline">\(\gamma\)</span> は <span class="math inline">\(1/2\)</span> で固定して <span class="math inline">\(\beta\)</span> は調整できる形にしています。</p>
 <h2 id="newmark-β-法による波動方程式の離散化">Newmark-β 法による波動方程式の離散化</h2>
 <p>位置 <span class="math inline">\(u\)</span> 、速度 <span class="math inline">\(\dot{u}\)</span> 、加速度 <span class="math inline">\(\ddot{u}\)</span> からなる連立微分方程式を立てます。位置と速度の式は Newmark-β 法のもので、加速度の式は1次元の波動方程式です。</p>
-<p>$$ \begin{aligned} <em>{n+1} &amp;= c^2 u’’</em>{n+1}\</p>
-<p><em>{n+1} &amp;= </em>{n} +  ( <em>{n} + </em>{n+1} )\</p>
-<p>u_{n+1} &amp;= u_{n} + <em>t </em>{n} + <em>t^2 ( (  - ) </em>{n} + _{n+1} ) \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\ddot{u}_{n+1} &amp;= c^2 u&#39;&#39;_{n+1}
+\\
+\dot{u}_{n+1} &amp;= \dot{u}_{n}
++ \frac{\Delta_t}{2} \left( \ddot{u}_{n} + \ddot{u}_{n+1} \right)
+\\
+u_{n+1} &amp;= u_{n} + \Delta_t \dot{u}_{n} + \Delta_t^2 \left(
+  \left( \frac{1}{2} - \beta \right) \ddot{u}_{n} + \beta \ddot{u}_{n+1}
+\right)
+\end{aligned}
+\]</span></p>
 <p><span class="math inline">\(\ddot{u}_{n+1}\)</span> の右辺について <span class="math inline">\(u&#39;&#39;_{n+1}\)</span> を有限差分に変形して <span class="math inline">\(u_{n+1}\)</span> の右辺を代入します。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -158,8 +176,33 @@ C_0 \ddot{u}_{n+1} + b\, C_1 \ddot{u}_{n+1, x+1}
 \end{aligned}
 \]</span></p>
 <p>連立方程式を立てます。</p>
-<p>$$ \begin{aligned} \begin{cases}  <em>{n+1} = ’’<em>n + <em>t ’’</em>{n} + C_2 ’’</em>{n}\ u</em>{n+1} = u_{n} + <em>t </em>{n} + C_2 <em>{n} - C_1 </em>{n+1}\ <em>{n+1} = </em>{n} + C_3 ( <em>{n} + </em>{n+1} )\ \end{cases} ;,&amp;  = \begin{bmatrix} C_0 &amp; b_L C_1 &amp; 0 &amp; 0 &amp; &amp; 0 &amp; 0\ C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; &amp; 0 &amp; 0\ 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; &amp; 0 &amp; 0\ &amp; &amp; &amp; &amp; &amp; &amp;\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; &amp; b_R C_1 &amp; C_0 \end{bmatrix}\</p>
-<p>C_0 =  + 2 _t^2  , C_1 = - _t^2  ,&amp; C_2 =  + C_1 , C_3 =  \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\begin{cases}
+\mathbf{A} \ddot{\mathbf{u}}_{n+1}
+= \mathbf{u}&#39;&#39;_n + \Delta_t \dot{\mathbf{u}}&#39;&#39;_{n} + C_2 \ddot{\mathbf{u}}&#39;&#39;_{n}\\
+u_{n+1} = u_{n} + \Delta_t \dot{u}_{n} + C_2 \ddot{u}_{n} - C_1 \ddot{u}_{n+1}\\
+\dot{u}_{n+1} = \dot{u}_{n} + C_3 \left( \ddot{u}_{n} + \ddot{u}_{n+1} \right)\\
+\end{cases}
+\;,&amp;\quad
+\mathbf{A} =
+\begin{bmatrix}
+ C_0 &amp; b_L C_1 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0\\
+ C_1 &amp; C_0 &amp; C_1 &amp; 0 &amp; \cdots &amp; 0 &amp; 0\\
+ 0 &amp; C_1 &amp; C_0 &amp; C_1 &amp; \cdots &amp; 0 &amp; 0\\
+&amp; \vdots &amp; &amp; &amp; &amp; \vdots &amp;\\
+ 0 &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; b_R C_1 &amp; C_0
+\end{bmatrix}
+\\
+C_0 = \frac{\Delta_x^2}{c^2} + 2 \Delta_t^2 \beta
+,\quad
+C_1 = - \Delta_t^2 \beta
+,&amp;\quad
+C_2 = \frac{\Delta_t^2}{2} + C_1
+,\quad
+C_3 = \frac{\Delta_t}{2}
+\end{aligned}
+\]</span></p>
 <p>実装はGitHubの別ページに分けました。リンク先の <code>Wave1DNewmarkBeta</code> クラスになります。</p>
 <p><a href="https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/waveequation_newmark_beta/demo/wave1d.js#L81">実装を読む (github.com)</a></p>
 <h2 id="newmark-β-法によるばね-ダンパ波動方程式の離散化">Newmark-β 法によるばね-ダンパ波動方程式の離散化</h2>
@@ -168,9 +211,18 @@ C_0 \ddot{u}_{n+1} + b\, C_1 \ddot{u}_{n+1, x+1}
 \ddot{u} + a \dot{u} + k u = c^2 u&#39;&#39;
 \]</span></p>
 <p>Newmark-β 法の連立方程式を立てます。</p>
-<p>$$ \begin{aligned} <em>{n+1} &amp;= c^2 u’’</em>{n+1} - a <em>{n+1} + k u</em>{n+1}\</p>
-<p><em>{n+1} &amp;= </em>{n} +  ( <em>{n} + </em>{n+1} )\</p>
-<p>u_{n+1} &amp;= u_{n} + <em>t </em>{n} + <em>t^2 ( (  - ) </em>{n} + _{n+1} ) \end{aligned} $$</p>
+<p><span class="math display">\[
+\begin{aligned}
+\ddot{u}_{n+1} &amp;= c^2 u&#39;&#39;_{n+1} - a \dot{u}_{n+1} + k u_{n+1}
+\\
+\dot{u}_{n+1} &amp;= \dot{u}_{n}
++ \frac{\Delta_t}{2} \left( \ddot{u}_{n} + \ddot{u}_{n+1} \right)
+\\
+u_{n+1} &amp;= u_{n} + \Delta_t \dot{u}_{n} + \Delta_t^2 \left(
+  \left( \frac{1}{2} - \beta \right) \ddot{u}_{n} + \beta \ddot{u}_{n+1}
+\right)
+\end{aligned}
+\]</span></p>
 <p><span class="math inline">\(\ddot{u}_{n+1}\)</span> の右辺について <span class="math inline">\(\dot{u}_{n+1}\)</span> と <span class="math inline">\(u_{n+1}\)</span> を代入します。</p>
 <p><span class="math display">\[
 \begin{aligned}

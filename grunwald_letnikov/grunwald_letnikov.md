@@ -38,7 +38,6 @@ $$
 \underbrace{
   D^{\frac{1}{q}} \left( \ldots \left( D^{\frac{1}{q}} f(x) \right) \right)
 }_\text{1/q differentiation for q times}
-
 = \frac{d}{dx} f(x)
 $$
 
@@ -54,7 +53,6 @@ $$
 \underbrace{
   J^{\frac{1}{q}} \left( \ldots \left( J^{\frac{1}{q}} f(x) \right) \right)
 }_\text{1/q integration for q times}
-
 = \int_{0}^{x} f(s) ds
 $$
 
@@ -156,10 +154,9 @@ $\alpha$ 階の分数階積分も計算できます。 $-\alpha$ 階微分の形
 $$
 \begin{aligned}
 d^{-\alpha} f(x)
-
 &= \lim_{h \to 0} \frac{1}{h^{-\alpha}}
-\sum_{m=0}^{\infty} (-1)^{m} \binom{-\alpha}{m} f(x - mh)\\
-
+\sum_{m=0}^{\infty} (-1)^{m} \binom{-\alpha}{m} f(x - mh)
+\\
 &= \lim_{h \to 0} \frac{1}{h^{-\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
 \frac{\Gamma(-\alpha + 1)}{\Gamma(m + 1)\Gamma(-\alpha - m + 1)} f(x - mh)
 \end{aligned}
@@ -195,8 +192,8 @@ $$
 \begin{aligned}
 d^{\alpha} f(x)
 &= \lim_{h \to 0} \frac{1}{h^{\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
-\frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)} f(x - mh)\\
-
+\frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)} f(x - mh)
+\\
 d^{-\alpha} f(x)
 &= \lim_{h \to 0} \frac{1}{h^{-\alpha}} \sum_{m=0}^{\infty}
 \frac{\Gamma(\alpha + m)}{\Gamma(m + 1)\Gamma(\alpha)} f(x - mh)
