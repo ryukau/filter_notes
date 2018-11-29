@@ -3,7 +3,7 @@
 
 <iframe width="640" height="360" src="https://www.youtube.com/embed/zlPi7BwqFwo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-似たような音に分類したくなったので、音から得られた[MFCC](http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/)を特徴ベクトルとして[K-Means](https://en.wikipedia.org/wiki/K-means_clustering)でクラスタリングしました。
+似たような音に分類したくなったので、音の[MFCC](http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/)を特徴として[K-Means](https://en.wikipedia.org/wiki/K-means_clustering)でクラスタリングしました。
 
 ## データセット
 Golly の generations から生成した音のデータセットを次のリンクからダウンロードできます。
@@ -254,6 +254,7 @@ K-Meansの中央値と対応するデータポイントとの間での平均絶�
 - 22, 23, 24, 26, 37, 38 はプチノイズと高いトーン。
 - 32, 33 は低めのカラーノイズと低めのトーンの中間のような音。
 
+## プロットギャラリー
 特徴ベクトルを変えて出力したプロットを別ページにまとめました。
 
 [プロットギャラリーを見る](gallery.html)

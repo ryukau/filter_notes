@@ -167,7 +167,7 @@
 <p><a href="http://golly.sourceforge.net/">Golly</a> の <a href="http://golly.sourceforge.net/Help/Algorithms/Generations.html">Genrations</a> という<a href="https://ja.wikipedia.org/wiki/%E3%82%BB%E3%83%AB%E3%83%BB%E3%82%AA%E3%83%BC%E3%83%88%E3%83%9E%E3%83%88%E3%83%B3">セルオートマトン</a>のルールを使って音を作りました。</p>
 <iframe width="640" height="360" src="https://www.youtube.com/embed/zlPi7BwqFwo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 </iframe>
-<p>似たような音に分類したくなったので、音から得られた<a href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">MFCC</a>を特徴ベクトルとして<a href="https://en.wikipedia.org/wiki/K-means_clustering">K-Means</a>でクラスタリングしました。</p>
+<p>似たような音に分類したくなったので、音の<a href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">MFCC</a>を特徴として<a href="https://en.wikipedia.org/wiki/K-means_clustering">K-Means</a>でクラスタリングしました。</p>
 <h2 id="データセット">データセット</h2>
 <p>Golly の generations から生成した音のデータセットを次のリンクからダウンロードできます。</p>
 <ul>
@@ -373,6 +373,7 @@
 <li>22, 23, 24, 26, 37, 38 はプチノイズと高いトーン。</li>
 <li>32, 33 は低めのカラーノイズと低めのトーンの中間のような音。</li>
 </ul>
+<h2 id="プロットギャラリー">プロットギャラリー</h2>
 <p>特徴ベクトルを変えて出力したプロットを別ページにまとめました。</p>
 <p><a href="gallery.html">プロットギャラリーを見る</a></p>
 <h2 id="その他">その他</h2>
