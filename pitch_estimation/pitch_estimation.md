@@ -1,5 +1,5 @@
 # 単音からのピッチ推定
-クラスタリングの特徴量として使うために単音からのピッチ推定を実装します。
+クラスタリングの特徴量として使うために単音からのピッチ推定を実装します。ここでのピッチとは音の[基本周波数](https://en.wikipedia.org/wiki/Fundamental_frequency)を指しています。
 
 Python3のライブラリを探したところ、[Essentia](https://essentia.upf.edu/documentation/index.html)に含まれていた[YIN](http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf)というピッチ推定のアルゴリズムを見つけました。そこからさらに調べると [sevagh さんのリポジトリ](https://github.com/sevagh/pitch-detection) を見つけて [McLeod pitch method (MPM)](http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf) を見つけました。
 
@@ -578,7 +578,7 @@ test_sin_wave(samplerate, duration, winlen, winstep, freq_low, freq_high, num)
 
 この他に作ったプロットは別ページにまとめました。
 
-- TODO リンク
+- [プロットギャラリー (サイン波)](plot_gallery_pitch_estimation.html#サイン波)
 
 誤差が最小となったのは YIN-NSD type II です。
 
@@ -586,7 +586,7 @@ YIN-CMND type I は低周波域での誤差が大きく、全体の平均を押�
 
 全体的に type II の自己相関関数のほうが誤差が低くなっています。
 
-### ノイズを加算したサイン波
+### ノイズを加えたサイン波
 サイン波にノイズを加えたときでもピッチが推定できるか試します。
 
 ```python
@@ -623,7 +623,9 @@ for ratio in numpy.geomspace(freq_low, freq_high, num):
 <img src="img/error_sin_with_noise.png" alt="Image of plot of mean absolute error to sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
 
-- TODO プロットギャラリーへのリンク
+この他に作ったプロットは別ページにまとめました。
+
+- [プロットギャラリー (ノイズを加えたサイン波)](plot_gallery_pitch_estimation.html#ノイズを加えたサイン波)
 
 CMND type I の手法はノイズの比率が大きくなっても `nan` が出ませんが誤差は大きめです。
 
@@ -675,7 +677,10 @@ FM変調をかけたサイン波に対する平均絶対誤差です。
 <img src="img/error_sin_fm.png" alt="Image of plot of mean absolute error to sin FM signal." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
 
-- TODO プロットギャラリーへのリンク
+この他に作ったプロットは別ページにまとめました。
+
+- [プロットギャラリー (AM変調)](plot_gallery_pitch_estimation.html#am変調)
+- [プロットギャラリー (FM変調)](plot_gallery_pitch_estimation.html#fm変調)
 
 誤差からはどう間違っているかがわからないので、推定されたピッチを動画にしました。
 
@@ -693,7 +698,7 @@ FM変調をかけたサイン波から推定されたピッチです。
   <p>Video of pitch estimation to sin FM signal.</p>
 </video>
 
-## 結論
+## どの手法がいいのか
 評価が適当なので、この手法がいいというはっきりした結果は出ませんでした。
 
 YIN-CMND type I はピッチの推定に失敗するとフレームの長さと同じ周期を推定する癖があるようです。

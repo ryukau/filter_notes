@@ -164,7 +164,7 @@
 
 <body>
   <h1 id="単音からのピッチ推定">単音からのピッチ推定</h1>
-<p>クラスタリングの特徴量として使うために単音からのピッチ推定を実装します。</p>
+<p>クラスタリングの特徴量として使うために単音からのピッチ推定を実装します。ここでのピッチとは音の<a href="https://en.wikipedia.org/wiki/Fundamental_frequency">基本周波数</a>を指しています。</p>
 <p>Python3のライブラリを探したところ、<a href="https://essentia.upf.edu/documentation/index.html">Essentia</a>に含まれていた<a href="http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf">YIN</a>というピッチ推定のアルゴリズムを見つけました。そこからさらに調べると <a href="https://github.com/sevagh/pitch-detection">sevagh さんのリポジトリ</a> を見つけて <a href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">McLeod pitch method (MPM)</a> を見つけました。</p>
 <p>ここでは YIN と MPM を実装して評価します。 MPM という呼び方は sevagh さんにならっています。</p>
 <h2 id="yin">YIN</h2>
@@ -675,12 +675,12 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 </figure>
 <p>この他に作ったプロットは別ページにまとめました。</p>
 <ul>
-<li>TODO リンク</li>
+<li><a href="plot_gallery_pitch_estimation.html#サイン波">プロットギャラリー (サイン波)</a></li>
 </ul>
 <p>誤差が最小となったのは YIN-NSD type II です。</p>
 <p>YIN-CMND type I は低周波域での誤差が大きく、全体の平均を押し上げています。</p>
 <p>全体的に type II の自己相関関数のほうが誤差が低くなっています。</p>
-<h3 id="ノイズを加算したサイン波">ノイズを加算したサイン波</h3>
+<h3 id="ノイズを加えたサイン波">ノイズを加えたサイン波</h3>
 <p>サイン波にノイズを加えたときでもピッチが推定できるか試します。</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">def</span> generate_sin_with_noise(duration, samplerate, frequency, noise_ratio):</a>
 <a class="sourceLine" id="cb11-2" data-line-number="2">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
@@ -707,8 +707,9 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <figure>
 <img src="img/error_sin_with_noise.png" alt="Image of plot of mean absolute error to sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
+<p>この他に作ったプロットは別ページにまとめました。</p>
 <ul>
-<li>TODO プロットギャラリーへのリンク</li>
+<li><a href="plot_gallery_pitch_estimation.html#ノイズを加えたサイン波">プロットギャラリー (ノイズを加えたサイン波)</a></li>
 </ul>
 <p>CMND type I の手法はノイズの比率が大きくなっても <code>nan</code> が出ませんが誤差は大きめです。</p>
 <p>NSD type II の手法はノイズの比率が3より大きいときに出る大きな誤差に引きずられて、全体の平均も悪くなっています。</p>
@@ -745,8 +746,10 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <figure>
 <img src="img/error_sin_fm.png" alt="Image of plot of mean absolute error to sin FM signal." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
+<p>この他に作ったプロットは別ページにまとめました。</p>
 <ul>
-<li>TODO プロットギャラリーへのリンク</li>
+<li><a href="plot_gallery_pitch_estimation.html#am変調">プロットギャラリー (AM変調)</a></li>
+<li><a href="plot_gallery_pitch_estimation.html#fm変調">プロットギャラリー (FM変調)</a></li>
 </ul>
 <p>誤差からはどう間違っているかがわからないので、推定されたピッチを動画にしました。</p>
 <p>AM変調をかけたサイン波から推定されたピッチです。</p>
@@ -763,7 +766,7 @@ Video of pitch estimation to sin AM signal.
 Video of pitch estimation to sin FM signal.
 </p>
 </video>
-<h2 id="結論">結論</h2>
+<h2 id="どの手法がいいのか">どの手法がいいのか</h2>
 <p>評価が適当なので、この手法がいいというはっきりした結果は出ませんでした。</p>
 <p>YIN-CMND type I はピッチの推定に失敗するとフレームの長さと同じ周期を推定する癖があるようです。</p>
 <p>YIN-CMND type II 、 MPM-CMND type I 、 MPM-CMND type II はフレーム内のピッチが低いか変化が激しいときに推定に失敗するようです。3つの中では MPM-CMND type II が推定に失敗することが少ないように見えます。</p>
