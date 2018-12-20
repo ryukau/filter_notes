@@ -661,7 +661,7 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <img src="img/mpm_cmnd.png" alt="Image of plot of MPM-CMND pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
 <h2 id="評価">評価</h2>
-<p>ここまでは一つの信号から一つのピッチを推定していました。ここで行うピッチ推定の評価では一つの信号を複数のフレームに分割して、それぞれのフレームから一つずつピッチを推定します。</p>
+<p>ここまでは一つの信号から一つのピッチを推定していました。ここから行うピッチ推定の評価では一つの信号を複数のフレームに分割して、それぞれのフレームから一つずつピッチを推定します。</p>
 <p>実装では <code>python_speech_features.sigproc.framesig</code> を使っています。フレームはオーバーラップすることがあります。信号の長さを超えることはありません。</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">def</span> pitch_frame(data, samplerate, winlen, winstep, pitch_func<span class="op">=</span>yin_cmnd_type2):</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2">    frame <span class="op">=</span> python_speech_features.sigproc.framesig(</a>
@@ -715,7 +715,7 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 </ul>
 <p>誤差が最小となったのは YIN-NSD type II です。</p>
 <p>YIN-CMND type I は低周波域での誤差が大きく、全体の平均を押し上げています。</p>
-<p>全体的に type II の自己相関関数のほうが誤差が低くなっています。</p>
+<p>全体的に type I よりも type II のほうが誤差が低くなっています。</p>
 <h3 id="ノイズを加えたサイン波">ノイズを加えたサイン波</h3>
 <p>サイン波にノイズを加えたときでもピッチが推定できるか試します。</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">def</span> generate_sin_with_noise(duration, samplerate, frequency, noise_ratio):</a>
