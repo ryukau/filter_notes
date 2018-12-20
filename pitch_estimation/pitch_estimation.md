@@ -138,13 +138,13 @@ $$
 
 $$
 \begin{aligned}
-d_t[\tau]
-&= r_t[0] + r_{t + \tau}[0] - 2r_t[\tau]\\
-&= 2 (r_t[0] - r_t[\tau])
+d[\tau]
+&= r[0] + r_{t + \tau}[0] - 2r[\tau]\\
+&= 2 (r[0] - r[\tau])
 \end{aligned}
 $$
 
-$d_t$ を $\tau > 0$ のときの cumulative mean normalized difference function に展開します。
+$d$ を $\tau > 0$ のときの cumulative mean normalized difference function に展開します。
 
 $$
 \begin{aligned}
@@ -158,7 +158,7 @@ $$
 係数の2を消すことができました。最終的に type I の自己相関を使う difference function は次のように簡略化できます。
 
 $$
-d_t[\tau] = r_t[0] - r_t[\tau]
+d[\tau] = r[0] - r[\tau]
 $$
 
 $t=0$ として type II の自己相関について $r_{t + \tau}[0]$ と $r_t[0]$ を展開します。
