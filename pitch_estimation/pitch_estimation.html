@@ -218,7 +218,7 @@ d&#39;_t[\tau] = \begin{cases}
   \dfrac{d_t[\tau]}{(1/\tau) \sum_{j=0}^{\tau-1}d_t[j]}, &amp;\text{otherwise.}
 \end{cases}
 \]</span></p>
-<p><span class="math inline">\(d\)</span> はYIN内で difference function と呼ばれる関数で、次のように定義されています。式中の <span class="math inline">\(N\)</span> は入力信号のサンプル数です。論文では <span class="math inline">\(N\)</span> ではなく <span class="math inline">\(W\)</span> を使っています。</p>
+<p><span class="math inline">\(d\)</span> はYINの論文で difference function と呼ばれている関数で、次のように定義されています。式中の <span class="math inline">\(N\)</span> は入力信号のサンプル数です。論文では <span class="math inline">\(N\)</span> ではなく <span class="math inline">\(W\)</span> を使っています。</p>
 <p><span class="math display">\[
 \begin{aligned}
 d_t[\tau]
@@ -290,7 +290,7 @@ r_{\tau}[0] &amp;= \sum_{j=\tau}^{\tau + N - 1} x^2[j]\\
 r[0] &amp;= \sum_{j=0}^{N - 1} x^2[j]
 \end{aligned}
 \]</span></p>
-<p>Type I の自己相関では <span class="math inline">\(x\)</span> が周期 <span class="math inline">\(N\)</span> なので <span class="math inline">\(r_{\tau}[0] = r[0]\)</span> となります。例として <span class="math inline">\(N = 3, \tau = 2\)</span> のときを考えます。</p>
+<p>Type I の自己相関では <span class="math inline">\(x\)</span> の周期が <span class="math inline">\(N\)</span> なので <span class="math inline">\(r_{\tau}[0] = r[0]\)</span> となります。例として <span class="math inline">\(N = 3, \tau = 2\)</span> のときを考えます。</p>
 <p><span class="math display">\[
 \begin{aligned}
 r_{2}[0]
@@ -378,7 +378,7 @@ i_{min}
 &amp;= i_1 + \frac{1}{2} \frac{x[i_0] - x[i_2]}{x[i_0] + x[i_2] - 2x[i_1]}
 \end{aligned}
 \]</span></p>
-<p>得られたインデックスを使ってサンプリング周波数を割ることで周波数が推定できます。</p>
+<p>得られたインデックスでサンプリング周波数を割ると周波数が推定できます。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">YIN_THRESHOLD <span class="op">=</span> <span class="fl">0.3</span> <span class="co"># 任意の正の値のしきい値。</span></a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw">def</span> absolute_threshold(diff, threshold<span class="op">=</span>YIN_THRESHOLD):</a>
@@ -436,7 +436,7 @@ i_{min}
 <li>取得したインデックスからピッチを計算。</li>
 </ol>
 <h3 id="normalized-square-difference-function-の計算">Normalized Square Difference Function の計算</h3>
-<p>Square difference function はYINの difference function と同一です。</p>
+<p>MPM の square difference function はYINの difference function と同じです。</p>
 <p><span class="math display">\[
 \begin{alignedat}{3}
 d[\tau]
@@ -597,7 +597,7 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 </tbody>
 </table>
 <h3 id="yin-nsd">YIN-NSD</h3>
-<p>YIN の探索でピッチを推定できるように NSD を加工します。</p>
+<p>YIN の周期の探索でピッチを推定できるように NSD を加工します。</p>
 <p>NSD では信号のピッチが局所最大点として表されていますが YIN の周期の探索では局所最小点を見つけます。そこでまずは NSD を反転します。</p>
 <p>反転した NSD の最初に現れる局所最小点はインデックス0になります。そこで NSD のインデックス0から最初のゼロクロス点までの信号の値を0に置き換えます。</p>
 <p>YIN の周期の探索で使うしきい値は0にします。 MPM のように負の最大値を探して適当な係数をかけたしきい値も使えそうですが、ここではパラメータを増やしたくなかったので定数にしました。</p>
@@ -635,7 +635,7 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <img src="img/yin_nsd.png" alt="Image of plot of YIN-NSD pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
 <h3 id="mpm-cmnd">MPM-CMND</h3>
-<p>MPM の探索でピッチを推定できるように CMND を加工します。</p>
+<p>MPM の周期の探索でピッチを推定できるように CMND を加工します。</p>
 <p>CMND では信号のピッチが局所最小点として表されていますが MPM の周期の探索では局所最大点を見つけます。そこでまずは CMND を反転します。</p>
 <p>CMND の値はすべて0以上ですが MPM の周期の探索ではゼロクロス点が必要です。そこで反転した CMND に、反転する前の CMND の最大値の半分の値を足します。</p>
 <p>実装します。</p>
@@ -806,7 +806,7 @@ Video of pitch estimation to sin FM signal.
 <p>評価が適当なので、この手法がいいというはっきりした結果は出ませんでした。</p>
 <p>YIN-CMND type I はピッチの推定に失敗するとフレームの長さと同じ周期を推定する癖があるようです。</p>
 <p>YIN-CMND type II 、 MPM-CMND type I 、 MPM-CMND type II はフレーム内のピッチが低いか変化が激しいときに推定に失敗するようです。3つの中では MPM-CMND type II が推定に失敗することが少ないように見えます。</p>
-<p>YIN-NSD type I と YIN-NSD type II は適当に設定したしきい値のおかげで、どんな状況でも何らかのピッチを推定しています。ピッチが高めに推定されるのは YIN の探索が原因だと思われます。</p>
+<p>YIN-NSD type I と YIN-NSD type II は適当に設定したしきい値のおかげで、どんな状況でも何らかのピッチを推定しています。ピッチが高めに推定されるのは YIN の周期の探索が原因だと思われます。</p>
 <p>MPM-NSD type II は YIN-NSD type I と YIN-NSD type II よりも低周波域での推定に失敗しやすいようですが、ピッチが高めに推定されることが少ないように見えます。</p>
 <p>MPM-NSD type I は動画では目立たかなったので特徴がつかめませんでした。</p>
 <h2 id="その他">その他</h2>

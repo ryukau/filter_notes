@@ -22,7 +22,7 @@ d'_t[\tau] = \begin{cases}
 \end{cases}
 $$
 
-$d$ はYIN内で difference function と呼ばれる関数で、次のように定義されています。式中の  $N$ は入力信号のサンプル数です。論文では $N$ ではなく $W$ を使っています。
+$d$ はYINの論文で difference function と呼ばれている関数で、次のように定義されています。式中の  $N$ は入力信号のサンプル数です。論文では $N$ ではなく $W$ を使っています。
 
 $$
 \begin{aligned}
@@ -121,7 +121,7 @@ r[0] &= \sum_{j=0}^{N - 1} x^2[j]
 \end{aligned}
 $$
 
-Type I の自己相関では $x$ が周期 $N$ なので $r_{\tau}[0] = r[0]$ となります。例として $N = 3, \tau = 2$ のときを考えます。
+Type I の自己相関では $x$ の周期が $N$ なので $r_{\tau}[0] = r[0]$ となります。例として $N = 3, \tau = 2$ のときを考えます。
 
 $$
 \begin{aligned}
@@ -232,7 +232,7 @@ i_{min}
 \end{aligned}
 $$
 
-得られたインデックスを使ってサンプリング周波数を割ることで周波数が推定できます。
+得られたインデックスでサンプリング周波数を割ると周波数が推定できます。
 
 ```python
 YIN_THRESHOLD = 0.3 # 任意の正の値のしきい値。
@@ -296,7 +296,7 @@ def yin_type2(sig, samplerate):
 3. 取得したインデックスからピッチを計算。
 
 ### Normalized Square Difference Function の計算
-Square difference function はYINの difference function と同一です。
+MPM の square difference function はYINの difference function と同じです。
 
 $$
 \begin{alignedat}{3}
@@ -428,7 +428,7 @@ def mpm_type2(data, samplerate):
 | MPM | NSD | Type II | オリジナルMPM |
 
 ### YIN-NSD
-YIN の探索でピッチを推定できるように NSD を加工します。
+YIN の周期の探索でピッチを推定できるように NSD を加工します。
 
 NSD では信号のピッチが局所最大点として表されていますが YIN の周期の探索では局所最小点を見つけます。そこでまずは NSD を反転します。
 
@@ -476,7 +476,7 @@ YIN-NSD で加工した NSD と局所最小点のプロットです。元の信�
 </figure>
 
 ### MPM-CMND
-MPM の探索でピッチを推定できるように CMND を加工します。
+MPM の周期の探索でピッチを推定できるように CMND を加工します。
 
 CMND では信号のピッチが局所最小点として表されていますが MPM の周期の探索では局所最大点を見つけます。そこでまずは CMND を反転します。
 
@@ -705,7 +705,7 @@ YIN-CMND type I はピッチの推定に失敗するとフレームの長さと�
 
 YIN-CMND type II 、 MPM-CMND type I 、 MPM-CMND type II はフレーム内のピッチが低いか変化が激しいときに推定に失敗するようです。3つの中では MPM-CMND type II が推定に失敗することが少ないように見えます。
 
-YIN-NSD type I と YIN-NSD type II は適当に設定したしきい値のおかげで、どんな状況でも何らかのピッチを推定しています。ピッチが高めに推定されるのは YIN の探索が原因だと思われます。
+YIN-NSD type I と YIN-NSD type II は適当に設定したしきい値のおかげで、どんな状況でも何らかのピッチを推定しています。ピッチが高めに推定されるのは YIN の周期の探索が原因だと思われます。
 
 MPM-NSD type II は YIN-NSD type I と YIN-NSD type II よりも低周波域での推定に失敗しやすいようですが、ピッチが高めに推定されることが少ないように見えます。
 
