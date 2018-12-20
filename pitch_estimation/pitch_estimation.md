@@ -139,7 +139,7 @@ $$
 $$
 \begin{aligned}
 d[\tau]
-&= r[0] + r_{t + \tau}[0] - 2r[\tau]\\
+&= r[0] + r_{\tau}[0] - 2r[\tau]\\
 &= 2 (r[0] - r[\tau])
 \end{aligned}
 $$
