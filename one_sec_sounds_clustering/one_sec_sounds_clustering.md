@@ -49,14 +49,14 @@ Pluck, KSCymbal, PADcymbal, FDNCymbal, WaveCymbalはステレオでレンダリ�
 
 得られた音を次のコードで正規化しました。[SoX](http://sox.sourceforge.net/)を使っています。
 
-- [シンセサイザの音を加工するコードを読む (github.com)](demo/split.py)
+- [シンセサイザの音を加工するコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/one_sec_sounds_clustering/demo/split.py)
 
 ### フィールドレコーディングの音
 近所を歩いてフィールドレコーディングした音をデータセットに加えました。
 
 フィールドレコーディングの音はSoXの `remix -` でモノラルにしてから1秒間隔で切っています。
 
-- [フィールドレコーディングの音を加工するコードを読む (github.com)](demo/slice.py)
+- [フィールドレコーディングの音を加工するコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/one_sec_sounds_clustering/demo/slice.py)
 
 - [SoX man page](http://sox.sourceforge.net/sox.html) - EFFECTSの節に `remix` の解説
 
