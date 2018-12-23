@@ -110,7 +110,6 @@ def hz_to_cent(frequency):
 
 def mpm_nsd_type2(sig, samplerate, n_pitch):
     nsd = normalized_square_difference_type2(sig)
-    index = get_key_maxima(nsd)
     key_maxima = get_key_maxima(nsd)
 
     key_maxima = [
