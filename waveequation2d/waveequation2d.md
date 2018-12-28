@@ -32,7 +32,7 @@ $$
 
 $$
 \begin{aligned}
-\ddot{u}_{t+1} &= c^{2} \nabla^{2} u_{t+1} - a \dot{u}_{t+1} + k u_{t+1}\\
+\ddot{u}_{t+1} &= c^{2} \nabla^{2} u_{t+1} - a \dot{u}_{t+1} - k u_{t+1}\\
 \dot{u}_{t+1} &= \dot{u}_{t}
 + \frac{\Delta_t}{2} \left( \ddot{u}_{t} + \ddot{u}_{t+1} \right)\\
 u_{t+1} &= u_{t} + \Delta_t \dot{u}_{t} + \Delta_t^{2} \left(

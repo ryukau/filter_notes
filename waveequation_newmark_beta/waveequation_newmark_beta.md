@@ -178,7 +178,7 @@ Newmark-β 法の連立方程式を立てます。
 
 $$
 \begin{aligned}
-\ddot{u}_{n+1} &= c^2 u''_{n+1} - a \dot{u}_{n+1} + k u_{n+1}
+\ddot{u}_{n+1} &= c^2 u''_{n+1} - a \dot{u}_{n+1} - k u_{n+1}
 \\
 \dot{u}_{n+1} &= \dot{u}_{n}
 + \frac{\Delta_t}{2} \left( \ddot{u}_{n} + \ddot{u}_{n+1} \right)
