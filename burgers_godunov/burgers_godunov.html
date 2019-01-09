@@ -203,22 +203,23 @@
 </head>
 
 <body>
-  <h1 id="inviscid-な-burgers-方程式のシミュレーション">Inviscid な Burgers 方程式のシミュレーション</h1>
+  <h1 id="inviscid-な-burgers-方程式">Inviscid な Burgers 方程式</h1>
 <p><a href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Landajuela さんの BURGERS EUQATION</a> で紹介されていた Godunov’s method で変形した Burgers 方程式を実装して音を入力します。</p>
 <ul>
 <li><a href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Burgers_Equation_M_Landajuela.pdf</a></li>
 </ul>
 <h2 id="コードについて">コードについて</h2>
+<p>次のリンクからコードをまとめて読むことができます。</p>
 <ul>
-<li>TODO コードへのリンク</li>
+<li><a href="https://github.com/ryukau/filter_notes/tree/master/burgers_godunov/demo/python3">コードを読む (github.com)</a></li>
 </ul>
+<p>リンク先の <code>propagation.py</code> は <a href="http://sox.sourceforge.net/">SoX</a> を使っています。</p>
 <p>今回使った Python3 のライブラリです。</p>
 <ul>
 <li><a href="https://matplotlib.org/">matplotlib</a></li>
 <li><a href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a></li>
 <li><a href="https://www.scipy.org/">SciPy, NumPy</a></li>
 </ul>
-<p>デモの <code>propagation.py</code> は <a href="http://sox.sourceforge.net/">SoX</a> を使っています。</p>
 <h2 id="シミュレーション">シミュレーション</h2>
 <p>ここでシミュレーションするのは inviscid な Burgers 方程式です。</p>
 <p><span class="math display">\[
@@ -405,7 +406,7 @@ u^* &amp;= \begin{cases}
 <p>サイン波とブラウンノイズは <a href="http://sox.sourceforge.net/">SoX</a> で生成しました。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="fu">sox</span> -n sin.wav synth 1.0 sine 1000.0</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="fu">sox</span> -n noise.wav synth 0.5 brownnoise</a></code></pre></div>
-<p>FreeSound で見つけた <a href="https://freesound.org/people/AlineAudio/sounds/416537/">AlienAudio</a> さんによる人の声のサンプルを <code>Burgers1D</code> に通しました。</p>
+<p><a href="https://freesound.org/">Freesound</a> で見つけた <a href="https://freesound.org/people/AlineAudio/sounds/416537/">AlienAudio さんによる人の声のサンプル</a>を <code>Burgers1D</code> に通しました。</p>
 <p><label>Voice Input</label> <audio controls> <source src="demo/python3/snd/416537__alineaudio__male-scream-11.wav" type="audio/wav"> </audio></p>
 <p><label>Voice Output <code>-d 0.2 -l 128</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.2_l128.wav" type="audio/wav"> </audio></p>
 <p><label>Voice Output <code>-d 0.4 -l 128</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.4_l128.wav" type="audio/wav"> </audio></p>

@@ -1,4 +1,4 @@
-# Inviscid な Burgers 方程式のシミュレーション
+# Inviscid な Burgers 方程式
 [Landajuela さんの BURGERS EUQATION](http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf) で紹介されていた Godunov's method で変形した Burgers 方程式を実装して音を入力します。
 
 - [Burgers_Equation_M_Landajuela.pdf](http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf)
