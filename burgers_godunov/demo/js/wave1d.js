@@ -161,6 +161,11 @@ class Burgers1DViscid {
 }
 
 /* UI */
+function stopPicking() {
+  mousedown = false
+  wave.pick(0.5, 0)
+}
+
 function onMouseDownCanvas(event) {
   mousedown = true
   var rect = event.target.getBoundingClientRect()
@@ -180,13 +185,43 @@ function onMouseMoveCanvas(event) {
 }
 
 function onMouseUpCanvas(event) {
-  mousedown = false
-  wave.pick(0.5, 0)
+  stopPicking()
 }
 
 function onMouseOutCanvas(event) {
   onMouseUpCanvas(event)
 }
+
+function onTouchStart(event) {
+  mousedown = true
+
+  var touch = event.changedTouches[0]
+  var rect = touch.target.getBoundingClientRect()
+  var x = touch.clientX - rect.left
+  var y = touch.clientY - rect.top
+
+  wave.pick(x / cv.width, cv.height / 2 - y)
+}
+
+function onTouchMove(event) {
+  if (!mousedown) return
+
+  var touch = event.changedTouches[0]
+  var rect = touch.target.getBoundingClientRect()
+  var x = touch.clientX - rect.left
+  var y = touch.clientY - rect.top
+
+  wave.pick(x / cv.width, cv.height / 2 - y)
+}
+
+function onTouchEnd(event) {
+  stopPicking()
+}
+
+function onTouchCancel(event) {
+  stopPicking()
+}
+
 
 function updateCanvas() {
   cv.clearWhite()
@@ -281,5 +316,9 @@ cv.element.addEventListener("mousedown", onMouseDownCanvas, false)
 cv.element.addEventListener("mousemove", onMouseMoveCanvas, false)
 cv.element.addEventListener("mouseup", onMouseUpCanvas, false)
 cv.element.addEventListener("mouseout", onMouseOutCanvas, false)
+cv.element.addEventListener("touchstart", onTouchStart, false)
+cv.element.addEventListener("touchend", onTouchEnd, false)
+cv.element.addEventListener("touchmove", onTouchMove, false)
+cv.element.addEventListener("touchcancel", onTouchCancel, false)
 
 animate()
