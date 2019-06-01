@@ -204,7 +204,7 @@ cmnd = cumulative_mean_normalized_difference(diff)
 </figure>
 
 ### 周期の探索とピッチの計算
-論文ではしきい値以下の局所最小点のインデックスを探すステップを absolute threshold と読んでいます。探索は cumulative mean normalized difference のインデックス0から行います。探索で見つけたインデックスは信号の1周期にかかる時間の推定値です。
+論文ではしきい値以下の局所最小点のインデックスを探すステップを absolute threshold と呼んでいます。探索は cumulative mean normalized difference のインデックス0から行います。探索で見つけたインデックスは信号の1周期にかかる時間の推定値です。
 
 Absolute threshold のステップで得られたインデックスを使って [parabolic interpolation](http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html) で離散化される前の信号の局所最小点のインデックスを推定します。
 

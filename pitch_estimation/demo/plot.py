@@ -104,7 +104,7 @@ def plot_diff():
     fig = pyplot.figure(figsize=(6.4, 6.4))
 
     ax = fig.add_subplot(211)
-    ax.set_title("Difference of Autocorelation")
+    ax.set_title("Difference of Autocorrelation")
     ax.grid(color="#eeeeee")
     ax.plot(time, diff1, lw=1, alpha=0.7, color="red", label="Type I")
     ax.plot(time, diff2, lw=1, alpha=0.7, color="blue", label="Type II")
@@ -478,10 +478,10 @@ def plot_sin_wave():
         plot_pitch(data)
 
 # plot_autocorr()
-# plot_diff()
+plot_diff()
 # plot_yin()
 # plot_mpm()
 # plot_yin_nsd()
 # plot_mpm_cmnd()
 # plot_sin_wave()
-plot_some_sin_mod()
+# plot_some_sin_mod()
