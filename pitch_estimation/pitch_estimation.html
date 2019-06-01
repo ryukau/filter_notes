@@ -95,6 +95,14 @@
       border-left: 1px solid #dddddd;
     }
 
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
     code {
       color: #004444;
     }
@@ -256,19 +264,19 @@ x&#39; = (x[0], x[1],...,x[N-1],0,0,...,0),
 \quad\mathtt{len}(x&#39;) \geq 2N
 \]</span></p>
 <p>実装します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="im">from</span> pyfftw.interfaces.numpy_fft <span class="im">import</span> fft, ifft</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">def</span> autocorrelation_type1(sig):</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">    len_sig <span class="op">=</span> <span class="bu">len</span>(sig)</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">    spec <span class="op">=</span> fft(sig)</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">    <span class="cf">return</span> ifft(spec <span class="op">*</span> spec.conj()).real[:len_sig]</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw">def</span> autocorrelation_type2(sig):</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">    len_sig <span class="op">=</span> <span class="bu">len</span>(sig)</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">    sig <span class="op">=</span> numpy.pad(sig, (<span class="dv">0</span>, len_sig), <span class="st">&quot;constant&quot;</span>)</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">    spec <span class="op">=</span> fft(sig)</a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">    <span class="cf">return</span> ifft(spec <span class="op">*</span> spec.conj()).real[:len_sig]</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> numpy</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">from</span> pyfftw.interfaces.numpy_fft <span class="im">import</span> fft, ifft</a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">def</span> autocorrelation_type1(sig):</a>
+<a class="sourceLine" id="cb1-5" title="5">    len_sig <span class="op">=</span> <span class="bu">len</span>(sig)</a>
+<a class="sourceLine" id="cb1-6" title="6">    spec <span class="op">=</span> fft(sig)</a>
+<a class="sourceLine" id="cb1-7" title="7">    <span class="cf">return</span> ifft(spec <span class="op">*</span> spec.conj()).real[:len_sig]</a>
+<a class="sourceLine" id="cb1-8" title="8"></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="kw">def</span> autocorrelation_type2(sig):</a>
+<a class="sourceLine" id="cb1-10" title="10">    len_sig <span class="op">=</span> <span class="bu">len</span>(sig)</a>
+<a class="sourceLine" id="cb1-11" title="11">    sig <span class="op">=</span> numpy.pad(sig, (<span class="dv">0</span>, len_sig), <span class="st">&quot;constant&quot;</span>)</a>
+<a class="sourceLine" id="cb1-12" title="12">    spec <span class="op">=</span> fft(sig)</a>
+<a class="sourceLine" id="cb1-13" title="13">    <span class="cf">return</span> ifft(spec <span class="op">*</span> spec.conj()).real[:len_sig]</a></code></pre></div>
 <p>66Hz、0.1秒のサイン波の自己相関のプロットです。横軸は時間で縦軸は信号の大きさです。</p>
 <figure>
 <img src="img/autocorr.png" alt="Image of plot of autocorrelation of sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
@@ -331,32 +339,32 @@ r&#39;[0] &amp;= \sum_{j=0}^{N - 1} x^2[j]
 \]</span></p>
 <p>Type II の自己相関を使うときは特に変形できなさそうです。</p>
 <p>実装します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">def</span> difference_type1(sig):</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">    autocorr <span class="op">=</span> autocorrelation_type1(sig)</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">    <span class="cf">return</span> autocorr[<span class="dv">0</span>] <span class="op">-</span> autocorr</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="kw">def</span> difference_type2(sig):</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">    autocorr <span class="op">=</span> autocorrelation_type2(sig)</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">    energy <span class="op">=</span> (sig <span class="op">*</span> sig)[::<span class="op">-</span><span class="dv">1</span>].cumsum()[::<span class="op">-</span><span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">    <span class="cf">return</span> energy[<span class="dv">0</span>] <span class="op">+</span> energy <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> autocorr</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="kw">def</span> cumulative_mean_normalized_difference(diff):</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">    diff[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">    sum_value <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13">    <span class="cf">for</span> tau <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(diff)):</a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">        sum_value <span class="op">+=</span> diff[tau]</a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">        diff[tau] <span class="op">/=</span> sum_value <span class="op">/</span> tau</a>
-<a class="sourceLine" id="cb2-16" data-line-number="16">    <span class="cf">return</span> diff</a>
-<a class="sourceLine" id="cb2-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb2-18" data-line-number="18">sig <span class="op">=</span> get_some_signal() <span class="co"># 任意の入力信号を取得。</span></a>
-<a class="sourceLine" id="cb2-19" data-line-number="19">diff <span class="op">=</span> difference_type1(sig)</a>
-<a class="sourceLine" id="cb2-20" data-line-number="20">cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">def</span> difference_type1(sig):</a>
+<a class="sourceLine" id="cb2-2" title="2">    autocorr <span class="op">=</span> autocorrelation_type1(sig)</a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="cf">return</span> autocorr[<span class="dv">0</span>] <span class="op">-</span> autocorr</a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">def</span> difference_type2(sig):</a>
+<a class="sourceLine" id="cb2-6" title="6">    autocorr <span class="op">=</span> autocorrelation_type2(sig)</a>
+<a class="sourceLine" id="cb2-7" title="7">    energy <span class="op">=</span> (sig <span class="op">*</span> sig)[::<span class="op">-</span><span class="dv">1</span>].cumsum()[::<span class="op">-</span><span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb2-8" title="8">    <span class="cf">return</span> energy[<span class="dv">0</span>] <span class="op">+</span> energy <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> autocorr</a>
+<a class="sourceLine" id="cb2-9" title="9"></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="kw">def</span> cumulative_mean_normalized_difference(diff):</a>
+<a class="sourceLine" id="cb2-11" title="11">    diff[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-12" title="12">    sum_value <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb2-13" title="13">    <span class="cf">for</span> tau <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(diff)):</a>
+<a class="sourceLine" id="cb2-14" title="14">        sum_value <span class="op">+=</span> diff[tau]</a>
+<a class="sourceLine" id="cb2-15" title="15">        diff[tau] <span class="op">/=</span> sum_value <span class="op">/</span> tau</a>
+<a class="sourceLine" id="cb2-16" title="16">    <span class="cf">return</span> diff</a>
+<a class="sourceLine" id="cb2-17" title="17"></a>
+<a class="sourceLine" id="cb2-18" title="18">sig <span class="op">=</span> get_some_signal() <span class="co"># 任意の入力信号を取得。</span></a>
+<a class="sourceLine" id="cb2-19" title="19">diff <span class="op">=</span> difference_type1(sig)</a>
+<a class="sourceLine" id="cb2-20" title="20">cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a></code></pre></div>
 <p>66Hz、0.1秒のサイン波の自己相関のプロットです。横軸は時間で縦軸は信号の大きさです。</p>
 <figure>
 <img src="img/diff.png" alt="Image of plot of difference and cumulative mean normalized difference of sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
 <h3 id="周期の探索とピッチの計算">周期の探索とピッチの計算</h3>
-<p>論文ではしきい値以下の局所最小点のインデックスを探すステップを absolute threshold と読んでいます。探索は cumulative mean normalized difference のインデックス0から行います。探索で見つけたインデックスは信号の1周期にかかる時間の推定値です。</p>
+<p>論文ではしきい値以下の局所最小点のインデックスを探すステップを absolute threshold と呼んでいます。探索は cumulative mean normalized difference のインデックス0から行います。探索で見つけたインデックスは信号の1周期にかかる時間の推定値です。</p>
 <p>Absolute threshold のステップで得られたインデックスを使って <a href="http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html">parabolic interpolation</a> で離散化される前の信号の局所最小点のインデックスを推定します。</p>
 <p>Parabolic interpolation は次の式で計算できます。 <span class="math inline">\(i_1\)</span> が absolute threshold のステップで得られたインデックスです。</p>
 <p><span class="math display">\[
@@ -379,47 +387,47 @@ i_{min}
 \end{aligned}
 \]</span></p>
 <p>得られたインデックスでサンプリング周波数を割ると周波数が推定できます。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1">YIN_THRESHOLD <span class="op">=</span> <span class="fl">0.3</span> <span class="co"># 任意の正の値のしきい値。</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw">def</span> absolute_threshold(diff, threshold<span class="op">=</span>YIN_THRESHOLD):</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">    tau <span class="op">=</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="cf">while</span> tau <span class="op">&lt;</span> <span class="bu">len</span>(diff):</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">        <span class="cf">if</span> diff[tau] <span class="op">&lt;</span> threshold:</a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">            <span class="cf">while</span> tau <span class="op">+</span> <span class="dv">1</span> <span class="op">&lt;</span> <span class="bu">len</span>(diff) <span class="kw">and</span> diff[tau <span class="op">+</span> <span class="dv">1</span>] <span class="op">&lt;</span> diff[tau]:</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">                tau <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9">            <span class="cf">break</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">        tau <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-11" data-line-number="11">    <span class="cf">return</span> <span class="va">None</span> <span class="cf">if</span> tau <span class="op">==</span> <span class="bu">len</span>(diff) <span class="kw">or</span> diff[tau] <span class="op">&gt;=</span> threshold <span class="cf">else</span> tau</a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="kw">def</span> parabolic_interpolation(array, x):</a>
-<a class="sourceLine" id="cb3-14" data-line-number="14">    x_result <span class="op">=</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb3-15" data-line-number="15">    <span class="cf">if</span> x <span class="op">&lt;</span> <span class="dv">1</span>:</a>
-<a class="sourceLine" id="cb3-16" data-line-number="16">        x_result <span class="op">=</span> x <span class="cf">if</span> array[x] <span class="op">&lt;=</span> array[x <span class="op">+</span> <span class="dv">1</span>] <span class="cf">else</span> x <span class="op">+</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-17" data-line-number="17">    <span class="cf">elif</span> x <span class="op">&gt;=</span> <span class="bu">len</span>(array) <span class="op">-</span> <span class="dv">1</span>:</a>
-<a class="sourceLine" id="cb3-18" data-line-number="18">        x_result <span class="op">=</span> x <span class="cf">if</span> array[x] <span class="op">&lt;=</span> array[x <span class="op">-</span> <span class="dv">1</span>] <span class="cf">else</span> x <span class="op">-</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-19" data-line-number="19">    <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb3-20" data-line-number="20">        denom <span class="op">=</span> array[x <span class="op">+</span> <span class="dv">1</span>] <span class="op">+</span> array[x <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> array[x]</a>
-<a class="sourceLine" id="cb3-21" data-line-number="21">        delta <span class="op">=</span> array[x <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> array[x <span class="op">+</span> <span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb3-22" data-line-number="22">        <span class="cf">if</span> denom <span class="op">==</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb3-23" data-line-number="23">            <span class="cf">return</span> x</a>
-<a class="sourceLine" id="cb3-24" data-line-number="24">        <span class="cf">return</span> x <span class="op">+</span> delta <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> denom)</a>
-<a class="sourceLine" id="cb3-25" data-line-number="25">    <span class="cf">return</span> x_result</a>
-<a class="sourceLine" id="cb3-26" data-line-number="26"></a>
-<a class="sourceLine" id="cb3-27" data-line-number="27"><span class="kw">def</span> yin_type1(sig, samplerate):</a>
-<a class="sourceLine" id="cb3-28" data-line-number="28">    diff <span class="op">=</span> difference_type1(sig)</a>
-<a class="sourceLine" id="cb3-29" data-line-number="29">    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a>
-<a class="sourceLine" id="cb3-30" data-line-number="30">    tau <span class="op">=</span> absolute_threshold(cmnd)</a>
-<a class="sourceLine" id="cb3-31" data-line-number="31">    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb3-32" data-line-number="32">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb3-33" data-line-number="33">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, tau)</a>
-<a class="sourceLine" id="cb3-34" data-line-number="34"></a>
-<a class="sourceLine" id="cb3-35" data-line-number="35"><span class="kw">def</span> yin_type2(sig, samplerate):</a>
-<a class="sourceLine" id="cb3-36" data-line-number="36">    diff <span class="op">=</span> difference_type2(sig)</a>
-<a class="sourceLine" id="cb3-37" data-line-number="37">    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a>
-<a class="sourceLine" id="cb3-38" data-line-number="38">    tau <span class="op">=</span> absolute_threshold(cmnd)</a>
-<a class="sourceLine" id="cb3-39" data-line-number="39">    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb3-40" data-line-number="40">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb3-41" data-line-number="41">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, tau)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1">YIN_THRESHOLD <span class="op">=</span> <span class="fl">0.3</span> <span class="co"># 任意の正の値のしきい値。</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">def</span> absolute_threshold(diff, threshold<span class="op">=</span>YIN_THRESHOLD):</a>
+<a class="sourceLine" id="cb3-4" title="4">    tau <span class="op">=</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="cf">while</span> tau <span class="op">&lt;</span> <span class="bu">len</span>(diff):</a>
+<a class="sourceLine" id="cb3-6" title="6">        <span class="cf">if</span> diff[tau] <span class="op">&lt;</span> threshold:</a>
+<a class="sourceLine" id="cb3-7" title="7">            <span class="cf">while</span> tau <span class="op">+</span> <span class="dv">1</span> <span class="op">&lt;</span> <span class="bu">len</span>(diff) <span class="kw">and</span> diff[tau <span class="op">+</span> <span class="dv">1</span>] <span class="op">&lt;</span> diff[tau]:</a>
+<a class="sourceLine" id="cb3-8" title="8">                tau <span class="op">+=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-9" title="9">            <span class="cf">break</span></a>
+<a class="sourceLine" id="cb3-10" title="10">        tau <span class="op">+=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-11" title="11">    <span class="cf">return</span> <span class="va">None</span> <span class="cf">if</span> tau <span class="op">==</span> <span class="bu">len</span>(diff) <span class="kw">or</span> diff[tau] <span class="op">&gt;=</span> threshold <span class="cf">else</span> tau</a>
+<a class="sourceLine" id="cb3-12" title="12"></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="kw">def</span> parabolic_interpolation(array, x):</a>
+<a class="sourceLine" id="cb3-14" title="14">    x_result <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb3-15" title="15">    <span class="cf">if</span> x <span class="op">&lt;</span> <span class="dv">1</span>:</a>
+<a class="sourceLine" id="cb3-16" title="16">        x_result <span class="op">=</span> x <span class="cf">if</span> array[x] <span class="op">&lt;=</span> array[x <span class="op">+</span> <span class="dv">1</span>] <span class="cf">else</span> x <span class="op">+</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-17" title="17">    <span class="cf">elif</span> x <span class="op">&gt;=</span> <span class="bu">len</span>(array) <span class="op">-</span> <span class="dv">1</span>:</a>
+<a class="sourceLine" id="cb3-18" title="18">        x_result <span class="op">=</span> x <span class="cf">if</span> array[x] <span class="op">&lt;=</span> array[x <span class="op">-</span> <span class="dv">1</span>] <span class="cf">else</span> x <span class="op">-</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-19" title="19">    <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb3-20" title="20">        denom <span class="op">=</span> array[x <span class="op">+</span> <span class="dv">1</span>] <span class="op">+</span> array[x <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> array[x]</a>
+<a class="sourceLine" id="cb3-21" title="21">        delta <span class="op">=</span> array[x <span class="op">-</span> <span class="dv">1</span>] <span class="op">-</span> array[x <span class="op">+</span> <span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb3-22" title="22">        <span class="cf">if</span> denom <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb3-23" title="23">            <span class="cf">return</span> x</a>
+<a class="sourceLine" id="cb3-24" title="24">        <span class="cf">return</span> x <span class="op">+</span> delta <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> denom)</a>
+<a class="sourceLine" id="cb3-25" title="25">    <span class="cf">return</span> x_result</a>
+<a class="sourceLine" id="cb3-26" title="26"></a>
+<a class="sourceLine" id="cb3-27" title="27"><span class="kw">def</span> yin_type1(sig, samplerate):</a>
+<a class="sourceLine" id="cb3-28" title="28">    diff <span class="op">=</span> difference_type1(sig)</a>
+<a class="sourceLine" id="cb3-29" title="29">    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a>
+<a class="sourceLine" id="cb3-30" title="30">    tau <span class="op">=</span> absolute_threshold(cmnd)</a>
+<a class="sourceLine" id="cb3-31" title="31">    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb3-32" title="32">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb3-33" title="33">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, tau)</a>
+<a class="sourceLine" id="cb3-34" title="34"></a>
+<a class="sourceLine" id="cb3-35" title="35"><span class="kw">def</span> yin_type2(sig, samplerate):</a>
+<a class="sourceLine" id="cb3-36" title="36">    diff <span class="op">=</span> difference_type2(sig)</a>
+<a class="sourceLine" id="cb3-37" title="37">    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a>
+<a class="sourceLine" id="cb3-38" title="38">    tau <span class="op">=</span> absolute_threshold(cmnd)</a>
+<a class="sourceLine" id="cb3-39" title="39">    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb3-40" title="40">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb3-41" title="41">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, tau)</a></code></pre></div>
 <p>66Hz、0.1秒のサイン波の cumulative mean normalized difference の局所最小点のプロットです。横軸は時間で縦軸は信号の大きさです。推定したピッチは type I で 67.9Hz 、 type II で 66.3Hz となりました。</p>
 <figure>
 <img src="img/yin.png" alt="Image of plot of YIN pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
@@ -473,15 +481,15 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 \end{aligned}
 \]</span></p>
 <p>実装します。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">def</span> normalized_square_difference_type1(sig):</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">    corr <span class="op">=</span> autocorrelation_type1(sig)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">    <span class="cf">return</span> corr <span class="op">/</span> corr[<span class="dv">0</span>] <span class="cf">if</span> corr[<span class="dv">0</span>] <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> corr</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="kw">def</span> normalized_square_difference_type2(sig):</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">    corr <span class="op">=</span> autocorrelation_type2(sig)</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">    cumsum <span class="op">=</span> (sig <span class="op">*</span> sig)[::<span class="op">-</span><span class="dv">1</span>].cumsum()[::<span class="op">-</span><span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">    cumsum[cumsum <span class="op">&lt;</span> <span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span>  <span class="co"># 発散を防ぐ。</span></a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">    <span class="cf">return</span> corr <span class="op">/</span> (corr[<span class="dv">0</span>] <span class="op">+</span> cumsum)  <span class="co"># 後で値の比率しか使わないので係数2を省略。</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">def</span> normalized_square_difference_type1(sig):</a>
+<a class="sourceLine" id="cb4-2" title="2">    corr <span class="op">=</span> autocorrelation_type1(sig)</a>
+<a class="sourceLine" id="cb4-3" title="3">    <span class="cf">return</span> corr <span class="op">/</span> corr[<span class="dv">0</span>] <span class="cf">if</span> corr[<span class="dv">0</span>] <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> corr</a>
+<a class="sourceLine" id="cb4-4" title="4"></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">def</span> normalized_square_difference_type2(sig):</a>
+<a class="sourceLine" id="cb4-6" title="6">    corr <span class="op">=</span> autocorrelation_type2(sig)</a>
+<a class="sourceLine" id="cb4-7" title="7">    cumsum <span class="op">=</span> (sig <span class="op">*</span> sig)[::<span class="op">-</span><span class="dv">1</span>].cumsum()[::<span class="op">-</span><span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb4-8" title="8">    cumsum[cumsum <span class="op">&lt;</span> <span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span>  <span class="co"># 発散を防ぐ。</span></a>
+<a class="sourceLine" id="cb4-9" title="9">    <span class="cf">return</span> corr <span class="op">/</span> (corr[<span class="dv">0</span>] <span class="op">+</span> cumsum)  <span class="co"># 後で値の比率しか使わないので係数2を省略。</span></a></code></pre></div>
 <h3 id="周期の探索">周期の探索</h3>
 <p>MPM では normalized square difference の局所最大点を探索します。 MPM での局所最大点とは、負から正になる一つのゼロクロス点と、それに続く正から負になるゼロクロス点の間の区間で、信号が最大になる点のことをいいます。</p>
 <p>以下は探索の手順です。</p>
@@ -491,45 +499,45 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <li>しきい値以上でインデックスが最も小さい局所最大点を選択。</li>
 </ol>
 <p>実装します。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1">MPM_K <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># Type I NSD では後半に大きなピークができるので小さめに設定。</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw">def</span> estimate_period(diff):</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4">    start <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5">    <span class="cf">while</span> diff[start] <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb5-6" data-line-number="6">        start <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb5-7" data-line-number="7">        <span class="cf">if</span> start <span class="op">&gt;=</span> <span class="bu">len</span>(diff):</a>
-<a class="sourceLine" id="cb5-8" data-line-number="8">            <span class="cf">return</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb5-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb5-10" data-line-number="10">    threshold <span class="op">=</span> MPM_K <span class="op">*</span> numpy.<span class="bu">max</span>(diff[start:])</a>
-<a class="sourceLine" id="cb5-11" data-line-number="11">    isNegative <span class="op">=</span> <span class="va">True</span></a>
-<a class="sourceLine" id="cb5-12" data-line-number="12">    max_index <span class="op">=</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb5-13" data-line-number="13">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(start, <span class="bu">len</span>(diff)):</a>
-<a class="sourceLine" id="cb5-14" data-line-number="14">        <span class="cf">if</span> isNegative:</a>
-<a class="sourceLine" id="cb5-15" data-line-number="15">            <span class="cf">if</span> diff[i] <span class="op">&lt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb5-16" data-line-number="16">                <span class="cf">continue</span></a>
-<a class="sourceLine" id="cb5-17" data-line-number="17">            max_index <span class="op">=</span> i</a>
-<a class="sourceLine" id="cb5-18" data-line-number="18">            isNegative <span class="op">=</span> <span class="va">False</span></a>
-<a class="sourceLine" id="cb5-19" data-line-number="19">        <span class="cf">if</span> diff[i] <span class="op">&lt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb5-20" data-line-number="20">            isNegative <span class="op">=</span> <span class="va">True</span></a>
-<a class="sourceLine" id="cb5-21" data-line-number="21">            <span class="cf">if</span> diff[max_index] <span class="op">&gt;=</span> threshold:</a>
-<a class="sourceLine" id="cb5-22" data-line-number="22">                <span class="cf">return</span> max_index</a>
-<a class="sourceLine" id="cb5-23" data-line-number="23">        <span class="cf">if</span> diff[i] <span class="op">&gt;</span> diff[max_index]:</a>
-<a class="sourceLine" id="cb5-24" data-line-number="24">            max_index <span class="op">=</span> i</a>
-<a class="sourceLine" id="cb5-25" data-line-number="25">    <span class="cf">return</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb5-26" data-line-number="26"></a>
-<a class="sourceLine" id="cb5-27" data-line-number="27"><span class="kw">def</span> mpm_type1(data, samplerate):</a>
-<a class="sourceLine" id="cb5-28" data-line-number="28">    nsd <span class="op">=</span> normalized_square_difference_type1(data)</a>
-<a class="sourceLine" id="cb5-29" data-line-number="29">    index <span class="op">=</span> get_period(nsd)</a>
-<a class="sourceLine" id="cb5-30" data-line-number="30">    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb5-31" data-line-number="31">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb5-32" data-line-number="32">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(nsd, index)</a>
-<a class="sourceLine" id="cb5-33" data-line-number="33"></a>
-<a class="sourceLine" id="cb5-34" data-line-number="34"><span class="kw">def</span> mpm_type2(data, samplerate):</a>
-<a class="sourceLine" id="cb5-35" data-line-number="35">    nsd <span class="op">=</span> normalized_square_difference_type2(data)</a>
-<a class="sourceLine" id="cb5-36" data-line-number="36">    index <span class="op">=</span> get_period(nsd)</a>
-<a class="sourceLine" id="cb5-37" data-line-number="37">    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb5-38" data-line-number="38">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb5-39" data-line-number="39">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(nsd, index)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1">MPM_K <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># Type I NSD では後半に大きなピークができるので小さめに設定。</span></a>
+<a class="sourceLine" id="cb5-2" title="2"></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="kw">def</span> estimate_period(diff):</a>
+<a class="sourceLine" id="cb5-4" title="4">    start <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-5" title="5">    <span class="cf">while</span> diff[start] <span class="op">&gt;</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb5-6" title="6">        start <span class="op">+=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb5-7" title="7">        <span class="cf">if</span> start <span class="op">&gt;=</span> <span class="bu">len</span>(diff):</a>
+<a class="sourceLine" id="cb5-8" title="8">            <span class="cf">return</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb5-9" title="9"></a>
+<a class="sourceLine" id="cb5-10" title="10">    threshold <span class="op">=</span> MPM_K <span class="op">*</span> numpy.<span class="bu">max</span>(diff[start:])</a>
+<a class="sourceLine" id="cb5-11" title="11">    isNegative <span class="op">=</span> <span class="va">True</span></a>
+<a class="sourceLine" id="cb5-12" title="12">    max_index <span class="op">=</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb5-13" title="13">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(start, <span class="bu">len</span>(diff)):</a>
+<a class="sourceLine" id="cb5-14" title="14">        <span class="cf">if</span> isNegative:</a>
+<a class="sourceLine" id="cb5-15" title="15">            <span class="cf">if</span> diff[i] <span class="op">&lt;</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb5-16" title="16">                <span class="cf">continue</span></a>
+<a class="sourceLine" id="cb5-17" title="17">            max_index <span class="op">=</span> i</a>
+<a class="sourceLine" id="cb5-18" title="18">            isNegative <span class="op">=</span> <span class="va">False</span></a>
+<a class="sourceLine" id="cb5-19" title="19">        <span class="cf">if</span> diff[i] <span class="op">&lt;</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb5-20" title="20">            isNegative <span class="op">=</span> <span class="va">True</span></a>
+<a class="sourceLine" id="cb5-21" title="21">            <span class="cf">if</span> diff[max_index] <span class="op">&gt;=</span> threshold:</a>
+<a class="sourceLine" id="cb5-22" title="22">                <span class="cf">return</span> max_index</a>
+<a class="sourceLine" id="cb5-23" title="23">        <span class="cf">if</span> diff[i] <span class="op">&gt;</span> diff[max_index]:</a>
+<a class="sourceLine" id="cb5-24" title="24">            max_index <span class="op">=</span> i</a>
+<a class="sourceLine" id="cb5-25" title="25">    <span class="cf">return</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb5-26" title="26"></a>
+<a class="sourceLine" id="cb5-27" title="27"><span class="kw">def</span> mpm_type1(data, samplerate):</a>
+<a class="sourceLine" id="cb5-28" title="28">    nsd <span class="op">=</span> normalized_square_difference_type1(data)</a>
+<a class="sourceLine" id="cb5-29" title="29">    index <span class="op">=</span> get_period(nsd)</a>
+<a class="sourceLine" id="cb5-30" title="30">    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb5-31" title="31">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb5-32" title="32">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(nsd, index)</a>
+<a class="sourceLine" id="cb5-33" title="33"></a>
+<a class="sourceLine" id="cb5-34" title="34"><span class="kw">def</span> mpm_type2(data, samplerate):</a>
+<a class="sourceLine" id="cb5-35" title="35">    nsd <span class="op">=</span> normalized_square_difference_type2(data)</a>
+<a class="sourceLine" id="cb5-36" title="36">    index <span class="op">=</span> get_period(nsd)</a>
+<a class="sourceLine" id="cb5-37" title="37">    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb5-38" title="38">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb5-39" title="39">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(nsd, index)</a></code></pre></div>
 <p>66Hz、0.1秒のサイン波と、その normalized square difference の局所最大点のプロットです。横軸は時間で縦軸は信号の大きさです。推定したピッチは type I で 67.5Hz 、 type II で 66.1Hz となりました。</p>
 <figure>
 <img src="img/mpm.png" alt="Image of plot of MPM pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
@@ -602,34 +610,34 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <p>反転した NSD の最初に現れる局所最小点はインデックス0になります。そこで NSD のインデックス0から最初のゼロクロス点までの信号の値を0に置き換えます。</p>
 <p>YIN の周期の探索で使うしきい値は0にします。 MPM のように負の最大値を探して適当な係数をかけたしきい値も使えそうですが、ここではパラメータを増やしたくなかったので定数にしました。</p>
 <p>実装します。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">def</span> invert_nsd(nsd):</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">    tau <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">    <span class="cf">while</span> nsd[tau] <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">        nsd[tau] <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">        tau <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">        <span class="cf">if</span> tau <span class="op">&gt;=</span> <span class="bu">len</span>(nsd):</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">            <span class="cf">return</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">    <span class="cf">return</span> <span class="op">-</span>nsd</a>
-<a class="sourceLine" id="cb6-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="kw">def</span> yin_nsd_type1(sig, samplerate):</a>
-<a class="sourceLine" id="cb6-11" data-line-number="11">    nsd <span class="op">=</span> normalized_square_difference_type1(sig)</a>
-<a class="sourceLine" id="cb6-12" data-line-number="12">    nsd <span class="op">=</span> invert_nsd(nsd)</a>
-<a class="sourceLine" id="cb6-13" data-line-number="13">    <span class="cf">if</span> nsd <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb6-14" data-line-number="14">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb6-15" data-line-number="15">    tau <span class="op">=</span> absolute_threshold(nsd, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb6-16" data-line-number="16">    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb6-17" data-line-number="17">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb6-18" data-line-number="18">    <span class="cf">return</span> samplerate <span class="op">/</span> tau</a>
-<a class="sourceLine" id="cb6-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb6-20" data-line-number="20"><span class="kw">def</span> yin_nsd_type2(sig, samplerate):</a>
-<a class="sourceLine" id="cb6-21" data-line-number="21">    nsd <span class="op">=</span> normalized_square_difference_type2(sig)</a>
-<a class="sourceLine" id="cb6-22" data-line-number="22">    nsd <span class="op">=</span> invert_nsd(nsd)</a>
-<a class="sourceLine" id="cb6-23" data-line-number="23">    <span class="cf">if</span> nsd <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb6-24" data-line-number="24">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb6-25" data-line-number="25">    tau <span class="op">=</span> absolute_threshold(nsd, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb6-26" data-line-number="26">    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb6-27" data-line-number="27">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb6-28" data-line-number="28">    <span class="cf">return</span> samplerate <span class="op">/</span> tau</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">def</span> invert_nsd(nsd):</a>
+<a class="sourceLine" id="cb6-2" title="2">    tau <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-3" title="3">    <span class="cf">while</span> nsd[tau] <span class="op">&gt;</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb6-4" title="4">        nsd[tau] <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-5" title="5">        tau <span class="op">+=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb6-6" title="6">        <span class="cf">if</span> tau <span class="op">&gt;=</span> <span class="bu">len</span>(nsd):</a>
+<a class="sourceLine" id="cb6-7" title="7">            <span class="cf">return</span> <span class="va">None</span></a>
+<a class="sourceLine" id="cb6-8" title="8">    <span class="cf">return</span> <span class="op">-</span>nsd</a>
+<a class="sourceLine" id="cb6-9" title="9"></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="kw">def</span> yin_nsd_type1(sig, samplerate):</a>
+<a class="sourceLine" id="cb6-11" title="11">    nsd <span class="op">=</span> normalized_square_difference_type1(sig)</a>
+<a class="sourceLine" id="cb6-12" title="12">    nsd <span class="op">=</span> invert_nsd(nsd)</a>
+<a class="sourceLine" id="cb6-13" title="13">    <span class="cf">if</span> nsd <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb6-14" title="14">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb6-15" title="15">    tau <span class="op">=</span> absolute_threshold(nsd, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb6-16" title="16">    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb6-17" title="17">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb6-18" title="18">    <span class="cf">return</span> samplerate <span class="op">/</span> tau</a>
+<a class="sourceLine" id="cb6-19" title="19"></a>
+<a class="sourceLine" id="cb6-20" title="20"><span class="kw">def</span> yin_nsd_type2(sig, samplerate):</a>
+<a class="sourceLine" id="cb6-21" title="21">    nsd <span class="op">=</span> normalized_square_difference_type2(sig)</a>
+<a class="sourceLine" id="cb6-22" title="22">    nsd <span class="op">=</span> invert_nsd(nsd)</a>
+<a class="sourceLine" id="cb6-23" title="23">    <span class="cf">if</span> nsd <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb6-24" title="24">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb6-25" title="25">    tau <span class="op">=</span> absolute_threshold(nsd, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb6-26" title="26">    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb6-27" title="27">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb6-28" title="28">    <span class="cf">return</span> samplerate <span class="op">/</span> tau</a></code></pre></div>
 <p>YIN-NSD で加工した NSD と局所最小点のプロットです。元の信号は66Hz、0.1秒のサイン波です。横軸は時間で縦軸は信号の大きさです。推定したピッチは type I で 67.5Hz 、 type II で 66.1Hz となりました。</p>
 <figure>
 <img src="img/yin_nsd.png" alt="Image of plot of YIN-NSD pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
@@ -639,23 +647,23 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <p>CMND では信号のピッチが局所最小点として表されていますが MPM の周期の探索では局所最大点を見つけます。そこでまずは CMND を反転します。</p>
 <p>CMND の値はすべて0以上ですが MPM の周期の探索ではゼロクロス点が必要です。そこで反転した CMND に、反転する前の CMND の最大値の半分の値を足します。</p>
 <p>実装します。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">def</span> mpm_cmnd_type1(sig, samplerate):</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">    diff <span class="op">=</span> difference_type1(sig)</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">    cmnd <span class="op">=</span> numpy.<span class="bu">max</span>(cmnd) <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> cmnd</a>
-<a class="sourceLine" id="cb7-5" data-line-number="5">    index <span class="op">=</span> estimate_period(cmnd)</a>
-<a class="sourceLine" id="cb7-6" data-line-number="6">    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb7-7" data-line-number="7">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb7-8" data-line-number="8">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, index)</a>
-<a class="sourceLine" id="cb7-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="kw">def</span> mpm_cmnd_type2(sig, samplerate):</a>
-<a class="sourceLine" id="cb7-11" data-line-number="11">    diff <span class="op">=</span> difference_type2(sig)</a>
-<a class="sourceLine" id="cb7-12" data-line-number="12">    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a>
-<a class="sourceLine" id="cb7-13" data-line-number="13">    cmnd <span class="op">=</span> numpy.<span class="bu">max</span>(cmnd) <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> cmnd</a>
-<a class="sourceLine" id="cb7-14" data-line-number="14">    index <span class="op">=</span> estimate_period(cmnd)</a>
-<a class="sourceLine" id="cb7-15" data-line-number="15">    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb7-16" data-line-number="16">        <span class="cf">return</span> numpy.nan</a>
-<a class="sourceLine" id="cb7-17" data-line-number="17">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, index)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">def</span> mpm_cmnd_type1(sig, samplerate):</a>
+<a class="sourceLine" id="cb7-2" title="2">    diff <span class="op">=</span> difference_type1(sig)</a>
+<a class="sourceLine" id="cb7-3" title="3">    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a>
+<a class="sourceLine" id="cb7-4" title="4">    cmnd <span class="op">=</span> numpy.<span class="bu">max</span>(cmnd) <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> cmnd</a>
+<a class="sourceLine" id="cb7-5" title="5">    index <span class="op">=</span> estimate_period(cmnd)</a>
+<a class="sourceLine" id="cb7-6" title="6">    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb7-7" title="7">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb7-8" title="8">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, index)</a>
+<a class="sourceLine" id="cb7-9" title="9"></a>
+<a class="sourceLine" id="cb7-10" title="10"><span class="kw">def</span> mpm_cmnd_type2(sig, samplerate):</a>
+<a class="sourceLine" id="cb7-11" title="11">    diff <span class="op">=</span> difference_type2(sig)</a>
+<a class="sourceLine" id="cb7-12" title="12">    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</a>
+<a class="sourceLine" id="cb7-13" title="13">    cmnd <span class="op">=</span> numpy.<span class="bu">max</span>(cmnd) <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> cmnd</a>
+<a class="sourceLine" id="cb7-14" title="14">    index <span class="op">=</span> estimate_period(cmnd)</a>
+<a class="sourceLine" id="cb7-15" title="15">    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb7-16" title="16">        <span class="cf">return</span> numpy.nan</a>
+<a class="sourceLine" id="cb7-17" title="17">    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, index)</a></code></pre></div>
 <p>MPM-CMND で加工した CMND と局所最大点のプロットです。元の信号は66Hz、0.1秒のサイン波です。横軸は時間で縦軸は信号の大きさです。推定したピッチは type I で 67.9Hz 、 type II で 66.3Hz となりました。</p>
 <figure>
 <img src="img/mpm_cmnd.png" alt="Image of plot of MPM-CMND pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
@@ -663,48 +671,48 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <h2 id="評価">評価</h2>
 <p>ここまでは一つの信号から一つのピッチを推定していました。ここから行うピッチ推定の評価では一つの信号を複数のフレームに分割して、それぞれのフレームから一つずつピッチを推定します。</p>
 <p>実装では <code>python_speech_features.sigproc.framesig</code> を使っています。フレームはオーバーラップすることがあります。信号の長さを超えることはありません。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">def</span> pitch_frame(data, samplerate, winlen, winstep, pitch_func<span class="op">=</span>yin_cmnd_type2):</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">    frame <span class="op">=</span> python_speech_features.sigproc.framesig(</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">        data,</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">        frame_len<span class="op">=</span><span class="bu">int</span>(samplerate <span class="op">*</span> winlen),</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5">        frame_step<span class="op">=</span><span class="bu">int</span>(samplerate <span class="op">*</span> winstep),</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">    )</a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">    <span class="cf">return</span> numpy.array([pitch_func(sig, samplerate) <span class="cf">for</span> sig <span class="kw">in</span> frame])</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">def</span> pitch_frame(data, samplerate, winlen, winstep, pitch_func<span class="op">=</span>yin_cmnd_type2):</a>
+<a class="sourceLine" id="cb8-2" title="2">    frame <span class="op">=</span> python_speech_features.sigproc.framesig(</a>
+<a class="sourceLine" id="cb8-3" title="3">        data,</a>
+<a class="sourceLine" id="cb8-4" title="4">        frame_len<span class="op">=</span><span class="bu">int</span>(samplerate <span class="op">*</span> winlen),</a>
+<a class="sourceLine" id="cb8-5" title="5">        frame_step<span class="op">=</span><span class="bu">int</span>(samplerate <span class="op">*</span> winstep),</a>
+<a class="sourceLine" id="cb8-6" title="6">    )</a>
+<a class="sourceLine" id="cb8-7" title="7">    <span class="cf">return</span> numpy.array([pitch_func(sig, samplerate) <span class="cf">for</span> sig <span class="kw">in</span> frame])</a></code></pre></div>
 <p>真のピッチと比較できるときは周波数を<a href="https://en.wikipedia.org/wiki/Cent_(music)">セント値</a>に変換して<a href="https://en.wikipedia.org/wiki/Mean_absolute_error">平均絶対誤差</a>を計算します。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">def</span> hz_to_cent(frequency):</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">    <span class="cf">return</span> <span class="dv">1200</span> <span class="op">*</span> numpy.log2(frequency <span class="op">/</span> <span class="dv">440</span>)</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="kw">def</span> mean_absolute_error(true_value, data_value):</a>
-<a class="sourceLine" id="cb9-5" data-line-number="5">    <span class="cf">return</span> numpy.nanmean(numpy.<span class="bu">abs</span>(true_value <span class="op">-</span> data_value))</a>
-<a class="sourceLine" id="cb9-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co"># 例。</span></a>
-<a class="sourceLine" id="cb9-8" data-line-number="8">true_cent <span class="op">=</span> hz_to_cent(true_value)</a>
-<a class="sourceLine" id="cb9-9" data-line-number="9">data_cent <span class="op">=</span> hz_to_cent(data)</a>
-<a class="sourceLine" id="cb9-10" data-line-number="10">mae <span class="op">=</span> mean_absolute_error(true_cent, data_cent)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">def</span> hz_to_cent(frequency):</a>
+<a class="sourceLine" id="cb9-2" title="2">    <span class="cf">return</span> <span class="dv">1200</span> <span class="op">*</span> numpy.log2(frequency <span class="op">/</span> <span class="dv">440</span>)</a>
+<a class="sourceLine" id="cb9-3" title="3"></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="kw">def</span> mean_absolute_error(true_value, data_value):</a>
+<a class="sourceLine" id="cb9-5" title="5">    <span class="cf">return</span> numpy.nanmean(numpy.<span class="bu">abs</span>(true_value <span class="op">-</span> data_value))</a>
+<a class="sourceLine" id="cb9-6" title="6"></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co"># 例。</span></a>
+<a class="sourceLine" id="cb9-8" title="8">true_cent <span class="op">=</span> hz_to_cent(true_value)</a>
+<a class="sourceLine" id="cb9-9" title="9">data_cent <span class="op">=</span> hz_to_cent(data)</a>
+<a class="sourceLine" id="cb9-10" title="10">mae <span class="op">=</span> mean_absolute_error(true_cent, data_cent)</a></code></pre></div>
 <h3 id="サイン波">サイン波</h3>
 <p>周波数が一定のサイン波を入力信号としたときの平均絶対誤差です。</p>
 <p>サイン波は次の条件で生成しました。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">def</span> generate_sin(duration, samplerate, frequency):</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb10-3" data-line-number="3">    phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> duration, length)</a>
-<a class="sourceLine" id="cb10-4" data-line-number="4">    <span class="cf">return</span> numpy.sin(phase)</a>
-<a class="sourceLine" id="cb10-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb10-6" data-line-number="6"><span class="kw">def</span> test_sin_wave(samplerate, duration, winlen, winstep, freq_low, freq_high,</a>
-<a class="sourceLine" id="cb10-7" data-line-number="7">                  num):</a>
-<a class="sourceLine" id="cb10-8" data-line-number="8">    frequency <span class="op">=</span> numpy.geomspace(freq_low, freq_high, num)</a>
-<a class="sourceLine" id="cb10-9" data-line-number="9">    signals <span class="op">=</span> [generate_sin(duration, samplerate, freq) <span class="cf">for</span> freq <span class="kw">in</span> frequency]</a>
-<a class="sourceLine" id="cb10-10" data-line-number="10">    <span class="co"># signals からピッチを推定して誤差を計算。</span></a>
-<a class="sourceLine" id="cb10-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb10-12" data-line-number="12">samplerate <span class="op">=</span> <span class="dv">16000</span>  <span class="co"># サンプリング周波数 [Hz]</span></a>
-<a class="sourceLine" id="cb10-13" data-line-number="13">duration <span class="op">=</span> <span class="fl">0.2</span>      <span class="co"># 長さ [sec]</span></a>
-<a class="sourceLine" id="cb10-14" data-line-number="14">num <span class="op">=</span> <span class="dv">32</span>            <span class="co"># 誤差を求める信号の数</span></a>
-<a class="sourceLine" id="cb10-15" data-line-number="15">winlen <span class="op">=</span> <span class="fl">0.1</span>        <span class="co"># フレームの長さ [sec]</span></a>
-<a class="sourceLine" id="cb10-16" data-line-number="16">winstep <span class="op">=</span> <span class="fl">0.01</span>      <span class="co"># フレームの間隔 [sec]</span></a>
-<a class="sourceLine" id="cb10-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb10-18" data-line-number="18">freq_low <span class="op">=</span> <span class="dv">10</span>       <span class="co"># 最も低い周波数 [Hz]</span></a>
-<a class="sourceLine" id="cb10-19" data-line-number="19">freq_high <span class="op">=</span> <span class="dv">8000</span>    <span class="co"># 最も高い周波数 [Hz]</span></a>
-<a class="sourceLine" id="cb10-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb10-21" data-line-number="21">test_sin_wave(samplerate, duration, winlen, winstep, freq_low, freq_high, num)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">def</span> generate_sin(duration, samplerate, frequency):</a>
+<a class="sourceLine" id="cb10-2" title="2">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
+<a class="sourceLine" id="cb10-3" title="3">    phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> duration, length)</a>
+<a class="sourceLine" id="cb10-4" title="4">    <span class="cf">return</span> numpy.sin(phase)</a>
+<a class="sourceLine" id="cb10-5" title="5"></a>
+<a class="sourceLine" id="cb10-6" title="6"><span class="kw">def</span> test_sin_wave(samplerate, duration, winlen, winstep, freq_low, freq_high,</a>
+<a class="sourceLine" id="cb10-7" title="7">                  num):</a>
+<a class="sourceLine" id="cb10-8" title="8">    frequency <span class="op">=</span> numpy.geomspace(freq_low, freq_high, num)</a>
+<a class="sourceLine" id="cb10-9" title="9">    signals <span class="op">=</span> [generate_sin(duration, samplerate, freq) <span class="cf">for</span> freq <span class="kw">in</span> frequency]</a>
+<a class="sourceLine" id="cb10-10" title="10">    <span class="co"># signals からピッチを推定して誤差を計算。</span></a>
+<a class="sourceLine" id="cb10-11" title="11"></a>
+<a class="sourceLine" id="cb10-12" title="12">samplerate <span class="op">=</span> <span class="dv">16000</span>  <span class="co"># サンプリング周波数 [Hz]</span></a>
+<a class="sourceLine" id="cb10-13" title="13">duration <span class="op">=</span> <span class="fl">0.2</span>      <span class="co"># 長さ [sec]</span></a>
+<a class="sourceLine" id="cb10-14" title="14">num <span class="op">=</span> <span class="dv">32</span>            <span class="co"># 誤差を求める信号の数</span></a>
+<a class="sourceLine" id="cb10-15" title="15">winlen <span class="op">=</span> <span class="fl">0.1</span>        <span class="co"># フレームの長さ [sec]</span></a>
+<a class="sourceLine" id="cb10-16" title="16">winstep <span class="op">=</span> <span class="fl">0.01</span>      <span class="co"># フレームの間隔 [sec]</span></a>
+<a class="sourceLine" id="cb10-17" title="17"></a>
+<a class="sourceLine" id="cb10-18" title="18">freq_low <span class="op">=</span> <span class="dv">10</span>       <span class="co"># 最も低い周波数 [Hz]</span></a>
+<a class="sourceLine" id="cb10-19" title="19">freq_high <span class="op">=</span> <span class="dv">8000</span>    <span class="co"># 最も高い周波数 [Hz]</span></a>
+<a class="sourceLine" id="cb10-20" title="20"></a>
+<a class="sourceLine" id="cb10-21" title="21">test_sin_wave(samplerate, duration, winlen, winstep, freq_low, freq_high, num)</a></code></pre></div>
 <p>手法ごとの平均絶対誤差です。</p>
 <figure>
 <img src="img/error_sin_wave.png" alt="Image of plot of mean absolute error to constant frequency sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
@@ -718,27 +726,27 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <p>全体的に type I よりも type II のほうが誤差が低くなっています。</p>
 <h3 id="ノイズを加えたサイン波">ノイズを加えたサイン波</h3>
 <p>サイン波にノイズを加えたときでもピッチが推定できるか試します。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">def</span> generate_sin_with_noise(duration, samplerate, frequency, noise_ratio):</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb11-3" data-line-number="3">    phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> duration, length)</a>
-<a class="sourceLine" id="cb11-4" data-line-number="4">    signal <span class="op">=</span> numpy.sin(phase) <span class="op">+</span> noise_ratio <span class="op">*</span> numpy.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb11-5" data-line-number="5">    <span class="cf">return</span> signal <span class="op">/</span> (noise_ratio <span class="op">+</span> <span class="dv">1</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">def</span> generate_sin_with_noise(duration, samplerate, frequency, noise_ratio):</a>
+<a class="sourceLine" id="cb11-2" title="2">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
+<a class="sourceLine" id="cb11-3" title="3">    phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> duration, length)</a>
+<a class="sourceLine" id="cb11-4" title="4">    signal <span class="op">=</span> numpy.sin(phase) <span class="op">+</span> noise_ratio <span class="op">*</span> numpy.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb11-5" title="5">    <span class="cf">return</span> signal <span class="op">/</span> (noise_ratio <span class="op">+</span> <span class="dv">1</span>)</a></code></pre></div>
 <p>パラメータです。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" data-line-number="1">samplerate <span class="op">=</span> <span class="dv">16000</span></a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">duration <span class="op">=</span> <span class="fl">0.8</span></a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">num <span class="op">=</span> <span class="dv">32</span> <span class="co"># 32の周波数 * 32のノイズの比率 = 1024サンプル</span></a>
-<a class="sourceLine" id="cb12-4" data-line-number="4">winlen <span class="op">=</span> <span class="fl">0.1</span></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5">winstep <span class="op">=</span> <span class="fl">0.01</span></a>
-<a class="sourceLine" id="cb12-6" data-line-number="6">freq_low <span class="op">=</span> <span class="dv">10</span></a>
-<a class="sourceLine" id="cb12-7" data-line-number="7">freq_high <span class="op">=</span> <span class="dv">8000</span></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8">ratio_low <span class="op">=</span> <span class="fl">0.01</span> <span class="co"># 最も小さいノイズの比率</span></a>
-<a class="sourceLine" id="cb12-9" data-line-number="9">ratio_high <span class="op">=</span> <span class="dv">100</span> <span class="co"># 最も大きいノイズの比率</span></a>
-<a class="sourceLine" id="cb12-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb12-11" data-line-number="11"><span class="co">&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co">ノイズの比率は次のように設定。</span></a>
-<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co">for ratio in numpy.geomspace(freq_low, freq_high, num):</span></a>
-<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co">    signal = (sin_wave + ratio * noise) / (ratio + 1)</span></a>
-<a class="sourceLine" id="cb12-15" data-line-number="15"><span class="co">&quot;&quot;&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1">samplerate <span class="op">=</span> <span class="dv">16000</span></a>
+<a class="sourceLine" id="cb12-2" title="2">duration <span class="op">=</span> <span class="fl">0.8</span></a>
+<a class="sourceLine" id="cb12-3" title="3">num <span class="op">=</span> <span class="dv">32</span> <span class="co"># 32の周波数 * 32のノイズの比率 = 1024サンプル</span></a>
+<a class="sourceLine" id="cb12-4" title="4">winlen <span class="op">=</span> <span class="fl">0.1</span></a>
+<a class="sourceLine" id="cb12-5" title="5">winstep <span class="op">=</span> <span class="fl">0.01</span></a>
+<a class="sourceLine" id="cb12-6" title="6">freq_low <span class="op">=</span> <span class="dv">10</span></a>
+<a class="sourceLine" id="cb12-7" title="7">freq_high <span class="op">=</span> <span class="dv">8000</span></a>
+<a class="sourceLine" id="cb12-8" title="8">ratio_low <span class="op">=</span> <span class="fl">0.01</span> <span class="co"># 最も小さいノイズの比率</span></a>
+<a class="sourceLine" id="cb12-9" title="9">ratio_high <span class="op">=</span> <span class="dv">100</span> <span class="co"># 最も大きいノイズの比率</span></a>
+<a class="sourceLine" id="cb12-10" title="10"></a>
+<a class="sourceLine" id="cb12-11" title="11"><span class="co">&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb12-12" title="12"><span class="co">ノイズの比率は次のように設定。</span></a>
+<a class="sourceLine" id="cb12-13" title="13"><span class="co">for ratio in numpy.geomspace(freq_low, freq_high, num):</span></a>
+<a class="sourceLine" id="cb12-14" title="14"><span class="co">    signal = (sin_wave + ratio * noise) / (ratio + 1)</span></a>
+<a class="sourceLine" id="cb12-15" title="15"><span class="co">&quot;&quot;&quot;</span></a></code></pre></div>
 <p>手法ごとの平均絶対誤差です。</p>
 <figure>
 <img src="img/error_sin_with_noise.png" alt="Image of plot of mean absolute error to sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
@@ -752,28 +760,28 @@ n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
 <p>それ以外の手法ではノイズの比率が大きいときでは <code>nan</code> が出ますが NSD type II のように全体の平均を大きく変えるような誤差は出ていません。</p>
 <h3 id="am変調とfm変調">AM変調とFM変調</h3>
 <p>信号は次のように生成しました。</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">def</span> generate_sin_am(duration, samplerate, car_freq, mod_freq):</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">    car_phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> car_freq <span class="op">*</span> duration, length)</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">    mod_phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> mod_freq <span class="op">*</span> duration, length)</a>
-<a class="sourceLine" id="cb13-5" data-line-number="5">    <span class="cf">return</span> numpy.sin(car_phase) <span class="op">*</span> numpy.sin(mod_phase)</a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="kw">def</span> generate_sin_fm(duration, samplerate, car_freq, mod_freq):</a>
-<a class="sourceLine" id="cb13-8" data-line-number="8">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb13-9" data-line-number="9">    mod_phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> mod_freq <span class="op">*</span> duration, length)</a>
-<a class="sourceLine" id="cb13-10" data-line-number="10">    car_phase <span class="op">=</span> numpy.full(length, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> car_freq <span class="op">*</span> duration <span class="op">/</span> length)</a>
-<a class="sourceLine" id="cb13-11" data-line-number="11">    phase <span class="op">=</span> (car_phase <span class="op">+</span> numpy.sin(mod_phase)).cumsum()</a>
-<a class="sourceLine" id="cb13-12" data-line-number="12">    <span class="cf">return</span> numpy.sin(phase)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">def</span> generate_sin_am(duration, samplerate, car_freq, mod_freq):</a>
+<a class="sourceLine" id="cb13-2" title="2">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
+<a class="sourceLine" id="cb13-3" title="3">    car_phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> car_freq <span class="op">*</span> duration, length)</a>
+<a class="sourceLine" id="cb13-4" title="4">    mod_phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> mod_freq <span class="op">*</span> duration, length)</a>
+<a class="sourceLine" id="cb13-5" title="5">    <span class="cf">return</span> numpy.sin(car_phase) <span class="op">*</span> numpy.sin(mod_phase)</a>
+<a class="sourceLine" id="cb13-6" title="6"></a>
+<a class="sourceLine" id="cb13-7" title="7"><span class="kw">def</span> generate_sin_fm(duration, samplerate, car_freq, mod_freq):</a>
+<a class="sourceLine" id="cb13-8" title="8">    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</a>
+<a class="sourceLine" id="cb13-9" title="9">    mod_phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> mod_freq <span class="op">*</span> duration, length)</a>
+<a class="sourceLine" id="cb13-10" title="10">    car_phase <span class="op">=</span> numpy.full(length, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> car_freq <span class="op">*</span> duration <span class="op">/</span> length)</a>
+<a class="sourceLine" id="cb13-11" title="11">    phase <span class="op">=</span> (car_phase <span class="op">+</span> numpy.sin(mod_phase)).cumsum()</a>
+<a class="sourceLine" id="cb13-12" title="12">    <span class="cf">return</span> numpy.sin(phase)</a></code></pre></div>
 <p>パラメータです。</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" data-line-number="1">samplerate <span class="op">=</span> <span class="dv">16000</span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">duration <span class="op">=</span> <span class="fl">0.8</span></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">num <span class="op">=</span> <span class="dv">32</span> <span class="co"># 32のキャリア周波数 * 32のモジュレータ周波数 = 1024サンプル</span></a>
-<a class="sourceLine" id="cb14-4" data-line-number="4">winlen <span class="op">=</span> <span class="fl">0.1</span></a>
-<a class="sourceLine" id="cb14-5" data-line-number="5">winstep <span class="op">=</span> <span class="fl">0.01</span></a>
-<a class="sourceLine" id="cb14-6" data-line-number="6">car_freq_low <span class="op">=</span> <span class="dv">10</span>    <span class="co"># 最も小さいキャリアの周波数</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7">car_freq_high <span class="op">=</span> <span class="dv">8000</span> <span class="co"># 最も大きいキャリアの周波数</span></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8">mod_freq_low <span class="op">=</span> <span class="fl">0.1</span>   <span class="co"># 最も小さいモジュレータの周波数</span></a>
-<a class="sourceLine" id="cb14-9" data-line-number="9">mod_freq_high <span class="op">=</span> <span class="dv">800</span>  <span class="co"># 最も大きいモジュレータの周波数</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1">samplerate <span class="op">=</span> <span class="dv">16000</span></a>
+<a class="sourceLine" id="cb14-2" title="2">duration <span class="op">=</span> <span class="fl">0.8</span></a>
+<a class="sourceLine" id="cb14-3" title="3">num <span class="op">=</span> <span class="dv">32</span> <span class="co"># 32のキャリア周波数 * 32のモジュレータ周波数 = 1024サンプル</span></a>
+<a class="sourceLine" id="cb14-4" title="4">winlen <span class="op">=</span> <span class="fl">0.1</span></a>
+<a class="sourceLine" id="cb14-5" title="5">winstep <span class="op">=</span> <span class="fl">0.01</span></a>
+<a class="sourceLine" id="cb14-6" title="6">car_freq_low <span class="op">=</span> <span class="dv">10</span>    <span class="co"># 最も小さいキャリアの周波数</span></a>
+<a class="sourceLine" id="cb14-7" title="7">car_freq_high <span class="op">=</span> <span class="dv">8000</span> <span class="co"># 最も大きいキャリアの周波数</span></a>
+<a class="sourceLine" id="cb14-8" title="8">mod_freq_low <span class="op">=</span> <span class="fl">0.1</span>   <span class="co"># 最も小さいモジュレータの周波数</span></a>
+<a class="sourceLine" id="cb14-9" title="9">mod_freq_high <span class="op">=</span> <span class="dv">800</span>  <span class="co"># 最も大きいモジュレータの周波数</span></a></code></pre></div>
 <p>AM変調をかけたサイン波に対する平均絶対誤差です。</p>
 <figure>
 <img src="img/error_sin_am.png" alt="Image of plot of mean absolute error to sin AM signal." style="width: 640px;padding-bottom: 12px;"/>
