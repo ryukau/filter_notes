@@ -81,7 +81,6 @@ def pandoc_md_to_html5(md, md_info, template_html):
 
 def dump_config_yml():
     md_list = sorted([str(md) for md in Path(".").glob("**/*.md")])
-    print()
     with open("_config.yml", "w") as outfile:
         yaml.dump({"exclude": md_list}, outfile, default_flow_style=False)
 
