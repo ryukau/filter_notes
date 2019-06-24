@@ -13,12 +13,14 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
-    crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+    integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+    integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
-    crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+    integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
 
 
   <style>
@@ -95,6 +97,14 @@
       border-left: 1px solid #dddddd;
     }
 
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
     code {
       color: #004444;
     }
@@ -105,6 +115,12 @@
 
     li {
       margin: 8px;
+    }
+
+    header {
+      border-bottom: 1px gray solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
     }
 
     footer {
@@ -199,6 +215,13 @@
 </head>
 
 <body>
+  <header>
+    <p>
+      Update:
+      2018-12-29
+    </p>
+  </header>
+
   <h1 id="次元のばね-ダンパ波動方程式">2次元のばね-ダンパ波動方程式</h1>
 <p>2次元のばね-ダンパ<a href="https://en.wikipedia.org/wiki/Wave_equation">波動方程式</a>を実装します。</p>
 <h2 id="表記について">表記について</h2>
@@ -341,11 +364,11 @@ u_{t+1} = u_{t} + \Delta_t \dot{u}_{t} + C_3 \ddot{u}_{t} + C_8 \ddot{u}_{t+1}\\
 <figure>
 <img src="img/2d_lattice_mod_index.svg" alt="Image of gibbs phenomenon." style="width: 360px;"/>
 </figure>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="cf">for</span> (<span class="kw">var</span> x <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> x <span class="op">&lt;</span> xLength<span class="op">;</span> <span class="op">++</span>x) <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="cf">for</span> (<span class="kw">var</span> y <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> y <span class="op">&lt;</span> yLength<span class="op">;</span> <span class="op">++</span>y) <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">    u_array[x <span class="op">+</span> y <span class="op">*</span> xLength] <span class="op">=</span> u[x][y]</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="op">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="cf">for</span> (<span class="kw">var</span> x <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> x <span class="op">&lt;</span> xLength<span class="op">;</span> <span class="op">++</span>x) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="cf">for</span> (<span class="kw">var</span> y <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> y <span class="op">&lt;</span> yLength<span class="op">;</span> <span class="op">++</span>y) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-3" title="3">    u_array[x <span class="op">+</span> y <span class="op">*</span> xLength] <span class="op">=</span> u[x][y]</a>
+<a class="sourceLine" id="cb1-4" title="4">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="op">}</span></a></code></pre></div>
 <p>これで <span class="math inline">\(\mathbf{u}_{t}\)</span> が組み立てられました。</p>
 <p><span class="math inline">\(\mathbf{A}\)</span> を組み立てます。整理した式の左辺にある関数 <span class="math inline">\(\mathtt{neighbor}\)</span> を展開して2次元の形にします。このときインデックスが配列の端から外に出ないよう例外処理が必要です。</p>
 <p><span class="math display">\[
@@ -451,14 +474,14 @@ C_1 &amp; 0 &amp; 0 &amp; 0 &amp; C_0 &amp; b C_1 &amp; 0 &amp; 0 &amp; C_1 &amp
 <figure>
 <img src="img/2d_lattice_snake_index.svg" alt="Image of gibbs phenomenon." style="width: 360px;"/>
 </figure>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="cf">for</span> (<span class="kw">var</span> x <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> x <span class="op">&lt;</span> xLength<span class="op">;</span> <span class="op">++</span>x) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="cf">for</span> (<span class="kw">var</span> y <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> y <span class="op">&lt;</span> yLength<span class="op">;</span> <span class="op">++</span>y) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">    <span class="kw">var</span> index <span class="op">=</span> y <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">      <span class="op">?</span> x <span class="op">+</span> y <span class="op">*</span> xLength</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">      : (y <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> xLength <span class="op">-</span> x <span class="op">-</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">    u_array[index] <span class="op">=</span> u[x][y]</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="op">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="cf">for</span> (<span class="kw">var</span> x <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> x <span class="op">&lt;</span> xLength<span class="op">;</span> <span class="op">++</span>x) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="cf">for</span> (<span class="kw">var</span> y <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> y <span class="op">&lt;</span> yLength<span class="op">;</span> <span class="op">++</span>y) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="kw">var</span> index <span class="op">=</span> y <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb2-4" title="4">      <span class="op">?</span> x <span class="op">+</span> y <span class="op">*</span> xLength</a>
+<a class="sourceLine" id="cb2-5" title="5">      : (y <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> xLength <span class="op">-</span> x <span class="op">-</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-6" title="6">    u_array[index] <span class="op">=</span> u[x][y]</a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="op">}</span></a></code></pre></div>
 <h3 id="ソルバの発散を防ぐ">ソルバの発散を防ぐ</h3>
 <p>2回の反復を1セットにして、1回目はインデックスを昇順、2回目は降順にたどって計算することで、反復回数が少ないときでもソルバによる発散を防げます。</p>
 <h3 id="u_t-が-5-times-3-のときの-mathbfa"><span class="math inline">\(u_{t}\)</span> が <span class="math inline">\(5 \times 3\)</span> のときの <span class="math inline">\(\mathbf{A}\)</span></h3>

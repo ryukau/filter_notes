@@ -13,12 +13,14 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
-    crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+    integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+    integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
-    crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+    integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
 
 
   <style>
@@ -95,6 +97,14 @@
       border-left: 1px solid #dddddd;
     }
 
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
     code {
       color: #004444;
     }
@@ -105,6 +115,12 @@
 
     li {
       margin: 8px;
+    }
+
+    header {
+      border-bottom: 1px gray solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
     }
 
     footer {
@@ -199,6 +215,13 @@
 </head>
 
 <body>
+  <header>
+    <p>
+      Update:
+      2018-11-29
+    </p>
+  </header>
+
   <h1 id="分数階微積分の数値計算">分数階微積分の数値計算</h1>
 <p><a href="https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf">Loverroの “Fractional Calculus: History, Definitions and Applications for the Engineer”</a>に沿って、数値計算がしやすそうなGrünwald–Letnikovの<a href="https://en.wikipedia.org/wiki/Fractional_calculus">分数階微積分</a>について見ていきます。</p>
 <h2 id="分数階微積分とは">分数階微積分とは</h2>
@@ -293,25 +316,25 @@ d^{\alpha} f(x)
 <p>次のガンマ関数の計算と組み合わせた二項係数の計算はあまり精度が良くありません。できれば信頼できるライブラリを使ってください。</p>
 <h2 id="ガンマ関数の計算">ガンマ関数の計算</h2>
 <p>ガンマ関数の数値計算には<a href="https://en.wikipedia.org/wiki/Lanczos_approximation">Lanczos approximation</a>が使えます。次のコードはJavaScriptでの実装です。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">function</span> <span class="at">gamma</span>(z) <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="kw">var</span> p <span class="op">=</span> [</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="fl">676.5203681218851</span><span class="op">,</span> <span class="fl">-1259.1392167224028</span><span class="op">,</span> <span class="fl">771.32342877765313</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">    <span class="fl">-176.61502916214059</span><span class="op">,</span> <span class="fl">12.507343278686905</span><span class="op">,</span> <span class="fl">-0.13857109526572012</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">    <span class="fl">9.9843695780195716e-6</span><span class="op">,</span> <span class="fl">1.5056327351493116e-7</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">  ]</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">  <span class="cf">if</span> (z <span class="op">&lt;</span> <span class="fl">0.5</span>) <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">    <span class="cf">return</span> <span class="va">Math</span>.<span class="at">PI</span> / (<span class="va">Math</span>.<span class="at">sin</span>(<span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> z) <span class="op">*</span> <span class="at">gamma</span>(<span class="dv">1</span> <span class="op">-</span> z))</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">  z <span class="op">-=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">  <span class="kw">var</span> a <span class="op">=</span> <span class="fl">0.99999999999980993</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14">  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">p</span>.<span class="at">length</span><span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15">    a <span class="op">+=</span> p[i] / (z <span class="op">+</span> i <span class="op">+</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb1-16" data-line-number="16">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17">  <span class="kw">var</span> t <span class="op">=</span> z <span class="op">+</span> <span class="va">p</span>.<span class="at">length</span> <span class="op">-</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18">  <span class="cf">return</span> <span class="va">Math</span>.<span class="at">sqrt</span>(<span class="dv">2</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">PI</span>) <span class="op">*</span> <span class="va">Math</span>.<span class="at">pow</span>(t<span class="op">,</span> z <span class="op">+</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="va">Math</span>.<span class="at">exp</span>(<span class="op">-</span>t) <span class="op">*</span> a</a>
-<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="op">}</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">function</span> <span class="at">gamma</span>(z) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="kw">var</span> p <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb1-3" title="3">    <span class="fl">676.5203681218851</span><span class="op">,</span> <span class="fl">-1259.1392167224028</span><span class="op">,</span> <span class="fl">771.32342877765313</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="fl">-176.61502916214059</span><span class="op">,</span> <span class="fl">12.507343278686905</span><span class="op">,</span> <span class="fl">-0.13857109526572012</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="fl">9.9843695780195716e-6</span><span class="op">,</span> <span class="fl">1.5056327351493116e-7</span></a>
+<a class="sourceLine" id="cb1-6" title="6">  ]</a>
+<a class="sourceLine" id="cb1-7" title="7"></a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="cf">if</span> (z <span class="op">&lt;</span> <span class="fl">0.5</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-9" title="9">    <span class="cf">return</span> <span class="va">Math</span>.<span class="at">PI</span> / (<span class="va">Math</span>.<span class="at">sin</span>(<span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> z) <span class="op">*</span> <span class="at">gamma</span>(<span class="dv">1</span> <span class="op">-</span> z))</a>
+<a class="sourceLine" id="cb1-10" title="10">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-11" title="11"></a>
+<a class="sourceLine" id="cb1-12" title="12">  z <span class="op">-=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb1-13" title="13">  <span class="kw">var</span> a <span class="op">=</span> <span class="fl">0.99999999999980993</span></a>
+<a class="sourceLine" id="cb1-14" title="14">  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">p</span>.<span class="at">length</span><span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    a <span class="op">+=</span> p[i] / (z <span class="op">+</span> i <span class="op">+</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb1-17" title="17">  <span class="kw">var</span> t <span class="op">=</span> z <span class="op">+</span> <span class="va">p</span>.<span class="at">length</span> <span class="op">-</span> <span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb1-18" title="18">  <span class="cf">return</span> <span class="va">Math</span>.<span class="at">sqrt</span>(<span class="dv">2</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">PI</span>) <span class="op">*</span> <span class="va">Math</span>.<span class="at">pow</span>(t<span class="op">,</span> z <span class="op">+</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="va">Math</span>.<span class="at">exp</span>(<span class="op">-</span>t) <span class="op">*</span> a</a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="op">}</span></a></code></pre></div>
 <h2 id="grünwaldletnikovの分数階積分">Grünwald–Letnikovの分数階積分</h2>
 <p><span class="math inline">\(\alpha\)</span> 階の分数階積分も計算できます。 <span class="math inline">\(-\alpha\)</span> 階微分の形ではガンマ関数に負の値が入ることになるので計算できない場合が出てきます。</p>
 <p><span class="math display">\[
@@ -356,44 +379,44 @@ d^{-\alpha} f(x)
 \end{aligned}
 \]</span></p>
 <p>実装します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">// ガンマ関数の計算で定義した関数 gamma を使用。</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw">function</span> <span class="at">fractionalDerivative</span>(func<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="kw">var</span> sign <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="cf">for</span> (<span class="kw">var</span> m <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> m <span class="op">&lt;</span> MAX_SUM<span class="op">;</span> <span class="op">++</span>m) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">    sum <span class="op">+=</span> sign / <span class="at">gamma</span>(m <span class="op">+</span> <span class="dv">1</span>) / <span class="at">gamma</span>(alpha <span class="op">-</span> m <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="at">func</span>(x <span class="op">-</span> m <span class="op">*</span> h)</a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">    sign <span class="op">*=</span> <span class="dv">-1</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10">  <span class="cf">return</span> sum <span class="op">*</span> <span class="at">gamma</span>(alpha <span class="op">+</span> <span class="dv">1</span>) / h <span class="op">**</span> alpha</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="op">}</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="kw">function</span> <span class="at">fractionalIntegral</span>(func<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">  alpha <span class="op">=</span> <span class="op">-</span>alpha</a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">  <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-16" data-line-number="16">  <span class="cf">for</span> (<span class="kw">var</span> m <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> m <span class="op">&lt;</span> MAX_SUM<span class="op">;</span> <span class="op">++</span>m) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-17" data-line-number="17">    sum <span class="op">+=</span> <span class="at">gamma</span>(alpha <span class="op">+</span> m) / <span class="at">gamma</span>(m <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="at">func</span>(x <span class="op">-</span> m <span class="op">*</span> h)</a>
-<a class="sourceLine" id="cb2-18" data-line-number="18">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb2-19" data-line-number="19">  <span class="cf">return</span> sum / <span class="at">gamma</span>(alpha) <span class="op">*</span> h <span class="op">**</span> alpha</a>
-<a class="sourceLine" id="cb2-20" data-line-number="20"><span class="op">}</span></a>
-<a class="sourceLine" id="cb2-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb2-22" data-line-number="22"><span class="co">// 計算する関数とパラメータ。</span></a>
-<a class="sourceLine" id="cb2-23" data-line-number="23"><span class="co">// alpha が正の値なら微分、負の値なら積分。</span></a>
-<a class="sourceLine" id="cb2-24" data-line-number="24"><span class="kw">var</span> MAX_SUM <span class="op">=</span> <span class="dv">128</span></a>
-<a class="sourceLine" id="cb2-25" data-line-number="25"><span class="kw">var</span> exampleFunc <span class="op">=</span> (x) <span class="op">=&gt;</span> <span class="op">{</span> <span class="cf">return</span> x <span class="op">*</span> <span class="va">Math</span>.<span class="at">sin</span>(x) <span class="op">}</span></a>
-<a class="sourceLine" id="cb2-26" data-line-number="26"><span class="kw">var</span> alpha <span class="op">=</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb2-27" data-line-number="27"><span class="kw">var</span> h <span class="op">=</span> <span class="fl">0.01</span></a>
-<a class="sourceLine" id="cb2-28" data-line-number="28"></a>
-<a class="sourceLine" id="cb2-29" data-line-number="29"><span class="kw">var</span> maxI <span class="op">=</span> <span class="dv">1024</span> <span class="op">-</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-30" data-line-number="30"><span class="kw">var</span> maxX <span class="op">=</span> <span class="dv">10</span></a>
-<a class="sourceLine" id="cb2-31" data-line-number="31"><span class="kw">var</span> result <span class="op">=</span> []</a>
-<a class="sourceLine" id="cb2-32" data-line-number="32"><span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> maxI<span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-33" data-line-number="33">  <span class="kw">var</span> x <span class="op">=</span> maxX <span class="op">*</span> i / maxI</a>
-<a class="sourceLine" id="cb2-34" data-line-number="34">  <span class="kw">var</span> deriv <span class="op">=</span> <span class="at">fractionalDerivative</span>(exampleFunc<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h)</a>
-<a class="sourceLine" id="cb2-35" data-line-number="35">  <span class="kw">var</span> integ <span class="op">=</span> <span class="at">fractionalIntegral</span>(exampleFunc<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h)</a>
-<a class="sourceLine" id="cb2-36" data-line-number="36">  <span class="va">result</span>.<span class="at">push</span>([deriv<span class="op">,</span> integ])</a>
-<a class="sourceLine" id="cb2-37" data-line-number="37"><span class="op">}</span></a>
-<a class="sourceLine" id="cb2-38" data-line-number="38"><span class="va">console</span>.<span class="at">log</span>(result)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ガンマ関数の計算で定義した関数 gamma を使用。</span></a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">function</span> <span class="at">fractionalDerivative</span>(func<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-4" title="4">  <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb2-5" title="5">  <span class="kw">var</span> sign <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-6" title="6">  <span class="cf">for</span> (<span class="kw">var</span> m <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> m <span class="op">&lt;</span> MAX_SUM<span class="op">;</span> <span class="op">++</span>m) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-7" title="7">    sum <span class="op">+=</span> sign / <span class="at">gamma</span>(m <span class="op">+</span> <span class="dv">1</span>) / <span class="at">gamma</span>(alpha <span class="op">-</span> m <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="at">func</span>(x <span class="op">-</span> m <span class="op">*</span> h)</a>
+<a class="sourceLine" id="cb2-8" title="8">    sign <span class="op">*=</span> <span class="dv">-1</span></a>
+<a class="sourceLine" id="cb2-9" title="9">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-10" title="10">  <span class="cf">return</span> sum <span class="op">*</span> <span class="at">gamma</span>(alpha <span class="op">+</span> <span class="dv">1</span>) / h <span class="op">**</span> alpha</a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-12" title="12"></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="kw">function</span> <span class="at">fractionalIntegral</span>(func<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-14" title="14">  alpha <span class="op">=</span> <span class="op">-</span>alpha</a>
+<a class="sourceLine" id="cb2-15" title="15">  <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb2-16" title="16">  <span class="cf">for</span> (<span class="kw">var</span> m <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> m <span class="op">&lt;</span> MAX_SUM<span class="op">;</span> <span class="op">++</span>m) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-17" title="17">    sum <span class="op">+=</span> <span class="at">gamma</span>(alpha <span class="op">+</span> m) / <span class="at">gamma</span>(m <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="at">func</span>(x <span class="op">-</span> m <span class="op">*</span> h)</a>
+<a class="sourceLine" id="cb2-18" title="18">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-19" title="19">  <span class="cf">return</span> sum / <span class="at">gamma</span>(alpha) <span class="op">*</span> h <span class="op">**</span> alpha</a>
+<a class="sourceLine" id="cb2-20" title="20"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-21" title="21"></a>
+<a class="sourceLine" id="cb2-22" title="22"><span class="co">// 計算する関数とパラメータ。</span></a>
+<a class="sourceLine" id="cb2-23" title="23"><span class="co">// alpha が正の値なら微分、負の値なら積分。</span></a>
+<a class="sourceLine" id="cb2-24" title="24"><span class="kw">var</span> MAX_SUM <span class="op">=</span> <span class="dv">128</span></a>
+<a class="sourceLine" id="cb2-25" title="25"><span class="kw">var</span> exampleFunc <span class="op">=</span> (x) <span class="kw">=&gt;</span> <span class="op">{</span> <span class="cf">return</span> x <span class="op">*</span> <span class="va">Math</span>.<span class="at">sin</span>(x) <span class="op">}</span></a>
+<a class="sourceLine" id="cb2-26" title="26"><span class="kw">var</span> alpha <span class="op">=</span> <span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb2-27" title="27"><span class="kw">var</span> h <span class="op">=</span> <span class="fl">0.01</span></a>
+<a class="sourceLine" id="cb2-28" title="28"></a>
+<a class="sourceLine" id="cb2-29" title="29"><span class="kw">var</span> maxI <span class="op">=</span> <span class="dv">1024</span> <span class="op">-</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-30" title="30"><span class="kw">var</span> maxX <span class="op">=</span> <span class="dv">10</span></a>
+<a class="sourceLine" id="cb2-31" title="31"><span class="kw">var</span> result <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb2-32" title="32"><span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> maxI<span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-33" title="33">  <span class="kw">var</span> x <span class="op">=</span> maxX <span class="op">*</span> i / maxI</a>
+<a class="sourceLine" id="cb2-34" title="34">  <span class="kw">var</span> deriv <span class="op">=</span> <span class="at">fractionalDerivative</span>(exampleFunc<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h)</a>
+<a class="sourceLine" id="cb2-35" title="35">  <span class="kw">var</span> integ <span class="op">=</span> <span class="at">fractionalIntegral</span>(exampleFunc<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h)</a>
+<a class="sourceLine" id="cb2-36" title="36">  <span class="va">result</span>.<span class="at">push</span>([deriv<span class="op">,</span> integ])</a>
+<a class="sourceLine" id="cb2-37" title="37"><span class="op">}</span></a>
+<a class="sourceLine" id="cb2-38" title="38"><span class="va">console</span>.<span class="at">log</span>(result)</a></code></pre></div>
 <h2 id="デモ">デモ</h2>
 <script src="demo/fft.js"></script>
 <script src="demo/vec2.js"></script>
@@ -679,8 +702,8 @@ refresh()
 </script>
 <p>黒のプロットが <code>fractionalDerivative</code> 、赤が <code>fractionalIntegral</code> です。</p>
 <p>ブラウザの開発者コンソールから関数 <code>func</code> を上書きすることで描画する関数を変更できます。 <code>func</code> の第一引数には横軸の座標が入力されます。コンソールから再描画するには関数 <code>refresh</code> を呼び出してください。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" data-line-number="1">func <span class="op">=</span> (x) <span class="op">=&gt;</span> x<span class="op">**</span><span class="dv">5</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="at">refresh</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1">func <span class="op">=</span> (x) <span class="kw">=&gt;</span> x<span class="op">**</span><span class="dv">5</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="at">refresh</span>()</a></code></pre></div>
 <h2 id="問題点">問題点</h2>
 <p>分数階微分についての理解が足りていないのでテストケースが用意できていません。</p>
 <p><span class="math inline">\(0 &lt; \alpha &lt; 1\)</span> の範囲を超えると計算結果がおかしいように見えます。積分方向は見当違いの値がでているようにしか見えません。何とかして整数階の微分と小数階の微分で分けて計算することが考えられます。</p>

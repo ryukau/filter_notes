@@ -13,12 +13,14 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
-    crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+    integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+    integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
-    crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+    integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
 
 
   <style>
@@ -95,6 +97,14 @@
       border-left: 1px solid #dddddd;
     }
 
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
     code {
       color: #004444;
     }
@@ -105,6 +115,12 @@
 
     li {
       margin: 8px;
+    }
+
+    header {
+      border-bottom: 1px gray solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
     }
 
     footer {
@@ -199,6 +215,13 @@
 </head>
 
 <body>
+  <header>
+    <p>
+      Update:
+      2018-11-29
+    </p>
+  </header>
+
   <h1 id="burgers方程式でn波">Burgers方程式でN波</h1>
 <p>衝撃波が起きると<a href="https://en.wikipedia.org/wiki/Sonic_boom#/media/File:N-wave.png">N波</a>と呼ばれる波形が現れます。N波はBurgers方程式を解くことで近似できます。</p>
 <p>Burgers方程式です。TOURNATの<a href="http://perso.univ-lemans.fr/~vtournat/wa_files/NLALectureVT.pdf">Introductory Lecture on Nonlinear Acoustics</a>で紹介されていた形を使っています。</p>
@@ -227,33 +250,33 @@ p_a(\xi, \theta)
 <li><span class="math inline">\(I_n\)</span> : <a href="https://en.wikipedia.org/wiki/Bessel_function#Modified_Bessel_functions">Modified Bessel function of the first kind</a></li>
 </ul>
 <p>実装します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="im">from</span> scipy.special <span class="im">import</span> iv</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw">def</span> burgers_hopf_cole(xi, theta, gamma, loop<span class="op">=</span><span class="dv">128</span>):</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">    <span class="co">&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co">    p_a / p_0 を返す。</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">    gamma_div_2 <span class="op">=</span> gamma <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">    xi_div_gamma <span class="op">=</span> xi <span class="op">/</span> gamma</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">    numer <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">    denom <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">    sign <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14">    <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, loop <span class="op">+</span> <span class="dv">1</span>):</a>
-<a class="sourceLine" id="cb1-15" data-line-number="15">        iv_exp <span class="op">=</span> iv(n, gamma_div_2) <span class="op">*</span> numpy.exp(<span class="op">-</span>n <span class="op">*</span> n <span class="op">*</span> xi_div_gamma)</a>
-<a class="sourceLine" id="cb1-16" data-line-number="16">        n_theta <span class="op">=</span> n <span class="op">*</span> theta</a>
-<a class="sourceLine" id="cb1-17" data-line-number="17">        numer <span class="op">+=</span> sign <span class="op">*</span> n <span class="op">*</span> iv_exp <span class="op">*</span> numpy.sin(n_theta)</a>
-<a class="sourceLine" id="cb1-18" data-line-number="18">        sign <span class="op">=</span> <span class="op">-</span>sign</a>
-<a class="sourceLine" id="cb1-19" data-line-number="19">        denom <span class="op">+=</span> sign <span class="op">*</span> iv_exp <span class="op">*</span> numpy.cos(n_theta)</a>
-<a class="sourceLine" id="cb1-20" data-line-number="20">    <span class="cf">return</span> (<span class="dv">4</span> <span class="op">/</span> gamma <span class="op">*</span> numer) <span class="op">/</span> (iv(<span class="dv">0</span>, gamma_div_2) <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> denom)</a>
-<a class="sourceLine" id="cb1-21" data-line-number="21"></a>
-<a class="sourceLine" id="cb1-22" data-line-number="22">theta <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi, <span class="dv">512</span>)</a>
-<a class="sourceLine" id="cb1-23" data-line-number="23">data <span class="op">=</span> burgers_hopf_cole(<span class="dv">2</span>, theta, <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb1-24" data-line-number="24"></a>
-<a class="sourceLine" id="cb1-25" data-line-number="25">pyplot.plot(theta, data)</a>
-<a class="sourceLine" id="cb1-26" data-line-number="26">pyplot.grid()</a>
-<a class="sourceLine" id="cb1-27" data-line-number="27">pyplot.show()</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> numpy</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">from</span> scipy.special <span class="im">import</span> iv</a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">def</span> burgers_hopf_cole(xi, theta, gamma, loop<span class="op">=</span><span class="dv">128</span>):</a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="co">&quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co">    p_a / p_0 を返す。</span></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="co">    &quot;&quot;&quot;</span></a>
+<a class="sourceLine" id="cb1-9" title="9">    gamma_div_2 <span class="op">=</span> gamma <span class="op">/</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb1-10" title="10">    xi_div_gamma <span class="op">=</span> xi <span class="op">/</span> gamma</a>
+<a class="sourceLine" id="cb1-11" title="11">    numer <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb1-12" title="12">    denom <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb1-13" title="13">    sign <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb1-14" title="14">    <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, loop <span class="op">+</span> <span class="dv">1</span>):</a>
+<a class="sourceLine" id="cb1-15" title="15">        iv_exp <span class="op">=</span> iv(n, gamma_div_2) <span class="op">*</span> numpy.exp(<span class="op">-</span>n <span class="op">*</span> n <span class="op">*</span> xi_div_gamma)</a>
+<a class="sourceLine" id="cb1-16" title="16">        n_theta <span class="op">=</span> n <span class="op">*</span> theta</a>
+<a class="sourceLine" id="cb1-17" title="17">        numer <span class="op">+=</span> sign <span class="op">*</span> n <span class="op">*</span> iv_exp <span class="op">*</span> numpy.sin(n_theta)</a>
+<a class="sourceLine" id="cb1-18" title="18">        sign <span class="op">=</span> <span class="op">-</span>sign</a>
+<a class="sourceLine" id="cb1-19" title="19">        denom <span class="op">+=</span> sign <span class="op">*</span> iv_exp <span class="op">*</span> numpy.cos(n_theta)</a>
+<a class="sourceLine" id="cb1-20" title="20">    <span class="cf">return</span> (<span class="dv">4</span> <span class="op">/</span> gamma <span class="op">*</span> numer) <span class="op">/</span> (iv(<span class="dv">0</span>, gamma_div_2) <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> denom)</a>
+<a class="sourceLine" id="cb1-21" title="21"></a>
+<a class="sourceLine" id="cb1-22" title="22">theta <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi, <span class="dv">512</span>)</a>
+<a class="sourceLine" id="cb1-23" title="23">data <span class="op">=</span> burgers_hopf_cole(<span class="dv">2</span>, theta, <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb1-24" title="24"></a>
+<a class="sourceLine" id="cb1-25" title="25">pyplot.plot(theta, data)</a>
+<a class="sourceLine" id="cb1-26" title="26">pyplot.grid()</a>
+<a class="sourceLine" id="cb1-27" title="27">pyplot.show()</a></code></pre></div>
 <p>コードをコピペしてPython3のインタプリタに貼り付ければ次のプロットが出力されます。</p>
 <figure>
 <img src="img/burgers_exact_plot_example.png" alt="Image of an example plot of exact solution of burgers equation." style="width: 480px; padding-bottom: 12px;"/>
@@ -268,7 +291,7 @@ Video of exact solution of Burgers’ equation.
 <h2 id="mdadx10の波形">mdaDX10の波形</h2>
 <p>Burgers方程式の厳密解の波形を見たところ<a href="http://mda.smartelectronix.com/">mdaDX10</a>というVSTプラグインの波形を思い出したので調べました。</p>
 <p><a href="https://github.com/SpotlightKid/mda-lv2/blob/e671b4d0fab6093e9c55d37f7ddcb5eb0d2cb354/src/mdaDX10.cpp#L357"><code>src/mdaDX10.cpp</code></a> にあった波形生成の式です。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb2-1" data-line-number="1">o += V-&gt;cenv * (m * V-&gt;mod1 + (x + x * x * x * (w * x * x - <span class="fl">1.0f</span> - w)));</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb2-1" title="1">o += V-&gt;cenv * (m * V-&gt;mod1 + (x + x * x * x * (w * x * x - <span class="fl">1.0</span><span class="bu">f</span> - w)));</a></code></pre></div>
 <p>エンベロープとFMの計算を取り除いて整理します。</p>
 <pre><code>out = x + x * x * x * (w * x * x - 1.0 - w)</code></pre>
 <p>コメントに “5th-order sine approximation” とあるので <span class="math inline">\(\sin\)</span> のテイラー展開を使っているように思います。</p>

@@ -13,12 +13,14 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
-    crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+    integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+    integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
-    crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+    integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
 
 
   <style>
@@ -95,6 +97,14 @@
       border-left: 1px solid #dddddd;
     }
 
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
     code {
       color: #004444;
     }
@@ -105,6 +115,12 @@
 
     li {
       margin: 8px;
+    }
+
+    header {
+      border-bottom: 1px gray solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
     }
 
     footer {
@@ -199,6 +215,13 @@
 </head>
 
 <body>
+  <header>
+    <p>
+      Update:
+      2018-11-29
+    </p>
+  </header>
+
   <h1 id="n-dboctのスロープを持つフィルタ">n dB/octのスロープを持つフィルタ</h1>
 <p>n dB/oct のスロープを持つフィルタを設計します。</p>
 <figure>
@@ -224,82 +247,82 @@ M &amp;= {{\,m}\over{20}}\log_2 10
 <li><a href="https://github.com/ryukau/filter_notes/blob/master/ndboct/ndboct.py">n dB/octのフィルタを作るコード (github.com)</a></li>
 </ul>
 <p><a href="https://www.scipy.org/">SciPy</a>、<a href="http://www.numpy.org/">NumPy</a>、<a href="https://matplotlib.org/tutorials/introductory/pyplot.html">Matplotlib</a>を import します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> p</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="im">import</span> numpy <span class="im">as</span> np</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="im">from</span> scipy <span class="im">import</span> signal</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="im">from</span> scipy.fftpack <span class="im">import</span> <span class="op">*</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> p</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="im">from</span> scipy <span class="im">import</span> signal</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="im">from</span> scipy.fftpack <span class="im">import</span> <span class="op">*</span></a></code></pre></div>
 <p>プロットに使う関数を用意します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">def</span> showResponse(sample_rate, sig):</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">    <span class="co"># sig の周波数成分を dB に変換してプロット。</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">    res <span class="op">=</span> fftshift(fft(sig, <span class="dv">2</span><span class="op">**</span><span class="dv">16</span>) <span class="op">/</span> (<span class="bu">len</span>(sig) <span class="op">/</span> <span class="fl">2.0</span>))</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">    gain <span class="op">=</span> np.array_split(</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">        <span class="dv">20</span> <span class="op">*</span> np.log10(<span class="bu">abs</span>(res <span class="op">/</span> np.<span class="bu">max</span>(<span class="bu">abs</span>(res)))),</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">        <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">    )[<span class="dv">0</span>][::<span class="op">-</span><span class="dv">1</span>]</a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">    freq <span class="op">=</span> getFreq(sample_rate, gain)</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">    p.plot(freq, gain)</a>
-<a class="sourceLine" id="cb2-10" data-line-number="10">    p.grid(which<span class="op">=</span><span class="st">&#39;both&#39;</span>)</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">    p.show()</a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb2-13" data-line-number="13"><span class="kw">def</span> getFreq(sample_rate, spec):</a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">    <span class="co"># 出力はプロットのx軸に使う。</span></a>
-<a class="sourceLine" id="cb2-15" data-line-number="15">    freq_step <span class="op">=</span> sample_rate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> (<span class="bu">len</span>(spec) <span class="op">-</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb2-16" data-line-number="16">    <span class="cf">return</span> [i <span class="op">*</span> freq_step <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(spec))]</a>
-<a class="sourceLine" id="cb2-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb2-18" data-line-number="18"><span class="kw">def</span> toDecibel(spec):</a>
-<a class="sourceLine" id="cb2-19" data-line-number="19">    <span class="cf">return</span> [<span class="dv">20</span> <span class="op">*</span> np.log10(v) <span class="cf">for</span> v <span class="kw">in</span> spec]</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">def</span> showResponse(sample_rate, sig):</a>
+<a class="sourceLine" id="cb2-2" title="2">    <span class="co"># sig の周波数成分を dB に変換してプロット。</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    res <span class="op">=</span> fftshift(fft(sig, <span class="dv">2</span><span class="op">**</span><span class="dv">16</span>) <span class="op">/</span> (<span class="bu">len</span>(sig) <span class="op">/</span> <span class="fl">2.0</span>))</a>
+<a class="sourceLine" id="cb2-4" title="4">    gain <span class="op">=</span> np.array_split(</a>
+<a class="sourceLine" id="cb2-5" title="5">        <span class="dv">20</span> <span class="op">*</span> np.log10(<span class="bu">abs</span>(res <span class="op">/</span> np.<span class="bu">max</span>(<span class="bu">abs</span>(res)))),</a>
+<a class="sourceLine" id="cb2-6" title="6">        <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb2-7" title="7">    )[<span class="dv">0</span>][::<span class="op">-</span><span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb2-8" title="8">    freq <span class="op">=</span> getFreq(sample_rate, gain)</a>
+<a class="sourceLine" id="cb2-9" title="9">    p.plot(freq, gain)</a>
+<a class="sourceLine" id="cb2-10" title="10">    p.grid(which<span class="op">=</span><span class="st">&#39;both&#39;</span>)</a>
+<a class="sourceLine" id="cb2-11" title="11">    p.show()</a>
+<a class="sourceLine" id="cb2-12" title="12"></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="kw">def</span> getFreq(sample_rate, spec):</a>
+<a class="sourceLine" id="cb2-14" title="14">    <span class="co"># 出力はプロットのx軸に使う。</span></a>
+<a class="sourceLine" id="cb2-15" title="15">    freq_step <span class="op">=</span> sample_rate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> (<span class="bu">len</span>(spec) <span class="op">-</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-16" title="16">    <span class="cf">return</span> [i <span class="op">*</span> freq_step <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(spec))]</a>
+<a class="sourceLine" id="cb2-17" title="17"></a>
+<a class="sourceLine" id="cb2-18" title="18"><span class="kw">def</span> toDecibel(spec):</a>
+<a class="sourceLine" id="cb2-19" title="19">    <span class="cf">return</span> [<span class="dv">20</span> <span class="op">*</span> np.log10(v) <span class="cf">for</span> v <span class="kw">in</span> spec]</a></code></pre></div>
 <p>欲しい周波数特性を用意します。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">def</span> makeFrequencySpecification(sample_rate, length, low, high, slope):</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="co"># slope は負の値。単位は[dB/oct]。</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">    <span class="co"># low, high は周波数[Hz]。</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">    <span class="co">#</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="co"># dB/oct を算出する式の解説。</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">    <span class="co"># https://femci.gsfc.nasa.gov/random/randomequations.html</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">    <span class="co">#</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">    <span class="co"># 6.020599913279624 = 20 * np.log10(2)</span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9">    <span class="co">#</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">    <span class="bu">oct</span> <span class="op">=</span> (high <span class="op">/</span> low)<span class="op">**</span>(slope <span class="op">/</span> <span class="fl">6.020599913279624</span>)</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11">    spec <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> length</a>
-<a class="sourceLine" id="cb3-12" data-line-number="12">    freq_step <span class="op">=</span> sample_rate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> (length <span class="op">-</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb3-13" data-line-number="13">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(spec)):</a>
-<a class="sourceLine" id="cb3-14" data-line-number="14">        freq <span class="op">=</span> i <span class="op">*</span> freq_step</a>
-<a class="sourceLine" id="cb3-15" data-line-number="15">        <span class="cf">if</span> freq <span class="op">&lt;=</span> low:</a>
-<a class="sourceLine" id="cb3-16" data-line-number="16">            spec[i] <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-17" data-line-number="17">        <span class="cf">elif</span> freq <span class="op">&gt;=</span> high:</a>
-<a class="sourceLine" id="cb3-18" data-line-number="18">            spec[i] <span class="op">=</span> <span class="bu">oct</span></a>
-<a class="sourceLine" id="cb3-19" data-line-number="19">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb3-20" data-line-number="20">            spec[i] <span class="op">=</span> (freq <span class="op">/</span> low)<span class="op">**</span>(slope <span class="op">/</span> <span class="fl">6.020599913279624</span>)</a>
-<a class="sourceLine" id="cb3-21" data-line-number="21">    <span class="cf">return</span> spec</a>
-<a class="sourceLine" id="cb3-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb3-23" data-line-number="23"></a>
-<a class="sourceLine" id="cb3-24" data-line-number="24">sample_rate <span class="op">=</span> <span class="dv">44100</span></a>
-<a class="sourceLine" id="cb3-25" data-line-number="25">spec <span class="op">=</span> makeFrequencySpecification(sample_rate, <span class="dv">1024</span>, <span class="dv">100</span>, <span class="dv">10000</span>, <span class="dv">-10</span>)</a>
-<a class="sourceLine" id="cb3-26" data-line-number="26"></a>
-<a class="sourceLine" id="cb3-27" data-line-number="27"><span class="co"># 設計した特性をプロット。</span></a>
-<a class="sourceLine" id="cb3-28" data-line-number="28">spec_db <span class="op">=</span> toDecibel(spec)</a>
-<a class="sourceLine" id="cb3-29" data-line-number="29">freq <span class="op">=</span> getFreq(sample_rate, spec)</a>
-<a class="sourceLine" id="cb3-30" data-line-number="30"></a>
-<a class="sourceLine" id="cb3-31" data-line-number="31">p.title(<span class="st">&#39;Specification&#39;</span>)</a>
-<a class="sourceLine" id="cb3-32" data-line-number="32">p.plot(freq, spec_db)</a>
-<a class="sourceLine" id="cb3-33" data-line-number="33">p.xscale(<span class="st">&#39;log&#39;</span>)</a>
-<a class="sourceLine" id="cb3-34" data-line-number="34">p.grid(which<span class="op">=</span><span class="st">&#39;both&#39;</span>)</a>
-<a class="sourceLine" id="cb3-35" data-line-number="35">p.show()</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> makeFrequencySpecification(sample_rate, length, low, high, slope):</a>
+<a class="sourceLine" id="cb3-2" title="2">    <span class="co"># slope は負の値。単位は[dB/oct]。</span></a>
+<a class="sourceLine" id="cb3-3" title="3">    <span class="co"># low, high は周波数[Hz]。</span></a>
+<a class="sourceLine" id="cb3-4" title="4">    <span class="co">#</span></a>
+<a class="sourceLine" id="cb3-5" title="5">    <span class="co"># dB/oct を算出する式の解説。</span></a>
+<a class="sourceLine" id="cb3-6" title="6">    <span class="co"># https://femci.gsfc.nasa.gov/random/randomequations.html</span></a>
+<a class="sourceLine" id="cb3-7" title="7">    <span class="co">#</span></a>
+<a class="sourceLine" id="cb3-8" title="8">    <span class="co"># 6.020599913279624 = 20 * np.log10(2)</span></a>
+<a class="sourceLine" id="cb3-9" title="9">    <span class="co">#</span></a>
+<a class="sourceLine" id="cb3-10" title="10">    <span class="bu">oct</span> <span class="op">=</span> (high <span class="op">/</span> low)<span class="op">**</span>(slope <span class="op">/</span> <span class="fl">6.020599913279624</span>)</a>
+<a class="sourceLine" id="cb3-11" title="11">    spec <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> length</a>
+<a class="sourceLine" id="cb3-12" title="12">    freq_step <span class="op">=</span> sample_rate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> (length <span class="op">-</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb3-13" title="13">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(spec)):</a>
+<a class="sourceLine" id="cb3-14" title="14">        freq <span class="op">=</span> i <span class="op">*</span> freq_step</a>
+<a class="sourceLine" id="cb3-15" title="15">        <span class="cf">if</span> freq <span class="op">&lt;=</span> low:</a>
+<a class="sourceLine" id="cb3-16" title="16">            spec[i] <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-17" title="17">        <span class="cf">elif</span> freq <span class="op">&gt;=</span> high:</a>
+<a class="sourceLine" id="cb3-18" title="18">            spec[i] <span class="op">=</span> <span class="bu">oct</span></a>
+<a class="sourceLine" id="cb3-19" title="19">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb3-20" title="20">            spec[i] <span class="op">=</span> (freq <span class="op">/</span> low)<span class="op">**</span>(slope <span class="op">/</span> <span class="fl">6.020599913279624</span>)</a>
+<a class="sourceLine" id="cb3-21" title="21">    <span class="cf">return</span> spec</a>
+<a class="sourceLine" id="cb3-22" title="22"></a>
+<a class="sourceLine" id="cb3-23" title="23"></a>
+<a class="sourceLine" id="cb3-24" title="24">sample_rate <span class="op">=</span> <span class="dv">44100</span></a>
+<a class="sourceLine" id="cb3-25" title="25">spec <span class="op">=</span> makeFrequencySpecification(sample_rate, <span class="dv">1024</span>, <span class="dv">100</span>, <span class="dv">10000</span>, <span class="dv">-10</span>)</a>
+<a class="sourceLine" id="cb3-26" title="26"></a>
+<a class="sourceLine" id="cb3-27" title="27"><span class="co"># 設計した特性をプロット。</span></a>
+<a class="sourceLine" id="cb3-28" title="28">spec_db <span class="op">=</span> toDecibel(spec)</a>
+<a class="sourceLine" id="cb3-29" title="29">freq <span class="op">=</span> getFreq(sample_rate, spec)</a>
+<a class="sourceLine" id="cb3-30" title="30"></a>
+<a class="sourceLine" id="cb3-31" title="31">p.title(<span class="st">&#39;Specification&#39;</span>)</a>
+<a class="sourceLine" id="cb3-32" title="32">p.plot(freq, spec_db)</a>
+<a class="sourceLine" id="cb3-33" title="33">p.xscale(<span class="st">&#39;log&#39;</span>)</a>
+<a class="sourceLine" id="cb3-34" title="34">p.grid(which<span class="op">=</span><span class="st">&#39;both&#39;</span>)</a>
+<a class="sourceLine" id="cb3-35" title="35">p.show()</a></code></pre></div>
 <p>ここでは100Hzから10000Hz間において、-10dB/octの傾きで減衰する、窓長1024の特性を作りました。</p>
 <figure>
 <img src="img/n_dB_oct_spec.png" alt="Image of filter specification." style="width: 480px;"/>
 </figure>
 <p>フィルタ係数を出します。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1">filt <span class="op">=</span> fftshift(ifft(spec <span class="op">+</span> spec[::<span class="op">-</span><span class="dv">1</span>]))</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="co"># フィルタ係数の見た目。</span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">p.title(<span class="st">&#39;Filter Coefficients&#39;</span>)</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">p.plot(filt)</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">p.show()</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># フィルタの周波数応答。</span></a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">p.title(<span class="st">&#39;Frequency Response of the filter&#39;</span>)</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">p.xscale(<span class="st">&#39;log&#39;</span>)</a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">showResponse(sample_rate, filt)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1">filt <span class="op">=</span> fftshift(ifft(spec <span class="op">+</span> spec[::<span class="op">-</span><span class="dv">1</span>]))</a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="co"># フィルタ係数の見た目。</span></a>
+<a class="sourceLine" id="cb4-4" title="4">p.title(<span class="st">&#39;Filter Coefficients&#39;</span>)</a>
+<a class="sourceLine" id="cb4-5" title="5">p.plot(filt)</a>
+<a class="sourceLine" id="cb4-6" title="6">p.show()</a>
+<a class="sourceLine" id="cb4-7" title="7"></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="co"># フィルタの周波数応答。</span></a>
+<a class="sourceLine" id="cb4-9" title="9">p.title(<span class="st">&#39;Frequency Response of the filter&#39;</span>)</a>
+<a class="sourceLine" id="cb4-10" title="10">p.xscale(<span class="st">&#39;log&#39;</span>)</a>
+<a class="sourceLine" id="cb4-11" title="11">showResponse(sample_rate, filt)</a></code></pre></div>
 <p>フィルタ係数の見た目です。</p>
 <figure>
 <img src="img/n_dB_oct_cofficients.png" alt="Image of the filter coefficients." style="width: 480px;"/>
@@ -309,22 +332,22 @@ M &amp;= {{\,m}\over{20}}\log_2 10
 <img src="img/n_dB_oct_response.png" alt="Image of frequency response of the filter." style="width: 480px;"/>
 </figure>
 <p>不連続点を拡大すると<a href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">ギブス現象</a>が観察できます。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1">showResponse(sample_rate, filt)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1">showResponse(sample_rate, filt)</a></code></pre></div>
 <figure>
 <img src="img/n_dB_oct_response_gibbs.png" alt="Image of gibbs phenomenon." style="width: 593px;"/>
 </figure>
 <p>図の左は周波数軸が対数でないときのフィルタの周波数応答です。右上は低域側の不連続点、右下は高域側の不連続点を拡大したものです。</p>
 <p>フィルタができたので、ノイズを作ってかけてみます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># フィルタをノイズに適用。</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">noise <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, sample_rate)</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">p.title(<span class="st">&#39;Before&#39;</span>)</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">p.xscale(<span class="st">&#39;log&#39;</span>)</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">showResponse(sample_rate, noise)</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">filtered <span class="op">=</span> signal.convolve(noise, filt, mode<span class="op">=</span><span class="st">&#39;same&#39;</span>)</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">p.title(<span class="st">&#39;After&#39;</span>)</a>
-<a class="sourceLine" id="cb6-9" data-line-number="9">p.xscale(<span class="st">&#39;log&#39;</span>)</a>
-<a class="sourceLine" id="cb6-10" data-line-number="10">showResponse(sample_rate, filtered)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># フィルタをノイズに適用。</span></a>
+<a class="sourceLine" id="cb6-2" title="2">noise <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, sample_rate)</a>
+<a class="sourceLine" id="cb6-3" title="3">p.title(<span class="st">&#39;Before&#39;</span>)</a>
+<a class="sourceLine" id="cb6-4" title="4">p.xscale(<span class="st">&#39;log&#39;</span>)</a>
+<a class="sourceLine" id="cb6-5" title="5">showResponse(sample_rate, noise)</a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7">filtered <span class="op">=</span> signal.convolve(noise, filt, mode<span class="op">=</span><span class="st">&#39;same&#39;</span>)</a>
+<a class="sourceLine" id="cb6-8" title="8">p.title(<span class="st">&#39;After&#39;</span>)</a>
+<a class="sourceLine" id="cb6-9" title="9">p.xscale(<span class="st">&#39;log&#39;</span>)</a>
+<a class="sourceLine" id="cb6-10" title="10">showResponse(sample_rate, filtered)</a></code></pre></div>
 <p>フィルタをかける前とかけた後のスペクトラムです。</p>
 <figure>
 <img src="img/n_dB_oct_noise_and_filtered_response.png" alt="Image of frequency response of the filter." style="width: 612px;"/>
@@ -346,23 +369,23 @@ M &amp;= {{\,m}\over{20}}\log_2 10
 \end{aligned}
 \]</span></p>
 <p><span class="math inline">\(A(\omega)\)</span> を<a href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform#Inverse_transform">逆DTFT</a>の式に入れてMaximaで解きます。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co">/* Maxima */</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="cn">expintrep</span>: <span class="kw">true</span>;</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="cn">expintexpand</span>: <span class="kw">true</span>;</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="fu">declare</span>(<span class="cn">n</span>, <span class="cn">integer</span>, <span class="cn">M</span>, <span class="cn">real</span>, <span class="cn">l</span>, <span class="cn">real</span>, <span class="cn">h</span>, <span class="cn">real</span>);</a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</a>
-<a class="sourceLine" id="cb7-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) := (<span class="cn">h</span> / <span class="cn">l</span>)**(<span class="cn">M</span>);</a>
-<a class="sourceLine" id="cb7-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="cn">O</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">pi</span>, -<span class="cn">h</span>);</a>
-<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</a>
-<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="cn">Q</span>: <span class="fu">integrate</span>(<span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">l</span>, <span class="cn">l</span>);</a>
-<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</a>
-<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="cn">S</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">h</span>, <span class="cn">pi</span>);</a>
-<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="cn">answer</span>: <span class="fu">expand</span>(<span class="fu">demoivre</span>((<span class="cn">O</span> + <span class="cn">P</span> + <span class="cn">Q</span> + <span class="cn">R</span> + <span class="cn">S</span>) / (<span class="dv">2</span>*<span class="cn">pi</span>)));</a>
-<a class="sourceLine" id="cb7-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co">/* where */</span></a>
-<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="cn">M</span>: <span class="fu">log</span>(<span class="dv">10</span>)*<span class="cn">m</span>/<span class="dv">20</span>/<span class="fu">log</span>(<span class="dv">2</span>);</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb7-1" title="1"><span class="co">/* Maxima */</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="cn">expintrep</span>: <span class="kw">true</span>;</a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="cn">expintexpand</span>: <span class="kw">true</span>;</a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="fu">declare</span>(<span class="cn">n</span>, <span class="cn">integer</span>, <span class="cn">M</span>, <span class="cn">real</span>, <span class="cn">l</span>, <span class="cn">real</span>, <span class="cn">h</span>, <span class="cn">real</span>);</a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</a>
+<a class="sourceLine" id="cb7-6" title="6"></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) := (<span class="cn">h</span> / <span class="cn">l</span>)**(<span class="cn">M</span>);</a>
+<a class="sourceLine" id="cb7-8" title="8"></a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="cn">O</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">pi</span>, -<span class="cn">h</span>);</a>
+<a class="sourceLine" id="cb7-10" title="10"><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</a>
+<a class="sourceLine" id="cb7-11" title="11"><span class="cn">Q</span>: <span class="fu">integrate</span>(<span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">l</span>, <span class="cn">l</span>);</a>
+<a class="sourceLine" id="cb7-12" title="12"><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</a>
+<a class="sourceLine" id="cb7-13" title="13"><span class="cn">S</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">h</span>, <span class="cn">pi</span>);</a>
+<a class="sourceLine" id="cb7-14" title="14"><span class="cn">answer</span>: <span class="fu">expand</span>(<span class="fu">demoivre</span>((<span class="cn">O</span> + <span class="cn">P</span> + <span class="cn">Q</span> + <span class="cn">R</span> + <span class="cn">S</span>) / (<span class="dv">2</span>*<span class="cn">pi</span>)));</a>
+<a class="sourceLine" id="cb7-15" title="15"></a>
+<a class="sourceLine" id="cb7-16" title="16"><span class="co">/* where */</span></a>
+<a class="sourceLine" id="cb7-17" title="17"><span class="cn">M</span>: <span class="fu">log</span>(<span class="dv">10</span>)*<span class="cn">m</span>/<span class="dv">20</span>/<span class="fu">log</span>(<span class="dv">2</span>);</a></code></pre></div>
 <p><span class="math display">\[
 \begin{aligned}
 \frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
@@ -389,10 +412,10 @@ M &amp;= {{\,m}\over{20}}\log_2 10
 \Gamma(s, x) = \int_{x}^{\infty} t^{s - 1} e^{-t} dt
 \]</span></p>
 <p><span class="math inline">\(\Gamma(s, x)\)</span> がどこから出てきたのかを確認するために、Maximaのコードで定義したP式とR式に注目します。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) := (<span class="cn">h</span> / <span class="cn">l</span>)**(<span class="cn">M</span>);</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb8-1" title="1"><span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) := (<span class="cn">h</span> / <span class="cn">l</span>)**(<span class="cn">M</span>);</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(%<span class="cn">i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</a></code></pre></div>
 <p><span class="math display">\[
 \begin{aligned}
 \int^{\pi}_{-\pi} A_P(\omega) e^{j\omega n} d\omega

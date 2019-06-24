@@ -13,12 +13,14 @@
   <script>hljs.initHighlightingOnLoad();</script>
 
   <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y"
-    crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx"
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+    integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+    integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
     crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe"
-    crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+    integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
 
 
   <style>
@@ -115,6 +117,12 @@
       margin: 8px;
     }
 
+    header {
+      border-bottom: 1px gray solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
     footer {
       border-top: 1px gray solid;
       padding: 0.5em;
@@ -207,6 +215,13 @@
 </head>
 
 <body>
+  <header>
+    <p>
+      Update:
+      2019-06-01
+    </p>
+  </header>
+
   <h1 id="単音からのピッチ推定">単音からのピッチ推定</h1>
 <p>クラスタリングの特徴量として使うために単音からのピッチ推定を実装します。ここでのピッチとは音の<a href="https://en.wikipedia.org/wiki/Fundamental_frequency">基本周波数</a>を指しています。</p>
 <p>Python3のライブラリを探したところ、<a href="https://essentia.upf.edu/documentation/index.html">Essentia</a>に含まれていた<a href="http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf">YIN</a>というピッチ推定のアルゴリズムを見つけました。そこからさらに調べると <a href="https://github.com/sevagh/pitch-detection">sevagh さんのリポジトリ</a> を見つけて <a href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">McLeod pitch method (MPM)</a> を見つけました。</p>
