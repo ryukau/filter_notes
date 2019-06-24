@@ -391,7 +391,7 @@ d = n + \delta
 <p>この文章では <span class="math inline">\(N\)</span> が奇数の実装だけを掲載しています。<span class="math inline">\(N\)</span> が偶数のときは入力を1サンプルずらした2つの分数ディレイフィルタを用意して、 <span class="math inline">\(\Delta\)</span> の値によって通過させるフィルタを入れ替える実装が考えられます。</p>
 <h2 id="オーバーサンプリング">オーバーサンプリング</h2>
 <p>整数ディレイを分数ディレイフィルタをそのままつないだだけだと、ディレイ時間を変更したときにノイズが乗ります。ノイズはサンプル数で表されたディレイ時間の整数部が変わるときに乗るようです。</p>
-<p>いろいろ試したところ、オーバーサンプリングによってノイズを減らすことができました。オーバーサンプリングは、信号のサンプリング周波数を <span class="math inline">\(K\)</span> 倍に増やして処理を行ったように見せかける実装のテクニックです。現実にはサンプルとサンプルの間の値は分かっていないので、補間を使って近似することになります。</p>
+<p>いろいろ試したところ、オーバーサンプリングによってノイズを減らすことができました。オーバーサンプリングは、信号のサンプリング周波数を <span class="math inline">\(K\)</span> 倍に増やして処理を行うことでノイズを低減するテクニックです。ここではサンプルとサンプルの間の値は分かっていないので、補間を使って近似します。</p>
 <p>実装ではオーバーサンプリングしたい区間をアップサンプリングとダウンサンプリングの処理で挟みます。アップサンプリングはサンプリング周波数を <span class="math inline">\(K\)</span> 倍に増やす処理、ダウンサンプリングはサンプリング周波数を <span class="math inline">\(1 / K\)</span> 倍に減らす処理です。ここではアップサンプリングの補間に分数ディレイフィルタを使います。</p>
 <p>オーバーサンプリングの処理は次のように書けます。</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">var</span> interp <span class="op">=</span> <span class="kw">new</span> <span class="at">LagrangeNInterp</span>(<span class="dv">3</span>)</a>
