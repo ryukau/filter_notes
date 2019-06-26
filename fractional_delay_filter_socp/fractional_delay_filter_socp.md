@@ -392,4 +392,4 @@ CVXOPT のユーザガイドの例では `list` が使われているので `nda
 - [Cone Programming — CVXOPT User's Guide](http://cvxopt.org/userguide/coneprog.html#second-order-cone-programming)
 
 ## 参考文献
-- [Design of Fractional Delay Filters Using Convex Optimization](https://ccrma.stanford.edu/~jos/resample/optfir.pdf)
+- Putnam, William, and Julius Smith. ["Design of fractional delay filters using convex optimization."](https://ccrma.stanford.edu/~jos/resample/optfir.pdf) Proceedings of 1997 Workshop on Applications of Signal Processing to Audio and Acoustics. IEEE, 1997.
