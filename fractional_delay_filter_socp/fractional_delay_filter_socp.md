@@ -174,7 +174,7 @@ $\Delta$ と $M$ はパラメータの設定で決めた値に固定します。
 <figure>
 <figcaption>サイン波</figcaption>
 <audio controls>
-    <source src="snd/sin_mod_08x_Lagrange7.wav" type="audio/wav">
+    <source src="snd/sin_mod_source.wav" type="audio/wav">
     Audio of 220Hz sine wave.
 </audio>
 </figure>
@@ -256,7 +256,7 @@ $\Delta$ と $M$ はパラメータの設定で決めた値に固定します。
 <figure>
 <figcaption>ノイズ</figcaption>
 <audio controls>
-    <source src="snd/noise_08x_Lagrange7.wav" type="audio/wav">
+    <source src="snd/noise_source.wav" type="audio/wav">
     Audio of noise signal.
 </audio>
 </figure>
