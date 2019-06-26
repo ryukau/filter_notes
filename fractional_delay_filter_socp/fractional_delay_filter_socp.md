@@ -333,6 +333,10 @@ $\Delta$ と $M$ はパラメータの設定で決めた値に固定します。
 </audio>
 </figure>
 
+ラグランジュ補間でいいような気がします。
+
+SOCP-FDフィルタを使うときは $\omega_{\max}=0.5$ としてオーバーサンプリングしたほうが良さそうです。
+
 ## その他
 $\lVert \chi \rVert_2$ は [$\ell^2$ ノルム](https://en.wikipedia.org/wiki/Norm_(mathematics)#Euclidean_norm)です。
 

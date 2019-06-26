@@ -530,6 +530,8 @@ Audio of delay with low speed playback. 32x oversampling, N = 32, omega_max = 0.
 <source src="snd/noise_32x_Opt32_09.wav" type="audio/wav">
 Audio of delay with low speed playback. 32x oversampling, N = 32, omega_max = 0.9, SOCP filter. </audio>
 </figure>
+<p>ラグランジュ補間でいいような気がします。</p>
+<p>SOCP-FDフィルタを使うときは <span class="math inline">\(\omega_{\max}=0.5\)</span> としてオーバーサンプリングしたほうが良さそうです。</p>
 <h2 id="その他">その他</h2>
 <p><span class="math inline">\(\lVert \chi \rVert_2\)</span> は <a href="https://en.wikipedia.org/wiki/Norm_(mathematics)#Euclidean_norm"><span class="math inline">\(\ell^2\)</span> ノルム</a>です。</p>
 <p>論文では <span class="math inline">\(c_i^T x\)</span> と <span class="math inline">\(f^T x\)</span> が出てきますが、式変形を追いかけると <span class="math inline">\(c_i^T x = f^T x = t\)</span> なのでこの文章では単に <span class="math inline">\(t\)</span> としています。</p>
