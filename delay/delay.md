@@ -356,25 +356,25 @@ class Delay {
 <label>1倍、3次補間</label>
 <audio controls>
     <source src="snd/sin_01x_r3_w3.wav" type="audio/wav">
-    Audio of delay. 1x oversampling, 3st order lagrange interpolation.
+    Audio of delay. 1x oversampling, 3rd order lagrange interpolation.
 </audio>
 
 <label>1倍、5次補間</label>
 <audio controls>
     <source src="snd/sin_01x_r5_w5.wav" type="audio/wav">
-    Audio of delay. 1x oversampling, 5st order lagrange interpolation.
+    Audio of delay. 1x oversampling, 5th order lagrange interpolation.
 </audio>
 
 <label>1倍、7次補間</label>
 <audio controls>
     <source src="snd/sin_01x_r7_w7.wav" type="audio/wav">
-    Audio of delay. 1x oversampling, 7st order lagrange interpolation.
+    Audio of delay. 1x oversampling, 7th order lagrange interpolation.
 </audio>
 
 <label>1倍、9次補間</label>
 <audio controls>
     <source src="snd/sin_01x_r9_w9.wav" type="audio/wav">
-    Audio of delay. 1x oversampling, 9st order lagrange interpolation.
+    Audio of delay. 1x oversampling, 9th order lagrange interpolation.
 </audio>
 
 オーバーサンプリング2倍の音です。1次補間ではノイズが大きく減ったように聞こえます。
@@ -388,25 +388,25 @@ class Delay {
 <label>2倍、3次補間</label>
 <audio controls>
     <source src="snd/sin_02x_r3_w3.wav" type="audio/wav">
-    Audio of delay. 2x oversampling, 3st order lagrange interpolation.
+    Audio of delay. 2x oversampling, 3rd order lagrange interpolation.
 </audio>
 
 <label>2倍、5次補間</label>
 <audio controls>
     <source src="snd/sin_02x_r5_w5.wav" type="audio/wav">
-    Audio of delay. 2x oversampling, 5st order lagrange interpolation.
+    Audio of delay. 2x oversampling, 5th order lagrange interpolation.
 </audio>
 
 <label>2倍、7次補間</label>
 <audio controls>
     <source src="snd/sin_02x_r7_w7.wav" type="audio/wav">
-    Audio of delay. 2x oversampling, 7st order lagrange interpolation.
+    Audio of delay. 2x oversampling, 7th order lagrange interpolation.
 </audio>
 
 <label>2倍、9次補間</label>
 <audio controls>
     <source src="snd/sin_02x_r9_w9.wav" type="audio/wav">
-    Audio of delay. 2x oversampling, 9st order lagrange interpolation.
+    Audio of delay. 2x oversampling, 9th order lagrange interpolation.
 </audio>
 
 オーバーサンプリング4倍の音です。5次補間以降は音量を上げるとノイズが聞き取れます。
@@ -420,25 +420,25 @@ class Delay {
 <label>4倍、3次補間</label>
 <audio controls>
     <source src="snd/sin_04x_r3_w3.wav" type="audio/wav">
-    Audio of delay. 4x oversampling, 3st order lagrange interpolation.
+    Audio of delay. 4x oversampling, 3rd order lagrange interpolation.
 </audio>
 
 <label>4倍、5次補間</label>
 <audio controls>
     <source src="snd/sin_04x_r5_w5.wav" type="audio/wav">
-    Audio of delay. 4x oversampling, 5st order lagrange interpolation.
+    Audio of delay. 4x oversampling, 5th order lagrange interpolation.
 </audio>
 
 <label>4倍、7次補間</label>
 <audio controls>
     <source src="snd/sin_04x_r7_w7.wav" type="audio/wav">
-    Audio of delay. 4x oversampling, 7st order lagrange interpolation.
+    Audio of delay. 4x oversampling, 7th order lagrange interpolation.
 </audio>
 
 <label>4倍、9次補間</label>
 <audio controls>
     <source src="snd/sin_04x_r9_w9.wav" type="audio/wav">
-    Audio of delay. 4x oversampling, 9st order lagrange interpolation.
+    Audio of delay. 4x oversampling, 9th order lagrange interpolation.
 </audio>
 
 オーバーサンプリング8倍の音です。ノイズは聞き取れません。
@@ -452,25 +452,25 @@ class Delay {
 <label>8倍、3次補間</label>
 <audio controls>
     <source src="snd/sin_08x_r3_w3.wav" type="audio/wav">
-    Audio of delay. 8x oversampling, 3st order lagrange interpolation.
+    Audio of delay. 8x oversampling, 3rd order lagrange interpolation.
 </audio>
 
 <label>8倍、5次補間</label>
 <audio controls>
     <source src="snd/sin_08x_r5_w5.wav" type="audio/wav">
-    Audio of delay. 8x oversampling, 5st order lagrange interpolation.
+    Audio of delay. 8x oversampling, 5th order lagrange interpolation.
 </audio>
 
 <label>8倍、7次補間</label>
 <audio controls>
     <source src="snd/sin_08x_r7_w7.wav" type="audio/wav">
-    Audio of delay. 8x oversampling, 7st order lagrange interpolation.
+    Audio of delay. 8x oversampling, 7th order lagrange interpolation.
 </audio>
 
 <label>8倍、9次補間</label>
 <audio controls>
     <source src="snd/sin_08x_r9_w9.wav" type="audio/wav">
-    Audio of delay. 8x oversampling, 9st order lagrange interpolation.
+    Audio of delay. 8x oversampling, 9th order lagrange interpolation.
 </audio>
 
 ディレイ時間の変更でリングバッファの内容が低速再生される状態ではどうなるか試します。
@@ -486,25 +486,25 @@ class Delay {
 <label>低速再生サイン波、8倍、3次補間</label>
 <audio controls>
     <source src="snd/sin_slow_08x_r3_w3.wav" type="audio/wav">
-    Audio of delay with low speed playback. 8x oversampling, 3st order lagrange interpolation.
+    Audio of delay with low speed playback. 8x oversampling, 3rd order lagrange interpolation.
 </audio>
 
 <label>低速再生サイン波、8倍、5次補間</label>
 <audio controls>
     <source src="snd/sin_slow_08x_r5_w5.wav" type="audio/wav">
-    Audio of delay with low speed playback. 8x oversampling, 5st order lagrange interpolation.
+    Audio of delay with low speed playback. 8x oversampling, 5th order lagrange interpolation.
 </audio>
 
 <label>低速再生サイン波、8倍、7次補間</label>
 <audio controls>
     <source src="snd/sin_slow_08x_r7_w7.wav" type="audio/wav">
-    Audio of delay with low speed playback. 8x oversampling, 7st order lagrange interpolation.
+    Audio of delay with low speed playback. 8x oversampling, 7th order lagrange interpolation.
 </audio>
 
 <label>低速再生サイン波、8倍、9次補間</label>
 <audio controls>
     <source src="snd/sin_slow_08x_r9_w9.wav" type="audio/wav">
-    Audio of delay with low speed playback. 8x oversampling, 9st order lagrange interpolation.
+    Audio of delay with low speed playback. 8x oversampling, 9th order lagrange interpolation.
 </audio>
 
 `Math.random()` で生成したノイズを入力します。
@@ -526,25 +526,25 @@ class Delay {
 <label>低速再生ノイズ、16倍、3次補間</label>
 <audio controls>
     <source src="snd/noise_16x_r3_w3.wav" type="audio/wav">
-    Audio of delay with low speed playback. 16x oversampling, 3st order lagrange interpolation.
+    Audio of delay with low speed playback. 16x oversampling, 3rd order lagrange interpolation.
 </audio>
 
 <label>低速再生ノイズ、16倍、5次補間</label>
 <audio controls>
     <source src="snd/noise_16x_r5_w5.wav" type="audio/wav">
-    Audio of delay with low speed playback. 16x oversampling, 5st order lagrange interpolation.
+    Audio of delay with low speed playback. 16x oversampling, 5th order lagrange interpolation.
 </audio>
 
 <label>低速再生ノイズ、16倍、7次補間</label>
 <audio controls>
     <source src="snd/noise_16x_r7_w7.wav" type="audio/wav">
-    Audio of delay with low speed playback. 16x oversampling, 7st order lagrange interpolation.
+    Audio of delay with low speed playback. 16x oversampling, 7th order lagrange interpolation.
 </audio>
 
 <label>低速再生ノイズ、16倍、9次補間</label>
 <audio controls>
     <source src="snd/noise_16x_r9_w9.wav" type="audio/wav">
-    Audio of delay with low speed playback. 16x oversampling, 9st order lagrange interpolation.
+    Audio of delay with low speed playback. 16x oversampling, 9th order lagrange interpolation.
 </audio>
 
 レンダリングした音を聞く限りでは、高次の補間を使うときはオーバーサンプリングの倍率を補間の次数以上にするとノイズが大きく減るようです。
