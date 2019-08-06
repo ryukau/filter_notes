@@ -63,7 +63,7 @@ import scipy.signal as signal
 def pitch_shift(samplerate, analytic_signal, shift_hz):
     norm = numpy.abs(analytic_signal)
     theta = numpy.angle(analytic_signal)
-    time = numpy.linspace(0, len(wav) / samplerate, len(wav))
+    time = numpy.linspace(0, len(analytic_signal) / samplerate, len(analytic_signal))
     return norm * numpy.cos(theta + shift_hz * time)
 
 def naive(samplerate, sig, shift_hz=1000):

@@ -32,17 +32,17 @@ def add_delay(sos):
 def pitch_shift_mod(samplerate, analytic_signal, ratio):
     norm = numpy.abs(analytic_signal)
     theta = numpy.angle(analytic_signal)
-    time = numpy.linspace(0, len(wav) / samplerate, len(wav))
+    time = numpy.linspace(0, len(analytic_signal) / samplerate, len(analytic_signal))
     return norm * numpy.cos(ratio * theta + time)
 
 def pitch_shift(samplerate, analytic_signal, shift_hz):
     norm = numpy.abs(analytic_signal)
     theta = numpy.angle(analytic_signal)
-    time = numpy.linspace(0, len(wav) / samplerate, len(wav))
+    time = numpy.linspace(0, len(analytic_signal) / samplerate, len(analytic_signal))
     return norm * numpy.cos(theta + shift_hz * time)
 
 def naive(samplerate, sig, shift_hz=1000):
-    return pitch_shift(samplerate, signal.hilbert(wav), shift_hz)
+    return pitch_shift(samplerate, signal.hilbert(sig), shift_hz)
 
 def niemitalo(samplerate, sig, shift_hz=1000):
     def section(a):
