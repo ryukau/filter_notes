@@ -39,7 +39,7 @@ def pitch_shift(samplerate, analytic_signal, shift_hz):
     norm = numpy.abs(analytic_signal)
     theta = numpy.angle(analytic_signal)
     time = numpy.linspace(0, len(analytic_signal) / samplerate, len(analytic_signal))
-    return norm * numpy.cos(theta + shift_hz * time)
+    return norm * numpy.cos(theta + 2 * numpy.pi * shift_hz * time)
 
 def naive(samplerate, sig, shift_hz=1000):
     return pitch_shift(samplerate, signal.hilbert(sig), shift_hz)
@@ -187,14 +187,8 @@ def mcnulty(samplerate, sig, shift_hz=1000):
     return pitch_shift(samplerate, analytic, shift_hz)
 
 def chuck(samplerate, sig, shift_hz=1000):
-    rc_imag = [
-        allpass(samplerate, rc)
-        for rc in [5.49e-06, 4.75e-05, 2.37e-04, 1.27e-03]
-    ]
-    rc_real = [
-        allpass(samplerate, rc)
-        for rc in [2.00e-05, 1.07e-04, 5.36e-04, 4.64e-03]
-    ]
+    rc_imag = [allpass(samplerate, rc) for rc in [5.49e-06, 4.75e-05, 2.37e-04, 1.27e-03]]
+    rc_real = [allpass(samplerate, rc) for rc in [2.00e-05, 1.07e-04, 5.36e-04, 4.64e-03]]
 
     sos_imag = [
         signal.tf2sos(
@@ -223,7 +217,7 @@ def chuck(samplerate, sig, shift_hz=1000):
 
 data, samplerate = soundfile.read("snd/yey.wav", always_2d=True)
 wav = data.T[0]
-shift_hz = 1000  # Hz
+shift_hz = 200  # Hz
 
 out = naive(samplerate, wav, shift_hz)
 soundfile.write("snd/naive.wav", out, samplerate)

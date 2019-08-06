@@ -64,7 +64,7 @@ def pitch_shift(samplerate, analytic_signal, shift_hz):
     norm = numpy.abs(analytic_signal)
     theta = numpy.angle(analytic_signal)
     time = numpy.linspace(0, len(analytic_signal) / samplerate, len(analytic_signal))
-    return norm * numpy.cos(theta + shift_hz * time)
+    return norm * numpy.cos(theta + 2 * numpy.pi * shift_hz * time)
 
 def naive(samplerate, sig, shift_hz=1000):
     return pitch_shift(samplerate, signal.hilbert(wav), shift_hz)
@@ -395,7 +395,7 @@ import soundfile
 
 data, samplerate = soundfile.read("snd/yey.wav", always_2d=True)
 wav = data.T[0]
-shift_hz = 1000  # Hz
+shift_hz = 200  # Hz
 
 out = naive(samplerate, wav, shift_hz)
 soundfile.write("naive.wav", out, samplerate)
@@ -527,3 +527,6 @@ output = scipy.signal.sosfilt(sos_biquad, some_signal)
 ```
 
 - [Programming Electronic Music in Pd - 3.3 Subtractive synthesis](http://www.pd-tutorial.com/english/ch03s03.html)
+
+## 訂正
+- 2019/08/06: コードの `shift_hz` が誤って周波数のまま扱われていた部分を角周波数に修正。

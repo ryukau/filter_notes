@@ -218,7 +218,7 @@
   <header>
     <p>
       Update:
-      2019-06-29
+      2019-08-06
     </p>
   </header>
 
@@ -277,7 +277,7 @@ s = \mathtt{ifft}(\mathtt{fft}(x) 2 U) = x + j \mathcal{H}(x)
 <a class="sourceLine" id="cb1-5" title="5">    norm <span class="op">=</span> numpy.<span class="bu">abs</span>(analytic_signal)</a>
 <a class="sourceLine" id="cb1-6" title="6">    theta <span class="op">=</span> numpy.angle(analytic_signal)</a>
 <a class="sourceLine" id="cb1-7" title="7">    time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="bu">len</span>(analytic_signal) <span class="op">/</span> samplerate, <span class="bu">len</span>(analytic_signal))</a>
-<a class="sourceLine" id="cb1-8" title="8">    <span class="cf">return</span> norm <span class="op">*</span> numpy.cos(theta <span class="op">+</span> shift_hz <span class="op">*</span> time)</a>
+<a class="sourceLine" id="cb1-8" title="8">    <span class="cf">return</span> norm <span class="op">*</span> numpy.cos(theta <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> shift_hz <span class="op">*</span> time)</a>
 <a class="sourceLine" id="cb1-9" title="9"></a>
 <a class="sourceLine" id="cb1-10" title="10"><span class="kw">def</span> naive(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</a>
 <a class="sourceLine" id="cb1-11" title="11">    <span class="cf">return</span> pitch_shift(samplerate, signal.hilbert(wav), shift_hz)</a></code></pre></div>
@@ -572,7 +572,7 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <a class="sourceLine" id="cb8-2" title="2"></a>
 <a class="sourceLine" id="cb8-3" title="3">data, samplerate <span class="op">=</span> soundfile.read(<span class="st">&quot;snd/yey.wav&quot;</span>, always_2d<span class="op">=</span><span class="va">True</span>)</a>
 <a class="sourceLine" id="cb8-4" title="4">wav <span class="op">=</span> data.T[<span class="dv">0</span>]</a>
-<a class="sourceLine" id="cb8-5" title="5">shift_hz <span class="op">=</span> <span class="dv">1000</span>  <span class="co"># Hz</span></a>
+<a class="sourceLine" id="cb8-5" title="5">shift_hz <span class="op">=</span> <span class="dv">200</span>  <span class="co"># Hz</span></a>
 <a class="sourceLine" id="cb8-6" title="6"></a>
 <a class="sourceLine" id="cb8-7" title="7">out <span class="op">=</span> naive(samplerate, wav, shift_hz)</a>
 <a class="sourceLine" id="cb8-8" title="8">soundfile.write(<span class="st">&quot;naive.wav&quot;</span>, out, samplerate)</a></code></pre></div>
@@ -689,6 +689,10 @@ H(z) = \frac{
 output = scipy.signal.sosfilt(sos_biquad, some_signal)</code></pre>
 <ul>
 <li><a href="http://www.pd-tutorial.com/english/ch03s03.html">Programming Electronic Music in Pd - 3.3 Subtractive synthesis</a></li>
+</ul>
+<h2 id="訂正">訂正</h2>
+<ul>
+<li>2019/08/06: コードの <code>shift_hz</code> が誤って周波数のまま扱われていた部分を角周波数に修正。</li>
 </ul>
 
 
