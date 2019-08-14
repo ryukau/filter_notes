@@ -15,7 +15,7 @@ A(\omega) &=
 (\omega/l)^{M}, & (l \lt \omega \lt h) \\
 (h/l)^{M}, & (h \leq \omega \leq \pi)
 \end{cases} \\\\
-M &= {{\,m}\over{20}}\log_2 10
+M &= {{\,n}\over{20}}\log_2 10
 \end{aligned}
 $$
 
@@ -182,7 +182,7 @@ A(\omega) &=
 (\omega/l)^{M}, & (l \lt \omega \lt h) \\
 (h/l)^{M}, & (h \leq \omega \leq \pi)
 \end{cases} \\\\
-M &= {{\,m}\over{20}}\log_2 10
+M &= {{\,n}\over{20}}\log_2 10
 \end{aligned}
 $$
 
