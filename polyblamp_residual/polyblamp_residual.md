@@ -388,28 +388,28 @@ $f_s = 44100, f_0 = 5500$ としてレンダリングした三角波の音です
 <figure>
   <figcaption>naive</figcaption>
   <audio controls>
-    <source src=".wav" type="audio/wav">
+    <source src="snd/tri_naive.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>4 point polyBLAMP residual</figcaption>
   <audio controls>
-    <source src=".wav" type="audio/wav">
+    <source src="snd/tri_blamp4.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>6 point polyBLAMP residual</figcaption>
   <audio controls>
-    <source src=".wav" type="audio/wav">
+    <source src="snd/tri_blamp6.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>8 point polyBLAMP residual</figcaption>
   <audio controls>
-    <source src=".wav" type="audio/wav">
+    <source src="snd/tri_blamp8.wav" type="audio/wav">
   </audio>
 </figure>
 
@@ -599,14 +599,14 @@ def estimate(sign, rho, s0, s1, s2, s3):
 <figure>
   <figcaption>clamp</figcaption>
   <audio controls>
-    <source src=".wav" type="audio/wav">
+    <source src="snd/hardclip_naive.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>4 point polyBLAMP residual</figcaption>
   <audio controls>
-    <source src=".wav" type="audio/wav">
+    <source src="snd/hardclip_blamp.wav" type="audio/wav">
   </audio>
 </figure>
 
