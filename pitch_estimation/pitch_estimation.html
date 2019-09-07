@@ -218,7 +218,7 @@
   <header>
     <p>
       Update:
-      2019-06-01
+      2019-08-29
     </p>
   </header>
 
@@ -389,7 +389,7 @@ i_{min} = i_1 + \frac{1}{2} \frac{
   (x[i_0] - x[i_1])(i_2 - i_1) + (x[i_2] - x[i_1])(i_1 - i_0)
 }
 \]</span></p>
-<p><span class="math inline">\(i_0, i_1\)</span> が隣り合っているとき <span class="math inline">\(i_1 = i_0 + 1\)</span> なので <span class="math inline">\(i_1 - i_0 = 1\)</span> となります。 <span class="math inline">\(i_2, i_1\)</span> についても同様に <span class="math inline">\(i_2 = i_1 + 1\)</span> となるとき <span class="math inline">\(i_2 - i_1 = 1\)</span> です。 Parabolic interpolation の式に代入します。</p>
+<p><span class="math inline">\(i_0, i_1\)</span> は配列の隣り合うインデックスなので <span class="math inline">\(i_1 - i_0 = 1\)</span> となります。 <span class="math inline">\(i_2, i_1\)</span> についても同様に <span class="math inline">\(i_2 - i_1 = 1\)</span> です。 Parabolic interpolation の式に代入します。</p>
 <p><span class="math display">\[
 \begin{aligned}
 i_{min}
