@@ -616,7 +616,7 @@ def estimate(sign, rho, s0, s1, s2, s3):
 この実装は `clamp` だけをつかった素朴な実装よりノイズが増えます。歪み系エフェクトの部品としては使えるかもしれません。
 
 ## 参考文献
-- Esqueda, Fabián, Vesa Välimäki, and Stefan Bilbao. "[Rounding corners with BLAMP.](http://www.research.ed.ac.uk/portal/files/28180097/18_DAFx_16_paper_33_PN.pdf)" Proc. Int. Conf. Digital Audio Effects (DAFx-16), Brno, Czech Republic. 2016.
+- Esqueda, Fabián, Vesa Välimäki, and Stefan Bilbao. "[Rounding corners with BLAMP.](http://dafx16.vutbr.cz/dafxpapers/18-DAFx-16_paper_33-PN.pdf)" Proc. Int. Conf. Digital Audio Effects (DAFx-16), Brno, Czech Republic. 2016.
 - Välimäki, Vesa, Jussi Pekonen, and Juhan Nam. "[Perceptually informed synthesis of bandlimited classical waveforms using integrated polynomial interpolation.](http://mac.kaist.ac.kr/pubs/ValimakiPeknenNam-jasa2012.pdf)" The Journal of the Acoustical Society of America 131.1 (2012): 974-986.
 - [Uniform Cubic B-Spline Curves](http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm)
 - [1.4 B-spline curves and surfaces](http://web.mit.edu/hyperbook/Patrikalakis-Maekawa-Cho/node15.html)
