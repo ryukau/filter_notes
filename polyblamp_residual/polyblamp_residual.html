@@ -694,11 +694,11 @@ d &amp;= D - 1\\
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">def</span> estimate(sign, rho, s0, s1, s2, s3):</a>
 <a class="sourceLine" id="cb6-2" title="2">    a, b, c, e <span class="op">=</span> lagrange4(s0 <span class="op">-</span> rho, s1 <span class="op">-</span> rho, s2 <span class="op">-</span> rho, s3 <span class="op">-</span> rho)</a>
 <a class="sourceLine" id="cb6-3" title="3">    D <span class="op">=</span> <span class="fl">1.5</span></a>
-<a class="sourceLine" id="cb6-4" title="4">    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):  <span class="co"># 実験なので多めに回す。</span></a>
-<a class="sourceLine" id="cb6-5" title="5">        D <span class="op">=</span> D <span class="op">-</span> f(D, a, b, c, e, rho) <span class="op">/</span> f_dash(D, a, b, c)</a>
+<a class="sourceLine" id="cb6-4" title="4">    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):</a>
+<a class="sourceLine" id="cb6-5" title="5">        D <span class="op">=</span> D <span class="op">-</span> f(D, a, b, c, e, <span class="dv">0</span>) <span class="op">/</span> f_dash(D, a, b, c)</a>
 <a class="sourceLine" id="cb6-6" title="6">    <span class="cf">return</span> (</a>
 <a class="sourceLine" id="cb6-7" title="7">        D,</a>
-<a class="sourceLine" id="cb6-8" title="8">        f(D, a, b, c, e, rho),</a>
+<a class="sourceLine" id="cb6-8" title="8">        f(D, a, b, c, e, <span class="dv">0</span>),</a>
 <a class="sourceLine" id="cb6-9" title="9">        numpy.<span class="bu">abs</span>(f_dash(D, a, b, c)),</a>
 <a class="sourceLine" id="cb6-10" title="10">    )</a></code></pre></div>
 <p>修正した結果です。補間はうまく動きましたが、値の推定は間違っています。</p>

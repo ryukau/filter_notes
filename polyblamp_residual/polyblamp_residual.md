@@ -567,11 +567,11 @@ result = sig + polyblamp_residual(D - 1, slope)
 def estimate(sign, rho, s0, s1, s2, s3):
     a, b, c, e = lagrange4(s0 - rho, s1 - rho, s2 - rho, s3 - rho)
     D = 1.5
-    for _ in range(128):  # 実験なので多めに回す。
-        D = D - f(D, a, b, c, e, rho) / f_dash(D, a, b, c)
+    for _ in range(128):
+        D = D - f(D, a, b, c, e, 0) / f_dash(D, a, b, c)
     return (
         D,
-        f(D, a, b, c, e, rho),
+        f(D, a, b, c, e, 0),
         numpy.abs(f_dash(D, a, b, c)),
     )
 ```
