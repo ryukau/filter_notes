@@ -223,11 +223,13 @@
   </header>
 
   <h1 id="ptr-オシレータ">PTR オシレータ</h1>
-<p>Kleimola 、 Jari 、 Valimaki による <a href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing aliasing from synthetic audio signals using polynomial transition regions</a> で紹介されていた PTR という方法を使ったオシレータを試します。</p>
+<p>Kleimola と Valimaki による <a href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing aliasing from synthetic audio signals using polynomial transition regions</a> で紹介されていた PTR という方法を使ったオシレータを試します。</p>
 <h2 id="概要">概要</h2>
 <p>PTR (Polynomial Transition Regions) は DPW (Differenciated Polynomial Waveform) という方法に基づいたオシレータの計算方法です。</p>
 <p>DPW と PTR では、まず波形関数に連続領域でローパスフィルタをかけた式を求めます。そして離散領域でローパスフィルタがかかった波形の式を計算して離散ハイパスフィルタに通すことでエイリアシングが低減された出力が得られるという手法です。 DPW と PTR では 1 次のローパスフィルタと 1 次の離散ハイパスフィルタを使っているので、計算式の次数が 1 増えるごとにエイリアシングによる折り返しノイズが 6dB 低減されます。</p>
 <p>PTR の論文では 3 次までの鋸歯波の計算式が掲載されています。ここでは 4 次以降の計算式と、鋸歯波以外の計算式を求めています。</p>
+<p>Python3 のコードでは <a href="https://numpy.org/">NumPy</a> 、 <a href="https://matplotlib.org/">matplotlib</a> 、 <a href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a> を使っています。</p>
+<p><a href="http://maxima.sourceforge.net/">Maxima</a> のコードは wxMaxima にコピペすれば動きます。</p>
 <h2 id="鋸歯波">鋸歯波</h2>
 <p>次の図は鋸歯波の <span class="math inline">\(f(x)\)</span> と PTR で計算する遷移領域のイメージ図です。</p>
 <figure>
@@ -441,12 +443,12 @@ s(n - 2) &amp;= 2 (n - 2) T - 1\\
 \]</span></p>
 <p><span class="math inline">\(h / T\)</span> を含む式を使うと遷移領域の値が大きくなりすぎるようです。実用上は <span class="math inline">\(h / T\)</span> を含まない式を使うほうが良さそうです。 次のリンクから実装したコードが読めます。</p>
 <ul>
-<li>TODO コードへのリンク</li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/ptr_exact.py"><span class="math inline">\(h / T\)</span> を含む式を計算するコードを読む (github.com)</a></li>
 </ul>
-<p>ここまでの式変形を Maxima で実装して、より高次の PTR の式を導出しました。また、導出した式を Python3 のコードにしました。コードと式は量が多くなったので別ページに分けました。</p>
-<p><a href="ptr_maxima.html#saw">Maxima のコードを読む (github.io)</a></p>
+<p>ここまでの式変形を Maxima で実装して、より高次の PTR の式を導出しました。また、導出した式を Python3 のコードにしました。コードは量が多くなったので別ページに分けました。</p>
 <ul>
-<li>TODO 出力へのリンク</li>
+<li><a href="ptr_maxima.html#saw">Maxima で式を求めるコードを読む (github.io)</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_saw.py">Python3 で音をレンダリングするコードを読む (github.com)</a></li>
 </ul>
 <h2 id="三角波">三角波</h2>
 <p><span class="math inline">\([-1, 1]\)</span> の範囲で 1 周期分の三角波を生成する波形関数です。</p>
@@ -510,7 +512,8 @@ c_{t}(N) &amp;= \frac{2}{(2T)^{N - 1} N!}\\
 <p>DPW 論文によると、三角波のスケーリング係数 <span class="math inline">\(c_{t}(N)\)</span> は <span class="math inline">\(2 c(N)\)</span> となるようです。</p>
 <p>あとは鋸歯波と同様に <span class="math inline">\(\nabla\)</span> を展開して場合分けを行うことで PTR の式が得られます。実装は長いので別ページに掲載しています。</p>
 <ul>
-<li>TODO 式</li>
+<li><a href="ptr_maxima.html#triangle">Maxima のコードを読む (github.io)</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_tri.py">Python3 で音をレンダリングするコードを読む (github.com)</a></li>
 </ul>
 <h2 id="ランプ関数">ランプ関数</h2>
 <p>積分定数を決められるように、少しずらした<a href="https://en.wikipedia.org/wiki/Ramp_function">ランプ関数</a>を使います。</p>
@@ -579,7 +582,8 @@ c(N) &amp;= \frac{1}{(2T)^{N - 1} N!}\\
 <p>スケーリング係数は鋸歯波と同じ <span class="math inline">\(c(N)\)</span> を使います。</p>
 <p>Maxima と Python3 のコードへのリンクです。</p>
 <ul>
-<li>TODO コードへのリンク</li>
+<li><a href="ptr_maxima.html#ramp">Maxima のコードを読む (github.io)</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_ramp.py">Python3 で音をレンダリングするコードを読む (github.com)</a></li>
 </ul>
 <h2 id="ステップ関数">ステップ関数</h2>
 <p>ランプ関数を 1 階微分するとステップ関数になります。</p>
@@ -594,14 +598,16 @@ c(N) &amp;= \frac{1}{(2T)^{N - 1} N!}\\
 <p>残りの式変形はランプ関数と同じです。</p>
 <p>Maxima と Python3 のコードへのリンクです。</p>
 <ul>
-<li>TODO コードへのリンク</li>
+<li><a href="ptr_maxima.html#step">Maxima のコードを読む (github.io)</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_step.py">Python3 で音をレンダリングするコードを読む (github.com)</a></li>
 </ul>
 <h2 id="レンダリングと結果">レンダリングと結果</h2>
 <p>PTR 論文では次数の区別に、 <span class="math inline">\(\nabla\)</span> による差分の回数 <span class="math inline">\(W = N - 1\)</span> を使っています。以下で使う PTR[波形][番号] という名前の番号は <span class="math inline">\(W\)</span> です。</p>
-<h3 id="鋸歯波-1">鋸歯波</h3>
+<p>プロットに使ったコードへのリンクです。</p>
 <ul>
-<li>TODO コード</li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/plot.py">プロットに使ったコード (github.com)</a></li>
 </ul>
+<h3 id="鋸歯波-1">鋸歯波</h3>
 <p>波形の比較です。</p>
 <figure>
 <img src="img/saw_waveform.png" alt="Image of PTR sawtooth waveform." style="width: 960px;padding-bottom: 12px;"/>
@@ -1105,10 +1111,18 @@ Step W = 10
   N! \left(2 \sin \left(\pi f_0 T\right)\right)^{N-1}
 }
 \]</span></p>
+<p>Maxima から得られた式と、式をフォーマットするコードへのリンクです。</p>
+<ul>
+<li><a href="maxima_equations/saw">鋸歯波の式</a></li>
+<li><a href="maxima_equations/tri">三角波の式</a></li>
+<li><a href="maxima_equations/ramp">ランプ関数の式</a></li>
+<li><a href="maxima_equations/step">ステップ関数の式</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/format.py">式を Python3 と C++ のコードにフォーマットするコード (github.com)</a></li>
+</ul>
 <h2 id="参考文献">参考文献</h2>
 <ul>
-<li>Kleimola, Jari, and Vesa Valimaki. “<a href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing aliasing from synthetic audio signals using polynomial transition regions</a>.” IEEE Signal Processing Letters 19.2 (2011): 67-70.</li>
-<li>Valimaki, Vesa, et al. “<a href="http://mac.kaist.ac.kr/pubs/ValimakiNamSmithAbel-taslp2010.pdf">Alias-suppressed oscillators based on differentiated polynomial waveforms.</a>” IEEE Transactions on audio, speech, and language processing 18.4 (2009): 786-798.</li>
+<li>Jari Kleimola, and Vesa Valimaki. “<a href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing aliasing from synthetic audio signals using polynomial transition regions</a>.” IEEE Signal Processing Letters 19.2 (2011): 67-70.</li>
+<li>Vesa Valimaki, et al. “<a href="http://mac.kaist.ac.kr/pubs/ValimakiNamSmithAbel-taslp2010.pdf">Alias-suppressed oscillators based on differentiated polynomial waveforms.</a>” IEEE Transactions on audio, speech, and language processing 18.4 (2009): 786-798.</li>
 <li><a href="http://research.spa.aalto.fi/publications/papers/spl-ptr/">Polynomial Transition Regions (PTR)</a></li>
 </ul>
 

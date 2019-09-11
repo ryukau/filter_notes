@@ -1,5 +1,5 @@
 # PTR オシレータ
-Kleimola 、 Jari 、 Valimaki による [Reducing aliasing from synthetic audio signals using polynomial transition regions](https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&isAllowed=y) で紹介されていた PTR という方法を使ったオシレータを試します。
+Kleimola と Valimaki による [Reducing aliasing from synthetic audio signals using polynomial transition regions](https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&isAllowed=y) で紹介されていた PTR という方法を使ったオシレータを試します。
 
 ## 概要
 PTR (Polynomial Transition Regions) は DPW (Differenciated Polynomial Waveform) という方法に基づいたオシレータの計算方法です。
@@ -963,6 +963,6 @@ Maxima から得られた式と、式をフォーマットするコードへの�
 - [式を Python3 と C++ のコードにフォーマットするコード (github.com)](https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/format.py)
 
 ## 参考文献
-- Kleimola, Jari, and Vesa Valimaki. "[Reducing aliasing from synthetic audio signals using polynomial transition regions](https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&isAllowed=y)." IEEE Signal Processing Letters 19.2 (2011): 67-70.
-- Valimaki, Vesa, et al. "[Alias-suppressed oscillators based on differentiated polynomial waveforms.](http://mac.kaist.ac.kr/pubs/ValimakiNamSmithAbel-taslp2010.pdf)" IEEE Transactions on audio, speech, and language processing 18.4 (2009): 786-798.
+- Jari Kleimola, and Vesa Valimaki. "[Reducing aliasing from synthetic audio signals using polynomial transition regions](https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&isAllowed=y)." IEEE Signal Processing Letters 19.2 (2011): 67-70.
+- Vesa Valimaki, et al. "[Alias-suppressed oscillators based on differentiated polynomial waveforms.](http://mac.kaist.ac.kr/pubs/ValimakiNamSmithAbel-taslp2010.pdf)" IEEE Transactions on audio, speech, and language processing 18.4 (2009): 786-798.
 - [Polynomial Transition Regions (PTR)](http://research.spa.aalto.fi/publications/papers/spl-ptr/)
