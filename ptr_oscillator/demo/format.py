@@ -18,7 +18,7 @@ def to_python_code(order, equations):
 def to_cpp_code(order, equations):
     indent = " " * 2
     typename = "float"
-    code = f"{typename} ptr{waveform}{order}({typename} phi, {typename} T, {typename} h):\n"
+    code = f"{typename} ptr{waveform}{order}({typename} phi, {typename} T, {typename} h) {{\n"
     code += indent + f"{typename} n = phi / T;\n"
     for idx, eqn in enumerate(equations):
         if idx == 0:
@@ -38,7 +38,7 @@ def to_cpp_code(order, equations):
         )
 
         code += f"return {eqn};\n"
-    code += indent + "return 0.0; // Just in case.\n"
+    code += indent + "return 0.0; // Just in case.\n}\n"
     return code
 
 filename = Path("maxima_equations/saw")
