@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
 
 <head>
-  <meta charset=utf-8>
-  <title>
-    plot_gallery_pitch_estimation
-  </title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2018-12-20" />
+      <title>plot_gallery_pitch_estimation</title>
 
   <!-- highlight.js -->
   <link rel="stylesheet" href="../script/highlight/idea.css">
@@ -22,12 +23,12 @@
     integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-
   <style>
     body {
       max-width: 704px;
       margin: auto;
       padding: 32px 8px;
+      font-size: 14px;
     }
 
     img {
@@ -56,7 +57,6 @@
     h4,
     h5,
     h6 {
-      color: #004444;
       border-left: solid 8px #eeeeee;
       padding-left: 8px;
     }
@@ -127,6 +127,10 @@
       border-top: 1px gray solid;
       padding: 0.5em;
       margin-top: 1em;
+    }
+
+    summary:hover {
+      background-color: #eeeeee;
     }
 
     canvas {
@@ -212,140 +216,157 @@
       border: 2px solid #aaccff;
     }
   </style>
-</head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+    </head>
 
 <body>
-  <header>
-    <p>
-      Update:
-      2018-12-20
+    <header>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2018-12-20
     </p>
-  </header>
-
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#ピッチ推定のプロットギャラリー">ピッチ推定のプロットギャラリー</a><ul>
+        <li><a href="#サイン波">サイン波</a></li>
+        <li><a href="#ノイズを加えたサイン波">ノイズを加えたサイン波</a><ul>
+        <li><a href="#手法ごとの誤差">手法ごとの誤差</a></li>
+        </ul></li>
+        <li><a href="#am変調">AM変調</a><ul>
+        <li><a href="#手法ごとの誤差-1">手法ごとの誤差</a></li>
+        </ul></li>
+        <li><a href="#fm変調">FM変調</a><ul>
+        <li><a href="#手法ごとの誤差-2">手法ごとの誤差</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
   <h1 id="ピッチ推定のプロットギャラリー">ピッチ推定のプロットギャラリー</h1>
-<h2 id="サイン波">サイン波</h2>
-<p>サイン波の周波数ごとの平均絶対誤差です。この形式のグラフの縦軸は対数スケールにしています。</p>
-<figure>
-<img src="img/error_per_frequency_sin_wave.png" alt="Image of plot of mean absolute error for each sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>誤差が最大となった YIN-CMND type I は低周波域で大きな誤差が出ています。</p>
-<p>6000Hzより上の誤差を除外した場合が気になったのでプロットしました。</p>
-<figure>
-<img src="img/error_sin_wave_under_6000hz.png" alt="Image of plot of mean absolute error to sine wave signal under 6000Hz." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>MPM-CMND type II の誤差が最小となりました。サンプリング周波数の3/4よりも高い周波数ではピッチ推定が失敗しやすいのかもしれません。</p>
-<h2 id="ノイズを加えたサイン波">ノイズを加えたサイン波</h2>
-<p>サイン波の周波数ごとの平均絶対誤差です。</p>
-<figure>
-<img src="img/error_per_frequency_sin_with_noise.png" alt="Image of plot of mean absolute error for each frequency of sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>ノイズの比率ごとの平均絶対誤差です。</p>
-<figure>
-<img src="img/error_per_noise_ratio_sin_with_noise.png" alt="Image of plot of mean absolute error for each noise_ratio of sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h3 id="手法ごとの誤差">手法ごとの誤差</h3>
-<p>明るいほど誤差が大きく、白い部分は <code>nan</code> を表しています。グラフの右にあるカラーバーの数字を <span class="math inline">\(a\)</span> とすると誤差の値は <span class="math inline">\(10^a\)</span> です。</p>
-<p>NSD は信号の大きさ1に対してノイズの大きさが3を超えるとうまく計算できないようです。</p>
-<figure>
-<img src="img/error_sin_with_noise_yin_cmnd_type1.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is yin_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_with_noise_yin_cmnd_type2.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is yin_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_with_noise_yin_nsd_type1.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is yin_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_with_noise_yin_nsd_type2.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is yin_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_with_noise_mpm_cmnd_type1.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is mpm_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_with_noise_mpm_cmnd_type2.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is mpm_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_with_noise_mpm_nsd_type1.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is mpm_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_with_noise_mpm_nsd_type2.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is mpm_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h2 id="am変調">AM変調</h2>
-<p>キャリアの周波数ごとの平均絶対誤差です。</p>
-<figure>
-<img src="img/error_per_carrier_frequency_sin_am.png" alt="Image of plot of mean absolute error for each carrier frequency of sin AM signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>モジュレータの周波数ごとの平均絶対誤差です。</p>
-<figure>
-<img src="img/error_per_modulator_frequency_sin_am.png" alt="Image of plot of mean absolute error for each modulator frequency of sin AM signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h3 id="手法ごとの誤差-1">手法ごとの誤差</h3>
-<p>明るいほど誤差が大きく、白い部分は <code>nan</code> を表しています。グラフの右にあるカラーバーの数字を <span class="math inline">\(a\)</span> とすると誤差の値は <span class="math inline">\(10^a\)</span> です。</p>
-<figure>
-<img src="img/error_sin_am_yin_cmnd_type1.png" alt="Image of plot of mean absolute error to sin AM signal. Method is yin_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_am_yin_cmnd_type2.png" alt="Image of plot of mean absolute error to sin AM signal. Method is yin_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_am_yin_nsd_type1.png" alt="Image of plot of mean absolute error to sin AM signal. Method is yin_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_am_yin_nsd_type2.png" alt="Image of plot of mean absolute error to sin AM signal. Method is yin_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_am_mpm_cmnd_type1.png" alt="Image of plot of mean absolute error to sin AM signal. Method is mpm_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_am_mpm_cmnd_type2.png" alt="Image of plot of mean absolute error to sin AM signal. Method is mpm_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_am_mpm_nsd_type1.png" alt="Image of plot of mean absolute error to sin AM signal. Method is mpm_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_am_mpm_nsd_type2.png" alt="Image of plot of mean absolute error to sin AM signal. Method is mpm_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h2 id="fm変調">FM変調</h2>
-<p>キャリアの周波数ごとの平均絶対誤差です。</p>
-<figure>
-<img src="img/error_per_carrier_frequency_sin_fm.png" alt="Image of plot of mean absolute error for each carrier frequency of sin FM signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>モジュレータの周波数ごとの平均絶対誤差です。</p>
-<figure>
-<img src="img/error_per_modulator_frequency_sin_fm.png" alt="Image of plot of mean absolute error for each modulator frequency of sin FM signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h3 id="手法ごとの誤差-2">手法ごとの誤差</h3>
-<p>明るいほど誤差が大きく、白い部分は <code>nan</code> を表しています。グラフの右にあるカラーバーの数字を <span class="math inline">\(a\)</span> とすると誤差の値は <span class="math inline">\(10^a\)</span> です。</p>
-<figure>
-<img src="img/error_sin_fm_yin_cmnd_type1.png" alt="Image of plot of mean absolute error to sin FM signal. Method is yin_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_fm_yin_cmnd_type2.png" alt="Image of plot of mean absolute error to sin FM signal. Method is yin_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_fm_yin_nsd_type1.png" alt="Image of plot of mean absolute error to sin FM signal. Method is yin_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_fm_yin_nsd_type2.png" alt="Image of plot of mean absolute error to sin FM signal. Method is yin_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_fm_mpm_cmnd_type1.png" alt="Image of plot of mean absolute error to sin FM signal. Method is mpm_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_fm_mpm_cmnd_type2.png" alt="Image of plot of mean absolute error to sin FM signal. Method is mpm_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_fm_mpm_nsd_type1.png" alt="Image of plot of mean absolute error to sin FM signal. Method is mpm_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/error_sin_fm_mpm_nsd_type2.png" alt="Image of plot of mean absolute error to sin FM signal. Method is mpm_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-
-
-  <footer>
+  <h2 id="サイン波">サイン波</h2>
+  <p>サイン波の周波数ごとの平均絶対誤差です。この形式のグラフの縦軸は対数スケールにしています。</p>
+  <figure>
+  <img src="img/error_per_frequency_sin_wave.png" alt="Image of plot of mean absolute error for each sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>誤差が最大となった YIN-CMND type I は低周波域で大きな誤差が出ています。</p>
+  <p>6000Hzより上の誤差を除外した場合が気になったのでプロットしました。</p>
+  <figure>
+  <img src="img/error_sin_wave_under_6000hz.png" alt="Image of plot of mean absolute error to sine wave signal under 6000Hz." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>MPM-CMND type II の誤差が最小となりました。サンプリング周波数の3/4よりも高い周波数ではピッチ推定が失敗しやすいのかもしれません。</p>
+  <h2 id="ノイズを加えたサイン波">ノイズを加えたサイン波</h2>
+  <p>サイン波の周波数ごとの平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_per_frequency_sin_with_noise.png" alt="Image of plot of mean absolute error for each frequency of sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>ノイズの比率ごとの平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_per_noise_ratio_sin_with_noise.png" alt="Image of plot of mean absolute error for each noise_ratio of sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="手法ごとの誤差">手法ごとの誤差</h3>
+  <p>明るいほど誤差が大きく、白い部分は <code>nan</code> を表しています。グラフの右にあるカラーバーの数字を <span class="math inline">\(a\)</span> とすると誤差の値は <span class="math inline">\(10^a\)</span> です。</p>
+  <p>NSD は信号の大きさ1に対してノイズの大きさが3を超えるとうまく計算できないようです。</p>
+  <figure>
+  <img src="img/error_sin_with_noise_yin_cmnd_type1.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is yin_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_with_noise_yin_cmnd_type2.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is yin_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_with_noise_yin_nsd_type1.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is yin_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_with_noise_yin_nsd_type2.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is yin_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_with_noise_mpm_cmnd_type1.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is mpm_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_with_noise_mpm_cmnd_type2.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is mpm_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_with_noise_mpm_nsd_type1.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is mpm_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_with_noise_mpm_nsd_type2.png" alt="Image of plot of mean absolute error to sin with noise signal. Method is mpm_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="am変調">AM変調</h2>
+  <p>キャリアの周波数ごとの平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_per_carrier_frequency_sin_am.png" alt="Image of plot of mean absolute error for each carrier frequency of sin AM signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>モジュレータの周波数ごとの平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_per_modulator_frequency_sin_am.png" alt="Image of plot of mean absolute error for each modulator frequency of sin AM signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="手法ごとの誤差-1">手法ごとの誤差</h3>
+  <p>明るいほど誤差が大きく、白い部分は <code>nan</code> を表しています。グラフの右にあるカラーバーの数字を <span class="math inline">\(a\)</span> とすると誤差の値は <span class="math inline">\(10^a\)</span> です。</p>
+  <figure>
+  <img src="img/error_sin_am_yin_cmnd_type1.png" alt="Image of plot of mean absolute error to sin AM signal. Method is yin_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_am_yin_cmnd_type2.png" alt="Image of plot of mean absolute error to sin AM signal. Method is yin_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_am_yin_nsd_type1.png" alt="Image of plot of mean absolute error to sin AM signal. Method is yin_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_am_yin_nsd_type2.png" alt="Image of plot of mean absolute error to sin AM signal. Method is yin_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_am_mpm_cmnd_type1.png" alt="Image of plot of mean absolute error to sin AM signal. Method is mpm_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_am_mpm_cmnd_type2.png" alt="Image of plot of mean absolute error to sin AM signal. Method is mpm_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_am_mpm_nsd_type1.png" alt="Image of plot of mean absolute error to sin AM signal. Method is mpm_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_am_mpm_nsd_type2.png" alt="Image of plot of mean absolute error to sin AM signal. Method is mpm_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="fm変調">FM変調</h2>
+  <p>キャリアの周波数ごとの平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_per_carrier_frequency_sin_fm.png" alt="Image of plot of mean absolute error for each carrier frequency of sin FM signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>モジュレータの周波数ごとの平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_per_modulator_frequency_sin_fm.png" alt="Image of plot of mean absolute error for each modulator frequency of sin FM signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="手法ごとの誤差-2">手法ごとの誤差</h3>
+  <p>明るいほど誤差が大きく、白い部分は <code>nan</code> を表しています。グラフの右にあるカラーバーの数字を <span class="math inline">\(a\)</span> とすると誤差の値は <span class="math inline">\(10^a\)</span> です。</p>
+  <figure>
+  <img src="img/error_sin_fm_yin_cmnd_type1.png" alt="Image of plot of mean absolute error to sin FM signal. Method is yin_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_fm_yin_cmnd_type2.png" alt="Image of plot of mean absolute error to sin FM signal. Method is yin_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_fm_yin_nsd_type1.png" alt="Image of plot of mean absolute error to sin FM signal. Method is yin_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_fm_yin_nsd_type2.png" alt="Image of plot of mean absolute error to sin FM signal. Method is yin_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_fm_mpm_cmnd_type1.png" alt="Image of plot of mean absolute error to sin FM signal. Method is mpm_cmnd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_fm_mpm_cmnd_type2.png" alt="Image of plot of mean absolute error to sin FM signal. Method is mpm_cmnd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_fm_mpm_nsd_type1.png" alt="Image of plot of mean absolute error to sin FM signal. Method is mpm_nsd_type1." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <figure>
+  <img src="img/error_sin_fm_mpm_nsd_type2.png" alt="Image of plot of mean absolute error to sin FM signal. Method is mpm_nsd_type2." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+    <footer>
     <a href="../index.html">インデックスに戻る</a>
   </footer>
 </body>
 
 </html>
-

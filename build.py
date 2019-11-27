@@ -47,7 +47,7 @@ def get_last_modified(md):
     epoch = Path(md).stat().st_mtime
     return time.strftime("%Y-%m-%d %H:%M:%S %z", time.localtime(epoch))
 
-def pandoc_md_to_html5(md, md_info, template_html):
+def pandoc_md_to_html5(md, md_info, template_path):
     if md.suffix != ".md":
         return
 
@@ -67,17 +67,25 @@ def pandoc_md_to_html5(md, md_info, template_html):
     print("Processing " + md_name)
 
     result = subprocess.run(
-        ["pandoc", "-f", "markdown", "-t", "html5", "--katex", md],
+        [
+            "pandoc",
+            "--standalone",
+            "--toc",
+            "--toc-depth=4",
+            "--metadata",
+            f"title={md.stem}",
+            "--metadata",
+            f"date={get_last_modified(md).split(' ')[0]}",
+            f"--template={str(template_path)}",
+            "--from=markdown",
+            "--to=html5",
+            "--mathjax",
+            f"--output={md.with_suffix('.html')}",
+            md,
+        ],
         stdout=subprocess.PIPE,
         encoding="utf-8",
     )
-
-    html = template_html.replace("<!-- insert title here -->", md.stem)
-    html = html.replace("<!-- last modified -->", get_last_modified(md).split(" ")[0])
-    html = html.replace("<!-- replace me -->", result.stdout)
-
-    with open(md.with_suffix(".html"), "w") as html_file:
-        print(html, file=html_file)
 
 def dump_config_yml():
     md_list = sorted([str(md) for md in Path(".").glob("**/*.md")])
@@ -91,12 +99,10 @@ if __name__ == "__main__":
 
     dump_config_yml()
 
-    with open("template.html", "r") as temp:
-        template_html = temp.read()
     md_info = read_build_info(args.rebuild)
     mds = gather_markdown()
     for md in mds:
-        pandoc_md_to_html5(md, md_info, template_html)
+        pandoc_md_to_html5(md, md_info, "template.html")
 
     with open("build_info", "w") as build_info:
         json.dump(md_info, build_info)

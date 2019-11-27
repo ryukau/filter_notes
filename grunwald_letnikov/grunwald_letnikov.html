@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
 
 <head>
-  <meta charset=utf-8>
-  <title>
-    grunwald_letnikov
-  </title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2018-11-29" />
+      <title>grunwald_letnikov</title>
 
   <!-- highlight.js -->
   <link rel="stylesheet" href="../script/highlight/idea.css">
@@ -22,12 +23,12 @@
     integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
     onload="renderMathInElement(document.body);"></script>
 
-
   <style>
     body {
       max-width: 704px;
       margin: auto;
       padding: 32px 8px;
+      font-size: 14px;
     }
 
     img {
@@ -56,7 +57,6 @@
     h4,
     h5,
     h6 {
-      color: #004444;
       border-left: solid 8px #eeeeee;
       padding-left: 8px;
     }
@@ -127,6 +127,10 @@
       border-top: 1px gray solid;
       padding: 0.5em;
       margin-top: 1em;
+    }
+
+    summary:hover {
+      background-color: #eeeeee;
     }
 
     canvas {
@@ -212,516 +216,532 @@
       border: 2px solid #aaccff;
     }
   </style>
-</head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+    </head>
 
 <body>
-  <header>
-    <p>
-      Update:
-      2018-11-29
+    <header>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2018-11-29
     </p>
-  </header>
-
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#分数階微積分の数値計算">分数階微積分の数値計算</a><ul>
+        <li><a href="#分数階微積分とは">分数階微積分とは</a></li>
+        <li><a href="#grünwaldletnikovの分数階微分">Grünwald–Letnikovの分数階微分</a></li>
+        <li><a href="#二項係数の計算">二項係数の計算</a></li>
+        <li><a href="#ガンマ関数の計算">ガンマ関数の計算</a></li>
+        <li><a href="#grünwaldletnikovの分数階積分">Grünwald–Letnikovの分数階積分</a></li>
+        <li><a href="#分数階微積分の実装">分数階微積分の実装</a></li>
+        <li><a href="#デモ">デモ</a></li>
+        <li><a href="#問題点">問題点</a></li>
+        <li><a href="#参考文献">参考文献</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
   <h1 id="分数階微積分の数値計算">分数階微積分の数値計算</h1>
-<p><a href="https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf">Loverroの “Fractional Calculus: History, Definitions and Applications for the Engineer”</a>に沿って、数値計算がしやすそうなGrünwald–Letnikovの<a href="https://en.wikipedia.org/wiki/Fractional_calculus">分数階微積分</a>について見ていきます。</p>
-<h2 id="分数階微積分とは">分数階微積分とは</h2>
-<p>ここではざっくりとした導入だけを行います。基本的な理論については次の資料が参考になります。</p>
-<ul>
-<li><a href="https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf">Fractional Calculus: History, Definitions and Applications for the Engineer</a></li>
-<li><a href="http://www.xuru.org/fc/TOC.asp">Fractional Calculus - Xuru’s Website</a></li>
-<li><a href="https://www.youtube.com/watch?v=7PCQmxlX9mU">Fractional order derivative of a function &amp; fractional numbers’ factorial. - YouTube</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Fractional_calculus">Fractional calculus - Wikipedia</a></li>
-</ul>
-<p>分数階微分について考えます。微分演算子 <span class="math inline">\(D\)</span> を導入します。</p>
-<p><span class="math display">\[
-D f(x) = \frac{d}{dx} f(x)
-\]</span></p>
-<p>例えば <span class="math inline">\(1 / 2\)</span> 階微分を <span class="math inline">\(2\)</span> 回繰り返すと1階微分になります。</p>
-<p><span class="math display">\[
-D^{\frac{1}{2}} \left( D^{\frac{1}{2}} f(x) \right)
-= D f(x)
-\]</span></p>
-<p><span class="math inline">\(1 / 3\)</span> 階微分を <span class="math inline">\(3\)</span> 回繰り返すと1階微分になります。</p>
-<p><span class="math display">\[
-D^{\frac{1}{3}} \left(
-D^{\frac{1}{3}} \left(
-  D^{\frac{1}{3}} f(x) \right) \right)
-= \frac{d}{dx} f(x)
-\]</span></p>
-<p>つまり <span class="math inline">\(1 / q\)</span> 階微分を <span class="math inline">\(q\)</span> 回繰り返すと1階微分になります。</p>
-<p><span class="math display">\[
-\underbrace{
-  D^{\frac{1}{q}} \left( \ldots \left( D^{\frac{1}{q}} f(x) \right) \right)
-}_\text{1/q differentiation for q times}
-= \frac{d}{dx} f(x)
-\]</span></p>
-<p>分数階積分も同様に捉えることができます。積分演算子 <span class="math inline">\(J\)</span> を定義します。</p>
-<p><span class="math display">\[
-J f(x) = \int_{0}^{x} f(s) ds
-\]</span></p>
-<p><span class="math inline">\(1 / q\)</span> 階積分を <span class="math inline">\(q\)</span> 回繰り返すと1階積分になります。</p>
-<p><span class="math display">\[
-\underbrace{
-  J^{\frac{1}{q}} \left( \ldots \left( J^{\frac{1}{q}} f(x) \right) \right)
-}_\text{1/q integration for q times}
-= \int_{0}^{x} f(s) ds
-\]</span></p>
-<p>分数階微積分が物理的にどういう意味を持つのかはよくわかりませんが、<a href="http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf">波動方程式への応用</a>が提案されています。</p>
-<h2 id="grünwaldletnikovの分数階微分">Grünwald–Letnikovの分数階微分</h2>
-<p><a href="https://en.wikipedia.org/wiki/Differential_of_a_function#Higher-order_differentials"><span class="math inline">\(n\)</span> 階微分の差分形</a>です。</p>
-<p><span class="math display">\[
-d^n f(x) = \lim_{h \to 0} \frac{1}{h^n}
-\sum_{m=0}^{n} (-1)^{m} \binom{n}{m} f(x - mh)
-\,,\qquad n \in \Bbb{N}
-\]</span></p>
-<p><span class="math inline">\(m &gt; n\)</span> のとき <span class="math inline">\(\binom{n}{m} = 0\)</span> なので総和の上限を無限にできます。</p>
-<p><span class="math display">\[
-d^n f(x) = \lim_{h \to 0} \frac{1}{h^n}
-\sum_{m=0}^{\infty} (-1)^{m} \binom{n}{m} f(x - mh)
-\,,\qquad n \in \Bbb{N}
-\]</span></p>
-<p>自然数 <span class="math inline">\(n\)</span> を実数 <span class="math inline">\(\alpha\)</span> に置き換えます。</p>
-<p><span class="math display">\[
-d^\alpha f(x) = \lim_{h \to 0} \frac{1}{h^\alpha}
-\sum_{m=0}^{\infty} (-1)^{m} \binom{\alpha}{m} f(x - mh)
-\,,\qquad \alpha \in \Bbb{R}
-\]</span></p>
-<p>この形がGrünwald–Letnikovの分数階微分です。</p>
-<h2 id="二項係数の計算">二項係数の計算</h2>
-<p>実数 <span class="math inline">\(\alpha\)</span> が入力される<a href="https://en.wikipedia.org/wiki/Binomial_coefficient">二項係数</a> <span class="math inline">\(\binom{\alpha}{m}\)</span> を計算できる形にします。まずは自然数についての二項係数を展開します。</p>
-<p><span class="math display">\[
-\binom{n}{m}
-= \frac{n!}{m!(n - m)!}
-\,,\qquad n \in \Bbb{N}\,,\quad m \in \Bbb{N}
-\]</span></p>
-<p>階乗は<a href="https://en.wikipedia.org/wiki/Gamma_function">ガンマ関数</a> <span class="math inline">\(\Gamma(n)\)</span> に置き換えられます。</p>
-<p><span class="math display">\[
-\Gamma(n) = (n - 1)!, \qquad n \in \Bbb{N}
-\]</span></p>
-<p>ガンマ関数を用いて二項係数を変形します。</p>
-<p><span class="math display">\[
-\binom{\alpha}{m}
-= \frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)}
-\,,\qquad \alpha \in \Bbb{R}\,,\quad m \in \Bbb{R}
-\]</span></p>
-<p>Grünwald–Letnikovの分数階微分に代入します。</p>
-<p><span class="math display">\[
-d^{\alpha} f(x)
-= \lim_{h \to 0} \frac{1}{h^{\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
-\frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)} f(x - mh)
-\,, \qquad \alpha \in \Bbb{R}
-\]</span></p>
-<p>これで実数 <span class="math inline">\(\alpha\)</span> が入力されても計算できる形になりました。</p>
-<p>ガンマ関数に入力される値が <span class="math inline">\(0\)</span> あるいは負の整数のときは無限大になるので、計算できない場合があります。Grünwald–Letnikovの分数階微分の式では <span class="math inline">\(\alpha &gt; 0\)</span> かつ <span class="math inline">\(m &gt; 0\)</span> かつ <span class="math inline">\(\alpha &gt; m - 1\)</span> のときは問題なく計算できます。</p>
-<p>次のガンマ関数の計算と組み合わせた二項係数の計算はあまり精度が良くありません。できれば信頼できるライブラリを使ってください。</p>
-<h2 id="ガンマ関数の計算">ガンマ関数の計算</h2>
-<p>ガンマ関数の数値計算には<a href="https://en.wikipedia.org/wiki/Lanczos_approximation">Lanczos approximation</a>が使えます。次のコードはJavaScriptでの実装です。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">function</span> <span class="at">gamma</span>(z) <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-2" title="2">  <span class="kw">var</span> p <span class="op">=</span> [</a>
-<a class="sourceLine" id="cb1-3" title="3">    <span class="fl">676.5203681218851</span><span class="op">,</span> <span class="fl">-1259.1392167224028</span><span class="op">,</span> <span class="fl">771.32342877765313</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb1-4" title="4">    <span class="fl">-176.61502916214059</span><span class="op">,</span> <span class="fl">12.507343278686905</span><span class="op">,</span> <span class="fl">-0.13857109526572012</span><span class="op">,</span></a>
-<a class="sourceLine" id="cb1-5" title="5">    <span class="fl">9.9843695780195716e-6</span><span class="op">,</span> <span class="fl">1.5056327351493116e-7</span></a>
-<a class="sourceLine" id="cb1-6" title="6">  ]</a>
-<a class="sourceLine" id="cb1-7" title="7"></a>
-<a class="sourceLine" id="cb1-8" title="8">  <span class="cf">if</span> (z <span class="op">&lt;</span> <span class="fl">0.5</span>) <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-9" title="9">    <span class="cf">return</span> <span class="va">Math</span>.<span class="at">PI</span> / (<span class="va">Math</span>.<span class="at">sin</span>(<span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> z) <span class="op">*</span> <span class="at">gamma</span>(<span class="dv">1</span> <span class="op">-</span> z))</a>
-<a class="sourceLine" id="cb1-10" title="10">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb1-11" title="11"></a>
-<a class="sourceLine" id="cb1-12" title="12">  z <span class="op">-=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb1-13" title="13">  <span class="kw">var</span> a <span class="op">=</span> <span class="fl">0.99999999999980993</span></a>
-<a class="sourceLine" id="cb1-14" title="14">  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">p</span>.<span class="at">length</span><span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-15" title="15">    a <span class="op">+=</span> p[i] / (z <span class="op">+</span> i <span class="op">+</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb1-16" title="16">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb1-17" title="17">  <span class="kw">var</span> t <span class="op">=</span> z <span class="op">+</span> <span class="va">p</span>.<span class="at">length</span> <span class="op">-</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb1-18" title="18">  <span class="cf">return</span> <span class="va">Math</span>.<span class="at">sqrt</span>(<span class="dv">2</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">PI</span>) <span class="op">*</span> <span class="va">Math</span>.<span class="at">pow</span>(t<span class="op">,</span> z <span class="op">+</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="va">Math</span>.<span class="at">exp</span>(<span class="op">-</span>t) <span class="op">*</span> a</a>
-<a class="sourceLine" id="cb1-19" title="19"><span class="op">}</span></a></code></pre></div>
-<h2 id="grünwaldletnikovの分数階積分">Grünwald–Letnikovの分数階積分</h2>
-<p><span class="math inline">\(\alpha\)</span> 階の分数階積分も計算できます。 <span class="math inline">\(-\alpha\)</span> 階微分の形ではガンマ関数に負の値が入ることになるので計算できない場合が出てきます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-d^{-\alpha} f(x)
-&amp;= \lim_{h \to 0} \frac{1}{h^{-\alpha}}
-\sum_{m=0}^{\infty} (-1)^{m} \binom{-\alpha}{m} f(x - mh)
-\\
-&amp;= \lim_{h \to 0} \frac{1}{h^{-\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
-\frac{\Gamma(-\alpha + 1)}{\Gamma(m + 1)\Gamma(-\alpha - m + 1)} f(x - mh)
-\end{aligned}
-\]</span></p>
-<p><a href="https://en.wikipedia.org/wiki/Binomial_coefficient#Generalization_to_negative_integers">負の整数について一般化された二項係数</a>を使って式を変形します。</p>
-<p>負の整数について一般化された二項係数 <span class="math inline">\(\binom{-n}{m}\)</span> を展開します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\binom{-n}{m}
-&amp;= \frac{-n(-n - 1)(-n - 2)(-n - 3) \ldots (-n - m + 1)}{m!}\\
-&amp;= (-1)^{m} \frac{n(n + 1)(n + 2)(n + 3) \ldots (n + m - 1)}{m!}\\
-&amp;= (-1)^{m} \frac{(n + m - 1)!}{m!(n - 1)!}\\
-&amp;= (-1)^{m} \frac{\Gamma(n + m)}{\Gamma(m + 1)\Gamma(n)}
-\end{aligned}
-\]</span></p>
-<p>これで <span class="math inline">\(\alpha\)</span> 階積分が定義できます。</p>
-<p><span class="math display">\[
-d^{-\alpha} f(x)
-= \lim_{h \to 0} \frac{1}{h^{-\alpha}} \sum_{m=0}^{\infty}
-\frac{\Gamma(\alpha + m)}{\Gamma(m + 1)\Gamma(\alpha)} f(x - mh)
-\,, \qquad \alpha \in \Bbb{R}
-\]</span></p>
-<h2 id="分数階微積分の実装">分数階微積分の実装</h2>
-<p>Grünwald–Letnikovの分数階微分と分数階積分を再掲します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-d^{\alpha} f(x)
-&amp;= \lim_{h \to 0} \frac{1}{h^{\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
-\frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)} f(x - mh)
-\\
-d^{-\alpha} f(x)
-&amp;= \lim_{h \to 0} \frac{1}{h^{-\alpha}} \sum_{m=0}^{\infty}
-\frac{\Gamma(\alpha + m)}{\Gamma(m + 1)\Gamma(\alpha)} f(x - mh)
-\end{aligned}
-\]</span></p>
-<p>実装します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ガンマ関数の計算で定義した関数 gamma を使用。</span></a>
-<a class="sourceLine" id="cb2-2" title="2"></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">function</span> <span class="at">fractionalDerivative</span>(func<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-4" title="4">  <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-5" title="5">  <span class="kw">var</span> sign <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-6" title="6">  <span class="cf">for</span> (<span class="kw">var</span> m <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> m <span class="op">&lt;</span> MAX_SUM<span class="op">;</span> <span class="op">++</span>m) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-7" title="7">    sum <span class="op">+=</span> sign / <span class="at">gamma</span>(m <span class="op">+</span> <span class="dv">1</span>) / <span class="at">gamma</span>(alpha <span class="op">-</span> m <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="at">func</span>(x <span class="op">-</span> m <span class="op">*</span> h)</a>
-<a class="sourceLine" id="cb2-8" title="8">    sign <span class="op">*=</span> <span class="dv">-1</span></a>
-<a class="sourceLine" id="cb2-9" title="9">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb2-10" title="10">  <span class="cf">return</span> sum <span class="op">*</span> <span class="at">gamma</span>(alpha <span class="op">+</span> <span class="dv">1</span>) / h <span class="op">**</span> alpha</a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="op">}</span></a>
-<a class="sourceLine" id="cb2-12" title="12"></a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="kw">function</span> <span class="at">fractionalIntegral</span>(func<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-14" title="14">  alpha <span class="op">=</span> <span class="op">-</span>alpha</a>
-<a class="sourceLine" id="cb2-15" title="15">  <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-16" title="16">  <span class="cf">for</span> (<span class="kw">var</span> m <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> m <span class="op">&lt;</span> MAX_SUM<span class="op">;</span> <span class="op">++</span>m) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-17" title="17">    sum <span class="op">+=</span> <span class="at">gamma</span>(alpha <span class="op">+</span> m) / <span class="at">gamma</span>(m <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="at">func</span>(x <span class="op">-</span> m <span class="op">*</span> h)</a>
-<a class="sourceLine" id="cb2-18" title="18">  <span class="op">}</span></a>
-<a class="sourceLine" id="cb2-19" title="19">  <span class="cf">return</span> sum / <span class="at">gamma</span>(alpha) <span class="op">*</span> h <span class="op">**</span> alpha</a>
-<a class="sourceLine" id="cb2-20" title="20"><span class="op">}</span></a>
-<a class="sourceLine" id="cb2-21" title="21"></a>
-<a class="sourceLine" id="cb2-22" title="22"><span class="co">// 計算する関数とパラメータ。</span></a>
-<a class="sourceLine" id="cb2-23" title="23"><span class="co">// alpha が正の値なら微分、負の値なら積分。</span></a>
-<a class="sourceLine" id="cb2-24" title="24"><span class="kw">var</span> MAX_SUM <span class="op">=</span> <span class="dv">128</span></a>
-<a class="sourceLine" id="cb2-25" title="25"><span class="kw">var</span> exampleFunc <span class="op">=</span> (x) <span class="kw">=&gt;</span> <span class="op">{</span> <span class="cf">return</span> x <span class="op">*</span> <span class="va">Math</span>.<span class="at">sin</span>(x) <span class="op">}</span></a>
-<a class="sourceLine" id="cb2-26" title="26"><span class="kw">var</span> alpha <span class="op">=</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb2-27" title="27"><span class="kw">var</span> h <span class="op">=</span> <span class="fl">0.01</span></a>
-<a class="sourceLine" id="cb2-28" title="28"></a>
-<a class="sourceLine" id="cb2-29" title="29"><span class="kw">var</span> maxI <span class="op">=</span> <span class="dv">1024</span> <span class="op">-</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-30" title="30"><span class="kw">var</span> maxX <span class="op">=</span> <span class="dv">10</span></a>
-<a class="sourceLine" id="cb2-31" title="31"><span class="kw">var</span> result <span class="op">=</span> []</a>
-<a class="sourceLine" id="cb2-32" title="32"><span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> maxI<span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
-<a class="sourceLine" id="cb2-33" title="33">  <span class="kw">var</span> x <span class="op">=</span> maxX <span class="op">*</span> i / maxI</a>
-<a class="sourceLine" id="cb2-34" title="34">  <span class="kw">var</span> deriv <span class="op">=</span> <span class="at">fractionalDerivative</span>(exampleFunc<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h)</a>
-<a class="sourceLine" id="cb2-35" title="35">  <span class="kw">var</span> integ <span class="op">=</span> <span class="at">fractionalIntegral</span>(exampleFunc<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h)</a>
-<a class="sourceLine" id="cb2-36" title="36">  <span class="va">result</span>.<span class="at">push</span>([deriv<span class="op">,</span> integ])</a>
-<a class="sourceLine" id="cb2-37" title="37"><span class="op">}</span></a>
-<a class="sourceLine" id="cb2-38" title="38"><span class="va">console</span>.<span class="at">log</span>(result)</a></code></pre></div>
-<h2 id="デモ">デモ</h2>
-<script src="demo/fft.js"></script>
-<script src="demo/vec2.js"></script>
-<script src="demo/canvas.js"></script>
-<script>
-function gamma(z) {
-  var p = [
-    676.5203681218851,
-    -1259.1392167224028,
-    771.32342877765313,
-    -176.61502916214059,
-    12.507343278686905,
-    -0.13857109526572012,
-    9.9843695780195716e-6,
-    1.5056327351493116e-7
-  ]
-
-  if (z < 0.5) {
-    return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z))
-  }
-
-  z -= 1
-  var a = 0.99999999999980993
-  for (var i = 0; i < p.length; ++i) {
-    a += p[i] / (z + i + 1)
-  }
-  var t = z + p.length - 0.5
-  return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * a
-}
-
-class GrunwaldLetnikov {
-  constructor(func, alpha, delta, maxX = 1) {
-    this.func = func
-    this.alpha = alpha
-    this.delta = delta
-    this.maxIter = 128
-
-    this.maxX = maxX
-  }
-
-  fractionalDerivative(x) {
-    var sum = 0
-    var sign = 1
-    for (var m = 0; m < this.maxIter; ++m) {
-      sum += sign / gamma(m + 1) / gamma(this.alpha - m + 1)
-        * this.func(x - m * this.delta)
-      sign *= -1
-    }
-    return sum * gamma(this.alpha + 1) / this.delta ** this.alpha
-  }
-
-  fractionalIntegral(x) {
-    var alpha = -this.alpha
-    var sum = 0
-    for (var m = 0; m < this.maxIter; ++m) {
-      sum += gamma(alpha + m) / gamma(m + 1) * this.func(x - m * this.delta)
-    }
-    return sum / gamma(alpha) * this.delta ** alpha
-  }
-
-  fractionalDifferintegral(x) {
-    if (this.alpha > 0) {
-      return this.fractionalDerivative(x)
-    }
-    else if (this.alpha < 0) {
-      return this.fractionalIntegral(x)
-    }
-    return func(x)
-  }
-
-  getDerivative(canvas, func) {
-    var line = new Array(canvas.width).fill(0)
-    var min = Number.MAX_VALUE
-    var max = -Number.MAX_VALUE
-    var denom = canvas.width - 1
-    for (var x = 0; x < canvas.width; ++x) {
-      line[x] = new Vec2(x, func(2 * this.maxX * x / denom - this.maxX))
-      if (max < line[x].y) {
-        max = line[x].y
-      }
-      if (min > line[x].y) {
-        min = line[x].y
-      }
-    }
-
-    min = Number.isFinite(min) ? min : Number.MAX_VALUE
-    max = Number.isFinite(max) ? max : -Number.MAX_VALUE
-    return [line, min, max]
-  }
-
-  drawText(canvas, min, max) {
-    var fontSize = 12
-    var fontSizeHalf = fontSize / 2
-    var lineSpace = fontSize + 2
-    canvas.context.font = `${fontSize}px monospace`
-
-    var texts = [
-      `x: [0, ${this.maxX}]`,
-      `y: [${min}, ${max}]`
+  <p><a href="https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf">Loverroの “Fractional Calculus: History, Definitions and Applications for the Engineer”</a>に沿って、数値計算がしやすそうなGrünwald–Letnikovの<a href="https://en.wikipedia.org/wiki/Fractional_calculus">分数階微積分</a>について見ていきます。</p>
+  <h2 id="分数階微積分とは">分数階微積分とは</h2>
+  <p>ここではざっくりとした導入だけを行います。基本的な理論については次の資料が参考になります。</p>
+  <ul>
+  <li><a href="https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf">Fractional Calculus: History, Definitions and Applications for the Engineer</a></li>
+  <li><a href="http://www.xuru.org/fc/TOC.asp">Fractional Calculus - Xuru’s Website</a></li>
+  <li><a href="https://www.youtube.com/watch?v=7PCQmxlX9mU">Fractional order derivative of a function &amp; fractional numbers’ factorial. - YouTube</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Fractional_calculus">Fractional calculus - Wikipedia</a></li>
+  </ul>
+  <p>分数階微分について考えます。微分演算子 <span class="math inline">\(D\)</span> を導入します。</p>
+  <p><span class="math display">\[
+  D f(x) = \frac{d}{dx} f(x)
+  \]</span></p>
+  <p>例えば <span class="math inline">\(1 / 2\)</span> 階微分を <span class="math inline">\(2\)</span> 回繰り返すと1階微分になります。</p>
+  <p><span class="math display">\[
+  D^{\frac{1}{2}} \left( D^{\frac{1}{2}} f(x) \right)
+  = D f(x)
+  \]</span></p>
+  <p><span class="math inline">\(1 / 3\)</span> 階微分を <span class="math inline">\(3\)</span> 回繰り返すと1階微分になります。</p>
+  <p><span class="math display">\[
+  D^{\frac{1}{3}} \left(
+  D^{\frac{1}{3}} \left(
+    D^{\frac{1}{3}} f(x) \right) \right)
+  = \frac{d}{dx} f(x)
+  \]</span></p>
+  <p>つまり <span class="math inline">\(1 / q\)</span> 階微分を <span class="math inline">\(q\)</span> 回繰り返すと1階微分になります。</p>
+  <p><span class="math display">\[
+  \underbrace{
+    D^{\frac{1}{q}} \left( \ldots \left( D^{\frac{1}{q}} f(x) \right) \right)
+  }_\text{1/q differentiation for q times}
+  = \frac{d}{dx} f(x)
+  \]</span></p>
+  <p>分数階積分も同様に捉えることができます。積分演算子 <span class="math inline">\(J\)</span> を定義します。</p>
+  <p><span class="math display">\[
+  J f(x) = \int_{0}^{x} f(s) ds
+  \]</span></p>
+  <p><span class="math inline">\(1 / q\)</span> 階積分を <span class="math inline">\(q\)</span> 回繰り返すと1階積分になります。</p>
+  <p><span class="math display">\[
+  \underbrace{
+    J^{\frac{1}{q}} \left( \ldots \left( J^{\frac{1}{q}} f(x) \right) \right)
+  }_\text{1/q integration for q times}
+  = \int_{0}^{x} f(s) ds
+  \]</span></p>
+  <p>分数階微積分が物理的にどういう意味を持つのかはよくわかりませんが、<a href="http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf">波動方程式への応用</a>が提案されています。</p>
+  <h2 id="grünwaldletnikovの分数階微分">Grünwald–Letnikovの分数階微分</h2>
+  <p><a href="https://en.wikipedia.org/wiki/Differential_of_a_function#Higher-order_differentials"><span class="math inline">\(n\)</span> 階微分の差分形</a>です。</p>
+  <p><span class="math display">\[
+  d^n f(x) = \lim_{h \to 0} \frac{1}{h^n}
+  \sum_{m=0}^{n} (-1)^{m} \binom{n}{m} f(x - mh)
+  \,,\qquad n \in \Bbb{N}
+  \]</span></p>
+  <p><span class="math inline">\(m &gt; n\)</span> のとき <span class="math inline">\(\binom{n}{m} = 0\)</span> なので総和の上限を無限にできます。</p>
+  <p><span class="math display">\[
+  d^n f(x) = \lim_{h \to 0} \frac{1}{h^n}
+  \sum_{m=0}^{\infty} (-1)^{m} \binom{n}{m} f(x - mh)
+  \,,\qquad n \in \Bbb{N}
+  \]</span></p>
+  <p>自然数 <span class="math inline">\(n\)</span> を実数 <span class="math inline">\(\alpha\)</span> に置き換えます。</p>
+  <p><span class="math display">\[
+  d^\alpha f(x) = \lim_{h \to 0} \frac{1}{h^\alpha}
+  \sum_{m=0}^{\infty} (-1)^{m} \binom{\alpha}{m} f(x - mh)
+  \,,\qquad \alpha \in \Bbb{R}
+  \]</span></p>
+  <p>この形がGrünwald–Letnikovの分数階微分です。</p>
+  <h2 id="二項係数の計算">二項係数の計算</h2>
+  <p>実数 <span class="math inline">\(\alpha\)</span> が入力される<a href="https://en.wikipedia.org/wiki/Binomial_coefficient">二項係数</a> <span class="math inline">\(\binom{\alpha}{m}\)</span> を計算できる形にします。まずは自然数についての二項係数を展開します。</p>
+  <p><span class="math display">\[
+  \binom{n}{m}
+  = \frac{n!}{m!(n - m)!}
+  \,,\qquad n \in \Bbb{N}\,,\quad m \in \Bbb{N}
+  \]</span></p>
+  <p>階乗は<a href="https://en.wikipedia.org/wiki/Gamma_function">ガンマ関数</a> <span class="math inline">\(\Gamma(n)\)</span> に置き換えられます。</p>
+  <p><span class="math display">\[
+  \Gamma(n) = (n - 1)!, \qquad n \in \Bbb{N}
+  \]</span></p>
+  <p>ガンマ関数を用いて二項係数を変形します。</p>
+  <p><span class="math display">\[
+  \binom{\alpha}{m}
+  = \frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)}
+  \,,\qquad \alpha \in \Bbb{R}\,,\quad m \in \Bbb{R}
+  \]</span></p>
+  <p>Grünwald–Letnikovの分数階微分に代入します。</p>
+  <p><span class="math display">\[
+  d^{\alpha} f(x)
+  = \lim_{h \to 0} \frac{1}{h^{\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
+  \frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)} f(x - mh)
+  \,, \qquad \alpha \in \Bbb{R}
+  \]</span></p>
+  <p>これで実数 <span class="math inline">\(\alpha\)</span> が入力されても計算できる形になりました。</p>
+  <p>ガンマ関数に入力される値が <span class="math inline">\(0\)</span> あるいは負の整数のときは無限大になるので、計算できない場合があります。Grünwald–Letnikovの分数階微分の式では <span class="math inline">\(\alpha &gt; 0\)</span> かつ <span class="math inline">\(m &gt; 0\)</span> かつ <span class="math inline">\(\alpha &gt; m - 1\)</span> のときは問題なく計算できます。</p>
+  <p>次のガンマ関数の計算と組み合わせた二項係数の計算はあまり精度が良くありません。できれば信頼できるライブラリを使ってください。</p>
+  <h2 id="ガンマ関数の計算">ガンマ関数の計算</h2>
+  <p>ガンマ関数の数値計算には<a href="https://en.wikipedia.org/wiki/Lanczos_approximation">Lanczos approximation</a>が使えます。次のコードはJavaScriptでの実装です。</p>
+  <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">function</span> <span class="at">gamma</span>(z) <span class="op">{</span></a>
+  <a class="sourceLine" id="cb1-2" title="2">  <span class="kw">var</span> p <span class="op">=</span> [</a>
+  <a class="sourceLine" id="cb1-3" title="3">    <span class="fl">676.5203681218851</span><span class="op">,</span> <span class="fl">-1259.1392167224028</span><span class="op">,</span> <span class="fl">771.32342877765313</span><span class="op">,</span></a>
+  <a class="sourceLine" id="cb1-4" title="4">    <span class="fl">-176.61502916214059</span><span class="op">,</span> <span class="fl">12.507343278686905</span><span class="op">,</span> <span class="fl">-0.13857109526572012</span><span class="op">,</span></a>
+  <a class="sourceLine" id="cb1-5" title="5">    <span class="fl">9.9843695780195716e-6</span><span class="op">,</span> <span class="fl">1.5056327351493116e-7</span></a>
+  <a class="sourceLine" id="cb1-6" title="6">  ]</a>
+  <a class="sourceLine" id="cb1-7" title="7"></a>
+  <a class="sourceLine" id="cb1-8" title="8">  <span class="cf">if</span> (z <span class="op">&lt;</span> <span class="fl">0.5</span>) <span class="op">{</span></a>
+  <a class="sourceLine" id="cb1-9" title="9">    <span class="cf">return</span> <span class="va">Math</span>.<span class="at">PI</span> / (<span class="va">Math</span>.<span class="at">sin</span>(<span class="va">Math</span>.<span class="at">PI</span> <span class="op">*</span> z) <span class="op">*</span> <span class="at">gamma</span>(<span class="dv">1</span> <span class="op">-</span> z))</a>
+  <a class="sourceLine" id="cb1-10" title="10">  <span class="op">}</span></a>
+  <a class="sourceLine" id="cb1-11" title="11"></a>
+  <a class="sourceLine" id="cb1-12" title="12">  z <span class="op">-=</span> <span class="dv">1</span></a>
+  <a class="sourceLine" id="cb1-13" title="13">  <span class="kw">var</span> a <span class="op">=</span> <span class="fl">0.99999999999980993</span></a>
+  <a class="sourceLine" id="cb1-14" title="14">  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">p</span>.<span class="at">length</span><span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+  <a class="sourceLine" id="cb1-15" title="15">    a <span class="op">+=</span> p[i] / (z <span class="op">+</span> i <span class="op">+</span> <span class="dv">1</span>)</a>
+  <a class="sourceLine" id="cb1-16" title="16">  <span class="op">}</span></a>
+  <a class="sourceLine" id="cb1-17" title="17">  <span class="kw">var</span> t <span class="op">=</span> z <span class="op">+</span> <span class="va">p</span>.<span class="at">length</span> <span class="op">-</span> <span class="fl">0.5</span></a>
+  <a class="sourceLine" id="cb1-18" title="18">  <span class="cf">return</span> <span class="va">Math</span>.<span class="at">sqrt</span>(<span class="dv">2</span> <span class="op">*</span> <span class="va">Math</span>.<span class="at">PI</span>) <span class="op">*</span> <span class="va">Math</span>.<span class="at">pow</span>(t<span class="op">,</span> z <span class="op">+</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="va">Math</span>.<span class="at">exp</span>(<span class="op">-</span>t) <span class="op">*</span> a</a>
+  <a class="sourceLine" id="cb1-19" title="19"><span class="op">}</span></a></code></pre></div>
+  <h2 id="grünwaldletnikovの分数階積分">Grünwald–Letnikovの分数階積分</h2>
+  <p><span class="math inline">\(\alpha\)</span> 階の分数階積分も計算できます。 <span class="math inline">\(-\alpha\)</span> 階微分の形ではガンマ関数に負の値が入ることになるので計算できない場合が出てきます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  d^{-\alpha} f(x)
+  &amp;= \lim_{h \to 0} \frac{1}{h^{-\alpha}}
+  \sum_{m=0}^{\infty} (-1)^{m} \binom{-\alpha}{m} f(x - mh)
+  \\
+  &amp;= \lim_{h \to 0} \frac{1}{h^{-\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
+  \frac{\Gamma(-\alpha + 1)}{\Gamma(m + 1)\Gamma(-\alpha - m + 1)} f(x - mh)
+  \end{aligned}
+  \]</span></p>
+  <p><a href="https://en.wikipedia.org/wiki/Binomial_coefficient#Generalization_to_negative_integers">負の整数について一般化された二項係数</a>を使って式を変形します。</p>
+  <p>負の整数について一般化された二項係数 <span class="math inline">\(\binom{-n}{m}\)</span> を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \binom{-n}{m}
+  &amp;= \frac{-n(-n - 1)(-n - 2)(-n - 3) \ldots (-n - m + 1)}{m!}\\
+  &amp;= (-1)^{m} \frac{n(n + 1)(n + 2)(n + 3) \ldots (n + m - 1)}{m!}\\
+  &amp;= (-1)^{m} \frac{(n + m - 1)!}{m!(n - 1)!}\\
+  &amp;= (-1)^{m} \frac{\Gamma(n + m)}{\Gamma(m + 1)\Gamma(n)}
+  \end{aligned}
+  \]</span></p>
+  <p>これで <span class="math inline">\(\alpha\)</span> 階積分が定義できます。</p>
+  <p><span class="math display">\[
+  d^{-\alpha} f(x)
+  = \lim_{h \to 0} \frac{1}{h^{-\alpha}} \sum_{m=0}^{\infty}
+  \frac{\Gamma(\alpha + m)}{\Gamma(m + 1)\Gamma(\alpha)} f(x - mh)
+  \,, \qquad \alpha \in \Bbb{R}
+  \]</span></p>
+  <h2 id="分数階微積分の実装">分数階微積分の実装</h2>
+  <p>Grünwald–Letnikovの分数階微分と分数階積分を再掲します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  d^{\alpha} f(x)
+  &amp;= \lim_{h \to 0} \frac{1}{h^{\alpha}} \sum_{m=0}^{\infty} (-1)^{m}
+  \frac{\Gamma(\alpha + 1)}{\Gamma(m + 1)\Gamma(\alpha - m + 1)} f(x - mh)
+  \\
+  d^{-\alpha} f(x)
+  &amp;= \lim_{h \to 0} \frac{1}{h^{-\alpha}} \sum_{m=0}^{\infty}
+  \frac{\Gamma(\alpha + m)}{\Gamma(m + 1)\Gamma(\alpha)} f(x - mh)
+  \end{aligned}
+  \]</span></p>
+  <p>実装します。</p>
+  <div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// ガンマ関数の計算で定義した関数 gamma を使用。</span></a>
+  <a class="sourceLine" id="cb2-2" title="2"></a>
+  <a class="sourceLine" id="cb2-3" title="3"><span class="kw">function</span> <span class="at">fractionalDerivative</span>(func<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h) <span class="op">{</span></a>
+  <a class="sourceLine" id="cb2-4" title="4">  <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></a>
+  <a class="sourceLine" id="cb2-5" title="5">  <span class="kw">var</span> sign <span class="op">=</span> <span class="dv">1</span></a>
+  <a class="sourceLine" id="cb2-6" title="6">  <span class="cf">for</span> (<span class="kw">var</span> m <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> m <span class="op">&lt;</span> MAX_SUM<span class="op">;</span> <span class="op">++</span>m) <span class="op">{</span></a>
+  <a class="sourceLine" id="cb2-7" title="7">    sum <span class="op">+=</span> sign / <span class="at">gamma</span>(m <span class="op">+</span> <span class="dv">1</span>) / <span class="at">gamma</span>(alpha <span class="op">-</span> m <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="at">func</span>(x <span class="op">-</span> m <span class="op">*</span> h)</a>
+  <a class="sourceLine" id="cb2-8" title="8">    sign <span class="op">*=</span> <span class="dv">-1</span></a>
+  <a class="sourceLine" id="cb2-9" title="9">  <span class="op">}</span></a>
+  <a class="sourceLine" id="cb2-10" title="10">  <span class="cf">return</span> sum <span class="op">*</span> <span class="at">gamma</span>(alpha <span class="op">+</span> <span class="dv">1</span>) / h <span class="op">**</span> alpha</a>
+  <a class="sourceLine" id="cb2-11" title="11"><span class="op">}</span></a>
+  <a class="sourceLine" id="cb2-12" title="12"></a>
+  <a class="sourceLine" id="cb2-13" title="13"><span class="kw">function</span> <span class="at">fractionalIntegral</span>(func<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h) <span class="op">{</span></a>
+  <a class="sourceLine" id="cb2-14" title="14">  alpha <span class="op">=</span> <span class="op">-</span>alpha</a>
+  <a class="sourceLine" id="cb2-15" title="15">  <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></a>
+  <a class="sourceLine" id="cb2-16" title="16">  <span class="cf">for</span> (<span class="kw">var</span> m <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> m <span class="op">&lt;</span> MAX_SUM<span class="op">;</span> <span class="op">++</span>m) <span class="op">{</span></a>
+  <a class="sourceLine" id="cb2-17" title="17">    sum <span class="op">+=</span> <span class="at">gamma</span>(alpha <span class="op">+</span> m) / <span class="at">gamma</span>(m <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="at">func</span>(x <span class="op">-</span> m <span class="op">*</span> h)</a>
+  <a class="sourceLine" id="cb2-18" title="18">  <span class="op">}</span></a>
+  <a class="sourceLine" id="cb2-19" title="19">  <span class="cf">return</span> sum / <span class="at">gamma</span>(alpha) <span class="op">*</span> h <span class="op">**</span> alpha</a>
+  <a class="sourceLine" id="cb2-20" title="20"><span class="op">}</span></a>
+  <a class="sourceLine" id="cb2-21" title="21"></a>
+  <a class="sourceLine" id="cb2-22" title="22"><span class="co">// 計算する関数とパラメータ。</span></a>
+  <a class="sourceLine" id="cb2-23" title="23"><span class="co">// alpha が正の値なら微分、負の値なら積分。</span></a>
+  <a class="sourceLine" id="cb2-24" title="24"><span class="kw">var</span> MAX_SUM <span class="op">=</span> <span class="dv">128</span></a>
+  <a class="sourceLine" id="cb2-25" title="25"><span class="kw">var</span> exampleFunc <span class="op">=</span> (x) <span class="kw">=&gt;</span> <span class="op">{</span> <span class="cf">return</span> x <span class="op">*</span> <span class="va">Math</span>.<span class="at">sin</span>(x) <span class="op">}</span></a>
+  <a class="sourceLine" id="cb2-26" title="26"><span class="kw">var</span> alpha <span class="op">=</span> <span class="fl">0.5</span></a>
+  <a class="sourceLine" id="cb2-27" title="27"><span class="kw">var</span> h <span class="op">=</span> <span class="fl">0.01</span></a>
+  <a class="sourceLine" id="cb2-28" title="28"></a>
+  <a class="sourceLine" id="cb2-29" title="29"><span class="kw">var</span> maxI <span class="op">=</span> <span class="dv">1024</span> <span class="op">-</span> <span class="dv">1</span></a>
+  <a class="sourceLine" id="cb2-30" title="30"><span class="kw">var</span> maxX <span class="op">=</span> <span class="dv">10</span></a>
+  <a class="sourceLine" id="cb2-31" title="31"><span class="kw">var</span> result <span class="op">=</span> []</a>
+  <a class="sourceLine" id="cb2-32" title="32"><span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;=</span> maxI<span class="op">;</span> <span class="op">++</span>i) <span class="op">{</span></a>
+  <a class="sourceLine" id="cb2-33" title="33">  <span class="kw">var</span> x <span class="op">=</span> maxX <span class="op">*</span> i / maxI</a>
+  <a class="sourceLine" id="cb2-34" title="34">  <span class="kw">var</span> deriv <span class="op">=</span> <span class="at">fractionalDerivative</span>(exampleFunc<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h)</a>
+  <a class="sourceLine" id="cb2-35" title="35">  <span class="kw">var</span> integ <span class="op">=</span> <span class="at">fractionalIntegral</span>(exampleFunc<span class="op">,</span> x<span class="op">,</span> alpha<span class="op">,</span> h)</a>
+  <a class="sourceLine" id="cb2-36" title="36">  <span class="va">result</span>.<span class="at">push</span>([deriv<span class="op">,</span> integ])</a>
+  <a class="sourceLine" id="cb2-37" title="37"><span class="op">}</span></a>
+  <a class="sourceLine" id="cb2-38" title="38"><span class="va">console</span>.<span class="at">log</span>(result)</a></code></pre></div>
+  <h2 id="デモ">デモ</h2>
+  <script src="demo/fft.js"></script>
+  <script src="demo/vec2.js"></script>
+  <script src="demo/canvas.js"></script>
+  <script>
+  function gamma(z) {
+    var p = [
+      676.5203681218851,
+      -1259.1392167224028,
+      771.32342877765313,
+      -176.61502916214059,
+      12.507343278686905,
+      -0.13857109526572012,
+      9.9843695780195716e-6,
+      1.5056327351493116e-7
     ]
-
-    var maxTextWidth = 0
-    for (var i = 0; i < texts.length; ++i) {
-      var textWidth = canvas.context.measureText(texts[i]).width
-      if (maxTextWidth < textWidth) {
-        maxTextWidth = textWidth
+  
+    if (z < 0.5) {
+      return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z))
+    }
+  
+    z -= 1
+    var a = 0.99999999999980993
+    for (var i = 0; i < p.length; ++i) {
+      a += p[i] / (z + i + 1)
+    }
+    var t = z + p.length - 0.5
+    return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * a
+  }
+  
+  class GrunwaldLetnikov {
+    constructor(func, alpha, delta, maxX = 1) {
+      this.func = func
+      this.alpha = alpha
+      this.delta = delta
+      this.maxIter = 128
+  
+      this.maxX = maxX
+    }
+  
+    fractionalDerivative(x) {
+      var sum = 0
+      var sign = 1
+      for (var m = 0; m < this.maxIter; ++m) {
+        sum += sign / gamma(m + 1) / gamma(this.alpha - m + 1)
+          * this.func(x - m * this.delta)
+        sign *= -1
+      }
+      return sum * gamma(this.alpha + 1) / this.delta ** this.alpha
+    }
+  
+    fractionalIntegral(x) {
+      var alpha = -this.alpha
+      var sum = 0
+      for (var m = 0; m < this.maxIter; ++m) {
+        sum += gamma(alpha + m) / gamma(m + 1) * this.func(x - m * this.delta)
+      }
+      return sum / gamma(alpha) * this.delta ** alpha
+    }
+  
+    fractionalDifferintegral(x) {
+      if (this.alpha > 0) {
+        return this.fractionalDerivative(x)
+      }
+      else if (this.alpha < 0) {
+        return this.fractionalIntegral(x)
+      }
+      return func(x)
+    }
+  
+    getDerivative(canvas, func) {
+      var line = new Array(canvas.width).fill(0)
+      var min = Number.MAX_VALUE
+      var max = -Number.MAX_VALUE
+      var denom = canvas.width - 1
+      for (var x = 0; x < canvas.width; ++x) {
+        line[x] = new Vec2(x, func(2 * this.maxX * x / denom - this.maxX))
+        if (max < line[x].y) {
+          max = line[x].y
+        }
+        if (min > line[x].y) {
+          min = line[x].y
+        }
+      }
+  
+      min = Number.isFinite(min) ? min : Number.MAX_VALUE
+      max = Number.isFinite(max) ? max : -Number.MAX_VALUE
+      return [line, min, max]
+    }
+  
+    drawText(canvas, min, max) {
+      var fontSize = 12
+      var fontSizeHalf = fontSize / 2
+      var lineSpace = fontSize + 2
+      canvas.context.font = `${fontSize}px monospace`
+  
+      var texts = [
+        `x: [0, ${this.maxX}]`,
+        `y: [${min}, ${max}]`
+      ]
+  
+      var maxTextWidth = 0
+      for (var i = 0; i < texts.length; ++i) {
+        var textWidth = canvas.context.measureText(texts[i]).width
+        if (maxTextWidth < textWidth) {
+          maxTextWidth = textWidth
+        }
+      }
+  
+      canvas.context.fillStyle = "#ffffffb0"
+      canvas.context.fillRect(0, 0, maxTextWidth + fontSizeHalf, 2.2 * lineSpace)
+  
+      canvas.context.fillStyle = "#303030"
+      for (var i = 0; i < texts.length; ++i) {
+        canvas.context.fillText(texts[i], fontSizeHalf, (i + 1) * lineSpace)
       }
     }
-
-    canvas.context.fillStyle = "#ffffffb0"
-    canvas.context.fillRect(0, 0, maxTextWidth + fontSizeHalf, 2.2 * lineSpace)
-
-    canvas.context.fillStyle = "#303030"
-    for (var i = 0; i < texts.length; ++i) {
-      canvas.context.fillText(texts[i], fontSizeHalf, (i + 1) * lineSpace)
-    }
-  }
-
-  drawPlot(canvas) {
-    var [lineD, minD, maxD]
-      = this.getDerivative(canvas, (x) => this.fractionalDerivative(x))
-    var [lineI, minI, maxI]
-      = this.getDerivative(canvas, (x) => this.fractionalIntegral(x))
-    var min = minD < minI ? minD : minI
-    var max = maxD > maxI ? maxD : maxI
-    var diff = max - min
-    for (var i = 0; i < canvas.width; ++i) {
-      lineD[i].y = canvas.height - canvas.height * (lineD[i].y - min) / diff
-      lineI[i].y = canvas.height - canvas.height * (lineI[i].y - min) / diff
-    }
-
-    var yZero = canvas.height + min / diff * canvas.height
-    canvas.context.lineWidth = 1
-    canvas.context.setLineDash([])
-    canvas.context.strokeStyle = "#808080"
-    canvas.drawLine(new Vec2(0, yZero), new Vec2(canvas.width, yZero))
-    var halfWidth = canvas.width / 2
-    canvas.drawLine(new Vec2(halfWidth, 0), new Vec2(halfWidth, canvas.height))
-
-    canvas.context.font = `18px monospace`
-    canvas.context.fillStyle = "#303030"
-    canvas.context.fillText(`0`, halfWidth, yZero - 2)
-
-    canvas.context.lineJoin = "round"
-    canvas.context.lineWidth = 3
-
-    canvas.context.setLineDash([])
-    canvas.context.strokeStyle = "#303030"
-    canvas.drawPath(lineD)
-
-    canvas.context.setLineDash([1])
-    canvas.context.strokeStyle = "#ff0000"
-    canvas.drawPath(lineI)
-
-    return [min, max]
-  }
-
-  draw(canvas) {
-    canvas.clearWhite()
-
-    // Plotting.
-    var [min, max] = this.drawPlot(canvas)
-    this.drawText(canvas, min, max)
-  }
-}
-
-// Fourier transform based derivative computation.
-// This class uses FFT.js by indutny.
-// https://github.com/indutny/fft.js
-class FtDerivative {
-  constructor(func = (x) => Math.sin(2 * Math.PI * x), alpha = 1) {
-    this.alpha = alpha
-
-    this.data = new Array(ftDerivativeCanvas.width)
-    var dataLast = this.data.length - 1
-    for (var i = 0; i < this.data.length; ++i) {
-      this.data[i] = func(i / dataLast)
-    }
-    this.fft = new FFT(this.data.length)
-    this.inputSpectrum = this.fft.createComplexArray()
-    this.fft.realTransform(this.inputSpectrum, this.data)
-    this.specLast = this.inputSpectrum.length - 1
-
-    this.outputSpectrum = new Array(this.inputSpectrum.length).fill(0)
-    this.outputComplex = new Array(this.inputSpectrum.length).fill(0)
-    this.output = new Array(this.data.length)
-    this.setMinMax(this.output)
-  }
-
-  compute() {
-    this.outputSpectrum[0] = this.inputSpectrum[0]
-    this.outputSpectrum[1] = this.inputSpectrum[1]
-    for (var curr = 2; curr < this.inputSpectrum.length; curr += 2) {
-      var next = curr + 1
-
-      // (j * omega ** alpha) * F(omega)
-      var omega = Math.PI * curr / this.specLast
-      var real = this.alpha * Math.log(Math.abs(omega))
-      var imag = this.alpha * Math.PI / 2
-
-      var expReal = Math.exp(real)
-      real = expReal * Math.cos(imag)
-      imag = expReal * Math.sin(imag)
-
-      var specReal = this.inputSpectrum[curr]
-      var specImag = this.inputSpectrum[next]
-      var realTemp = real
-      this.outputSpectrum[curr] = specReal * real - specImag * imag
-      this.outputSpectrum[next] = specReal * imag + specImag * realTemp
-    }
-    this.fft.inverseTransform(this.outputComplex, this.outputSpectrum)
-    this.output = this.fft.fromComplexArray(this.outputComplex)
-    this.setMinMax(this.output)
-  }
-
-  setMinMax(data) {
-    this.min = Number.MAX_VALUE
-    this.max = -Number.MAX_VALUE
-    for (var i = 0; i < data.length; ++i) {
-      if (this.max < data[i]) {
-        this.max = data[i]
+  
+    drawPlot(canvas) {
+      var [lineD, minD, maxD]
+        = this.getDerivative(canvas, (x) => this.fractionalDerivative(x))
+      var [lineI, minI, maxI]
+        = this.getDerivative(canvas, (x) => this.fractionalIntegral(x))
+      var min = minD < minI ? minD : minI
+      var max = maxD > maxI ? maxD : maxI
+      var diff = max - min
+      for (var i = 0; i < canvas.width; ++i) {
+        lineD[i].y = canvas.height - canvas.height * (lineD[i].y - min) / diff
+        lineI[i].y = canvas.height - canvas.height * (lineI[i].y - min) / diff
       }
-      if (this.min > data[i]) {
-        this.min = data[i]
+  
+      var yZero = canvas.height + min / diff * canvas.height
+      canvas.context.lineWidth = 1
+      canvas.context.setLineDash([])
+      canvas.context.strokeStyle = "#808080"
+      canvas.drawLine(new Vec2(0, yZero), new Vec2(canvas.width, yZero))
+      var halfWidth = canvas.width / 2
+      canvas.drawLine(new Vec2(halfWidth, 0), new Vec2(halfWidth, canvas.height))
+  
+      canvas.context.font = `18px monospace`
+      canvas.context.fillStyle = "#303030"
+      canvas.context.fillText(`0`, halfWidth, yZero - 2)
+  
+      canvas.context.lineJoin = "round"
+      canvas.context.lineWidth = 3
+  
+      canvas.context.setLineDash([])
+      canvas.context.strokeStyle = "#303030"
+      canvas.drawPath(lineD)
+  
+      canvas.context.setLineDash([1])
+      canvas.context.strokeStyle = "#ff0000"
+      canvas.drawPath(lineI)
+  
+      return [min, max]
+    }
+  
+    draw(canvas) {
+      canvas.clearWhite()
+  
+      // Plotting.
+      var [min, max] = this.drawPlot(canvas)
+      this.drawText(canvas, min, max)
+    }
+  }
+  
+  // Fourier transform based derivative computation.
+  // This class uses FFT.js by indutny.
+  // https://github.com/indutny/fft.js
+  class FtDerivative {
+    constructor(func = (x) => Math.sin(2 * Math.PI * x), alpha = 1) {
+      this.alpha = alpha
+  
+      this.data = new Array(ftDerivativeCanvas.width)
+      var dataLast = this.data.length - 1
+      for (var i = 0; i < this.data.length; ++i) {
+        this.data[i] = func(i / dataLast)
       }
+      this.fft = new FFT(this.data.length)
+      this.inputSpectrum = this.fft.createComplexArray()
+      this.fft.realTransform(this.inputSpectrum, this.data)
+      this.specLast = this.inputSpectrum.length - 1
+  
+      this.outputSpectrum = new Array(this.inputSpectrum.length).fill(0)
+      this.outputComplex = new Array(this.inputSpectrum.length).fill(0)
+      this.output = new Array(this.data.length)
+      this.setMinMax(this.output)
     }
-    this.diff = this.max - this.min
-  }
-
-  draw(canvas) {
-    this.compute()
-
-    var line = new Array(canvas.width)
-    for (var x = 0; x < canvas.width; ++x) {
-      line[x] = new Vec2(
-        x,
-        (this.output[x] - this.min) / this.diff * canvas.height
-      )
+  
+    compute() {
+      this.outputSpectrum[0] = this.inputSpectrum[0]
+      this.outputSpectrum[1] = this.inputSpectrum[1]
+      for (var curr = 2; curr < this.inputSpectrum.length; curr += 2) {
+        var next = curr + 1
+  
+        // (j * omega ** alpha) * F(omega)
+        var omega = Math.PI * curr / this.specLast
+        var real = this.alpha * Math.log(Math.abs(omega))
+        var imag = this.alpha * Math.PI / 2
+  
+        var expReal = Math.exp(real)
+        real = expReal * Math.cos(imag)
+        imag = expReal * Math.sin(imag)
+  
+        var specReal = this.inputSpectrum[curr]
+        var specImag = this.inputSpectrum[next]
+        var realTemp = real
+        this.outputSpectrum[curr] = specReal * real - specImag * imag
+        this.outputSpectrum[next] = specReal * imag + specImag * realTemp
+      }
+      this.fft.inverseTransform(this.outputComplex, this.outputSpectrum)
+      this.output = this.fft.fromComplexArray(this.outputComplex)
+      this.setMinMax(this.output)
     }
-    canvas.clearWhite()
-    canvas.drawPath(line)
+  
+    setMinMax(data) {
+      this.min = Number.MAX_VALUE
+      this.max = -Number.MAX_VALUE
+      for (var i = 0; i < data.length; ++i) {
+        if (this.max < data[i]) {
+          this.max = data[i]
+        }
+        if (this.min > data[i]) {
+          this.min = data[i]
+        }
+      }
+      this.diff = this.max - this.min
+    }
+  
+    draw(canvas) {
+      this.compute()
+  
+      var line = new Array(canvas.width)
+      for (var x = 0; x < canvas.width; ++x) {
+        line[x] = new Vec2(
+          x,
+          (this.output[x] - this.min) / this.diff * canvas.height
+        )
+      }
+      canvas.clearWhite()
+      canvas.drawPath(line)
+    }
   }
-}
-
-function refresh() {
-  glDerivative.alpha = alpha
-  glDerivative.func = func
-  glDerivative.draw(glDerivativeCanvas)
-
-  // ftDerivative.alpha = alpha
-  // ftDerivative.func = func
-  // ftDerivative.draw(ftDerivativeCanvas)
-}
-
-var func = (x) => Math.sin(2 * Math.PI * x)
-var alpha = 1
-
-var glDerivativeCanvas = new Canvas(document.body, 640, 320)
-var glDerivative = new GrunwaldLetnikov(
-  func, alpha, 1 / glDerivativeCanvas.width, 1)
-
-// var ftDerivativeCanvas = new Canvas(document.body, 512, 256)
-// var ftDerivative = new FtDerivative(func, alpha)
-
-var numberAlpha = new NumberInput(
-  document.body, "alpha", alpha, -10, 10, 0.01,
-  {
-    event: "input", func: (value) => { alpha = value; refresh() },
+  
+  function refresh() {
+    glDerivative.alpha = alpha
+    glDerivative.func = func
+    glDerivative.draw(glDerivativeCanvas)
+  
+    // ftDerivative.alpha = alpha
+    // ftDerivative.func = func
+    // ftDerivative.draw(ftDerivativeCanvas)
   }
-)
-var numberH = new NumberInput(
-  document.body, "h", glDerivative.delta, 0.001, 1, 0.001,
-  {
-    event: "input",
-    func: (value) => {
-      glDerivative.delta = value
-      glDerivative.draw(glDerivativeCanvas)
-    },
-  }
-)
-
-refresh()
-</script>
-<p>黒のプロットが <code>fractionalDerivative</code> 、赤が <code>fractionalIntegral</code> です。</p>
-<p>ブラウザの開発者コンソールから関数 <code>func</code> を上書きすることで描画する関数を変更できます。 <code>func</code> の第一引数には横軸の座標が入力されます。コンソールから再描画するには関数 <code>refresh</code> を呼び出してください。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1">func <span class="op">=</span> (x) <span class="kw">=&gt;</span> x<span class="op">**</span><span class="dv">5</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="at">refresh</span>()</a></code></pre></div>
-<h2 id="問題点">問題点</h2>
-<p>分数階微分についての理解が足りていないのでテストケースが用意できていません。</p>
-<p><span class="math inline">\(0 &lt; \alpha &lt; 1\)</span> の範囲を超えると計算結果がおかしいように見えます。積分方向は見当違いの値がでているようにしか見えません。何とかして整数階の微分と小数階の微分で分けて計算することが考えられます。</p>
-<h2 id="参考文献">参考文献</h2>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Fractional_calculus">Fractional calculus - Wikipedia</a></li>
-<li><a href="https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf">Fractional Calculus: History, Definitions and Applications for the Engineer</a></li>
-<li><a href="http://www.xuru.org/fc/TOC.asp">Fractional Calculus - Xuru’s Website</a></li>
-<li><a href="https://rosettacode.org/wiki/Gamma_function">Gamma function - Rosetta Code</a></li>
-<li><a href="https://www.youtube.com/watch?v=7PCQmxlX9mU">Fractional order derivative of a function &amp; fractional numbers’ factorial. - YouTube</a></li>
-<li><a href="https://www.sciencedirect.com/science/article/pii/S0898122111002173">The Grünwald–Letnikov method for fractional differential equations - ScienceDirect</a></li>
-</ul>
-
-
-  <footer>
+  
+  var func = (x) => Math.sin(2 * Math.PI * x)
+  var alpha = 1
+  
+  var glDerivativeCanvas = new Canvas(document.body, 640, 320)
+  var glDerivative = new GrunwaldLetnikov(
+    func, alpha, 1 / glDerivativeCanvas.width, 1)
+  
+  // var ftDerivativeCanvas = new Canvas(document.body, 512, 256)
+  // var ftDerivative = new FtDerivative(func, alpha)
+  
+  var numberAlpha = new NumberInput(
+    document.body, "alpha", alpha, -10, 10, 0.01,
+    {
+      event: "input", func: (value) => { alpha = value; refresh() },
+    }
+  )
+  var numberH = new NumberInput(
+    document.body, "h", glDerivative.delta, 0.001, 1, 0.001,
+    {
+      event: "input",
+      func: (value) => {
+        glDerivative.delta = value
+        glDerivative.draw(glDerivativeCanvas)
+      },
+    }
+  )
+  
+  refresh()
+  </script>
+  <p>黒のプロットが <code>fractionalDerivative</code> 、赤が <code>fractionalIntegral</code> です。</p>
+  <p>ブラウザの開発者コンソールから関数 <code>func</code> を上書きすることで描画する関数を変更できます。 <code>func</code> の第一引数には横軸の座標が入力されます。コンソールから再描画するには関数 <code>refresh</code> を呼び出してください。</p>
+  <div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" title="1">func <span class="op">=</span> (x) <span class="kw">=&gt;</span> x<span class="op">**</span><span class="dv">5</span></a>
+  <a class="sourceLine" id="cb3-2" title="2"><span class="at">refresh</span>()</a></code></pre></div>
+  <h2 id="問題点">問題点</h2>
+  <p>分数階微分についての理解が足りていないのでテストケースが用意できていません。</p>
+  <p><span class="math inline">\(0 &lt; \alpha &lt; 1\)</span> の範囲を超えると計算結果がおかしいように見えます。積分方向は見当違いの値がでているようにしか見えません。何とかして整数階の微分と小数階の微分で分けて計算することが考えられます。</p>
+  <h2 id="参考文献">参考文献</h2>
+  <ul>
+  <li><a href="https://en.wikipedia.org/wiki/Fractional_calculus">Fractional calculus - Wikipedia</a></li>
+  <li><a href="https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf">Fractional Calculus: History, Definitions and Applications for the Engineer</a></li>
+  <li><a href="http://www.xuru.org/fc/TOC.asp">Fractional Calculus - Xuru’s Website</a></li>
+  <li><a href="https://rosettacode.org/wiki/Gamma_function">Gamma function - Rosetta Code</a></li>
+  <li><a href="https://www.youtube.com/watch?v=7PCQmxlX9mU">Fractional order derivative of a function &amp; fractional numbers’ factorial. - YouTube</a></li>
+  <li><a href="https://www.sciencedirect.com/science/article/pii/S0898122111002173">The Grünwald–Letnikov method for fractional differential equations - ScienceDirect</a></li>
+  </ul>
+    <footer>
     <a href="../index.html">インデックスに戻る</a>
   </footer>
 </body>
 
 </html>
-
