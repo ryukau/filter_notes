@@ -306,7 +306,7 @@ Update: 2020-03-16
 Naive
 </figcaption>
 <audio controls>
-<source src="snd/naive.wav" type="audio/wav">
+<source src="snd/sin_naive.wav" type="audio/wav">
 </audio>
 </figure>
 <p>バッファの境界で値が不連続に変化しているので、そのまま使うとノイズが乗ります。</p>
@@ -408,7 +408,7 @@ p_i = p_1 + \frac{i}{L} (p_0 - p_1)
 Smoother
 </figcaption>
 <audio controls>
-<source src="snd/smoother.wav" type="audio/wav">
+<source src="snd/sin_smoother.wav" type="audio/wav">
 </audio>
 </figure>
 <p>比較のために素朴な実装の結果を再掲します。</p>
@@ -420,7 +420,7 @@ Smoother
 Naive
 </figcaption>
 <audio controls>
-<source src="snd/naive.wav" type="audio/wav">
+<source src="snd/sin_naive.wav" type="audio/wav">
 </audio>
 </figure>
 <p>パラメータが変更されたバッファのみ線形補間したときの結果も掲載します。手間を省きたいときは、これで十分です。</p>
@@ -432,7 +432,7 @@ Naive
 Linterp
 </figcaption>
 <audio controls>
-<source src="snd/linterp.wav" type="audio/wav">
+<source src="snd/sin_linterp.wav" type="audio/wav">
 </audio>
 </figure>
 <p>コードへのリンク: <a href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/linterp.cpp">filter_notes/linterp.cpp at master · ryukau/filter_notes · GitHub</a></p>

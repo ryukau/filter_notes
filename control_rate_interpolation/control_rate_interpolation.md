@@ -71,7 +71,7 @@ g++ -lsndfile -O3 naive.cpp
 <figure>
   <figcaption>Naive</figcaption>
   <audio controls>
-    <source src="snd/naive.wav" type="audio/wav">
+    <source src="snd/sin_naive.wav" type="audio/wav">
   </audio>
 </figure>
 
@@ -190,7 +190,7 @@ int main()
 <figure>
   <figcaption>Smoother</figcaption>
   <audio controls>
-    <source src="snd/smoother.wav" type="audio/wav">
+    <source src="snd/sin_smoother.wav" type="audio/wav">
   </audio>
 </figure>
 
@@ -203,7 +203,7 @@ int main()
 <figure>
   <figcaption>Naive</figcaption>
   <audio controls>
-    <source src="snd/naive.wav" type="audio/wav">
+    <source src="snd/sin_naive.wav" type="audio/wav">
   </audio>
 </figure>
 
@@ -216,7 +216,7 @@ int main()
 <figure>
   <figcaption>Linterp</figcaption>
   <audio controls>
-    <source src="snd/linterp.wav" type="audio/wav">
+    <source src="snd/sin_linterp.wav" type="audio/wav">
   </audio>
 </figure>
 
