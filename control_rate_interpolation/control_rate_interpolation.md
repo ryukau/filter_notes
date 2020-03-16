@@ -1,10 +1,10 @@
-# プラグインの UI から入力された値の補間
+# オーディオプラグインの UI から入力された値の補間
 UI からプラグインへと投げられてきたパラメータの補間について見ていきます。
 
 ## 素朴なパラメータの受け取り
-VST 3 や LV2 では、オーディオデバイスのバッファ長である `nFrame` サンプルごとにオーディオ処理のメソッドが呼び出されます。
+VST 3 や LV2 では、オーディオデバイスのバッファの長さ $L$ サンプルごとにオーディオ処理のメソッドが呼び出されます。
 
-オーディオ処理のメソッドが呼び出される頻度のことをコントロールレートと呼ぶことがあります。バッファ長を $L$ 、サンプリング周波数を $f_s$ とするとコントロールレートは $f_s / L$ です。
+オーディオ処理のメソッドが呼び出される頻度のことをコントロールレートと呼ぶことがあります。サンプリング周波数を $f_s$ とするとコントロールレートは $f_s / L$ です。
 
 次のコードはバッファ単位で `process` を呼び出す例です。バッファに書き込み直す処理を `main` 内の `for` ループで回していますが、実際にはオーディオデバイスによる割り込みに応じて DAW のオーディオスレッドから呼び出されます。
 
@@ -15,7 +15,7 @@ VST 3 や LV2 では、オーディオデバイスのバッファ長である `n
 #include <vector>
 
 constexpr float sampleRate = 48000.0f;
-constexpr size_t nFrame = 512;
+constexpr size_t nFrame = 512; // 式中の L 。
 constexpr size_t nBuffer = 32;
 
 struct DSP {
@@ -51,7 +51,7 @@ int main()
 
 `writeWave` の実装を含む完成したコードは次のリンクに掲載しています。コンパイルには [libsndfile]([libsndfile](http://www.mega-nerd.com/libsndfile/)) が必要です。
 
-- TODO リンク
+- [filter_notes/naive.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/naive.cpp)
 
 コンパイルして実行します。
 
@@ -177,7 +177,7 @@ int main()
 
 完成したコードへのリンクです。
 
-- TODO
+- [filter_notes/smoother.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/smoother.cpp)
 
 実行結果です。
 
@@ -220,7 +220,7 @@ int main()
   </audio>
 </figure>
 
-コードへのリンク: TODO
+コードへのリンク: [filter_notes/linterp.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/linterp.cpp)
 
 
 ### パラメータチューニング
@@ -298,4 +298,4 @@ protected:
 
 ベンチマークに使ったコードを次のリンクに掲載しています。
 
-- TODO リンク
+- [filter_notes/bench_smoother.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/bench_smoother.cpp)
