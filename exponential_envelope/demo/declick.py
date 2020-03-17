@@ -6,7 +6,10 @@ samplerate = 48000
 duration = 0.1
 declick = 0.001
 
-curve = numpy.geomspace(1, 1e-5, int(duration * samplerate))
+curve = numpy.hstack((
+    numpy.geomspace(1, 1e-5, int(duration * samplerate)),
+    numpy.zeros(samplerate),
+))
 
 phase = numpy.linspace(-numpy.pi, 0, int(declick * samplerate))
 subEnv = numpy.hstack((
