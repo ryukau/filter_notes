@@ -1,4 +1,6 @@
 #!/bin/bash
+mkdir -p bin
+mkdir -p snd
 
 g++ -lsndfile -O3 -o bin/naive naive.cpp
 ./bin/naive
