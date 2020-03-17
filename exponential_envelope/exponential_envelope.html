@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2020-03-17" />
+<title>exponential_envelope</title>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="../script/highlight/idea.css">
+<script src="../script/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
+crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+onload="renderMathInElement(document.body);"></script>
+
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+font-size: 14px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 2px;
+margin: 2px;
+}
+
+a {
+text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+border-left: solid 8px #eeeeee;
+padding-left: 8px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border: 1px solid #dddddd;
+}
+
+tr.header {
+border: 1px solid black;
+}
+
+tr.odd {
+background: #eeeeee;
+}
+
+tr.even {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+font-weight: normal;
+color: #004444;
+padding-left: 0.35em;
+padding-right: 0.35em;
+border-bottom: 3px solid #dddddd;
+border-left: 1px solid #dddddd;
+}
+
+td {
+height: 1.5em;
+padding-left: 0.35em;
+padding-right: 0.35em;
+border-bottom: 1px solid #dddddd;
+border-left: 1px solid #dddddd;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+code {
+color: #004444;
+}
+
+pre code {
+border: 4px solid #eeeeee;
+}
+
+li {
+margin: 8px;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2020-03-17
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+  <ul>
+  <li><a href="#指数曲線のエンベロープ">指数曲線のエンベロープ</a><ul>
+  <li><a href="#減衰する指数曲線">減衰する指数曲線</a></li>
+  <li><a href="#増加する指数曲線">増加する指数曲線</a></li>
+  <li><a href="#減衰する指数曲線の反転">減衰する指数曲線の反転</a></li>
+  <li><a href="#指数曲線を使った-adsr-エンベロープ">指数曲線を使った ADSR エンベロープ</a><ul>
+  <li><a href="#デクリック-declick">デクリック (declick)</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+</details>
+</header>
+<h1 id="指数曲線のエンベロープ">指数曲線のエンベロープ</h1>
+<p>指数曲線 (Exponential Curve) を使ったエンベロープを作ります。</p>
+<h2 id="減衰する指数曲線">減衰する指数曲線</h2>
+<p>値が 1 から 0 に向かって減衰する指数曲線 <span class="math inline">\(E_d(t)\)</span> は次の式で表されます。 <span class="math inline">\(\alpha\)</span> は減衰の速さを決める任意の値、 <span class="math inline">\(t\)</span> は単位が秒数の時間です。</p>
+<p><span class="math display">\[
+E_d(t) = \alpha^t, \quad 0 \leq \alpha \leq 1
+\]</span></p>
+<p>ユーザから指定された減衰時間 <span class="math inline">\(\tau\)</span> から <span class="math inline">\(\alpha\)</span> を決めます。</p>
+<p><span class="math inline">\(0 &lt; \alpha\)</span> のとき <span class="math inline">\(t = +\infty\)</span> でようやく <span class="math inline">\(E_d\)</span> が 0 になります。つまり、いつまで経っても 0 になりません。そこで、 0 の代わりに十分に小さな値 <span class="math inline">\(\epsilon\)</span> に到達する時間を求めます。</p>
+<p><span class="math display">\[
+E_d(\tau) = \alpha^\tau = \epsilon
+\]</span></p>
+<p>時間の単位を秒数 <span class="math inline">\(\tau\)</span> からサンプル数 <span class="math inline">\(n_\tau\)</span> に置き換えます。サンプリング周波数を <span class="math inline">\(f_s\)</span> とすると次の式で表されます。</p>
+<p><span class="math display">\[
+n_\tau = \tau f_s
+\]</span></p>
+<p>よって、 <span class="math inline">\(\tau\)</span> と <span class="math inline">\(\epsilon\)</span> が与えられたとき <span class="math inline">\(\alpha\)</span> は次の式で求めることができます。</p>
+<p><span class="math display">\[
+\alpha = \epsilon^{\frac{1}{\tau f_s}}
+\]</span></p>
+<p><span class="math inline">\(\epsilon\)</span> の値は適当でいいですが、この文章では <code>1e-5</code> を使っています。 10 進数では <code>float</code> は大体 7 桁、 <code>double</code> は 16 桁の精度があります。</p>
+<ul>
+<li><a href="https://stackoverflow.com/questions/13542944/how-many-significant-digits-do-floats-and-doubles-have-in-java">floating point - How many significant digits do floats and doubles have in java? - Stack Overflow</a></li>
+</ul>
+<p>実装します。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb1-1" title="1"><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> ExpDecayCurve {</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb1-5" title="5">  <span class="dt">void</span> reset(Sample sampleRate, Sample seconds)</a>
+<a class="sourceLine" id="cb1-6" title="6">  {</a>
+<a class="sourceLine" id="cb1-7" title="7">    value = Sample(<span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb1-8" title="8">    set(sampleRate, seconds);</a>
+<a class="sourceLine" id="cb1-9" title="9">  }</a>
+<a class="sourceLine" id="cb1-10" title="10"></a>
+<a class="sourceLine" id="cb1-11" title="11">  <span class="dt">void</span> set(Sample sampleRate, Sample seconds)</a>
+<a class="sourceLine" id="cb1-12" title="12">  {</a>
+<a class="sourceLine" id="cb1-13" title="13">    alpha = pow(threshold, Sample(<span class="dv">1</span>) / (seconds * sampleRate));</a>
+<a class="sourceLine" id="cb1-14" title="14">  }</a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> value &lt;= threshold; }</a>
+<a class="sourceLine" id="cb1-17" title="17"></a>
+<a class="sourceLine" id="cb1-18" title="18">  Sample process()</a>
+<a class="sourceLine" id="cb1-19" title="19">  {</a>
+<a class="sourceLine" id="cb1-20" title="20">    <span class="cf">if</span> (value &lt;= threshold) <span class="cf">return</span> Sample(<span class="dv">0</span>);</a>
+<a class="sourceLine" id="cb1-21" title="21">    value *= alpha;</a>
+<a class="sourceLine" id="cb1-22" title="22">    <span class="cf">return</span> value - threshold;</a>
+<a class="sourceLine" id="cb1-23" title="23">  }</a>
+<a class="sourceLine" id="cb1-24" title="24"></a>
+<a class="sourceLine" id="cb1-25" title="25"><span class="kw">protected</span>:</a>
+<a class="sourceLine" id="cb1-26" title="26">  <span class="at">const</span> Sample threshold = <span class="fl">1e-5</span>;</a>
+<a class="sourceLine" id="cb1-27" title="27">  Sample value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb1-28" title="28">  Sample alpha = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb1-29" title="29">};</a></code></pre></div>
+<p><code>reset()</code> は再トリガ時、 <code>set()</code> はコントロールレートで呼び出されます。</p>
+<p><code>isTerminated()</code> は複数の曲線を組み合わせて ADSR エンベロープなどを作るとき、状態遷移を行うために使います。</p>
+<p><code>process()</code> の最後で <code>threshold</code> を引いているのは、エンベロープの終端の不連続点を小さくするためです。この処理によって出力の範囲は <code>[0, 1 - threshold]</code> になります。</p>
+<figure>
+<img src="img/discontinuity_at_termination.svg" alt="Image of ." style="padding-bottom: 12px;"/>
+</figure>
+<h2 id="増加する指数曲線">増加する指数曲線</h2>
+<p>増加する指数曲線 <span class="math inline">\(E_a(t)\)</span> は次のように表されます。</p>
+<p><span class="math display">\[
+E_d(\tau) = \epsilon \alpha^\tau = 1
+\]</span></p>
+<p><span class="math inline">\(\alpha\)</span> について解きます。</p>
+<p><span class="math display">\[
+\alpha = \left( \frac{1}{\epsilon} \right)^{\frac{1}{\tau f_s}}
+\]</span></p>
+<p>実装します。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> ExpAttackCurve {</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb2-3" title="3">  <span class="dt">void</span> reset(Sample sampleRate, Sample seconds)</a>
+<a class="sourceLine" id="cb2-4" title="4">  {</a>
+<a class="sourceLine" id="cb2-5" title="5">    value = threshold;</a>
+<a class="sourceLine" id="cb2-6" title="6">    set(sampleRate, seconds);</a>
+<a class="sourceLine" id="cb2-7" title="7">  }</a>
+<a class="sourceLine" id="cb2-8" title="8"></a>
+<a class="sourceLine" id="cb2-9" title="9">  <span class="dt">void</span> set(Sample sampleRate, Sample seconds)</a>
+<a class="sourceLine" id="cb2-10" title="10">  {</a>
+<a class="sourceLine" id="cb2-11" title="11">    alpha</a>
+<a class="sourceLine" id="cb2-12" title="12">      = pow(Sample(<span class="dv">1</span>) / threshold, Sample(<span class="dv">1</span>) / (seconds * sampleRate));</a>
+<a class="sourceLine" id="cb2-13" title="13">  }</a>
+<a class="sourceLine" id="cb2-14" title="14"></a>
+<a class="sourceLine" id="cb2-15" title="15">  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> value &gt;= Sample(<span class="dv">1</span>); }</a>
+<a class="sourceLine" id="cb2-16" title="16"></a>
+<a class="sourceLine" id="cb2-17" title="17">  Sample process()</a>
+<a class="sourceLine" id="cb2-18" title="18">  {</a>
+<a class="sourceLine" id="cb2-19" title="19">    value *= alpha;</a>
+<a class="sourceLine" id="cb2-20" title="20">    <span class="cf">if</span> (value &gt;= Sample(<span class="dv">1</span>)) <span class="cf">return</span> Sample(<span class="dv">1</span> - threshold);</a>
+<a class="sourceLine" id="cb2-21" title="21">    <span class="cf">return</span> value - threshold;</a>
+<a class="sourceLine" id="cb2-22" title="22">  }</a>
+<a class="sourceLine" id="cb2-23" title="23"></a>
+<a class="sourceLine" id="cb2-24" title="24"><span class="kw">protected</span>:</a>
+<a class="sourceLine" id="cb2-25" title="25">  <span class="at">const</span> Sample threshold = <span class="fl">1e-5</span>;</a>
+<a class="sourceLine" id="cb2-26" title="26">  Sample value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-27" title="27">  Sample alpha = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-28" title="28">};</a></code></pre></div>
+<h2 id="減衰する指数曲線の反転">減衰する指数曲線の反転</h2>
+<p><span class="math inline">\(1 - E_d(t)\)</span> として減衰する指数曲線を上下反転して使う方法があります。</p>
+<p>実装です。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// 1 - ExpDecayCurve.process();</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> NegativeExpAttackCurve {</a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb3-4" title="4">  <span class="dt">void</span> reset(Sample sampleRate, Sample seconds)</a>
+<a class="sourceLine" id="cb3-5" title="5">  {</a>
+<a class="sourceLine" id="cb3-6" title="6">    value = Sample(<span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb3-7" title="7">    set(sampleRate, seconds);</a>
+<a class="sourceLine" id="cb3-8" title="8">  }</a>
+<a class="sourceLine" id="cb3-9" title="9"></a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="dt">void</span> set(Sample sampleRate, Sample seconds)</a>
+<a class="sourceLine" id="cb3-11" title="11">  {</a>
+<a class="sourceLine" id="cb3-12" title="12">    alpha = pow(threshold, Sample(<span class="dv">1</span>) / (seconds * sampleRate));</a>
+<a class="sourceLine" id="cb3-13" title="13">  }</a>
+<a class="sourceLine" id="cb3-14" title="14"></a>
+<a class="sourceLine" id="cb3-15" title="15">  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> value &lt;= threshold; }</a>
+<a class="sourceLine" id="cb3-16" title="16"></a>
+<a class="sourceLine" id="cb3-17" title="17">  Sample process()</a>
+<a class="sourceLine" id="cb3-18" title="18">  {</a>
+<a class="sourceLine" id="cb3-19" title="19">    <span class="cf">if</span> (value &lt;= threshold) <span class="cf">return</span> Sample(<span class="dv">1</span> - threshold);</a>
+<a class="sourceLine" id="cb3-20" title="20">    value *= alpha;</a>
+<a class="sourceLine" id="cb3-21" title="21">    <span class="cf">return</span> Sample(<span class="dv">1</span> - threshold) - value;</a>
+<a class="sourceLine" id="cb3-22" title="22">  }</a>
+<a class="sourceLine" id="cb3-23" title="23"></a>
+<a class="sourceLine" id="cb3-24" title="24"><span class="kw">protected</span>:</a>
+<a class="sourceLine" id="cb3-25" title="25">  <span class="at">const</span> Sample threshold = <span class="fl">1e-5</span>;</a>
+<a class="sourceLine" id="cb3-26" title="26">  Sample value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-27" title="27">  Sample alpha = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-28" title="28">};</a></code></pre></div>
+<h2 id="指数曲線を使った-adsr-エンベロープ">指数曲線を使った ADSR エンベロープ</h2>
+<p>実装です。</p>
+<p>このエンベロープは <a href="https://ryukau.github.io/VSTPlugins/manual/IterativeSinCluster/IterativeSinCluster_ja.html">IterativeSinCluster</a> で使われています。 <code>sustain</code> をスムーシングしていないので、サステイン中にサステイン音量を変更するとノイズが乗ります。</p>
+<p><code>reset()</code> の <code>curve</code> の値で <code>ExpAttackCurve</code> と <code>NegativeExpAttackCurve</code> を入れ替えられるようにしています。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb4-1" title="1"><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></a>
+<a class="sourceLine" id="cb4-3" title="3"></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="co">// t in [0, 1].</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">inline</span> Sample cosinterp(Sample t)</a>
+<a class="sourceLine" id="cb4-6" title="6">{</a>
+<a class="sourceLine" id="cb4-7" title="7">  <span class="cf">return</span> <span class="fl">0.5</span> * (<span class="fl">1.0</span> - cos(pi * t));</a>
+<a class="sourceLine" id="cb4-8" title="8">}</a>
+<a class="sourceLine" id="cb4-9" title="9"></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> ExpADSREnvelope {</a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb4-12" title="12">  <span class="dt">void</span> setup(Sample sampleRate)</a>
+<a class="sourceLine" id="cb4-13" title="13">  {</a>
+<a class="sourceLine" id="cb4-14" title="14">    <span class="kw">this</span>-&gt;sampleRate = sampleRate;</a>
+<a class="sourceLine" id="cb4-15" title="15">    declickLength = <span class="dt">int32_t</span>(<span class="fl">0.001</span> * sampleRate);</a>
+<a class="sourceLine" id="cb4-16" title="16">  }</a>
+<a class="sourceLine" id="cb4-17" title="17"></a>
+<a class="sourceLine" id="cb4-18" title="18">  Sample adaptTime(Sample seconds, Sample noteFreq)</a>
+<a class="sourceLine" id="cb4-19" title="19">  {</a>
+<a class="sourceLine" id="cb4-20" title="20">    <span class="at">const</span> Sample cycle = Sample(<span class="dv">1</span>) / noteFreq;</a>
+<a class="sourceLine" id="cb4-21" title="21">    <span class="cf">return</span> seconds &lt; cycle ? cycle : seconds;</a>
+<a class="sourceLine" id="cb4-22" title="22">  }</a>
+<a class="sourceLine" id="cb4-23" title="23"></a>
+<a class="sourceLine" id="cb4-24" title="24">  <span class="dt">void</span> reset(</a>
+<a class="sourceLine" id="cb4-25" title="25">    Sample attackTime,</a>
+<a class="sourceLine" id="cb4-26" title="26">    Sample decayTime,</a>
+<a class="sourceLine" id="cb4-27" title="27">    Sample sustainLevel,</a>
+<a class="sourceLine" id="cb4-28" title="28">    Sample releaseTime,</a>
+<a class="sourceLine" id="cb4-29" title="29">    Sample noteFreq,</a>
+<a class="sourceLine" id="cb4-30" title="30">    Sample curve)</a>
+<a class="sourceLine" id="cb4-31" title="31">  {</a>
+<a class="sourceLine" id="cb4-32" title="32">    <span class="cf">if</span> (declickCounter &gt;= declickLength || state == State::terminated) declickCounter = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-33" title="33">    state = State::attack;</a>
+<a class="sourceLine" id="cb4-34" title="34"></a>
+<a class="sourceLine" id="cb4-35" title="35">    sustain = <span class="bu">std::</span>clamp&lt;Sample&gt;(sustainLevel, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</a>
+<a class="sourceLine" id="cb4-36" title="36"></a>
+<a class="sourceLine" id="cb4-37" title="37">    offset = value;</a>
+<a class="sourceLine" id="cb4-38" title="38">    range = Sample(<span class="dv">1</span>) - value;</a>
+<a class="sourceLine" id="cb4-39" title="39"></a>
+<a class="sourceLine" id="cb4-40" title="40">    <span class="kw">this</span>-&gt;curve = <span class="bu">std::</span>clamp&lt;Sample&gt;(curve, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</a>
+<a class="sourceLine" id="cb4-41" title="41"></a>
+<a class="sourceLine" id="cb4-42" title="42">    attackTime = adaptTime(attackTime, noteFreq);</a>
+<a class="sourceLine" id="cb4-43" title="43">    atk.reset(sampleRate, attackTime);</a>
+<a class="sourceLine" id="cb4-44" title="44">    atkNeg.reset(sampleRate, attackTime);</a>
+<a class="sourceLine" id="cb4-45" title="45">    dec.reset(sampleRate, decayTime);</a>
+<a class="sourceLine" id="cb4-46" title="46">    rel.reset(sampleRate, adaptTime(releaseTime, noteFreq));</a>
+<a class="sourceLine" id="cb4-47" title="47">  }</a>
+<a class="sourceLine" id="cb4-48" title="48"></a>
+<a class="sourceLine" id="cb4-49" title="49">  <span class="dt">void</span> set(</a>
+<a class="sourceLine" id="cb4-50" title="50">    Sample attackTime,</a>
+<a class="sourceLine" id="cb4-51" title="51">    Sample decayTime,</a>
+<a class="sourceLine" id="cb4-52" title="52">    Sample sustainLevel,</a>
+<a class="sourceLine" id="cb4-53" title="53">    Sample releaseTime,</a>
+<a class="sourceLine" id="cb4-54" title="54">    Sample noteFreq)</a>
+<a class="sourceLine" id="cb4-55" title="55">  {</a>
+<a class="sourceLine" id="cb4-56" title="56">    <span class="cf">switch</span> (state) {</a>
+<a class="sourceLine" id="cb4-57" title="57">      <span class="cf">case</span> State::attack:</a>
+<a class="sourceLine" id="cb4-58" title="58">        attackTime = adaptTime(attackTime, noteFreq);</a>
+<a class="sourceLine" id="cb4-59" title="59">        atk.set(sampleRate, attackTime);</a>
+<a class="sourceLine" id="cb4-60" title="60">        atkNeg.set(sampleRate, attackTime);</a>
+<a class="sourceLine" id="cb4-61" title="61">        <span class="co">// Fall through.</span></a>
+<a class="sourceLine" id="cb4-62" title="62"></a>
+<a class="sourceLine" id="cb4-63" title="63">      <span class="cf">case</span> State::decay:</a>
+<a class="sourceLine" id="cb4-64" title="64">        dec.set(sampleRate, decayTime);</a>
+<a class="sourceLine" id="cb4-65" title="65">        <span class="co">// Fall through.</span></a>
+<a class="sourceLine" id="cb4-66" title="66"></a>
+<a class="sourceLine" id="cb4-67" title="67">      <span class="cf">case</span> State::sustain:</a>
+<a class="sourceLine" id="cb4-68" title="68">        sustain = <span class="bu">std::</span>clamp&lt;Sample&gt;(sustainLevel, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</a>
+<a class="sourceLine" id="cb4-69" title="69">        <span class="co">// Fall through.</span></a>
+<a class="sourceLine" id="cb4-70" title="70"></a>
+<a class="sourceLine" id="cb4-71" title="71">      <span class="cf">case</span> State::release:</a>
+<a class="sourceLine" id="cb4-72" title="72">        rel.set(sampleRate, adaptTime(releaseTime, noteFreq));</a>
+<a class="sourceLine" id="cb4-73" title="73">        <span class="co">// Fall through.</span></a>
+<a class="sourceLine" id="cb4-74" title="74"></a>
+<a class="sourceLine" id="cb4-75" title="75">      <span class="cf">default</span>:</a>
+<a class="sourceLine" id="cb4-76" title="76">        <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb4-77" title="77">    }</a>
+<a class="sourceLine" id="cb4-78" title="78">  }</a>
+<a class="sourceLine" id="cb4-79" title="79"></a>
+<a class="sourceLine" id="cb4-80" title="80">  <span class="dt">void</span> release()</a>
+<a class="sourceLine" id="cb4-81" title="81">  {</a>
+<a class="sourceLine" id="cb4-82" title="82">    range = value;</a>
+<a class="sourceLine" id="cb4-83" title="83">    state = State::release;</a>
+<a class="sourceLine" id="cb4-84" title="84">  }</a>
+<a class="sourceLine" id="cb4-85" title="85"></a>
+<a class="sourceLine" id="cb4-86" title="86">  <span class="dt">bool</span> isAttacking() { <span class="cf">return</span> state == State::attack; }</a>
+<a class="sourceLine" id="cb4-87" title="87">  <span class="dt">bool</span> isReleasing() { <span class="cf">return</span> state == State::release; }</a>
+<a class="sourceLine" id="cb4-88" title="88">  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> state == State::terminated; }</a>
+<a class="sourceLine" id="cb4-89" title="89"></a>
+<a class="sourceLine" id="cb4-90" title="90">  <span class="kw">inline</span> Sample declickIn(Sample input)</a>
+<a class="sourceLine" id="cb4-91" title="91">  {</a>
+<a class="sourceLine" id="cb4-92" title="92">    <span class="cf">if</span> (declickCounter &gt;= declickLength) <span class="cf">return</span> input;</a>
+<a class="sourceLine" id="cb4-93" title="93">    declickCounter += <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-94" title="94">    <span class="cf">return</span> input * cosinterp&lt;Sample&gt;(declickCounter / Sample(declickLength));</a>
+<a class="sourceLine" id="cb4-95" title="95">  }</a>
+<a class="sourceLine" id="cb4-96" title="96"></a>
+<a class="sourceLine" id="cb4-97" title="97">  Sample process()</a>
+<a class="sourceLine" id="cb4-98" title="98">  {</a>
+<a class="sourceLine" id="cb4-99" title="99">    <span class="cf">switch</span> (state) {</a>
+<a class="sourceLine" id="cb4-100" title="100">      <span class="cf">case</span> State::attack: {</a>
+<a class="sourceLine" id="cb4-101" title="101">        <span class="at">const</span> <span class="kw">auto</span> atkPos = atk.process();</a>
+<a class="sourceLine" id="cb4-102" title="102">        <span class="at">const</span> <span class="kw">auto</span> atkMix = atkPos + curve * (atkNeg.process() - atkPos);</a>
+<a class="sourceLine" id="cb4-103" title="103">        value = range * declickIn(atkMix) + offset;</a>
+<a class="sourceLine" id="cb4-104" title="104">        <span class="cf">if</span> (atk.isTerminated()) {</a>
+<a class="sourceLine" id="cb4-105" title="105">          state = State::decay;</a>
+<a class="sourceLine" id="cb4-106" title="106">          range = Sample(<span class="dv">1</span>) - sustain;</a>
+<a class="sourceLine" id="cb4-107" title="107">        }</a>
+<a class="sourceLine" id="cb4-108" title="108">      } <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb4-109" title="109"></a>
+<a class="sourceLine" id="cb4-110" title="110">      <span class="cf">case</span> State::decay:</a>
+<a class="sourceLine" id="cb4-111" title="111">        value = range * declickIn(dec.process()) + sustain;</a>
+<a class="sourceLine" id="cb4-112" title="112">        <span class="cf">if</span> (value &lt;= sustain) state = State::sustain;</a>
+<a class="sourceLine" id="cb4-113" title="113">        <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb4-114" title="114"></a>
+<a class="sourceLine" id="cb4-115" title="115">      <span class="cf">case</span> State::sustain:</a>
+<a class="sourceLine" id="cb4-116" title="116">        value = declickIn(sustain);</a>
+<a class="sourceLine" id="cb4-117" title="117">        <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb4-118" title="118"></a>
+<a class="sourceLine" id="cb4-119" title="119">      <span class="cf">case</span> State::release:</a>
+<a class="sourceLine" id="cb4-120" title="120">        value = range * declickIn(rel.process());</a>
+<a class="sourceLine" id="cb4-121" title="121">        <span class="cf">if</span> (rel.isTerminated()) state = State::terminated;</a>
+<a class="sourceLine" id="cb4-122" title="122">        <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb4-123" title="123"></a>
+<a class="sourceLine" id="cb4-124" title="124">      <span class="cf">default</span>:</a>
+<a class="sourceLine" id="cb4-125" title="125">        <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-126" title="126">    }</a>
+<a class="sourceLine" id="cb4-127" title="127">    <span class="cf">return</span> value;</a>
+<a class="sourceLine" id="cb4-128" title="128">  }</a>
+<a class="sourceLine" id="cb4-129" title="129"></a>
+<a class="sourceLine" id="cb4-130" title="130"><span class="kw">protected</span>:</a>
+<a class="sourceLine" id="cb4-131" title="131">  <span class="kw">enum</span> <span class="kw">class</span> State : <span class="dt">int32_t</span> { attack, decay, sustain, release, terminated };</a>
+<a class="sourceLine" id="cb4-132" title="132"></a>
+<a class="sourceLine" id="cb4-133" title="133">  <span class="dt">int32_t</span> declickLength;</a>
+<a class="sourceLine" id="cb4-134" title="134">  <span class="dt">int32_t</span> declickCounter = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-135" title="135"></a>
+<a class="sourceLine" id="cb4-136" title="136">  ExpAttackCurve&lt;Sample&gt; atk{};</a>
+<a class="sourceLine" id="cb4-137" title="137">  NegativeExpAttackCurve&lt;Sample&gt; atkNeg{};</a>
+<a class="sourceLine" id="cb4-138" title="138">  ExpDecayCurve&lt;Sample&gt; dec{};</a>
+<a class="sourceLine" id="cb4-139" title="139">  ExpDecayCurve&lt;Sample&gt; rel{};</a>
+<a class="sourceLine" id="cb4-140" title="140"></a>
+<a class="sourceLine" id="cb4-141" title="141">  State state = State::terminated;</a>
+<a class="sourceLine" id="cb4-142" title="142">  Sample value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-143" title="143">  Sample curve = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-144" title="144">  Sample sampleRate = <span class="dv">44100</span>;</a>
+<a class="sourceLine" id="cb4-145" title="145">  Sample offset = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-146" title="146">  Sample range = <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-147" title="147">  Sample sustain = <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-148" title="148">};</a></code></pre></div>
+<p>テストに使ったコードへのリンクです。</p>
+<ul>
+<li>TODO リンク</li>
+</ul>
+<p>テスト結果です。図の縦軸は振幅、横軸は秒数です。音のサンプルはエンベロープを 100 Hz のサイン波の音量に適用しています。</p>
+<figure>
+<img src="img/testADSR.png" alt="Image of test result of linear ADSR envelope." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/testReleaseWhileAttack.png" alt="Image of test result of release while attack." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/testReleaseWhileDecay.png" alt="Image of test result of release while decay." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/testTriggerWhileRelease.png" alt="Image of test result of trigger while release." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/testChangeSustain.png" alt="Image of test result of changing sustain." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<figcaption>
+ADSR
+</figcaption>
+<audio controls>
+<source src="snd/tone_ADSR.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+ReleaseWhileAttack
+</figcaption>
+<audio controls>
+<source src="snd/tone_ReleaseWhileAttack.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+testReleaseWhileDecay
+</figcaption>
+<audio controls>
+<source src="snd/tone_ReleaseWhileDecay.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+TriggerWhileRelease
+</figcaption>
+<audio controls>
+<source src="snd/tone_TriggerWhileRelease.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+ChangeSustain
+</figcaption>
+<audio controls>
+<source src="snd/tone_ChangeSustain.wav" type="audio/wav">
+</audio>
+</figure>
+<h3 id="デクリック-declick">デクリック (declick)</h3>
+<p>エンベロープのデクリックとはアタック時間やディケイ時間などがとても短いときにでるプチノイズを低減することです。 Image-Line の <a href="https://www.image-line.com/plugins/Synths/Sytrus/">Sytrus</a> というシンセサイザで declick という言葉が使われていたので、それにならっています。</p>
+<p>ここでは 1 ミリ秒の短いアタックを持つ副エンベロープを用意して指数曲線を使った主エンベロープに掛け合わせています。また、<a href="https://ryukau.github.io/filter_notes/linear_envelope/linear_envelope.html">直線の ADSR エンベロープ</a>で紹介した <code>adaptTime()</code> も組み合わせて使っています。</p>
+<p>図は副エンベロープによるデクリックを行ったエンベロープ出力の例です。副エンベロープのアタックカーブは <span class="math inline">\(0.5 + 0.5 \cos(n)\)</span> で、 <span class="math inline">\(n\)</span> は <span class="math inline">\(-\pi\)</span> から <span class="math inline">\(0\)</span> に向かって増加しています。</p>
+<figure>
+<img src="img/declick.png" alt="Image of comparison of raw attack and declicked attack." style="padding-bottom: 12px;"/>
+</figure>
+<p>1000 Hz のサイン波の音量に適用した音のサンプルです。プチノイズが聞き取りやすいようにサイン波の初期位相を <span class="math inline">\(\dfrac{\pi}{2}\)</span> にしています。</p>
+<figure>
+<figcaption>
+declick_on
+</figcaption>
+<audio controls>
+<source src="snd/declick_on.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+declick_off
+</figcaption>
+<audio controls>
+<source src="snd/declick_off.wav" type="audio/wav">
+</audio>
+</figure>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
