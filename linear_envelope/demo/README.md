@@ -1,0 +1,9 @@
+実行には次のライブラリが必要です。
+
+- Python3
+  - [NumPy](https://numpy.org/)
+  - [SciPy](https://www.scipy.org/)
+  - [matplotlib](https://matplotlib.org/)
+  - [SoundFile](https://pysoundfile.readthedocs.io/en/latest/)
+- C++17
+  - [libsndfile](http://www.mega-nerd.com/libsndfile/)
