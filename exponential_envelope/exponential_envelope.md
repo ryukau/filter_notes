@@ -318,7 +318,7 @@ protected:
 
 テストに使ったコードへのリンクです。
 
-- TODO リンク
+- [filter_notes/test.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/test.cpp)
 
 テスト結果です。図の縦軸は振幅、横軸は秒数です。音のサンプルはエンベロープを 100 Hz のサイン波の音量に適用しています。
 
