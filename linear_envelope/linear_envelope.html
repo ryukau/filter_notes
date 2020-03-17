@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2020-03-17" />
+<title>linear_envelope</title>
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="../script/highlight/idea.css">
+<script src="../script/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
+crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+onload="renderMathInElement(document.body);"></script>
+
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+font-size: 14px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 2px;
+margin: 2px;
+}
+
+a {
+text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+border-left: solid 8px #eeeeee;
+padding-left: 8px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border: 1px solid #dddddd;
+}
+
+tr.header {
+border: 1px solid black;
+}
+
+tr.odd {
+background: #eeeeee;
+}
+
+tr.even {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+font-weight: normal;
+color: #004444;
+padding-left: 0.35em;
+padding-right: 0.35em;
+border-bottom: 3px solid #dddddd;
+border-left: 1px solid #dddddd;
+}
+
+td {
+height: 1.5em;
+padding-left: 0.35em;
+padding-right: 0.35em;
+border-bottom: 1px solid #dddddd;
+border-left: 1px solid #dddddd;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+code {
+color: #004444;
+}
+
+pre code {
+border: 4px solid #eeeeee;
+}
+
+li {
+margin: 8px;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2020-03-17
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+  <ul>
+  <li><a href="#直線の-adsr-エンベロープ">直線の ADSR エンベロープ</a><ul>
+  <li><a href="#adsr-エンベロープ">ADSR エンベロープ</a></li>
+  <li><a href="#直線の計算">直線の計算</a></li>
+  <li><a href="#挙動">挙動</a><ul>
+  <li><a href="#ノートオン中の-adsr-の変更">ノートオン中の ADSR の変更</a></li>
+  <li><a href="#アタック中のリリース">アタック中のリリース</a></li>
+  <li><a href="#ディケイ中のリリース">ディケイ中のリリース</a></li>
+  <li><a href="#リリース中のノートオン">リリース中のノートオン</a></li>
+  </ul></li>
+  <li><a href="#実装">実装</a></li>
+  <li><a href="#テスト">テスト</a></li>
+  <li><a href="#simd-による並列化">SIMD による並列化</a></li>
+  <li><a href="#p-controller">P Controller</a><ul>
+  <li><a href="#周波数特性">周波数特性</a></li>
+  <li><a href="#k_p-からカットオフ周波数を求める"><span class="math inline">\(k_p\)</span> からカットオフ周波数を求める</a></li>
+  <li><a href="#カットオフ周波数から-k_p-を求める">カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+</details>
+</header>
+<h1 id="直線の-adsr-エンベロープ">直線の ADSR エンベロープ</h1>
+<p>シンセサイザに使う直線を組み合わせた ADSR エンベロープを実装します。計算はシンプルですが、場合分けの塊なのでテストのポイントをまとめています。</p>
+<h2 id="adsr-エンベロープ">ADSR エンベロープ</h2>
+<p>シンセサイザでよく使われるエンベロープは、トリガされると low から high に向かって増加したあと high から low に向かって減少するような信号を出力します。例えばエンベロープの出力をオシレータの出力やサンプルデータと掛け合わせることで音量の変化を作ることができます。</p>
+<p>よくあるシンセサイザのエンベロープはアタック、ディケイ、サステイン、リリース (Attack, Decay, Sustain, Release) の4つの区間が組み合わさっています。4つの区間をそれぞれ1文字に略して ADSR と言うことがあります。次の図は ADSR エンベロープを表しています。</p>
+<figure>
+<img src="img/adsr_envelope.svg" alt="Image of ADOsc audio graph." style="padding-bottom: 12px;"/>
+</figure>
+<p>アタックは low から high までの立ち上がりにかかる時間、 ディケイは high からサステインの値までの減衰にかかる時間です。</p>
+<p>サステインは、ディケイの終わりから指が鍵盤が離される(ノートオフ)までの区間ですが、ユーザが操作するパラメータとしてはその区間でエンベロープが出力する値の大きさになっています。</p>
+<p>リリースはノートオフの後、エンベロープが low まで減衰するのにかかる時間です。アタックやディケイの途中でノートオフされたときもリリースに移行します。</p>
+<h2 id="直線の計算">直線の計算</h2>
+<p>一つの区間での直線の計算の実装例です。出力の範囲は [0, 1] です。移動距離 1 と、区間の長さ <code>seconds</code> から、速度 <code>delta</code> [gain/sample] を計算しています。距離の単位はメートルなどではない抽象的な値なので適当に gain としています。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">struct</span> LinearAttack {</a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">float</span> delta;</a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">float</span> value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb1-4" title="4"></a>
+<a class="sourceLine" id="cb1-5" title="5">  LinearAttack(<span class="dt">float</span> sampleRate, <span class="dt">float</span> seconds) : delta(<span class="fl">1.0</span><span class="bu">f</span> / (seconds * sampleRate)) {}</a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7">  <span class="dt">float</span> process()</a>
+<a class="sourceLine" id="cb1-8" title="8">  {</a>
+<a class="sourceLine" id="cb1-9" title="9">    value += delta;</a>
+<a class="sourceLine" id="cb1-10" title="10">    <span class="cf">if</span> (value &gt; <span class="fl">1.0</span><span class="bu">f</span>) <span class="cf">return</span> <span class="fl">1.0</span><span class="bu">f</span>;</a>
+<a class="sourceLine" id="cb1-11" title="11">    <span class="cf">return</span> value;</a>
+<a class="sourceLine" id="cb1-12" title="12">  }</a>
+<a class="sourceLine" id="cb1-13" title="13">};</a></code></pre></div>
+<p><code>process</code> の出力を表した図です。</p>
+<figure>
+<img src="img/line.svg" alt="Image of a section of line." style="padding-bottom: 12px;"/>
+</figure>
+<h2 id="挙動">挙動</h2>
+<h3 id="ノートオン中の-adsr-の変更">ノートオン中の ADSR の変更</h3>
+<p>ノートオン中に ADSR のパラメータを変更可能にするかどうかの選択があります。パラメータを変更可能にしたほうが便利ですが、傾きを再計算するコストがかかります。全てのサンプルで傾きを再計算すると無視できないほど重くなるので、この文章ではバッファの先頭でのみ傾きの再計算を行うようにしています。</p>
+<p>リリースについてはサステインが変更されている途中でノートオフされると、ノートオフの時点でさらに傾きを計算し直すかどうかの選択があります。今回の実装では傾きを再計算しています。</p>
+<h3 id="アタック中のリリース">アタック中のリリース</h3>
+<p>ノートオフの時点の高さから減衰を始めます。</p>
+<figure>
+<img src="img/release_while_attack.svg" alt="Image of envelope receiving note-off while attack." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="ディケイ中のリリース">ディケイ中のリリース</h3>
+<p>ノートオフの時点の高さから減衰を始めます。</p>
+<figure>
+<img src="img/release_while_decay.svg" alt="Image of envelope receiving note-off while decay." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="リリース中のノートオン">リリース中のノートオン</h3>
+<p>左の図のようにノートオンの時点での高さを維持してアタックに移る挙動と、右の図のようにノートオンごとに高さを 0 にリセットする挙動の 2 種類が考えられます。</p>
+<figure>
+<img src="img/trigger_while_release.svg" alt="Image of 2 variation of envelope when receiving note-on while release." style="padding-bottom: 12px;"/>
+</figure>
+<p>特殊な場合を除けば、高さを維持する挙動を使うほうがポップノイズが減ります。 <a href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a> では、ノートオンを受け取ったボイスから、ポップノイズを減らすために用意された専用のボイスにパラメータをコピーして短いリリースをレンダリングすることでポップノイズを低減しているので、音量エンベロープに高さをリセットする挙動を使っています。</p>
+<h2 id="実装">実装</h2>
+<p>C++ です。 <code>std::clamp</code> を使っているので C++17 以降で動作します。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb2-1" title="1"><span class="co">// linear_envelope.hpp</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="pp">#include </span><span class="im">&lt;cstdint&gt;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> LinearADSREnvelope {</a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="dt">void</span> setup(Sample sampleRate) { <span class="kw">this</span>-&gt;sampleRate = sampleRate; }</a>
+<a class="sourceLine" id="cb2-8" title="8"></a>
+<a class="sourceLine" id="cb2-9" title="9">  Sample adaptTime(Sample seconds, Sample noteFreq)</a>
+<a class="sourceLine" id="cb2-10" title="10">  {</a>
+<a class="sourceLine" id="cb2-11" title="11">    <span class="at">const</span> Sample cycle = Sample(<span class="dv">1</span>) / noteFreq;</a>
+<a class="sourceLine" id="cb2-12" title="12">    <span class="cf">return</span> seconds &gt;= cycle ? seconds : cycle &gt; Sample(<span class="fl">0.1</span>) ? Sample(<span class="fl">0.1</span>) : cycle;</a>
+<a class="sourceLine" id="cb2-13" title="13">  }</a>
+<a class="sourceLine" id="cb2-14" title="14"></a>
+<a class="sourceLine" id="cb2-15" title="15">  Sample secondToDelta(Sample seconds) { <span class="cf">return</span> Sample(<span class="dv">1</span>) / (sampleRate * seconds); }</a>
+<a class="sourceLine" id="cb2-16" title="16"></a>
+<a class="sourceLine" id="cb2-17" title="17">  <span class="dt">void</span> trigger(</a>
+<a class="sourceLine" id="cb2-18" title="18">    Sample attackTime,</a>
+<a class="sourceLine" id="cb2-19" title="19">    Sample decayTime,</a>
+<a class="sourceLine" id="cb2-20" title="20">    Sample sustainLevel,</a>
+<a class="sourceLine" id="cb2-21" title="21">    Sample releaseTime,</a>
+<a class="sourceLine" id="cb2-22" title="22">    Sample noteFreq)</a>
+<a class="sourceLine" id="cb2-23" title="23">  {</a>
+<a class="sourceLine" id="cb2-24" title="24">    state = stateAttack;</a>
+<a class="sourceLine" id="cb2-25" title="25">    value = Sample(<span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb2-26" title="26">    atkOffset = state == stateTerminated ? <span class="dv">0</span> : out;</a>
+<a class="sourceLine" id="cb2-27" title="27">    atkRange = Sample(<span class="dv">1</span>) - atkOffset;</a>
+<a class="sourceLine" id="cb2-28" title="28">    set(attackTime, decayTime, sustainLevel, releaseTime, noteFreq);</a>
+<a class="sourceLine" id="cb2-29" title="29">  }</a>
+<a class="sourceLine" id="cb2-30" title="30"></a>
+<a class="sourceLine" id="cb2-31" title="31">  <span class="dt">void</span> set(</a>
+<a class="sourceLine" id="cb2-32" title="32">    Sample attackTime,</a>
+<a class="sourceLine" id="cb2-33" title="33">    Sample decayTime,</a>
+<a class="sourceLine" id="cb2-34" title="34">    Sample sustainLevel,</a>
+<a class="sourceLine" id="cb2-35" title="35">    Sample releaseTime,</a>
+<a class="sourceLine" id="cb2-36" title="36">    Sample noteFreq)</a>
+<a class="sourceLine" id="cb2-37" title="37">  {</a>
+<a class="sourceLine" id="cb2-38" title="38">    sus = <span class="bu">std::</span>clamp&lt;Sample&gt;(sustainLevel, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</a>
+<a class="sourceLine" id="cb2-39" title="39">    atk = secondToDelta(adaptTime(attackTime, noteFreq));</a>
+<a class="sourceLine" id="cb2-40" title="40">    dec = secondToDelta(adaptTime(decayTime, noteFreq));</a>
+<a class="sourceLine" id="cb2-41" title="41">    rel = secondToDelta(adaptTime(releaseTime, noteFreq));</a>
+<a class="sourceLine" id="cb2-42" title="42">  }</a>
+<a class="sourceLine" id="cb2-43" title="43"></a>
+<a class="sourceLine" id="cb2-44" title="44">  <span class="dt">void</span> release()</a>
+<a class="sourceLine" id="cb2-45" title="45">  {</a>
+<a class="sourceLine" id="cb2-46" title="46">    state = stateRelease;</a>
+<a class="sourceLine" id="cb2-47" title="47">    value = Sample(<span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb2-48" title="48">    relRange = out;</a>
+<a class="sourceLine" id="cb2-49" title="49">  }</a>
+<a class="sourceLine" id="cb2-50" title="50"></a>
+<a class="sourceLine" id="cb2-51" title="51">  Sample process()</a>
+<a class="sourceLine" id="cb2-52" title="52">  {</a>
+<a class="sourceLine" id="cb2-53" title="53">    <span class="cf">if</span> (value &lt;= Sample(<span class="dv">0</span>)) {</a>
+<a class="sourceLine" id="cb2-54" title="54">      state = state + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb2-55" title="55">      value = Sample(<span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb2-56" title="56">    }</a>
+<a class="sourceLine" id="cb2-57" title="57"></a>
+<a class="sourceLine" id="cb2-58" title="58">    <span class="cf">switch</span> (state) {</a>
+<a class="sourceLine" id="cb2-59" title="59">      <span class="cf">case</span> stateAttack:</a>
+<a class="sourceLine" id="cb2-60" title="60">        value -= atk;</a>
+<a class="sourceLine" id="cb2-61" title="61">        out = atkOffset + atkRange * (Sample(<span class="dv">1</span>) - value);</a>
+<a class="sourceLine" id="cb2-62" title="62">        <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb2-63" title="63"></a>
+<a class="sourceLine" id="cb2-64" title="64">      <span class="cf">case</span> stateDecay:</a>
+<a class="sourceLine" id="cb2-65" title="65">        value -= dec;</a>
+<a class="sourceLine" id="cb2-66" title="66">        out = (Sample(<span class="dv">1</span>) - sus) * value + sus;</a>
+<a class="sourceLine" id="cb2-67" title="67">        <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb2-68" title="68"></a>
+<a class="sourceLine" id="cb2-69" title="69">      <span class="cf">case</span> stateSustain:</a>
+<a class="sourceLine" id="cb2-70" title="70">        out = sus;</a>
+<a class="sourceLine" id="cb2-71" title="71">        <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb2-72" title="72"></a>
+<a class="sourceLine" id="cb2-73" title="73">      <span class="cf">case</span> stateRelease:</a>
+<a class="sourceLine" id="cb2-74" title="74">        value -= rel;</a>
+<a class="sourceLine" id="cb2-75" title="75">        out = relRange * value;</a>
+<a class="sourceLine" id="cb2-76" title="76">        <span class="cf">break</span>;</a>
+<a class="sourceLine" id="cb2-77" title="77"></a>
+<a class="sourceLine" id="cb2-78" title="78">      <span class="cf">default</span>:</a>
+<a class="sourceLine" id="cb2-79" title="79">        <span class="cf">return</span> Sample(<span class="dv">0</span>);</a>
+<a class="sourceLine" id="cb2-80" title="80">    }</a>
+<a class="sourceLine" id="cb2-81" title="81">    <span class="cf">return</span> <span class="bu">std::</span>clamp&lt;Sample&gt;(out, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</a>
+<a class="sourceLine" id="cb2-82" title="82">  }</a>
+<a class="sourceLine" id="cb2-83" title="83"></a>
+<a class="sourceLine" id="cb2-84" title="84"><span class="kw">protected</span>:</a>
+<a class="sourceLine" id="cb2-85" title="85">  <span class="kw">enum</span> State : <span class="dt">int32_t</span> {</a>
+<a class="sourceLine" id="cb2-86" title="86">    stateAttack,</a>
+<a class="sourceLine" id="cb2-87" title="87">    stateDecay,</a>
+<a class="sourceLine" id="cb2-88" title="88">    stateSustain,</a>
+<a class="sourceLine" id="cb2-89" title="89">    stateRelease,</a>
+<a class="sourceLine" id="cb2-90" title="90">    stateTerminated</a>
+<a class="sourceLine" id="cb2-91" title="91">  };</a>
+<a class="sourceLine" id="cb2-92" title="92"></a>
+<a class="sourceLine" id="cb2-93" title="93">  Sample sampleRate = <span class="dv">44100</span>;</a>
+<a class="sourceLine" id="cb2-94" title="94">  Sample sus = <span class="fl">0.5</span>;</a>
+<a class="sourceLine" id="cb2-95" title="95">  Sample atk = <span class="fl">0.01</span>;</a>
+<a class="sourceLine" id="cb2-96" title="96">  Sample atkOffset = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-97" title="97">  Sample atkRange = <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb2-98" title="98">  Sample dec = <span class="fl">0.01</span>;</a>
+<a class="sourceLine" id="cb2-99" title="99">  Sample rel = <span class="fl">0.01</span>;</a>
+<a class="sourceLine" id="cb2-100" title="100">  Sample relRange = <span class="fl">0.5</span>;</a>
+<a class="sourceLine" id="cb2-101" title="101">  Sample value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-102" title="102">  Sample out = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-103" title="103">  <span class="dt">int32_t</span> state = stateTerminated;</a>
+<a class="sourceLine" id="cb2-104" title="104">};</a></code></pre></div>
+<p><code>adaptTime</code> は信号の周波数に応じて区間の時間を少し長くすることで、ポップノイズを低減するメソッドです。</p>
+<p><code>secondToDelta</code> は秒数から 1 サンプルあたりのエンベロープの値の変化量を計算します。各区間の内部的な出力は [0, 1] の範囲に正規化されています。 <code>process</code> から出力されるときに適切な値にマッピングしています。</p>
+<p><code>trigger</code> の引数の <code>*Time</code> の単位は秒です。リリース中のノートオンは高さを維持する挙動にしています。</p>
+<p><code>set</code> は UI で変更されたパラメータを更新するために呼び出します。今回の実装ではサステイン中に <code>sustainLevel</code> を変更するとノイズが乗ります。ノイズを減らすときは次のページで紹介している <code>Smoother</code> クラスが使えます。</p>
+<ul>
+<li><a href="https://ryukau.github.io/filter_notes/control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの UI から入力された値の補間</a></li>
+</ul>
+<p><code>process</code> はエンベロープの出力を計算します。出力が [0, 1] の範囲から少しだけはみ出してもいいなら <code>clamp</code> を消すことができます。このとき、はみ出す量の絶対値の上限は <code>1 / (sampleRate * seconds)</code> です。</p>
+<h2 id="テスト">テスト</h2>
+<p>wav ファイルへの書き出しに <a href="http://www.mega-nerd.com/libsndfile/">libsndfile</a> を使っています。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb3-1" title="1"><span class="co">// test.cpp</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="pp">#include </span><span class="im">&quot;linear_envelope.hpp&quot;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="pp">#include </span><span class="im">&lt;sndfile.h&gt;</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></a>
+<a class="sourceLine" id="cb3-10" title="10"></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="kw">using</span> Sample = <span class="dt">float</span>;</a>
+<a class="sourceLine" id="cb3-12" title="12"></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="kw">constexpr</span> Sample sampleRate = <span class="fl">44100.0</span>;</a>
+<a class="sourceLine" id="cb3-14" title="14"></a>
+<a class="sourceLine" id="cb3-15" title="15"><span class="dt">int32_t</span></a>
+<a class="sourceLine" id="cb3-16" title="16">writeWave(<span class="at">const</span> <span class="dt">char</span> *filename, <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; &amp;buffer, <span class="at">const</span> <span class="dt">size_t</span> &amp;samplerate)</a>
+<a class="sourceLine" id="cb3-17" title="17">{</a>
+<a class="sourceLine" id="cb3-18" title="18">  SF_INFO sfinfo;</a>
+<a class="sourceLine" id="cb3-19" title="19">  memset(&amp;sfinfo, <span class="dv">0</span>, <span class="kw">sizeof</span>(sfinfo));</a>
+<a class="sourceLine" id="cb3-20" title="20">  sfinfo.samplerate = samplerate;</a>
+<a class="sourceLine" id="cb3-21" title="21">  sfinfo.frames = buffer.size();</a>
+<a class="sourceLine" id="cb3-22" title="22">  sfinfo.channels = <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-23" title="23">  sfinfo.format = (SF_FORMAT_WAV | SF_FORMAT_FLOAT);</a>
+<a class="sourceLine" id="cb3-24" title="24"></a>
+<a class="sourceLine" id="cb3-25" title="25">  SNDFILE *file = sf_open(filename, SFM_WRITE, &amp;sfinfo);</a>
+<a class="sourceLine" id="cb3-26" title="26">  <span class="cf">if</span> (!file) {</a>
+<a class="sourceLine" id="cb3-27" title="27">    <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Error: sf_open failed.&quot;</span> &lt;&lt; <span class="bu">std::</span>endl;</a>
+<a class="sourceLine" id="cb3-28" title="28">    <span class="cf">return</span> <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-29" title="29">  }</a>
+<a class="sourceLine" id="cb3-30" title="30"></a>
+<a class="sourceLine" id="cb3-31" title="31">  <span class="dt">size_t</span> length = sfinfo.channels * buffer.size();</a>
+<a class="sourceLine" id="cb3-32" title="32">  <span class="cf">if</span> (sf_write_float(file, &amp;buffer[<span class="dv">0</span>], length) != length)</a>
+<a class="sourceLine" id="cb3-33" title="33">    <span class="bu">std::</span>cout &lt;&lt; sf_strerror(file) &lt;&lt; <span class="bu">std::</span>endl;</a>
+<a class="sourceLine" id="cb3-34" title="34"></a>
+<a class="sourceLine" id="cb3-35" title="35">  sf_close(file);</a>
+<a class="sourceLine" id="cb3-36" title="36"></a>
+<a class="sourceLine" id="cb3-37" title="37">  <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-38" title="38">}</a>
+<a class="sourceLine" id="cb3-39" title="39"></a>
+<a class="sourceLine" id="cb3-40" title="40"><span class="dt">void</span> testADSR(</a>
+<a class="sourceLine" id="cb3-41" title="41">  <span class="dt">float</span> attackTime = <span class="fl">1.0</span><span class="bu">f</span>,</a>
+<a class="sourceLine" id="cb3-42" title="42">  <span class="dt">float</span> decayTime = <span class="fl">1.0</span><span class="bu">f</span>,</a>
+<a class="sourceLine" id="cb3-43" title="43">  <span class="dt">float</span> sustainLevel = <span class="fl">0.5</span><span class="bu">f</span>,</a>
+<a class="sourceLine" id="cb3-44" title="44">  <span class="dt">float</span> releaseTime = <span class="fl">2.0</span><span class="bu">f</span>,</a>
+<a class="sourceLine" id="cb3-45" title="45">  <span class="dt">float</span> releaseAt = <span class="fl">3.0</span><span class="bu">f</span>,</a>
+<a class="sourceLine" id="cb3-46" title="46">  <span class="dt">float</span> noteFreq = <span class="fl">100.0</span><span class="bu">f</span>)</a>
+<a class="sourceLine" id="cb3-47" title="47">{</a>
+<a class="sourceLine" id="cb3-48" title="48">  LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</a>
+<a class="sourceLine" id="cb3-49" title="49">  envelope.setup(sampleRate);</a>
+<a class="sourceLine" id="cb3-50" title="50">  envelope.trigger(attackTime, decayTime, sustainLevel, releaseTime, noteFreq);</a>
+<a class="sourceLine" id="cb3-51" title="51"></a>
+<a class="sourceLine" id="cb3-52" title="52">  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dt">size_t</span>(<span class="dv">8</span> * sampleRate));</a>
+<a class="sourceLine" id="cb3-53" title="53">  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size(); ++idx) {</a>
+<a class="sourceLine" id="cb3-54" title="54">    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(releaseAt * sampleRate)) envelope.release();</a>
+<a class="sourceLine" id="cb3-55" title="55">    buffer[idx] = envelope.process();</a>
+<a class="sourceLine" id="cb3-56" title="56">  }</a>
+<a class="sourceLine" id="cb3-57" title="57">  writeWave(<span class="st">&quot;ADSR.wav&quot;</span>, buffer, sampleRate);</a>
+<a class="sourceLine" id="cb3-58" title="58">}</a>
+<a class="sourceLine" id="cb3-59" title="59"></a>
+<a class="sourceLine" id="cb3-60" title="60"><span class="dt">void</span> testReleaseWhileAttack()</a>
+<a class="sourceLine" id="cb3-61" title="61">{</a>
+<a class="sourceLine" id="cb3-62" title="62">  LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</a>
+<a class="sourceLine" id="cb3-63" title="63">  envelope.setup(sampleRate);</a>
+<a class="sourceLine" id="cb3-64" title="64">  envelope.trigger(<span class="fl">4.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">2.0</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</a>
+<a class="sourceLine" id="cb3-65" title="65"></a>
+<a class="sourceLine" id="cb3-66" title="66">  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dt">size_t</span>(<span class="dv">8</span> * sampleRate));</a>
+<a class="sourceLine" id="cb3-67" title="67">  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size(); ++idx) {</a>
+<a class="sourceLine" id="cb3-68" title="68">    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">3.0</span><span class="bu">f</span> * sampleRate)) envelope.release();</a>
+<a class="sourceLine" id="cb3-69" title="69">    buffer[idx] = envelope.process();</a>
+<a class="sourceLine" id="cb3-70" title="70">  }</a>
+<a class="sourceLine" id="cb3-71" title="71">  writeWave(<span class="st">&quot;ReleaseWhileAttack.wav&quot;</span>, buffer, sampleRate);</a>
+<a class="sourceLine" id="cb3-72" title="72">}</a>
+<a class="sourceLine" id="cb3-73" title="73"></a>
+<a class="sourceLine" id="cb3-74" title="74"><span class="dt">void</span> testReleaseWhileDecay()</a>
+<a class="sourceLine" id="cb3-75" title="75">{</a>
+<a class="sourceLine" id="cb3-76" title="76">  LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</a>
+<a class="sourceLine" id="cb3-77" title="77">  envelope.setup(sampleRate);</a>
+<a class="sourceLine" id="cb3-78" title="78">  envelope.trigger(<span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</a>
+<a class="sourceLine" id="cb3-79" title="79"></a>
+<a class="sourceLine" id="cb3-80" title="80">  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dt">size_t</span>(<span class="dv">8</span> * sampleRate));</a>
+<a class="sourceLine" id="cb3-81" title="81">  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size(); ++idx) {</a>
+<a class="sourceLine" id="cb3-82" title="82">    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">1.5</span><span class="bu">f</span> * sampleRate)) envelope.release();</a>
+<a class="sourceLine" id="cb3-83" title="83">    buffer[idx] = envelope.process();</a>
+<a class="sourceLine" id="cb3-84" title="84">  }</a>
+<a class="sourceLine" id="cb3-85" title="85">  writeWave(<span class="st">&quot;ReleaseWhileDecay.wav&quot;</span>, buffer, sampleRate);</a>
+<a class="sourceLine" id="cb3-86" title="86">}</a>
+<a class="sourceLine" id="cb3-87" title="87"></a>
+<a class="sourceLine" id="cb3-88" title="88"><span class="dt">void</span> testTriggerWhileRelease()</a>
+<a class="sourceLine" id="cb3-89" title="89">{</a>
+<a class="sourceLine" id="cb3-90" title="90">  LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</a>
+<a class="sourceLine" id="cb3-91" title="91">  envelope.setup(sampleRate);</a>
+<a class="sourceLine" id="cb3-92" title="92">  envelope.trigger(<span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">2.0</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</a>
+<a class="sourceLine" id="cb3-93" title="93"></a>
+<a class="sourceLine" id="cb3-94" title="94">  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dt">size_t</span>(<span class="dv">8</span> * sampleRate));</a>
+<a class="sourceLine" id="cb3-95" title="95">  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size(); ++idx) {</a>
+<a class="sourceLine" id="cb3-96" title="96">    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">3.0</span><span class="bu">f</span> * sampleRate)) envelope.release();</a>
+<a class="sourceLine" id="cb3-97" title="97">    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">4.0</span><span class="bu">f</span> * sampleRate))</a>
+<a class="sourceLine" id="cb3-98" title="98">      envelope.trigger(<span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">0.3</span><span class="bu">f</span>, <span class="fl">2.0</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</a>
+<a class="sourceLine" id="cb3-99" title="99">    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">6.0</span><span class="bu">f</span> * sampleRate)) envelope.release();</a>
+<a class="sourceLine" id="cb3-100" title="100">    buffer[idx] = envelope.process();</a>
+<a class="sourceLine" id="cb3-101" title="101">  }</a>
+<a class="sourceLine" id="cb3-102" title="102">  writeWave(<span class="st">&quot;TriggerWhileRelease.wav&quot;</span>, buffer, sampleRate);</a>
+<a class="sourceLine" id="cb3-103" title="103">}</a>
+<a class="sourceLine" id="cb3-104" title="104"></a>
+<a class="sourceLine" id="cb3-105" title="105"><span class="dt">int</span> main()</a>
+<a class="sourceLine" id="cb3-106" title="106">{</a>
+<a class="sourceLine" id="cb3-107" title="107">  testADSR();</a>
+<a class="sourceLine" id="cb3-108" title="108">  testReleaseWhileAttack();</a>
+<a class="sourceLine" id="cb3-109" title="109">  testReleaseWhileDecay();</a>
+<a class="sourceLine" id="cb3-110" title="110">  testTriggerWhileRelease();</a>
+<a class="sourceLine" id="cb3-111" title="111">  <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-112" title="112">}</a></code></pre></div>
+<p>ファイルの配置です。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1">$ <span class="ex">tree</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="ex">.</span></a>
+<a class="sourceLine" id="cb4-3" title="3">├── <span class="ex">linear_envelope.hpp</span></a>
+<a class="sourceLine" id="cb4-4" title="4">└── <span class="ex">test.cpp</span></a></code></pre></div>
+<p>コンパイルして実行します。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1">$ <span class="ex">g++</span> -std=c++17 -lsndfile -O3 test.cpp</a>
+<a class="sourceLine" id="cb5-2" title="2">$ <span class="ex">./a.out</span></a></code></pre></div>
+<p>結果です。この画像は matplotlib でプロットしています。縦軸は振幅、横軸は時間で単位は秒数です。大まかなチェックなら <a href="https://www.audacityteam.org/">Audacity</a> や <a href="https://sonicvisualiser.org/">Sonic Visualiser</a> も使えますが、どちらも拡大縮小がしづらいです。</p>
+<figure>
+<img src="img/testADSR.png" alt="Image of test result of linear ADSR envelope." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/testReleaseWhileAttack.png" alt="Image of test result of release while attack." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/testReleaseWhileDecay.png" alt="Image of test result of release while decay." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/testTriggerWhileRelease.png" alt="Image of test result of trigger while release." style="padding-bottom: 12px;"/>
+</figure>
+<h2 id="simd-による並列化">SIMD による並列化</h2>
+<p>CubicPadSynth に <a href="https://github.com/vectorclass/version2">vector class library</a> を使って並列化した実装があります。この実装ではリリース時に傾きの再計算をしていません。</p>
+<ul>
+<li><a href="https://github.com/ryukau/VSTPlugins/blob/master/CubicPadSynth/source/dsp/envelope.hpp#L155">VSTPlugins/envelope.hpp at master · ryukau/VSTPlugins · GitHub</a></li>
+</ul>
+<h2 id="p-controller">P Controller</h2>
+<p>PID コントローラの P だけを取り出したフィルタを使うことでエンベロープの<ruby>角<rt>かど</rt></ruby>を滑らかにすることができます。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> PController {</a>
+<a class="sourceLine" id="cb6-2" title="2">  Sample kp = <span class="dv">1</span>; <span class="co">// Range in [0, 1].</span></a>
+<a class="sourceLine" id="cb6-3" title="3">  Sample value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb6-4" title="4"></a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="dt">void</span> setup(Sample p) { kp = <span class="bu">std::</span>clamp&lt;Sample&gt;(p, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>)); }</a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="dt">void</span> reset() { value = <span class="dv">0</span>; }</a>
+<a class="sourceLine" id="cb6-7" title="7">  Sample process(Sample input) { <span class="cf">return</span> value += kp * (input - value); }</a>
+<a class="sourceLine" id="cb6-8" title="8">};</a></code></pre></div>
+<p>使用例です。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb7-1" title="1">LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</a>
+<a class="sourceLine" id="cb7-2" title="2">envelope.setup(sampleRate);</a>
+<a class="sourceLine" id="cb7-3" title="3">envelope.trigger(<span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">2.0</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5">PController&lt;<span class="dt">float</span>&gt; smoother;</a>
+<a class="sourceLine" id="cb7-6" title="6">smoother.setup(<span class="fl">0.05</span><span class="bu">f</span>);</a>
+<a class="sourceLine" id="cb7-7" title="7"></a>
+<a class="sourceLine" id="cb7-8" title="8"><span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dv">44100</span>);</a>
+<a class="sourceLine" id="cb7-9" title="9"><span class="cf">for</span> (<span class="kw">auto</span> &amp;sample: buffer) sample = smoother.process(envelope.process());</a></code></pre></div>
+<p><code>PController</code> を通した波形とバイパスした波形 (ADSR) を比較する図です。 <code>kp = 16 / 44100</code> としています。</p>
+<figure>
+<img src="img/PController.png" alt="Image of ." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/testADSR.png" alt="Image of test result of linear ADSR envelope." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="周波数特性">周波数特性</h3>
+<p><code>PController</code> の伝達関数を出します。 <code>process()</code> での計算式です。</p>
+<pre><code>value += kp * (input - value);</code></pre>
+<p><span class="math inline">\(n\)</span> を経過サンプル数とすると <code>value</code> は <span class="math inline">\(y[n - 1]\)</span> 、 <code>input</code> は <span class="math inline">\(x[n]\)</span> となります。出力は <span class="math inline">\(y[n]\)</span> です。 <code>process()</code> の計算式の記号を置き換えます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+y[n] &amp;= y[n - 1] + k_p (x[n] - y[n - 1]) \\
+y[n] + (k_p - 1) y[n - 1] &amp;= k_p * x[n]
+\end{aligned}
+\]</span></p>
+<p>ここから伝達関数が得られます。</p>
+<p><span class="math display">\[
+H(z) = \frac{k_p}{1 + (k_p - 1) z^{-1}}
+\]</span></p>
+<p><code>PController</code> の振幅の周波数特性です。ローパスに近い特性であることが見て取れます。</p>
+<figure>
+<img src="img/pcontroller_amplitude.png" alt="Image of amplitude response of P controller." style="padding-bottom: 12px;"/>
+</figure>
+<p><code>PController</code> の位相の周波数特性です。</p>
+<figure>
+<img src="img/pcontroller_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="k_p-からカットオフ周波数を求める"><span class="math inline">\(k_p\)</span> からカットオフ周波数を求める</h3>
+<p>先に書いておきますが、この項と次の項はやってみたものの使い物にはなりませんでした。</p>
+<p>伝達関数 <span class="math inline">\(H(z)\)</span> からカットオフ周波数 <span class="math inline">\(\omega\)</span> を求めてみます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+|H(e^{j \omega})|
+  = \frac{1}{\sqrt{2}}
+  &amp;= \left| \frac{k_p}{1 + (k_p - 1) e^{-j \omega}} \right| \\
+\end{aligned}
+\]</span></p>
+<p>Maxima で <span class="math inline">\(\omega\)</span> について解きます。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb9-1" title="1">ω<span class="cn">_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, ω);</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="fu">ratsimp</span>(ω<span class="cn">_eq</span>);</a></code></pre></div>
+<p>出力です。2つの解が出てきたので <span class="math inline">\(\omega_1\)</span> と <span class="math inline">\(\omega_2\)</span> という名前をつけています。</p>
+<p><span class="math display">\[
+\omega_1 = -j \log{\left( -\frac{\sqrt{2}\, {{{k_p}}^{2}}+\left( -\sqrt{2}-1\right) \, {k_p}+1}{2 {{{k_p}}^{2}}-1}\right) }
+\operatorname{,}\quad
+\omega_2 = -j \log{\left( \frac{\sqrt{2}\, {{{k_p}}^{2}}+\left( 1-\sqrt{2}\right) \, {k_p}-1}{2 {{{k_p}}^{2}}-1}\right) }
+\]</span></p>
+<p><span class="math inline">\(\omega_1\)</span> は虚数 <span class="math inline">\(j\)</span> を外してプロットするとそれらしい曲線が出てきます。カットオフ周波数は縦軸です。 <span class="math inline">\(\pi\)</span> を超えているのは、そういうものなのか計算誤差なのか判断できていません。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb10-1" title="1"><span class="fu">plot2d</span>(-<span class="fu">log</span>(-(<span class="fu">sqrt</span>(<span class="dv">2</span>)*<span class="cn">k_p</span>^<span class="dv">2</span>+(-<span class="fu">sqrt</span>(<span class="dv">2</span>)<span class="dv">-1</span>)*<span class="cn">k_p</span><span class="dv">+1</span>)/(<span class="dv">2</span>*<span class="cn">k_p</span>^<span class="dv">2-1</span>)), [<span class="cn">k_p</span>, <span class="dv">0</span>, <span class="fl">1.1</span>]);</a></code></pre></div>
+<figure>
+<img src="img/pcontroller_kp_omega_plot.svg" alt="Image of k_p-omega plot." style="width: 480px;padding-bottom: 12px;"/>
+</figure>
+<h3 id="カットオフ周波数から-k_p-を求める">カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める</h3>
+<p><span class="math inline">\(\omega\)</span> の式を <span class="math inline">\(k_p\)</span> について解きます。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb11-1" title="1">ω<span class="cn">_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, ω); <span class="co">/* 再掲 */</span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">for</span> <span class="cn">eq</span> <span class="kw">in</span> ω<span class="cn">_eq</span> <span class="kw">do</span> <span class="fu">disp</span>(<span class="fu">solve</span>(<span class="cn">eq</span>, <span class="cn">k_p</span>));</a></code></pre></div>
+<p>出力です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+k_p =
+-&amp; \frac{\sqrt{8 {e^{2 j \omega }}+\left( {{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}-{{2}^{\frac{3}{2}}}+3}-\sqrt{2}-1}{4 {e^{j \omega }}+{{2}^{\frac{3}{2}}}},
+&amp;&amp; \frac{\sqrt{8 {e^{2 j \omega }}+\left( {{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}-{{2}^{\frac{3}{2}}}+3}+\sqrt{2}+1}{4 {e^{j \omega }}+{{2}^{\frac{3}{2}}}}, \\
+&amp; \frac{\sqrt{8 {e^{2 j \omega }}+\left( -{{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}+{{2}^{\frac{3}{2}}}+3}-\sqrt{2}+1}{4 {e^{j \omega }}-{{2}^{\frac{3}{2}}}},
+&amp;&amp;- \frac{\sqrt{8 {e^{2 j \omega }}+\left( -{{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}+{{2}^{\frac{3}{2}}}+3}+\sqrt{2}-1}{4 {e^{j \omega }}-{{2}^{\frac{3}{2}}}}. \\
+\end{aligned}
+\]</span></p>
+<p>これらの式を計算してみたのですが、正しい値にならなかったです。</p>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
