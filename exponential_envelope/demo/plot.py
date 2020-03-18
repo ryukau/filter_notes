@@ -27,3 +27,5 @@ process("ReleaseWhileAttack")
 process("ReleaseWhileDecay")
 process("TriggerWhileRelease")
 process("ChangeSustain")
+
+process("ExpAD")

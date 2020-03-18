@@ -403,3 +403,143 @@ protected:
     <source src="snd/declick_off.wav" type="audio/wav">
   </audio>
 </figure>
+
+## 減衰する指数曲線とその反転の乗算
+減衰する指数曲線とその反転を掛け合わせて合成したエンベロープ $E_{\mathtt{AD}}(t)$ を作ります。
+
+$$
+E_{\mathtt{AD}}(t) = (1 - a^{t}) d^{t}
+$$
+
+ピークの位置 $t_p$ とピークの大きさ $E_{\mathtt{AD}}(t_p)$ を求めます。 $t_p$ はアタック時間です。 $E_{\mathtt{AD}}(t_p)$ は出力範囲を $[0, 1]$ に正規化するために使えます。
+
+$t_p$ の時点で $E_{\mathtt{AD}}(t)$ を $t$ について微分した関数の値が 0 になるはずです。 Maxima で解きます。
+
+```maxima
+expr: diff((1-a^t) * d^t, t);
+solve(0 = expr, t);
+```
+
+出力です。
+
+$$
+t_p = \frac{\log{\left( \dfrac{\log{(d)}}{\log{(d)}+\log{(a)}}\right) }}{\log{(a)}}
+$$
+
+$a$ と $d$ を求めます。ユーザが指定したアタック時間を $A$ 、 ユーザが指定したディケイ時間を $D$ とします。 $[0, 1)$ の範囲の適当なしきい値 $\epsilon$ を用意して、 $a^{A} = d^{D} = \epsilon$ とすると $a, d$ は次の式で計算できます。
+
+$$
+a = \epsilon^{1/A}, \quad b = \epsilon^{1/B}
+$$
+
+C++ での実装です。
+
+```cpp
+#include <cmath>
+
+class ExpAD {
+public:
+  void setup(float sampleRate) { this->sampleRate = sampleRate; }
+  bool isTerminated() { return valueD <= threshold; }
+
+  // attack and decay in seconds.
+  void reset(float attack, float decay)
+  {
+    valueA = 1.0f;
+    if (attack < 1e-5) attack = 1e-5;
+    alphaA = powf(threshold, 1.0f / (attack * sampleRate));
+
+    valueD = 1.0f;
+    if (decay < 1e-5) decay = 1e-5;
+    alphaD = powf(threshold, 1.0f / (decay * sampleRate));
+
+    if (attack <= 0.0f) {
+      gain = 1.0f;
+    } else if (decay <= 0.0f) {
+      gain = 0.0f;
+    } else {
+      auto log_a = logf(alphaA);
+      auto log_d = logf(alphaD);
+      auto t_p = logf(log_d / (log_a + log_d)) / log_a;
+      gain = 1.0f / ((1.0f - powf(alphaA, t_p)) * powf(alphaD, t_p));
+    }
+  }
+
+  float process()
+  {
+    valueA *= alphaA;
+    valueD *= alphaD;
+    return gain * (1.0f - threshold - valueA) * (valueD - threshold);
+  }
+
+protected:
+  const float threshold = 1e-5;
+  float sampleRate = 44100;
+  float gain = 0;
+  float valueA = 0;
+  float alphaA = 0;
+  float valueD = 0;
+  float alphaD = 0;
+};
+```
+
+テストコードへのリンクです。
+
+- TODO リンク
+
+テスト結果です。
+
+<figure>
+<img src="img/ExpAD_cpp.png" alt="Image of ExpAD envelope. C++ implementation." style="padding-bottom: 12px;"/>
+</figure>
+
+### 別解
+この計算方法は [EnvelopedSine](https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html) で使っています。エンベロープ $\tilde{E}_{\mathtt{AD}}$
+
+$$
+\tilde{E}_{\mathtt{AD}}(t) = (1 - e^{-at}) e^{-bt}
+$$
+
+ピークの位置 $t_p$ とピークの大きさ $\tilde{E}_{\mathtt{AD}}(t_p)$ を求めます。
+
+```maxima
+expr: diff((1-exp(-a*t)) * exp(-b*t), t);
+solve(0 = expr, t);
+```
+
+$$
+t_p = \frac{\log{\left( \dfrac{a}{b}+1\right) }}{a}
+$$
+
+$a$ と $b$ を求めます。アタック時間を $A$ 、 ディケイ時間を $B$ 、 適当なしきい値を $\epsilon \in [0, 1)$ とします。 $e^{-a A} = e^{-b B} = \epsilon$ となる $a, b$ は次の式で計算できます。
+
+$$
+a = - \dfrac{\log(\epsilon)}{A}, \quad b = - \dfrac{\log(\epsilon)}{B}
+$$
+
+コード例です。
+
+```python
+import numpy as np
+
+def envelopeExpr(a, b, time):
+    return (1 - np.exp(-a * time)) * np.exp(-b * time)
+
+def envelope(attack, decay, eps=1e-5):
+    _a = -np.log(eps) / attack
+    _b = -np.log(eps) / decay
+    peakTime = np.log(_a / _b + 1) / _a
+    gain = 1 / envelopeExpr(_a, _b, peakTime)
+
+    samplerate = 48000
+    duration = 1
+    time = np.linspace(0, duration, duration * samplerate)
+
+    return envelopeExpr(_a, _b, time)
+
+output = envelope(1.0, 2.0)
+```
+
+<figure>
+<img src="img/ExpAD.png" alt="Image of ExpAD envelope. Alternative implementation." style="padding-bottom: 12px;"/>
+</figure>
