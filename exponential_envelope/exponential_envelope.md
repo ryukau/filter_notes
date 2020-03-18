@@ -485,7 +485,7 @@ protected:
 
 テストコードへのリンクです。
 
-- TODO リンク
+- [filter_notes/expAD.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/expAD.cpp)
 
 テスト結果です。
 
