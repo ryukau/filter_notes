@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2020-03-17" />
+<meta name="dcterms.date" content="2020-03-18" />
 <title>exponential_envelope</title>
 
 <!-- highlight.js -->
@@ -228,7 +228,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2020-03-17
+Update: 2020-03-18
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -240,6 +240,9 @@ Update: 2020-03-17
   <li><a href="#減衰する指数曲線の反転">減衰する指数曲線の反転</a></li>
   <li><a href="#指数曲線を使った-adsr-エンベロープ">指数曲線を使った ADSR エンベロープ</a><ul>
   <li><a href="#デクリック-declick">デクリック (declick)</a></li>
+  </ul></li>
+  <li><a href="#減衰する指数曲線とその反転の乗算">減衰する指数曲線とその反転の乗算</a><ul>
+  <li><a href="#別解">別解</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -610,6 +613,115 @@ declick_off
 <audio controls>
 <source src="snd/declick_off.wav" type="audio/wav">
 </audio>
+</figure>
+<h2 id="減衰する指数曲線とその反転の乗算">減衰する指数曲線とその反転の乗算</h2>
+<p>減衰する指数曲線とその反転を掛け合わせて合成したエンベロープ <span class="math inline">\(E_{\mathtt{AD}}(t)\)</span> を作ります。</p>
+<p><span class="math display">\[
+E_{\mathtt{AD}}(t) = (1 - a^{t}) d^{t}
+\]</span></p>
+<p>ピークの位置 <span class="math inline">\(t_p\)</span> とピークの大きさ <span class="math inline">\(E_{\mathtt{AD}}(t_p)\)</span> を求めます。 <span class="math inline">\(t_p\)</span> はアタック時間です。 <span class="math inline">\(E_{\mathtt{AD}}(t_p)\)</span> は出力範囲を <span class="math inline">\([0, 1]\)</span> に正規化するために使えます。</p>
+<p><span class="math inline">\(t_p\)</span> の時点で <span class="math inline">\(E_{\mathtt{AD}}(t)\)</span> を <span class="math inline">\(t\)</span> について微分した関数の値が 0 になるはずです。 Maxima で解きます。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb5-1" title="1"><span class="cn">expr</span>: <span class="fu">diff</span>((<span class="dv">1</span>-<span class="cn">a</span>^<span class="cn">t</span>) * <span class="cn">d</span>^<span class="cn">t</span>, <span class="cn">t</span>);</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">expr</span>, <span class="cn">t</span>);</a></code></pre></div>
+<p>出力です。</p>
+<p><span class="math display">\[
+t_p = \frac{\log{\left( \dfrac{\log{(d)}}{\log{(d)}+\log{(a)}}\right) }}{\log{(a)}}
+\]</span></p>
+<p><span class="math inline">\(a\)</span> と <span class="math inline">\(d\)</span> を求めます。ユーザが指定したアタック時間を <span class="math inline">\(A\)</span> 、 ユーザが指定したディケイ時間を <span class="math inline">\(D\)</span> とします。 <span class="math inline">\([0, 1)\)</span> の範囲の適当なしきい値 <span class="math inline">\(\epsilon\)</span> を用意して、 <span class="math inline">\(a^{A} = d^{D} = \epsilon\)</span> とすると <span class="math inline">\(a, d\)</span> は次の式で計算できます。</p>
+<p><span class="math display">\[
+a = \epsilon^{1/A}, \quad b = \epsilon^{1/B}
+\]</span></p>
+<p>C++ での実装です。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb6-1" title="1"><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></a>
+<a class="sourceLine" id="cb6-2" title="2"></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="kw">class</span> ExpAD {</a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb6-5" title="5">  <span class="dt">void</span> setup(<span class="dt">float</span> sampleRate) { <span class="kw">this</span>-&gt;sampleRate = sampleRate; }</a>
+<a class="sourceLine" id="cb6-6" title="6">  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> valueD &lt;= threshold; }</a>
+<a class="sourceLine" id="cb6-7" title="7"></a>
+<a class="sourceLine" id="cb6-8" title="8">  <span class="co">// attack and decay in seconds.</span></a>
+<a class="sourceLine" id="cb6-9" title="9">  <span class="dt">void</span> reset(<span class="dt">float</span> attack, <span class="dt">float</span> decay)</a>
+<a class="sourceLine" id="cb6-10" title="10">  {</a>
+<a class="sourceLine" id="cb6-11" title="11">    valueA = <span class="fl">1.0</span><span class="bu">f</span>;</a>
+<a class="sourceLine" id="cb6-12" title="12">    <span class="cf">if</span> (attack &lt; <span class="fl">1e-5</span>) attack = <span class="fl">1e-5</span>;</a>
+<a class="sourceLine" id="cb6-13" title="13">    alphaA = powf(threshold, <span class="fl">1.0</span><span class="bu">f</span> / (attack * sampleRate));</a>
+<a class="sourceLine" id="cb6-14" title="14"></a>
+<a class="sourceLine" id="cb6-15" title="15">    valueD = <span class="fl">1.0</span><span class="bu">f</span>;</a>
+<a class="sourceLine" id="cb6-16" title="16">    <span class="cf">if</span> (decay &lt; <span class="fl">1e-5</span>) decay = <span class="fl">1e-5</span>;</a>
+<a class="sourceLine" id="cb6-17" title="17">    alphaD = powf(threshold, <span class="fl">1.0</span><span class="bu">f</span> / (decay * sampleRate));</a>
+<a class="sourceLine" id="cb6-18" title="18"></a>
+<a class="sourceLine" id="cb6-19" title="19">    <span class="cf">if</span> (attack &lt;= <span class="fl">0.0</span><span class="bu">f</span>) {</a>
+<a class="sourceLine" id="cb6-20" title="20">      gain = <span class="fl">1.0</span><span class="bu">f</span>;</a>
+<a class="sourceLine" id="cb6-21" title="21">    } <span class="cf">else</span> <span class="cf">if</span> (decay &lt;= <span class="fl">0.0</span><span class="bu">f</span>) {</a>
+<a class="sourceLine" id="cb6-22" title="22">      gain = <span class="fl">0.0</span><span class="bu">f</span>;</a>
+<a class="sourceLine" id="cb6-23" title="23">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb6-24" title="24">      <span class="kw">auto</span> log_a = logf(alphaA);</a>
+<a class="sourceLine" id="cb6-25" title="25">      <span class="kw">auto</span> log_d = logf(alphaD);</a>
+<a class="sourceLine" id="cb6-26" title="26">      <span class="kw">auto</span> t_p = logf(log_d / (log_a + log_d)) / log_a;</a>
+<a class="sourceLine" id="cb6-27" title="27">      gain = <span class="fl">1.0</span><span class="bu">f</span> / ((<span class="fl">1.0</span><span class="bu">f</span> - powf(alphaA, t_p)) * powf(alphaD, t_p));</a>
+<a class="sourceLine" id="cb6-28" title="28">    }</a>
+<a class="sourceLine" id="cb6-29" title="29">  }</a>
+<a class="sourceLine" id="cb6-30" title="30"></a>
+<a class="sourceLine" id="cb6-31" title="31">  <span class="dt">float</span> process()</a>
+<a class="sourceLine" id="cb6-32" title="32">  {</a>
+<a class="sourceLine" id="cb6-33" title="33">    valueA *= alphaA;</a>
+<a class="sourceLine" id="cb6-34" title="34">    valueD *= alphaD;</a>
+<a class="sourceLine" id="cb6-35" title="35">    <span class="cf">return</span> gain * (<span class="fl">1.0</span><span class="bu">f</span> - threshold - valueA) * (valueD - threshold);</a>
+<a class="sourceLine" id="cb6-36" title="36">  }</a>
+<a class="sourceLine" id="cb6-37" title="37"></a>
+<a class="sourceLine" id="cb6-38" title="38"><span class="kw">protected</span>:</a>
+<a class="sourceLine" id="cb6-39" title="39">  <span class="at">const</span> <span class="dt">float</span> threshold = <span class="fl">1e-5</span>;</a>
+<a class="sourceLine" id="cb6-40" title="40">  <span class="dt">float</span> sampleRate = <span class="dv">44100</span>;</a>
+<a class="sourceLine" id="cb6-41" title="41">  <span class="dt">float</span> gain = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb6-42" title="42">  <span class="dt">float</span> valueA = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb6-43" title="43">  <span class="dt">float</span> alphaA = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb6-44" title="44">  <span class="dt">float</span> valueD = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb6-45" title="45">  <span class="dt">float</span> alphaD = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb6-46" title="46">};</a></code></pre></div>
+<p>テストコードへのリンクです。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/expAD.cpp">filter_notes/expAD.cpp at master · ryukau/filter_notes · GitHub</a></li>
+</ul>
+<p>テスト結果です。</p>
+<figure>
+<img src="img/ExpAD_cpp.png" alt="Image of ExpAD envelope. C++ implementation." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="別解">別解</h3>
+<p>この計算方法は <a href="https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html">EnvelopedSine</a> で使っています。エンベロープ <span class="math inline">\(\tilde{E}_{\mathtt{AD}}\)</span></p>
+<p><span class="math display">\[
+\tilde{E}_{\mathtt{AD}}(t) = (1 - e^{-at}) e^{-bt}
+\]</span></p>
+<p>ピークの位置 <span class="math inline">\(t_p\)</span> とピークの大きさ <span class="math inline">\(\tilde{E}_{\mathtt{AD}}(t_p)\)</span> を求めます。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb7-1" title="1"><span class="cn">expr</span>: <span class="fu">diff</span>((<span class="dv">1</span>-<span class="fu">exp</span>(-<span class="cn">a</span>*<span class="cn">t</span>)) * <span class="cn">exp</span>(-<span class="cn">b</span>*<span class="cn">t</span>), <span class="cn">t</span>);</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">expr</span>, <span class="cn">t</span>);</a></code></pre></div>
+<p><span class="math display">\[
+t_p = \frac{\log{\left( \dfrac{a}{b}+1\right) }}{a}
+\]</span></p>
+<p><span class="math inline">\(a\)</span> と <span class="math inline">\(b\)</span> を求めます。アタック時間を <span class="math inline">\(A\)</span> 、 ディケイ時間を <span class="math inline">\(B\)</span> 、 適当なしきい値を <span class="math inline">\(\epsilon \in [0, 1)\)</span> とします。 <span class="math inline">\(e^{-a A} = e^{-b B} = \epsilon\)</span> となる <span class="math inline">\(a, b\)</span> は次の式で計算できます。</p>
+<p><span class="math display">\[
+a = - \dfrac{\log(\epsilon)}{A}, \quad b = - \dfrac{\log(\epsilon)}{B}
+\]</span></p>
+<p>コード例です。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="kw">def</span> envelopeExpr(a, b, time):</a>
+<a class="sourceLine" id="cb8-4" title="4">    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">-</span> np.exp(<span class="op">-</span>a <span class="op">*</span> time)) <span class="op">*</span> np.exp(<span class="op">-</span>b <span class="op">*</span> time)</a>
+<a class="sourceLine" id="cb8-5" title="5"></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="kw">def</span> envelope(attack, decay, eps<span class="op">=</span><span class="fl">1e-5</span>):</a>
+<a class="sourceLine" id="cb8-7" title="7">    _a <span class="op">=</span> <span class="op">-</span>np.log(eps) <span class="op">/</span> attack</a>
+<a class="sourceLine" id="cb8-8" title="8">    _b <span class="op">=</span> <span class="op">-</span>np.log(eps) <span class="op">/</span> decay</a>
+<a class="sourceLine" id="cb8-9" title="9">    peakTime <span class="op">=</span> np.log(_a <span class="op">/</span> _b <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> _a</a>
+<a class="sourceLine" id="cb8-10" title="10">    gain <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> envelopeExpr(_a, _b, peakTime)</a>
+<a class="sourceLine" id="cb8-11" title="11"></a>
+<a class="sourceLine" id="cb8-12" title="12">    samplerate <span class="op">=</span> <span class="dv">48000</span></a>
+<a class="sourceLine" id="cb8-13" title="13">    duration <span class="op">=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb8-14" title="14">    time <span class="op">=</span> np.linspace(<span class="dv">0</span>, duration, duration <span class="op">*</span> samplerate)</a>
+<a class="sourceLine" id="cb8-15" title="15"></a>
+<a class="sourceLine" id="cb8-16" title="16">    <span class="cf">return</span> envelopeExpr(_a, _b, time)</a>
+<a class="sourceLine" id="cb8-17" title="17"></a>
+<a class="sourceLine" id="cb8-18" title="18">output <span class="op">=</span> envelope(<span class="fl">1.0</span>, <span class="fl">2.0</span>)</a></code></pre></div>
+<figure>
+<img src="img/ExpAD.png" alt="Image of ExpAD envelope. Alternative implementation." style="padding-bottom: 12px;"/>
 </figure>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
