@@ -77,10 +77,6 @@ $\alpha = 1$ に固定して $\beta$ を変えたときの $\hat{E}(t)$ のプ�
 <img src="img/beta.png" alt="Image of poly-exp envelope with varying beta." style="padding-bottom: 12px;"/>
 </figure>
 
-プロットに使ったコードへのリンクです。
-
-- TODO リンク
-
 ### $E(t)$ の振幅から時間を求める
 $E(t)$ は $t \to +\infty$ のときにようやく $0$ になります。適当に計算を打ち切るために $\hat{E}(t) = x$ となる時間 $t$ を求めます。 $x = \dfrac{t^\alpha e^{-\beta t}}{E \left( \dfrac{\alpha}{\beta} \right)}$ を $t$ について解いてみます。この問題は Maxima では解けなかったので Wolfram Alpha を使いました。
 
@@ -126,6 +122,8 @@ curve, normalize = polyExpNormalized(alpha, beta, time)
 xx = numpy.linspace(1, 0, 10)
 tt0 = getTime(alpha, beta, xx, normalize, 0)
 value_tt0, _ = polyExpNormalized(alpha, beta, tt0)
+
+# k = 0 以外の場合は省略。
 
 pyplot.plot(time, curve)
 pyplot.scatter(tt0, value_tt0, color="red", label="k=0")
@@ -223,12 +221,10 @@ C++ による実装例です。
 
 class PolyExpEnvelope {
 public:
-  void setup(double sampleRate) { this->sampleRate = sampleRate; }
-
   // attack の単位は秒。
   // curve は任意の値。 β に相当。
   // attack と curve が大きいと計算結果が inf になるときがあるので注意。
-  void reset(double attack, double curve)
+  void reset(double sampleRate, double attack, double curve)
   {
     alpha = attack * curve;
 
@@ -256,7 +252,6 @@ public:
   }
 
 protected:
-  double sampleRate = 44100;
   double value = 0;
   double peak = 1;
   double gamma = 0;
@@ -266,6 +261,16 @@ protected:
   double time = 0;
 };
 ```
+
+テストコードへのリンクです。
+
+- [filter_notes/test.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/polyexp_envelope/demo/test.cpp)
+
+テスト結果です。
+
+<figure>
+<img src="img/PolyExp.png" alt="Image of test result of PolyExp envelope implemented in C++." style="padding-bottom: 12px;"/>
+</figure>
 
 ## その他
 $E(t)$ は [Gamma distribution](https://en.wikipedia.org/wiki/Gamma_distribution) の PDF の一部と同じ形です。
