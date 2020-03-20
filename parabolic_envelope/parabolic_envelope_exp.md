@@ -1,4 +1,6 @@
 ## 放物線アタックと指数曲線ディケイの組み合わせの別解
+指数曲線ディケイの式を $\gamma^t$ から $e^{\gamma t}$ に置き換えます。どちらを使っても得られる出力は同じです。
+
 位置 $\hat{y}_A(t)$ の式です。
 
 $$
@@ -89,4 +91,4 @@ $$
 
 実装へのリンクです。ここで紹介した計算方法は `getPeakAlt` に実装されています。
 
-- TODO リンク
+- [filter_notes/parabolaExp.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/parabolic_envelope/demo/parabolaExp.py)
