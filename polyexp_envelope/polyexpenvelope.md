@@ -277,3 +277,4 @@ $E(t)$ は [Gamma distribution](https://en.wikipedia.org/wiki/Gamma_distribution
 
 - [calculus - Integrating $\rm x^ae^{-bx}$. - Mathematics Stack Exchange](https://math.stackexchange.com/questions/1562012/integrating-rm-xae-bx)
 - [Finding z transform of this function. - Mathematics Stack Exchange](https://math.stackexchange.com/questions/855226/finding-z-transform-of-this-function)
+- [Exponential polynomial - Wikipedia](https://en.wikipedia.org/wiki/Exponential_polynomial)
