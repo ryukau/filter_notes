@@ -523,4 +523,4 @@ pyplot.show()
 ### 別解
 別ページに別解を掲載しています。計算結果は同じですが `log` の代わりに `exp` が出てきます。
 
-- TODO リンク
+- [放物線アタックと指数曲線ディケイの組み合わせの別解](https://ryukau.github.io/filter_notes/parabolic_envelope/parabolic_envelope_exp.html)
