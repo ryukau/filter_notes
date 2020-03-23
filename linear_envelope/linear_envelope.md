@@ -422,10 +422,7 @@ $$
 <img src="img/pcontroller_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
 </figure>
 
-
 ### $k_p$ からカットオフ周波数を求める
-先に書いておきますが、この項と次の項はやってみたものの使い物にはなりませんでした。
-
 伝達関数 $H(z)$ からカットオフ周波数 $\omega$ を求めてみます。
 
 $$
@@ -462,21 +459,56 @@ plot2d(-log(-(sqrt(2)*k_p^2+(-sqrt(2)-1)*k_p+1)/(2*k_p^2-1)), [k_p, 0, 1.1]);
 </figure>
 
 ### カットオフ周波数から $k_p$ を求める
+
 $\omega$ の式を $k_p$ について解きます。
 
 ```maxima
-ω_eq: solve(1/2 = (k_p / (1 + (k_p - 1) * exp(-%i * ω)))^2, ω); /* 再掲 */
-for eq in ω_eq do disp(solve(eq, k_p));
+k_eq: solve(1/2 = (k_p / (1 + (k_p - 1) * exp(-%i * ω)))^2, k_p);
 ```
 
-出力です。試しに計算してみたのですが、正しい値にならなかったです。
+出力です。試しに計算したところ $k_{p,2}$ を使うと正しい値が得られました。
 
 $$
 \begin{aligned}
-k_p =
--& \frac{\sqrt{8 {e^{2 j \omega }}+\left( {{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}-{{2}^{\frac{3}{2}}}+3}-\sqrt{2}-1}{4 {e^{j \omega }}+{{2}^{\frac{3}{2}}}},
-&& \frac{\sqrt{8 {e^{2 j \omega }}+\left( {{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}-{{2}^{\frac{3}{2}}}+3}+\sqrt{2}+1}{4 {e^{j \omega }}+{{2}^{\frac{3}{2}}}}, \\
-& \frac{\sqrt{8 {e^{2 j \omega }}+\left( -{{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}+{{2}^{\frac{3}{2}}}+3}-\sqrt{2}+1}{4 {e^{j \omega }}-{{2}^{\frac{3}{2}}}},
-&&- \frac{\sqrt{8 {e^{2 j \omega }}+\left( -{{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}+{{2}^{\frac{3}{2}}}+3}+\sqrt{2}-1}{4 {e^{j \omega }}-{{2}^{\frac{3}{2}}}}. \\
+k_{p,1} &= -\frac{\sqrt{2} e^{2 j \omega} + (-\sqrt{2} - 1) e^{j \omega} + 1}{2 e^{2 j \omega} - 1} \\
+k_{p,2} &= \frac{\sqrt{2} {e^{2 j \omega}} + (1 - \sqrt{2}) e^{j \omega} - 1}{2 e^{2 j \omega} - 1}
 \end{aligned}
 $$
+
+次の図の縦線がカットオフ周波数 $\omega$ を表しています。同じ色の曲線は振幅特性です。対応するカットオフ周波数と振幅特性が全て -3 dB で交差しているので正しく計算できています。
+
+<figure>
+<img src="img/pcontroller_cutoff.png" alt="Image of ." style="padding-bottom: 12px;"/>
+</figure>
+
+### 複素数を使わずにカットオフ周波数から $k_p$ 求める式
+dsp.stackexchange.com で回答を見つけました。 $f_c$ はカットオフ周波数、 $f_s$ はサンプリング周波数です。
+
+$$
+k_p = -y + \sqrt{y^2 + 2y}, \quad y = 1 - \cos(2 \pi f_c / f_s)
+$$
+
+Maxima で解くときは `cabs` と `trigsimp` が使えます。
+
+```maxima
+H_ω: k_p / (1 - (1 - k_p) * exp(-%i * ω));
+H_ω_abs: trigsimp(cabs(H_ω));
+solve(1 / 2 = H_ω_abs^2, k_p);
+```
+
+$$
+\left| H(e^{j \omega}) \right| = \frac{\left| {k_p}\right| }{\sqrt{\left( 2 {k_p}-2\right)  \cos{\left( \omega \right) }+{{{k_p}}^{2}}-2 {k_p}+2}}
+$$
+
+$$
+{k_p}=-\sqrt{{{\cos{\left( \omega \right) }}^{2}}-4 \cos{\left( \omega \right) }+3}+\cos{\left( \omega \right) }-1\operatorname{,}\quad {k_p}=\sqrt{{{\cos{\left( \omega \right) }}^{2}}-4 \cos{\left( \omega \right) }+3}+\cos{\left( \omega \right) }-1
+$$
+
+- [Single-pole IIR low-pass filter - which is the correct formula for the decay coefficient? - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/54086/single-pole-iir-low-pass-filter-which-is-the-correct-formula-for-the-decay-coe)
+- [digital filters - Exponential weighted moving average time constant - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/28308/exponential-weighted-moving-average-time-constant/28314#28314)
+- [How frequency response related to a transfer function - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/26941/how-frequency-response-related-to-a-transfer-function)
+
+## 記事の変更点
+- 2020-03-23:
+  - 「カットオフ周波数から $k_p$ を求める」で式の求め方が間違っていたので修正。
+  - 「複素数を使わずにカットオフ周波数から $k_p$ 求める式」を追加。

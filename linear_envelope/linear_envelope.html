@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2020-03-17" />
+<meta name="dcterms.date" content="2020-03-23" />
 <title>linear_envelope</title>
 
 <!-- highlight.js -->
@@ -228,7 +228,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2020-03-17
+Update: 2020-03-23
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -250,7 +250,9 @@ Update: 2020-03-17
   <li><a href="#周波数特性">周波数特性</a></li>
   <li><a href="#k_p-からカットオフ周波数を求める"><span class="math inline">\(k_p\)</span> からカットオフ周波数を求める</a></li>
   <li><a href="#カットオフ周波数から-k_p-を求める">カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める</a></li>
+  <li><a href="#複素数を使わずにカットオフ周波数から-k_p-求める式">複素数を使わずにカットオフ周波数から <span class="math inline">\(k_p\)</span> 求める式</a></li>
   </ul></li>
+  <li><a href="#記事の変更点">記事の変更点</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -610,7 +612,6 @@ H(z) = \frac{k_p}{1 + (k_p - 1) z^{-1}}
 <img src="img/pcontroller_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="k_p-からカットオフ周波数を求める"><span class="math inline">\(k_p\)</span> からカットオフ周波数を求める</h3>
-<p>先に書いておきますが、この項と次の項はやってみたものの使い物にはなりませんでした。</p>
 <p>伝達関数 <span class="math inline">\(H(z)\)</span> からカットオフ周波数 <span class="math inline">\(\omega\)</span> を求めてみます。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -635,18 +636,46 @@ H(z) = \frac{k_p}{1 + (k_p - 1) z^{-1}}
 </figure>
 <h3 id="カットオフ周波数から-k_p-を求める">カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める</h3>
 <p><span class="math inline">\(\omega\)</span> の式を <span class="math inline">\(k_p\)</span> について解きます。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb11-1" title="1">ω<span class="cn">_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, ω); <span class="co">/* 再掲 */</span></a>
-<a class="sourceLine" id="cb11-2" title="2"><span class="kw">for</span> <span class="cn">eq</span> <span class="kw">in</span> ω<span class="cn">_eq</span> <span class="kw">do</span> <span class="fu">disp</span>(<span class="fu">solve</span>(<span class="cn">eq</span>, <span class="cn">k_p</span>));</a></code></pre></div>
-<p>出力です。試しに計算してみたのですが、正しい値にならなかったです。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb11-1" title="1"><span class="cn">k_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, <span class="cn">k_p</span>);</a></code></pre></div>
+<p>出力です。試しに計算したところ <span class="math inline">\(k_{p,2}\)</span> を使うと正しい値が得られました。</p>
 <p><span class="math display">\[
 \begin{aligned}
-k_p =
--&amp; \frac{\sqrt{8 {e^{2 j \omega }}+\left( {{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}-{{2}^{\frac{3}{2}}}+3}-\sqrt{2}-1}{4 {e^{j \omega }}+{{2}^{\frac{3}{2}}}},
-&amp;&amp; \frac{\sqrt{8 {e^{2 j \omega }}+\left( {{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}-{{2}^{\frac{3}{2}}}+3}+\sqrt{2}+1}{4 {e^{j \omega }}+{{2}^{\frac{3}{2}}}}, \\
-&amp; \frac{\sqrt{8 {e^{2 j \omega }}+\left( -{{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}+{{2}^{\frac{3}{2}}}+3}-\sqrt{2}+1}{4 {e^{j \omega }}-{{2}^{\frac{3}{2}}}},
-&amp;&amp;- \frac{\sqrt{8 {e^{2 j \omega }}+\left( -{{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}+{{2}^{\frac{3}{2}}}+3}+\sqrt{2}-1}{4 {e^{j \omega }}-{{2}^{\frac{3}{2}}}}. \\
+k_{p,1} &amp;= -\frac{\sqrt{2} e^{2 j \omega} + (-\sqrt{2} - 1) e^{j \omega} + 1}{2 e^{2 j \omega} - 1} \\
+k_{p,2} &amp;= \frac{\sqrt{2} {e^{2 j \omega}} + (1 - \sqrt{2}) e^{j \omega} - 1}{2 e^{2 j \omega} - 1}
 \end{aligned}
 \]</span></p>
+<p>次の図の縦線がカットオフ周波数 <span class="math inline">\(\omega\)</span> を表しています。同じ色の曲線は振幅特性です。対応するカットオフ周波数と振幅特性が全て -3 dB で交差しているので正しく計算できています。</p>
+<figure>
+<img src="img/pcontroller_cutoff.png" alt="Image of ." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="複素数を使わずにカットオフ周波数から-k_p-求める式">複素数を使わずにカットオフ周波数から <span class="math inline">\(k_p\)</span> 求める式</h3>
+<p>dsp.stackexchange.com で回答を見つけました。 <span class="math inline">\(f_c\)</span> はカットオフ周波数、 <span class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
+<p><span class="math display">\[
+k_p = -y + \sqrt{y^2 + 2y}, \quad y = 1 - \cos(2 \pi f_c / f_s)
+\]</span></p>
+<p>Maxima で解くときは <code>cabs</code> と <code>trigsimp</code> が使えます。</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb12-1" title="1"><span class="cn">H_</span>ω: <span class="cn">k_p</span> / (<span class="dv">1</span> - (<span class="dv">1</span> - <span class="cn">k_p</span>) * <span class="cn">exp</span>(-<span class="va">%i</span> * ω));</a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="cn">H_</span>ω<span class="cn">_abs</span>: <span class="cn">trigsimp</span>(<span class="fu">cabs</span>(<span class="cn">H_</span>ω));</a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="fu">solve</span>(<span class="dv">1</span> / <span class="dv">2</span> = <span class="cn">H_</span>ω<span class="cn">_abs</span>^<span class="dv">2</span>, <span class="cn">k_p</span>);</a></code></pre></div>
+<p><span class="math display">\[
+\left| H(e^{j \omega}) \right| = \frac{\left| {k_p}\right| }{\sqrt{\left( 2 {k_p}-2\right)  \cos{\left( \omega \right) }+{{{k_p}}^{2}}-2 {k_p}+2}}
+\]</span></p>
+<p><span class="math display">\[
+{k_p}=-\sqrt{{{\cos{\left( \omega \right) }}^{2}}-4 \cos{\left( \omega \right) }+3}+\cos{\left( \omega \right) }-1\operatorname{,}\quad {k_p}=\sqrt{{{\cos{\left( \omega \right) }}^{2}}-4 \cos{\left( \omega \right) }+3}+\cos{\left( \omega \right) }-1
+\]</span></p>
+<ul>
+<li><a href="https://dsp.stackexchange.com/questions/54086/single-pole-iir-low-pass-filter-which-is-the-correct-formula-for-the-decay-coe">Single-pole IIR low-pass filter - which is the correct formula for the decay coefficient? - Signal Processing Stack Exchange</a></li>
+<li><a href="https://dsp.stackexchange.com/questions/28308/exponential-weighted-moving-average-time-constant/28314#28314">digital filters - Exponential weighted moving average time constant - Signal Processing Stack Exchange</a></li>
+<li><a href="https://dsp.stackexchange.com/questions/26941/how-frequency-response-related-to-a-transfer-function">How frequency response related to a transfer function - Signal Processing Stack Exchange</a></li>
+</ul>
+<h2 id="記事の変更点">記事の変更点</h2>
+<ul>
+<li>2020-03-23:
+<ul>
+<li>「カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める」で式の求め方が間違っていたので修正。</li>
+<li>「複素数を使わずにカットオフ周波数から <span class="math inline">\(k_p\)</span> 求める式」を追加。</li>
+</ul></li>
+</ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
 </footer>
