@@ -391,7 +391,7 @@ for (auto &sample: buffer) sample = smoother.process(envelope.process());
 ### 周波数特性
 `PController` の伝達関数を出します。 `process()` での計算式です。
 
-```
+```cpp
 value += kp * (input - value);
 ```
 
@@ -400,7 +400,7 @@ $n$ を経過サンプル数とすると `value` は $y[n - 1]$ 、 `input` は 
 $$
 \begin{aligned}
 y[n] &= y[n - 1] + k_p (x[n] - y[n - 1]) \\
-y[n] + (k_p - 1) y[n - 1] &= k_p * x[n]
+y[n] + (k_p - 1) y[n - 1] &= k_p x[n]
 \end{aligned}
 $$
 
@@ -469,7 +469,7 @@ $\omega$ の式を $k_p$ について解きます。
 for eq in ω_eq do disp(solve(eq, k_p));
 ```
 
-出力です。
+出力です。試しに計算してみたのですが、正しい値にならなかったです。
 
 $$
 \begin{aligned}
@@ -480,5 +480,3 @@ k_p =
 &&- \frac{\sqrt{8 {e^{2 j \omega }}+\left( -{{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}+{{2}^{\frac{3}{2}}}+3}+\sqrt{2}-1}{4 {e^{j \omega }}-{{2}^{\frac{3}{2}}}}. \\
 \end{aligned}
 $$
-
-これらの式を計算してみたのですが、正しい値にならなかったです。

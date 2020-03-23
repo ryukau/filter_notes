@@ -589,12 +589,12 @@ Update: 2020-03-17
 </figure>
 <h3 id="周波数特性">周波数特性</h3>
 <p><code>PController</code> の伝達関数を出します。 <code>process()</code> での計算式です。</p>
-<pre><code>value += kp * (input - value);</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb8-1" title="1">value += kp * (input - value);</a></code></pre></div>
 <p><span class="math inline">\(n\)</span> を経過サンプル数とすると <code>value</code> は <span class="math inline">\(y[n - 1]\)</span> 、 <code>input</code> は <span class="math inline">\(x[n]\)</span> となります。出力は <span class="math inline">\(y[n]\)</span> です。 <code>process()</code> の計算式の記号を置き換えます。</p>
 <p><span class="math display">\[
 \begin{aligned}
 y[n] &amp;= y[n - 1] + k_p (x[n] - y[n - 1]) \\
-y[n] + (k_p - 1) y[n - 1] &amp;= k_p * x[n]
+y[n] + (k_p - 1) y[n - 1] &amp;= k_p x[n]
 \end{aligned}
 \]</span></p>
 <p>ここから伝達関数が得られます。</p>
@@ -637,7 +637,7 @@ H(z) = \frac{k_p}{1 + (k_p - 1) z^{-1}}
 <p><span class="math inline">\(\omega\)</span> の式を <span class="math inline">\(k_p\)</span> について解きます。</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb11-1" title="1">ω<span class="cn">_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, ω); <span class="co">/* 再掲 */</span></a>
 <a class="sourceLine" id="cb11-2" title="2"><span class="kw">for</span> <span class="cn">eq</span> <span class="kw">in</span> ω<span class="cn">_eq</span> <span class="kw">do</span> <span class="fu">disp</span>(<span class="fu">solve</span>(<span class="cn">eq</span>, <span class="cn">k_p</span>));</a></code></pre></div>
-<p>出力です。</p>
+<p>出力です。試しに計算してみたのですが、正しい値にならなかったです。</p>
 <p><span class="math display">\[
 \begin{aligned}
 k_p =
@@ -647,7 +647,6 @@ k_p =
 &amp;&amp;- \frac{\sqrt{8 {e^{2 j \omega }}+\left( -{{2}^{\frac{5}{2}}}-8\right) \, {e^{j \omega }}+{{2}^{\frac{3}{2}}}+3}+\sqrt{2}-1}{4 {e^{j \omega }}-{{2}^{\frac{3}{2}}}}. \\
 \end{aligned}
 \]</span></p>
-<p>これらの式を計算してみたのですが、正しい値にならなかったです。</p>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
 </footer>
