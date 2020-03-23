@@ -507,6 +507,7 @@ $$
 - [Single-pole IIR low-pass filter - which is the correct formula for the decay coefficient? - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/54086/single-pole-iir-low-pass-filter-which-is-the-correct-formula-for-the-decay-coe)
 - [digital filters - Exponential weighted moving average time constant - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/28308/exponential-weighted-moving-average-time-constant/28314#28314)
 - [How frequency response related to a transfer function - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/26941/how-frequency-response-related-to-a-transfer-function)
+- [Exponential-Moving-Average.pdf](https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.pdf)
 
 ## 記事の変更点
 - 2020-03-23:
