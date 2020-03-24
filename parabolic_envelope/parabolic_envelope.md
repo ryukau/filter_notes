@@ -8,7 +8,8 @@
 
 ![](img/peak.svg)
 
-記号の定義です。下付き文字の $A$ はアタックのパラメータを表しています。
+### 記号の定義
+下付き文字の $A$ はアタックのパラメータを表しています。
 
 - $t$ : 時間
 - $y$ : 原点からの距離
@@ -16,7 +17,8 @@
 - $a_A$ : 加速時の加速度の絶対値
 - $b_A$ : 減速時の加速度の絶対値
 
-時点 $t_A$ での位置 $h_A$ と速度 $v_A$ を知りたいです。まずはアタックの加速中の加速度の式 $\ddot{y_A}(t)$ から速度の式と位置の式を求めます。
+### ピーク $h_p$ とその時点 $t_p$ の導出
+まずは時点 $t_A$ での位置 $h_A$ と速度 $v_A$ を知りたいです。アタックの加速中の加速度の式 $\ddot{y_A}(t)$ から速度の式と位置の式を求めます。
 
 $$
 \begin{aligned}
@@ -26,7 +28,7 @@ y_A(t) &= \int \dot{y_A}(t)\,dt = a_A \frac{t^2}{2}
 \end{aligned}
 $$
 
-速度と位置の式に $t_A$ を代入します。
+速度と位置の式に $t_A$ を代入して、それぞれ $v_A, h_A$ とします。 $v_A, h_A$  はアタックの減速中の式の初期状態になります。
 
 $$
 \begin{aligned}
@@ -34,8 +36,6 @@ v_A &= \dot{y_A}(t_A) = a_A t_A \\
 h_A &= y_A(t_A) = a_A \dfrac{t_A^2}{2}
 \end{aligned}
 $$
-
-$v_A$ と $h_A$ はアタックの減速中の式の初期状態になります。
 
 アタックの減速中の加速度の式 $\ddot{y_p}(t)$ から速度と位置の式を求めます。
 
@@ -125,12 +125,14 @@ class AccelEnvelope:
         self.v_A: float = accelA * timeA
         self.h_A: float = accelA * timeA * timeA / 2
         self.t_p: float = self.v_A / brakeA
-        self.h_p: float = -brakeA / 2 * self.t_p * self.t_p + self.v_A * self.t_p + self.h_A
+        self.h_p: float = -brakeA / 2 * self.t_p * self.t_p \
+            + self.v_A * self.t_p + self.h_A
 
         self.v_R: float = accelR * timeR
         self.h_R: float = accelR * timeR * timeR / 2
         self.t_E: float = self.v_R / brakeR
-        self.h_E: float = -brakeR / 2 * self.t_E * self.t_E + self.v_R * self.t_E + self.h_R
+        self.h_E: float = -brakeR / 2 * self.t_E * self.t_E \
+            + self.v_R * self.t_E + self.h_R
 
         # Normalize
         accelA, brakeA = AccelEnvelope.normalize(accelA, brakeA, timeA)
@@ -192,12 +194,13 @@ pyplot.show()
 </figure>
 
 ## 時間から加速度を決める方法
-アタック、リリースの時間から加速度を決めます。変曲点もユーザが操作できるパラメータにします。
+ユーザが指定した時間 $l$ と変曲点 $\beta$ から加速度 $a, b$ を決めます。
 
-ここではリリースの区間での加速度 $a_R$ と $b_R$ を求めます。アタックの区間でも同様に求めることができます。
+ここではリリースの加速度 $a_R$ と $b_R$ を求めます。アタックの加速度も同様に求めることができます。
 
 ![](img/release.svg)
 
+### 定義
 記号の定義です。
 
 - $t$ : 時間
@@ -209,12 +212,17 @@ pyplot.show()
 - $a_R$ : 加速時の加速度の絶対値
 - $b_R$ : 減速時の加速度の絶対値
 
-下付き文字の $R$ はリリース、 $E$ はエンベロープの終端に関するパラメータを表しています。アタックのときとは $y$ について上下を逆にして、 $t_p$ から $t_R$ までの区間で加速、 $t_R$ から $t_E$ の区間で減速としてします。
+下付き文字の $R$ はリリース、 $E$ はエンベロープの終端に関するパラメータを表しています。アタックのときとは $y$ について上下を逆にして $t_p \text{--} t_R$ 間で加速、 $t_R \text{--} t_E$ 間で減速します。
 
-$t_R = t_p + \beta_R l_R$ と定義します。 $\beta_R$ はユーザが操作できるパラメータで範囲は $0 < \beta_R < 1$ です。
+$t_R$ の定義です。 $\beta_R$ はユーザが操作できるパラメータで範囲は $0 < \beta_R < 1$ です。
 
-$h_p = 1$ に正規化されているとします。
+$$
+t_R = t_p + \beta_R l_R
+$$
 
+$h_p = 1$ に正規化されていると仮定しています。
+
+### 加速度 $a_R, b_R$ の導出
 $t_p \text{--} t_R$ 間の加速の式です。
 
 $$
@@ -330,6 +338,7 @@ pyplot.show()
 </figure>
 
 ## 放物線アタックと指数曲線ディケイの組み合わせ
+### 定義
 位置 $\hat{y}_A(t)$ の式です。
 
 $$
@@ -348,7 +357,8 @@ $$
 - $b_A$ : 放物線の減速時の加速度の絶対値
 - $t_A$ : 放物線の加減速を切り替える時点
 - $t_p$ : 放物線がピークに到達する時点
-- $t_k$ : $\hat{y}$ がピークに到達する時点
+- $t_{k,A}$ : $\hat{y}$ のピークが区間 $0 \leq t \leq t_A$ にあるときのピークの時点
+- $t_{k,p}$ : $\hat{y}$ のピークが区間 $t_A \leq t \leq t_p$ にあるときのピークの時点
 - $\hat{v}_A$ : 時点 $t_A$ での速度
 - $\hat{h}_A$ : 時点 $t_A$ での位置
 
@@ -359,6 +369,7 @@ $\gamma$ は 0 以下です。
 - $t_A$ の時点で速度が負の値なら $0 \leq t_k < t_A$ 。
 - そうでなければ $t_A \leq t_k$ 。
 
+### 区間 $0 \leq t \leq t_A$ でピークに到達する場合の時点 $t_{k,A}$ の導出
 区間 $0 \leq t \leq t_A$ での速度 $\hat{\dot{y}}_A(t)$ を求めます。 Maxima を使います。
 
 ```maxima
@@ -373,7 +384,7 @@ $$
 \end{aligned}
 $$
 
-$\hat{v}_A$ と $\hat{h}_A$ の式です。
+時点 $t_A$ での速度 $\hat{v}_A$ と位置 $\hat{h}_A$ の式です。
 
 $$
 \begin{aligned}
@@ -402,6 +413,7 @@ $$
 t_{k, A} = - \frac{2}{\log \gamma}
 $$
 
+### 区間 $t_A \leq t \leq t_p$ でピークに到達する場合の時点 $t_{k,p}$ の導出
 区間 $t_A \leq t \leq t_p$ で速度 $\hat{\dot{y}}_A(t)$ が 0 になる時点 $t_{k,p}$ を求めます。
 
 ```maxima
@@ -512,9 +524,9 @@ pyplot.show()
 </figure>
 
 
-パラメータを変えて試したところ、ピークのばらつきは $l_A < t_D$ となるときだけ生じるようです。
+パラメータを変えて試したところ、ピークのばらつきは放物線のアタック時間 $l_A$ が指数曲線のディケイ時間 $t_D$ より小さくなるときだけ生じるようです。
 
-アタックのパラメータ $\beta$ と $l_A$ を変えたときに実際のピークがどうなるのかプロットしました。ピークは $\beta : l_A$ の比によって一定のようです。図を見ると $\beta$ が 1.0 に近づくほどピークが 1.0 に近づくようです。
+アタックのパラメータ $\beta$ と $l_A$ を変えたときに実際のピークがどうなるのかプロットしました。ピークは $\beta : l_A$ の比によって一定のようです。図を見ると $\beta$ が 1.0 に近づくほどピークが 1.0 に近づいています。
 
 <figure>
 <img src="img/ParabolaExpPeakError.png" alt="Image of ." style="padding-bottom: 12px;"/>
