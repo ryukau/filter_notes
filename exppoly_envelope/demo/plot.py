@@ -22,4 +22,4 @@ def process(name):
     tone = numpy.sin(phase)
     soundfile.write(f"snd/tone_{name}.wav", data * tone, samplerate, subtype="FLOAT")
 
-process("PolyExp")
+process("ExpPoly")

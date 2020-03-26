@@ -33,7 +33,7 @@ writeWave(const char *filename, std::vector<float> &buffer, const size_t &sample
   return 0;
 }
 
-class PolyExpEnvelope {
+class ExpPolyEnvelope {
 public:
   // attack の単位は秒。
   // curve は任意の値。 β に相当。
@@ -79,11 +79,11 @@ int main()
 {
   std::vector<float> wav(4 * size_t(sampleRate));
 
-  PolyExpEnvelope envelope;
+  ExpPolyEnvelope envelope;
 
   envelope.reset(sampleRate, 1.0f, 4.0f);
   for (auto &buf : wav) buf = envelope.process();
-  writeWave("snd/PolyExp.wav", wav, sampleRate);
+  writeWave("snd/ExpPoly.wav", wav, sampleRate);
 
   return 0;
 }

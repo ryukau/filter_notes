@@ -1,4 +1,4 @@
-# PolyExp エンベロープ
+# ExpPoly エンベロープ
 [WobblingMetalBoard](https://ryukau.github.io/WobblingMetalBoard/) を作っているときに次のエンベロープを思いつきました。
 
 $$
@@ -43,7 +43,9 @@ $$
 t = \dfrac{\alpha}{\beta}
 $$
 
-実際に計算してみると $t = \dfrac{\alpha}{\beta}$ のとき $E(t)$ が最大となります。つまりアタックの長さは $\dfrac{\alpha}{\beta}$ です。さらに、ここから振幅を $[0, 1]$ に正規化した $\hat{E}(t)$ を求めることができます。
+実際に計算してみると $t = \dfrac{\alpha}{\beta}$ のとき $E(t)$ が最大となります。つまりアタックの長さは $\dfrac{\alpha}{\beta}$ です。
+
+アタックの長さから振幅を $[0, 1]$ に正規化した $\hat{E}(t)$ を求めることができます。
 
 $$
 \hat{E}(t) = \frac{E(t)}{E \left( \dfrac{\alpha}{\beta} \right)}
@@ -54,15 +56,15 @@ NumPy を使った実装例です。
 ```python
 import numpy
 
-def polyExp(α, β, time):
+def expPoly(α, β, time):
     return time**α * numpy.exp(-β * time)
 
-def polyExpNormalized(α, β, time):
-    normalize = polyExp(α, β, α / β)
+def expPolyNormalized(α, β, time):
+    normalize = expPoly(α, β, α / β)
     return time**α * numpy.exp(-β * time) / normalize
 
 time = numpy.linspace(0, 16, 1024)
-envelope = polyExpNormalized(1, 1, time)
+envelope = expPolyNormalized(1, 1, time)
 ```
 
 $\beta = 1$ に固定して $\alpha$ を変えたときの $\hat{E}(t)$ のプロットです。
@@ -78,7 +80,7 @@ $\alpha = 1$ に固定して $\beta$ を変えたときの $\hat{E}(t)$ のプ�
 </figure>
 
 ### $E(t)$ の振幅から時間を求める
-$E(t)$ は $t \to +\infty$ のときにようやく $0$ になります。適当に計算を打ち切るために $\hat{E}(t) = x$ となる時間 $t$ を求めます。 $x = \dfrac{t^\alpha e^{-\beta t}}{E \left( \dfrac{\alpha}{\beta} \right)}$ を $t$ について解いてみます。この問題は Maxima では解けなかったので Wolfram Alpha を使いました。
+$E(t)$ は $t$ が $+\infty$ に到達すると $0$ になります。適当に計算を打ち切るために $\hat{E}(t) = x$ となる時間 $t$ を求めます。 $x = \dfrac{t^\alpha e^{-\beta t}}{E \left( \dfrac{\alpha}{\beta} \right)}$ を $t$ について解いてみます。この問題は Maxima では解けなかったので Wolfram Alpha を使いました。
 
 ```wolfram
 solve x = t^a * exp(-b * t) / eta for t
@@ -100,11 +102,11 @@ import scipy.special.lambertw as lambertw
 def getTime(α, β, x, normalize, k=0):
     return -α * lambertw(-β * (x * normalize)**(1 / α) / α, k) / β
 
-def polyExp(α, β, time):
+def expPoly(α, β, time):
     return time**α * numpy.exp(-β * time)
 
-def polyExpNormalized(α, β, time):
-    normalize = polyExp(α, β, α / β)
+def expPolyNormalized(α, β, time):
+    normalize = expPoly(α, β, α / β)
     return (
         time**α * numpy.exp(-β * time) / normalize,
         normalize,
@@ -117,11 +119,11 @@ time = numpy.linspace(0, duration, duration * samplerate)
 alpha = 1
 beta = 1
 
-curve, normalize = polyExpNormalized(alpha, beta, time)
+curve, normalize = expPolyNormalized(alpha, beta, time)
 
 xx = numpy.linspace(1, 0, 10)
 tt0 = getTime(alpha, beta, xx, normalize, 0)
-value_tt0, _ = polyExpNormalized(alpha, beta, tt0)
+value_tt0, _ = expPolyNormalized(alpha, beta, tt0)
 
 # k = 0 以外の場合は省略。
 
@@ -148,7 +150,7 @@ $$
 t_{\mathrm{max}} = F^{1 / \alpha}
 $$
 
-$\alpha < 1$ のとき $t_{\mathrm{max}} > F$ なので、 $t$ が `nan` や `inf` でなければ計算に問題が無いことが分かります。 $\alpha \geq 1$ のときの $t_{\mathrm{max}}$ を計算してみます。
+$\alpha$ が 1 より小さいとき、 $t_{\mathrm{max}}$ は $F$ より大きいので、 $t$ が `nan` や `inf` でなければ取り得る全ての値の範囲で計算に問題が無いことが分かります。 $\alpha$ が 1 以上のときの $t_{\mathrm{max}}$ を計算してみます。
 
 ```python
 import numpy
@@ -165,7 +167,7 @@ printTimeMax(numpy.float32)
 printTimeMax(numpy.float64)
 ```
 
-整形した出力です。左の列が $\alpha$ 、右の列が $t_{\mathrm{max}}$ です。単精度のときは $\alpha = 64$ のときに 4 秒しかレンダリングできないことが分かります。
+整形した出力です。左の列が $\alpha$ 、右の列が $t_{\mathrm{max}}$ です。単精度のときは $\alpha$ が 64.0 のときに 4.0 秒しかレンダリングできないことが分かります。
 
 ```
 <class 'numpy.float32'>
@@ -219,7 +221,7 @@ C++ による実装例です。
 #include <cmath>
 #include <cfloat>
 
-class PolyExpEnvelope {
+class ExpPolyEnvelope {
 public:
   // attack の単位は秒。
   // curve は任意の値。 β に相当。
@@ -264,12 +266,12 @@ protected:
 
 テストコードへのリンクです。
 
-- [filter_notes/test.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/polyexp_envelope/demo/test.cpp)
+- [filter_notes/test.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exppoly_envelope/demo/test.cpp)
 
 テスト結果です。
 
 <figure>
-<img src="img/PolyExp.png" alt="Image of test result of PolyExp envelope implemented in C++." style="padding-bottom: 12px;"/>
+<img src="img/ExpPoly.png" alt="Image of test result of ExpPoly envelope implemented in C++." style="padding-bottom: 12px;"/>
 </figure>
 
 ## その他
@@ -278,3 +280,8 @@ $E(t)$ は [Gamma distribution](https://en.wikipedia.org/wiki/Gamma_distribution
 - [calculus - Integrating $\rm x^ae^{-bx}$. - Mathematics Stack Exchange](https://math.stackexchange.com/questions/1562012/integrating-rm-xae-bx)
 - [Finding z transform of this function. - Mathematics Stack Exchange](https://math.stackexchange.com/questions/855226/finding-z-transform-of-this-function)
 - [Exponential polynomial - Wikipedia](https://en.wikipedia.org/wiki/Exponential_polynomial)
+
+## 変更点
+- 2020-03-26
+  - 既存の用語 exponential polynomial にならって名前を PolyExp から ExpPoly に変更。
+  - 文章の整理。
