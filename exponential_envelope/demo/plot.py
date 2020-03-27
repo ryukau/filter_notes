@@ -22,11 +22,11 @@ def process(name):
     tone = numpy.sin(phase)
     soundfile.write(f"snd/tone_{name}.wav", data * tone, samplerate, subtype="FLOAT")
 
-# process("ADSR")
-# process("ReleaseWhileAttack")
-# process("ReleaseWhileDecay")
-# process("TriggerWhileRelease")
-# process("ChangeSustain")
+process("ADSR")
+process("ReleaseWhileAttack")
+process("ReleaseWhileDecay")
+process("TriggerWhileRelease")
+process("ChangeSustain")
 
 process("P_ADSR")
 process("P_ReleaseWhileAttack")
@@ -34,4 +34,4 @@ process("P_ReleaseWhileDecay")
 process("P_TriggerWhileRelease")
 process("P_ChangeSustain")
 
-# process("ExpAD")
+process("ExpAD")
