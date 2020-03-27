@@ -2,33 +2,35 @@
 指数曲線 (Exponential Curve) を使ったエンベロープを作ります。
 
 ## 減衰する指数曲線
-値が 1 から 0 に向かって減衰する指数曲線 $E_d(t)$ は次の式で表されます。 $\alpha$ は減衰の速さを決める任意の値、 $t$ は単位が秒数の時間です。
+値が 1 から 0 に向かって減衰する指数曲線 $E_d(t)$ の式です。
 
 $$
 E_d(t) = \alpha^t, \quad 0 \leq \alpha \leq 1
 $$
 
-ユーザから指定された減衰時間 $\tau$ から $\alpha$ を決めます。
+$\alpha$ は減衰の速さを決める任意の値、 $t$ は単位が秒数の時間です。
 
-$0 < \alpha$ のとき $t = +\infty$ でようやく $E_d$ が 0 になります。つまり、いつまで経っても 0 になりません。そこで、 0 の代わりに十分に小さな値 $\epsilon$ に到達する時間を求めます。
+ユーザから指定された減衰時間 $\tau$ から $\alpha$ を決めます。 $E_d$ は $0 < \alpha$ のとき $t = +\infty$ でようやく 0 になります。言い換えると $E_d$ はいつまで経っても 0 になりません。そこで 0 の代わりに十分に小さな値 $\epsilon$ に到達する時間を求めます。
 
 $$
 E_d(\tau) = \alpha^\tau = \epsilon
 $$
 
-時間の単位を秒数 $\tau$ からサンプル数 $n_\tau$ に置き換えます。サンプリング周波数を $f_s$ とすると次の式で表されます。
+時間の単位を秒数 $\tau$ からサンプル数 $n_\tau$ に置き換えます。
 
 $$
 n_\tau = \tau f_s
 $$
 
-よって、 $\tau$ と $\epsilon$ が与えられたとき $\alpha$ は次の式で求めることができます。
+$f_s$ はサンプリング周波数です。
+
+$\tau$ と $\epsilon$ が与えられたとき $\alpha^\tau = \epsilon$ の関係と $n_\tau$ の式より $\alpha$ が求められます。
 
 $$
-\alpha = \epsilon^{\frac{1}{\tau f_s}}
+\alpha = \epsilon^\Tau, \quad \Tau = \frac{1}{\tau f_s}.
 $$
 
-$\epsilon$ の値は適当でいいですが、この文章では `1e-5` を使っています。 10 進数では `float` は大体 7 桁、 `double` は 16 桁の精度があります。
+$\epsilon$ の値は任意です。この文章では `1e-5` を使っています。値を決めるときの参考までに、 10 進数では `float` は約 7 桁、 `double` は約 16 桁の精度があります。
 
 - [floating point - How many significant digits do floats and doubles have in java? - Stack Overflow](https://stackoverflow.com/questions/13542944/how-many-significant-digits-do-floats-and-doubles-have-in-java)
 
@@ -76,8 +78,10 @@ protected:
 <img src="img/discontinuity_at_termination.svg" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
 
+値の範囲が `[0, 1]` かつ終端に崖を作りたくないときはルックアップテーブルが使えます。ただし、滑らかさは劣ります。
+
 ## 増加する指数曲線
-増加する指数曲線 $E_a(t)$ は次のように表されます。
+増加する指数曲線 $E_a(t)$ の式です。
 
 $$
 E_d(\tau) = \epsilon \alpha^\tau = 1
@@ -86,7 +90,7 @@ $$
 $\alpha$ について解きます。
 
 $$
-\alpha = \left( \frac{1}{\epsilon} \right)^{\frac{1}{\tau f_s}}
+\alpha = \left( \frac{1}{\epsilon} \right)^\Tau, \quad \Tau = \frac{1}{\tau f_s}.
 $$
 
 実装します。
@@ -159,11 +163,11 @@ protected:
 ```
 
 ## 指数曲線を使った ADSR エンベロープ
-実装です。
+C++ での実装例です。
 
-このエンベロープは [IterativeSinCluster](https://ryukau.github.io/VSTPlugins/manual/IterativeSinCluster/IterativeSinCluster_ja.html) で使われています。 `sustain` をスムーシングしていないので、サステイン中にサステイン音量を変更するとノイズが乗ります。
+このエンベロープは [IterativeSinCluster](https://ryukau.github.io/VSTPlugins/manual/IterativeSinCluster/IterativeSinCluster_ja.html) で使われています。この文章に掲載している実装では `sustain` をバッファ内で補間していないので、サステイン中にサステイン音量を変更するとノイズが乗ります。また、エンベロープが終了していない状態で再トリガすると、デクリックの副エンベロープが掛け合わされることによってノイズが乗ります。
 
-`reset()` の `curve` の値で `ExpAttackCurve` と `NegativeExpAttackCurve` を入れ替えられるようにしています。
+`reset()` の `curve` の値で `ExpAttackCurve` と `NegativeExpAttackCurve` を入れ替えられるようにしています。 `curve` の値はトリガ時に渡された値をエンベロープの終了までに使い続けることを想定しています。
 
 ```cpp
 #include <algorithm>
@@ -323,7 +327,7 @@ protected:
 テスト結果です。図の縦軸は振幅、横軸は秒数です。音のサンプルはエンベロープを 100 Hz のサイン波の音量に適用しています。
 
 <figure>
-<img src="img/testADSR.png" alt="Image of test result of linear ADSR envelope." style="padding-bottom: 12px;"/>
+<img src="img/testADSR.png" alt="Image of test result of exponential ADSR envelope." style="padding-bottom: 12px;"/>
 </figure>
 
 <figure>
@@ -378,9 +382,11 @@ protected:
 </figure>
 
 ### デクリック (declick)
-エンベロープのデクリックとはアタック時間やディケイ時間などがとても短いときにでるプチノイズを低減することです。 Image-Line の [Sytrus](https://www.image-line.com/plugins/Synths/Sytrus/) というシンセサイザで declick という言葉が使われていたので、それにならっています。
+エンベロープのアタック時間やディケイ時間などがとても短いときにでるプチノイズを低減することをデクリック (declick) と呼びます。 Image-Line の [Sytrus](https://www.image-line.com/plugins/Synths/Sytrus/) というシンセサイザでの用例にならっています。
 
 ここでは 1 ミリ秒の短いアタックを持つ副エンベロープを用意して指数曲線を使った主エンベロープに掛け合わせています。また、[直線の ADSR エンベロープ](https://ryukau.github.io/filter_notes/linear_envelope/linear_envelope.html)で紹介した `adaptTime()` も組み合わせて使っています。
+
+モノフォニックのときに副エンベロープを使うと再トリガの処理が複雑になるのでお勧めしません。出力を slew limiter に通すほうが楽に実装できます。[オーディオプラグインの UI から入力された値の補間](../control_rate_interpolation/control_rate_interpolation.html)も参考にしてみてください。
 
 図は副エンベロープによるデクリックを行ったエンベロープ出力の例です。副エンベロープのアタックカーブは $0.5 + 0.5 \cos(n)$ で、 $n$ は $-\pi$ から $0$ に向かって増加しています。
 
@@ -403,6 +409,198 @@ protected:
     <source src="snd/declick_off.wav" type="audio/wav">
   </audio>
 </figure>
+
+## P Controller による実装
+P controller については[オーディオプラグインの UI から入力された値の補間](../control_rate_interpolation/control_rate_interpolation.html)を参照してください。
+
+ステップ状の不連続点を始点として指数曲線を描く出力が得られる P controller の特性を利用してエンベロープを実装します。
+
+ユーザから指定された時間 $T$ の逆数をカットオフ周波数 $f_c$ に使っています。
+
+$$
+f_c = \frac{1}{T}
+$$
+
+アタックはカウンタを使って時間経過で次の状態に進みます。
+
+リリースは出力がしきい値 `threshold` 以下になったときに次の状態に進みます。
+
+状態 `State::tail` では出力が `threshold` から 0 に到達するように直線を描きます。
+
+```cpp
+#include <algorithm>
+#include <cmath>
+
+constexpr double twopi = 6.283185307179586;
+
+template<typename Sample> class PController {
+public:
+  // float 型での cutoffHz の下限は 3~4 Hz 程度。
+  static Sample cutoffToP(Sample sampleRate, Sample cutoffHz)
+  {
+    auto omega_c = Sample(twopi) * cutoffHz / sampleRate;
+    auto y = Sample(1) - cos(omega_c);
+    return -y + sqrt((y + Sample(2)) * y);
+  }
+
+  void setP(Sample p) { kp = std::clamp<Sample>(p, Sample(0), Sample(1)); }
+  void reset(Sample value = 0) { this->value = value; }
+  Sample process(Sample input) { return value += kp * (input - value); }
+
+  Sample kp = 1; // Range in [0, 1].
+  Sample value = 0;
+};
+
+template<typename Sample> class ExpADSREnvelopeP {
+public:
+  void setup(Sample sampleRate)
+  {
+    this->sampleRate = sampleRate;
+    tailLength = uint32_t(0.01 * sampleRate);
+  }
+
+  void reset(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)
+  {
+    state = State::attack;
+    sustain = std::clamp<Sample>(sustainLevel, Sample(0), Sample(1));
+    atk = int32_t(sampleRate * attackTime);
+    decTime = decayTime;
+    relTime = releaseTime;
+    pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
+  }
+
+  void set(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)
+  {
+    switch (state) {
+      case State::attack:
+        atk = int32_t(sampleRate * attackTime);
+        // Fall through.
+
+      case State::decay:
+        decTime = decayTime;
+        sustain = std::clamp<Sample>(sustainLevel, Sample(0), Sample(1));
+        // Fall through.
+
+      case State::release:
+        relTime = releaseTime;
+
+      default:
+        break;
+    }
+
+    if (state == State::attack)
+      pController.setP(
+        PController<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
+    else if (state == State::decay)
+      pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / decayTime));
+    else if (state == State::release)
+      pController.setP(
+        PController<Sample>::cutoffToP(sampleRate, Sample(1) / releaseTime));
+  }
+
+  void release()
+  {
+    state = State::release;
+    pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / relTime));
+  }
+
+  bool isAttacking() { return state == State::attack; }
+  bool isReleasing() { return state == State::release; }
+  bool isTerminated() { return state == State::terminated; }
+
+  Sample process()
+  {
+    switch (state) {
+      case State::attack: {
+        value = pController.process(Sample(1));
+        --atk;
+        if (atk == 0) {
+          state = State::decay;
+          pController.setP(
+            PController<Sample>::cutoffToP(sampleRate, Sample(1) / decTime));
+        }
+      } break;
+
+      case State::decay:
+        value = pController.process(sustain);
+        break;
+
+      case State::release:
+        value = pController.process(0);
+        if (value < threshold) {
+          value = threshold;
+          state = State::tail;
+          tailCounter = tailLength;
+        }
+        break;
+
+      case State::tail:
+        --tailCounter;
+        value = threshold * tailCounter / float(tailLength);
+        if (tailCounter == 0) {
+          state = State::terminated;
+          pController.reset(0);
+        } else {
+          pController.reset(value);
+        }
+        break;
+
+      default:
+        return 0;
+    }
+    return value;
+  }
+
+private:
+  enum class State : int32_t { attack, decay, release, tail, terminated };
+  const Sample threshold = 1e-5;
+
+  uint32_t tailLength = 32;
+  uint32_t tailCounter = tailLength;
+
+  PController<Sample> pController;
+  State state = State::terminated;
+  uint32_t atk = 0;
+  Sample decTime = 0;
+  Sample relTime = 0;
+  Sample sampleRate = 44100;
+  Sample sustain = 1;
+  Sample value = 0;
+};
+```
+
+テストに使ったコードへのリンクです。
+
+- TODO リンク
+
+テスト結果です。
+
+<figure>
+<img src="img/testP_ADSR.png" alt="Image of test result of exponential ADSR envelope with P controller." style="padding-bottom: 12px;"/>
+</figure>
+
+<figure>
+<img src="img/testP_ReleaseWhileAttack.png" alt="Image of test result of release while attack." style="padding-bottom: 12px;"/>
+</figure>
+
+<figure>
+<img src="img/testP_ReleaseWhileDecay.png" alt="Image of test result of release while decay." style="padding-bottom: 12px;"/>
+</figure>
+
+<figure>
+<img src="img/testP_TriggerWhileRelease.png" alt="Image of test result of trigger while release." style="padding-bottom: 12px;"/>
+</figure>
+
+<figure>
+<img src="img/testP_ChangeSustain.png" alt="Image of test result of changing sustain." style="padding-bottom: 12px;"/>
+</figure>
+
+`P_ADSR` の `State::tail` の部分を拡大した図です。
+
+<figure>
+<img src="img/P_tail.png" alt="Image of tail state of envelope." style="padding-bottom: 12px;"/>
+</figure>
+
 
 ## 減衰する指数曲線とその反転の乗算
 減衰する指数曲線とその反転を掛け合わせて合成したエンベロープ $E_{\mathtt{AD}}(t)$ を作ります。
@@ -494,11 +692,13 @@ protected:
 </figure>
 
 ### 別解
-この計算方法は [EnvelopedSine](https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html) で使っています。エンベロープ $\tilde{E}_{\mathtt{AD}}$
+この計算方法は [EnvelopedSine](https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html) で使っています。エンベロープ $\tilde{E}_{\mathtt{AD}}$ の式です。
 
 $$
 \tilde{E}_{\mathtt{AD}}(t) = (1 - e^{-at}) e^{-bt}
 $$
+
+$E_{\mathtt{AD}}(t)$ の式について $a \to e^{-a},\ d \to e^{-b}$ と置き換えています。
 
 ピークの位置 $t_p$ とピークの大きさ $\tilde{E}_{\mathtt{AD}}(t_p)$ を求めます。
 
@@ -511,10 +711,18 @@ $$
 t_p = \frac{\log{\left( \dfrac{a}{b}+1\right) }}{a}
 $$
 
-$a$ と $b$ を求めます。アタック時間を $A$ 、 ディケイ時間を $B$ 、 適当なしきい値を $\epsilon \in [0, 1)$ とします。 $e^{-a A} = e^{-b B} = \epsilon$ となる $a, b$ は次の式で計算できます。
+$a$ と $b$ を求めます。アタック時間を $A$ 、 ディケイ時間を $B$ 、 適当なしきい値を $\epsilon \in [0, 1)$ とします。 $e^{-a A},\ e^{-b B},\ \epsilon$ が等しくなるような $a, b$ は次の式で計算できます。
+
+$e^{-a A} = \epsilon$ より、
 
 $$
-a = - \dfrac{\log(\epsilon)}{A}, \quad b = - \dfrac{\log(\epsilon)}{B}
+a = - \dfrac{\log(\epsilon)}{A}.
+$$
+
+$e^{-b B} = \epsilon$ より、
+
+$$
+\quad b = - \dfrac{\log(\epsilon)}{B}.
 $$
 
 コード例です。
@@ -543,3 +751,7 @@ output = envelope(1.0, 2.0)
 <figure>
 <img src="img/ExpAD.png" alt="Image of ExpAD envelope. Alternative implementation." style="padding-bottom: 12px;"/>
 </figure>
+
+## 変更点
+- 2020-03-27
+  - `P Controller による実装` を追加。
