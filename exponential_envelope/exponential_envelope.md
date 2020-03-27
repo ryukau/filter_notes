@@ -571,7 +571,8 @@ private:
 
 テストに使ったコードへのリンクです。
 
-- TODO リンク
+- [filter_notes/P_exponential_envelope.hpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/P_exponential_envelope.hpp)
+- [filter_notes/test_P_exponential_envelope.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/test_P_exponential_envelope.cpp)
 
 テスト結果です。
 

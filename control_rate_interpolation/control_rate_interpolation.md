@@ -433,7 +433,7 @@ private:
 
 テストに使ったコードへのリンクです。
 
-- TODO
+- [filter_notes/pcontroller.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/pcontroller.cpp)
 
 ## Rate Limiter
 mathworks.com で紹介されていた Rate Limiter を実装します。 Rate Limiter を通った信号は 1 サンプルあたりの増加量が制限されます。出力波形は線形補間と同じですが、パラメータとして傾きを指定する点が異なります。
@@ -508,7 +508,7 @@ private:
 
 テストに使ったコードへのリンクです。
 
-- TODO
+- [filter_notes/rate_limiter.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/rate_limiter.cpp)
 
 ## 比較
 出力を比較しやすいように再掲します。
