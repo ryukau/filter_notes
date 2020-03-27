@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2020-03-16" />
+<meta name="dcterms.date" content="2020-03-27" />
 <title>control_rate_interpolation</title>
 
 <!-- highlight.js -->
@@ -228,7 +228,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2020-03-16
+Update: 2020-03-27
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -238,18 +238,31 @@ Update: 2020-03-16
   <li><a href="#素朴なパラメータの受け取り">素朴なパラメータの受け取り</a></li>
   <li><a href="#バッファ内で線形補間">バッファ内で線形補間</a><ul>
   <li><a href="#パラメータチューニング">パラメータチューニング</a></li>
-  </ul></li>
   <li><a href="#異なる計算方法">異なる計算方法</a></li>
+  </ul></li>
+  <li><a href="#p-controller">P Controller</a><ul>
+  <li><a href="#周波数特性">周波数特性</a></li>
+  <li><a href="#k_p-からカットオフ周波数を求める"><span class="math inline">\(k_p\)</span> からカットオフ周波数を求める</a></li>
+  <li><a href="#カットオフ周波数から-k_p-を求める">カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める</a></li>
+  <li><a href="#複素数を使わずにカットオフ周波数から-k_p-求める式">複素数を使わずにカットオフ周波数から <span class="math inline">\(k_p\)</span> 求める式</a></li>
+  <li><a href="#実装">実装</a></li>
+  </ul></li>
+  <li><a href="#rate-limiter">Rate Limiter</a><ul>
+  <li><a href="#仕様">仕様</a></li>
+  <li><a href="#実装-1">実装</a></li>
+  </ul></li>
+  <li><a href="#比較">比較</a></li>
+  <li><a href="#その他">その他</a></li>
+  <li><a href="#変更点">変更点</a></li>
   </ul></li>
   </ul>
 </nav>
 </details>
 </header>
 <h1 id="オーディオプラグインの-ui-から入力された値の補間">オーディオプラグインの UI から入力された値の補間</h1>
-<p>UI からプラグインへと投げられてきたパラメータの補間について見ていきます。</p>
+<p>VST 3 や LV2 ではオーディオ処理のメソッドが呼び出されるたびに UI (ユーザインタフェース) で変更されたパラメータが渡されます。更新するバッファ内で一定の値を使うだけだと滑らかでなくなるので補間します。</p>
 <h2 id="素朴なパラメータの受け取り">素朴なパラメータの受け取り</h2>
-<p>VST 3 や LV2 では、オーディオデバイスのバッファの長さ <span class="math inline">\(L\)</span> サンプルごとにオーディオ処理のメソッドが呼び出されます。</p>
-<p>オーディオ処理のメソッドが呼び出される頻度のことをコントロールレートと呼ぶことがあります。サンプリング周波数を <span class="math inline">\(f_s\)</span> とするとコントロールレートは <span class="math inline">\(f_s / L\)</span> です。</p>
+<p>オーディオ処理のメソッドが呼び出される頻度のことをコントロールレートと呼ぶことがあります。オーディオデバイスのバッファの長さを <span class="math inline">\(L\)</span> 、サンプリング周波数を <span class="math inline">\(f_s\)</span> とするとコントロールレートは <span class="math inline">\(f_s / L\)</span> です。</p>
 <p>次のコードはバッファ単位で <code>process</code> を呼び出す例です。バッファに書き込み直す処理を <code>main</code> 内の <code>for</code> ループで回していますが、実際にはオーディオデバイスによる割り込みに応じて DAW のオーディオスレッドから呼び出されます。</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb1-1" title="1"><span class="co">// naive.cpp</span></a>
 <a class="sourceLine" id="cb1-2" title="2"><span class="pp">#include </span><span class="im">&lt;cstring&gt;</span></a>
@@ -309,8 +322,9 @@ Naive
 <source src="snd/sin_naive.wav" type="audio/wav">
 </audio>
 </figure>
-<p>バッファの境界で値が不連続に変化しているので、そのまま使うとノイズが乗ります。</p>
+<p>バッファの境界で値が不連続に変化しているので、そのまま使うとノイズが乗ることがあります。</p>
 <p>不連続点が目立ってしまうパラメータの例としては、音量、フィルタのカットオフ周波数、ディレイ時間、オシレータの周波数などが挙げられます。特に IIR フィルタのカットオフ周波数を急激に変更すると発散することがあるので、パラメータを補間せずに使うことは避けたいです。</p>
+<p>パラメータによって変更される値が 1 サンプルあたりの変化量を表しているときは不連続点が目立たないことがあります。実装によりますが、エンベロープの傾きなどが例として挙げられます。</p>
 <h2 id="バッファ内で線形補間">バッファ内で線形補間</h2>
 <p>サンプリング周波数とバッファサイズが固定なら、パラメータが変化したときだけ次のバッファまで線形補間することでノイズが大きく減ります。</p>
 <p>デスクトップ環境では設定によってサンプリング周波数とバッファサイズが変わります。そこで、古い値から新しい値へと更新される時間を指定できるようにします。</p>
@@ -326,7 +340,7 @@ p_0 = \frac{L}{n} (p - p_1) + p_1
 <p><span class="math display">\[
 p_i = p_1 + \frac{i}{L} (p_0 - p_1)
 \]</span></p>
-<p>この計算は指定した時間で目的の値に到達しませんが、シンセサイザで使うには十分です。もう少し適切に指定したいときはパラメータチューニングの項を参照してください。</p>
+<p>この計算は指定した時間で目的の値に到達しませんが、シンセサイザで使うには十分です。より正確に指定したいときはパラメータチューニングの項を参照してください。</p>
 <p>実装します。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">constexpr</span> <span class="dt">float</span> sampleRate = <span class="fl">48000.0</span><span class="bu">f</span>;</a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="kw">constexpr</span> <span class="dt">size_t</span> nFrame = <span class="dv">512</span>;</a>
@@ -402,40 +416,6 @@ p_i = p_1 + \frac{i}{L} (p_0 - p_1)
 <figure>
 <img src="img/smoother.png" alt="Image of smoothed parameter." style="padding-bottom: 12px;"/>
 </figure>
-<p>図の波形に 100 Hz のサイン波を掛け合わせた音です。素朴な実装と比べるとプチノイズが減っています。</p>
-<figure>
-<figcaption>
-Smoother
-</figcaption>
-<audio controls>
-<source src="snd/sin_smoother.wav" type="audio/wav">
-</audio>
-</figure>
-<p>比較のために素朴な実装の結果を再掲します。</p>
-<figure>
-<img src="img/naive.png" alt="Image of naively received parameter." style="padding-bottom: 12px;"/>
-</figure>
-<figure>
-<figcaption>
-Naive
-</figcaption>
-<audio controls>
-<source src="snd/sin_naive.wav" type="audio/wav">
-</audio>
-</figure>
-<p>パラメータが変更されたバッファのみ線形補間したときの結果も掲載します。手間を省きたいときは、これで十分です。</p>
-<figure>
-<img src="img/linterp.png" alt="Image of linear interpolated parameter." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<figure>
-<figcaption>
-Linterp
-</figcaption>
-<audio controls>
-<source src="snd/sin_linterp.wav" type="audio/wav">
-</audio>
-</figure>
-<p>コードへのリンク: <a href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/linterp.cpp">filter_notes/linterp.cpp at master · ryukau/filter_notes · GitHub</a></p>
 <h3 id="パラメータチューニング">パラメータチューニング</h3>
 <p><span class="math inline">\(p_0\)</span> の振る舞いは指数関数的減衰 (exponential decay) になります。経過したバッファ数を <span class="math inline">\(j\)</span> として、 <span class="math inline">\(L, n, p\)</span> を固定します。さらに <span class="math inline">\(\alpha = L / n,\ p_1 = 0\)</span> とすれば次のように書き直せます。</p>
 <p><span class="math display">\[
@@ -449,7 +429,7 @@ j &amp;= \frac{\log \epsilon}{\log \alpha}
 \end{aligned}
 \]</span></p>
 <p>また <span class="math inline">\(\epsilon\)</span> と <span class="math inline">\(j\)</span> が分かっているとき、 <span class="math inline">\(\alpha = \epsilon^{\frac{1}{j}}\)</span> です。</p>
-<h2 id="異なる計算方法">異なる計算方法</h2>
+<h3 id="異なる計算方法">異なる計算方法</h3>
 <p>Uhhyou Plugins では以前、異なる計算方法を使っていたので記録しておきます。</p>
 <p><code>Smoother::process()</code> での計算式を再掲します。</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb4-1" title="1">value = p1 + index / bufferSize * (p0 - p1);</a></code></pre></div>
@@ -490,11 +470,276 @@ j &amp;= \frac{\log \epsilon}{\log \alpha}
 <a class="sourceLine" id="cb5-34" title="34">  Sample ramp = <span class="fl">0.0</span>; <span class="co">// 1 サンプルあたりに value が増える量。</span></a>
 <a class="sourceLine" id="cb5-35" title="35">};</a></code></pre></div>
 <p>指定されたスムーシング時間がバッファ長よりも短いときは <code>push()</code> の条件分岐によってスムーシングを無効にしています。</p>
-<p><code>process()</code> の条件分岐 <code>fabs(value - target) &lt; 1e-5</code> でオーバーシュートを防いでいます。 <code>1e-5</code> は適当に決めた値です。パラメータの値の範囲が広いときは <code>1e-5</code> をより大きな値に変えないと上手く動かない可能性があります。</p>
+<p><code>process()</code> の条件分岐 <code>fabs(value - target) &lt; 1e-5</code> でオーバーシュートを防いでいます。 <code>1e-5</code> は適当に決めた値です。パラメータの値の範囲が広いときは <code>1e-5</code> をより大きな値に変えないと上手く動かない可能性があるので、この実装は危険です。</p>
 <p>1 サンプルあたりの増加量を使う方法は、バッファ内のインデックスを使う方法よりも遅いです。スムーシング時間が固定で、オーバーシュートがあってもいいなら <code>process()</code> 内の条件分岐を消せるので使えるかもしれません。</p>
 <p>ベンチマークに使ったコードを次のリンクに掲載しています。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/bench_smoother.cpp">filter_notes/bench_smoother.cpp at master · ryukau/filter_notes · GitHub</a></li>
+</ul>
+<h2 id="p-controller">P Controller</h2>
+<p>思いつきで PID コントローラの P だけを取り出して使っていたので P controller と名前をつけていますが、 exponential moving average filter あるいは exponentially weighted moving average filter と呼ぶほうが一般的です。エンベロープを滑らかにするときなどにも使えます。</p>
+<p>P controller の の素朴な実装です。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> PController {</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb6-3" title="3">  <span class="dt">void</span> setup(Sample p) { kp = <span class="bu">std::</span>clamp&lt;Sample&gt;(p, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>)); }</a>
+<a class="sourceLine" id="cb6-4" title="4">  <span class="dt">void</span> reset() { value = <span class="dv">0</span>; }</a>
+<a class="sourceLine" id="cb6-5" title="5">  Sample process(Sample input) { <span class="cf">return</span> value += kp * (input - value); }</a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="kw">private</span>:</a>
+<a class="sourceLine" id="cb6-8" title="8">  Sample kp = <span class="dv">1</span>; <span class="co">// Range in [0, 1].</span></a>
+<a class="sourceLine" id="cb6-9" title="9">  Sample value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb6-10" title="10">};</a></code></pre></div>
+<h3 id="周波数特性">周波数特性</h3>
+<p><code>PController</code> の伝達関数を出します。 <code>process()</code> での計算式です。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb7-1" title="1">value += kp * (input - value);</a></code></pre></div>
+<p><span class="math inline">\(n\)</span> を経過サンプル数とすると <code>value</code> は <span class="math inline">\(y[n - 1]\)</span> 、 <code>input</code> は <span class="math inline">\(x[n]\)</span> となります。出力は <span class="math inline">\(y[n]\)</span> です。 <code>process()</code> の計算式の記号を置き換えます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+y[n] &amp;= y[n - 1] + k_p (x[n] - y[n - 1]) \\
+y[n] + (k_p - 1) y[n - 1] &amp;= k_p x[n]
+\end{aligned}
+\]</span></p>
+<p>出力 <span class="math inline">\(y\)</span> の項だけを集めた左辺で、入力 <span class="math inline">\(x\)</span> の項だけを集めた右辺を割ることで伝達関数が得られます。</p>
+<p><span class="math display">\[
+H(z) = \frac{k_p}{1 + (k_p - 1) z^{-1}}
+\]</span></p>
+<p><code>PController</code> の振幅特性です。ローパスに近い特性です。</p>
+<figure>
+<img src="img/pcontroller_amplitude.png" alt="Image of amplitude response of P controller." style="padding-bottom: 12px;"/>
+</figure>
+<p><code>PController</code> の位相特性です。</p>
+<figure>
+<img src="img/pcontroller_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="k_p-からカットオフ周波数を求める"><span class="math inline">\(k_p\)</span> からカットオフ周波数を求める</h3>
+<p>伝達関数 <span class="math inline">\(H(z)\)</span> からカットオフ周波数 <span class="math inline">\(\omega\)</span> を求めます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+|H(e^{j \omega})|
+  = \frac{1}{\sqrt{2}}
+  &amp;= \left| \frac{k_p}{1 + (k_p - 1) e^{-j \omega}} \right| \\
+\end{aligned}
+\]</span></p>
+<p>Maxima で <span class="math inline">\(\omega\)</span> について解きます。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb8-1" title="1">ω<span class="cn">_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, ω);</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="fu">ratsimp</span>(ω<span class="cn">_eq</span>);</a></code></pre></div>
+<p>出力です。2つの解が出てきたので <span class="math inline">\(\omega_1\)</span> と <span class="math inline">\(\omega_2\)</span> という名前をつけています。</p>
+<p><span class="math display">\[
+\omega_1 = -j \log{\left( -\frac{\sqrt{2}\, {{{k_p}}^{2}}+\left( -\sqrt{2}-1\right) \, {k_p}+1}{2 {{{k_p}}^{2}}-1}\right) }
+\operatorname{,}\quad
+\omega_2 = -j \log{\left( \frac{\sqrt{2}\, {{{k_p}}^{2}}+\left( 1-\sqrt{2}\right) \, {k_p}-1}{2 {{{k_p}}^{2}}-1}\right) }
+\]</span></p>
+<p><span class="math inline">\(\omega_1\)</span> は虚数 <span class="math inline">\(j\)</span> を外してプロットするとそれらしい曲線が出てきます。カットオフ周波数は縦軸です。 <span class="math inline">\(\pi\)</span> を超えているのは、そういうものなのか計算誤差なのか判断できていません。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb9-1" title="1"><span class="fu">plot2d</span>(-<span class="fu">log</span>(-(<span class="fu">sqrt</span>(<span class="dv">2</span>)*<span class="cn">k_p</span>^<span class="dv">2</span>+(-<span class="fu">sqrt</span>(<span class="dv">2</span>)<span class="dv">-1</span>)*<span class="cn">k_p</span><span class="dv">+1</span>)/(<span class="dv">2</span>*<span class="cn">k_p</span>^<span class="dv">2-1</span>)), [<span class="cn">k_p</span>, <span class="dv">0</span>, <span class="fl">1.1</span>]);</a></code></pre></div>
+<figure>
+<img src="img/pcontroller_kp_omega_plot.svg" alt="Image of k_p-omega plot." style="width: 480px;padding-bottom: 12px;"/>
+</figure>
+<h3 id="カットオフ周波数から-k_p-を求める">カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める</h3>
+<p><span class="math inline">\(\omega\)</span> の式を <span class="math inline">\(k_p\)</span> について解きます。</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb10-1" title="1"><span class="cn">k_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, <span class="cn">k_p</span>);</a></code></pre></div>
+<p>出力です。試しに計算したところ <span class="math inline">\(k_{p,2}\)</span> を使うと正しい値が得られました。</p>
+<p><span class="math display">\[
+\begin{aligned}
+k_{p,1} &amp;= -\frac{\sqrt{2} e^{2 j \omega} + (-\sqrt{2} - 1) e^{j \omega} + 1}{2 e^{2 j \omega} - 1} \\
+k_{p,2} &amp;= \frac{\sqrt{2} {e^{2 j \omega}} + (1 - \sqrt{2}) e^{j \omega} - 1}{2 e^{2 j \omega} - 1}
+\end{aligned}
+\]</span></p>
+<p>次の図の縦線がカットオフ周波数 <span class="math inline">\(\omega\)</span> を表しています。同じ色の曲線は振幅特性です。対応するカットオフ周波数と振幅特性が全て -3 dB で交差しているので正しく計算できています。</p>
+<figure>
+<img src="img/pcontroller_cutoff.png" alt="Image of ." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="複素数を使わずにカットオフ周波数から-k_p-求める式">複素数を使わずにカットオフ周波数から <span class="math inline">\(k_p\)</span> 求める式</h3>
+<p>dsp.stackexchange.com で回答を見つけました。 <span class="math inline">\(f_c\)</span> はカットオフ周波数、 <span class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
+<p><span class="math display">\[
+k_p = -y + \sqrt{y^2 + 2y}, \quad y = 1 - \cos(2 \pi f_c / f_s)
+\]</span></p>
+<p>Maxima で解くときは <code>cabs</code> と <code>trigsimp</code> が使えます。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb11-1" title="1"><span class="cn">H_</span>ω: <span class="cn">k_p</span> / (<span class="dv">1</span> - (<span class="dv">1</span> - <span class="cn">k_p</span>) * <span class="cn">exp</span>(-<span class="va">%i</span> * ω));</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="cn">H_</span>ω<span class="cn">_abs</span>: <span class="cn">trigsimp</span>(<span class="fu">cabs</span>(<span class="cn">H_</span>ω));</a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="fu">solve</span>(<span class="dv">1</span> / <span class="dv">2</span> = <span class="cn">H_</span>ω<span class="cn">_abs</span>^<span class="dv">2</span>, <span class="cn">k_p</span>);</a></code></pre></div>
+<p><span class="math display">\[
+\left| H(e^{j \omega}) \right| = \frac{\left| {k_p}\right| }{\sqrt{\left( 2 {k_p}-2\right)  \cos{\left( \omega \right) }+{{{k_p}}^{2}}-2 {k_p}+2}}
+\]</span></p>
+<p><span class="math display">\[
+{k_p}=-\sqrt{{{\cos{\left( \omega \right) }}^{2}}-4 \cos{\left( \omega \right) }+3}+\cos{\left( \omega \right) }-1\operatorname{,}\quad {k_p}=\sqrt{{{\cos{\left( \omega \right) }}^{2}}-4 \cos{\left( \omega \right) }+3}+\cos{\left( \omega \right) }-1
+\]</span></p>
+<ul>
+<li><a href="https://dsp.stackexchange.com/questions/54086/single-pole-iir-low-pass-filter-which-is-the-correct-formula-for-the-decay-coe">Single-pole IIR low-pass filter - which is the correct formula for the decay coefficient? - Signal Processing Stack Exchange</a></li>
+<li><a href="https://dsp.stackexchange.com/questions/28308/exponential-weighted-moving-average-time-constant/28314#28314">digital filters - Exponential weighted moving average time constant - Signal Processing Stack Exchange</a></li>
+<li><a href="https://dsp.stackexchange.com/questions/26941/how-frequency-response-related-to-a-transfer-function">How frequency response related to a transfer function - Signal Processing Stack Exchange</a></li>
+<li><a href="https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.pdf">Exponential-Moving-Average.pdf</a></li>
+</ul>
+<h3 id="実装">実装</h3>
+<p>C++ です。カットオフ周波数から <span class="math inline">\(k_p\)</span> を求めるメソッドが追加されています。</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> PController {</a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb12-3" title="3">  <span class="co">// float 型での cutoffHz の下限は 3~4 Hz 程度。</span></a>
+<a class="sourceLine" id="cb12-4" title="4">  <span class="at">static</span> Sample cutoffToP(Sample sampleRate, Sample cutoffHz)</a>
+<a class="sourceLine" id="cb12-5" title="5">  {</a>
+<a class="sourceLine" id="cb12-6" title="6">    <span class="kw">auto</span> omega_c = Sample(twopi) * cutoffHz / sampleRate;</a>
+<a class="sourceLine" id="cb12-7" title="7">    <span class="kw">auto</span> y = Sample(<span class="dv">1</span>) - cos(omega_c);</a>
+<a class="sourceLine" id="cb12-8" title="8">    <span class="cf">return</span> -y + sqrt((y + Sample(<span class="dv">2</span>)) * y);</a>
+<a class="sourceLine" id="cb12-9" title="9">  }</a>
+<a class="sourceLine" id="cb12-10" title="10"></a>
+<a class="sourceLine" id="cb12-11" title="11">  <span class="dt">void</span> setup(Sample p) { kp = <span class="bu">std::</span>clamp&lt;Sample&gt;(p, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>)); }</a>
+<a class="sourceLine" id="cb12-12" title="12">  <span class="dt">void</span> reset() { value = <span class="dv">0</span>; }</a>
+<a class="sourceLine" id="cb12-13" title="13">  Sample process(Sample input) { <span class="cf">return</span> value += kp * (input - value); }</a>
+<a class="sourceLine" id="cb12-14" title="14"></a>
+<a class="sourceLine" id="cb12-15" title="15"><span class="kw">private</span>:</a>
+<a class="sourceLine" id="cb12-16" title="16">  Sample kp = <span class="dv">1</span>; <span class="co">// Range in [0, 1].</span></a>
+<a class="sourceLine" id="cb12-17" title="17">  Sample value = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb12-18" title="18">};</a></code></pre></div>
+<p><code>cutoffHz = 30</code> としたときの出力です。</p>
+<figure>
+<img src="img/pcontroller.png" alt="Image of PController output." style="padding-bottom: 12px;"/>
+</figure>
+<p>テストに使ったコードへのリンクです。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/pcontroller.cpp">filter_notes/pcontroller.cpp at master · ryukau/filter_notes · GitHub</a></li>
+</ul>
+<h2 id="rate-limiter">Rate Limiter</h2>
+<p>mathworks.com で紹介されていた Rate Limiter を実装します。 Rate Limiter を通った信号は 1 サンプルあたりの増加量が制限されます。出力波形は線形補間と同じですが、パラメータとして傾きを指定する点が異なります。</p>
+<ul>
+<li><a href="https://www.mathworks.com/help/simulink/slref/ratelimiter.html">Limit rate of change of signal - Simulink</a></li>
+</ul>
+<h3 id="仕様">仕様</h3>
+<p>まず 1 サンプルあたりの増加量 <span class="math inline">\(\mathrm{rate}\)</span> を計算します。</p>
+<p><span class="math display">\[
+\mathrm{rate} = \frac{x[i] - y[i - 1]}{\Delta t}, \quad \Delta t = t[i] - t[i - 1].
+\]</span></p>
+<p><span class="math inline">\(x\)</span> は入力信号、 <span class="math inline">\(y\)</span> は出力信号、 <span class="math inline">\(t\)</span> は秒数、 インデックス <span class="math inline">\(i\)</span> は経過したサンプル数です。インデックス <span class="math inline">\(i - 1\)</span> は 1 サンプル前の値を表しています。</p>
+<p><span class="math inline">\(\mathrm{rate}\)</span> を使って出力 <span class="math inline">\(y[i]\)</span> を計算します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+y[i] =&amp; \begin{cases}
+  \Delta t \cdot R + y[i - 1] &amp; \text{if} \enspace \mathrm{rate} &gt; R, \\
+  \Delta t \cdot F + y[i - 1] &amp; \text{if} \enspace \mathrm{rate} &lt; F, \\
+  x[i]                        &amp; \text{otherwise.}
+\end{cases}
+\\
+&amp; R &gt; 0, \quad F &lt; 0.
+\end{aligned}
+\]</span></p>
+<p><span class="math inline">\(R\)</span> は <ruby>Rising slew rate<rt>ライジング スルー レート</rt></ruby> 、 <span class="math inline">\(F\)</span> は <ruby>Falling slew rate<rt>フォーリング スルー レート</rt></ruby> です。どちらもユーザが指定する実数です。</p>
+<h3 id="実装-1">実装</h3>
+<p>C++ です。</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> RateLimiter {</a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb13-3" title="3">  <span class="dt">void</span> setup(Sample sampleRate) { dt = Sample(<span class="dv">1</span>) / sampleRate; }</a>
+<a class="sourceLine" id="cb13-4" title="4">  <span class="dt">void</span> reset() { y1 = <span class="dv">0</span>; }</a>
+<a class="sourceLine" id="cb13-5" title="5"></a>
+<a class="sourceLine" id="cb13-6" title="6">  <span class="dt">void</span> setRate(Sample risingSlewRate, Sample fallingSlewRate)</a>
+<a class="sourceLine" id="cb13-7" title="7">  {</a>
+<a class="sourceLine" id="cb13-8" title="8">    rise = risingSlewRate;</a>
+<a class="sourceLine" id="cb13-9" title="9">    fall = fallingSlewRate;</a>
+<a class="sourceLine" id="cb13-10" title="10">  }</a>
+<a class="sourceLine" id="cb13-11" title="11"></a>
+<a class="sourceLine" id="cb13-12" title="12">  Sample process(Sample input)</a>
+<a class="sourceLine" id="cb13-13" title="13">  {</a>
+<a class="sourceLine" id="cb13-14" title="14">    <span class="kw">auto</span> rate = (input - y1) / dt;</a>
+<a class="sourceLine" id="cb13-15" title="15">    <span class="cf">if</span> (rate &gt; rise)</a>
+<a class="sourceLine" id="cb13-16" title="16">      y1 += dt * rise;</a>
+<a class="sourceLine" id="cb13-17" title="17">    <span class="cf">else</span> <span class="cf">if</span> (rate &lt; fall)</a>
+<a class="sourceLine" id="cb13-18" title="18">      y1 += dt * fall;</a>
+<a class="sourceLine" id="cb13-19" title="19">    <span class="cf">else</span></a>
+<a class="sourceLine" id="cb13-20" title="20">      y1 = input;</a>
+<a class="sourceLine" id="cb13-21" title="21">    <span class="cf">return</span> y1;</a>
+<a class="sourceLine" id="cb13-22" title="22">  }</a>
+<a class="sourceLine" id="cb13-23" title="23"></a>
+<a class="sourceLine" id="cb13-24" title="24"><span class="kw">private</span>:</a>
+<a class="sourceLine" id="cb13-25" title="25">  Sample dt = <span class="fl">1.0</span> / <span class="fl">44100.0</span>;</a>
+<a class="sourceLine" id="cb13-26" title="26">  Sample y1 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb13-27" title="27">  Sample rise = <span class="dv">10000</span>;  <span class="co">// 正の値であるべき。</span></a>
+<a class="sourceLine" id="cb13-28" title="28">  Sample fall = -<span class="dv">10000</span>; <span class="co">// 負の値であるべき。</span></a>
+<a class="sourceLine" id="cb13-29" title="29">};</a></code></pre></div>
+<p><code>rise = 26.041666, fall = -52.083332</code> としたときの出力です。</p>
+<figure>
+<img src="img/rate_limiter.png" alt="Image of Rate Limiter output." style="padding-bottom: 12px;"/>
+</figure>
+<p>テストに使ったコードへのリンクです。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/rate_limiter.cpp">filter_notes/rate_limiter.cpp at master · ryukau/filter_notes · GitHub</a></li>
+</ul>
+<h2 id="比較">比較</h2>
+<p>出力を比較しやすいように再掲します。</p>
+<p>素朴な実装の結果の再掲です。</p>
+<figure>
+<img src="img/naive.png" alt="Image of naively received parameter." style="padding-bottom: 12px;"/>
+</figure>
+<p>パラメータが変更されたバッファのみ線形補間したときの結果も掲載します。手間を省きたいときは線形補間で十分です。</p>
+<figure>
+<img src="img/linterp.png" alt="Image of linear interpolated parameter." style="padding-bottom: 12px;"/>
+</figure>
+<p><code>linterp</code> のコードへのリンク: <a href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/linterp.cpp">filter_notes/linterp.cpp at master · ryukau/filter_notes · GitHub</a></p>
+<p>バッファ内で線形補間の節で実装した <code>Smoother</code> の実行結果です。</p>
+<figure>
+<img src="img/smoother.png" alt="Image of smoothed parameter." style="padding-bottom: 12px;"/>
+</figure>
+<p>PController の出力です。 <code>Smoother</code> よりも滑らかですが、完全に 0 や 1 になるには時間がかかります。</p>
+<figure>
+<img src="img/pcontroller.png" alt="Image of PController output." style="padding-bottom: 12px;"/>
+</figure>
+<p>Rate Limiter の出力です。 <code>linterp</code> とほぼ同じですが、立ち上がりと立ち下りの傾きを独立に指定できます。</p>
+<figure>
+<img src="img/rate_limiter.png" alt="Image of Rate Limiter output." style="padding-bottom: 12px;"/>
+</figure>
+<p>図の波形に 100 Hz のサイン波を掛け合わせた音です。素朴な実装と比べるとどれもポップノイズが減っています。</p>
+<figure>
+<figcaption>
+Naive
+</figcaption>
+<audio controls>
+<source src="snd/sin_naive.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+Linterp
+</figcaption>
+<audio controls>
+<source src="snd/sin_linterp.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+Smoother
+</figcaption>
+<audio controls>
+<source src="snd/sin_smoother.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+PController
+</figcaption>
+<audio controls>
+<source src="snd/sin_pcontroller.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+Rate Limiter
+</figcaption>
+<audio controls>
+<source src="snd/sin_rate_limiter.wav" type="audio/wav">
+</audio>
+</figure>
+<h2 id="その他">その他</h2>
+<p>Slew limiter と呼ばれるアナログシンセサイザのモジュールが挙動や用途としては近そうです。</p>
+<ul>
+<li><a href="http://www.doepfer.de/a170.htm">A-170</a></li>
+<li><a href="https://www.synthesizers.com/q105.html">Q105 Slew Limiter - Analog Modular Synthesizers for Electronic Music by Synthesizers.com</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Slew_rate">Slew rate - Wikipedia</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2020-03-26
+<ul>
+<li>文章の整理。</li>
+<li><code>P Controller</code> を <code>直線の ADSR エンベロープ</code> から移動。</li>
+<li><code>Rate Limiter</code> を追加。</li>
+<li><code>比較</code> を追加。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>

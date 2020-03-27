@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2020-03-23" />
+<meta name="dcterms.date" content="2020-03-27" />
 <title>linear_envelope</title>
 
 <!-- highlight.js -->
@@ -217,7 +217,6 @@ border: 2px solid #aaccff;
 }
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
 </head>
 
 <body>
@@ -228,7 +227,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2020-03-23
+Update: 2020-03-27
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -246,12 +245,6 @@ Update: 2020-03-23
   <li><a href="#実装">実装</a></li>
   <li><a href="#テスト">テスト</a></li>
   <li><a href="#simd-による並列化">SIMD による並列化</a></li>
-  <li><a href="#p-controller">P Controller</a><ul>
-  <li><a href="#周波数特性">周波数特性</a></li>
-  <li><a href="#k_p-からカットオフ周波数を求める"><span class="math inline">\(k_p\)</span> からカットオフ周波数を求める</a></li>
-  <li><a href="#カットオフ周波数から-k_p-を求める">カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める</a></li>
-  <li><a href="#複素数を使わずにカットオフ周波数から-k_p-求める式">複素数を使わずにカットオフ周波数から <span class="math inline">\(k_p\)</span> 求める式</a></li>
-  </ul></li>
   <li><a href="#記事の変更点">記事の変更点</a></li>
   </ul></li>
   </ul>
@@ -562,119 +555,13 @@ Update: 2020-03-23
 <ul>
 <li><a href="https://github.com/ryukau/VSTPlugins/blob/master/CubicPadSynth/source/dsp/envelope.hpp#L155">VSTPlugins/envelope.hpp at master · ryukau/VSTPlugins · GitHub</a></li>
 </ul>
-<h2 id="p-controller">P Controller</h2>
-<p>PID コントローラの P だけを取り出したフィルタを使うことでエンベロープの<ruby>角<rt>かど</rt></ruby>を滑らかにすることができます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> PController {</a>
-<a class="sourceLine" id="cb6-2" title="2">  Sample kp = <span class="dv">1</span>; <span class="co">// Range in [0, 1].</span></a>
-<a class="sourceLine" id="cb6-3" title="3">  Sample value = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb6-4" title="4"></a>
-<a class="sourceLine" id="cb6-5" title="5">  <span class="dt">void</span> setup(Sample p) { kp = <span class="bu">std::</span>clamp&lt;Sample&gt;(p, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>)); }</a>
-<a class="sourceLine" id="cb6-6" title="6">  <span class="dt">void</span> reset() { value = <span class="dv">0</span>; }</a>
-<a class="sourceLine" id="cb6-7" title="7">  Sample process(Sample input) { <span class="cf">return</span> value += kp * (input - value); }</a>
-<a class="sourceLine" id="cb6-8" title="8">};</a></code></pre></div>
-<p>使用例です。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb7-1" title="1">LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</a>
-<a class="sourceLine" id="cb7-2" title="2">envelope.setup(sampleRate);</a>
-<a class="sourceLine" id="cb7-3" title="3">envelope.trigger(<span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">2.0</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</a>
-<a class="sourceLine" id="cb7-4" title="4"></a>
-<a class="sourceLine" id="cb7-5" title="5">PController&lt;<span class="dt">float</span>&gt; smoother;</a>
-<a class="sourceLine" id="cb7-6" title="6">smoother.setup(<span class="fl">0.05</span><span class="bu">f</span>);</a>
-<a class="sourceLine" id="cb7-7" title="7"></a>
-<a class="sourceLine" id="cb7-8" title="8"><span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dv">44100</span>);</a>
-<a class="sourceLine" id="cb7-9" title="9"><span class="cf">for</span> (<span class="kw">auto</span> &amp;sample: buffer) sample = smoother.process(envelope.process());</a></code></pre></div>
-<p><code>PController</code> を通した波形とバイパスした波形 (ADSR) を比較する図です。 <code>kp = 16 / 44100</code> としています。</p>
-<figure>
-<img src="img/PController.png" alt="Image of ." style="padding-bottom: 12px;"/>
-</figure>
-<figure>
-<img src="img/testADSR.png" alt="Image of test result of linear ADSR envelope." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="周波数特性">周波数特性</h3>
-<p><code>PController</code> の伝達関数を出します。 <code>process()</code> での計算式です。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb8-1" title="1">value += kp * (input - value);</a></code></pre></div>
-<p><span class="math inline">\(n\)</span> を経過サンプル数とすると <code>value</code> は <span class="math inline">\(y[n - 1]\)</span> 、 <code>input</code> は <span class="math inline">\(x[n]\)</span> となります。出力は <span class="math inline">\(y[n]\)</span> です。 <code>process()</code> の計算式の記号を置き換えます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-y[n] &amp;= y[n - 1] + k_p (x[n] - y[n - 1]) \\
-y[n] + (k_p - 1) y[n - 1] &amp;= k_p x[n]
-\end{aligned}
-\]</span></p>
-<p>ここから伝達関数が得られます。</p>
-<p><span class="math display">\[
-H(z) = \frac{k_p}{1 + (k_p - 1) z^{-1}}
-\]</span></p>
-<p><code>PController</code> の振幅の周波数特性です。ローパスに近い特性であることが見て取れます。</p>
-<figure>
-<img src="img/pcontroller_amplitude.png" alt="Image of amplitude response of P controller." style="padding-bottom: 12px;"/>
-</figure>
-<p><code>PController</code> の位相の周波数特性です。</p>
-<figure>
-<img src="img/pcontroller_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="k_p-からカットオフ周波数を求める"><span class="math inline">\(k_p\)</span> からカットオフ周波数を求める</h3>
-<p>伝達関数 <span class="math inline">\(H(z)\)</span> からカットオフ周波数 <span class="math inline">\(\omega\)</span> を求めてみます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-|H(e^{j \omega})|
-  = \frac{1}{\sqrt{2}}
-  &amp;= \left| \frac{k_p}{1 + (k_p - 1) e^{-j \omega}} \right| \\
-\end{aligned}
-\]</span></p>
-<p>Maxima で <span class="math inline">\(\omega\)</span> について解きます。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb9-1" title="1">ω<span class="cn">_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, ω);</a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="fu">ratsimp</span>(ω<span class="cn">_eq</span>);</a></code></pre></div>
-<p>出力です。2つの解が出てきたので <span class="math inline">\(\omega_1\)</span> と <span class="math inline">\(\omega_2\)</span> という名前をつけています。</p>
-<p><span class="math display">\[
-\omega_1 = -j \log{\left( -\frac{\sqrt{2}\, {{{k_p}}^{2}}+\left( -\sqrt{2}-1\right) \, {k_p}+1}{2 {{{k_p}}^{2}}-1}\right) }
-\operatorname{,}\quad
-\omega_2 = -j \log{\left( \frac{\sqrt{2}\, {{{k_p}}^{2}}+\left( 1-\sqrt{2}\right) \, {k_p}-1}{2 {{{k_p}}^{2}}-1}\right) }
-\]</span></p>
-<p><span class="math inline">\(\omega_1\)</span> は虚数 <span class="math inline">\(j\)</span> を外してプロットするとそれらしい曲線が出てきます。カットオフ周波数は縦軸です。 <span class="math inline">\(\pi\)</span> を超えているのは、そういうものなのか計算誤差なのか判断できていません。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb10-1" title="1"><span class="fu">plot2d</span>(-<span class="fu">log</span>(-(<span class="fu">sqrt</span>(<span class="dv">2</span>)*<span class="cn">k_p</span>^<span class="dv">2</span>+(-<span class="fu">sqrt</span>(<span class="dv">2</span>)<span class="dv">-1</span>)*<span class="cn">k_p</span><span class="dv">+1</span>)/(<span class="dv">2</span>*<span class="cn">k_p</span>^<span class="dv">2-1</span>)), [<span class="cn">k_p</span>, <span class="dv">0</span>, <span class="fl">1.1</span>]);</a></code></pre></div>
-<figure>
-<img src="img/pcontroller_kp_omega_plot.svg" alt="Image of k_p-omega plot." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<h3 id="カットオフ周波数から-k_p-を求める">カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める</h3>
-<p><span class="math inline">\(\omega\)</span> の式を <span class="math inline">\(k_p\)</span> について解きます。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb11-1" title="1"><span class="cn">k_eq</span>: <span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = (<span class="cn">k_p</span> / (<span class="dv">1</span> + (<span class="cn">k_p</span> - <span class="dv">1</span>) * <span class="fu">exp</span>(-<span class="va">%i</span> * ω)))^<span class="dv">2</span>, <span class="cn">k_p</span>);</a></code></pre></div>
-<p>出力です。試しに計算したところ <span class="math inline">\(k_{p,2}\)</span> を使うと正しい値が得られました。</p>
-<p><span class="math display">\[
-\begin{aligned}
-k_{p,1} &amp;= -\frac{\sqrt{2} e^{2 j \omega} + (-\sqrt{2} - 1) e^{j \omega} + 1}{2 e^{2 j \omega} - 1} \\
-k_{p,2} &amp;= \frac{\sqrt{2} {e^{2 j \omega}} + (1 - \sqrt{2}) e^{j \omega} - 1}{2 e^{2 j \omega} - 1}
-\end{aligned}
-\]</span></p>
-<p>次の図の縦線がカットオフ周波数 <span class="math inline">\(\omega\)</span> を表しています。同じ色の曲線は振幅特性です。対応するカットオフ周波数と振幅特性が全て -3 dB で交差しているので正しく計算できています。</p>
-<figure>
-<img src="img/pcontroller_cutoff.png" alt="Image of ." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="複素数を使わずにカットオフ周波数から-k_p-求める式">複素数を使わずにカットオフ周波数から <span class="math inline">\(k_p\)</span> 求める式</h3>
-<p>dsp.stackexchange.com で回答を見つけました。 <span class="math inline">\(f_c\)</span> はカットオフ周波数、 <span class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
-<p><span class="math display">\[
-k_p = -y + \sqrt{y^2 + 2y}, \quad y = 1 - \cos(2 \pi f_c / f_s)
-\]</span></p>
-<p>Maxima で解くときは <code>cabs</code> と <code>trigsimp</code> が使えます。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb12-1" title="1"><span class="cn">H_</span>ω: <span class="cn">k_p</span> / (<span class="dv">1</span> - (<span class="dv">1</span> - <span class="cn">k_p</span>) * <span class="cn">exp</span>(-<span class="va">%i</span> * ω));</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="cn">H_</span>ω<span class="cn">_abs</span>: <span class="cn">trigsimp</span>(<span class="fu">cabs</span>(<span class="cn">H_</span>ω));</a>
-<a class="sourceLine" id="cb12-3" title="3"><span class="fu">solve</span>(<span class="dv">1</span> / <span class="dv">2</span> = <span class="cn">H_</span>ω<span class="cn">_abs</span>^<span class="dv">2</span>, <span class="cn">k_p</span>);</a></code></pre></div>
-<p><span class="math display">\[
-\left| H(e^{j \omega}) \right| = \frac{\left| {k_p}\right| }{\sqrt{\left( 2 {k_p}-2\right)  \cos{\left( \omega \right) }+{{{k_p}}^{2}}-2 {k_p}+2}}
-\]</span></p>
-<p><span class="math display">\[
-{k_p}=-\sqrt{{{\cos{\left( \omega \right) }}^{2}}-4 \cos{\left( \omega \right) }+3}+\cos{\left( \omega \right) }-1\operatorname{,}\quad {k_p}=\sqrt{{{\cos{\left( \omega \right) }}^{2}}-4 \cos{\left( \omega \right) }+3}+\cos{\left( \omega \right) }-1
-\]</span></p>
-<ul>
-<li><a href="https://dsp.stackexchange.com/questions/54086/single-pole-iir-low-pass-filter-which-is-the-correct-formula-for-the-decay-coe">Single-pole IIR low-pass filter - which is the correct formula for the decay coefficient? - Signal Processing Stack Exchange</a></li>
-<li><a href="https://dsp.stackexchange.com/questions/28308/exponential-weighted-moving-average-time-constant/28314#28314">digital filters - Exponential weighted moving average time constant - Signal Processing Stack Exchange</a></li>
-<li><a href="https://dsp.stackexchange.com/questions/26941/how-frequency-response-related-to-a-transfer-function">How frequency response related to a transfer function - Signal Processing Stack Exchange</a></li>
-<li><a href="https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.pdf">Exponential-Moving-Average.pdf</a></li>
-</ul>
 <h2 id="記事の変更点">記事の変更点</h2>
 <ul>
 <li>2020-03-23:
 <ul>
-<li>「カットオフ周波数から <span class="math inline">\(k_p\)</span> を求める」で式の求め方が間違っていたので修正。</li>
-<li>「複素数を使わずにカットオフ周波数から <span class="math inline">\(k_p\)</span> 求める式」を追加。</li>
+<li><code>P Controller</code> の節を <code>オーディオプラグインの UI から入力された値の補間</code> に移動。</li>
+<li><code>カットオフ周波数から $k_p$ を求める</code> で式の求め方が間違っていたので修正。</li>
+<li><code>複素数を使わずにカットオフ周波数から $k_p$ 求める式</code> を追加。</li>
 </ul></li>
 </ul>
 <footer>
