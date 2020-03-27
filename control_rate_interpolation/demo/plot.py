@@ -38,6 +38,8 @@ def processExample(name):
 processExample("naive")
 processExample("linterp")
 processExample("smoother")
+processExample("pcontroller")
+processExample("rate_limiter")
 
 exit()
 
