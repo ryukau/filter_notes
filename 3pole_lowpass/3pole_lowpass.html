@@ -418,9 +418,9 @@ C_3 &amp;= \frac{k^2 - k}{c} \\
 \end{aligned}
 \]</span></p>
 <h2 id="ローパスのカットオフ周波数のチューニング">ローパスのカットオフ周波数のチューニング</h2>
-<p>伝達関数から Maxima でカットオフ周波数 <span class="math inline">\(\omega_c\)</span> を求めようとしたのですが、上手く行かなかったので周波数特性から適当なチューニング曲線を作ります。</p>
-<p>係数 <span class="math inline">\(c\)</span> の値を変えるとカットオフ周波数 <span class="math inline">\(\omega_c\)</span> が変わるようなので <code>scipy.signal.freqz</code> から得られる振幅特性を使って <span class="math inline">\(c\)</span> と <span class="math inline">\(\omega_c\)</span> の関係をプロットします。 <span class="math inline">\(k\)</span> の値は 0 に固定します。</p>
-<p>次のコードを Python3 のインタープリターにコピペすると動きます。 <a href="https://numpy.org/">NumPy</a> 、 <a href="https://scipy.org/">SciPy</a> 、 <a href="https://matplotlib.org/">Matplotlib</a> が必要です。</p>
+<p>Maxima の <a href="http://maxima.sourceforge.net/docs/manual/maxima_20.html#solve"><code>solve</code></a> を試したところ伝達関数からカットオフ周波数 <span class="math inline">\(\omega_c\)</span> を計算する式は得られませんでした。そこで <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.freqz.html"><code>scipy.signal.freqz</code></a> から得られる振幅特性を基にして <span class="math inline">\(\omega_c\)</span> から係数 <span class="math inline">\(c\)</span> を求める近似曲線を作ることにしました。</p>
+<p>係数 <span class="math inline">\(c\)</span> の値を変えるとカットオフ周波数 <span class="math inline">\(\omega_c\)</span> が変わるようなので を使って <span class="math inline">\(c\)</span> と <span class="math inline">\(\omega_c\)</span> の関係をプロットします。 <span class="math inline">\(k\)</span> の値は 0 に固定します。</p>
+<p>次のコードを Python3 のインタープリタにコピペすると動きます。 <a href="https://numpy.org/">NumPy</a> 、 <a href="https://scipy.org/">SciPy</a> 、 <a href="https://matplotlib.org/">Matplotlib</a> が必要です。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="im">import</span> scipy.signal <span class="im">as</span> signal</a>
 <a class="sourceLine" id="cb3-3" title="3"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
@@ -569,7 +569,7 @@ c \approx &amp; 56.85341479156533 \cdot x^6 - 60.92051508862034 \cdot x^5 - 1.65
 <img src="img/PeakKPlot.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
 <p><span class="math inline">\(c\)</span> の値によらず、 <span class="math inline">\(k\)</span> が 0 に近づくと指数関数的にピークが大きくなっています。近似曲線を 1 つ作って <span class="math inline">\(c\)</span> に応じてスケーリングを変えれば良さそうです。</p>
-<p>振幅特性のピーク値を <span class="math inline">\(p\)</span> とします。二分探索を使って任意の <span class="math inline">\(p\)</span> と <span class="math inline">\(c\)</span> の値から <span class="math inline">\(k\)</span> を探します。次のコードを実行すると <code>data.json</code> ファイルを作成して計算結果を書き込みます。</p>
+<p>振幅特性のピークの値と係数 <span class="math inline">\(c\)</span> の値を決めたときの <span class="math inline">\(k\)</span> を二分探索で探します。次のコードを実行すると <code>data.json</code> ファイルを作成して計算結果を書き込みます。</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="im">import</span> json</a>
 <a class="sourceLine" id="cb8-2" title="2"></a>
 <a class="sourceLine" id="cb8-3" title="3"><span class="kw">def</span> findUniformResonance():</a>
@@ -647,13 +647,14 @@ c \approx &amp; 56.85341479156533 \cdot x^6 - 60.92051508862034 \cdot x^5 - 1.65
 <figure>
 <img src="img/CKPlot.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
-<p>近似曲線は <span class="math inline">\(\arccos\)</span> を使って試行錯誤で作りました。ピークが小さくなるほど実際の特性からずれていますが、ピークが大きいときはよく近似できているのでシンセサイザで使う分には十分でした。</p>
 <p>近似曲線の式です。</p>
 <p><span class="math display">\[
 \def{\kMin}{k_{\mathrm{Min}}}
 \def{\kMax}{k_{\mathrm{Max}}}
 k \approx \kMax - \frac{2}{\pi} (\kMax - \kMin) \arccos(1 - c)
 \]</span></p>
+<p>近似曲線は <span class="math inline">\(\arccos\)</span> を使って試行錯誤で作りました。 <span class="math inline">\(\arccos\)</span> の利用は <span class="math inline">\(1-k\)</span> の軸を線形スケールにしたときのプロットを見て適当に決めました。</p>
+<p><span class="math inline">\(\arccos\)</span> による近似曲線はピークが小さくなるほど実際の特性からずれていますが、ピークが大きいときはよく近似できているように見えます。</p>
 <p>上の <span class="math inline">\(c \text{--} k\)</span> プロットでは <span class="math inline">\(k_{\mathrm{Min}}\)</span> と <span class="math inline">\(k_{\mathrm{Max}}\)</span> を実データから取得して近似曲線を計算しています。 DSP の計算中には実データは使えないので <span class="math inline">\(k_{\mathrm{Min}}\)</span> と <span class="math inline">\(k_{\mathrm{Max}}\)</span> の近似曲線を作ります。</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">def</span> plotSpringMinMax(data):</a>
 <a class="sourceLine" id="cb10-2" title="2">    kMin <span class="op">=</span> []</a>
@@ -712,14 +713,14 @@ k \approx \kMax - \frac{2}{\pi} (\kMax - \kMin) \arccos(1 - c)
 <p><span class="math display">\[
 k_{\mathrm{Min}} = 1 - \exp(-5.6852537097945195 \cdot \mathtt{resonance})
 \]</span></p>
-<p><span class="math inline">\(k_{\mathrm{Max}}}\)</span> の近似曲線の式です。</p>
+<p><span class="math inline">\(k_{\mathrm{Max}}\)</span> の近似曲線の式です。</p>
 <p><span class="math display">\[
 \begin{aligned}
 k_{\mathrm{Max}} =&amp; 0.9999771732485103 \\
   &amp;- 0.01 \cdot (\exp(-5.6852537097945195 \cdot \mathtt{resonance}) - 0.0033956716251850594)
 \end{aligned}
 \]</span></p>
-<p>これでレゾナンスのチューニングができました。 C++ で実装します。</p>
+<p>レゾナンスのチューニングができました。 C++ で実装します。</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb11-1" title="1"><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></a>
 <a class="sourceLine" id="cb11-2" title="2"><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></a>
 <a class="sourceLine" id="cb11-3" title="3"></a>
@@ -824,6 +825,10 @@ k_{\mathrm{Max}} =&amp; 0.9999771732485103 \\
 <li>音量は絶対値の最大値が 1 になるように正規化。</li>
 <li>ハイパスのカットオフ周波数は 20 Hz 。</li>
 <li><code>uniformGain</code> は False 。</li>
+</ul>
+<p>サンプルの生成に使ったコードへのリンクです。実行には NumPy 、 SciPy 、 Matplotlib 、 <a href="https://pysoundfile.readthedocs.io/en/latest/">Soundfile</a> が必要です。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/3pole_lowpass/demo/sound.py">filter_notes/sound.py at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
 <h3 id="指数カーブのカットオフ">指数カーブのカットオフ</h3>
 <figure>

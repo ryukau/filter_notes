@@ -206,11 +206,11 @@ C_3 &= \frac{k^2 - k}{c} \\
 $$
 
 ## ローパスのカットオフ周波数のチューニング
-伝達関数から Maxima でカットオフ周波数 $\omega_c$ を求めようとしたのですが、上手く行かなかったので周波数特性から適当なチューニング曲線を作ります。
+Maxima の [`solve`](http://maxima.sourceforge.net/docs/manual/maxima_20.html#solve) を試したところ伝達関数からカットオフ周波数 $\omega_c$ を計算する式は得られませんでした。そこで [`scipy.signal.freqz`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.freqz.html) から得られる振幅特性を基にして $\omega_c$ から係数 $c$ を求める近似曲線を作ることにしました。
 
-係数 $c$ の値を変えるとカットオフ周波数 $\omega_c$ が変わるようなので `scipy.signal.freqz` から得られる振幅特性を使って $c$ と $\omega_c$ の関係をプロットします。 $k$ の値は 0 に固定します。
+係数 $c$ の値を変えるとカットオフ周波数 $\omega_c$ が変わるようなので を使って $c$ と $\omega_c$ の関係をプロットします。 $k$ の値は 0 に固定します。
 
-次のコードを Python3 のインタープリターにコピペすると動きます。 [NumPy](https://numpy.org/) 、 [SciPy](https://scipy.org/) 、 [Matplotlib](https://matplotlib.org/) が必要です。
+次のコードを Python3 のインタープリタにコピペすると動きます。 [NumPy](https://numpy.org/) 、 [SciPy](https://scipy.org/) 、 [Matplotlib](https://matplotlib.org/) が必要です。
 
 ```python
 import numpy as np
@@ -389,7 +389,7 @@ resonancePeakPlot()
 
 $c$ の値によらず、 $k$ が 0 に近づくと指数関数的にピークが大きくなっています。近似曲線を 1 つ作って $c$ に応じてスケーリングを変えれば良さそうです。
 
-振幅特性のピーク値を $p$ とします。二分探索を使って任意の $p$ と $c$ の値から $k$ を探します。次のコードを実行すると `data.json` ファイルを作成して計算結果を書き込みます。
+振幅特性のピークの値と係数 $c$ の値を決めたときの $k$ を二分探索で探します。次のコードを実行すると `data.json` ファイルを作成して計算結果を書き込みます。
 
 ```python
 import json
@@ -477,8 +477,6 @@ plotResonance(data)
 <img src="img/CKPlot.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
 
-近似曲線は $\arccos$ を使って試行錯誤で作りました。ピークが小さくなるほど実際の特性からずれていますが、ピークが大きいときはよく近似できているのでシンセサイザで使う分には十分でした。
-
 近似曲線の式です。
 
 $$
@@ -486,6 +484,10 @@ $$
 \def{\kMax}{k_{\mathrm{Max}}}
 k \approx \kMax - \frac{2}{\pi} (\kMax - \kMin) \arccos(1 - c)
 $$
+
+近似曲線は $\arccos$ を使って試行錯誤で作りました。 $\arccos$ の利用は $1-k$ の軸を線形スケールにしたときのプロットを見て適当に決めました。
+
+$\arccos$ による近似曲線はピークが小さくなるほど実際の特性からずれていますが、ピークが大きいときはよく近似できているように見えます。
 
 上の $c \text{--} k$ プロットでは $k_{\mathrm{Min}}$ と $k_{\mathrm{Max}}$ を実データから取得して近似曲線を計算しています。 DSP の計算中には実データは使えないので $k_{\mathrm{Min}}$ と $k_{\mathrm{Max}}$ の近似曲線を作ります。
 
@@ -554,7 +556,7 @@ $$
 k_{\mathrm{Min}} = 1 - \exp(-5.6852537097945195 \cdot \mathtt{resonance})
 $$
 
-$k_{\mathrm{Max}}}$ の近似曲線の式です。
+$k_{\mathrm{Max}}$ の近似曲線の式です。
 
 $$
 \begin{aligned}
@@ -563,7 +565,7 @@ k_{\mathrm{Max}} =& 0.9999771732485103 \\
 \end{aligned}
 $$
 
-これでレゾナンスのチューニングができました。 C++ で実装します。
+レゾナンスのチューニングができました。 C++ で実装します。
 
 ```c++
 #include <algorithm>
@@ -684,6 +686,10 @@ LV2 プラグインとして実装したフィルタのコードへのリンク�
 - 音量は絶対値の最大値が 1 になるように正規化。
 - ハイパスのカットオフ周波数は 20 Hz 。
 - `uniformGain` は False 。
+
+サンプルの生成に使ったコードへのリンクです。実行には NumPy 、 SciPy 、 Matplotlib 、 [Soundfile](https://pysoundfile.readthedocs.io/en/latest/) が必要です。
+
+- [filter_notes/sound.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/3pole_lowpass/demo/sound.py)
 
 ### 指数カーブのカットオフ
 <figure>

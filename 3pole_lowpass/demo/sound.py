@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.signal as signal
-import matplotlib.pyplot as pyplot
 import math
 import soundfile
 
