@@ -435,17 +435,19 @@ private:
 - [LV2Plugins/doublefilter.hpp at master · ryukau/LV2Plugins · GitHub](https://github.com/ryukau/LV2Plugins/blob/master/lv2cvport/CV_DoubleFilter/dsp/doublefilter.hpp)
 
 ## 音のサンプル
-カットオフ周波数の変調は次のコードで変調しました。
+サンプルの生成に使ったコードへのリンクです。
+
+- [filter_notes/sound.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/doublefilter/demo/sound.py)
+
+カットオフ周波数の変調には [`numpy.geomspace`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.geomspace.html) を使っています。
 
 ```
 cutoff = 5000 * numpy.geomspace(1e-5, 1, nSample)
 ```
 
-入力信号は `scipy.signal.sawtooth` で生成した 45 Hz ののこぎり波です。
+入力信号は [`scipy.signal.sawtooth`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.sawtooth.html) で生成した 45 Hz ののこぎり波です。
 
 `altGain` が true のとき `sqrt(k1)` を `pos2` に掛け合わせています。
-
-- コードへのリンク
 
 ### 出力 $u_2$ (ローパス)
 `altGain` = False としたときの出力です。
