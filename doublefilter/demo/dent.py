@@ -54,8 +54,8 @@ def plotK1Curve(tuningFunc):
 
     pyplot.figure(figsize=(6, 3))
     pyplot.title(f"Resonance={reso}")
-    pyplot.plot(k1Raw, label="Raw")
-    pyplot.plot(k1Shelved, label="Shelved")
+    pyplot.plot(k2, k1Raw, label="Raw")
+    pyplot.plot(k2, k1Shelved, label="Shelved")
     pyplot.xlabel("k2")
     pyplot.ylabel("k1")
     pyplot.grid()
