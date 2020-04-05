@@ -176,6 +176,21 @@ $$
 k_2 = 6.5451144600705975 \cdot x + 20.46391326872472 \cdot x^2, \qquad x = \frac{\omega_c}{2 \pi}.
 $$
 
+$k_2$ が 1.0 を超えると発散するので、 $k_2$ が 1.0 を超えないようなカットオフ周波数の上限を探します。 Maxima の `solve` を使います。 `numer` は実数で結果を表示するオプションです。
+
+```maxima
+solve(1 = 6.5451144600705975 * x + 20.46391326872472 * x^2, x), numer;
+```
+
+$k_2 = 1$ のときの $x$ の値は 0.1129192677515388 になりました。サンプリング周波数 $f_s$ に応じたカットオフ周波数の上限 $f_u$ は次の式で計算できます。
+
+$$
+f_u = 0.1129192677515388 \cdot f_s
+$$
+
+- $f_s = 44100$ のとき $f_u = 4979.739707842861$ 。
+- $f_s = 48000$ のとき $f_u = 5420.124852073862$ 。
+
 カットオフ周波数と近似曲線のプロットです。丸い点が振幅特性から求めたカットオフ周波数、青い線が近似曲線です。
 
 <figure>
@@ -455,21 +470,21 @@ cutoff = 5000 * numpy.geomspace(1e-5, 1, nSample)
 <figure>
   <figcaption>resonance=0.001, altGain=False, isHighpass=False</figcaption>
   <audio controls>
-    <source src="lin_res0.00100_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+    <source src="snd/exp_res0.00100_altGainFalse_isHighpassFalse.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>resonance=0.1, altGain=False, isHighpass=False</figcaption>
   <audio controls>
-    <source src="lin_res0.10000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+    <source src="snd/exp_res0.10000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>resonance=1.0, altGain=False, isHighpass=False</figcaption>
   <audio controls>
-    <source src="lin_res1.00000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+    <source src="snd/exp_res1.00000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
   </audio>
 </figure>
 
@@ -478,21 +493,21 @@ cutoff = 5000 * numpy.geomspace(1e-5, 1, nSample)
 <figure>
   <figcaption>resonance=0.001, altGain=True, isHighpass=False</figcaption>
   <audio controls>
-    <source src="lin_res0.00100_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+    <source src="snd/exp_res0.00100_altGainTrue_isHighpassFalse.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>resonance=0.1, altGain=True, isHighpass=False</figcaption>
   <audio controls>
-    <source src="lin_res0.10000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+    <source src="snd/exp_res0.10000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>resonance=1.0, altGain=True, isHighpass=False</figcaption>
   <audio controls>
-    <source src="lin_res1.00000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+    <source src="snd/exp_res1.00000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
   </audio>
 </figure>
 
@@ -502,21 +517,21 @@ cutoff = 5000 * numpy.geomspace(1e-5, 1, nSample)
 <figure>
   <figcaption>resonance=0.001, altGain=False, isHighpass=True</figcaption>
   <audio controls>
-    <source src="lin_res0.00100_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+    <source src="snd/exp_res0.00100_altGainFalse_isHighpassTrue.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>resonance=0.1, altGain=False, isHighpass=True</figcaption>
   <audio controls>
-    <source src="lin_res0.10000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+    <source src="snd/exp_res0.10000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>resonance=1.0, altGain=False, isHighpass=True</figcaption>
   <audio controls>
-    <source src="lin_res1.00000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+    <source src="snd/exp_res1.00000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
   </audio>
 </figure>
 
@@ -525,21 +540,21 @@ cutoff = 5000 * numpy.geomspace(1e-5, 1, nSample)
 <figure>
   <figcaption>resonance=0.001, altGain=True, isHighpass=True</figcaption>
   <audio controls>
-    <source src="lin_res0.00100_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+    <source src="snd/exp_res0.00100_altGainTrue_isHighpassTrue.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>resonance=0.1, altGain=True, isHighpass=True</figcaption>
   <audio controls>
-    <source src="lin_res0.10000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+    <source src="snd/exp_res0.10000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>resonance=1.0, altGain=True, isHighpass=True</figcaption>
   <audio controls>
-    <source src="lin_res1.00000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+    <source src="snd/exp_res1.00000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
   </audio>
 </figure>
 

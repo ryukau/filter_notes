@@ -406,6 +406,16 @@ a_4 &amp;= \frac{1}{k_2} \\
 <p><span class="math display">\[
 k_2 = 6.5451144600705975 \cdot x + 20.46391326872472 \cdot x^2, \qquad x = \frac{\omega_c}{2 \pi}.
 \]</span></p>
+<p><span class="math inline">\(k_2\)</span> が 1.0 を超えると発散するので、 <span class="math inline">\(k_2\)</span> が 1.0 を超えないようなカットオフ周波数の上限を探します。 Maxima の <code>solve</code> を使います。 <code>numer</code> は実数で結果を表示するオプションです。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">solve</span>(<span class="dv">1</span> = <span class="fl">6.5451144600705975</span> * <span class="cn">x</span> + <span class="fl">20.46391326872472</span> * <span class="cn">x</span>^<span class="dv">2</span>, <span class="cn">x</span>), <span class="cn">numer</span>;</a></code></pre></div>
+<p><span class="math inline">\(k_2 = 1\)</span> のときの <span class="math inline">\(x\)</span> の値は 0.1129192677515388 になりました。サンプリング周波数 <span class="math inline">\(f_s\)</span> に応じたカットオフ周波数の上限 <span class="math inline">\(f_u\)</span> は次の式で計算できます。</p>
+<p><span class="math display">\[
+f_u = 0.1129192677515388 \cdot f_s
+\]</span></p>
+<ul>
+<li><span class="math inline">\(f_s = 44100\)</span> のとき <span class="math inline">\(f_u = 4979.739707842861\)</span> 。</li>
+<li><span class="math inline">\(f_s = 48000\)</span> のとき <span class="math inline">\(f_u = 5420.124852073862\)</span> 。</li>
+</ul>
 <p>カットオフ周波数と近似曲線のプロットです。丸い点が振幅特性から求めたカットオフ周波数、青い線が近似曲線です。</p>
 <figure>
 <img src="img/K2FrequencyPlot.png" alt="Image of k2-cutoff plot." style="padding-bottom: 12px;"/>
@@ -413,33 +423,33 @@ k_2 = 6.5451144600705975 \cdot x + 20.46391326872472 \cdot x^2, \qquad x = \frac
 <h2 id="レゾナンスのチューニング">レゾナンスのチューニング</h2>
 <p><span class="math inline">\(k_2\)</span> がユーザによって決められたときに発散しない <span class="math inline">\(k_1\)</span> の最大値を探します。</p>
 <p><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tf2zpk.html#scipy.signal.tf2zpk"><code>scipy.signal.tf2zpk</code></a> から得られる伝達関数の極の絶対値の最大値が 1 になるような <span class="math inline">\(k_1\)</span> の値を探します。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> scipy.signal <span class="im">as</span> signal</a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
-<a class="sourceLine" id="cb4-4" title="4"></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="kw">def</span> stabilityPlot(transferFunction):</a>
-<a class="sourceLine" id="cb4-6" title="6">    maxIteration <span class="op">=</span> <span class="dv">1024</span></a>
-<a class="sourceLine" id="cb4-7" title="7">    nK2 <span class="op">=</span> <span class="dv">256</span></a>
-<a class="sourceLine" id="cb4-8" title="8">    data <span class="op">=</span> []</a>
-<a class="sourceLine" id="cb4-9" title="9">    <span class="cf">for</span> idx, k2 <span class="kw">in</span> <span class="bu">enumerate</span>(np.linspace(<span class="fl">0.1</span>, <span class="dv">1</span>, nK2)):</a>
-<a class="sourceLine" id="cb4-10" title="10">        k1 <span class="op">=</span> <span class="dv">65536</span></a>
-<a class="sourceLine" id="cb4-11" title="11">        delta <span class="op">=</span> k1 <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb4-12" title="12">        jdx <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb4-13" title="13">        <span class="cf">while</span> jdx <span class="op">&lt;</span> maxIteration:</a>
-<a class="sourceLine" id="cb4-14" title="14">            b, a <span class="op">=</span> transferFunction(k1, k2)</a>
-<a class="sourceLine" id="cb4-15" title="15">            _, pole, gain <span class="op">=</span> signal.tf2zpk(b, a)</a>
-<a class="sourceLine" id="cb4-16" title="16">            <span class="cf">if</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(pole <span class="op">*</span> gain)) <span class="op">&gt;=</span> <span class="dv">1</span>:</a>
-<a class="sourceLine" id="cb4-17" title="17">                k1 <span class="op">-=</span> delta</a>
-<a class="sourceLine" id="cb4-18" title="18">            <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb4-19" title="19">                k1 <span class="op">+=</span> delta</a>
-<a class="sourceLine" id="cb4-20" title="20">            jdx <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb4-21" title="21">            delta <span class="op">*=</span> <span class="fl">0.5</span></a>
-<a class="sourceLine" id="cb4-22" title="22">        data.append((k1, k2))</a>
-<a class="sourceLine" id="cb4-23" title="23">        <span class="bu">print</span>(idx, k1, k2)</a>
-<a class="sourceLine" id="cb4-24" title="24">    k1, k2 <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>data)</a>
-<a class="sourceLine" id="cb4-25" title="25">    pyplot.scatter(k2, k1, s<span class="op">=</span><span class="dv">4</span>, zorder<span class="op">=</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb4-26" title="26">    pyplot.grid(zorder<span class="op">=</span><span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb4-27" title="27">    pyplot.show()</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="im">import</span> scipy.signal <span class="im">as</span> signal</a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="kw">def</span> stabilityPlot(transferFunction):</a>
+<a class="sourceLine" id="cb5-6" title="6">    maxIteration <span class="op">=</span> <span class="dv">1024</span></a>
+<a class="sourceLine" id="cb5-7" title="7">    nK2 <span class="op">=</span> <span class="dv">256</span></a>
+<a class="sourceLine" id="cb5-8" title="8">    data <span class="op">=</span> []</a>
+<a class="sourceLine" id="cb5-9" title="9">    <span class="cf">for</span> idx, k2 <span class="kw">in</span> <span class="bu">enumerate</span>(np.linspace(<span class="fl">0.1</span>, <span class="dv">1</span>, nK2)):</a>
+<a class="sourceLine" id="cb5-10" title="10">        k1 <span class="op">=</span> <span class="dv">65536</span></a>
+<a class="sourceLine" id="cb5-11" title="11">        delta <span class="op">=</span> k1 <span class="op">/</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb5-12" title="12">        jdx <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb5-13" title="13">        <span class="cf">while</span> jdx <span class="op">&lt;</span> maxIteration:</a>
+<a class="sourceLine" id="cb5-14" title="14">            b, a <span class="op">=</span> transferFunction(k1, k2)</a>
+<a class="sourceLine" id="cb5-15" title="15">            _, pole, gain <span class="op">=</span> signal.tf2zpk(b, a)</a>
+<a class="sourceLine" id="cb5-16" title="16">            <span class="cf">if</span> np.<span class="bu">max</span>(np.<span class="bu">abs</span>(pole <span class="op">*</span> gain)) <span class="op">&gt;=</span> <span class="dv">1</span>:</a>
+<a class="sourceLine" id="cb5-17" title="17">                k1 <span class="op">-=</span> delta</a>
+<a class="sourceLine" id="cb5-18" title="18">            <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb5-19" title="19">                k1 <span class="op">+=</span> delta</a>
+<a class="sourceLine" id="cb5-20" title="20">            jdx <span class="op">+=</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb5-21" title="21">            delta <span class="op">*=</span> <span class="fl">0.5</span></a>
+<a class="sourceLine" id="cb5-22" title="22">        data.append((k1, k2))</a>
+<a class="sourceLine" id="cb5-23" title="23">        <span class="bu">print</span>(idx, k1, k2)</a>
+<a class="sourceLine" id="cb5-24" title="24">    k1, k2 <span class="op">=</span> <span class="bu">zip</span>(<span class="op">*</span>data)</a>
+<a class="sourceLine" id="cb5-25" title="25">    pyplot.scatter(k2, k1, s<span class="op">=</span><span class="dv">4</span>, zorder<span class="op">=</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb5-26" title="26">    pyplot.grid(zorder<span class="op">=</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb5-27" title="27">    pyplot.show()</a></code></pre></div>
 <p>出力されたプロットです。</p>
 <figure>
 <img src="img/K1K2Plot.png" alt="Image of k1-k2 plot." style="padding-bottom: 12px;"/>
@@ -447,8 +457,8 @@ k_2 = 6.5451144600705975 \cdot x + 20.46391326872472 \cdot x^2, \qquad x = \frac
 <p><span class="math inline">\(k_2\)</span> が 0.6 を超えたあたりで異なる曲線がつなぎ合わされているように見えます。曲線が変わる点での <span class="math inline">\(k_2\)</span> の値を <span class="math inline">\(\xi_{k_2}\)</span> とします。 <span class="math inline">\(\xi_{k_2}\)</span> の値は <span class="math inline">\(2 \pi\)</span> に近いですが、はっきりしないので近似曲線を探すときは 0.63 を使っています。</p>
 <p><span class="math inline">\(k_2\)</span> が <span class="math inline">\(\xi_{k_2}\)</span> 以下のときに対応する <span class="math inline">\(k_1\)</span> をそのまま使うと発散しました。そこで <span class="math inline">\(k_2\)</span> が <span class="math inline">\(\xi_{k_2}\)</span> 以下のときは <span class="math inline">\(k_1\)</span> の上限を <span class="math inline">\(\pi\)</span> にします。</p>
 <p><span class="math inline">\(k_2\)</span> が <span class="math inline">\(\xi_{k_2}\)</span> 以上のときに <span class="math inline">\(k_2\)</span> から <span class="math inline">\(k_1\)</span> を求める近似曲線を探します。いろいろ試したところ <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html"><code>scipy.optimize.curve_fit</code></a> に次の関数を渡すと近似できました。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">def</span> curve_func(x, a0, a1, a2, a3, a4):</a>
-<a class="sourceLine" id="cb5-2" title="2">    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (a0 <span class="op">+</span> a1 <span class="op">*</span> x <span class="op">+</span> a2 <span class="op">*</span> x <span class="op">*</span> x <span class="op">+</span> a3 <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x <span class="op">+</span> a4 <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">def</span> curve_func(x, a0, a1, a2, a3, a4):</a>
+<a class="sourceLine" id="cb6-2" title="2">    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (a0 <span class="op">+</span> a1 <span class="op">*</span> x <span class="op">+</span> a2 <span class="op">*</span> x <span class="op">*</span> x <span class="op">+</span> a3 <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x <span class="op">+</span> a4 <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x)</a></code></pre></div>
 <p>得られた近似曲線の式です。 <span class="math inline">\(C_0\)</span> は <span class="math inline">\(k_2 = 0\)</span> のとき <span class="math inline">\(k_1 = 0\)</span> となるように調整しました。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -474,57 +484,57 @@ C_5 &amp;= 3468.062963176107\\
 </figure>
 <h3 id="発散を防ぐ">発散を防ぐ</h3>
 <p>プラグインにして試したところ <span class="math inline">\(\mathtt{resonance} = 1\)</span> かつ <span class="math inline">\(k_2\)</span> が <span class="math inline">\(\xi_{k_2}\)</span> より小さいときに発散することが分かりました。試行錯誤を重ねた結果、 <span class="math inline">\(k_1\)</span> に 0.69 を掛け合わせると発散しなくなりました。次のようなコードで <span class="math inline">\(k_2 &lt; \xi_{k_2}\)</span> のときの <span class="math inline">\(k_1\)</span> の値を小さくします。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">def</span> shelveK1(k1, k2):</a>
-<a class="sourceLine" id="cb6-2" title="2">    k1Gain <span class="op">=</span> <span class="fl">0.69</span></a>
-<a class="sourceLine" id="cb6-3" title="3">    k1Delta <span class="op">=</span> <span class="fl">0.31</span>  <span class="co"># 1 - k1Gain.</span></a>
-<a class="sourceLine" id="cb6-4" title="4">    B_2 <span class="op">=</span> <span class="fl">0.63</span>      <span class="co"># Tuning boundary (xi_{k_2}).</span></a>
-<a class="sourceLine" id="cb6-5" title="5">    B_3 <span class="op">=</span> <span class="fl">0.635</span></a>
-<a class="sourceLine" id="cb6-6" title="6"></a>
-<a class="sourceLine" id="cb6-7" title="7">    <span class="cf">if</span> k2 <span class="op">&lt;</span> B_2:</a>
-<a class="sourceLine" id="cb6-8" title="8">        k1 <span class="op">*=</span> k1Gain</a>
-<a class="sourceLine" id="cb6-9" title="9">    <span class="cf">elif</span> k2 <span class="op">&gt;=</span> B_2 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_3:</a>
-<a class="sourceLine" id="cb6-10" title="10">        k1 <span class="op">*=</span> k1Gain <span class="op">+</span> k1Delta <span class="op">*</span> (k2 <span class="op">-</span> B_2) <span class="op">/</span> (B_3 <span class="op">-</span> B_2)</a>
-<a class="sourceLine" id="cb6-11" title="11">    <span class="cf">return</span> k1</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">def</span> shelveK1(k1, k2):</a>
+<a class="sourceLine" id="cb7-2" title="2">    k1Gain <span class="op">=</span> <span class="fl">0.69</span></a>
+<a class="sourceLine" id="cb7-3" title="3">    k1Delta <span class="op">=</span> <span class="fl">0.31</span>  <span class="co"># 1 - k1Gain.</span></a>
+<a class="sourceLine" id="cb7-4" title="4">    B_2 <span class="op">=</span> <span class="fl">0.63</span>      <span class="co"># Tuning boundary (xi_{k_2}).</span></a>
+<a class="sourceLine" id="cb7-5" title="5">    B_3 <span class="op">=</span> <span class="fl">0.635</span></a>
+<a class="sourceLine" id="cb7-6" title="6"></a>
+<a class="sourceLine" id="cb7-7" title="7">    <span class="cf">if</span> k2 <span class="op">&lt;</span> B_2:</a>
+<a class="sourceLine" id="cb7-8" title="8">        k1 <span class="op">*=</span> k1Gain</a>
+<a class="sourceLine" id="cb7-9" title="9">    <span class="cf">elif</span> k2 <span class="op">&gt;=</span> B_2 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_3:</a>
+<a class="sourceLine" id="cb7-10" title="10">        k1 <span class="op">*=</span> k1Gain <span class="op">+</span> k1Delta <span class="op">*</span> (k2 <span class="op">-</span> B_2) <span class="op">/</span> (B_3 <span class="op">-</span> B_2)</a>
+<a class="sourceLine" id="cb7-11" title="11">    <span class="cf">return</span> k1</a></code></pre></div>
 <p>最終的な <span class="math inline">\(k_1\)</span> のチューニング曲線のプロットです。</p>
 <figure>
 <img src="img/K1TuningDefault.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
 <h2 id="出力ゲインのチューニング">出力ゲインのチューニング</h2>
 <p>思いつきで <code>sqrt(k1)</code> を <code>pos2</code> の式に掛け合わせて出力ゲインのチューニングを変えてみました。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="im">import</span> math</a>
-<a class="sourceLine" id="cb7-2" title="2"></a>
-<a class="sourceLine" id="cb7-3" title="3"><span class="kw">class</span> Model:</a>
-<a class="sourceLine" id="cb7-4" title="4">    <span class="co"># ...</span></a>
-<a class="sourceLine" id="cb7-5" title="5">    <span class="kw">def</span> processLP(<span class="va">self</span>, x0):</a>
-<a class="sourceLine" id="cb7-6" title="6">        <span class="va">self</span>.acc2 <span class="op">=</span> <span class="va">self</span>.k2 <span class="op">*</span> (<span class="va">self</span>.vel1 <span class="op">-</span> <span class="va">self</span>.vel2)</a>
-<a class="sourceLine" id="cb7-7" title="7">        <span class="va">self</span>.vel2 <span class="op">+=</span> <span class="va">self</span>.acc2 <span class="op">+</span> x0 <span class="op">-</span> <span class="va">self</span>.x1</a>
-<a class="sourceLine" id="cb7-8" title="8">        <span class="va">self</span>.pos2 <span class="op">+=</span> <span class="va">self</span>.vel2 <span class="op">*</span> <span class="va">self</span>.k2 <span class="op">*</span> math.sqrt(k1)</a>
-<a class="sourceLine" id="cb7-9" title="9"></a>
-<a class="sourceLine" id="cb7-10" title="10">        <span class="va">self</span>.acc1 <span class="op">=</span> <span class="op">-</span><span class="va">self</span>.k1 <span class="op">*</span> <span class="va">self</span>.pos1 <span class="op">-</span> <span class="va">self</span>.acc2</a>
-<a class="sourceLine" id="cb7-11" title="11">        <span class="va">self</span>.vel1 <span class="op">+=</span> <span class="va">self</span>.acc1</a>
-<a class="sourceLine" id="cb7-12" title="12">        <span class="va">self</span>.pos1 <span class="op">+=</span> <span class="va">self</span>.vel1</a>
-<a class="sourceLine" id="cb7-13" title="13"></a>
-<a class="sourceLine" id="cb7-14" title="14">        <span class="va">self</span>.x1 <span class="op">=</span> x0</a>
-<a class="sourceLine" id="cb7-15" title="15">        <span class="cf">return</span> <span class="va">self</span>.pos2</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="im">import</span> math</a>
+<a class="sourceLine" id="cb8-2" title="2"></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="kw">class</span> Model:</a>
+<a class="sourceLine" id="cb8-4" title="4">    <span class="co"># ...</span></a>
+<a class="sourceLine" id="cb8-5" title="5">    <span class="kw">def</span> processLP(<span class="va">self</span>, x0):</a>
+<a class="sourceLine" id="cb8-6" title="6">        <span class="va">self</span>.acc2 <span class="op">=</span> <span class="va">self</span>.k2 <span class="op">*</span> (<span class="va">self</span>.vel1 <span class="op">-</span> <span class="va">self</span>.vel2)</a>
+<a class="sourceLine" id="cb8-7" title="7">        <span class="va">self</span>.vel2 <span class="op">+=</span> <span class="va">self</span>.acc2 <span class="op">+</span> x0 <span class="op">-</span> <span class="va">self</span>.x1</a>
+<a class="sourceLine" id="cb8-8" title="8">        <span class="va">self</span>.pos2 <span class="op">+=</span> <span class="va">self</span>.vel2 <span class="op">*</span> <span class="va">self</span>.k2 <span class="op">*</span> math.sqrt(k1)</a>
+<a class="sourceLine" id="cb8-9" title="9"></a>
+<a class="sourceLine" id="cb8-10" title="10">        <span class="va">self</span>.acc1 <span class="op">=</span> <span class="op">-</span><span class="va">self</span>.k1 <span class="op">*</span> <span class="va">self</span>.pos1 <span class="op">-</span> <span class="va">self</span>.acc2</a>
+<a class="sourceLine" id="cb8-11" title="11">        <span class="va">self</span>.vel1 <span class="op">+=</span> <span class="va">self</span>.acc1</a>
+<a class="sourceLine" id="cb8-12" title="12">        <span class="va">self</span>.pos1 <span class="op">+=</span> <span class="va">self</span>.vel1</a>
+<a class="sourceLine" id="cb8-13" title="13"></a>
+<a class="sourceLine" id="cb8-14" title="14">        <span class="va">self</span>.x1 <span class="op">=</span> x0</a>
+<a class="sourceLine" id="cb8-15" title="15">        <span class="cf">return</span> <span class="va">self</span>.pos2</a></code></pre></div>
 <p>出力ゲインのチューニングを変えると <span class="math inline">\(k_1\)</span> の上限が変わります。</p>
 <p><span class="math inline">\(k_1\)</span> が <span class="math inline">\(0.7 \pi\)</span> よりも大きいと発散するので、近似曲線から得られた値に 0.7 を掛け合わせます。</p>
 <p>0.7 を掛け合わせても <span class="math inline">\(k_2\)</span> が <span class="math inline">\(\xi_{k_2}\)</span> より小さく <span class="math inline">\(\xi_{k_2}\)</span> に近いときに発散します。そこで <span class="math inline">\(\xi_{k_2}\)</span> の周りにチューニングの凹みを作ります。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">def</span> dentK1(k1, k2):</a>
-<a class="sourceLine" id="cb8-2" title="2">    k1Gain <span class="op">=</span> <span class="fl">0.69</span></a>
-<a class="sourceLine" id="cb8-3" title="3">    k1Delta <span class="op">=</span> <span class="fl">0.31</span>  <span class="co"># 1 - k1Gain.</span></a>
-<a class="sourceLine" id="cb8-4" title="4">    B_0 <span class="op">=</span> <span class="fl">0.61</span></a>
-<a class="sourceLine" id="cb8-5" title="5">    B_1 <span class="op">=</span> <span class="fl">0.625</span></a>
-<a class="sourceLine" id="cb8-6" title="6">    B_2 <span class="op">=</span> <span class="fl">0.63</span>  <span class="co"># Tuning boundary (xi_{k_2}).</span></a>
-<a class="sourceLine" id="cb8-7" title="7">    B_3 <span class="op">=</span> <span class="fl">0.635</span></a>
-<a class="sourceLine" id="cb8-8" title="8"></a>
-<a class="sourceLine" id="cb8-9" title="9">    <span class="cf">if</span> k2 <span class="op">&gt;=</span> B_0 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_1:</a>
-<a class="sourceLine" id="cb8-10" title="10">        k1 <span class="op">*=</span> Sample(<span class="dv">1</span>) <span class="op">-</span> k1Delta <span class="op">*</span> (k2 <span class="op">-</span> B_0) <span class="op">/</span> (B_1 <span class="op">-</span> B_0)</a>
-<a class="sourceLine" id="cb8-11" title="11">    <span class="cf">elif</span> k2 <span class="op">&gt;=</span> B_1 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_2:</a>
-<a class="sourceLine" id="cb8-12" title="12">        k1 <span class="op">*=</span> k1Gain</a>
-<a class="sourceLine" id="cb8-13" title="13">    <span class="cf">elif</span> k2 <span class="op">&gt;=</span> B_2 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_3:</a>
-<a class="sourceLine" id="cb8-14" title="14">        k1 <span class="op">*=</span> k1Gain <span class="op">+</span> k1Delta <span class="op">*</span> (k2 <span class="op">-</span> B_2) <span class="op">/</span> (B_3 <span class="op">-</span> B_2)</a>
-<a class="sourceLine" id="cb8-15" title="15"></a>
-<a class="sourceLine" id="cb8-16" title="16">    <span class="cf">return</span> k1 <span class="op">*</span> <span class="fl">0.7</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">def</span> dentK1(k1, k2):</a>
+<a class="sourceLine" id="cb9-2" title="2">    k1Gain <span class="op">=</span> <span class="fl">0.69</span></a>
+<a class="sourceLine" id="cb9-3" title="3">    k1Delta <span class="op">=</span> <span class="fl">0.31</span>  <span class="co"># 1 - k1Gain.</span></a>
+<a class="sourceLine" id="cb9-4" title="4">    B_0 <span class="op">=</span> <span class="fl">0.61</span></a>
+<a class="sourceLine" id="cb9-5" title="5">    B_1 <span class="op">=</span> <span class="fl">0.625</span></a>
+<a class="sourceLine" id="cb9-6" title="6">    B_2 <span class="op">=</span> <span class="fl">0.63</span>  <span class="co"># Tuning boundary (xi_{k_2}).</span></a>
+<a class="sourceLine" id="cb9-7" title="7">    B_3 <span class="op">=</span> <span class="fl">0.635</span></a>
+<a class="sourceLine" id="cb9-8" title="8"></a>
+<a class="sourceLine" id="cb9-9" title="9">    <span class="cf">if</span> k2 <span class="op">&gt;=</span> B_0 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_1:</a>
+<a class="sourceLine" id="cb9-10" title="10">        k1 <span class="op">*=</span> Sample(<span class="dv">1</span>) <span class="op">-</span> k1Delta <span class="op">*</span> (k2 <span class="op">-</span> B_0) <span class="op">/</span> (B_1 <span class="op">-</span> B_0)</a>
+<a class="sourceLine" id="cb9-11" title="11">    <span class="cf">elif</span> k2 <span class="op">&gt;=</span> B_1 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_2:</a>
+<a class="sourceLine" id="cb9-12" title="12">        k1 <span class="op">*=</span> k1Gain</a>
+<a class="sourceLine" id="cb9-13" title="13">    <span class="cf">elif</span> k2 <span class="op">&gt;=</span> B_2 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_3:</a>
+<a class="sourceLine" id="cb9-14" title="14">        k1 <span class="op">*=</span> k1Gain <span class="op">+</span> k1Delta <span class="op">*</span> (k2 <span class="op">-</span> B_2) <span class="op">/</span> (B_3 <span class="op">-</span> B_2)</a>
+<a class="sourceLine" id="cb9-15" title="15"></a>
+<a class="sourceLine" id="cb9-16" title="16">    <span class="cf">return</span> k1 <span class="op">*</span> <span class="fl">0.7</span></a></code></pre></div>
 <p><code>sqrt(k1)</code> を <code>pos2</code> の式に掛けたときの <span class="math inline">\(k_1\)</span> のチューニング曲線のプロットです。</p>
 <figure>
 <img src="img/K1TuningSqrt.png" alt="Image of ." style="padding-bottom: 12px;"/>
@@ -533,91 +543,91 @@ C_5 &amp;= 3468.062963176107\\
 <p>フィルタの式の <span class="math inline">\(u_1\)</span> を出力に使うとハイパスフィルタを通したような音になります。出力 <span class="math inline">\(u_2\)</span> のチューニングを使っても発散しなかったので流用することにしました。</p>
 <h2 id="実装">実装</h2>
 <p>C++ による実装です。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> DoubleFilter {</a>
-<a class="sourceLine" id="cb9-2" title="2"><span class="kw">public</span>:</a>
-<a class="sourceLine" id="cb9-3" title="3">  <span class="dt">void</span> reset()</a>
-<a class="sourceLine" id="cb9-4" title="4">  {</a>
-<a class="sourceLine" id="cb9-5" title="5">    acc2 = vel2 = pos2 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-6" title="6">    acc1 = vel1 = pos1 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-7" title="7">    x1 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-8" title="8">  }</a>
-<a class="sourceLine" id="cb9-9" title="9"></a>
-<a class="sourceLine" id="cb9-10" title="10">  <span class="dt">void</span> set(Sample sampleRate, Sample cutoffHz, Sample resonance, <span class="dt">bool</span> altGain)</a>
-<a class="sourceLine" id="cb9-11" title="11">  {</a>
-<a class="sourceLine" id="cb9-12" title="12">    Sample x = cutoffHz / sampleRate;</a>
-<a class="sourceLine" id="cb9-13" title="13">    k2 = Sample(<span class="fl">6.5451144600705975</span>) * x + Sample(<span class="fl">20.46391326872472</span>) * x * x;</a>
-<a class="sourceLine" id="cb9-14" title="14"></a>
-<a class="sourceLine" id="cb9-15" title="15">    <span class="co">// k2 ~= 0.2π (~0.63) のあたりにチューニングの境界がある。</span></a>
-<a class="sourceLine" id="cb9-16" title="16">    <span class="cf">if</span> (k2 &lt; Sample(<span class="fl">0.6295160864148501</span>)) {</a>
-<a class="sourceLine" id="cb9-17" title="17">      k1 = Sample(pi) * resonance;</a>
-<a class="sourceLine" id="cb9-18" title="18">    } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb9-19" title="19">      k1 = resonance</a>
-<a class="sourceLine" id="cb9-20" title="20">        * (Sample(-<span class="fl">0.0049691265927442885</span>)</a>
-<a class="sourceLine" id="cb9-21" title="21">           + Sample(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb9-22" title="22">             / (Sample(-<span class="fl">471.738128187657</span>) + Sample(<span class="fl">1432.5662635997667</span>) * k2 + Sample(<span class="fl">345.2853784111966</span>) * k2 * k2 + Sample(-<span class="fl">4454.40786711102</span>) * k2 * k2 * k2 + Sample(<span class="fl">3468.062963176107</span>) * k2 * k2 * k2 * k2));</a>
-<a class="sourceLine" id="cb9-23" title="23">    }</a>
-<a class="sourceLine" id="cb9-24" title="24"></a>
-<a class="sourceLine" id="cb9-25" title="25">    <span class="at">const</span> <span class="kw">auto</span> k1Gain = Sample(<span class="fl">0.69</span>);</a>
-<a class="sourceLine" id="cb9-26" title="26">    <span class="at">const</span> <span class="kw">auto</span> k1Delta = Sample(<span class="fl">0.31</span>); <span class="co">// 1 - k1Gain.</span></a>
-<a class="sourceLine" id="cb9-27" title="27">    <span class="at">const</span> <span class="kw">auto</span> B_0 = Sample(<span class="fl">0.61</span>);</a>
-<a class="sourceLine" id="cb9-28" title="28">    <span class="at">const</span> <span class="kw">auto</span> B_1 = Sample(<span class="fl">0.625</span>);</a>
-<a class="sourceLine" id="cb9-29" title="29">    <span class="at">const</span> <span class="kw">auto</span> B_2 = Sample(<span class="fl">0.63</span>); <span class="co">// だいたいチューニング境界。</span></a>
-<a class="sourceLine" id="cb9-30" title="30">    <span class="at">const</span> <span class="kw">auto</span> B_3 = Sample(<span class="fl">0.635</span>);</a>
-<a class="sourceLine" id="cb9-31" title="31">    <span class="cf">if</span> (altGain) {</a>
-<a class="sourceLine" id="cb9-32" title="32">      <span class="co">// k2 の値が チューニング境界 (~0.63) に近いときに k1 を小さくする。</span></a>
-<a class="sourceLine" id="cb9-33" title="33">      <span class="cf">if</span> (k2 &gt;= B_0 &amp;&amp; k2 &lt; B_1)</a>
-<a class="sourceLine" id="cb9-34" title="34">        k1 *= Sample(<span class="dv">1</span>) - k1Delta * (k2 - B_0) / (B_1 - B_0);</a>
-<a class="sourceLine" id="cb9-35" title="35">      <span class="cf">else</span> <span class="cf">if</span> (k2 &gt;= B_1 &amp;&amp; k2 &lt; B_2)</a>
-<a class="sourceLine" id="cb9-36" title="36">        k1 *= k1Gain;</a>
-<a class="sourceLine" id="cb9-37" title="37">      <span class="cf">else</span> <span class="cf">if</span> (k2 &gt;= B_2 &amp;&amp; k2 &lt; B_3)</a>
-<a class="sourceLine" id="cb9-38" title="38">        k1 *= k1Gain + k1Delta * (k2 - B_2) / (B_3 - B_2);</a>
-<a class="sourceLine" id="cb9-39" title="39"></a>
-<a class="sourceLine" id="cb9-40" title="40">      k1 *= Sample(<span class="fl">0.7</span>);</a>
-<a class="sourceLine" id="cb9-41" title="41"></a>
-<a class="sourceLine" id="cb9-42" title="42">      v2Gain = somesqrt&lt;Sample&gt;(k1);</a>
-<a class="sourceLine" id="cb9-43" title="43">    } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb9-44" title="44">      <span class="co">// k2 の値が チューニング境界 (~0.63) より小さいときに k1 を小さくする。</span></a>
-<a class="sourceLine" id="cb9-45" title="45">      <span class="cf">if</span> (k2 &lt; B_2)</a>
-<a class="sourceLine" id="cb9-46" title="46">        k1 *= k1Gain;</a>
-<a class="sourceLine" id="cb9-47" title="47">      <span class="cf">else</span> <span class="cf">if</span> (k2 &gt;= B_2 &amp;&amp; k2 &lt; B_3)</a>
-<a class="sourceLine" id="cb9-48" title="48">        k1 *= k1Gain + k1Delta * (k2 - B_2) / (B_3 - B_2);</a>
-<a class="sourceLine" id="cb9-49" title="49"></a>
-<a class="sourceLine" id="cb9-50" title="50">      v2Gain = Sample(<span class="dv">1</span>);</a>
-<a class="sourceLine" id="cb9-51" title="51">    }</a>
-<a class="sourceLine" id="cb9-52" title="52">  }</a>
-<a class="sourceLine" id="cb9-53" title="53"></a>
-<a class="sourceLine" id="cb9-54" title="54">  Sample process(Sample x0, <span class="dt">bool</span> highpass)</a>
-<a class="sourceLine" id="cb9-55" title="55">  {</a>
-<a class="sourceLine" id="cb9-56" title="56">    acc2 = k2 * (vel1 - vel2);</a>
-<a class="sourceLine" id="cb9-57" title="57">    vel2 += acc2 + x0 - x1;</a>
-<a class="sourceLine" id="cb9-58" title="58">    pos2 += vel2 * k2 * v2Gain;</a>
-<a class="sourceLine" id="cb9-59" title="59"></a>
-<a class="sourceLine" id="cb9-60" title="60">    acc1 = -k1 * pos1 - acc2;</a>
-<a class="sourceLine" id="cb9-61" title="61">    vel1 += acc1;</a>
-<a class="sourceLine" id="cb9-62" title="62">    pos1 += vel1;</a>
-<a class="sourceLine" id="cb9-63" title="63"></a>
-<a class="sourceLine" id="cb9-64" title="64">    x1 = x0;</a>
-<a class="sourceLine" id="cb9-65" title="65"></a>
-<a class="sourceLine" id="cb9-66" title="66">    <span class="co">// 直流除去のため 0.999 を掛け合わせる。</span></a>
-<a class="sourceLine" id="cb9-67" title="67">    <span class="cf">if</span> (highpass) <span class="cf">return</span> pos1 *= Sample(<span class="fl">0.999</span>);</a>
-<a class="sourceLine" id="cb9-68" title="68">    <span class="cf">return</span> pos2 *= Sample(<span class="fl">0.999</span>);</a>
-<a class="sourceLine" id="cb9-69" title="69">  }</a>
-<a class="sourceLine" id="cb9-70" title="70"></a>
-<a class="sourceLine" id="cb9-71" title="71"><span class="kw">private</span>:</a>
-<a class="sourceLine" id="cb9-72" title="72">  Sample k1 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-73" title="73">  Sample k2 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-74" title="74">  Sample v2Gain = <span class="dv">1</span>;</a>
-<a class="sourceLine" id="cb9-75" title="75"></a>
-<a class="sourceLine" id="cb9-76" title="76">  Sample acc2 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-77" title="77">  Sample vel2 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-78" title="78">  Sample pos2 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-79" title="79"></a>
-<a class="sourceLine" id="cb9-80" title="80">  Sample acc1 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-81" title="81">  Sample vel1 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-82" title="82">  Sample pos1 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-83" title="83"></a>
-<a class="sourceLine" id="cb9-84" title="84">  Sample x1 = <span class="dv">0</span>;</a>
-<a class="sourceLine" id="cb9-85" title="85">};</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> DoubleFilter {</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb10-3" title="3">  <span class="dt">void</span> reset()</a>
+<a class="sourceLine" id="cb10-4" title="4">  {</a>
+<a class="sourceLine" id="cb10-5" title="5">    acc2 = vel2 = pos2 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-6" title="6">    acc1 = vel1 = pos1 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-7" title="7">    x1 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-8" title="8">  }</a>
+<a class="sourceLine" id="cb10-9" title="9"></a>
+<a class="sourceLine" id="cb10-10" title="10">  <span class="dt">void</span> set(Sample sampleRate, Sample cutoffHz, Sample resonance, <span class="dt">bool</span> altGain)</a>
+<a class="sourceLine" id="cb10-11" title="11">  {</a>
+<a class="sourceLine" id="cb10-12" title="12">    Sample x = cutoffHz / sampleRate;</a>
+<a class="sourceLine" id="cb10-13" title="13">    k2 = Sample(<span class="fl">6.5451144600705975</span>) * x + Sample(<span class="fl">20.46391326872472</span>) * x * x;</a>
+<a class="sourceLine" id="cb10-14" title="14"></a>
+<a class="sourceLine" id="cb10-15" title="15">    <span class="co">// k2 ~= 0.2π (~0.63) のあたりにチューニングの境界がある。</span></a>
+<a class="sourceLine" id="cb10-16" title="16">    <span class="cf">if</span> (k2 &lt; Sample(<span class="fl">0.6295160864148501</span>)) {</a>
+<a class="sourceLine" id="cb10-17" title="17">      k1 = Sample(pi) * resonance;</a>
+<a class="sourceLine" id="cb10-18" title="18">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb10-19" title="19">      k1 = resonance</a>
+<a class="sourceLine" id="cb10-20" title="20">        * (Sample(-<span class="fl">0.0049691265927442885</span>)</a>
+<a class="sourceLine" id="cb10-21" title="21">           + Sample(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb10-22" title="22">             / (Sample(-<span class="fl">471.738128187657</span>) + Sample(<span class="fl">1432.5662635997667</span>) * k2 + Sample(<span class="fl">345.2853784111966</span>) * k2 * k2 + Sample(-<span class="fl">4454.40786711102</span>) * k2 * k2 * k2 + Sample(<span class="fl">3468.062963176107</span>) * k2 * k2 * k2 * k2));</a>
+<a class="sourceLine" id="cb10-23" title="23">    }</a>
+<a class="sourceLine" id="cb10-24" title="24"></a>
+<a class="sourceLine" id="cb10-25" title="25">    <span class="at">const</span> <span class="kw">auto</span> k1Gain = Sample(<span class="fl">0.69</span>);</a>
+<a class="sourceLine" id="cb10-26" title="26">    <span class="at">const</span> <span class="kw">auto</span> k1Delta = Sample(<span class="fl">0.31</span>); <span class="co">// 1 - k1Gain.</span></a>
+<a class="sourceLine" id="cb10-27" title="27">    <span class="at">const</span> <span class="kw">auto</span> B_0 = Sample(<span class="fl">0.61</span>);</a>
+<a class="sourceLine" id="cb10-28" title="28">    <span class="at">const</span> <span class="kw">auto</span> B_1 = Sample(<span class="fl">0.625</span>);</a>
+<a class="sourceLine" id="cb10-29" title="29">    <span class="at">const</span> <span class="kw">auto</span> B_2 = Sample(<span class="fl">0.63</span>); <span class="co">// だいたいチューニング境界。</span></a>
+<a class="sourceLine" id="cb10-30" title="30">    <span class="at">const</span> <span class="kw">auto</span> B_3 = Sample(<span class="fl">0.635</span>);</a>
+<a class="sourceLine" id="cb10-31" title="31">    <span class="cf">if</span> (altGain) {</a>
+<a class="sourceLine" id="cb10-32" title="32">      <span class="co">// k2 の値が チューニング境界 (~0.63) に近いときに k1 を小さくする。</span></a>
+<a class="sourceLine" id="cb10-33" title="33">      <span class="cf">if</span> (k2 &gt;= B_0 &amp;&amp; k2 &lt; B_1)</a>
+<a class="sourceLine" id="cb10-34" title="34">        k1 *= Sample(<span class="dv">1</span>) - k1Delta * (k2 - B_0) / (B_1 - B_0);</a>
+<a class="sourceLine" id="cb10-35" title="35">      <span class="cf">else</span> <span class="cf">if</span> (k2 &gt;= B_1 &amp;&amp; k2 &lt; B_2)</a>
+<a class="sourceLine" id="cb10-36" title="36">        k1 *= k1Gain;</a>
+<a class="sourceLine" id="cb10-37" title="37">      <span class="cf">else</span> <span class="cf">if</span> (k2 &gt;= B_2 &amp;&amp; k2 &lt; B_3)</a>
+<a class="sourceLine" id="cb10-38" title="38">        k1 *= k1Gain + k1Delta * (k2 - B_2) / (B_3 - B_2);</a>
+<a class="sourceLine" id="cb10-39" title="39"></a>
+<a class="sourceLine" id="cb10-40" title="40">      k1 *= Sample(<span class="fl">0.7</span>);</a>
+<a class="sourceLine" id="cb10-41" title="41"></a>
+<a class="sourceLine" id="cb10-42" title="42">      v2Gain = somesqrt&lt;Sample&gt;(k1);</a>
+<a class="sourceLine" id="cb10-43" title="43">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb10-44" title="44">      <span class="co">// k2 の値が チューニング境界 (~0.63) より小さいときに k1 を小さくする。</span></a>
+<a class="sourceLine" id="cb10-45" title="45">      <span class="cf">if</span> (k2 &lt; B_2)</a>
+<a class="sourceLine" id="cb10-46" title="46">        k1 *= k1Gain;</a>
+<a class="sourceLine" id="cb10-47" title="47">      <span class="cf">else</span> <span class="cf">if</span> (k2 &gt;= B_2 &amp;&amp; k2 &lt; B_3)</a>
+<a class="sourceLine" id="cb10-48" title="48">        k1 *= k1Gain + k1Delta * (k2 - B_2) / (B_3 - B_2);</a>
+<a class="sourceLine" id="cb10-49" title="49"></a>
+<a class="sourceLine" id="cb10-50" title="50">      v2Gain = Sample(<span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb10-51" title="51">    }</a>
+<a class="sourceLine" id="cb10-52" title="52">  }</a>
+<a class="sourceLine" id="cb10-53" title="53"></a>
+<a class="sourceLine" id="cb10-54" title="54">  Sample process(Sample x0, <span class="dt">bool</span> highpass)</a>
+<a class="sourceLine" id="cb10-55" title="55">  {</a>
+<a class="sourceLine" id="cb10-56" title="56">    acc2 = k2 * (vel1 - vel2);</a>
+<a class="sourceLine" id="cb10-57" title="57">    vel2 += acc2 + x0 - x1;</a>
+<a class="sourceLine" id="cb10-58" title="58">    pos2 += vel2 * k2 * v2Gain;</a>
+<a class="sourceLine" id="cb10-59" title="59"></a>
+<a class="sourceLine" id="cb10-60" title="60">    acc1 = -k1 * pos1 - acc2;</a>
+<a class="sourceLine" id="cb10-61" title="61">    vel1 += acc1;</a>
+<a class="sourceLine" id="cb10-62" title="62">    pos1 += vel1;</a>
+<a class="sourceLine" id="cb10-63" title="63"></a>
+<a class="sourceLine" id="cb10-64" title="64">    x1 = x0;</a>
+<a class="sourceLine" id="cb10-65" title="65"></a>
+<a class="sourceLine" id="cb10-66" title="66">    <span class="co">// 直流除去のため 0.999 を掛け合わせる。</span></a>
+<a class="sourceLine" id="cb10-67" title="67">    <span class="cf">if</span> (highpass) <span class="cf">return</span> pos1 *= Sample(<span class="fl">0.999</span>);</a>
+<a class="sourceLine" id="cb10-68" title="68">    <span class="cf">return</span> pos2 *= Sample(<span class="fl">0.999</span>);</a>
+<a class="sourceLine" id="cb10-69" title="69">  }</a>
+<a class="sourceLine" id="cb10-70" title="70"></a>
+<a class="sourceLine" id="cb10-71" title="71"><span class="kw">private</span>:</a>
+<a class="sourceLine" id="cb10-72" title="72">  Sample k1 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-73" title="73">  Sample k2 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-74" title="74">  Sample v2Gain = <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb10-75" title="75"></a>
+<a class="sourceLine" id="cb10-76" title="76">  Sample acc2 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-77" title="77">  Sample vel2 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-78" title="78">  Sample pos2 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-79" title="79"></a>
+<a class="sourceLine" id="cb10-80" title="80">  Sample acc1 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-81" title="81">  Sample vel1 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-82" title="82">  Sample pos1 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-83" title="83"></a>
+<a class="sourceLine" id="cb10-84" title="84">  Sample x1 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb10-85" title="85">};</a></code></pre></div>
 <ul>
 <li><a href="https://github.com/ryukau/LV2Plugins/blob/master/lv2cvport/CV_DoubleFilter/dsp/doublefilter.hpp">LV2Plugins/doublefilter.hpp at master · ryukau/LV2Plugins · GitHub</a></li>
 </ul>
@@ -637,7 +647,7 @@ C_5 &amp;= 3468.062963176107\\
 resonance=0.001, altGain=False, isHighpass=False
 </figcaption>
 <audio controls>
-<source src="lin_res0.00100_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+<source src="snd/exp_res0.00100_altGainFalse_isHighpassFalse.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -645,7 +655,7 @@ resonance=0.001, altGain=False, isHighpass=False
 resonance=0.1, altGain=False, isHighpass=False
 </figcaption>
 <audio controls>
-<source src="lin_res0.10000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+<source src="snd/exp_res0.10000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -653,7 +663,7 @@ resonance=0.1, altGain=False, isHighpass=False
 resonance=1.0, altGain=False, isHighpass=False
 </figcaption>
 <audio controls>
-<source src="lin_res1.00000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+<source src="snd/exp_res1.00000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
 </audio>
 </figure>
 <p><code>altGain</code> = True としたときの出力です。</p>
@@ -662,7 +672,7 @@ resonance=1.0, altGain=False, isHighpass=False
 resonance=0.001, altGain=True, isHighpass=False
 </figcaption>
 <audio controls>
-<source src="lin_res0.00100_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+<source src="snd/exp_res0.00100_altGainTrue_isHighpassFalse.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -670,7 +680,7 @@ resonance=0.001, altGain=True, isHighpass=False
 resonance=0.1, altGain=True, isHighpass=False
 </figcaption>
 <audio controls>
-<source src="lin_res0.10000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+<source src="snd/exp_res0.10000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -678,7 +688,7 @@ resonance=0.1, altGain=True, isHighpass=False
 resonance=1.0, altGain=True, isHighpass=False
 </figcaption>
 <audio controls>
-<source src="lin_res1.00000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+<source src="snd/exp_res1.00000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
 </audio>
 </figure>
 <h3 id="出力-u_1-ハイパス">出力 <span class="math inline">\(u_1\)</span> (ハイパス)</h3>
@@ -688,7 +698,7 @@ resonance=1.0, altGain=True, isHighpass=False
 resonance=0.001, altGain=False, isHighpass=True
 </figcaption>
 <audio controls>
-<source src="lin_res0.00100_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+<source src="snd/exp_res0.00100_altGainFalse_isHighpassTrue.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -696,7 +706,7 @@ resonance=0.001, altGain=False, isHighpass=True
 resonance=0.1, altGain=False, isHighpass=True
 </figcaption>
 <audio controls>
-<source src="lin_res0.10000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+<source src="snd/exp_res0.10000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -704,7 +714,7 @@ resonance=0.1, altGain=False, isHighpass=True
 resonance=1.0, altGain=False, isHighpass=True
 </figcaption>
 <audio controls>
-<source src="lin_res1.00000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+<source src="snd/exp_res1.00000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
 </audio>
 </figure>
 <p><code>altGain</code> = True としたときの出力です。</p>
@@ -713,7 +723,7 @@ resonance=1.0, altGain=False, isHighpass=True
 resonance=0.001, altGain=True, isHighpass=True
 </figcaption>
 <audio controls>
-<source src="lin_res0.00100_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+<source src="snd/exp_res0.00100_altGainTrue_isHighpassTrue.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -721,7 +731,7 @@ resonance=0.001, altGain=True, isHighpass=True
 resonance=0.1, altGain=True, isHighpass=True
 </figcaption>
 <audio controls>
-<source src="lin_res0.10000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+<source src="snd/exp_res0.10000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -729,7 +739,7 @@ resonance=0.1, altGain=True, isHighpass=True
 resonance=1.0, altGain=True, isHighpass=True
 </figcaption>
 <audio controls>
-<source src="lin_res1.00000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+<source src="snd/exp_res1.00000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
 </audio>
 </figure>
 <h2 id="その他">その他</h2>
@@ -763,15 +773,15 @@ u_1[n] &amp;= u_1[n-1] + \dot{u_1}[n] \\
 <li>1 -&gt; 2</li>
 <li>(5 -&gt; 4 -&gt; 3) を (1 -&gt; 2) に代入。</li>
 </ul>
-<div class="sourceCode" id="cb11"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb11-1" title="1"><span class="cn">d1_u2</span>(<span class="cn">n</span>) := <span class="cn">d1_u1</span>(<span class="cn">n</span>) - <span class="cn">d2_u2</span>(<span class="cn">n</span> + <span class="dv">1</span>) / <span class="cn">k_2</span>;                    <span class="co">/* (1) */</span></a>
-<a class="sourceLine" id="cb11-2" title="2"><span class="cn">d2_u2</span>(<span class="cn">n</span>) := -<span class="cn">d2_u1</span>(<span class="cn">n</span>) - <span class="cn">k_1</span> * <span class="cn">u_1</span>(<span class="cn">n</span> - <span class="dv">1</span>);  <span class="co">/* (3) */</span></a>
-<a class="sourceLine" id="cb11-3" title="3"><span class="cn">d2_u1</span>(<span class="cn">n</span>) := <span class="cn">d1_u1</span>(<span class="cn">n</span>) - <span class="cn">d1_u1</span>(<span class="cn">n</span> - <span class="dv">1</span>);                          <span class="co">/* (4) */</span></a>
-<a class="sourceLine" id="cb11-4" title="4"><span class="cn">d1_u1</span>(<span class="cn">n</span>) := <span class="cn">u_1</span>(<span class="cn">n</span>) - <span class="cn">u_1</span>(<span class="cn">n</span> - <span class="dv">1</span>);                              <span class="co">/* (5) */</span></a>
-<a class="sourceLine" id="cb11-5" title="5"></a>
-<a class="sourceLine" id="cb11-6" title="6"><span class="cn">result</span>: <span class="cn">d2_u2</span>(<span class="cn">n</span>) = <span class="cn">d1_u2</span>(<span class="cn">n</span>) - <span class="cn">d1_u2</span>(<span class="cn">n</span> - <span class="dv">1</span>) - <span class="cn">x</span>(<span class="cn">n</span>) + <span class="cn">x</span>(<span class="cn">n</span> - <span class="dv">1</span>); <span class="co">/* (2) */</span></a>
-<a class="sourceLine" id="cb11-7" title="7"></a>
-<a class="sourceLine" id="cb11-8" title="8"><span class="fu">ratvars</span>(<span class="cn">u</span>(<span class="cn">n</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-1</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-2</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-3</span>), <span class="cn">x</span>(<span class="cn">n</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-1</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-2</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-3</span>));</a>
-<a class="sourceLine" id="cb11-9" title="9"><span class="fu">ratexpand</span>(<span class="dv">0</span> = <span class="fu">rhs</span>(<span class="cn">result</span>) - <span class="fu">lhs</span>(<span class="cn">result</span>));</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb12-1" title="1"><span class="cn">d1_u2</span>(<span class="cn">n</span>) := <span class="cn">d1_u1</span>(<span class="cn">n</span>) - <span class="cn">d2_u2</span>(<span class="cn">n</span> + <span class="dv">1</span>) / <span class="cn">k_2</span>;                    <span class="co">/* (1) */</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="cn">d2_u2</span>(<span class="cn">n</span>) := -<span class="cn">d2_u1</span>(<span class="cn">n</span>) - <span class="cn">k_1</span> * <span class="cn">u_1</span>(<span class="cn">n</span> - <span class="dv">1</span>);  <span class="co">/* (3) */</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="cn">d2_u1</span>(<span class="cn">n</span>) := <span class="cn">d1_u1</span>(<span class="cn">n</span>) - <span class="cn">d1_u1</span>(<span class="cn">n</span> - <span class="dv">1</span>);                          <span class="co">/* (4) */</span></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="cn">d1_u1</span>(<span class="cn">n</span>) := <span class="cn">u_1</span>(<span class="cn">n</span>) - <span class="cn">u_1</span>(<span class="cn">n</span> - <span class="dv">1</span>);                              <span class="co">/* (5) */</span></a>
+<a class="sourceLine" id="cb12-5" title="5"></a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="cn">result</span>: <span class="cn">d2_u2</span>(<span class="cn">n</span>) = <span class="cn">d1_u2</span>(<span class="cn">n</span>) - <span class="cn">d1_u2</span>(<span class="cn">n</span> - <span class="dv">1</span>) - <span class="cn">x</span>(<span class="cn">n</span>) + <span class="cn">x</span>(<span class="cn">n</span> - <span class="dv">1</span>); <span class="co">/* (2) */</span></a>
+<a class="sourceLine" id="cb12-7" title="7"></a>
+<a class="sourceLine" id="cb12-8" title="8"><span class="fu">ratvars</span>(<span class="cn">u</span>(<span class="cn">n</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-1</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-2</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-3</span>), <span class="cn">x</span>(<span class="cn">n</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-1</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-2</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-3</span>));</a>
+<a class="sourceLine" id="cb12-9" title="9"><span class="fu">ratexpand</span>(<span class="dv">0</span> = <span class="fu">rhs</span>(<span class="cn">result</span>) - <span class="fu">lhs</span>(<span class="cn">result</span>));</a></code></pre></div>
 <p>出力です。</p>
 <p><span class="math display">\[
 \begin{aligned}
