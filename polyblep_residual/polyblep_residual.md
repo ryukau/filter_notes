@@ -48,7 +48,7 @@ R: findConstant(eq, true);  /* PolyBLEP residual */
 
 4, 6, 8 Point の PolyBLEP residual を求めました。数式と、 wxMaxima の `Copy for Octave/Matlab` でコピーしたテキスト形式の式を掲載しています。
 
-## 4 Point
+### 4 Point PolyBLEP Residual
 $$
 \begin{aligned}
 J B_{4,0}(t) &= -\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{6}-\frac{{{t}^{2}}}{4}+\frac{t}{6}-\frac{1}{24}\\
@@ -65,7 +65,7 @@ JB_4_2(t) := - t^4/8 + t^3/6 + t^2/4 + t/6 + 1/24;
 JB_4_3(t) :=   t^4/24;
 ```
 
-## 6 Point
+### 6 Point PolyBLEP Residual
 $$
 \begin{aligned}
 J B_{6,0}(t) &= -\frac{{{t}^{6}}}{720}+\frac{{{t}^{5}}}{120}-\frac{{{t}^{4}}}{48}+\frac{{{t}^{3}}}{36}-\frac{{{t}^{2}}}{48}+\frac{t}{120}-\frac{1}{720}\\
@@ -86,7 +86,7 @@ JB_6_4(t) := - t^6/144 + t^5/120 + t^4/48 + t^3/36 + t^2/48 + t/120 + 1/720;
 JB_6_5(t) :=   t^6/720;
 ```
 
-## 8 Point
+### 8 Point PolyBLEP Residual
 $$
 \begin{aligned}
 J B_{8,0}(t) &= -\frac{{{t}^{8}}}{40320}+\frac{{{t}^{7}}}{5040}-\frac{{{t}^{6}}}{1440}+\frac{{{t}^{5}}}{720}-\frac{{{t}^{4}}}{576}+\frac{{{t}^{3}}}{720}-\frac{{{t}^{2}}}{1440}+\frac{t}{5040}-\frac{1}{40320}\\
@@ -112,6 +112,7 @@ JB_8_7(t) :=   t^8/40320;
 ```
 
 ## テスト
+### PolyBLEP Residual のプロット
 PolyBLEP residual をプロットします。コードを実行すると 4 point PolyBLEP residual をプロットします。 6 point と 8 point を含む完全な実装は次のリンク先に掲載しています。
 
 - [filter_notes/polyblep_residual.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/polyblep_residual/demo/polyblep_residual.py)
@@ -174,6 +175,7 @@ $J B_{i,j}$ の $i$ は PolyBLEP residual の点数、 $j$ は PolyBLEP residual
 
 $t$ は時間の進む方向と逆行します。
 
+### 矩形波オシレータへの適用
 正しく動作するかを確認するために、矩形波に PolyBLEP residual を足し合わせて周波数特性を出します。
 
 長いので 4 point の実装だけを掲載します。この実装は PolyBLEP の点数と同じサンプル数だけ出力が遅れます。次のリンクは 6 point と 8 point の実装を含んだコードです。
@@ -271,7 +273,7 @@ class SquareOscillator:
 <img src="img/8PointSquareSpectrum.png" alt="Image of power spectrum of square wave with 8 point PolyBLEP residual added to edge." style="padding-bottom: 12px;"/>
 </figure>
 
-音のサンプルです。
+#### 音のサンプル
 
 <figure>
   <figcaption>Naive</figcaption>

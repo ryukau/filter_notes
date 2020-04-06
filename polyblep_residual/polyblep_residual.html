@@ -235,11 +235,17 @@ Update: 2020-04-06
 <nav id="TOC" role="doc-toc">
   <ul>
   <li><a href="#polyblep-residual">PolyBLEP Residual</a><ul>
-  <li><a href="#maxima-のコード">Maxima のコード</a></li>
-  <li><a href="#point">4 Point</a></li>
-  <li><a href="#point-1">6 Point</a></li>
-  <li><a href="#point-2">8 Point</a></li>
-  <li><a href="#テスト">テスト</a></li>
+  <li><a href="#maxima-のコード">Maxima のコード</a><ul>
+  <li><a href="#point-polyblep-residual">4 Point PolyBLEP Residual</a></li>
+  <li><a href="#point-polyblep-residual-1">6 Point PolyBLEP Residual</a></li>
+  <li><a href="#point-polyblep-residual-2">8 Point PolyBLEP Residual</a></li>
+  </ul></li>
+  <li><a href="#テスト">テスト</a><ul>
+  <li><a href="#polyblep-residual-のプロット">PolyBLEP Residual のプロット</a></li>
+  <li><a href="#矩形波オシレータへの適用">矩形波オシレータへの適用</a><ul>
+  <li><a href="#音のサンプル">音のサンプル</a></li>
+  </ul></li>
+  </ul></li>
   <li><a href="#参考文献">参考文献</a></li>
   </ul></li>
   </ul>
@@ -289,7 +295,7 @@ Update: 2020-04-06
 <a class="sourceLine" id="cb1-36" title="36"><span class="cn">P</span>: <span class="cn">findConstant</span>(<span class="cn">eq</span>, <span class="kw">false</span>); <span class="co">/* 1 回積分した式。 */</span></a>
 <a class="sourceLine" id="cb1-37" title="37"><span class="cn">R</span>: <span class="cn">findConstant</span>(<span class="cn">eq</span>, <span class="kw">true</span>);  <span class="co">/* PolyBLEP residual */</span></a></code></pre></div>
 <p>4, 6, 8 Point の PolyBLEP residual を求めました。数式と、 wxMaxima の <code>Copy for Octave/Matlab</code> でコピーしたテキスト形式の式を掲載しています。</p>
-<h2 id="point">4 Point</h2>
+<h3 id="point-polyblep-residual">4 Point PolyBLEP Residual</h3>
 <p><span class="math display">\[
 \begin{aligned}
 J B_{4,0}(t) &amp;= -\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{6}-\frac{{{t}^{2}}}{4}+\frac{t}{6}-\frac{1}{24}\\
@@ -302,7 +308,7 @@ J B_{4,3}(t) &amp;= \frac{{{t}^{4}}}{24}\\
 JB_4_1(t) :=   t^4/8 - t^3/3 + (2*t)/3 - 1/2;
 JB_4_2(t) := - t^4/8 + t^3/6 + t^2/4 + t/6 + 1/24;
 JB_4_3(t) :=   t^4/24;</code></pre>
-<h2 id="point-1">6 Point</h2>
+<h3 id="point-polyblep-residual-1">6 Point PolyBLEP Residual</h3>
 <p><span class="math display">\[
 \begin{aligned}
 J B_{6,0}(t) &amp;= -\frac{{{t}^{6}}}{720}+\frac{{{t}^{5}}}{120}-\frac{{{t}^{4}}}{48}+\frac{{{t}^{3}}}{36}-\frac{{{t}^{2}}}{48}+\frac{t}{120}-\frac{1}{720}\\
@@ -319,7 +325,7 @@ JB_6_2(t) := - t^6/72 + t^5/20 - t^3/6 + (11*t)/20 - 1/2;
 JB_6_3(t) :=   t^6/72 - t^5/30 - t^4/24 + t^3/18 + (5*t^2)/24 + (13*t)/60 + 29/360;
 JB_6_4(t) := - t^6/144 + t^5/120 + t^4/48 + t^3/36 + t^2/48 + t/120 + 1/720;
 JB_6_5(t) :=   t^6/720;</code></pre>
-<h2 id="point-2">8 Point</h2>
+<h3 id="point-polyblep-residual-2">8 Point PolyBLEP Residual</h3>
 <p><span class="math display">\[
 \begin{aligned}
 J B_{8,0}(t) &amp;= -\frac{{{t}^{8}}}{40320}+\frac{{{t}^{7}}}{5040}-\frac{{{t}^{6}}}{1440}+\frac{{{t}^{5}}}{720}-\frac{{{t}^{4}}}{576}+\frac{{{t}^{3}}}{720}-\frac{{{t}^{2}}}{1440}+\frac{t}{5040}-\frac{1}{40320}\\
@@ -341,6 +347,7 @@ JB_8_5(t) :=   t^8/1920 - t^7/840 - t^6/360 + t^4/72 + t^3/30 + (7*t^2)/180 + t/
 JB_8_6(t) := - t^8/5760 + t^7/5040 + t^6/1440 + t^5/720 + t^4/576 + t^3/720 + t^2/1440 + t/5040 + 1/40320;
 JB_8_7(t) :=   t^8/40320;</code></pre>
 <h2 id="テスト">テスト</h2>
+<h3 id="polyblep-residual-のプロット">PolyBLEP Residual のプロット</h3>
 <p>PolyBLEP residual をプロットします。コードを実行すると 4 point PolyBLEP residual をプロットします。 6 point と 8 point を含む完全な実装は次のリンク先に掲載しています。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/master/polyblep_residual/demo/polyblep_residual.py">filter_notes/polyblep_residual.py at master · ryukau/filter_notes · GitHub</a></li>
@@ -395,6 +402,7 @@ JB_8_7(t) :=   t^8/40320;</code></pre>
 <li><span class="math inline">\(j &gt; \lfloor i / 2 \rfloor\)</span> のときは過去のサンプル</li>
 </ul>
 <p><span class="math inline">\(t\)</span> は時間の進む方向と逆行します。</p>
+<h3 id="矩形波オシレータへの適用">矩形波オシレータへの適用</h3>
 <p>正しく動作するかを確認するために、矩形波に PolyBLEP residual を足し合わせて周波数特性を出します。</p>
 <p>長いので 4 point の実装だけを掲載します。この実装は PolyBLEP の点数と同じサンプル数だけ出力が遅れます。次のリンクは 6 point と 8 point の実装を含んだコードです。</p>
 <ul>
@@ -481,7 +489,7 @@ JB_8_7(t) :=   t^8/40320;</code></pre>
 <figure>
 <img src="img/8PointSquareSpectrum.png" alt="Image of power spectrum of square wave with 8 point PolyBLEP residual added to edge." style="padding-bottom: 12px;"/>
 </figure>
-<p>音のサンプルです。</p>
+<h4 id="音のサンプル">音のサンプル</h4>
 <figure>
 <figcaption>
 Naive
