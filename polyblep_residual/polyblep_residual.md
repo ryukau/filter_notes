@@ -1,5 +1,5 @@
 # PolyBLEP Residual
-Nam, Pekonen, Valimaki による [Perceptually informed synthesis of bandlimited classical waveforms using integrated polynomial interpolation](https://pdfs.semanticscholar.org/33f1/2adabd6df85337848f1463f1e7553233fd12.pdf) で紹介されている B-spline PolyBLEP residual の 4, 6, 8 次の式を掲載します。 4 次の式は Nam の論文に掲載されている式と同じです (Table VII.) 。
+Nam, Pekonen, Valimaki による [Perceptually informed synthesis of bandlimited classical waveforms using integrated polynomial interpolation](https://pdfs.semanticscholar.org/33f1/2adabd6df85337848f1463f1e7553233fd12.pdf) で紹介されている B-spline PolyBLEP residual の 4, 6, 8 点の式を掲載します。 4 点の式は Nam の論文に掲載されている式と同じです (Table VII.) 。
 
 ## Maxima のコード
 式の導出の手順は [PolyBLAMP Residual](https://ryukau.github.io/filter_notes/polyblamp_residual/polyblamp_residual.html) にまとめています。[ステップ関数](https://en.wikipedia.org/wiki/Heaviside_step_function#Antiderivative_and_derivative)と[ランプ関数](https://en.wikipedia.org/wiki/Ramp_function#Derivative)の関係と同じように、 PolyBLEP を 1 階積分すると PolyBLAMP になります。
