@@ -194,6 +194,10 @@ class SquareOscillator:
         self.x2 = 0
         self.x3 = 0
 
+        # 矩形波の high と low が変更された時点を検知する信号。
+        self.p0 = 0
+        self.p1 = 0
+
         # g_(n/2) が 0 でないときに PolyBLEP residual の加算をトリガ。
         self.g0 = 0
         self.g1 = 0
@@ -219,16 +223,19 @@ class SquareOscillator:
         return t**4 / 24
 
     def process4(self):
+        self.p1 = self.p0
+        self.p0 = 1 if self.phase < 1 else -1
+
         self.x3 = self.x2
         self.x2 = self.x1
         self.x1 = self.x0
-        self.x0 = 1 if self.phase < 1 else -1
+        self.x0 = self.p0
 
         self.g1 = self.g0
 
         self.t1 = self.t0
 
-        if self.x0 == self.x1:
+        if self.p0 == self.p1:
             self.g0 = 0
             self.t0 = 0
         else:
@@ -305,3 +312,7 @@ class SquareOscillator:
 
 ## 参考文献
 Nam, J., Pekonen, J., & Valimaki, V. (2011). [Perceptually informed synthesis of bandlimited classical waveforms using integrated polynomial interpolation](https://pdfs.semanticscholar.org/33f1/2adabd6df85337848f1463f1e7553233fd12.pdf).
+
+## 訂正
+- 2020-04-06
+  - `SquareOscillator` の `t0` が間違っていたので修正。

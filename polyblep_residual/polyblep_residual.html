@@ -247,6 +247,7 @@ Update: 2020-04-06
   </ul></li>
   </ul></li>
   <li><a href="#参考文献">参考文献</a></li>
+  <li><a href="#訂正">訂正</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -419,59 +420,66 @@ JB_8_7(t) :=   t^8/40320;</code></pre>
 <a class="sourceLine" id="cb6-9" title="9">        <span class="va">self</span>.x2 <span class="op">=</span> <span class="dv">0</span></a>
 <a class="sourceLine" id="cb6-10" title="10">        <span class="va">self</span>.x3 <span class="op">=</span> <span class="dv">0</span></a>
 <a class="sourceLine" id="cb6-11" title="11"></a>
-<a class="sourceLine" id="cb6-12" title="12">        <span class="co"># g_(n/2) が 0 でないときに PolyBLEP residual の加算をトリガ。</span></a>
-<a class="sourceLine" id="cb6-13" title="13">        <span class="va">self</span>.g0 <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb6-14" title="14">        <span class="va">self</span>.g1 <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-12" title="12">        <span class="co"># 矩形波の high と low が変更された時点を検知する信号。</span></a>
+<a class="sourceLine" id="cb6-13" title="13">        <span class="va">self</span>.p0 <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-14" title="14">        <span class="va">self</span>.p1 <span class="op">=</span> <span class="dv">0</span></a>
 <a class="sourceLine" id="cb6-15" title="15"></a>
-<a class="sourceLine" id="cb6-16" title="16">        <span class="co"># 分数ディレイ時間。</span></a>
-<a class="sourceLine" id="cb6-17" title="17">        <span class="va">self</span>.t0 <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb6-18" title="18">        <span class="va">self</span>.t1 <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-16" title="16">        <span class="co"># g_(n/2) が 0 でないときに PolyBLEP residual の加算をトリガ。</span></a>
+<a class="sourceLine" id="cb6-17" title="17">        <span class="va">self</span>.g0 <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-18" title="18">        <span class="va">self</span>.g1 <span class="op">=</span> <span class="dv">0</span></a>
 <a class="sourceLine" id="cb6-19" title="19"></a>
-<a class="sourceLine" id="cb6-20" title="20">        <span class="co"># 位相の範囲は [0, 2] 。</span></a>
-<a class="sourceLine" id="cb6-21" title="21">        <span class="va">self</span>.phase <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb6-22" title="22">        <span class="va">self</span>.tick <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> frequnecy <span class="op">/</span> samplerate</a>
+<a class="sourceLine" id="cb6-20" title="20">        <span class="co"># 分数ディレイ時間。</span></a>
+<a class="sourceLine" id="cb6-21" title="21">        <span class="va">self</span>.t0 <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-22" title="22">        <span class="va">self</span>.t1 <span class="op">=</span> <span class="dv">0</span></a>
 <a class="sourceLine" id="cb6-23" title="23"></a>
-<a class="sourceLine" id="cb6-24" title="24">    <span class="kw">def</span> polyBlep4_0(<span class="va">self</span>, t):</a>
-<a class="sourceLine" id="cb6-25" title="25">        <span class="cf">return</span> <span class="op">-</span>t<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">-</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">4</span> <span class="op">+</span> t <span class="op">/</span> <span class="dv">6</span> <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">24</span></a>
-<a class="sourceLine" id="cb6-26" title="26"></a>
-<a class="sourceLine" id="cb6-27" title="27">    <span class="kw">def</span> polyBlep4_1(<span class="va">self</span>, t):</a>
-<a class="sourceLine" id="cb6-28" title="28">        <span class="cf">return</span> t<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">8</span> <span class="op">-</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">3</span> <span class="op">+</span> (<span class="dv">2</span> <span class="op">*</span> t) <span class="op">/</span> <span class="dv">3</span> <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb6-29" title="29"></a>
-<a class="sourceLine" id="cb6-30" title="30">    <span class="kw">def</span> polyBlep4_2(<span class="va">self</span>, t):</a>
-<a class="sourceLine" id="cb6-31" title="31">        <span class="cf">return</span> <span class="op">-</span>t<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">8</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">4</span> <span class="op">+</span> t <span class="op">/</span> <span class="dv">6</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">24</span></a>
-<a class="sourceLine" id="cb6-32" title="32"></a>
-<a class="sourceLine" id="cb6-33" title="33">    <span class="kw">def</span> polyBlep4_3(<span class="va">self</span>, t):</a>
-<a class="sourceLine" id="cb6-34" title="34">        <span class="cf">return</span> t<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span></a>
-<a class="sourceLine" id="cb6-35" title="35"></a>
-<a class="sourceLine" id="cb6-36" title="36">    <span class="kw">def</span> process4(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb6-37" title="37">        <span class="va">self</span>.x3 <span class="op">=</span> <span class="va">self</span>.x2</a>
-<a class="sourceLine" id="cb6-38" title="38">        <span class="va">self</span>.x2 <span class="op">=</span> <span class="va">self</span>.x1</a>
-<a class="sourceLine" id="cb6-39" title="39">        <span class="va">self</span>.x1 <span class="op">=</span> <span class="va">self</span>.x0</a>
-<a class="sourceLine" id="cb6-40" title="40">        <span class="va">self</span>.x0 <span class="op">=</span> <span class="dv">1</span> <span class="cf">if</span> <span class="va">self</span>.phase <span class="op">&lt;</span> <span class="dv">1</span> <span class="cf">else</span> <span class="dv">-1</span></a>
-<a class="sourceLine" id="cb6-41" title="41"></a>
-<a class="sourceLine" id="cb6-42" title="42">        <span class="va">self</span>.g1 <span class="op">=</span> <span class="va">self</span>.g0</a>
+<a class="sourceLine" id="cb6-24" title="24">        <span class="co"># 位相の範囲は [0, 2] 。</span></a>
+<a class="sourceLine" id="cb6-25" title="25">        <span class="va">self</span>.phase <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-26" title="26">        <span class="va">self</span>.tick <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> frequnecy <span class="op">/</span> samplerate</a>
+<a class="sourceLine" id="cb6-27" title="27"></a>
+<a class="sourceLine" id="cb6-28" title="28">    <span class="kw">def</span> polyBlep4_0(<span class="va">self</span>, t):</a>
+<a class="sourceLine" id="cb6-29" title="29">        <span class="cf">return</span> <span class="op">-</span>t<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">-</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">4</span> <span class="op">+</span> t <span class="op">/</span> <span class="dv">6</span> <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">24</span></a>
+<a class="sourceLine" id="cb6-30" title="30"></a>
+<a class="sourceLine" id="cb6-31" title="31">    <span class="kw">def</span> polyBlep4_1(<span class="va">self</span>, t):</a>
+<a class="sourceLine" id="cb6-32" title="32">        <span class="cf">return</span> t<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">8</span> <span class="op">-</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">3</span> <span class="op">+</span> (<span class="dv">2</span> <span class="op">*</span> t) <span class="op">/</span> <span class="dv">3</span> <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb6-33" title="33"></a>
+<a class="sourceLine" id="cb6-34" title="34">    <span class="kw">def</span> polyBlep4_2(<span class="va">self</span>, t):</a>
+<a class="sourceLine" id="cb6-35" title="35">        <span class="cf">return</span> <span class="op">-</span>t<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">8</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">4</span> <span class="op">+</span> t <span class="op">/</span> <span class="dv">6</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">24</span></a>
+<a class="sourceLine" id="cb6-36" title="36"></a>
+<a class="sourceLine" id="cb6-37" title="37">    <span class="kw">def</span> polyBlep4_3(<span class="va">self</span>, t):</a>
+<a class="sourceLine" id="cb6-38" title="38">        <span class="cf">return</span> t<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span></a>
+<a class="sourceLine" id="cb6-39" title="39"></a>
+<a class="sourceLine" id="cb6-40" title="40">    <span class="kw">def</span> process4(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb6-41" title="41">        <span class="va">self</span>.p1 <span class="op">=</span> <span class="va">self</span>.p0</a>
+<a class="sourceLine" id="cb6-42" title="42">        <span class="va">self</span>.p0 <span class="op">=</span> <span class="dv">1</span> <span class="cf">if</span> <span class="va">self</span>.phase <span class="op">&lt;</span> <span class="dv">1</span> <span class="cf">else</span> <span class="dv">-1</span></a>
 <a class="sourceLine" id="cb6-43" title="43"></a>
-<a class="sourceLine" id="cb6-44" title="44">        <span class="va">self</span>.t1 <span class="op">=</span> <span class="va">self</span>.t0</a>
-<a class="sourceLine" id="cb6-45" title="45"></a>
-<a class="sourceLine" id="cb6-46" title="46">        <span class="cf">if</span> <span class="va">self</span>.x0 <span class="op">==</span> <span class="va">self</span>.x1:</a>
-<a class="sourceLine" id="cb6-47" title="47">            <span class="va">self</span>.g0 <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb6-48" title="48">            <span class="va">self</span>.t0 <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb6-49" title="49">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb6-50" title="50">            <span class="va">self</span>.g0 <span class="op">=</span> <span class="va">self</span>.x0 <span class="op">-</span> <span class="va">self</span>.x1</a>
-<a class="sourceLine" id="cb6-51" title="51">            <span class="va">self</span>.t0 <span class="op">=</span> (<span class="va">self</span>.phase <span class="op">-</span> np.floor(<span class="va">self</span>.phase)) <span class="op">/</span> <span class="va">self</span>.tick</a>
+<a class="sourceLine" id="cb6-44" title="44">        <span class="va">self</span>.x3 <span class="op">=</span> <span class="va">self</span>.x2</a>
+<a class="sourceLine" id="cb6-45" title="45">        <span class="va">self</span>.x2 <span class="op">=</span> <span class="va">self</span>.x1</a>
+<a class="sourceLine" id="cb6-46" title="46">        <span class="va">self</span>.x1 <span class="op">=</span> <span class="va">self</span>.x0</a>
+<a class="sourceLine" id="cb6-47" title="47">        <span class="va">self</span>.x0 <span class="op">=</span> <span class="va">self</span>.p0</a>
+<a class="sourceLine" id="cb6-48" title="48"></a>
+<a class="sourceLine" id="cb6-49" title="49">        <span class="va">self</span>.g1 <span class="op">=</span> <span class="va">self</span>.g0</a>
+<a class="sourceLine" id="cb6-50" title="50"></a>
+<a class="sourceLine" id="cb6-51" title="51">        <span class="va">self</span>.t1 <span class="op">=</span> <span class="va">self</span>.t0</a>
 <a class="sourceLine" id="cb6-52" title="52"></a>
-<a class="sourceLine" id="cb6-53" title="53">        <span class="cf">if</span> <span class="va">self</span>.g1 <span class="op">!=</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb6-54" title="54">            t <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(<span class="va">self</span>.t1, <span class="dv">1</span>))  <span class="co"># 念のため。</span></a>
-<a class="sourceLine" id="cb6-55" title="55">            <span class="va">self</span>.x0 <span class="op">+=</span> <span class="va">self</span>.g1 <span class="op">*</span> <span class="va">self</span>.polyBlep4_0(t)</a>
-<a class="sourceLine" id="cb6-56" title="56">            <span class="va">self</span>.x1 <span class="op">+=</span> <span class="va">self</span>.g1 <span class="op">*</span> <span class="va">self</span>.polyBlep4_1(t)</a>
-<a class="sourceLine" id="cb6-57" title="57">            <span class="va">self</span>.x2 <span class="op">+=</span> <span class="va">self</span>.g1 <span class="op">*</span> <span class="va">self</span>.polyBlep4_2(t)</a>
-<a class="sourceLine" id="cb6-58" title="58">            <span class="va">self</span>.x3 <span class="op">+=</span> <span class="va">self</span>.g1 <span class="op">*</span> <span class="va">self</span>.polyBlep4_3(t)</a>
+<a class="sourceLine" id="cb6-53" title="53">        <span class="cf">if</span> <span class="va">self</span>.p0 <span class="op">==</span> <span class="va">self</span>.p1:</a>
+<a class="sourceLine" id="cb6-54" title="54">            <span class="va">self</span>.g0 <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-55" title="55">            <span class="va">self</span>.t0 <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb6-56" title="56">        <span class="cf">else</span>:</a>
+<a class="sourceLine" id="cb6-57" title="57">            <span class="va">self</span>.g0 <span class="op">=</span> <span class="va">self</span>.x0 <span class="op">-</span> <span class="va">self</span>.x1</a>
+<a class="sourceLine" id="cb6-58" title="58">            <span class="va">self</span>.t0 <span class="op">=</span> (<span class="va">self</span>.phase <span class="op">-</span> np.floor(<span class="va">self</span>.phase)) <span class="op">/</span> <span class="va">self</span>.tick</a>
 <a class="sourceLine" id="cb6-59" title="59"></a>
-<a class="sourceLine" id="cb6-60" title="60">        <span class="va">self</span>.phase <span class="op">+=</span> <span class="va">self</span>.tick</a>
-<a class="sourceLine" id="cb6-61" title="61">        <span class="cf">if</span> <span class="va">self</span>.phase <span class="op">&gt;=</span> <span class="dv">2</span>:</a>
-<a class="sourceLine" id="cb6-62" title="62">            <span class="va">self</span>.phase <span class="op">-=</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb6-63" title="63"></a>
-<a class="sourceLine" id="cb6-64" title="64">        <span class="cf">return</span> <span class="va">self</span>.x3</a></code></pre></div>
+<a class="sourceLine" id="cb6-60" title="60">        <span class="cf">if</span> <span class="va">self</span>.g1 <span class="op">!=</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb6-61" title="61">            t <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(<span class="va">self</span>.t1, <span class="dv">1</span>))  <span class="co"># 念のため。</span></a>
+<a class="sourceLine" id="cb6-62" title="62">            <span class="va">self</span>.x0 <span class="op">+=</span> <span class="va">self</span>.g1 <span class="op">*</span> <span class="va">self</span>.polyBlep4_0(t)</a>
+<a class="sourceLine" id="cb6-63" title="63">            <span class="va">self</span>.x1 <span class="op">+=</span> <span class="va">self</span>.g1 <span class="op">*</span> <span class="va">self</span>.polyBlep4_1(t)</a>
+<a class="sourceLine" id="cb6-64" title="64">            <span class="va">self</span>.x2 <span class="op">+=</span> <span class="va">self</span>.g1 <span class="op">*</span> <span class="va">self</span>.polyBlep4_2(t)</a>
+<a class="sourceLine" id="cb6-65" title="65">            <span class="va">self</span>.x3 <span class="op">+=</span> <span class="va">self</span>.g1 <span class="op">*</span> <span class="va">self</span>.polyBlep4_3(t)</a>
+<a class="sourceLine" id="cb6-66" title="66"></a>
+<a class="sourceLine" id="cb6-67" title="67">        <span class="va">self</span>.phase <span class="op">+=</span> <span class="va">self</span>.tick</a>
+<a class="sourceLine" id="cb6-68" title="68">        <span class="cf">if</span> <span class="va">self</span>.phase <span class="op">&gt;=</span> <span class="dv">2</span>:</a>
+<a class="sourceLine" id="cb6-69" title="69">            <span class="va">self</span>.phase <span class="op">-=</span> <span class="dv">2</span></a>
+<a class="sourceLine" id="cb6-70" title="70"></a>
+<a class="sourceLine" id="cb6-71" title="71">        <span class="cf">return</span> <span class="va">self</span>.x3</a></code></pre></div>
 <p>出力波形です。 PolyBLEP residual を足し合わせた波形は角が鈍っています。 Naive は <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.square.html#scipy.signal.square"><code>scipy.signal.square</code></a> の波形です。</p>
 <figure>
 <img src="img/SquareWave.png" alt="Image of ." style="padding-bottom: 12px;"/>
@@ -524,6 +532,13 @@ Naive
 </figure>
 <h2 id="参考文献">参考文献</h2>
 <p>Nam, J., Pekonen, J., &amp; Valimaki, V. (2011). <a href="https://pdfs.semanticscholar.org/33f1/2adabd6df85337848f1463f1e7553233fd12.pdf">Perceptually informed synthesis of bandlimited classical waveforms using integrated polynomial interpolation</a>.</p>
+<h2 id="訂正">訂正</h2>
+<ul>
+<li>2020-04-06
+<ul>
+<li><code>SquareOscillator</code> の <code>t0</code> が間違っていたので修正。</li>
+</ul></li>
+</ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
 </footer>

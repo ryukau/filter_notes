@@ -14,6 +14,10 @@ class SquareOscillator:
         self.x6 = 0
         self.x7 = 0
 
+        # 矩形波の high と low が変更された時点を検知する信号。
+        self.p0 = 0
+        self.p1 = 0
+
         # g_(n/2) が 0 でないときに PolyBLEP residual の加算をトリガ。
         self.g0 = 0
         self.g1 = 0
@@ -43,16 +47,18 @@ class SquareOscillator:
         return t**4 / 24
 
     def process4(self):
+        self.p1 = self.p0
+        self.p0 = 1 if self.phase < 1 else -1
+
         self.x3 = self.x2
         self.x2 = self.x1
         self.x1 = self.x0
-        self.x0 = 1 if self.phase < 1 else -1
+        self.x0 = self.p0
 
         self.g1 = self.g0
-
         self.t1 = self.t0
 
-        if self.x0 == self.x1:
+        if self.p0 == self.p1:
             self.g0 = 0
             self.t0 = 0
         else:
@@ -93,12 +99,15 @@ class SquareOscillator:
         return t**6 / 720
 
     def process6(self):
+        self.p1 = self.p0
+        self.p0 = 1 if self.phase < 1 else -1
+
         self.x5 = self.x4
         self.x4 = self.x3
         self.x3 = self.x2
         self.x2 = self.x1
         self.x1 = self.x0
-        self.x0 = 1 if self.phase < 1 else -1
+        self.x0 = self.p0
 
         self.g2 = self.g1
         self.g1 = self.g0
@@ -106,7 +115,7 @@ class SquareOscillator:
         self.t2 = self.t1
         self.t1 = self.t0
 
-        if self.x0 == self.x1:
+        if self.p0 == self.p1:
             self.g0 = 0
             self.t0 = 0
         else:
@@ -159,6 +168,9 @@ class SquareOscillator:
         return t**8 / 40320
 
     def process8(self):
+        self.p1 = self.p0
+        self.p0 = 1 if self.phase < 1 else -1
+
         self.x7 = self.x6
         self.x6 = self.x5
         self.x5 = self.x4
@@ -166,7 +178,7 @@ class SquareOscillator:
         self.x3 = self.x2
         self.x2 = self.x1
         self.x1 = self.x0
-        self.x0 = 1 if self.phase < 1 else -1
+        self.x0 = self.p0
 
         self.g3 = self.g2
         self.g2 = self.g1
@@ -176,7 +188,7 @@ class SquareOscillator:
         self.t2 = self.t1
         self.t1 = self.t0
 
-        if self.x0 == self.x1:
+        if self.p0 == self.p1:
             self.g0 = 0
             self.t0 = 0
         else:
@@ -222,7 +234,7 @@ soundfile.write("polyblep8.wav", 0.2 * polyblep8, samplerate, subtype="FLOAT")
 
 ## Time domain plot.
 end = int(samplerate / 500)
-cmap = plt.get_cmap("viridis")
+cmap = plt.get_cmap("plasma")
 plt.title(f"Square Wave, {frequency} Hz")
 plt.plot(naive[:end], color=cmap(0 / 4), label="Naive")
 plt.plot(polyblep4[:end], color=cmap(1 / 4), label="4 pt.")
