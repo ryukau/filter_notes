@@ -208,7 +208,7 @@ $$
 ## ローパスのカットオフ周波数のチューニング
 Maxima の [`solve`](http://maxima.sourceforge.net/docs/manual/maxima_20.html#solve) を試したところ伝達関数からカットオフ周波数 $\omega_c$ を計算する式は得られませんでした。そこで [`scipy.signal.freqz`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.freqz.html) から得られる振幅特性を基にして $\omega_c$ から係数 $c$ を求める近似曲線を作ることにしました。
 
-係数 $c$ の値を変えるとカットオフ周波数 $\omega_c$ が変わるようなので を使って $c$ と $\omega_c$ の関係をプロットします。 $k$ の値は 0 に固定します。
+係数 $c$ の値を変えるとカットオフ周波数 $\omega_c$ が変わるようなので $c$ と $\omega_c$ の関係をプロットします。 $k$ の値は 0 に固定します。
 
 次のコードを Python3 のインタープリタにコピペすると動きます。 [NumPy](https://numpy.org/) 、 [SciPy](https://scipy.org/) 、 [Matplotlib](https://matplotlib.org/) が必要です。
 
@@ -387,7 +387,7 @@ resonancePeakPlot()
 <img src="img/PeakKPlot.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
 
-$c$ の値によらず、 $k$ が 0 に近づくと指数関数的にピークが大きくなっています。近似曲線を 1 つ作って $c$ に応じてスケーリングを変えれば良さそうです。
+$c$ の値によらず、 $1 - k$ が 0 に近づくと指数関数的にピークが大きくなっています。近似曲線を 1 つ作って $c$ に応じてスケーリングを変えれば良さそうです。
 
 振幅特性のピークの値と係数 $c$ の値を決めたときの $k$ を二分探索で探します。次のコードを実行すると `data.json` ファイルを作成して計算結果を書き込みます。
 
@@ -785,3 +785,8 @@ $\arccos$ を使った近似曲線は $\dfrac{b_0 + b_1 x + b_2 x^2 \dots}{a_0 +
 ポリフォニックシンセでノートオンごとにフィルタの状態をリセットするとき、ローパスしか使わないなら $\alpha$ を 1 に固定して処理を減らせます。
 
 FL Studio で使える Fast LP と似たような音が出ます。
+
+## 変更
+- 2020-04-15
+  - $1 - k$ となる箇所が $k$ になっていた誤りを修正。
+  - 不要な「を使って」を削除。

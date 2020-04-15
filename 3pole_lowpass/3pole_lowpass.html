@@ -246,6 +246,7 @@ Update: 2020-04-04
   <li><a href="#直線のカットオフ">直線のカットオフ</a></li>
   </ul></li>
   <li><a href="#その他">その他</a></li>
+  <li><a href="#変更">変更</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -419,7 +420,7 @@ C_3 &amp;= \frac{k^2 - k}{c} \\
 \]</span></p>
 <h2 id="ローパスのカットオフ周波数のチューニング">ローパスのカットオフ周波数のチューニング</h2>
 <p>Maxima の <a href="http://maxima.sourceforge.net/docs/manual/maxima_20.html#solve"><code>solve</code></a> を試したところ伝達関数からカットオフ周波数 <span class="math inline">\(\omega_c\)</span> を計算する式は得られませんでした。そこで <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.freqz.html"><code>scipy.signal.freqz</code></a> から得られる振幅特性を基にして <span class="math inline">\(\omega_c\)</span> から係数 <span class="math inline">\(c\)</span> を求める近似曲線を作ることにしました。</p>
-<p>係数 <span class="math inline">\(c\)</span> の値を変えるとカットオフ周波数 <span class="math inline">\(\omega_c\)</span> が変わるようなので を使って <span class="math inline">\(c\)</span> と <span class="math inline">\(\omega_c\)</span> の関係をプロットします。 <span class="math inline">\(k\)</span> の値は 0 に固定します。</p>
+<p>係数 <span class="math inline">\(c\)</span> の値を変えるとカットオフ周波数 <span class="math inline">\(\omega_c\)</span> が変わるようなので <span class="math inline">\(c\)</span> と <span class="math inline">\(\omega_c\)</span> の関係をプロットします。 <span class="math inline">\(k\)</span> の値は 0 に固定します。</p>
 <p>次のコードを Python3 のインタープリタにコピペすると動きます。 <a href="https://numpy.org/">NumPy</a> 、 <a href="https://scipy.org/">SciPy</a> 、 <a href="https://matplotlib.org/">Matplotlib</a> が必要です。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> numpy <span class="im">as</span> np</a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="im">import</span> scipy.signal <span class="im">as</span> signal</a>
@@ -568,7 +569,7 @@ c \approx &amp; 56.85341479156533 \cdot x^6 - 60.92051508862034 \cdot x^5 - 1.65
 <figure>
 <img src="img/PeakKPlot.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
-<p><span class="math inline">\(c\)</span> の値によらず、 <span class="math inline">\(k\)</span> が 0 に近づくと指数関数的にピークが大きくなっています。近似曲線を 1 つ作って <span class="math inline">\(c\)</span> に応じてスケーリングを変えれば良さそうです。</p>
+<p><span class="math inline">\(c\)</span> の値によらず、 <span class="math inline">\(1 - k\)</span> が 0 に近づくと指数関数的にピークが大きくなっています。近似曲線を 1 つ作って <span class="math inline">\(c\)</span> に応じてスケーリングを変えれば良さそうです。</p>
 <p>振幅特性のピークの値と係数 <span class="math inline">\(c\)</span> の値を決めたときの <span class="math inline">\(k\)</span> を二分探索で探します。次のコードを実行すると <code>data.json</code> ファイルを作成して計算結果を書き込みます。</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="im">import</span> json</a>
 <a class="sourceLine" id="cb8-2" title="2"></a>
@@ -933,6 +934,14 @@ lin, uniformPeak=True, resonance=0.9
 <p>レゾナンスのチューニングは計算が重たいので、効率を重視するなら省略できます。</p>
 <p>ポリフォニックシンセでノートオンごとにフィルタの状態をリセットするとき、ローパスしか使わないなら <span class="math inline">\(\alpha\)</span> を 1 に固定して処理を減らせます。</p>
 <p>FL Studio で使える Fast LP と似たような音が出ます。</p>
+<h2 id="変更">変更</h2>
+<ul>
+<li>2020-04-15
+<ul>
+<li><span class="math inline">\(1 - k\)</span> となる箇所が <span class="math inline">\(k\)</span> になっていた誤りを修正。</li>
+<li>不要な「を使って」を削除。</li>
+</ul></li>
+</ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
 </footer>
