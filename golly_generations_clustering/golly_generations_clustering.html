@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
 <meta charset="utf-8" />
@@ -7,11 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <meta name="dcterms.date" content="2018-11-29" />
 <title>golly_generations_clustering</title>
-
-<!-- highlight.js -->
-<link rel="stylesheet" href="../script/highlight/idea.css">
-<script src="../script/highlight/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
 
 <!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
@@ -24,11 +19,73 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
 body {
 max-width: 704px;
 margin: auto;
 padding: 32px 8px;
-font-size: 14px;
 }
 
 img {
@@ -40,61 +97,96 @@ max-width: 100%;
 }
 
 kbd {
+font-family: inherit;
 border-style: solid;
 border-width: 1px 2px 2px 1px;
 border-radius: 2px;
-padding: 2px;
+padding: 4px;
 margin: 2px;
+line-height: calc(1em + 16px);
 }
 
 a {
 text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-border-left: solid 8px #eeeeee;
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
 padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
 }
 
 table {
 border-spacing: 0px;
 border-collapse: separate;
-border: 1px solid #dddddd;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
 }
 
-tr.header {
-border: 1px solid black;
-}
-
-tr.odd {
+tr:nth-child(odd) {
 background: #eeeeee;
 }
 
-tr.even {
+tr:nth-child(even) {
 background: #ffffff;
 }
 
 th {
 height: 2em;
-font-weight: normal;
-color: #004444;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 3px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
 }
 
 td {
 height: 1.5em;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 1px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
 }
 
 audio {
@@ -105,16 +197,35 @@ label {
 vertical-align: middle;
 }
 
-code {
-color: #004444;
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
 }
 
-pre code {
-border: 4px solid #eeeeee;
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
 }
 
 li {
 margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
 }
 
 header {
@@ -129,9 +240,6 @@ padding: 0.5em;
 margin-top: 1em;
 }
 
-summary:hover {
-background-color: #eeeeee;
-}
 
 canvas {
 /* image-rendering: pixelated; */
@@ -232,19 +340,19 @@ Update: 2018-11-29
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
-  <ul>
-  <li><a href="#golly-の-generations-で作った音のクラスタリング">Golly の Generations で作った音のクラスタリング</a><ul>
-  <li><a href="#データセット">データセット</a></li>
-  <li><a href="#プロトタイプ">プロトタイプ</a></li>
-  <li><a href="#クラスタリング手法の選定">クラスタリング手法の選定</a></li>
-  <li><a href="#mfcc">MFCC</a></li>
-  <li><a href="#elbow-method">Elbow Method</a></li>
-  <li><a href="#t-sne-で視覚化">t-SNE で視覚化</a></li>
-  <li><a href="#適当なプロット">適当なプロット</a></li>
-  <li><a href="#プロットギャラリー">プロットギャラリー</a></li>
-  <li><a href="#その他">その他</a></li>
-  </ul></li>
-  </ul>
+<ul>
+<li><a href="#golly-の-generations-で作った音のクラスタリング">Golly の Generations で作った音のクラスタリング</a><ul>
+<li><a href="#データセット">データセット</a></li>
+<li><a href="#プロトタイプ">プロトタイプ</a></li>
+<li><a href="#クラスタリング手法の選定">クラスタリング手法の選定</a></li>
+<li><a href="#mfcc">MFCC</a></li>
+<li><a href="#elbow-method">Elbow Method</a></li>
+<li><a href="#t-sne-で視覚化">t-SNE で視覚化</a></li>
+<li><a href="#適当なプロット">適当なプロット</a></li>
+<li><a href="#プロットギャラリー">プロットギャラリー</a></li>
+<li><a href="#その他">その他</a></li>
+</ul></li>
+</ul>
 </nav>
 </details>
 </header>
@@ -259,75 +367,75 @@ Update: 2018-11-29
 <li><a href="https://drive.google.com/file/d/1wbyGz6bbGULksH3vOchL7za1bPzNSNHs/view?usp=sharing">Golly generations data set (76MB)</a></li>
 </ul>
 <p><a href="https://www.7-zip.org/">7zip</a>で解凍できます。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1">$ <span class="ex">7z</span> x golly_generations_cluster.7z</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a>$ <span class="ex">7z</span> x golly_generations_cluster.7z</span></code></pre></div>
 <p>解凍してできる <code>cluster</code> 内の <code>generations</code> がデータセットです。その他のディレクトリはクラスタリングの結果です。</p>
 <h2 id="プロトタイプ">プロトタイプ</h2>
 <p>手始めに次のようなコードを書きました。</p>
 <p><code>scipy.signal.spectrogram</code> から得たスペクトログラムを <code>numpy.ravel</code> で1次元にして <code>sklearn.cluster.KMeans</code> でクラスタリングしています。</p>
 <p>計算に時間がかかるので <code>numpy.save</code> で計算結果を保存しています。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="im">import</span> scipy.signal</a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="im">import</span> sklearn.cluster</a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="im">import</span> shutil</a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="im">import</span> soundfile</a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="im">from</span> pathlib <span class="im">import</span> Path</a>
-<a class="sourceLine" id="cb2-7" title="7"></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="kw">def</span> extract_feature(path, n_frame<span class="op">=</span><span class="dv">39</span>):</a>
-<a class="sourceLine" id="cb2-9" title="9">    <span class="co">&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="co">    スペクトログラムは2次元のデータ。</span></a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="co">    sklearn.cluster で使えるように numpy.ravel で1次元にして返す。</span></a>
-<a class="sourceLine" id="cb2-12" title="12"></a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="co">    spectrogram.shape = (n_freq, n_frame)</span></a>
-<a class="sourceLine" id="cb2-14" title="14"></a>
-<a class="sourceLine" id="cb2-15" title="15"><span class="co">    n_frame のデフォルト値はテストに使ったデータセットを調べて決めた。</span></a>
-<a class="sourceLine" id="cb2-16" title="16"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb2-17" title="17">    data, samplerate <span class="op">=</span> soundfile.read(<span class="bu">str</span>(path))</a>
-<a class="sourceLine" id="cb2-18" title="18">    frequency, time, spectrogram <span class="op">=</span> scipy.signal.spectrogram(data, samplerate)</a>
-<a class="sourceLine" id="cb2-19" title="19"></a>
-<a class="sourceLine" id="cb2-20" title="20">    <span class="cf">if</span> spectrogram.shape[<span class="dv">1</span>] <span class="op">&lt;</span> n_frame:</a>
-<a class="sourceLine" id="cb2-21" title="21">        zeros <span class="op">=</span> numpy.zeros((spectrogram.shape[<span class="dv">0</span>],</a>
-<a class="sourceLine" id="cb2-22" title="22">                             n_frame <span class="op">-</span> spectrogram.shape[<span class="dv">1</span>]))</a>
-<a class="sourceLine" id="cb2-23" title="23">        spectrogram <span class="op">=</span> numpy.concatenate((spectrogram, zeros), axis<span class="op">=</span><span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb2-24" title="24">    <span class="cf">elif</span> spectrogram.shape[<span class="dv">1</span>] <span class="op">&gt;</span> n_frame:</a>
-<a class="sourceLine" id="cb2-25" title="25">        spectrogram <span class="op">=</span> spectrogram[:][<span class="dv">0</span>:n_frame]</a>
-<a class="sourceLine" id="cb2-26" title="26"></a>
-<a class="sourceLine" id="cb2-27" title="27">    <span class="cf">return</span> numpy.ravel(numpy.transpose(spectrogram))</a>
-<a class="sourceLine" id="cb2-28" title="28"></a>
-<a class="sourceLine" id="cb2-29" title="29"><span class="kw">def</span> write_result(output_directory, n_clusters, labels, filepath):</a>
-<a class="sourceLine" id="cb2-30" title="30">    <span class="cf">if</span> output_directory.exists():</a>
-<a class="sourceLine" id="cb2-31" title="31">        shutil.rmtree(output_directory)</a>
-<a class="sourceLine" id="cb2-32" title="32"></a>
-<a class="sourceLine" id="cb2-33" title="33">    digits <span class="op">=</span> <span class="bu">len</span>(<span class="bu">str</span>(<span class="bu">abs</span>(n_clusters <span class="op">-</span> <span class="dv">1</span>)))</a>
-<a class="sourceLine" id="cb2-34" title="34">    output_directories <span class="op">=</span> [</a>
-<a class="sourceLine" id="cb2-35" title="35">        output_directory <span class="op">/</span> Path(<span class="ss">f&quot;</span><span class="sc">{</span>index<span class="sc">:</span><span class="dv">0</span>{digits}<span class="sc">d}</span><span class="ss">&quot;</span>)</a>
-<a class="sourceLine" id="cb2-36" title="36">        <span class="cf">for</span> index <span class="kw">in</span> <span class="bu">range</span>(n_clusters)</a>
-<a class="sourceLine" id="cb2-37" title="37">    ]</a>
-<a class="sourceLine" id="cb2-38" title="38"></a>
-<a class="sourceLine" id="cb2-39" title="39">    <span class="cf">for</span> directory <span class="kw">in</span> output_directories:</a>
-<a class="sourceLine" id="cb2-40" title="40">        directory.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</a>
-<a class="sourceLine" id="cb2-41" title="41"></a>
-<a class="sourceLine" id="cb2-42" title="42">    <span class="cf">for</span> label, path <span class="kw">in</span> <span class="bu">zip</span>(labels, filepath):</a>
-<a class="sourceLine" id="cb2-43" title="43">        shutil.copy(path, output_directories[label])</a>
-<a class="sourceLine" id="cb2-44" title="44"></a>
-<a class="sourceLine" id="cb2-45" title="45"><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</a>
-<a class="sourceLine" id="cb2-46" title="46">    directory_path <span class="op">=</span> Path(<span class="st">&quot;generations&quot;</span>)</a>
-<a class="sourceLine" id="cb2-47" title="47">    <span class="cf">if</span> <span class="kw">not</span> directory_path.is_dir():</a>
-<a class="sourceLine" id="cb2-48" title="48">        <span class="bu">print</span>(<span class="st">&quot;Invalid path.&quot;</span>)</a>
-<a class="sourceLine" id="cb2-49" title="49"></a>
-<a class="sourceLine" id="cb2-50" title="50">    filepath <span class="op">=</span> [path <span class="cf">for</span> path <span class="kw">in</span> directory_path.glob(<span class="st">&quot;*.wav&quot;</span>)]</a>
-<a class="sourceLine" id="cb2-51" title="51">    features <span class="op">=</span> numpy.array([extract_feature(path) <span class="cf">for</span> path <span class="kw">in</span> filepath])</a>
-<a class="sourceLine" id="cb2-52" title="52"></a>
-<a class="sourceLine" id="cb2-53" title="53">    n_clusters <span class="op">=</span> <span class="dv">40</span></a>
-<a class="sourceLine" id="cb2-54" title="54">    cluster <span class="op">=</span> sklearn.cluster.KMeans(n_clusters<span class="op">=</span>n_clusters).fit(features)</a>
-<a class="sourceLine" id="cb2-55" title="55"></a>
-<a class="sourceLine" id="cb2-56" title="56">    write_result(</a>
-<a class="sourceLine" id="cb2-57" title="57">        Path(<span class="st">&quot;cluster_spectrogram&quot;</span>), n_clusters, cluster.labels_, filepath)</a>
-<a class="sourceLine" id="cb2-58" title="58"></a>
-<a class="sourceLine" id="cb2-59" title="59">    numpy.save(<span class="st">&quot;data/filepath.npy&quot;</span>, filepath)</a>
-<a class="sourceLine" id="cb2-60" title="60">    numpy.save(<span class="st">&quot;data/features.npy&quot;</span>, features)</a>
-<a class="sourceLine" id="cb2-61" title="61">    numpy.save(<span class="st">&quot;data/features_shape.npy&quot;</span>, (<span class="dv">39</span>, <span class="dv">129</span>))</a>
-<a class="sourceLine" id="cb2-62" title="62">    numpy.save(<span class="st">&quot;data/labels.npy&quot;</span>, cluster.labels_)</a>
-<a class="sourceLine" id="cb2-63" title="63">    numpy.save(<span class="st">&quot;data/centers.npy&quot;</span>, cluster.cluster_centers_)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> numpy</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="im">import</span> scipy.signal</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="im">import</span> sklearn.cluster</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="im">import</span> shutil</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="im">import</span> soundfile</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">def</span> extract_feature(path, n_frame<span class="op">=</span><span class="dv">39</span>):</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co">    スペクトログラムは2次元のデータ。</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="co">    sklearn.cluster で使えるように numpy.ravel で1次元にして返す。</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">    spectrogram.shape = (n_freq, n_frame)</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co">    n_frame のデフォルト値はテストに使ったデータセットを調べて決めた。</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>    data, samplerate <span class="op">=</span> soundfile.read(<span class="bu">str</span>(path))</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    frequency, time, spectrogram <span class="op">=</span> scipy.signal.spectrogram(data, samplerate)</span>
+<span id="cb2-19"><a href="#cb2-19"></a></span>
+<span id="cb2-20"><a href="#cb2-20"></a>    <span class="cf">if</span> spectrogram.shape[<span class="dv">1</span>] <span class="op">&lt;</span> n_frame:</span>
+<span id="cb2-21"><a href="#cb2-21"></a>        zeros <span class="op">=</span> numpy.zeros((spectrogram.shape[<span class="dv">0</span>],</span>
+<span id="cb2-22"><a href="#cb2-22"></a>                             n_frame <span class="op">-</span> spectrogram.shape[<span class="dv">1</span>]))</span>
+<span id="cb2-23"><a href="#cb2-23"></a>        spectrogram <span class="op">=</span> numpy.concatenate((spectrogram, zeros), axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-24"><a href="#cb2-24"></a>    <span class="cf">elif</span> spectrogram.shape[<span class="dv">1</span>] <span class="op">&gt;</span> n_frame:</span>
+<span id="cb2-25"><a href="#cb2-25"></a>        spectrogram <span class="op">=</span> spectrogram[:][<span class="dv">0</span>:n_frame]</span>
+<span id="cb2-26"><a href="#cb2-26"></a></span>
+<span id="cb2-27"><a href="#cb2-27"></a>    <span class="cf">return</span> numpy.ravel(numpy.transpose(spectrogram))</span>
+<span id="cb2-28"><a href="#cb2-28"></a></span>
+<span id="cb2-29"><a href="#cb2-29"></a><span class="kw">def</span> write_result(output_directory, n_clusters, labels, filepath):</span>
+<span id="cb2-30"><a href="#cb2-30"></a>    <span class="cf">if</span> output_directory.exists():</span>
+<span id="cb2-31"><a href="#cb2-31"></a>        shutil.rmtree(output_directory)</span>
+<span id="cb2-32"><a href="#cb2-32"></a></span>
+<span id="cb2-33"><a href="#cb2-33"></a>    digits <span class="op">=</span> <span class="bu">len</span>(<span class="bu">str</span>(<span class="bu">abs</span>(n_clusters <span class="op">-</span> <span class="dv">1</span>)))</span>
+<span id="cb2-34"><a href="#cb2-34"></a>    output_directories <span class="op">=</span> [</span>
+<span id="cb2-35"><a href="#cb2-35"></a>        output_directory <span class="op">/</span> Path(<span class="ss">f&quot;</span><span class="sc">{</span>index<span class="sc">:</span><span class="dv">0</span>{digits}<span class="sc">d}</span><span class="ss">&quot;</span>)</span>
+<span id="cb2-36"><a href="#cb2-36"></a>        <span class="cf">for</span> index <span class="kw">in</span> <span class="bu">range</span>(n_clusters)</span>
+<span id="cb2-37"><a href="#cb2-37"></a>    ]</span>
+<span id="cb2-38"><a href="#cb2-38"></a></span>
+<span id="cb2-39"><a href="#cb2-39"></a>    <span class="cf">for</span> directory <span class="kw">in</span> output_directories:</span>
+<span id="cb2-40"><a href="#cb2-40"></a>        directory.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-41"><a href="#cb2-41"></a></span>
+<span id="cb2-42"><a href="#cb2-42"></a>    <span class="cf">for</span> label, path <span class="kw">in</span> <span class="bu">zip</span>(labels, filepath):</span>
+<span id="cb2-43"><a href="#cb2-43"></a>        shutil.copy(path, output_directories[label])</span>
+<span id="cb2-44"><a href="#cb2-44"></a></span>
+<span id="cb2-45"><a href="#cb2-45"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb2-46"><a href="#cb2-46"></a>    directory_path <span class="op">=</span> Path(<span class="st">&quot;generations&quot;</span>)</span>
+<span id="cb2-47"><a href="#cb2-47"></a>    <span class="cf">if</span> <span class="kw">not</span> directory_path.is_dir():</span>
+<span id="cb2-48"><a href="#cb2-48"></a>        <span class="bu">print</span>(<span class="st">&quot;Invalid path.&quot;</span>)</span>
+<span id="cb2-49"><a href="#cb2-49"></a></span>
+<span id="cb2-50"><a href="#cb2-50"></a>    filepath <span class="op">=</span> [path <span class="cf">for</span> path <span class="kw">in</span> directory_path.glob(<span class="st">&quot;*.wav&quot;</span>)]</span>
+<span id="cb2-51"><a href="#cb2-51"></a>    features <span class="op">=</span> numpy.array([extract_feature(path) <span class="cf">for</span> path <span class="kw">in</span> filepath])</span>
+<span id="cb2-52"><a href="#cb2-52"></a></span>
+<span id="cb2-53"><a href="#cb2-53"></a>    n_clusters <span class="op">=</span> <span class="dv">40</span></span>
+<span id="cb2-54"><a href="#cb2-54"></a>    cluster <span class="op">=</span> sklearn.cluster.KMeans(n_clusters<span class="op">=</span>n_clusters).fit(features)</span>
+<span id="cb2-55"><a href="#cb2-55"></a></span>
+<span id="cb2-56"><a href="#cb2-56"></a>    write_result(</span>
+<span id="cb2-57"><a href="#cb2-57"></a>        Path(<span class="st">&quot;cluster_spectrogram&quot;</span>), n_clusters, cluster.labels_, filepath)</span>
+<span id="cb2-58"><a href="#cb2-58"></a></span>
+<span id="cb2-59"><a href="#cb2-59"></a>    numpy.save(<span class="st">&quot;data/filepath.npy&quot;</span>, filepath)</span>
+<span id="cb2-60"><a href="#cb2-60"></a>    numpy.save(<span class="st">&quot;data/features.npy&quot;</span>, features)</span>
+<span id="cb2-61"><a href="#cb2-61"></a>    numpy.save(<span class="st">&quot;data/features_shape.npy&quot;</span>, (<span class="dv">39</span>, <span class="dv">129</span>))</span>
+<span id="cb2-62"><a href="#cb2-62"></a>    numpy.save(<span class="st">&quot;data/labels.npy&quot;</span>, cluster.labels_)</span>
+<span id="cb2-63"><a href="#cb2-63"></a>    numpy.save(<span class="st">&quot;data/centers.npy&quot;</span>, cluster.cluster_centers_)</span></code></pre></div>
 <ul>
 <li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.spectrogram.html">scipy.signal.spectrogram — SciPy v1.1.0 Reference Guide</a></li>
 <li><a href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ravel.html">numpy.ravel — NumPy v1.15 Manual</a></li>
@@ -351,33 +459,33 @@ Update: 2018-11-29
 <h2 id="mfcc">MFCC</h2>
 <p><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.spectrogram.html"><code>numpy.spectrogram</code></a> を使ったクラスタリングの結果に満足できなかったので <a href="https://python-speech-features.readthedocs.io/en/latest/"><code>python_speech_features</code></a> をインストールして <a href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">MFCC</a> を使うことにしました。</p>
 <p>プロトタイプの <code>extract_feature</code> を次のように変更しました。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> python_speech_features</a>
-<a class="sourceLine" id="cb3-2" title="2"></a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="kw">def</span> extract_feature(path, n_frame<span class="op">=</span><span class="dv">19</span>):</a>
-<a class="sourceLine" id="cb3-4" title="4">    <span class="co">&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="co">    mfcc.shape = (n_frame, n_cepstrum)</span></a>
-<a class="sourceLine" id="cb3-6" title="6"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb3-7" title="7">    data, samplerate <span class="op">=</span> soundfile.read(<span class="bu">str</span>(path))</a>
-<a class="sourceLine" id="cb3-8" title="8">    nfft <span class="op">=</span> <span class="dv">1024</span></a>
-<a class="sourceLine" id="cb3-9" title="9">    mfcc <span class="op">=</span> python_speech_features.mfcc(</a>
-<a class="sourceLine" id="cb3-10" title="10">        data,</a>
-<a class="sourceLine" id="cb3-11" title="11">        samplerate,</a>
-<a class="sourceLine" id="cb3-12" title="12">        winlen<span class="op">=</span>nfft <span class="op">/</span> samplerate,</a>
-<a class="sourceLine" id="cb3-13" title="13">        winstep<span class="op">=</span><span class="fl">0.01</span>,</a>
-<a class="sourceLine" id="cb3-14" title="14">        numcep<span class="op">=</span><span class="dv">26</span>,</a>
-<a class="sourceLine" id="cb3-15" title="15">        nfilt<span class="op">=</span><span class="dv">52</span>,</a>
-<a class="sourceLine" id="cb3-16" title="16">        nfft<span class="op">=</span>nfft,</a>
-<a class="sourceLine" id="cb3-17" title="17">        preemph<span class="op">=</span><span class="fl">0.97</span>,</a>
-<a class="sourceLine" id="cb3-18" title="18">        ceplifter<span class="op">=</span><span class="dv">22</span>,</a>
-<a class="sourceLine" id="cb3-19" title="19">    )</a>
-<a class="sourceLine" id="cb3-20" title="20"></a>
-<a class="sourceLine" id="cb3-21" title="21">    <span class="cf">if</span> mfcc.shape[<span class="dv">0</span>] <span class="op">&lt;</span> n_frame:</a>
-<a class="sourceLine" id="cb3-22" title="22">        zeros <span class="op">=</span> numpy.zeros((n_frame <span class="op">-</span> mfcc.shape[<span class="dv">0</span>], mfcc.shape[<span class="dv">1</span>]))</a>
-<a class="sourceLine" id="cb3-23" title="23">        mfcc <span class="op">=</span> numpy.concatenate((mfcc, zeros), axis<span class="op">=</span><span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb3-24" title="24">    <span class="cf">elif</span> mfcc.shape[<span class="dv">0</span>] <span class="op">&gt;</span> n_frame:</a>
-<a class="sourceLine" id="cb3-25" title="25">        mfcc <span class="op">=</span> mfcc[<span class="dv">0</span>:n_frame]</a>
-<a class="sourceLine" id="cb3-26" title="26"></a>
-<a class="sourceLine" id="cb3-27" title="27">    <span class="cf">return</span> numpy.ravel(mfcc)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">import</span> python_speech_features</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">def</span> extract_feature(path, n_frame<span class="op">=</span><span class="dv">19</span>):</span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">    mfcc.shape = (n_frame, n_cepstrum)</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>    data, samplerate <span class="op">=</span> soundfile.read(<span class="bu">str</span>(path))</span>
+<span id="cb3-8"><a href="#cb3-8"></a>    nfft <span class="op">=</span> <span class="dv">1024</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>    mfcc <span class="op">=</span> python_speech_features.mfcc(</span>
+<span id="cb3-10"><a href="#cb3-10"></a>        data,</span>
+<span id="cb3-11"><a href="#cb3-11"></a>        samplerate,</span>
+<span id="cb3-12"><a href="#cb3-12"></a>        winlen<span class="op">=</span>nfft <span class="op">/</span> samplerate,</span>
+<span id="cb3-13"><a href="#cb3-13"></a>        winstep<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb3-14"><a href="#cb3-14"></a>        numcep<span class="op">=</span><span class="dv">26</span>,</span>
+<span id="cb3-15"><a href="#cb3-15"></a>        nfilt<span class="op">=</span><span class="dv">52</span>,</span>
+<span id="cb3-16"><a href="#cb3-16"></a>        nfft<span class="op">=</span>nfft,</span>
+<span id="cb3-17"><a href="#cb3-17"></a>        preemph<span class="op">=</span><span class="fl">0.97</span>,</span>
+<span id="cb3-18"><a href="#cb3-18"></a>        ceplifter<span class="op">=</span><span class="dv">22</span>,</span>
+<span id="cb3-19"><a href="#cb3-19"></a>    )</span>
+<span id="cb3-20"><a href="#cb3-20"></a></span>
+<span id="cb3-21"><a href="#cb3-21"></a>    <span class="cf">if</span> mfcc.shape[<span class="dv">0</span>] <span class="op">&lt;</span> n_frame:</span>
+<span id="cb3-22"><a href="#cb3-22"></a>        zeros <span class="op">=</span> numpy.zeros((n_frame <span class="op">-</span> mfcc.shape[<span class="dv">0</span>], mfcc.shape[<span class="dv">1</span>]))</span>
+<span id="cb3-23"><a href="#cb3-23"></a>        mfcc <span class="op">=</span> numpy.concatenate((mfcc, zeros), axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb3-24"><a href="#cb3-24"></a>    <span class="cf">elif</span> mfcc.shape[<span class="dv">0</span>] <span class="op">&gt;</span> n_frame:</span>
+<span id="cb3-25"><a href="#cb3-25"></a>        mfcc <span class="op">=</span> mfcc[<span class="dv">0</span>:n_frame]</span>
+<span id="cb3-26"><a href="#cb3-26"></a></span>
+<span id="cb3-27"><a href="#cb3-27"></a>    <span class="cf">return</span> numpy.ravel(mfcc)</span></code></pre></div>
 <p><code>winlen * samplerate &gt; nfft</code> のときにエラーが出るので <code>winlen</code> は <code>nfft</code> の値から決めています。</p>
 <p><code>numcep</code> と <code>nfilt</code> は適当にデフォルトの2倍にしました。</p>
 <p>Golly の generations で作った音は低周波成分がそれなりに含まれるので、ルールと音の関係を調べるなら <code>preemph</code> は0でいいかもしれません。ここでは耳での聞こえ方で分類したかったのでデフォルト値を使っています。</p>
@@ -391,31 +499,31 @@ Update: 2018-11-29
 <p><code>KMeans</code> のパラメータ <code>n_clusters</code> を決めるために <a href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b">elbow method</a> を試しました。</p>
 <p><code>KMeans</code> の誤差はクラスタの数を増やすと小さくなります。また、クラスタの数が増えると誤差の減り方が緩やかになってきます。 Elbow method では誤差の減り方が十分に緩やかな範囲で最も小さいクラスタの数を使います。誤差の減り方が緩やかかどうかの判断はデータセットに応じて人間が適当に行うようです。</p>
 <p>実装では <code>sklearn.cluster.KMeans.inertia_</code> がそのまま使えます。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="im">import</span> python_speech_features</a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="im">import</span> sklearn.cluster</a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="im">import</span> soundfile</a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="im">from</span> pathlib <span class="im">import</span> Path</a>
-<a class="sourceLine" id="cb4-7" title="7"></a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="kw">def</span> get_inertia(n_clusters, features):</a>
-<a class="sourceLine" id="cb4-9" title="9">    cluster <span class="op">=</span> sklearn.cluster.KMeans(n_clusters<span class="op">=</span>n_clusters).fit(features)</a>
-<a class="sourceLine" id="cb4-10" title="10">    <span class="cf">return</span> cluster.inertia_</a>
-<a class="sourceLine" id="cb4-11" title="11"></a>
-<a class="sourceLine" id="cb4-12" title="12"><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</a>
-<a class="sourceLine" id="cb4-13" title="13">    features <span class="op">=</span> numpy.load(<span class="st">&quot;features.npy&quot;</span>)</a>
-<a class="sourceLine" id="cb4-14" title="14"></a>
-<a class="sourceLine" id="cb4-15" title="15">    x_range <span class="op">=</span> (<span class="dv">2</span>, <span class="dv">101</span>)</a>
-<a class="sourceLine" id="cb4-16" title="16">    errors <span class="op">=</span> [get_inertia(k, features) <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="op">*</span>x_range)]</a>
-<a class="sourceLine" id="cb4-17" title="17">    k_value <span class="op">=</span> [k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="op">*</span>x_range)]</a>
-<a class="sourceLine" id="cb4-18" title="18"></a>
-<a class="sourceLine" id="cb4-19" title="19">    pyplot.plot(k_value, errors, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;gray&quot;</span>)</a>
-<a class="sourceLine" id="cb4-20" title="20">    pyplot.plot(k_value, errors, <span class="st">&quot;o&quot;</span>, markersize<span class="op">=</span><span class="dv">3</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>)</a>
-<a class="sourceLine" id="cb4-21" title="21">    pyplot.xlabel(<span class="st">&quot;n_clusters&quot;</span>)</a>
-<a class="sourceLine" id="cb4-22" title="22">    pyplot.ylabel(<span class="st">&quot;error&quot;</span>)</a>
-<a class="sourceLine" id="cb4-23" title="23">    pyplot.xlim((x_range[<span class="dv">0</span>], x_range[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb4-24" title="24">    pyplot.grid()</a>
-<a class="sourceLine" id="cb4-25" title="25">    pyplot.show()</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="im">import</span> numpy</span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="im">import</span> python_speech_features</span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="im">import</span> sklearn.cluster</span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="im">import</span> soundfile</span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb4-7"><a href="#cb4-7"></a></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="kw">def</span> get_inertia(n_clusters, features):</span>
+<span id="cb4-9"><a href="#cb4-9"></a>    cluster <span class="op">=</span> sklearn.cluster.KMeans(n_clusters<span class="op">=</span>n_clusters).fit(features)</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    <span class="cf">return</span> cluster.inertia_</span>
+<span id="cb4-11"><a href="#cb4-11"></a></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb4-13"><a href="#cb4-13"></a>    features <span class="op">=</span> numpy.load(<span class="st">&quot;features.npy&quot;</span>)</span>
+<span id="cb4-14"><a href="#cb4-14"></a></span>
+<span id="cb4-15"><a href="#cb4-15"></a>    x_range <span class="op">=</span> (<span class="dv">2</span>, <span class="dv">101</span>)</span>
+<span id="cb4-16"><a href="#cb4-16"></a>    errors <span class="op">=</span> [get_inertia(k, features) <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="op">*</span>x_range)]</span>
+<span id="cb4-17"><a href="#cb4-17"></a>    k_value <span class="op">=</span> [k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="op">*</span>x_range)]</span>
+<span id="cb4-18"><a href="#cb4-18"></a></span>
+<span id="cb4-19"><a href="#cb4-19"></a>    pyplot.plot(k_value, errors, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;gray&quot;</span>)</span>
+<span id="cb4-20"><a href="#cb4-20"></a>    pyplot.plot(k_value, errors, <span class="st">&quot;o&quot;</span>, markersize<span class="op">=</span><span class="dv">3</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a>    pyplot.xlabel(<span class="st">&quot;n_clusters&quot;</span>)</span>
+<span id="cb4-22"><a href="#cb4-22"></a>    pyplot.ylabel(<span class="st">&quot;error&quot;</span>)</span>
+<span id="cb4-23"><a href="#cb4-23"></a>    pyplot.xlim((x_range[<span class="dv">0</span>], x_range[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span>))</span>
+<span id="cb4-24"><a href="#cb4-24"></a>    pyplot.grid()</span>
+<span id="cb4-25"><a href="#cb4-25"></a>    pyplot.show()</span></code></pre></div>
 <p>出力されたプロットです。</p>
 <figure>
 <img src="img/mfcc/elbow_method.png" alt="Image of plot used for elbow method." style="width: 600px;padding-bottom: 12px;"/>
@@ -428,12 +536,12 @@ Update: 2018-11-29
 <h2 id="t-sne-で視覚化">t-SNE で視覚化</h2>
 <p>いい評価方法が思いつかないので、とりあえず <a href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">t-SNE</a> で視覚化しました。</p>
 <p><a href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html"><code>sklearn.manifold.TSNE</code></a> を使います。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="im">import</span> sklearn.manifold</a>
-<a class="sourceLine" id="cb5-3" title="3"></a>
-<a class="sourceLine" id="cb5-4" title="4">features <span class="op">=</span> numpy.load(<span class="st">&quot;data/features.npy&quot;</span>)</a>
-<a class="sourceLine" id="cb5-5" title="5">tsne <span class="op">=</span> sklearn.manifold.TSNE(n_components<span class="op">=</span><span class="dv">2</span>).fit(features)</a>
-<a class="sourceLine" id="cb5-6" title="6">numpy.save(<span class="st">&quot;data/embedding.npy&quot;</span>, tsne.embedding_)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">import</span> numpy</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="im">import</span> sklearn.manifold</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a>features <span class="op">=</span> numpy.load(<span class="st">&quot;data/features.npy&quot;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5"></a>tsne <span class="op">=</span> sklearn.manifold.TSNE(n_components<span class="op">=</span><span class="dv">2</span>).fit(features)</span>
+<span id="cb5-6"><a href="#cb5-6"></a>numpy.save(<span class="st">&quot;data/embedding.npy&quot;</span>, tsne.embedding_)</span></code></pre></div>
 <p>計算結果のプロットです。図の数字はデータポイントの属するクラスタの番号と対応しています。</p>
 <figure>
 <img src="img/mfcc/tsne.png" alt="Image of ." style="width: 600px;padding-bottom: 12px;"/>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
 <meta charset="utf-8" />
@@ -7,11 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <meta name="dcterms.date" content="2019-09-11" />
 <title>polyblamp_residual</title>
-
-<!-- highlight.js -->
-<link rel="stylesheet" href="../script/highlight/idea.css">
-<script src="../script/highlight/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
 
 <!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
@@ -24,11 +19,73 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
 body {
 max-width: 704px;
 margin: auto;
 padding: 32px 8px;
-font-size: 14px;
 }
 
 img {
@@ -40,61 +97,96 @@ max-width: 100%;
 }
 
 kbd {
+font-family: inherit;
 border-style: solid;
 border-width: 1px 2px 2px 1px;
 border-radius: 2px;
-padding: 2px;
+padding: 4px;
 margin: 2px;
+line-height: calc(1em + 16px);
 }
 
 a {
 text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-border-left: solid 8px #eeeeee;
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
 padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
 }
 
 table {
 border-spacing: 0px;
 border-collapse: separate;
-border: 1px solid #dddddd;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
 }
 
-tr.header {
-border: 1px solid black;
-}
-
-tr.odd {
+tr:nth-child(odd) {
 background: #eeeeee;
 }
 
-tr.even {
+tr:nth-child(even) {
 background: #ffffff;
 }
 
 th {
 height: 2em;
-font-weight: normal;
-color: #004444;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 3px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
 }
 
 td {
 height: 1.5em;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 1px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
 }
 
 audio {
@@ -105,16 +197,35 @@ label {
 vertical-align: middle;
 }
 
-code {
-color: #004444;
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
 }
 
-pre code {
-border: 4px solid #eeeeee;
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
 }
 
 li {
 margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
 }
 
 header {
@@ -129,9 +240,6 @@ padding: 0.5em;
 margin-top: 1em;
 }
 
-summary:hover {
-background-color: #eeeeee;
-}
 
 canvas {
 /* image-rendering: pixelated; */
@@ -233,15 +341,15 @@ Update: 2019-09-11
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
-  <ul>
-  <li><a href="#polyblamp-residual">PolyBLAMP Residual</a><ul>
-  <li><a href="#blamp-residual-の導出">BLAMP Residual の導出</a></li>
-  <li><a href="#多項式による-blamp-residual-の近似-polyblamp-residual">多項式による BLAMP residual の近似 (PolyBLAMP residual)</a></li>
-  <li><a href="#三角波オシレータへの応用">三角波オシレータへの応用</a></li>
-  <li><a href="#ハードクリップへの応用の検討">ハードクリップへの応用の検討</a></li>
-  <li><a href="#参考文献">参考文献</a></li>
-  </ul></li>
-  </ul>
+<ul>
+<li><a href="#polyblamp-residual">PolyBLAMP Residual</a><ul>
+<li><a href="#blamp-residual-の導出">BLAMP Residual の導出</a></li>
+<li><a href="#多項式による-blamp-residual-の近似-polyblamp-residual">多項式による BLAMP residual の近似 (PolyBLAMP residual)</a></li>
+<li><a href="#三角波オシレータへの応用">三角波オシレータへの応用</a></li>
+<li><a href="#ハードクリップへの応用の検討">ハードクリップへの応用の検討</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul></li>
+</ul>
 </nav>
 </details>
 </header>
@@ -323,26 +431,26 @@ B_3(t) &amp;=  \frac{t^3}{6}
 </ul>
 <p>基底関数はつぎはぎになっています。まずは <span class="math inline">\(B_3(t)\)</span> から始まり、 <span class="math inline">\(t\)</span> を <span class="math inline">\(0\)</span> から <span class="math inline">\(1\)</span> に増やしていきます。 <span class="math inline">\(t\)</span> が <span class="math inline">\(1\)</span> を超えたら <span class="math inline">\(0\)</span> に戻し、関数を <span class="math inline">\(B_2(t)\)</span> に変えて、また <span class="math inline">\(t\)</span> を <span class="math inline">\(0\)</span> から <span class="math inline">\(1\)</span> に増やしていきます。これを <span class="math inline">\(B_0(t)\)</span> まで繰り返すことで基底関数が描画できます。</p>
 <p>次のコードを実行すると使って基底関数を描画します。 Python3 のインタプリタにコピペすれば動きます。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
-<a class="sourceLine" id="cb1-3" title="3"></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">def</span> B0(t):</a>
-<a class="sourceLine" id="cb1-5" title="5">    <span class="cf">return</span> <span class="op">-</span>t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> t <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span></a>
-<a class="sourceLine" id="cb1-6" title="6"></a>
-<a class="sourceLine" id="cb1-7" title="7"><span class="kw">def</span> B1(t):</a>
-<a class="sourceLine" id="cb1-8" title="8">    <span class="cf">return</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">/</span> <span class="dv">3</span></a>
-<a class="sourceLine" id="cb1-9" title="9"></a>
-<a class="sourceLine" id="cb1-10" title="10"><span class="kw">def</span> B2(t):</a>
-<a class="sourceLine" id="cb1-11" title="11">    <span class="cf">return</span> <span class="op">-</span>t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> t <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span></a>
-<a class="sourceLine" id="cb1-12" title="12"></a>
-<a class="sourceLine" id="cb1-13" title="13"><span class="kw">def</span> B3(t):</a>
-<a class="sourceLine" id="cb1-14" title="14">    <span class="cf">return</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">6</span></a>
-<a class="sourceLine" id="cb1-15" title="15"></a>
-<a class="sourceLine" id="cb1-16" title="16">t <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">256</span>)</a>
-<a class="sourceLine" id="cb1-17" title="17">y <span class="op">=</span> numpy.hstack((B3(t), B2(t), B1(t), B0(t)))</a>
-<a class="sourceLine" id="cb1-18" title="18"></a>
-<a class="sourceLine" id="cb1-19" title="19">pyplot.plot(y)</a>
-<a class="sourceLine" id="cb1-20" title="20">pyplot.show()</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">def</span> B0(t):</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="cf">return</span> <span class="op">-</span>t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> t <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="kw">def</span> B1(t):</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="cf">return</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">/</span> <span class="dv">3</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="kw">def</span> B2(t):</span>
+<span id="cb1-11"><a href="#cb1-11"></a>    <span class="cf">return</span> <span class="op">-</span>t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> t<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> t <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="kw">def</span> B3(t):</span>
+<span id="cb1-14"><a href="#cb1-14"></a>    <span class="cf">return</span> t<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">6</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a></span>
+<span id="cb1-16"><a href="#cb1-16"></a>t <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">256</span>)</span>
+<span id="cb1-17"><a href="#cb1-17"></a>y <span class="op">=</span> numpy.hstack((B3(t), B2(t), B1(t), B0(t)))</span>
+<span id="cb1-18"><a href="#cb1-18"></a></span>
+<span id="cb1-19"><a href="#cb1-19"></a>pyplot.plot(y)</span>
+<span id="cb1-20"><a href="#cb1-20"></a>pyplot.show()</span></code></pre></div>
 <p>基底関数の見た目です。 <span class="math inline">\(B_i(t)\)</span> がつぎはぎになっている様子が分かります。</p>
 <figure>
 <img src="img/uniform_cubic_bspline.png" alt="Image of basis of uniform cubic b-spline." style="width: 480px;padding-bottom: 12px;"/>
@@ -415,44 +523,44 @@ J^2 \hat{B}_0(t)
 <img src="img/bspline.png" alt="Image of b-spline basis and its 1st integral, second integral and polyBLAMP residual." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <p>ここまでの式変形を Maxima のコードにしました。 wxMaxima にコピペすれば動きます。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb2-1" title="1"><span class="cn">N</span>(<span class="cn">i</span>, <span class="cn">k</span>, <span class="cn">t</span>) :=</a>
-<a class="sourceLine" id="cb2-2" title="2">  <span class="kw">if</span> <span class="cn">k</span> = <span class="dv">1</span> <span class="kw">then</span></a>
-<a class="sourceLine" id="cb2-3" title="3">    <span class="kw">if</span> <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span>) &lt;= <span class="cn">t</span> <span class="kw">and</span> <span class="cn">t</span> &lt; <span class="cn">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="dv">1</span>) <span class="kw">then</span> <span class="dv">1</span> <span class="kw">else</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-4" title="4">  <span class="kw">else</span> <span class="fu">block</span>([<span class="cn">t_i</span>: <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span>), <span class="cn">t_ik</span>: <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="cn">k</span>)],</a>
-<a class="sourceLine" id="cb2-5" title="5">    (<span class="cn">t</span> - <span class="cn">t_i</span>) / (<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="cn">k</span> - <span class="dv">1</span>) - <span class="cn">t_i</span>) * <span class="cn">N</span>(<span class="cn">i</span>, <span class="cn">k</span> - <span class="dv">1</span>, <span class="cn">t</span>)</a>
-<a class="sourceLine" id="cb2-6" title="6">    + (<span class="cn">t_ik</span> - <span class="cn">t</span>) / (<span class="cn">t_ik</span> - <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="dv">1</span>)) * <span class="cn">N</span>(<span class="cn">i</span> + <span class="dv">1</span>, <span class="cn">k</span> - <span class="dv">1</span>, <span class="cn">t</span>)</a>
-<a class="sourceLine" id="cb2-7" title="7">  );</a>
-<a class="sourceLine" id="cb2-8" title="8"></a>
-<a class="sourceLine" id="cb2-9" title="9"><span class="cn">uniformBspline</span>(<span class="cn">k</span>) := <span class="fu">block</span>(</a>
-<a class="sourceLine" id="cb2-10" title="10">  [</a>
-<a class="sourceLine" id="cb2-11" title="11">    <span class="cn">result</span>: [],</a>
-<a class="sourceLine" id="cb2-12" title="12">    <span class="cn">T</span>: <span class="fu">makelist</span>(<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">j</span>) = <span class="cn">j</span> - <span class="cn">k</span> + <span class="dv">1</span>, <span class="cn">j</span>, <span class="dv">0</span>, <span class="dv">3</span> * <span class="cn">k</span> - <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb2-13" title="13">  ],</a>
-<a class="sourceLine" id="cb2-14" title="14">  <span class="fu">assume</span>(<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">k</span> - <span class="dv">1</span>) &lt;= <span class="cn">t</span>, <span class="cn">t</span> &lt; <span class="cn">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">k</span>)),</a>
-<a class="sourceLine" id="cb2-15" title="15">  <span class="kw">for</span> <span class="cn">i</span>: <span class="dv">0</span> <span class="kw">thru</span> <span class="dv">3</span> * <span class="cn">k</span> - <span class="dv">2</span> <span class="kw">do</span> <span class="fu">assume</span>(<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span>) &lt; <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="dv">1</span>)),</a>
-<a class="sourceLine" id="cb2-16" title="16">  <span class="kw">for</span> <span class="cn">i</span>: <span class="dv">0</span> <span class="kw">thru</span> <span class="cn">k</span> - <span class="dv">1</span> <span class="kw">do</span></a>
-<a class="sourceLine" id="cb2-17" title="17">    <span class="cn">result</span>: <span class="fu">endcons</span>(<span class="fu">expand</span>(<span class="fu">subst</span>(<span class="cn">T</span>, <span class="cn">N</span>(<span class="cn">i</span>, <span class="cn">k</span>, <span class="cn">t</span>))), <span class="cn">result</span>),</a>
-<a class="sourceLine" id="cb2-18" title="18">  <span class="fu">forget</span>(<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">k</span> - <span class="dv">1</span>) &lt;= <span class="cn">t</span>, <span class="cn">t</span> &lt; <span class="cn">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">k</span>)),</a>
-<a class="sourceLine" id="cb2-19" title="19">  <span class="cn">result</span></a>
-<a class="sourceLine" id="cb2-20" title="20">);</a>
-<a class="sourceLine" id="cb2-21" title="21"></a>
-<a class="sourceLine" id="cb2-22" title="22"><span class="cn">findConstant</span>(<span class="cn">eq</span>, <span class="cn">residual</span>) := <span class="fu">block</span>([<span class="cn">result</span>: [], <span class="cn">J</span>, <span class="cn">C</span>],</a>
-<a class="sourceLine" id="cb2-23" title="23">  <span class="cn">J</span>: <span class="fu">integrate</span>(<span class="fu">last</span>(<span class="cn">eq</span>), <span class="cn">t</span>),</a>
-<a class="sourceLine" id="cb2-24" title="24">  <span class="cn">result</span>: <span class="fu">cons</span>(<span class="cn">J</span>, <span class="cn">result</span>),</a>
-<a class="sourceLine" id="cb2-25" title="25">  <span class="cn">C</span>: <span class="fu">subst</span>(<span class="dv">1</span>, <span class="cn">t</span>, <span class="cn">J</span>),</a>
-<a class="sourceLine" id="cb2-26" title="26">  <span class="kw">for</span> <span class="cn">i</span>: <span class="fu">length</span>(<span class="cn">eq</span>) - <span class="dv">1</span> <span class="kw">step</span> <span class="dv">-1</span> <span class="kw">thru</span> <span class="dv">1</span> <span class="kw">do</span> (</a>
-<a class="sourceLine" id="cb2-27" title="27">    <span class="cn">J</span>: <span class="fu">integrate</span>(<span class="cn">eq</span>[<span class="cn">i</span>], <span class="cn">t</span>) + <span class="cn">C</span>,</a>
-<a class="sourceLine" id="cb2-28" title="28">    <span class="kw">if</span> <span class="cn">residual</span> <span class="kw">and</span> <span class="cn">i</span> &lt; <span class="fu">length</span>(<span class="cn">eq</span>) / <span class="dv">2</span> + <span class="dv">1</span> <span class="kw">then</span> <span class="cn">J</span>: <span class="cn">J</span> - <span class="cn">t</span>,</a>
-<a class="sourceLine" id="cb2-29" title="29">    <span class="cn">result</span>: <span class="fu">cons</span>(<span class="cn">J</span>, <span class="cn">result</span>),</a>
-<a class="sourceLine" id="cb2-30" title="30">    <span class="cn">C</span>: <span class="fu">subst</span>(<span class="dv">1</span>, <span class="cn">t</span>, <span class="cn">J</span>)</a>
-<a class="sourceLine" id="cb2-31" title="31">  ),</a>
-<a class="sourceLine" id="cb2-32" title="32">  <span class="cn">result</span></a>
-<a class="sourceLine" id="cb2-33" title="33">);</a>
-<a class="sourceLine" id="cb2-34" title="34"></a>
-<a class="sourceLine" id="cb2-35" title="35"><span class="cn">eq</span>: <span class="cn">uniformBspline</span>(<span class="dv">4</span>);      <span class="co">/* k - 1 が次数。 */</span></a>
-<a class="sourceLine" id="cb2-36" title="36"><span class="cn">P</span>: <span class="cn">findConstant</span>(<span class="cn">eq</span>, <span class="kw">false</span>); <span class="co">/* 1 回積分した式。 */</span></a>
-<a class="sourceLine" id="cb2-37" title="37"><span class="cn">Q</span>: <span class="cn">findConstant</span>(<span class="cn">P</span>, <span class="kw">false</span>);  <span class="co">/* 2 回積分した式。 */</span></a>
-<a class="sourceLine" id="cb2-38" title="38"><span class="cn">R</span>: <span class="cn">findConstant</span>(<span class="cn">P</span>, <span class="kw">true</span>);   <span class="co">/* polyBLAMP residual */</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1"></a><span class="cn">N</span>(<span class="cn">i</span>, <span class="cn">k</span>, <span class="cn">t</span>) :=</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="kw">if</span> <span class="cn">k</span> = <span class="dv">1</span> <span class="kw">then</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="kw">if</span> <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span>) &lt;= <span class="cn">t</span> <span class="kw">and</span> <span class="cn">t</span> &lt; <span class="cn">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="dv">1</span>) <span class="kw">then</span> <span class="dv">1</span> <span class="kw">else</span> <span class="dv">0</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="kw">else</span> <span class="fu">block</span>([<span class="cn">t_i</span>: <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span>), <span class="cn">t_ik</span>: <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="cn">k</span>)],</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    (<span class="cn">t</span> - <span class="cn">t_i</span>) / (<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="cn">k</span> - <span class="dv">1</span>) - <span class="cn">t_i</span>) * <span class="cn">N</span>(<span class="cn">i</span>, <span class="cn">k</span> - <span class="dv">1</span>, <span class="cn">t</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    + (<span class="cn">t_ik</span> - <span class="cn">t</span>) / (<span class="cn">t_ik</span> - <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="dv">1</span>)) * <span class="cn">N</span>(<span class="cn">i</span> + <span class="dv">1</span>, <span class="cn">k</span> - <span class="dv">1</span>, <span class="cn">t</span>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  );</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="cn">uniformBspline</span>(<span class="cn">k</span>) := <span class="fu">block</span>(</span>
+<span id="cb2-10"><a href="#cb2-10"></a>  [</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    <span class="cn">result</span>: [],</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    <span class="cn">T</span>: <span class="fu">makelist</span>(<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">j</span>) = <span class="cn">j</span> - <span class="cn">k</span> + <span class="dv">1</span>, <span class="cn">j</span>, <span class="dv">0</span>, <span class="dv">3</span> * <span class="cn">k</span> - <span class="dv">2</span>)</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  ],</span>
+<span id="cb2-14"><a href="#cb2-14"></a>  <span class="fu">assume</span>(<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">k</span> - <span class="dv">1</span>) &lt;= <span class="cn">t</span>, <span class="cn">t</span> &lt; <span class="cn">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">k</span>)),</span>
+<span id="cb2-15"><a href="#cb2-15"></a>  <span class="kw">for</span> <span class="cn">i</span>: <span class="dv">0</span> <span class="kw">thru</span> <span class="dv">3</span> * <span class="cn">k</span> - <span class="dv">2</span> <span class="kw">do</span> <span class="fu">assume</span>(<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span>) &lt; <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="dv">1</span>)),</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  <span class="kw">for</span> <span class="cn">i</span>: <span class="dv">0</span> <span class="kw">thru</span> <span class="cn">k</span> - <span class="dv">1</span> <span class="kw">do</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>    <span class="cn">result</span>: <span class="fu">endcons</span>(<span class="fu">expand</span>(<span class="fu">subst</span>(<span class="cn">T</span>, <span class="cn">N</span>(<span class="cn">i</span>, <span class="cn">k</span>, <span class="cn">t</span>))), <span class="cn">result</span>),</span>
+<span id="cb2-18"><a href="#cb2-18"></a>  <span class="fu">forget</span>(<span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">k</span> - <span class="dv">1</span>) &lt;= <span class="cn">t</span>, <span class="cn">t</span> &lt; <span class="cn">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">k</span>)),</span>
+<span id="cb2-19"><a href="#cb2-19"></a>  <span class="cn">result</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a>);</span>
+<span id="cb2-21"><a href="#cb2-21"></a></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="cn">findConstant</span>(<span class="cn">eq</span>, <span class="cn">residual</span>) := <span class="fu">block</span>([<span class="cn">result</span>: [], <span class="cn">J</span>, <span class="cn">C</span>],</span>
+<span id="cb2-23"><a href="#cb2-23"></a>  <span class="cn">J</span>: <span class="fu">integrate</span>(<span class="fu">last</span>(<span class="cn">eq</span>), <span class="cn">t</span>),</span>
+<span id="cb2-24"><a href="#cb2-24"></a>  <span class="cn">result</span>: <span class="fu">cons</span>(<span class="cn">J</span>, <span class="cn">result</span>),</span>
+<span id="cb2-25"><a href="#cb2-25"></a>  <span class="cn">C</span>: <span class="fu">subst</span>(<span class="dv">1</span>, <span class="cn">t</span>, <span class="cn">J</span>),</span>
+<span id="cb2-26"><a href="#cb2-26"></a>  <span class="kw">for</span> <span class="cn">i</span>: <span class="fu">length</span>(<span class="cn">eq</span>) - <span class="dv">1</span> <span class="kw">step</span> <span class="dv">-1</span> <span class="kw">thru</span> <span class="dv">1</span> <span class="kw">do</span> (</span>
+<span id="cb2-27"><a href="#cb2-27"></a>    <span class="cn">J</span>: <span class="fu">integrate</span>(<span class="cn">eq</span>[<span class="cn">i</span>], <span class="cn">t</span>) + <span class="cn">C</span>,</span>
+<span id="cb2-28"><a href="#cb2-28"></a>    <span class="kw">if</span> <span class="cn">residual</span> <span class="kw">and</span> <span class="cn">i</span> &lt; <span class="fu">length</span>(<span class="cn">eq</span>) / <span class="dv">2</span> + <span class="dv">1</span> <span class="kw">then</span> <span class="cn">J</span>: <span class="cn">J</span> - <span class="cn">t</span>,</span>
+<span id="cb2-29"><a href="#cb2-29"></a>    <span class="cn">result</span>: <span class="fu">cons</span>(<span class="cn">J</span>, <span class="cn">result</span>),</span>
+<span id="cb2-30"><a href="#cb2-30"></a>    <span class="cn">C</span>: <span class="fu">subst</span>(<span class="dv">1</span>, <span class="cn">t</span>, <span class="cn">J</span>)</span>
+<span id="cb2-31"><a href="#cb2-31"></a>  ),</span>
+<span id="cb2-32"><a href="#cb2-32"></a>  <span class="cn">result</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a>);</span>
+<span id="cb2-34"><a href="#cb2-34"></a></span>
+<span id="cb2-35"><a href="#cb2-35"></a><span class="cn">eq</span>: <span class="cn">uniformBspline</span>(<span class="dv">4</span>);      <span class="co">/* k - 1 が次数。 */</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a><span class="cn">P</span>: <span class="cn">findConstant</span>(<span class="cn">eq</span>, <span class="kw">false</span>); <span class="co">/* 1 回積分した式。 */</span></span>
+<span id="cb2-37"><a href="#cb2-37"></a><span class="cn">Q</span>: <span class="cn">findConstant</span>(<span class="cn">P</span>, <span class="kw">false</span>);  <span class="co">/* 2 回積分した式。 */</span></span>
+<span id="cb2-38"><a href="#cb2-38"></a><span class="cn">R</span>: <span class="cn">findConstant</span>(<span class="cn">P</span>, <span class="kw">true</span>);   <span class="co">/* polyBLAMP residual */</span></span></code></pre></div>
 <p>コードから得られた 6 point polyBLAMP residual の式です。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -507,64 +615,64 @@ d = \begin{cases}
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/bda317e00afb602d5543671d38c23e1ab9d8f318/polyblamp_residual/demo/blamp_osc.py#L58">コードを読む (github.com)</a></li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> blamp_residual4(d):</a>
-<a class="sourceLine" id="cb3-2" title="2">    <span class="cf">return</span> (</a>
-<a class="sourceLine" id="cb3-3" title="3">        d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span>,</a>
-<a class="sourceLine" id="cb3-4" title="4">        <span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>,</a>
-<a class="sourceLine" id="cb3-5" title="5">        d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">-</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">3</span> <span class="op">-</span> d <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">7</span> <span class="op">/</span> <span class="dv">30</span>,</a>
-<a class="sourceLine" id="cb3-6" title="6">        <span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">-</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">-</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>,</a>
-<a class="sourceLine" id="cb3-7" title="7">    )</a>
-<a class="sourceLine" id="cb3-8" title="8"></a>
-<a class="sourceLine" id="cb3-9" title="9"><span class="kw">class</span> TriangleBLAMP:</a>
-<a class="sourceLine" id="cb3-10" title="10">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, points, samplerate, frequency, residual_func):</a>
-<a class="sourceLine" id="cb3-11" title="11">        <span class="va">self</span>.residual_func <span class="op">=</span> residual_func</a>
-<a class="sourceLine" id="cb3-12" title="12"></a>
-<a class="sourceLine" id="cb3-13" title="13">        <span class="va">self</span>.s <span class="op">=</span> numpy.zeros(points)</a>
-<a class="sourceLine" id="cb3-14" title="14">        <span class="va">self</span>.isEdge <span class="op">=</span> numpy.zeros(points)</a>
-<a class="sourceLine" id="cb3-15" title="15"></a>
-<a class="sourceLine" id="cb3-16" title="16">        <span class="va">self</span>.edgePoint <span class="op">=</span> points <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-17" title="17"></a>
-<a class="sourceLine" id="cb3-18" title="18">        <span class="va">self</span>.phase <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb3-19" title="19">        <span class="va">self</span>.tick <span class="op">=</span> frequency <span class="op">/</span> samplerate</a>
-<a class="sourceLine" id="cb3-20" title="20">        <span class="va">self</span>.mu <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> frequency <span class="op">/</span> samplerate</a>
-<a class="sourceLine" id="cb3-21" title="21">        <span class="va">self</span>.d <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb3-22" title="22"></a>
-<a class="sourceLine" id="cb3-23" title="23">    <span class="kw">def</span> process(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb3-24" title="24">        <span class="va">self</span>.s[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> numpy.<span class="bu">abs</span>(<span class="va">self</span>.phase <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">-</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-25" title="25"></a>
-<a class="sourceLine" id="cb3-26" title="26">        <span class="cf">if</span> <span class="va">self</span>.isEdge[<span class="va">self</span>.edgePoint] <span class="op">==</span> <span class="dv">1</span>:</a>
-<a class="sourceLine" id="cb3-27" title="27">            <span class="va">self</span>.s <span class="op">+=</span> <span class="va">self</span>.mu <span class="op">*</span> (</a>
-<a class="sourceLine" id="cb3-28" title="28">                <span class="va">self</span>.residual_func(<span class="va">self</span>.d) <span class="op">+</span> numpy.flip(<span class="va">self</span>.residual_func(<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.d)))</a>
-<a class="sourceLine" id="cb3-29" title="29">        <span class="cf">elif</span> <span class="va">self</span>.isEdge[<span class="va">self</span>.edgePoint] <span class="op">==</span> <span class="dv">-1</span>:</a>
-<a class="sourceLine" id="cb3-30" title="30">            <span class="va">self</span>.s <span class="op">-=</span> <span class="va">self</span>.mu <span class="op">*</span> (</a>
-<a class="sourceLine" id="cb3-31" title="31">                <span class="va">self</span>.residual_func(<span class="va">self</span>.d) <span class="op">+</span> numpy.flip(<span class="va">self</span>.residual_func(<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.d)))</a>
-<a class="sourceLine" id="cb3-32" title="32"></a>
-<a class="sourceLine" id="cb3-33" title="33">        <span class="va">self</span>.phase <span class="op">+=</span> <span class="va">self</span>.tick</a>
-<a class="sourceLine" id="cb3-34" title="34">        <span class="cf">if</span> <span class="va">self</span>.phase <span class="op">&gt;=</span> <span class="fl">0.5</span> <span class="kw">and</span> <span class="va">self</span>.phase <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="op">+</span> <span class="va">self</span>.tick:</a>
-<a class="sourceLine" id="cb3-35" title="35">            <span class="va">self</span>.isEdge[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-36" title="36">            <span class="va">self</span>.d <span class="op">=</span> (<span class="va">self</span>.phase <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">/</span> <span class="va">self</span>.tick</a>
-<a class="sourceLine" id="cb3-37" title="37">        <span class="cf">elif</span> <span class="va">self</span>.phase <span class="op">&gt;</span> <span class="fl">1.0</span>:</a>
-<a class="sourceLine" id="cb3-38" title="38">            <span class="va">self</span>.phase <span class="op">-=</span> <span class="fl">1.0</span></a>
-<a class="sourceLine" id="cb3-39" title="39">            <span class="va">self</span>.isEdge[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">-1</span></a>
-<a class="sourceLine" id="cb3-40" title="40">            <span class="va">self</span>.d <span class="op">=</span> <span class="va">self</span>.phase <span class="op">/</span> <span class="va">self</span>.tick</a>
-<a class="sourceLine" id="cb3-41" title="41">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb3-42" title="42">            <span class="va">self</span>.isEdge[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb3-43" title="43"></a>
-<a class="sourceLine" id="cb3-44" title="44">        <span class="va">self</span>.s <span class="op">=</span> numpy.roll(<span class="va">self</span>.s, <span class="dv">-1</span>)</a>
-<a class="sourceLine" id="cb3-45" title="45">        <span class="va">self</span>.isEdge <span class="op">=</span> numpy.roll(<span class="va">self</span>.isEdge, <span class="dv">-1</span>)</a>
-<a class="sourceLine" id="cb3-46" title="46">        <span class="cf">return</span> <span class="va">self</span>.s[<span class="dv">0</span>]</a>
-<a class="sourceLine" id="cb3-47" title="47"></a>
-<a class="sourceLine" id="cb3-48" title="48"><span class="kw">def</span> render_blamp(points, samplerate, frequency, residual_func):</a>
-<a class="sourceLine" id="cb3-49" title="49">    <span class="co">&quot;&quot;&quot; 1 秒分の波形をレンダリング。 &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb3-50" title="50">    triangle <span class="op">=</span> TriangleBLAMP(points, samplerate, frequency, residual_func)</a>
-<a class="sourceLine" id="cb3-51" title="51">    data <span class="op">=</span> numpy.empty(n_sample)</a>
-<a class="sourceLine" id="cb3-52" title="52">    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(points <span class="op">-</span> <span class="dv">2</span>):</a>
-<a class="sourceLine" id="cb3-53" title="53">        triangle.process()</a>
-<a class="sourceLine" id="cb3-54" title="54">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(data)):</a>
-<a class="sourceLine" id="cb3-55" title="55">        data[i] <span class="op">=</span> triangle.process()</a>
-<a class="sourceLine" id="cb3-56" title="56">    <span class="cf">return</span> data</a>
-<a class="sourceLine" id="cb3-57" title="57"></a>
-<a class="sourceLine" id="cb3-58" title="58">tri_blamp4 <span class="op">=</span> render_blamp(<span class="dv">4</span>, samplerate, frequency, blamp_residual4)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">def</span> blamp_residual4(d):</span>
+<span id="cb3-2"><a href="#cb3-2"></a>    <span class="cf">return</span> (</span>
+<span id="cb3-3"><a href="#cb3-3"></a>        d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span>,</span>
+<span id="cb3-4"><a href="#cb3-4"></a>        <span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>        d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">-</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">3</span> <span class="op">-</span> d <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">7</span> <span class="op">/</span> <span class="dv">30</span>,</span>
+<span id="cb3-6"><a href="#cb3-6"></a>        <span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">-</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">-</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>    )</span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="kw">class</span> TriangleBLAMP:</span>
+<span id="cb3-10"><a href="#cb3-10"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, points, samplerate, frequency, residual_func):</span>
+<span id="cb3-11"><a href="#cb3-11"></a>        <span class="va">self</span>.residual_func <span class="op">=</span> residual_func</span>
+<span id="cb3-12"><a href="#cb3-12"></a></span>
+<span id="cb3-13"><a href="#cb3-13"></a>        <span class="va">self</span>.s <span class="op">=</span> numpy.zeros(points)</span>
+<span id="cb3-14"><a href="#cb3-14"></a>        <span class="va">self</span>.isEdge <span class="op">=</span> numpy.zeros(points)</span>
+<span id="cb3-15"><a href="#cb3-15"></a></span>
+<span id="cb3-16"><a href="#cb3-16"></a>        <span class="va">self</span>.edgePoint <span class="op">=</span> points <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a></span>
+<span id="cb3-18"><a href="#cb3-18"></a>        <span class="va">self</span>.phase <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a>        <span class="va">self</span>.tick <span class="op">=</span> frequency <span class="op">/</span> samplerate</span>
+<span id="cb3-20"><a href="#cb3-20"></a>        <span class="va">self</span>.mu <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> frequency <span class="op">/</span> samplerate</span>
+<span id="cb3-21"><a href="#cb3-21"></a>        <span class="va">self</span>.d <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-22"><a href="#cb3-22"></a></span>
+<span id="cb3-23"><a href="#cb3-23"></a>    <span class="kw">def</span> process(<span class="va">self</span>):</span>
+<span id="cb3-24"><a href="#cb3-24"></a>        <span class="va">self</span>.s[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> numpy.<span class="bu">abs</span>(<span class="va">self</span>.phase <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-25"><a href="#cb3-25"></a></span>
+<span id="cb3-26"><a href="#cb3-26"></a>        <span class="cf">if</span> <span class="va">self</span>.isEdge[<span class="va">self</span>.edgePoint] <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb3-27"><a href="#cb3-27"></a>            <span class="va">self</span>.s <span class="op">+=</span> <span class="va">self</span>.mu <span class="op">*</span> (</span>
+<span id="cb3-28"><a href="#cb3-28"></a>                <span class="va">self</span>.residual_func(<span class="va">self</span>.d) <span class="op">+</span> numpy.flip(<span class="va">self</span>.residual_func(<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.d)))</span>
+<span id="cb3-29"><a href="#cb3-29"></a>        <span class="cf">elif</span> <span class="va">self</span>.isEdge[<span class="va">self</span>.edgePoint] <span class="op">==</span> <span class="dv">-1</span>:</span>
+<span id="cb3-30"><a href="#cb3-30"></a>            <span class="va">self</span>.s <span class="op">-=</span> <span class="va">self</span>.mu <span class="op">*</span> (</span>
+<span id="cb3-31"><a href="#cb3-31"></a>                <span class="va">self</span>.residual_func(<span class="va">self</span>.d) <span class="op">+</span> numpy.flip(<span class="va">self</span>.residual_func(<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.d)))</span>
+<span id="cb3-32"><a href="#cb3-32"></a></span>
+<span id="cb3-33"><a href="#cb3-33"></a>        <span class="va">self</span>.phase <span class="op">+=</span> <span class="va">self</span>.tick</span>
+<span id="cb3-34"><a href="#cb3-34"></a>        <span class="cf">if</span> <span class="va">self</span>.phase <span class="op">&gt;=</span> <span class="fl">0.5</span> <span class="kw">and</span> <span class="va">self</span>.phase <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="op">+</span> <span class="va">self</span>.tick:</span>
+<span id="cb3-35"><a href="#cb3-35"></a>            <span class="va">self</span>.isEdge[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb3-36"><a href="#cb3-36"></a>            <span class="va">self</span>.d <span class="op">=</span> (<span class="va">self</span>.phase <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">/</span> <span class="va">self</span>.tick</span>
+<span id="cb3-37"><a href="#cb3-37"></a>        <span class="cf">elif</span> <span class="va">self</span>.phase <span class="op">&gt;</span> <span class="fl">1.0</span>:</span>
+<span id="cb3-38"><a href="#cb3-38"></a>            <span class="va">self</span>.phase <span class="op">-=</span> <span class="fl">1.0</span></span>
+<span id="cb3-39"><a href="#cb3-39"></a>            <span class="va">self</span>.isEdge[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">-1</span></span>
+<span id="cb3-40"><a href="#cb3-40"></a>            <span class="va">self</span>.d <span class="op">=</span> <span class="va">self</span>.phase <span class="op">/</span> <span class="va">self</span>.tick</span>
+<span id="cb3-41"><a href="#cb3-41"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-42"><a href="#cb3-42"></a>            <span class="va">self</span>.isEdge[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-43"><a href="#cb3-43"></a></span>
+<span id="cb3-44"><a href="#cb3-44"></a>        <span class="va">self</span>.s <span class="op">=</span> numpy.roll(<span class="va">self</span>.s, <span class="dv">-1</span>)</span>
+<span id="cb3-45"><a href="#cb3-45"></a>        <span class="va">self</span>.isEdge <span class="op">=</span> numpy.roll(<span class="va">self</span>.isEdge, <span class="dv">-1</span>)</span>
+<span id="cb3-46"><a href="#cb3-46"></a>        <span class="cf">return</span> <span class="va">self</span>.s[<span class="dv">0</span>]</span>
+<span id="cb3-47"><a href="#cb3-47"></a></span>
+<span id="cb3-48"><a href="#cb3-48"></a><span class="kw">def</span> render_blamp(points, samplerate, frequency, residual_func):</span>
+<span id="cb3-49"><a href="#cb3-49"></a>    <span class="co">&quot;&quot;&quot; 1 秒分の波形をレンダリング。 &quot;&quot;&quot;</span></span>
+<span id="cb3-50"><a href="#cb3-50"></a>    triangle <span class="op">=</span> TriangleBLAMP(points, samplerate, frequency, residual_func)</span>
+<span id="cb3-51"><a href="#cb3-51"></a>    data <span class="op">=</span> numpy.empty(n_sample)</span>
+<span id="cb3-52"><a href="#cb3-52"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(points <span class="op">-</span> <span class="dv">2</span>):</span>
+<span id="cb3-53"><a href="#cb3-53"></a>        triangle.process()</span>
+<span id="cb3-54"><a href="#cb3-54"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(data)):</span>
+<span id="cb3-55"><a href="#cb3-55"></a>        data[i] <span class="op">=</span> triangle.process()</span>
+<span id="cb3-56"><a href="#cb3-56"></a>    <span class="cf">return</span> data</span>
+<span id="cb3-57"><a href="#cb3-57"></a></span>
+<span id="cb3-58"><a href="#cb3-58"></a>tri_blamp4 <span class="op">=</span> render_blamp(<span class="dv">4</span>, samplerate, frequency, blamp_residual4)</span></code></pre></div>
 <p><span class="math inline">\(f_s = 44100, f_0 = 5500\)</span> としてレンダリングした三角波の音です。</p>
 <figure>
 <figcaption>
@@ -620,12 +728,12 @@ naive
 <h2 id="ハードクリップへの応用の検討">ハードクリップへの応用の検討</h2>
 <p>論文ではハードクリップへの応用についても触れられているので試します。</p>
 <p>ハードクリップとは波形に <code>clamp</code> 関数をかける処理のことです。 <code>clamp</code> 関数は次のように定義できます。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">def</span> clamp(value, low, high):</a>
-<a class="sourceLine" id="cb4-2" title="2">    <span class="cf">if</span> value <span class="op">&lt;</span> low:</a>
-<a class="sourceLine" id="cb4-3" title="3">        <span class="cf">return</span> low</a>
-<a class="sourceLine" id="cb4-4" title="4">    <span class="cf">elif</span> value <span class="op">&gt;</span> high:</a>
-<a class="sourceLine" id="cb4-5" title="5">        <span class="cf">return</span> high</a>
-<a class="sourceLine" id="cb4-6" title="6">    <span class="cf">return</span> value</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> clamp(value, low, high):</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="cf">if</span> value <span class="op">&lt;</span> low:</span>
+<span id="cb4-3"><a href="#cb4-3"></a>        <span class="cf">return</span> low</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="cf">elif</span> value <span class="op">&gt;</span> high:</span>
+<span id="cb4-5"><a href="#cb4-5"></a>        <span class="cf">return</span> high</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="cf">return</span> value</span></code></pre></div>
 <p>PolyBLAMP residual をハードクリップに適用するためには、入力信号からランプ関数の<ruby>角<rt>かど</rt></ruby>の位置 <span class="math inline">\(d\)</span> と、傾き <span class="math inline">\(\mu\)</span> を推定する必要があります。</p>
 <p>波形の角の部分だけを取り出した図です。 4 point polyBLAMP residual は角がインデックス 1 と 2 の間にあると仮定しています。</p>
 <figure>
@@ -661,69 +769,69 @@ d &amp;= D - 1\\
 <img src="img/ramp_direction.svg" alt="Image of 4 types of ramp function direction." style="width: 800px;padding-bottom: 12px;"/>
 </figure>
 <p>テストします。次のコードではランプ関数が <span class="math inline">\(x &gt; 0\)</span> のときに <span class="math inline">\(x\)</span> となる場合だけを扱っています。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">def</span> f(D, a, b, c, e, rho):</a>
-<a class="sourceLine" id="cb5-4" title="4">    <span class="cf">return</span> a <span class="op">*</span> D<span class="op">**</span><span class="dv">3</span> <span class="op">+</span> b <span class="op">*</span> D<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> c <span class="op">*</span> D <span class="op">+</span> e <span class="op">-</span> rho</a>
-<a class="sourceLine" id="cb5-5" title="5"></a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="kw">def</span> f_dash(D, a, b, c):</a>
-<a class="sourceLine" id="cb5-7" title="7">    <span class="cf">return</span> <span class="dv">3</span> <span class="op">*</span> a <span class="op">*</span> D<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> b <span class="op">*</span> D <span class="op">+</span> c</a>
-<a class="sourceLine" id="cb5-8" title="8"></a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="kw">def</span> lagrange4(s0, s1, s2, s3):</a>
-<a class="sourceLine" id="cb5-10" title="10">    <span class="cf">return</span> (</a>
-<a class="sourceLine" id="cb5-11" title="11">        <span class="dv">-1</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">*</span> s0 <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s1 <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s2 <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">*</span> s3,</a>
-<a class="sourceLine" id="cb5-12" title="12">        s0 <span class="op">-</span> <span class="dv">5</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s1 <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> s2 <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s3,</a>
-<a class="sourceLine" id="cb5-13" title="13">        <span class="dv">-6</span> <span class="op">/</span> <span class="dv">11</span> <span class="op">*</span> s0 <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> s1 <span class="op">-</span> <span class="dv">3</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s2 <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">3</span> <span class="op">*</span> s3,</a>
-<a class="sourceLine" id="cb5-14" title="14">        s0,</a>
-<a class="sourceLine" id="cb5-15" title="15">    )</a>
-<a class="sourceLine" id="cb5-16" title="16"></a>
-<a class="sourceLine" id="cb5-17" title="17"><span class="kw">def</span> estimate(sign, rho, s0, s1, s2, s3):</a>
-<a class="sourceLine" id="cb5-18" title="18">    a, b, c, e <span class="op">=</span> lagrange4(s0, s1, s2, s3)</a>
-<a class="sourceLine" id="cb5-19" title="19">    D <span class="op">=</span> <span class="fl">1.5</span></a>
-<a class="sourceLine" id="cb5-20" title="20">    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):  <span class="co"># 実験なので多めに回す。</span></a>
-<a class="sourceLine" id="cb5-21" title="21">        D <span class="op">=</span> D <span class="op">-</span> f(D, a, b, c, e, rho) <span class="op">/</span> f_dash(D, a, b, c)</a>
-<a class="sourceLine" id="cb5-22" title="22">    <span class="cf">return</span> (</a>
-<a class="sourceLine" id="cb5-23" title="23">        D,</a>
-<a class="sourceLine" id="cb5-24" title="24">        f(D, a, b, c, e, rho),</a>
-<a class="sourceLine" id="cb5-25" title="25">        numpy.<span class="bu">abs</span>(f_dash(D, a, b, c)),</a>
-<a class="sourceLine" id="cb5-26" title="26">    )</a>
-<a class="sourceLine" id="cb5-27" title="27"></a>
-<a class="sourceLine" id="cb5-28" title="28"><span class="kw">def</span> blamp_residual(d, slope):</a>
-<a class="sourceLine" id="cb5-29" title="29">    <span class="cf">return</span> (</a>
-<a class="sourceLine" id="cb5-30" title="30">        slope <span class="op">*</span> (<span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">-</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">-</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>),</a>
-<a class="sourceLine" id="cb5-31" title="31">        slope <span class="op">*</span> (d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">-</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">3</span> <span class="op">-</span> d <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">7</span> <span class="op">/</span> <span class="dv">30</span>),</a>
-<a class="sourceLine" id="cb5-32" title="32">        slope <span class="op">*</span> (<span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>),</a>
-<a class="sourceLine" id="cb5-33" title="33">        slope <span class="op">*</span> (d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span>),</a>
-<a class="sourceLine" id="cb5-34" title="34">    )</a>
-<a class="sourceLine" id="cb5-35" title="35"></a>
-<a class="sourceLine" id="cb5-36" title="36"><span class="kw">def</span> ramp(x, scale):</a>
-<a class="sourceLine" id="cb5-37" title="37">    <span class="cf">return</span> scale <span class="op">*</span> numpy.maximum(<span class="dv">0</span>, x)</a>
-<a class="sourceLine" id="cb5-38" title="38"></a>
-<a class="sourceLine" id="cb5-39" title="39">rho <span class="op">=</span> <span class="fl">1.0</span></a>
-<a class="sourceLine" id="cb5-40" title="40">scale <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb5-41" title="41">sign <span class="op">=</span> <span class="dv">1</span>  <span class="co"># ランプ関数の x の符号。</span></a>
-<a class="sourceLine" id="cb5-42" title="42">x <span class="op">=</span> numpy.arange(<span class="dv">4</span>, dtype<span class="op">=</span>numpy.float64)</a>
-<a class="sourceLine" id="cb5-43" title="43">sig <span class="op">=</span> ramp(x <span class="op">-</span> <span class="fl">1.25</span>, scale) <span class="op">+</span> rho</a>
-<a class="sourceLine" id="cb5-44" title="44"></a>
-<a class="sourceLine" id="cb5-45" title="45">D, Dy, slope <span class="op">=</span> estimate(sign, rho, <span class="op">*</span>sig)</a>
-<a class="sourceLine" id="cb5-46" title="46">result <span class="op">=</span> sig <span class="op">+</span> polyblamp_residual(D <span class="op">-</span> <span class="dv">1</span>, slope)</a>
-<a class="sourceLine" id="cb5-47" title="47"></a>
-<a class="sourceLine" id="cb5-48" title="48"><span class="co"># プロットは省略。</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">import</span> numpy</span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">def</span> f(D, a, b, c, e, rho):</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="cf">return</span> a <span class="op">*</span> D<span class="op">**</span><span class="dv">3</span> <span class="op">+</span> b <span class="op">*</span> D<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> c <span class="op">*</span> D <span class="op">+</span> e <span class="op">-</span> rho</span>
+<span id="cb5-5"><a href="#cb5-5"></a></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="kw">def</span> f_dash(D, a, b, c):</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="cf">return</span> <span class="dv">3</span> <span class="op">*</span> a <span class="op">*</span> D<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> b <span class="op">*</span> D <span class="op">+</span> c</span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="kw">def</span> lagrange4(s0, s1, s2, s3):</span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="cf">return</span> (</span>
+<span id="cb5-11"><a href="#cb5-11"></a>        <span class="dv">-1</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">*</span> s0 <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s1 <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s2 <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span> <span class="op">*</span> s3,</span>
+<span id="cb5-12"><a href="#cb5-12"></a>        s0 <span class="op">-</span> <span class="dv">5</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s1 <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> s2 <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s3,</span>
+<span id="cb5-13"><a href="#cb5-13"></a>        <span class="dv">-6</span> <span class="op">/</span> <span class="dv">11</span> <span class="op">*</span> s0 <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> s1 <span class="op">-</span> <span class="dv">3</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> s2 <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">3</span> <span class="op">*</span> s3,</span>
+<span id="cb5-14"><a href="#cb5-14"></a>        s0,</span>
+<span id="cb5-15"><a href="#cb5-15"></a>    )</span>
+<span id="cb5-16"><a href="#cb5-16"></a></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="kw">def</span> estimate(sign, rho, s0, s1, s2, s3):</span>
+<span id="cb5-18"><a href="#cb5-18"></a>    a, b, c, e <span class="op">=</span> lagrange4(s0, s1, s2, s3)</span>
+<span id="cb5-19"><a href="#cb5-19"></a>    D <span class="op">=</span> <span class="fl">1.5</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):  <span class="co"># 実験なので多めに回す。</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a>        D <span class="op">=</span> D <span class="op">-</span> f(D, a, b, c, e, rho) <span class="op">/</span> f_dash(D, a, b, c)</span>
+<span id="cb5-22"><a href="#cb5-22"></a>    <span class="cf">return</span> (</span>
+<span id="cb5-23"><a href="#cb5-23"></a>        D,</span>
+<span id="cb5-24"><a href="#cb5-24"></a>        f(D, a, b, c, e, rho),</span>
+<span id="cb5-25"><a href="#cb5-25"></a>        numpy.<span class="bu">abs</span>(f_dash(D, a, b, c)),</span>
+<span id="cb5-26"><a href="#cb5-26"></a>    )</span>
+<span id="cb5-27"><a href="#cb5-27"></a></span>
+<span id="cb5-28"><a href="#cb5-28"></a><span class="kw">def</span> blamp_residual(d, slope):</span>
+<span id="cb5-29"><a href="#cb5-29"></a>    <span class="cf">return</span> (</span>
+<span id="cb5-30"><a href="#cb5-30"></a>        slope <span class="op">*</span> (<span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">-</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">-</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>),</span>
+<span id="cb5-31"><a href="#cb5-31"></a>        slope <span class="op">*</span> (d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">-</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">3</span> <span class="op">-</span> d <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">7</span> <span class="op">/</span> <span class="dv">30</span>),</span>
+<span id="cb5-32"><a href="#cb5-32"></a>        slope <span class="op">*</span> (<span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>),</span>
+<span id="cb5-33"><a href="#cb5-33"></a>        slope <span class="op">*</span> (d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span>),</span>
+<span id="cb5-34"><a href="#cb5-34"></a>    )</span>
+<span id="cb5-35"><a href="#cb5-35"></a></span>
+<span id="cb5-36"><a href="#cb5-36"></a><span class="kw">def</span> ramp(x, scale):</span>
+<span id="cb5-37"><a href="#cb5-37"></a>    <span class="cf">return</span> scale <span class="op">*</span> numpy.maximum(<span class="dv">0</span>, x)</span>
+<span id="cb5-38"><a href="#cb5-38"></a></span>
+<span id="cb5-39"><a href="#cb5-39"></a>rho <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb5-40"><a href="#cb5-40"></a>scale <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb5-41"><a href="#cb5-41"></a>sign <span class="op">=</span> <span class="dv">1</span>  <span class="co"># ランプ関数の x の符号。</span></span>
+<span id="cb5-42"><a href="#cb5-42"></a>x <span class="op">=</span> numpy.arange(<span class="dv">4</span>, dtype<span class="op">=</span>numpy.float64)</span>
+<span id="cb5-43"><a href="#cb5-43"></a>sig <span class="op">=</span> ramp(x <span class="op">-</span> <span class="fl">1.25</span>, scale) <span class="op">+</span> rho</span>
+<span id="cb5-44"><a href="#cb5-44"></a></span>
+<span id="cb5-45"><a href="#cb5-45"></a>D, Dy, slope <span class="op">=</span> estimate(sign, rho, <span class="op">*</span>sig)</span>
+<span id="cb5-46"><a href="#cb5-46"></a>result <span class="op">=</span> sig <span class="op">+</span> polyblamp_residual(D <span class="op">-</span> <span class="dv">1</span>, slope)</span>
+<span id="cb5-47"><a href="#cb5-47"></a></span>
+<span id="cb5-48"><a href="#cb5-48"></a><span class="co"># プロットは省略。</span></span></code></pre></div>
 <p>推定結果の図です。ラグランジュ補間がうまくできていません。</p>
 <figure>
 <img src="img/d_mu_estimation.png" alt="Image of result of d and mu estimatioin." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <p>論文の式はラグランジュ補間での <span class="math inline">\(\rho\)</span> の使い方が間違っているように思います。コードの <code>estimate</code> を修正します。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">def</span> estimate(sign, rho, s0, s1, s2, s3):</a>
-<a class="sourceLine" id="cb6-2" title="2">    a, b, c, e <span class="op">=</span> lagrange4(s0 <span class="op">-</span> rho, s1 <span class="op">-</span> rho, s2 <span class="op">-</span> rho, s3 <span class="op">-</span> rho)</a>
-<a class="sourceLine" id="cb6-3" title="3">    D <span class="op">=</span> <span class="fl">1.5</span></a>
-<a class="sourceLine" id="cb6-4" title="4">    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):</a>
-<a class="sourceLine" id="cb6-5" title="5">        D <span class="op">=</span> D <span class="op">-</span> f(D, a, b, c, e, <span class="dv">0</span>) <span class="op">/</span> f_dash(D, a, b, c)</a>
-<a class="sourceLine" id="cb6-6" title="6">    <span class="cf">return</span> (</a>
-<a class="sourceLine" id="cb6-7" title="7">        D,</a>
-<a class="sourceLine" id="cb6-8" title="8">        f(D, a, b, c, e, <span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb6-9" title="9">        numpy.<span class="bu">abs</span>(f_dash(D, a, b, c)),</a>
-<a class="sourceLine" id="cb6-10" title="10">    )</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">def</span> estimate(sign, rho, s0, s1, s2, s3):</span>
+<span id="cb6-2"><a href="#cb6-2"></a>    a, b, c, e <span class="op">=</span> lagrange4(s0 <span class="op">-</span> rho, s1 <span class="op">-</span> rho, s2 <span class="op">-</span> rho, s3 <span class="op">-</span> rho)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    D <span class="op">=</span> <span class="fl">1.5</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):</span>
+<span id="cb6-5"><a href="#cb6-5"></a>        D <span class="op">=</span> D <span class="op">-</span> f(D, a, b, c, e, <span class="dv">0</span>) <span class="op">/</span> f_dash(D, a, b, c)</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="cf">return</span> (</span>
+<span id="cb6-7"><a href="#cb6-7"></a>        D,</span>
+<span id="cb6-8"><a href="#cb6-8"></a>        f(D, a, b, c, e, <span class="dv">0</span>),</span>
+<span id="cb6-9"><a href="#cb6-9"></a>        numpy.<span class="bu">abs</span>(f_dash(D, a, b, c)),</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    )</span></code></pre></div>
 <p>修正した結果です。補間はうまく動きましたが、値の推定は間違っています。</p>
 <figure>
 <img src="img/d_mu_estimation_fixed_lagrange.png" alt="Image of result of d and mu estimatioin with fixed lagrange interpolation." style="width: 480px;padding-bottom: 12px;"/>

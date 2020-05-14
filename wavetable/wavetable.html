@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
 <meta charset="utf-8" />
@@ -7,11 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <meta name="dcterms.date" content="2019-07-11" />
 <title>wavetable</title>
-
-<!-- highlight.js -->
-<link rel="stylesheet" href="../script/highlight/idea.css">
-<script src="../script/highlight/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
 
 <!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
@@ -24,11 +19,73 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
 body {
 max-width: 704px;
 margin: auto;
 padding: 32px 8px;
-font-size: 14px;
 }
 
 img {
@@ -40,61 +97,96 @@ max-width: 100%;
 }
 
 kbd {
+font-family: inherit;
 border-style: solid;
 border-width: 1px 2px 2px 1px;
 border-radius: 2px;
-padding: 2px;
+padding: 4px;
 margin: 2px;
+line-height: calc(1em + 16px);
 }
 
 a {
 text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-border-left: solid 8px #eeeeee;
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
 padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
 }
 
 table {
 border-spacing: 0px;
 border-collapse: separate;
-border: 1px solid #dddddd;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
 }
 
-tr.header {
-border: 1px solid black;
-}
-
-tr.odd {
+tr:nth-child(odd) {
 background: #eeeeee;
 }
 
-tr.even {
+tr:nth-child(even) {
 background: #ffffff;
 }
 
 th {
 height: 2em;
-font-weight: normal;
-color: #004444;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 3px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
 }
 
 td {
 height: 1.5em;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 1px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
 }
 
 audio {
@@ -105,16 +197,35 @@ label {
 vertical-align: middle;
 }
 
-code {
-color: #004444;
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
 }
 
-pre code {
-border: 4px solid #eeeeee;
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
 }
 
 li {
 margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
 }
 
 header {
@@ -129,9 +240,6 @@ padding: 0.5em;
 margin-top: 1em;
 }
 
-summary:hover {
-background-color: #eeeeee;
-}
 
 canvas {
 /* image-rendering: pixelated; */
@@ -233,21 +341,21 @@ Update: 2019-07-11
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
-  <ul>
-  <li><a href="#ウェーブテーブルのエイリアシングの低減">ウェーブテーブルのエイリアシングの低減</a><ul>
-  <li><a href="#素朴な実装">素朴な実装</a></li>
-  <li><a href="#yoshimi-のウェーブテーブル">Yoshimi のウェーブテーブル</a></li>
-  <li><a href="#補間">補間</a><ul>
-  <li><a href="#キュービック補間">キュービック補間</a></li>
-  <li><a href="#sinc-補間">Sinc 補間</a></li>
-  <li><a href="#評価">評価</a></li>
-  </ul></li>
-  <li><a href="#変調">変調</a></li>
-  <li><a href="#まとめ">まとめ</a></li>
-  <li><a href="#音のサンプル">音のサンプル</a></li>
-  <li><a href="#その他">その他</a></li>
-  </ul></li>
-  </ul>
+<ul>
+<li><a href="#ウェーブテーブルのエイリアシングの低減">ウェーブテーブルのエイリアシングの低減</a><ul>
+<li><a href="#素朴な実装">素朴な実装</a></li>
+<li><a href="#yoshimi-のウェーブテーブル">Yoshimi のウェーブテーブル</a></li>
+<li><a href="#補間">補間</a><ul>
+<li><a href="#キュービック補間">キュービック補間</a></li>
+<li><a href="#sinc-補間">Sinc 補間</a></li>
+<li><a href="#評価">評価</a></li>
+</ul></li>
+<li><a href="#変調">変調</a></li>
+<li><a href="#まとめ">まとめ</a></li>
+<li><a href="#音のサンプル">音のサンプル</a></li>
+<li><a href="#その他">その他</a></li>
+</ul></li>
+</ul>
 </nav>
 </details>
 </header>
@@ -255,30 +363,30 @@ Update: 2019-07-11
 <p>ウェーブテーブルのエイリアシングを減らす方法を調べます。</p>
 <p>コードは Python3 です。上から順にインタプリタにコピペしていけばコードが実行できるようになっています。実行には <a href="https://docs.scipy.org/doc/numpy/index.html">NumPy, SciPy</a>, <a href="https://matplotlib.org/">matplotlib</a> が必要です。</p>
 <h2 id="素朴な実装">素朴な実装</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw">def</span> saw_spectrum(size):</a>
-<a class="sourceLine" id="cb1-4" title="4">    spec <span class="op">=</span> [<span class="dv">0</span>] <span class="op">+</span> [(<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">/</span> k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">int</span>(size <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span>))]</a>
-<a class="sourceLine" id="cb1-5" title="5">    spec <span class="op">=</span> <span class="op">-</span>1j <span class="op">*</span> size <span class="op">/</span> numpy.pi <span class="op">*</span> numpy.array(spec)</a>
-<a class="sourceLine" id="cb1-6" title="6">    <span class="cf">return</span> spec</a>
-<a class="sourceLine" id="cb1-7" title="7"></a>
-<a class="sourceLine" id="cb1-8" title="8"><span class="kw">def</span> naive_saw(samplerate, phase, size<span class="op">=</span><span class="dv">512</span>):</a>
-<a class="sourceLine" id="cb1-9" title="9">    spec <span class="op">=</span> saw_spectrum(size)</a>
-<a class="sourceLine" id="cb1-10" title="10">    table <span class="op">=</span> numpy.fft.irfft(spec)</a>
-<a class="sourceLine" id="cb1-11" title="11">    xp <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="bu">len</span>(table))</a>
-<a class="sourceLine" id="cb1-12" title="12">    <span class="cf">return</span> numpy.interp(phase <span class="op">%</span> <span class="fl">1.0</span>, xp, table)</a>
-<a class="sourceLine" id="cb1-13" title="13"></a>
-<a class="sourceLine" id="cb1-14" title="14"><span class="kw">def</span> dry_phase(samplerate, duration, base_freq):</a>
-<a class="sourceLine" id="cb1-15" title="15">    time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, duration, <span class="bu">int</span>(samplerate <span class="op">*</span> duration))</a>
-<a class="sourceLine" id="cb1-16" title="16">    <span class="cf">return</span> base_freq <span class="op">*</span> time</a>
-<a class="sourceLine" id="cb1-17" title="17"></a>
-<a class="sourceLine" id="cb1-18" title="18">samplerate <span class="op">=</span> <span class="dv">44100</span></a>
-<a class="sourceLine" id="cb1-19" title="19">duration <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb1-20" title="20">base_freq <span class="op">=</span> <span class="dv">1000</span></a>
-<a class="sourceLine" id="cb1-21" title="21">table_size <span class="op">=</span> <span class="dv">1024</span></a>
-<a class="sourceLine" id="cb1-22" title="22"></a>
-<a class="sourceLine" id="cb1-23" title="23">phase <span class="op">=</span> dry_phase(samplerate, duration, base_freq)</a>
-<a class="sourceLine" id="cb1-24" title="24">naive <span class="op">=</span> naive_saw(samplerate, phase, table_size)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy</span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">def</span> saw_spectrum(size):</span>
+<span id="cb1-4"><a href="#cb1-4"></a>    spec <span class="op">=</span> [<span class="dv">0</span>] <span class="op">+</span> [(<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">/</span> k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">int</span>(size <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span>))]</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    spec <span class="op">=</span> <span class="op">-</span>1j <span class="op">*</span> size <span class="op">/</span> numpy.pi <span class="op">*</span> numpy.array(spec)</span>
+<span id="cb1-6"><a href="#cb1-6"></a>    <span class="cf">return</span> spec</span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="kw">def</span> naive_saw(samplerate, phase, size<span class="op">=</span><span class="dv">512</span>):</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    spec <span class="op">=</span> saw_spectrum(size)</span>
+<span id="cb1-10"><a href="#cb1-10"></a>    table <span class="op">=</span> numpy.fft.irfft(spec)</span>
+<span id="cb1-11"><a href="#cb1-11"></a>    xp <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="bu">len</span>(table))</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    <span class="cf">return</span> numpy.interp(phase <span class="op">%</span> <span class="fl">1.0</span>, xp, table)</span>
+<span id="cb1-13"><a href="#cb1-13"></a></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="kw">def</span> dry_phase(samplerate, duration, base_freq):</span>
+<span id="cb1-15"><a href="#cb1-15"></a>    time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, duration, <span class="bu">int</span>(samplerate <span class="op">*</span> duration))</span>
+<span id="cb1-16"><a href="#cb1-16"></a>    <span class="cf">return</span> base_freq <span class="op">*</span> time</span>
+<span id="cb1-17"><a href="#cb1-17"></a></span>
+<span id="cb1-18"><a href="#cb1-18"></a>samplerate <span class="op">=</span> <span class="dv">44100</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a>duration <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a>base_freq <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a>table_size <span class="op">=</span> <span class="dv">1024</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a></span>
+<span id="cb1-23"><a href="#cb1-23"></a>phase <span class="op">=</span> dry_phase(samplerate, duration, base_freq)</span>
+<span id="cb1-24"><a href="#cb1-24"></a>naive <span class="op">=</span> naive_saw(samplerate, phase, table_size)</span></code></pre></div>
 <p><code>saw_spectrum</code> はのこぎり波のスペクトラムを計算しています。のこぎり波は次のフーリエ級数で表されます。</p>
 <p><span class="math display">\[
 b_n = -\frac{(-1)^n A}{n \pi}
@@ -289,33 +397,33 @@ b_n = -\frac{(-1)^n A}{n \pi}
 <img src="img/saw_table.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <p>加算合成したのこぎり波と比較します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
-<a class="sourceLine" id="cb2-2" title="2"></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">def</span> to_decibel(data):</a>
-<a class="sourceLine" id="cb2-4" title="4">    data_abs <span class="op">=</span> numpy.<span class="bu">abs</span>(data)</a>
-<a class="sourceLine" id="cb2-5" title="5">    <span class="cf">return</span> <span class="dv">20</span> <span class="op">*</span> numpy.log10(data_abs <span class="op">/</span> numpy.<span class="bu">max</span>(data_abs))</a>
-<a class="sourceLine" id="cb2-6" title="6"></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="kw">def</span> compare(true_sig, real_sig):</a>
-<a class="sourceLine" id="cb2-8" title="8">    true_spec <span class="op">=</span> to_decibel(numpy.<span class="bu">abs</span>(numpy.fft.rfft(true_sig)))</a>
-<a class="sourceLine" id="cb2-9" title="9">    real_spec <span class="op">=</span> to_decibel(numpy.<span class="bu">abs</span>(numpy.fft.rfft(real_sig)))</a>
-<a class="sourceLine" id="cb2-10" title="10">    pyplot.plot(true_spec, label<span class="op">=</span><span class="st">&quot;True&quot;</span>, alpha<span class="op">=</span><span class="fl">0.75</span>, lw<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">&quot;blue&quot;</span>)</a>
-<a class="sourceLine" id="cb2-11" title="11">    pyplot.plot(real_spec, label<span class="op">=</span><span class="st">&quot;Real&quot;</span>, alpha<span class="op">=</span><span class="fl">0.75</span>, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>)</a>
-<a class="sourceLine" id="cb2-12" title="12">    pyplot.grid()</a>
-<a class="sourceLine" id="cb2-13" title="13">    pyplot.legend()</a>
-<a class="sourceLine" id="cb2-14" title="14">    pyplot.ylim((<span class="op">-</span><span class="dv">200</span>, <span class="dv">10</span>))</a>
-<a class="sourceLine" id="cb2-15" title="15">    pyplot.show()</a>
-<a class="sourceLine" id="cb2-16" title="16"></a>
-<a class="sourceLine" id="cb2-17" title="17"><span class="kw">def</span> additive_saw(samplerate, base_freq, phase):</a>
-<a class="sourceLine" id="cb2-18" title="18">    omega_t <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> phase</a>
-<a class="sourceLine" id="cb2-19" title="19">    sig <span class="op">=</span> numpy.zeros_like(omega_t)</a>
-<a class="sourceLine" id="cb2-20" title="20">    overtone <span class="op">=</span> numpy.arange(base_freq, samplerate <span class="op">/</span> <span class="dv">2</span>, base_freq)</a>
-<a class="sourceLine" id="cb2-21" title="21">    <span class="cf">for</span> k, freq <span class="kw">in</span> <span class="bu">enumerate</span>(overtone, <span class="dv">1</span>):</a>
-<a class="sourceLine" id="cb2-22" title="22">        sig <span class="op">+=</span> ((<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">/</span> k) <span class="op">*</span> numpy.sin(k <span class="op">*</span> omega_t)</a>
-<a class="sourceLine" id="cb2-23" title="23">    <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> sig <span class="op">/</span> numpy.pi</a>
-<a class="sourceLine" id="cb2-24" title="24"></a>
-<a class="sourceLine" id="cb2-25" title="25">additive <span class="op">=</span> additive_saw(samplerate, base_freq, phase)</a>
-<a class="sourceLine" id="cb2-26" title="26"></a>
-<a class="sourceLine" id="cb2-27" title="27">compare(additive, naive)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">def</span> to_decibel(data):</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    data_abs <span class="op">=</span> numpy.<span class="bu">abs</span>(data)</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="cf">return</span> <span class="dv">20</span> <span class="op">*</span> numpy.log10(data_abs <span class="op">/</span> numpy.<span class="bu">max</span>(data_abs))</span>
+<span id="cb2-6"><a href="#cb2-6"></a></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="kw">def</span> compare(true_sig, real_sig):</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    true_spec <span class="op">=</span> to_decibel(numpy.<span class="bu">abs</span>(numpy.fft.rfft(true_sig)))</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    real_spec <span class="op">=</span> to_decibel(numpy.<span class="bu">abs</span>(numpy.fft.rfft(real_sig)))</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    pyplot.plot(true_spec, label<span class="op">=</span><span class="st">&quot;True&quot;</span>, alpha<span class="op">=</span><span class="fl">0.75</span>, lw<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">&quot;blue&quot;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    pyplot.plot(real_spec, label<span class="op">=</span><span class="st">&quot;Real&quot;</span>, alpha<span class="op">=</span><span class="fl">0.75</span>, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    pyplot.grid()</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    pyplot.legend()</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    pyplot.ylim((<span class="op">-</span><span class="dv">200</span>, <span class="dv">10</span>))</span>
+<span id="cb2-15"><a href="#cb2-15"></a>    pyplot.show()</span>
+<span id="cb2-16"><a href="#cb2-16"></a></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="kw">def</span> additive_saw(samplerate, base_freq, phase):</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    omega_t <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> phase</span>
+<span id="cb2-19"><a href="#cb2-19"></a>    sig <span class="op">=</span> numpy.zeros_like(omega_t)</span>
+<span id="cb2-20"><a href="#cb2-20"></a>    overtone <span class="op">=</span> numpy.arange(base_freq, samplerate <span class="op">/</span> <span class="dv">2</span>, base_freq)</span>
+<span id="cb2-21"><a href="#cb2-21"></a>    <span class="cf">for</span> k, freq <span class="kw">in</span> <span class="bu">enumerate</span>(overtone, <span class="dv">1</span>):</span>
+<span id="cb2-22"><a href="#cb2-22"></a>        sig <span class="op">+=</span> ((<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">/</span> k) <span class="op">*</span> numpy.sin(k <span class="op">*</span> omega_t)</span>
+<span id="cb2-23"><a href="#cb2-23"></a>    <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> sig <span class="op">/</span> numpy.pi</span>
+<span id="cb2-24"><a href="#cb2-24"></a></span>
+<span id="cb2-25"><a href="#cb2-25"></a>additive <span class="op">=</span> additive_saw(samplerate, base_freq, phase)</span>
+<span id="cb2-26"><a href="#cb2-26"></a></span>
+<span id="cb2-27"><a href="#cb2-27"></a>compare(additive, naive)</span></code></pre></div>
 <p>コードの実行結果です。図の縦軸は dB で表した周波数成分の大きさ、横軸は周波数です。青が加算合成した1000Hzののこぎり波のスペクトラム、赤が素朴なウェーブテーブルで合成したのこぎり波のスペクトラムです。</p>
 <figure>
 <img src="img/compare_naive.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
@@ -328,17 +436,17 @@ b_n = -\frac{(-1)^n A}{n \pi}
 <h2 id="yoshimi-のウェーブテーブル">Yoshimi のウェーブテーブル</h2>
 <p><a href="http://yoshimi.sourceforge.net/">Yoshimi</a> の ADDsynth で使われているテクニックでノイズを大幅に低減できます。Yoshimi の ADDsynth はウェーブテーブルのデータをスペクトラムとして持っています。ノートオンのたびに保持しているスペクトラムからナイキスト周波数を超える倍音を取り除いた上で IFFT してウェーブテーブルを作成しています。</p>
 <p>サンプリング周波数を <span class="math inline">\(f_s\)</span> 、合成する音の周波数を <span class="math inline">\(f\)</span> とするとナイキスト周波数を超えない最大の倍音の次数は <span class="math inline">\(N_{h} = \left\lfloor \dfrac{f_s}{2f} \right\rfloor\)</span> となります。よって IFFT する直前に <span class="math inline">\(N_h + 1\)</span> より高い周波数成分の値を 0 にすることでエイリアシングを大幅に低減することができます。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">def</span> yoshimi_saw_linterp(samplerate, base_freq, phase, size<span class="op">=</span><span class="dv">512</span>):</a>
-<a class="sourceLine" id="cb3-2" title="2">    spec <span class="op">=</span> saw_spectrum(size)</a>
-<a class="sourceLine" id="cb3-3" title="3">    n_harmonics <span class="op">=</span> <span class="bu">int</span>(samplerate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> base_freq)</a>
-<a class="sourceLine" id="cb3-4" title="4">    spec[n_harmonics <span class="op">+</span> <span class="dv">1</span>:] <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb3-5" title="5">    table <span class="op">=</span> numpy.fft.irfft(spec)</a>
-<a class="sourceLine" id="cb3-6" title="6">    xp <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="bu">len</span>(table))</a>
-<a class="sourceLine" id="cb3-7" title="7">    <span class="cf">return</span> numpy.interp(phase <span class="op">%</span> <span class="fl">1.0</span>, xp, table)</a>
-<a class="sourceLine" id="cb3-8" title="8"></a>
-<a class="sourceLine" id="cb3-9" title="9">linterp <span class="op">=</span> yoshimi_saw_linterp(samplerate, base_freq, phase)</a>
-<a class="sourceLine" id="cb3-10" title="10"></a>
-<a class="sourceLine" id="cb3-11" title="11">compare(additive, linterp)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">def</span> yoshimi_saw_linterp(samplerate, base_freq, phase, size<span class="op">=</span><span class="dv">512</span>):</span>
+<span id="cb3-2"><a href="#cb3-2"></a>    spec <span class="op">=</span> saw_spectrum(size)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    n_harmonics <span class="op">=</span> <span class="bu">int</span>(samplerate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> base_freq)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>    spec[n_harmonics <span class="op">+</span> <span class="dv">1</span>:] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>    table <span class="op">=</span> numpy.fft.irfft(spec)</span>
+<span id="cb3-6"><a href="#cb3-6"></a>    xp <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="bu">len</span>(table))</span>
+<span id="cb3-7"><a href="#cb3-7"></a>    <span class="cf">return</span> numpy.interp(phase <span class="op">%</span> <span class="fl">1.0</span>, xp, table)</span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a>linterp <span class="op">=</span> yoshimi_saw_linterp(samplerate, base_freq, phase)</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a>compare(additive, linterp)</span></code></pre></div>
 <p>実行結果です。青が加算合成のスペクトラム、赤が Yoshimi のテクニックを使ったウェーブテーブルのスペクトラムです。</p>
 <figure>
 <img src="img/compare_yoshimi_linterp.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
@@ -352,21 +460,21 @@ b_n = -\frac{(-1)^n A}{n \pi}
 <p>ここまでは線形補間を使っていましたが、キュービック補間や sinc 補間を使うことでさらにノイズを低減できます。</p>
 <h3 id="キュービック補間">キュービック補間</h3>
 <p>キュービック補間を使ったウェーブテーブルの実装です。キュービック補間の計算に <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html#scipy.interpolate.CubicSpline"><code>scipy.interpolate.CubicSpline</code></a> を使っています。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="im">import</span> scipy.interpolate <span class="im">as</span> interpolate</a>
-<a class="sourceLine" id="cb4-2" title="2"></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="kw">def</span> yoshimi_saw_cubic(samplerate, base_freq, phase, size<span class="op">=</span><span class="dv">512</span>):</a>
-<a class="sourceLine" id="cb4-4" title="4">    spec <span class="op">=</span> saw_spectrum(size)</a>
-<a class="sourceLine" id="cb4-5" title="5">    n_harmonics <span class="op">=</span> <span class="bu">int</span>(samplerate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> base_freq)</a>
-<a class="sourceLine" id="cb4-6" title="6">    spec[n_harmonics <span class="op">+</span> <span class="dv">1</span>:] <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb4-7" title="7">    table <span class="op">=</span> numpy.fft.irfft(spec)</a>
-<a class="sourceLine" id="cb4-8" title="8">    table <span class="op">=</span> numpy.append(table, [table[<span class="dv">0</span>]])</a>
-<a class="sourceLine" id="cb4-9" title="9">    xp <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="bu">len</span>(table))</a>
-<a class="sourceLine" id="cb4-10" title="10">    interp <span class="op">=</span> interpolate.CubicSpline(xp, table, bc_type<span class="op">=</span><span class="st">&quot;periodic&quot;</span>)</a>
-<a class="sourceLine" id="cb4-11" title="11">    <span class="cf">return</span> interp(phase <span class="op">%</span> <span class="fl">1.0</span>)</a>
-<a class="sourceLine" id="cb4-12" title="12"></a>
-<a class="sourceLine" id="cb4-13" title="13">cubic <span class="op">=</span> yoshimi_saw_cubic(samplerate, base_freq, phase)</a>
-<a class="sourceLine" id="cb4-14" title="14"></a>
-<a class="sourceLine" id="cb4-15" title="15">compare(additive, cubic)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="im">import</span> scipy.interpolate <span class="im">as</span> interpolate</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="kw">def</span> yoshimi_saw_cubic(samplerate, base_freq, phase, size<span class="op">=</span><span class="dv">512</span>):</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    spec <span class="op">=</span> saw_spectrum(size)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    n_harmonics <span class="op">=</span> <span class="bu">int</span>(samplerate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> base_freq)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    spec[n_harmonics <span class="op">+</span> <span class="dv">1</span>:] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    table <span class="op">=</span> numpy.fft.irfft(spec)</span>
+<span id="cb4-8"><a href="#cb4-8"></a>    table <span class="op">=</span> numpy.append(table, [table[<span class="dv">0</span>]])</span>
+<span id="cb4-9"><a href="#cb4-9"></a>    xp <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="bu">len</span>(table))</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    interp <span class="op">=</span> interpolate.CubicSpline(xp, table, bc_type<span class="op">=</span><span class="st">&quot;periodic&quot;</span>)</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    <span class="cf">return</span> interp(phase <span class="op">%</span> <span class="fl">1.0</span>)</span>
+<span id="cb4-12"><a href="#cb4-12"></a></span>
+<span id="cb4-13"><a href="#cb4-13"></a>cubic <span class="op">=</span> yoshimi_saw_cubic(samplerate, base_freq, phase)</span>
+<span id="cb4-14"><a href="#cb4-14"></a></span>
+<span id="cb4-15"><a href="#cb4-15"></a>compare(additive, cubic)</span></code></pre></div>
 <p>実行結果です。赤がキュービック補間を使った Yoshimi のウェーブテーブルのスペクトラムです。</p>
 <figure>
 <img src="img/compare_yoshimi_cubic.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
@@ -390,28 +498,28 @@ x(j) &amp;= \sum_{i=0}^{N-1} x[i]\,\mathrm{sinc}(j - i)\\
 <li><a href="https://math.stackexchange.com/questions/1372632/how-does-sinc-interpolation-work">How does sinc interpolation work? - Mathematics Stack Exchange</a></li>
 </ul>
 <p>Sinc 補間を使ったウェーブテーブルの実装です。 Sinc 関数の計算に <a href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.sinc.html"><code>numpy.sinc</code></a> を使っています。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="im">import</span> scipy.signal <span class="im">as</span> signal</a>
-<a class="sourceLine" id="cb5-2" title="2"></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw">def</span> sinc_saw(samplerate, base_freq, phase, size<span class="op">=</span><span class="dv">512</span>):</a>
-<a class="sourceLine" id="cb5-4" title="4">    spec <span class="op">=</span> saw_spectrum(size)</a>
-<a class="sourceLine" id="cb5-5" title="5">    n_harmonics <span class="op">=</span> <span class="bu">int</span>(samplerate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> base_freq)</a>
-<a class="sourceLine" id="cb5-6" title="6">    spec[n_harmonics <span class="op">+</span> <span class="dv">1</span>:] <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb5-7" title="7">    table <span class="op">=</span> numpy.fft.irfft(spec) <span class="co"># ウェーブテーブル</span></a>
-<a class="sourceLine" id="cb5-8" title="8">    window <span class="op">=</span> signal.windows.kaiser(<span class="bu">len</span>(table) <span class="op">-</span> <span class="dv">1</span>, <span class="fl">2.0952</span>)</a>
-<a class="sourceLine" id="cb5-9" title="9">    window <span class="op">=</span> numpy.insert(window, <span class="dv">0</span>, <span class="dv">0</span>) <span class="co"># 奇数次の窓関数。</span></a>
-<a class="sourceLine" id="cb5-10" title="10">    half <span class="op">=</span> <span class="bu">len</span>(window) <span class="op">//</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb5-11" title="11">    w_index <span class="op">=</span> numpy.arange(<span class="op">-</span>half, half) <span class="co"># Sinc 補間の式の i 。</span></a>
-<a class="sourceLine" id="cb5-12" title="12">    phase <span class="op">=</span> phase <span class="op">%</span> <span class="fl">1.0</span> <span class="op">*</span> <span class="bu">len</span>(table)</a>
-<a class="sourceLine" id="cb5-13" title="13">    sig <span class="op">=</span> numpy.zeros_like(phase)</a>
-<a class="sourceLine" id="cb5-14" title="14">    <span class="cf">for</span> sig_index, ph <span class="kw">in</span> <span class="bu">enumerate</span>(phase):</a>
-<a class="sourceLine" id="cb5-15" title="15">        win <span class="op">=</span> window <span class="op">*</span> numpy.sinc(ph <span class="op">%</span> <span class="fl">1.0</span> <span class="op">-</span> w_index) <span class="co"># Sinc 補間の係数。</span></a>
-<a class="sourceLine" id="cb5-16" title="16">        rolled <span class="op">=</span> numpy.roll(table, half <span class="op">-</span> <span class="bu">int</span>(ph))[:<span class="bu">len</span>(window)]</a>
-<a class="sourceLine" id="cb5-17" title="17">        sig[sig_index] <span class="op">=</span> numpy.<span class="bu">sum</span>(win <span class="op">*</span> rolled)</a>
-<a class="sourceLine" id="cb5-18" title="18">    <span class="cf">return</span> sig</a>
-<a class="sourceLine" id="cb5-19" title="19"></a>
-<a class="sourceLine" id="cb5-20" title="20">sinc <span class="op">=</span> sinc_saw(samplerate, base_freq, phase)</a>
-<a class="sourceLine" id="cb5-21" title="21"></a>
-<a class="sourceLine" id="cb5-22" title="22">compare(additive, sinc)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">def</span> sinc_saw(samplerate, base_freq, phase, size<span class="op">=</span><span class="dv">512</span>):</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    spec <span class="op">=</span> saw_spectrum(size)</span>
+<span id="cb5-5"><a href="#cb5-5"></a>    n_harmonics <span class="op">=</span> <span class="bu">int</span>(samplerate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> base_freq)</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    spec[n_harmonics <span class="op">+</span> <span class="dv">1</span>:] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>    table <span class="op">=</span> numpy.fft.irfft(spec) <span class="co"># ウェーブテーブル</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>    window <span class="op">=</span> signal.windows.kaiser(<span class="bu">len</span>(table) <span class="op">-</span> <span class="dv">1</span>, <span class="fl">2.0952</span>)</span>
+<span id="cb5-9"><a href="#cb5-9"></a>    window <span class="op">=</span> numpy.insert(window, <span class="dv">0</span>, <span class="dv">0</span>) <span class="co"># 奇数次の窓関数。</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>    half <span class="op">=</span> <span class="bu">len</span>(window) <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>    w_index <span class="op">=</span> numpy.arange(<span class="op">-</span>half, half) <span class="co"># Sinc 補間の式の i 。</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>    phase <span class="op">=</span> phase <span class="op">%</span> <span class="fl">1.0</span> <span class="op">*</span> <span class="bu">len</span>(table)</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    sig <span class="op">=</span> numpy.zeros_like(phase)</span>
+<span id="cb5-14"><a href="#cb5-14"></a>    <span class="cf">for</span> sig_index, ph <span class="kw">in</span> <span class="bu">enumerate</span>(phase):</span>
+<span id="cb5-15"><a href="#cb5-15"></a>        win <span class="op">=</span> window <span class="op">*</span> numpy.sinc(ph <span class="op">%</span> <span class="fl">1.0</span> <span class="op">-</span> w_index) <span class="co"># Sinc 補間の係数。</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a>        rolled <span class="op">=</span> numpy.roll(table, half <span class="op">-</span> <span class="bu">int</span>(ph))[:<span class="bu">len</span>(window)]</span>
+<span id="cb5-17"><a href="#cb5-17"></a>        sig[sig_index] <span class="op">=</span> numpy.<span class="bu">sum</span>(win <span class="op">*</span> rolled)</span>
+<span id="cb5-18"><a href="#cb5-18"></a>    <span class="cf">return</span> sig</span>
+<span id="cb5-19"><a href="#cb5-19"></a></span>
+<span id="cb5-20"><a href="#cb5-20"></a>sinc <span class="op">=</span> sinc_saw(samplerate, base_freq, phase)</span>
+<span id="cb5-21"><a href="#cb5-21"></a></span>
+<span id="cb5-22"><a href="#cb5-22"></a>compare(additive, sinc)</span></code></pre></div>
 <p>実行結果です。赤がキュービック補間を使った Yoshimi のウェーブテーブルのスペクトラムです。</p>
 <figure>
 <img src="img/compare_sinc.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
@@ -423,24 +531,24 @@ x(j) &amp;= \sum_{i=0}^{N-1} x[i]\,\mathrm{sinc}(j - i)\\
 <p>見た目ではノイズがわからないようになりました。以降では加算合成した信号のスペクトラムとウェーブテーブルで合成した信号の<a href="https://en.wikipedia.org/wiki/Mean_absolute_error">平均絶対誤差</a>を使って評価します。</p>
 <h3 id="評価">評価</h3>
 <p>2つの信号のスペクトラムの平均絶対誤差を計算する関数です。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="im">import</span> pprint</a>
-<a class="sourceLine" id="cb6-2" title="2"></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="kw">def</span> mean_absolute_error(true_sig, real_sig):</a>
-<a class="sourceLine" id="cb6-4" title="4">    true_spec <span class="op">=</span> to_decibel(numpy.<span class="bu">abs</span>(numpy.fft.rfft(true_sig)))</a>
-<a class="sourceLine" id="cb6-5" title="5">    real_spec <span class="op">=</span> to_decibel(numpy.<span class="bu">abs</span>(numpy.fft.rfft(real_sig)))</a>
-<a class="sourceLine" id="cb6-6" title="6">    <span class="cf">return</span> numpy.nanmean(numpy.<span class="bu">abs</span>(true_spec <span class="op">-</span> real_spec))</a>
-<a class="sourceLine" id="cb6-7" title="7"></a>
-<a class="sourceLine" id="cb6-8" title="8"><span class="kw">def</span> calc_error(additive, naive, linterp, cubic, sinc):</a>
-<a class="sourceLine" id="cb6-9" title="9">    <span class="cf">return</span> {</a>
-<a class="sourceLine" id="cb6-10" title="10">        <span class="st">&quot;naive&quot;</span>: mean_absolute_error(additive, naive),</a>
-<a class="sourceLine" id="cb6-11" title="11">        <span class="st">&quot;linterp&quot;</span>: mean_absolute_error(additive, linterp),</a>
-<a class="sourceLine" id="cb6-12" title="12">        <span class="st">&quot;cubic&quot;</span>: mean_absolute_error(additive, cubic),</a>
-<a class="sourceLine" id="cb6-13" title="13">        <span class="st">&quot;sinc&quot;</span>: mean_absolute_error(additive, sinc),</a>
-<a class="sourceLine" id="cb6-14" title="14">    }</a>
-<a class="sourceLine" id="cb6-15" title="15"></a>
-<a class="sourceLine" id="cb6-16" title="16">errors <span class="op">=</span> calc_error(additive, naive, linterp, cubic, sinc)</a>
-<a class="sourceLine" id="cb6-17" title="17">pp <span class="op">=</span> pprint.PrettyPrinter(indent<span class="op">=</span><span class="dv">4</span>)</a>
-<a class="sourceLine" id="cb6-18" title="18">pp.pprint(errors)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">import</span> pprint</span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">def</span> mean_absolute_error(true_sig, real_sig):</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    true_spec <span class="op">=</span> to_decibel(numpy.<span class="bu">abs</span>(numpy.fft.rfft(true_sig)))</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    real_spec <span class="op">=</span> to_decibel(numpy.<span class="bu">abs</span>(numpy.fft.rfft(real_sig)))</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="cf">return</span> numpy.nanmean(numpy.<span class="bu">abs</span>(true_spec <span class="op">-</span> real_spec))</span>
+<span id="cb6-7"><a href="#cb6-7"></a></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="kw">def</span> calc_error(additive, naive, linterp, cubic, sinc):</span>
+<span id="cb6-9"><a href="#cb6-9"></a>    <span class="cf">return</span> {</span>
+<span id="cb6-10"><a href="#cb6-10"></a>        <span class="st">&quot;naive&quot;</span>: mean_absolute_error(additive, naive),</span>
+<span id="cb6-11"><a href="#cb6-11"></a>        <span class="st">&quot;linterp&quot;</span>: mean_absolute_error(additive, linterp),</span>
+<span id="cb6-12"><a href="#cb6-12"></a>        <span class="st">&quot;cubic&quot;</span>: mean_absolute_error(additive, cubic),</span>
+<span id="cb6-13"><a href="#cb6-13"></a>        <span class="st">&quot;sinc&quot;</span>: mean_absolute_error(additive, sinc),</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    }</span>
+<span id="cb6-15"><a href="#cb6-15"></a></span>
+<span id="cb6-16"><a href="#cb6-16"></a>errors <span class="op">=</span> calc_error(additive, naive, linterp, cubic, sinc)</span>
+<span id="cb6-17"><a href="#cb6-17"></a>pp <span class="op">=</span> pprint.PrettyPrinter(indent<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb6-18"><a href="#cb6-18"></a>pp.pprint(errors)</span></code></pre></div>
 <p>読みやすさのために整えた実行結果です。</p>
 <pre><code>&#39;naive&#39;  : 7.914086306044551
 &#39;linterp&#39;: 0.01530352147107085
@@ -449,35 +557,35 @@ x(j) &amp;= \sum_{i=0}^{N-1} x[i]\,\mathrm{sinc}(j - i)\\
 <p>キュービック補間の誤差が最も小さくなりました。</p>
 <h2 id="変調">変調</h2>
 <p>変調をかけたときの誤差を調べます。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">def</span> generate_wave(samplerate, duration, frequency, <span class="bu">type</span><span class="op">=</span><span class="st">&quot;sin&quot;</span>):</a>
-<a class="sourceLine" id="cb8-2" title="2">    time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, duration, <span class="bu">int</span>(samplerate <span class="op">*</span> duration))</a>
-<a class="sourceLine" id="cb8-3" title="3">    phase <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> time</a>
-<a class="sourceLine" id="cb8-4" title="4">    <span class="cf">if</span> <span class="bu">type</span> <span class="op">==</span> <span class="st">&quot;saw&quot;</span>:</a>
-<a class="sourceLine" id="cb8-5" title="5">        <span class="cf">return</span> signal.sawtooth(phase, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb8-6" title="6">    <span class="cf">if</span> <span class="bu">type</span> <span class="op">==</span> <span class="st">&quot;square&quot;</span>:</a>
-<a class="sourceLine" id="cb8-7" title="7">        <span class="cf">return</span> signal.square(phase, <span class="fl">0.5</span>)</a>
-<a class="sourceLine" id="cb8-8" title="8">    <span class="cf">return</span> numpy.sin(phase)</a>
-<a class="sourceLine" id="cb8-9" title="9"></a>
-<a class="sourceLine" id="cb8-10" title="10"><span class="kw">def</span> fm_phase(samplerate, base_freq, mod_amount, mod):</a>
-<a class="sourceLine" id="cb8-11" title="11">    <span class="co">&quot;&quot;&quot;freq = base ± lfo_amount.&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb8-12" title="12">    freq <span class="op">=</span> base_freq <span class="op">+</span> mod_amount <span class="op">*</span> mod</a>
-<a class="sourceLine" id="cb8-13" title="13">    <span class="cf">return</span> (freq <span class="op">/</span> samplerate).cumsum()</a>
-<a class="sourceLine" id="cb8-14" title="14"></a>
-<a class="sourceLine" id="cb8-15" title="15">lfo_freq <span class="op">=</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb8-16" title="16">mod_amount <span class="op">=</span> <span class="dv">70</span></a>
-<a class="sourceLine" id="cb8-17" title="17"></a>
-<a class="sourceLine" id="cb8-18" title="18">lfo <span class="op">=</span> generate_wave(samplerate, duration, lfo_freq)</a>
-<a class="sourceLine" id="cb8-19" title="19"></a>
-<a class="sourceLine" id="cb8-20" title="20">phase <span class="op">=</span> fm_phase(samplerate, base_freq, mod_amount, lfo)</a>
-<a class="sourceLine" id="cb8-21" title="21"></a>
-<a class="sourceLine" id="cb8-22" title="22">additive <span class="op">=</span> additive_saw(samplerate, base_freq, phase)</a>
-<a class="sourceLine" id="cb8-23" title="23">naive <span class="op">=</span> naive_saw(samplerate, phase, table_size)</a>
-<a class="sourceLine" id="cb8-24" title="24">linterp <span class="op">=</span> yoshimi_saw_linterp(samplerate, base_freq, phase, table_size)</a>
-<a class="sourceLine" id="cb8-25" title="25">cubic <span class="op">=</span> yoshimi_saw_cubic(samplerate, base_freq, phase, table_size)</a>
-<a class="sourceLine" id="cb8-26" title="26">sinc <span class="op">=</span> sinc_saw(samplerate, base_freq, phase, table_size)</a>
-<a class="sourceLine" id="cb8-27" title="27"></a>
-<a class="sourceLine" id="cb8-28" title="28">errors <span class="op">=</span> calc_error(additive, naive, linterp, cubic, sinc)</a>
-<a class="sourceLine" id="cb8-29" title="29">pp.pprint(errors)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">def</span> generate_wave(samplerate, duration, frequency, <span class="bu">type</span><span class="op">=</span><span class="st">&quot;sin&quot;</span>):</span>
+<span id="cb8-2"><a href="#cb8-2"></a>    time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, duration, <span class="bu">int</span>(samplerate <span class="op">*</span> duration))</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    phase <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> time</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="cf">if</span> <span class="bu">type</span> <span class="op">==</span> <span class="st">&quot;saw&quot;</span>:</span>
+<span id="cb8-5"><a href="#cb8-5"></a>        <span class="cf">return</span> signal.sawtooth(phase, <span class="dv">1</span>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    <span class="cf">if</span> <span class="bu">type</span> <span class="op">==</span> <span class="st">&quot;square&quot;</span>:</span>
+<span id="cb8-7"><a href="#cb8-7"></a>        <span class="cf">return</span> signal.square(phase, <span class="fl">0.5</span>)</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="cf">return</span> numpy.sin(phase)</span>
+<span id="cb8-9"><a href="#cb8-9"></a></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="kw">def</span> fm_phase(samplerate, base_freq, mod_amount, mod):</span>
+<span id="cb8-11"><a href="#cb8-11"></a>    <span class="co">&quot;&quot;&quot;freq = base ± lfo_amount.&quot;&quot;&quot;</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>    freq <span class="op">=</span> base_freq <span class="op">+</span> mod_amount <span class="op">*</span> mod</span>
+<span id="cb8-13"><a href="#cb8-13"></a>    <span class="cf">return</span> (freq <span class="op">/</span> samplerate).cumsum()</span>
+<span id="cb8-14"><a href="#cb8-14"></a></span>
+<span id="cb8-15"><a href="#cb8-15"></a>lfo_freq <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a>mod_amount <span class="op">=</span> <span class="dv">70</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a></span>
+<span id="cb8-18"><a href="#cb8-18"></a>lfo <span class="op">=</span> generate_wave(samplerate, duration, lfo_freq)</span>
+<span id="cb8-19"><a href="#cb8-19"></a></span>
+<span id="cb8-20"><a href="#cb8-20"></a>phase <span class="op">=</span> fm_phase(samplerate, base_freq, mod_amount, lfo)</span>
+<span id="cb8-21"><a href="#cb8-21"></a></span>
+<span id="cb8-22"><a href="#cb8-22"></a>additive <span class="op">=</span> additive_saw(samplerate, base_freq, phase)</span>
+<span id="cb8-23"><a href="#cb8-23"></a>naive <span class="op">=</span> naive_saw(samplerate, phase, table_size)</span>
+<span id="cb8-24"><a href="#cb8-24"></a>linterp <span class="op">=</span> yoshimi_saw_linterp(samplerate, base_freq, phase, table_size)</span>
+<span id="cb8-25"><a href="#cb8-25"></a>cubic <span class="op">=</span> yoshimi_saw_cubic(samplerate, base_freq, phase, table_size)</span>
+<span id="cb8-26"><a href="#cb8-26"></a>sinc <span class="op">=</span> sinc_saw(samplerate, base_freq, phase, table_size)</span>
+<span id="cb8-27"><a href="#cb8-27"></a></span>
+<span id="cb8-28"><a href="#cb8-28"></a>errors <span class="op">=</span> calc_error(additive, naive, linterp, cubic, sinc)</span>
+<span id="cb8-29"><a href="#cb8-29"></a>pp.pprint(errors)</span></code></pre></div>
 <p>整形した実行結果です。</p>
 <pre><code>&#39;naive&#39;  : 21.15172242905035
 &#39;linterp&#39;:  4.534071784520711
@@ -492,12 +600,12 @@ x(j) &amp;= \sum_{i=0}^{N-1} x[i]\,\mathrm{sinc}(j - i)\\
 <p>Sinc 補間の誤差が最も小さくなっています。</p>
 <h2 id="まとめ">まとめ</h2>
 <p><code>base_freq</code> を変えたときのキュービック補間と sinc 補間の誤差の変化を調べます。次のパラメータを使いました。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1">samplerate <span class="op">=</span> <span class="dv">44100</span></a>
-<a class="sourceLine" id="cb11-2" title="2">duration <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb11-3" title="3">base_freq <span class="op">=</span> numpy.geomspace(<span class="dv">20</span>, <span class="dv">20000</span>, <span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb11-4" title="4">table_size <span class="op">=</span> <span class="dv">1024</span></a>
-<a class="sourceLine" id="cb11-5" title="5">lfo_freq <span class="op">=</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb11-6" title="6">mod_amount <span class="op">=</span> <span class="dv">70</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a>samplerate <span class="op">=</span> <span class="dv">44100</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>duration <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>base_freq <span class="op">=</span> numpy.geomspace(<span class="dv">20</span>, <span class="dv">20000</span>, <span class="dv">100</span>)</span>
+<span id="cb11-4"><a href="#cb11-4"></a>table_size <span class="op">=</span> <span class="dv">1024</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>lfo_freq <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>mod_amount <span class="op">=</span> <span class="dv">70</span></span></code></pre></div>
 <p>変調なしのときのウェーブテーブルの誤差です。</p>
 <figure>
 <img src="img/wavetable_error_dry.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
@@ -732,14 +840,14 @@ m[i-1]
 \]</span></p>
 <p>今回は <span class="math inline">\(x\)</span> が等間隔にサンプリングされているので <span class="math inline">\(x[i-1] - x[i-2]\)</span> と <span class="math inline">\(x[i] - x[i-1]\)</span> を1に置き換えることができます。</p>
 <p>実装します。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">def</span> cinterp(y0, y1, y2, y3, t):</a>
-<a class="sourceLine" id="cb12-2" title="2">    <span class="co">&quot;&quot;&quot;t の範囲は [0, 1] 。 y1 と y2 の間を補間。&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb12-3" title="3">    t2 <span class="op">=</span> t <span class="op">*</span> t</a>
-<a class="sourceLine" id="cb12-4" title="4">    c0 <span class="op">=</span> y1 <span class="op">-</span> y2</a>
-<a class="sourceLine" id="cb12-5" title="5">    c1 <span class="op">=</span> (y2 <span class="op">-</span> y0) <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb12-6" title="6">    c2 <span class="op">=</span> c0 <span class="op">+</span> c1</a>
-<a class="sourceLine" id="cb12-7" title="7">    c3 <span class="op">=</span> c0 <span class="op">+</span> c2 <span class="op">+</span> (y3 <span class="op">-</span> y1) <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb12-8" title="8">    <span class="cf">return</span> c3 <span class="op">*</span> t <span class="op">*</span> t2 <span class="op">-</span> (c2 <span class="op">+</span> c3) <span class="op">*</span> t2 <span class="op">+</span> c1 <span class="op">*</span> t <span class="op">+</span> y1</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">def</span> cinterp(y0, y1, y2, y3, t):</span>
+<span id="cb12-2"><a href="#cb12-2"></a>    <span class="co">&quot;&quot;&quot;t の範囲は [0, 1] 。 y1 と y2 の間を補間。&quot;&quot;&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a>    t2 <span class="op">=</span> t <span class="op">*</span> t</span>
+<span id="cb12-4"><a href="#cb12-4"></a>    c0 <span class="op">=</span> y1 <span class="op">-</span> y2</span>
+<span id="cb12-5"><a href="#cb12-5"></a>    c1 <span class="op">=</span> (y2 <span class="op">-</span> y0) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>    c2 <span class="op">=</span> c0 <span class="op">+</span> c1</span>
+<span id="cb12-7"><a href="#cb12-7"></a>    c3 <span class="op">=</span> c0 <span class="op">+</span> c2 <span class="op">+</span> (y3 <span class="op">-</span> y1) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="cf">return</span> c3 <span class="op">*</span> t <span class="op">*</span> t2 <span class="op">-</span> (c2 <span class="op">+</span> c3) <span class="op">*</span> t2 <span class="op">+</span> c1 <span class="op">*</span> t <span class="op">+</span> y1</span></code></pre></div>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
 </footer>

@@ -128,12 +128,15 @@ public:
   void push(Sample newTarget) // newTarget は式中の p 。
   {
     p1 = p0;
-    p0 = (timeInSamples >= bufferSize) && (fabs(p0 - newTarget) >= Sample(1e-5))
+    p0 = timeInSamples >= bufferSize
+        && fabs(p0 - newTarget) >= Sample(1e-5)
       ? (newTarget - p0) * bufferSize / timeInSamples + p0
       : newTarget;
   }
 
-  Sample process(float index) { return value = p1 + index / bufferSize * (p0 - p1); }
+  Sample process(float index) {
+    return value = p1 + index / bufferSize * (p0 - p1);
+  }
 
 protected:
   Sample sampleRate = 44100;

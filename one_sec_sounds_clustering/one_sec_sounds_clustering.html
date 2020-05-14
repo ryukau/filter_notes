@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
 <meta charset="utf-8" />
@@ -7,11 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <meta name="dcterms.date" content="2018-12-22" />
 <title>one_sec_sounds_clustering</title>
-
-<!-- highlight.js -->
-<link rel="stylesheet" href="../script/highlight/idea.css">
-<script src="../script/highlight/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
 
 <!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
@@ -24,11 +19,73 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
 body {
 max-width: 704px;
 margin: auto;
 padding: 32px 8px;
-font-size: 14px;
 }
 
 img {
@@ -40,61 +97,96 @@ max-width: 100%;
 }
 
 kbd {
+font-family: inherit;
 border-style: solid;
 border-width: 1px 2px 2px 1px;
 border-radius: 2px;
-padding: 2px;
+padding: 4px;
 margin: 2px;
+line-height: calc(1em + 16px);
 }
 
 a {
 text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-border-left: solid 8px #eeeeee;
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
 padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
 }
 
 table {
 border-spacing: 0px;
 border-collapse: separate;
-border: 1px solid #dddddd;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
 }
 
-tr.header {
-border: 1px solid black;
-}
-
-tr.odd {
+tr:nth-child(odd) {
 background: #eeeeee;
 }
 
-tr.even {
+tr:nth-child(even) {
 background: #ffffff;
 }
 
 th {
 height: 2em;
-font-weight: normal;
-color: #004444;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 3px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
 }
 
 td {
 height: 1.5em;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 1px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
 }
 
 audio {
@@ -105,16 +197,35 @@ label {
 vertical-align: middle;
 }
 
-code {
-color: #004444;
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
 }
 
-pre code {
-border: 4px solid #eeeeee;
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
 }
 
 li {
 margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
 }
 
 header {
@@ -129,9 +240,6 @@ padding: 0.5em;
 margin-top: 1em;
 }
 
-summary:hover {
-background-color: #eeeeee;
-}
 
 canvas {
 /* image-rendering: pixelated; */
@@ -232,24 +340,24 @@ Update: 2018-12-22
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
-  <ul>
-  <li><a href="#秒以下の音のクラスタリング">1秒以下の音のクラスタリング</a><ul>
-  <li><a href="#コードについて">コードについて</a></li>
-  <li><a href="#データセット">データセット</a><ul>
-  <li><a href="#シンセサイザの音">シンセサイザの音</a></li>
-  <li><a href="#フィールドレコーディングの音">フィールドレコーディングの音</a></li>
-  </ul></li>
-  <li><a href="#特徴抽出">特徴抽出</a><ul>
-  <li><a href="#mfccデルタ">MFCC+デルタ</a></li>
-  <li><a href="#エンベロープ">エンベロープ</a></li>
-  <li><a href="#ソートしたピッチ">ソートしたピッチ</a></li>
-  </ul></li>
-  <li><a href="#クラスタリング">クラスタリング</a></li>
-  <li><a href="#その他">その他</a></li>
-  <li><a href="#the-infinite-drum-machine-の手法">The Infinite Drum Machine の手法</a></li>
-  </ul></li>
-  <li><a href="#参考サイト">参考サイト</a></li>
-  </ul>
+<ul>
+<li><a href="#秒以下の音のクラスタリング">1秒以下の音のクラスタリング</a><ul>
+<li><a href="#コードについて">コードについて</a></li>
+<li><a href="#データセット">データセット</a><ul>
+<li><a href="#シンセサイザの音">シンセサイザの音</a></li>
+<li><a href="#フィールドレコーディングの音">フィールドレコーディングの音</a></li>
+</ul></li>
+<li><a href="#特徴抽出">特徴抽出</a><ul>
+<li><a href="#mfccデルタ">MFCC+デルタ</a></li>
+<li><a href="#エンベロープ">エンベロープ</a></li>
+<li><a href="#ソートしたピッチ">ソートしたピッチ</a></li>
+</ul></li>
+<li><a href="#クラスタリング">クラスタリング</a></li>
+<li><a href="#その他">その他</a></li>
+<li><a href="#the-infinite-drum-machine-の手法">The Infinite Drum Machine の手法</a></li>
+</ul></li>
+<li><a href="#参考サイト">参考サイト</a></li>
+</ul>
 </nav>
 </details>
 </header>
@@ -280,18 +388,18 @@ Update: 2018-12-22
 <li><a href="https://ryukau.github.io/WaveCymbal/">WaveCymbal</a></li>
 </ul>
 <p>ブラウザのデベロッパツールのコンソールから次のコードを実行してレンダリングしました。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">var</span> title <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementsByTagName</span>(<span class="st">&quot;title&quot;</span>)</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">var</span> button <span class="op">=</span> title[<span class="dv">0</span>].<span class="at">innerText</span> <span class="op">===</span> <span class="st">&quot;Singen0.3&quot;</span></a>
-<a class="sourceLine" id="cb1-3" title="3">  <span class="op">?</span> <span class="va">ui</span>.<span class="at">buttonRandom</span> : buttonRandom</a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">var</span> counter <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="kw">var</span> id <span class="op">=</span> <span class="va">window</span>.<span class="at">setInterval</span>(</a>
-<a class="sourceLine" id="cb1-6" title="6">  () <span class="kw">=&gt;</span> <span class="op">{</span></a>
-<a class="sourceLine" id="cb1-7" title="7">    <span class="cf">if</span> (counter <span class="op">&gt;</span> <span class="dv">1024</span>) <span class="at">clearInterval</span>(id)</a>
-<a class="sourceLine" id="cb1-8" title="8">    <span class="va">button</span>.<span class="at">onClick</span>()</a>
-<a class="sourceLine" id="cb1-9" title="9">    <span class="op">++</span>counter</a>
-<a class="sourceLine" id="cb1-10" title="10">  <span class="op">},</span></a>
-<a class="sourceLine" id="cb1-11" title="11">  <span class="dv">1000</span></a>
-<a class="sourceLine" id="cb1-12" title="12">)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">var</span> title <span class="op">=</span> <span class="va">document</span>.<span class="at">getElementsByTagName</span>(<span class="st">&quot;title&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">var</span> button <span class="op">=</span> title[<span class="dv">0</span>].<span class="at">innerText</span> <span class="op">===</span> <span class="st">&quot;Singen0.3&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="op">?</span> <span class="va">ui</span>.<span class="at">buttonRandom</span> : buttonRandom</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">var</span> counter <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">var</span> id <span class="op">=</span> <span class="va">window</span>.<span class="at">setInterval</span>(</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  () <span class="kw">=&gt;</span> <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>    <span class="cf">if</span> (counter <span class="op">&gt;</span> <span class="dv">1024</span>) <span class="at">clearInterval</span>(id)</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="va">button</span>.<span class="at">onClick</span>()</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="op">++</span>counter</span>
+<span id="cb1-10"><a href="#cb1-10"></a>  <span class="op">},</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a>  <span class="dv">1000</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a>)</span></code></pre></div>
 <p>Pluck, KSCymbal, PADcymbal, FDNCymbal, WaveCymbalはステレオでレンダリングした音をチャンネルごとに分離してそれぞれ別のサンプルとして扱っています。</p>
 <p>得られた音を次のコードで正規化しました。<a href="http://sox.sourceforge.net/">SoX</a>を使っています。</p>
 <ul>
@@ -308,57 +416,57 @@ Update: 2018-12-22
 <h3 id="mfccデルタ">MFCC+デルタ</h3>
 <p><code>python_speech_features.mfcc</code> で取り出したMFCCを <code>numpy.ravel</code> で1次元にして <code>sklearn.cluster.AffinityPropagation</code> でクラスタリングしました。</p>
 <p>今回使った <code>python_speech_features.mfcc</code> のパラメータです。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> python_speech_features</a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="im">import</span> soundfile</a>
-<a class="sourceLine" id="cb2-3" title="3"></a>
-<a class="sourceLine" id="cb2-4" title="4">data, samplerate <span class="op">=</span> soundfile.read(<span class="st">&quot;path/to/wav_file&quot;</span>)</a>
-<a class="sourceLine" id="cb2-5" title="5"></a>
-<a class="sourceLine" id="cb2-6" title="6">nfft <span class="op">=</span> <span class="dv">1024</span></a>
-<a class="sourceLine" id="cb2-7" title="7">mfcc <span class="op">=</span> python_speech_features.mfcc(</a>
-<a class="sourceLine" id="cb2-8" title="8">    data,</a>
-<a class="sourceLine" id="cb2-9" title="9">    samplerate,</a>
-<a class="sourceLine" id="cb2-10" title="10">    winlen<span class="op">=</span>nfft <span class="op">/</span> samplerate,</a>
-<a class="sourceLine" id="cb2-11" title="11">    winstep<span class="op">=</span><span class="fl">0.01</span>,</a>
-<a class="sourceLine" id="cb2-12" title="12">    numcep<span class="op">=</span><span class="dv">26</span>,</a>
-<a class="sourceLine" id="cb2-13" title="13">    nfilt<span class="op">=</span><span class="dv">52</span>,</a>
-<a class="sourceLine" id="cb2-14" title="14">    nfft<span class="op">=</span>nfft,</a>
-<a class="sourceLine" id="cb2-15" title="15">    lowfreq<span class="op">=</span><span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb2-16" title="16">    highfreq<span class="op">=</span><span class="dv">20000</span>,</a>
-<a class="sourceLine" id="cb2-17" title="17">    preemph<span class="op">=</span><span class="fl">0.0</span>,</a>
-<a class="sourceLine" id="cb2-18" title="18">    ceplifter<span class="op">=</span><span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb2-19" title="19">)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> python_speech_features</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="im">import</span> soundfile</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a>data, samplerate <span class="op">=</span> soundfile.read(<span class="st">&quot;path/to/wav_file&quot;</span>)</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a>nfft <span class="op">=</span> <span class="dv">1024</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>mfcc <span class="op">=</span> python_speech_features.mfcc(</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    data,</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    samplerate,</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    winlen<span class="op">=</span>nfft <span class="op">/</span> samplerate,</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    winstep<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    numcep<span class="op">=</span><span class="dv">26</span>,</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    nfilt<span class="op">=</span><span class="dv">52</span>,</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    nfft<span class="op">=</span>nfft,</span>
+<span id="cb2-15"><a href="#cb2-15"></a>    lowfreq<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb2-16"><a href="#cb2-16"></a>    highfreq<span class="op">=</span><span class="dv">20000</span>,</span>
+<span id="cb2-17"><a href="#cb2-17"></a>    preemph<span class="op">=</span><span class="fl">0.0</span>,</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    ceplifter<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb2-19"><a href="#cb2-19"></a>)</span></code></pre></div>
 <p>今回は1秒以下の音のクラスタリングなので MFCC のフレーム数が <code>1 / winstep = 100</code> になるように調整しました。フレーム数が100より少ないときは0で埋めたフレームを付け足しています。フレーム数が100より大きいときは、音の始まりから100フレームだけを取り出して、残りのフレームを切り捨てています。</p>
 <p><a href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">Practical Cryptography の MFCC チュートリアル</a>にMFCCのデルタで結果が改善することがあると書いてあったので <code>numpy.concatenate</code> でMFCCと、MFCCのデルタをつないで一つのデータポイントにまとめました。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># mfcc の取得は省略。</span></a>
-<a class="sourceLine" id="cb3-2" title="2">delta <span class="op">=</span> python_speech_features.base.delta(mfcc, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb3-3" title="3">mfccdelta <span class="op">=</span> numpy.concatenate((numpy.ravel(mfcc), numpy.ravel(delta)))</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># mfcc の取得は省略。</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>delta <span class="op">=</span> python_speech_features.base.delta(mfcc, <span class="dv">1</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>mfccdelta <span class="op">=</span> numpy.concatenate((numpy.ravel(mfcc), numpy.ravel(delta)))</span></code></pre></div>
 <p>ここでは <code>mfccdelta</code> のことをMFCC+デルタと呼んでいます。</p>
 <h3 id="エンベロープ">エンベロープ</h3>
 <p>ここでのエンベロープは信号を短い区間に区切って、それぞれの区間で信号の絶対値の最大値を取り出したものです。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">def</span> get_envelope(data, samplerate, winstep, n_frame):</a>
-<a class="sourceLine" id="cb4-2" title="2">    <span class="co">&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="co">    :data: 一次元の信号。</span></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="co">    :samplerate: サンプリング周波数。</span></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="co">    :winstep: 区間の長さ。秒。</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="co">    :n_frame: 区間の数。</span></a>
-<a class="sourceLine" id="cb4-7" title="7"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb4-8" title="8">    data_abs <span class="op">=</span> numpy.<span class="bu">abs</span>(data)</a>
-<a class="sourceLine" id="cb4-9" title="9">    envelope <span class="op">=</span> numpy.zeros(n_frame)</a>
-<a class="sourceLine" id="cb4-10" title="10">    index <span class="op">=</span> <span class="va">None</span></a>
-<a class="sourceLine" id="cb4-11" title="11">    step <span class="op">=</span> <span class="bu">int</span>(winstep <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb4-12" title="12">    start <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb4-13" title="13">    end <span class="op">=</span> step</a>
-<a class="sourceLine" id="cb4-14" title="14">    <span class="cf">for</span> frame <span class="kw">in</span> <span class="bu">range</span>(n_frame):</a>
-<a class="sourceLine" id="cb4-15" title="15">        <span class="cf">if</span> end <span class="op">&gt;=</span> <span class="bu">len</span>(data_abs):</a>
-<a class="sourceLine" id="cb4-16" title="16">            index <span class="op">=</span> frame</a>
-<a class="sourceLine" id="cb4-17" title="17">            <span class="cf">break</span></a>
-<a class="sourceLine" id="cb4-18" title="18">        envelope[frame] <span class="op">=</span> numpy.<span class="bu">max</span>(data_abs[start:end])</a>
-<a class="sourceLine" id="cb4-19" title="19">        start <span class="op">=</span> end</a>
-<a class="sourceLine" id="cb4-20" title="20">        end <span class="op">+=</span> step</a>
-<a class="sourceLine" id="cb4-21" title="21">    <span class="cf">if</span> index <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
-<a class="sourceLine" id="cb4-22" title="22">        envelope[index] <span class="op">=</span> numpy.<span class="bu">max</span>(data_abs[start:])</a>
-<a class="sourceLine" id="cb4-23" title="23">        index <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb4-24" title="24">    <span class="cf">return</span> envelope</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> get_envelope(data, samplerate, winstep, n_frame):</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co">    :data: 一次元の信号。</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co">    :samplerate: サンプリング周波数。</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="co">    :winstep: 区間の長さ。秒。</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="co">    :n_frame: 区間の数。</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>    data_abs <span class="op">=</span> numpy.<span class="bu">abs</span>(data)</span>
+<span id="cb4-9"><a href="#cb4-9"></a>    envelope <span class="op">=</span> numpy.zeros(n_frame)</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    index <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>    step <span class="op">=</span> <span class="bu">int</span>(winstep <span class="op">*</span> samplerate)</span>
+<span id="cb4-12"><a href="#cb4-12"></a>    start <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>    end <span class="op">=</span> step</span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="cf">for</span> frame <span class="kw">in</span> <span class="bu">range</span>(n_frame):</span>
+<span id="cb4-15"><a href="#cb4-15"></a>        <span class="cf">if</span> end <span class="op">&gt;=</span> <span class="bu">len</span>(data_abs):</span>
+<span id="cb4-16"><a href="#cb4-16"></a>            index <span class="op">=</span> frame</span>
+<span id="cb4-17"><a href="#cb4-17"></a>            <span class="cf">break</span></span>
+<span id="cb4-18"><a href="#cb4-18"></a>        envelope[frame] <span class="op">=</span> numpy.<span class="bu">max</span>(data_abs[start:end])</span>
+<span id="cb4-19"><a href="#cb4-19"></a>        start <span class="op">=</span> end</span>
+<span id="cb4-20"><a href="#cb4-20"></a>        end <span class="op">+=</span> step</span>
+<span id="cb4-21"><a href="#cb4-21"></a>    <span class="cf">if</span> index <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb4-22"><a href="#cb4-22"></a>        envelope[index] <span class="op">=</span> numpy.<span class="bu">max</span>(data_abs[start:])</span>
+<span id="cb4-23"><a href="#cb4-23"></a>        index <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb4-24"><a href="#cb4-24"></a>    <span class="cf">return</span> envelope</span></code></pre></div>
 <p>エンベロープの区間の長さと数はMFCCの対応するパラメータと合わせました。区間の長さは <code>winstep=0.01</code> 、区間の数は <code>n_frame=100</code> です。</p>
 <h3 id="ソートしたピッチ">ソートしたピッチ</h3>
 <p>ピッチは <code>python_speech_features.sigproc.framesig</code> で区切った各フレームから次の手順で取り出しました。</p>

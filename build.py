@@ -11,7 +11,6 @@ import subprocess
 import time
 import yaml
 
-from bs4 import BeautifulSoup
 from pathlib import Path
 
 def get_match(md_info, md_name):
@@ -76,6 +75,10 @@ def pandoc_md_to_html5(md, md_info, template_path):
             f"title={md.stem}",
             "--metadata",
             f"date={get_last_modified(md).split(' ')[0]}",
+            "--metadata",
+            "lang=ja",
+            "--highlight-style",
+            "some.theme",
             f"--template={str(template_path)}",
             "--from=markdown",
             "--to=html5",

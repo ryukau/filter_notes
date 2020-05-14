@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
 <meta charset="utf-8" />
@@ -7,11 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <meta name="dcterms.date" content="2019-11-08" />
 <title>ptr_oscillator</title>
-
-<!-- highlight.js -->
-<link rel="stylesheet" href="../script/highlight/idea.css">
-<script src="../script/highlight/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
 
 <!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
@@ -24,11 +19,73 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
 body {
 max-width: 704px;
 margin: auto;
 padding: 32px 8px;
-font-size: 14px;
 }
 
 img {
@@ -40,61 +97,96 @@ max-width: 100%;
 }
 
 kbd {
+font-family: inherit;
 border-style: solid;
 border-width: 1px 2px 2px 1px;
 border-radius: 2px;
-padding: 2px;
+padding: 4px;
 margin: 2px;
+line-height: calc(1em + 16px);
 }
 
 a {
 text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-border-left: solid 8px #eeeeee;
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
 padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
 }
 
 table {
 border-spacing: 0px;
 border-collapse: separate;
-border: 1px solid #dddddd;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
 }
 
-tr.header {
-border: 1px solid black;
-}
-
-tr.odd {
+tr:nth-child(odd) {
 background: #eeeeee;
 }
 
-tr.even {
+tr:nth-child(even) {
 background: #ffffff;
 }
 
 th {
 height: 2em;
-font-weight: normal;
-color: #004444;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 3px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
 }
 
 td {
 height: 1.5em;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 1px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
 }
 
 audio {
@@ -105,16 +197,35 @@ label {
 vertical-align: middle;
 }
 
-code {
-color: #004444;
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
 }
 
-pre code {
-border: 4px solid #eeeeee;
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
 }
 
 li {
 margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
 }
 
 header {
@@ -129,9 +240,6 @@ padding: 0.5em;
 margin-top: 1em;
 }
 
-summary:hover {
-background-color: #eeeeee;
-}
 
 canvas {
 /* image-rendering: pixelated; */
@@ -233,23 +341,23 @@ Update: 2019-11-08
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
-  <ul>
-  <li><a href="#ptr-オシレータ">PTR オシレータ</a><ul>
-  <li><a href="#概要">概要</a></li>
-  <li><a href="#鋸歯波">鋸歯波</a></li>
-  <li><a href="#三角波">三角波</a></li>
-  <li><a href="#ランプ関数">ランプ関数</a></li>
-  <li><a href="#ステップ関数">ステップ関数</a></li>
-  <li><a href="#レンダリングと結果">レンダリングと結果</a><ul>
-  <li><a href="#鋸歯波-1">鋸歯波</a></li>
-  <li><a href="#三角波-1">三角波</a></li>
-  <li><a href="#ランプ関数-1">ランプ関数</a></li>
-  <li><a href="#ステップ関数-1">ステップ関数</a></li>
-  </ul></li>
-  <li><a href="#その他">その他</a></li>
-  <li><a href="#参考文献">参考文献</a></li>
-  </ul></li>
-  </ul>
+<ul>
+<li><a href="#ptr-オシレータ">PTR オシレータ</a><ul>
+<li><a href="#概要">概要</a></li>
+<li><a href="#鋸歯波">鋸歯波</a></li>
+<li><a href="#三角波">三角波</a></li>
+<li><a href="#ランプ関数">ランプ関数</a></li>
+<li><a href="#ステップ関数">ステップ関数</a></li>
+<li><a href="#レンダリングと結果">レンダリングと結果</a><ul>
+<li><a href="#鋸歯波-1">鋸歯波</a></li>
+<li><a href="#三角波-1">三角波</a></li>
+<li><a href="#ランプ関数-1">ランプ関数</a></li>
+<li><a href="#ステップ関数-1">ステップ関数</a></li>
+</ul></li>
+<li><a href="#その他">その他</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul></li>
+</ul>
 </nav>
 </details>
 </header>
@@ -295,7 +403,7 @@ J^3 f(x) &amp;= \iiint f(x) \,d^3x\\
 \end{aligned}
 \]</span></p>
 <p>鋸歯波では <span class="math inline">\(f(x) = x\)</span> とします。この式は <span class="math inline">\([-1, 1]\)</span> の範囲で 1 周期分の鋸歯波になります。 wxMaxima でプロットします。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">plot2d</span>(<span class="cn">x</span>, [<span class="cn">x</span>, <span class="dv">-1</span>, <span class="dv">1</span>])$</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">plot2d</span>(<span class="cn">x</span>, [<span class="cn">x</span>, <span class="dv">-1</span>, <span class="dv">1</span>])$</span></code></pre></div>
 <figure>
 <img src="img/saw_f_x.svg" alt="Image of a plot of sawtooth f(x)." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
@@ -438,23 +546,23 @@ s(n - 2) &amp;= 2 (n - 2) T - 1\\
 <img src="img/ptr_saw_phi_region.svg" alt="Image of relation of polynomial transition regions and phi." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <p>これらの式を代入することで遷移領域内の計算式が得られます。 Maxima を使います。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb2-1" title="1"><span class="cn">N</span>: <span class="dv">3</span>;</a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="kw">for</span> <span class="cn">k</span>: <span class="dv">1</span> <span class="kw">thru</span> <span class="cn">N</span> <span class="kw">do</span> (</a>
-<a class="sourceLine" id="cb2-3" title="3">  <span class="cn">phi</span>(<span class="cn">n</span>) := <span class="kw">if</span> <span class="cn">n</span> &gt; <span class="do">&#39;</span><span class="cn">n</span> - <span class="cn">k</span> <span class="kw">then</span> <span class="cn">n</span> * <span class="cn">T</span> <span class="kw">else</span> <span class="cn">n</span> * <span class="cn">T</span> + <span class="cn">h</span>,</a>
-<a class="sourceLine" id="cb2-4" title="4"></a>
-<a class="sourceLine" id="cb2-5" title="5">  <span class="cn">s</span>(<span class="cn">n</span>) := <span class="dv">2</span> * <span class="cn">phi</span>(<span class="cn">n</span>) - <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb2-6" title="6"></a>
-<a class="sourceLine" id="cb2-7" title="7">  <span class="cn">eq</span>: (</a>
-<a class="sourceLine" id="cb2-8" title="8">    (<span class="cn">s</span>(<span class="cn">n</span>)^<span class="dv">3</span> - <span class="dv">2</span> * <span class="cn">s</span>(<span class="cn">n</span> - <span class="dv">1</span>)^<span class="dv">3</span> + <span class="cn">s</span>(<span class="cn">n</span> - <span class="dv">2</span>)^<span class="dv">3</span>) <span class="co">/* ∇^2 s^3(n) */</span></a>
-<a class="sourceLine" id="cb2-9" title="9">    - (<span class="cn">s</span>(<span class="cn">n</span>) - <span class="dv">2</span> * <span class="cn">s</span>(<span class="cn">n</span> - <span class="dv">1</span>) + <span class="cn">s</span>(<span class="cn">n</span> - <span class="dv">2</span>))     <span class="co">/* ∇^2 (-s(n)) */</span></a>
-<a class="sourceLine" id="cb2-10" title="10">  ) / <span class="dv">24</span> / <span class="cn">T</span>^<span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb2-11" title="11"></a>
-<a class="sourceLine" id="cb2-12" title="12">  <span class="cn">condition</span>:</a>
-<a class="sourceLine" id="cb2-13" title="13">    <span class="kw">if</span> <span class="cn">k</span> = <span class="cn">N</span> <span class="kw">then</span> (<span class="cn">k</span> - <span class="dv">1</span>) * <span class="cn">T</span> &lt;= <span class="cn">phi</span></a>
-<a class="sourceLine" id="cb2-14" title="14">    <span class="kw">else</span> (<span class="cn">k</span> - <span class="dv">1</span>) * <span class="cn">T</span> &lt;= <span class="cn">phi</span> <span class="kw">and</span> <span class="cn">phi</span> &lt; <span class="cn">k</span> * <span class="cn">T</span>,</a>
-<a class="sourceLine" id="cb2-15" title="15"></a>
-<a class="sourceLine" id="cb2-16" title="16">  <span class="fu">disp</span>([<span class="cn">condition</span>, <span class="fu">expand</span>(<span class="cn">eq</span>)])</a>
-<a class="sourceLine" id="cb2-17" title="17">);</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1"></a><span class="cn">N</span>: <span class="dv">3</span>;</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">for</span> <span class="cn">k</span>: <span class="dv">1</span> <span class="kw">thru</span> <span class="cn">N</span> <span class="kw">do</span> (</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="cn">phi</span>(<span class="cn">n</span>) := <span class="kw">if</span> <span class="cn">n</span> &gt; <span class="do">&#39;</span><span class="cn">n</span> - <span class="cn">k</span> <span class="kw">then</span> <span class="cn">n</span> * <span class="cn">T</span> <span class="kw">else</span> <span class="cn">n</span> * <span class="cn">T</span> + <span class="cn">h</span>,</span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="cn">s</span>(<span class="cn">n</span>) := <span class="dv">2</span> * <span class="cn">phi</span>(<span class="cn">n</span>) - <span class="dv">1</span>,</span>
+<span id="cb2-6"><a href="#cb2-6"></a></span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="cn">eq</span>: (</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    (<span class="cn">s</span>(<span class="cn">n</span>)^<span class="dv">3</span> - <span class="dv">2</span> * <span class="cn">s</span>(<span class="cn">n</span> - <span class="dv">1</span>)^<span class="dv">3</span> + <span class="cn">s</span>(<span class="cn">n</span> - <span class="dv">2</span>)^<span class="dv">3</span>) <span class="co">/* ∇^2 s^3(n) */</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>    - (<span class="cn">s</span>(<span class="cn">n</span>) - <span class="dv">2</span> * <span class="cn">s</span>(<span class="cn">n</span> - <span class="dv">1</span>) + <span class="cn">s</span>(<span class="cn">n</span> - <span class="dv">2</span>))     <span class="co">/* ∇^2 (-s(n)) */</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>  ) / <span class="dv">24</span> / <span class="cn">T</span>^<span class="dv">2</span>,</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="cn">condition</span>:</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    <span class="kw">if</span> <span class="cn">k</span> = <span class="cn">N</span> <span class="kw">then</span> (<span class="cn">k</span> - <span class="dv">1</span>) * <span class="cn">T</span> &lt;= <span class="cn">phi</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a>    <span class="kw">else</span> (<span class="cn">k</span> - <span class="dv">1</span>) * <span class="cn">T</span> &lt;= <span class="cn">phi</span> <span class="kw">and</span> <span class="cn">phi</span> &lt; <span class="cn">k</span> * <span class="cn">T</span>,</span>
+<span id="cb2-15"><a href="#cb2-15"></a></span>
+<span id="cb2-16"><a href="#cb2-16"></a>  <span class="fu">disp</span>([<span class="cn">condition</span>, <span class="fu">expand</span>(<span class="cn">eq</span>)])</span>
+<span id="cb2-17"><a href="#cb2-17"></a>);</span></code></pre></div>
 <p>整形した出力です。</p>
 <p><span class="math display">\[
 \mathtt{PTRSaw}(3, n) =
@@ -487,7 +595,7 @@ s(n - 2) &amp;= 2 (n - 2) T - 1\\
 f_{t}(x) = 1 - 2 |x|
 \]</span></p>
 <p>wxMaxima でプロットします。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb3-1" title="1"><span class="fu">plot2d</span>(<span class="dv">1</span> - <span class="dv">2</span> * <span class="fu">abs</span>(<span class="cn">x</span>), [<span class="cn">x</span>, <span class="dv">-1</span>, <span class="dv">1</span>])$</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">plot2d</span>(<span class="dv">1</span> - <span class="dv">2</span> * <span class="fu">abs</span>(<span class="cn">x</span>), [<span class="cn">x</span>, <span class="dv">-1</span>, <span class="dv">1</span>])$</span></code></pre></div>
 <figure>
 <img src="img/tri_f_x.svg" alt="Image of a plot of triangle f(x)." style="width: 400px;padding-bottom: 12px;"/>
 </figure>
@@ -555,7 +663,7 @@ f_{tpz}(x) = \begin{cases}
 \end{cases}
 \]</span></p>
 <p>Maxima でプロットします。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">plot2d</span>(<span class="kw">if</span> <span class="cn">x</span> &lt; <span class="dv">-1</span> <span class="kw">then</span> <span class="dv">0</span> <span class="kw">else</span> <span class="cn">x</span> + <span class="dv">1</span>, [<span class="cn">x</span>, <span class="dv">-2</span>, <span class="dv">2</span>])$</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">plot2d</span>(<span class="kw">if</span> <span class="cn">x</span> &lt; <span class="dv">-1</span> <span class="kw">then</span> <span class="dv">0</span> <span class="kw">else</span> <span class="cn">x</span> + <span class="dv">1</span>, [<span class="cn">x</span>, <span class="dv">-2</span>, <span class="dv">2</span>])$</span></code></pre></div>
 <figure>
 <img src="img/ramp_f_x.svg" alt="Image of ramp function." style="width: 400px;padding-bottom: 12px;"/>
 </figure>

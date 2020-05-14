@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="" >
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
 <meta charset="utf-8" />
@@ -7,11 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <meta name="dcterms.date" content="2020-03-25" />
 <title>parabolic_envelope</title>
-
-<!-- highlight.js -->
-<link rel="stylesheet" href="../script/highlight/idea.css">
-<script src="../script/highlight/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
 
 <!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
@@ -24,11 +19,73 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
 body {
 max-width: 704px;
 margin: auto;
 padding: 32px 8px;
-font-size: 14px;
 }
 
 img {
@@ -40,61 +97,96 @@ max-width: 100%;
 }
 
 kbd {
+font-family: inherit;
 border-style: solid;
 border-width: 1px 2px 2px 1px;
 border-radius: 2px;
-padding: 2px;
+padding: 4px;
 margin: 2px;
+line-height: calc(1em + 16px);
 }
 
 a {
 text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-border-left: solid 8px #eeeeee;
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
 padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
 }
 
 table {
 border-spacing: 0px;
 border-collapse: separate;
-border: 1px solid #dddddd;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
 }
 
-tr.header {
-border: 1px solid black;
-}
-
-tr.odd {
+tr:nth-child(odd) {
 background: #eeeeee;
 }
 
-tr.even {
+tr:nth-child(even) {
 background: #ffffff;
 }
 
 th {
 height: 2em;
-font-weight: normal;
-color: #004444;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 3px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
 }
 
 td {
 height: 1.5em;
-padding-left: 0.35em;
-padding-right: 0.35em;
-border-bottom: 1px solid #dddddd;
-border-left: 1px solid #dddddd;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
 }
 
 audio {
@@ -105,16 +197,35 @@ label {
 vertical-align: middle;
 }
 
-code {
-color: #004444;
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
 }
 
-pre code {
-border: 4px solid #eeeeee;
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
 }
 
 li {
 margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
 }
 
 header {
@@ -129,9 +240,6 @@ padding: 0.5em;
 margin-top: 1em;
 }
 
-summary:hover {
-background-color: #eeeeee;
-}
 
 canvas {
 /* image-rendering: pixelated; */
@@ -233,28 +341,28 @@ Update: 2020-03-25
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
-  <ul>
-  <li><a href="#放物線エンベロープ">放物線エンベロープ</a><ul>
-  <li><a href="#加速度を任意に決める方法">加速度を任意に決める方法</a><ul>
-  <li><a href="#記号の定義">記号の定義</a></li>
-  <li><a href="#ピーク-h_p-とその時点-t_p-の導出">ピーク <span class="math inline">\(h_p\)</span> とその時点 <span class="math inline">\(t_p\)</span> の導出</a></li>
-  <li><a href="#正規化">正規化</a></li>
-  <li><a href="#実装">実装</a></li>
-  </ul></li>
-  <li><a href="#時間から加速度を決める方法">時間から加速度を決める方法</a><ul>
-  <li><a href="#定義">定義</a></li>
-  <li><a href="#加速度-a_r-b_r-の導出">加速度 <span class="math inline">\(a_R, b_R\)</span> の導出</a></li>
-  <li><a href="#実装-1">実装</a></li>
-  </ul></li>
-  <li><a href="#放物線アタックと指数曲線ディケイの組み合わせ">放物線アタックと指数曲線ディケイの組み合わせ</a><ul>
-  <li><a href="#定義-1">定義</a></li>
-  <li><a href="#区間-0-leq-t-leq-t_a-でピークに到達する場合の時点-t_ka-の導出">区間 <span class="math inline">\(0 \leq t \leq t_A\)</span> でピークに到達する場合の時点 <span class="math inline">\(t_{k,A}\)</span> の導出</a></li>
-  <li><a href="#区間-t_a-leq-t-leq-t_p-でピークに到達する場合の時点-t_kp-の導出">区間 <span class="math inline">\(t_A \leq t \leq t_p\)</span> でピークに到達する場合の時点 <span class="math inline">\(t_{k,p}\)</span> の導出</a></li>
-  <li><a href="#実装-2">実装</a></li>
-  <li><a href="#別解">別解</a></li>
-  </ul></li>
-  </ul></li>
-  </ul>
+<ul>
+<li><a href="#放物線エンベロープ">放物線エンベロープ</a><ul>
+<li><a href="#加速度を任意に決める方法">加速度を任意に決める方法</a><ul>
+<li><a href="#記号の定義">記号の定義</a></li>
+<li><a href="#ピーク-h_p-とその時点-t_p-の導出">ピーク <span class="math inline">\(h_p\)</span> とその時点 <span class="math inline">\(t_p\)</span> の導出</a></li>
+<li><a href="#正規化">正規化</a></li>
+<li><a href="#実装">実装</a></li>
+</ul></li>
+<li><a href="#時間から加速度を決める方法">時間から加速度を決める方法</a><ul>
+<li><a href="#定義">定義</a></li>
+<li><a href="#加速度-a_r-b_r-の導出">加速度 <span class="math inline">\(a_R, b_R\)</span> の導出</a></li>
+<li><a href="#実装-1">実装</a></li>
+</ul></li>
+<li><a href="#放物線アタックと指数曲線ディケイの組み合わせ">放物線アタックと指数曲線ディケイの組み合わせ</a><ul>
+<li><a href="#定義-1">定義</a></li>
+<li><a href="#区間-0-leq-t-leq-t_a-でピークに到達する場合の時点-t_ka-の導出">区間 <span class="math inline">\(0 \leq t \leq t_A\)</span> でピークに到達する場合の時点 <span class="math inline">\(t_{k,A}\)</span> の導出</a></li>
+<li><a href="#区間-t_a-leq-t-leq-t_p-でピークに到達する場合の時点-t_kp-の導出">区間 <span class="math inline">\(t_A \leq t \leq t_p\)</span> でピークに到達する場合の時点 <span class="math inline">\(t_{k,p}\)</span> の導出</a></li>
+<li><a href="#実装-2">実装</a></li>
+<li><a href="#別解">別解</a></li>
+</ul></li>
+</ul></li>
+</ul>
 </nav>
 </details>
 </header>
@@ -326,95 +434,95 @@ t_p &amp;= \frac{v_A}{\nu b_A}
 \end{aligned}
 \]</span></p>
 <p>Maxima で解きます。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb1-1" title="1"><span class="cn">v_A</span>: ν * <span class="cn">a_A</span> * <span class="cn">t_A</span>;</a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="cn">h_A</span>: <span class="cn">v_A</span> * <span class="cn">t_A</span> / <span class="dv">2</span>;</a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="cn">t_p</span>: <span class="cn">v_A</span> / (ν * <span class="cn">b_A</span>);</a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="fu">solve</span>(<span class="dv">1</span> = - (ν * <span class="cn">b_A</span> * <span class="cn">t_p</span>^<span class="dv">2</span>) / <span class="dv">2</span> + <span class="cn">v_A</span> * <span class="cn">t_p</span> + <span class="cn">h_A</span>, ν);</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1"></a><span class="cn">v_A</span>: ν * <span class="cn">a_A</span> * <span class="cn">t_A</span>;</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="cn">h_A</span>: <span class="cn">v_A</span> * <span class="cn">t_A</span> / <span class="dv">2</span>;</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="cn">t_p</span>: <span class="cn">v_A</span> / (ν * <span class="cn">b_A</span>);</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">solve</span>(<span class="dv">1</span> = - (ν * <span class="cn">b_A</span> * <span class="cn">t_p</span>^<span class="dv">2</span>) / <span class="dv">2</span> + <span class="cn">v_A</span> * <span class="cn">t_p</span> + <span class="cn">h_A</span>, ν);</span></code></pre></div>
 <p>得られた <span class="math inline">\(\nu\)</span> です。</p>
 <p><span class="math display">\[
 \nu=\frac{2 {b_A}}{\left( {a_A} {b_A}+{{{a_A}}^{2}}\right)  {{{t_A}}^{2}}}
 \]</span></p>
 <h3 id="実装">実装</h3>
 <p>Python3 です。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" title="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
-<a class="sourceLine" id="cb2-3" title="3"></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="kw">class</span> AccelEnvelope:</a>
-<a class="sourceLine" id="cb2-5" title="5">    <span class="co">&quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="co">    timeR はピーク時間 t_p からのオフセット。 例えば t_p = 1 かつ timeR = 0.5 なら</span></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="co">    リリースの加速度の変更はエンベロープの開始から 1.5 秒後となる。</span></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="co">    &quot;&quot;&quot;</span></a>
-<a class="sourceLine" id="cb2-9" title="9">    <span class="kw">def</span> <span class="fu">__init__</span>(</a>
-<a class="sourceLine" id="cb2-10" title="10">        <span class="va">self</span>,</a>
-<a class="sourceLine" id="cb2-11" title="11">        samplerate: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb2-12" title="12">        accelA: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb2-13" title="13">        brakeA: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb2-14" title="14">        timeA: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb2-15" title="15">        accelR: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb2-16" title="16">        brakeR: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb2-17" title="17">        timeR: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb2-18" title="18">    ):</a>
-<a class="sourceLine" id="cb2-19" title="19">        <span class="va">self</span>.counter: <span class="bu">int</span> <span class="op">=</span> <span class="dv">-1</span></a>
-<a class="sourceLine" id="cb2-20" title="20">        <span class="va">self</span>.y: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-21" title="21">        <span class="va">self</span>.vy: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-22" title="22"></a>
-<a class="sourceLine" id="cb2-23" title="23">        <span class="va">self</span>.v_A: <span class="bu">float</span> <span class="op">=</span> accelA <span class="op">*</span> timeA</a>
-<a class="sourceLine" id="cb2-24" title="24">        <span class="va">self</span>.h_A: <span class="bu">float</span> <span class="op">=</span> accelA <span class="op">*</span> timeA <span class="op">*</span> timeA <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb2-25" title="25">        <span class="va">self</span>.t_p: <span class="bu">float</span> <span class="op">=</span> <span class="va">self</span>.v_A <span class="op">/</span> brakeA</a>
-<a class="sourceLine" id="cb2-26" title="26">        <span class="va">self</span>.h_p: <span class="bu">float</span> <span class="op">=</span> <span class="op">-</span>brakeA <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">self</span>.t_p <span class="op">*</span> <span class="va">self</span>.t_p <span class="op">\</span></a>
-<a class="sourceLine" id="cb2-27" title="27">            <span class="op">+</span> <span class="va">self</span>.v_A <span class="op">*</span> <span class="va">self</span>.t_p <span class="op">+</span> <span class="va">self</span>.h_A</a>
-<a class="sourceLine" id="cb2-28" title="28"></a>
-<a class="sourceLine" id="cb2-29" title="29">        <span class="va">self</span>.v_R: <span class="bu">float</span> <span class="op">=</span> accelR <span class="op">*</span> timeR</a>
-<a class="sourceLine" id="cb2-30" title="30">        <span class="va">self</span>.h_R: <span class="bu">float</span> <span class="op">=</span> accelR <span class="op">*</span> timeR <span class="op">*</span> timeR <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb2-31" title="31">        <span class="va">self</span>.t_E: <span class="bu">float</span> <span class="op">=</span> <span class="va">self</span>.v_R <span class="op">/</span> brakeR</a>
-<a class="sourceLine" id="cb2-32" title="32">        <span class="va">self</span>.h_E: <span class="bu">float</span> <span class="op">=</span> <span class="op">-</span>brakeR <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">self</span>.t_E <span class="op">*</span> <span class="va">self</span>.t_E <span class="op">\</span></a>
-<a class="sourceLine" id="cb2-33" title="33">            <span class="op">+</span> <span class="va">self</span>.v_R <span class="op">*</span> <span class="va">self</span>.t_E <span class="op">+</span> <span class="va">self</span>.h_R</a>
-<a class="sourceLine" id="cb2-34" title="34"></a>
-<a class="sourceLine" id="cb2-35" title="35">        <span class="co"># Normalize</span></a>
-<a class="sourceLine" id="cb2-36" title="36">        accelA, brakeA <span class="op">=</span> AccelEnvelope.normalize(accelA, brakeA, timeA)</a>
-<a class="sourceLine" id="cb2-37" title="37">        accelR, brakeR <span class="op">=</span> AccelEnvelope.normalize(accelR, brakeR, timeR)</a>
-<a class="sourceLine" id="cb2-38" title="38"></a>
-<a class="sourceLine" id="cb2-39" title="39">        <span class="co"># Change time unit from seconds to samples.</span></a>
-<a class="sourceLine" id="cb2-40" title="40">        fs2 <span class="op">=</span> samplerate <span class="op">*</span> samplerate</a>
-<a class="sourceLine" id="cb2-41" title="41"></a>
-<a class="sourceLine" id="cb2-42" title="42">        <span class="va">self</span>.accelA: <span class="bu">float</span> <span class="op">=</span> accelA <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb2-43" title="43">        <span class="va">self</span>.brakeA: <span class="bu">float</span> <span class="op">=</span> brakeA <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb2-44" title="44">        <span class="va">self</span>.timeA: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(timeA <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb2-45" title="45">        <span class="va">self</span>.n_p: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>((<span class="va">self</span>.t_p <span class="op">+</span> timeA) <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb2-46" title="46"></a>
-<a class="sourceLine" id="cb2-47" title="47">        <span class="va">self</span>.accelR: <span class="bu">float</span> <span class="op">=</span> accelR <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb2-48" title="48">        <span class="va">self</span>.brakeR: <span class="bu">float</span> <span class="op">=</span> brakeR <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb2-49" title="49">        <span class="va">self</span>.timeR: <span class="bu">int</span> <span class="op">=</span> <span class="va">self</span>.n_p <span class="op">+</span> <span class="bu">int</span>(timeR <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb2-50" title="50">        <span class="va">self</span>.n_E: <span class="bu">int</span> <span class="op">=</span> <span class="va">self</span>.n_p <span class="op">+</span> <span class="bu">int</span>((<span class="va">self</span>.t_E <span class="op">+</span> timeR) <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb2-51" title="51"></a>
-<a class="sourceLine" id="cb2-52" title="52">    <span class="kw">def</span> normalize(accel, brake, time):</a>
-<a class="sourceLine" id="cb2-53" title="53">        nu <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> brake <span class="op">/</span> ((accel <span class="op">*</span> brake <span class="op">+</span> accel <span class="op">*</span> accel) <span class="op">*</span> time <span class="op">*</span> time)</a>
-<a class="sourceLine" id="cb2-54" title="54">        <span class="cf">return</span> (accel <span class="op">*</span> nu, brake <span class="op">*</span> nu)</a>
-<a class="sourceLine" id="cb2-55" title="55"></a>
-<a class="sourceLine" id="cb2-56" title="56">    <span class="kw">def</span> process(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb2-57" title="57">        <span class="va">self</span>.counter <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-58" title="58">        <span class="cf">if</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.timeA:</a>
-<a class="sourceLine" id="cb2-59" title="59">            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.accelA</a>
-<a class="sourceLine" id="cb2-60" title="60">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_p:</a>
-<a class="sourceLine" id="cb2-61" title="61">            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.brakeA</a>
-<a class="sourceLine" id="cb2-62" title="62">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">==</span> <span class="va">self</span>.n_p:  <span class="co"># 念のため。</span></a>
-<a class="sourceLine" id="cb2-63" title="63">            <span class="va">self</span>.vy <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-64" title="64">            <span class="cf">return</span> <span class="va">self</span>.y</a>
-<a class="sourceLine" id="cb2-65" title="65">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.timeR:</a>
-<a class="sourceLine" id="cb2-66" title="66">            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.accelR</a>
-<a class="sourceLine" id="cb2-67" title="67">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_E <span class="kw">and</span> <span class="va">self</span>.y <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb2-68" title="68">            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.brakeR</a>
-<a class="sourceLine" id="cb2-69" title="69">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb2-70" title="70">            <span class="cf">return</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb2-71" title="71">        <span class="va">self</span>.y <span class="op">+=</span> <span class="va">self</span>.vy</a>
-<a class="sourceLine" id="cb2-72" title="72">        <span class="cf">return</span> <span class="va">self</span>.y</a>
-<a class="sourceLine" id="cb2-73" title="73"></a>
-<a class="sourceLine" id="cb2-74" title="74">samplerate <span class="op">=</span> <span class="dv">48000</span></a>
-<a class="sourceLine" id="cb2-75" title="75">envelope <span class="op">=</span> AccelEnvelope(samplerate, <span class="fl">0.001</span>, <span class="fl">0.002</span>, <span class="fl">0.5</span>, <span class="fl">0.0003</span>, <span class="fl">0.0004</span>, <span class="fl">1.0</span>)</a>
-<a class="sourceLine" id="cb2-76" title="76">data <span class="op">=</span> [envelope.process() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span> <span class="op">*</span> samplerate)]</a>
-<a class="sourceLine" id="cb2-77" title="77"></a>
-<a class="sourceLine" id="cb2-78" title="78">pyplot.plot(data, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Envelope&quot;</span>)</a>
-<a class="sourceLine" id="cb2-79" title="79">pyplot.show()</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> numpy</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">class</span> AccelEnvelope:</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">    timeR はピーク時間 t_p からのオフセット。 例えば t_p = 1 かつ timeR = 0.5 なら</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co">    リリースの加速度の変更はエンベロープの開始から 1.5 秒後となる。</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
+<span id="cb2-10"><a href="#cb2-10"></a>        <span class="va">self</span>,</span>
+<span id="cb2-11"><a href="#cb2-11"></a>        samplerate: <span class="bu">float</span>,</span>
+<span id="cb2-12"><a href="#cb2-12"></a>        accelA: <span class="bu">float</span>,</span>
+<span id="cb2-13"><a href="#cb2-13"></a>        brakeA: <span class="bu">float</span>,</span>
+<span id="cb2-14"><a href="#cb2-14"></a>        timeA: <span class="bu">float</span>,</span>
+<span id="cb2-15"><a href="#cb2-15"></a>        accelR: <span class="bu">float</span>,</span>
+<span id="cb2-16"><a href="#cb2-16"></a>        brakeR: <span class="bu">float</span>,</span>
+<span id="cb2-17"><a href="#cb2-17"></a>        timeR: <span class="bu">float</span>,</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    ):</span>
+<span id="cb2-19"><a href="#cb2-19"></a>        <span class="va">self</span>.counter: <span class="bu">int</span> <span class="op">=</span> <span class="dv">-1</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a>        <span class="va">self</span>.y: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a>        <span class="va">self</span>.vy: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a></span>
+<span id="cb2-23"><a href="#cb2-23"></a>        <span class="va">self</span>.v_A: <span class="bu">float</span> <span class="op">=</span> accelA <span class="op">*</span> timeA</span>
+<span id="cb2-24"><a href="#cb2-24"></a>        <span class="va">self</span>.h_A: <span class="bu">float</span> <span class="op">=</span> accelA <span class="op">*</span> timeA <span class="op">*</span> timeA <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a>        <span class="va">self</span>.t_p: <span class="bu">float</span> <span class="op">=</span> <span class="va">self</span>.v_A <span class="op">/</span> brakeA</span>
+<span id="cb2-26"><a href="#cb2-26"></a>        <span class="va">self</span>.h_p: <span class="bu">float</span> <span class="op">=</span> <span class="op">-</span>brakeA <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">self</span>.t_p <span class="op">*</span> <span class="va">self</span>.t_p <span class="op">\</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a>            <span class="op">+</span> <span class="va">self</span>.v_A <span class="op">*</span> <span class="va">self</span>.t_p <span class="op">+</span> <span class="va">self</span>.h_A</span>
+<span id="cb2-28"><a href="#cb2-28"></a></span>
+<span id="cb2-29"><a href="#cb2-29"></a>        <span class="va">self</span>.v_R: <span class="bu">float</span> <span class="op">=</span> accelR <span class="op">*</span> timeR</span>
+<span id="cb2-30"><a href="#cb2-30"></a>        <span class="va">self</span>.h_R: <span class="bu">float</span> <span class="op">=</span> accelR <span class="op">*</span> timeR <span class="op">*</span> timeR <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a>        <span class="va">self</span>.t_E: <span class="bu">float</span> <span class="op">=</span> <span class="va">self</span>.v_R <span class="op">/</span> brakeR</span>
+<span id="cb2-32"><a href="#cb2-32"></a>        <span class="va">self</span>.h_E: <span class="bu">float</span> <span class="op">=</span> <span class="op">-</span>brakeR <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">self</span>.t_E <span class="op">*</span> <span class="va">self</span>.t_E <span class="op">\</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a>            <span class="op">+</span> <span class="va">self</span>.v_R <span class="op">*</span> <span class="va">self</span>.t_E <span class="op">+</span> <span class="va">self</span>.h_R</span>
+<span id="cb2-34"><a href="#cb2-34"></a></span>
+<span id="cb2-35"><a href="#cb2-35"></a>        <span class="co"># Normalize</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a>        accelA, brakeA <span class="op">=</span> AccelEnvelope.normalize(accelA, brakeA, timeA)</span>
+<span id="cb2-37"><a href="#cb2-37"></a>        accelR, brakeR <span class="op">=</span> AccelEnvelope.normalize(accelR, brakeR, timeR)</span>
+<span id="cb2-38"><a href="#cb2-38"></a></span>
+<span id="cb2-39"><a href="#cb2-39"></a>        <span class="co"># Change time unit from seconds to samples.</span></span>
+<span id="cb2-40"><a href="#cb2-40"></a>        fs2 <span class="op">=</span> samplerate <span class="op">*</span> samplerate</span>
+<span id="cb2-41"><a href="#cb2-41"></a></span>
+<span id="cb2-42"><a href="#cb2-42"></a>        <span class="va">self</span>.accelA: <span class="bu">float</span> <span class="op">=</span> accelA <span class="op">/</span> fs2</span>
+<span id="cb2-43"><a href="#cb2-43"></a>        <span class="va">self</span>.brakeA: <span class="bu">float</span> <span class="op">=</span> brakeA <span class="op">/</span> fs2</span>
+<span id="cb2-44"><a href="#cb2-44"></a>        <span class="va">self</span>.timeA: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(timeA <span class="op">*</span> samplerate)</span>
+<span id="cb2-45"><a href="#cb2-45"></a>        <span class="va">self</span>.n_p: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>((<span class="va">self</span>.t_p <span class="op">+</span> timeA) <span class="op">*</span> samplerate)</span>
+<span id="cb2-46"><a href="#cb2-46"></a></span>
+<span id="cb2-47"><a href="#cb2-47"></a>        <span class="va">self</span>.accelR: <span class="bu">float</span> <span class="op">=</span> accelR <span class="op">/</span> fs2</span>
+<span id="cb2-48"><a href="#cb2-48"></a>        <span class="va">self</span>.brakeR: <span class="bu">float</span> <span class="op">=</span> brakeR <span class="op">/</span> fs2</span>
+<span id="cb2-49"><a href="#cb2-49"></a>        <span class="va">self</span>.timeR: <span class="bu">int</span> <span class="op">=</span> <span class="va">self</span>.n_p <span class="op">+</span> <span class="bu">int</span>(timeR <span class="op">*</span> samplerate)</span>
+<span id="cb2-50"><a href="#cb2-50"></a>        <span class="va">self</span>.n_E: <span class="bu">int</span> <span class="op">=</span> <span class="va">self</span>.n_p <span class="op">+</span> <span class="bu">int</span>((<span class="va">self</span>.t_E <span class="op">+</span> timeR) <span class="op">*</span> samplerate)</span>
+<span id="cb2-51"><a href="#cb2-51"></a></span>
+<span id="cb2-52"><a href="#cb2-52"></a>    <span class="kw">def</span> normalize(accel, brake, time):</span>
+<span id="cb2-53"><a href="#cb2-53"></a>        nu <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> brake <span class="op">/</span> ((accel <span class="op">*</span> brake <span class="op">+</span> accel <span class="op">*</span> accel) <span class="op">*</span> time <span class="op">*</span> time)</span>
+<span id="cb2-54"><a href="#cb2-54"></a>        <span class="cf">return</span> (accel <span class="op">*</span> nu, brake <span class="op">*</span> nu)</span>
+<span id="cb2-55"><a href="#cb2-55"></a></span>
+<span id="cb2-56"><a href="#cb2-56"></a>    <span class="kw">def</span> process(<span class="va">self</span>):</span>
+<span id="cb2-57"><a href="#cb2-57"></a>        <span class="va">self</span>.counter <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-58"><a href="#cb2-58"></a>        <span class="cf">if</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.timeA:</span>
+<span id="cb2-59"><a href="#cb2-59"></a>            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.accelA</span>
+<span id="cb2-60"><a href="#cb2-60"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_p:</span>
+<span id="cb2-61"><a href="#cb2-61"></a>            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.brakeA</span>
+<span id="cb2-62"><a href="#cb2-62"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">==</span> <span class="va">self</span>.n_p:  <span class="co"># 念のため。</span></span>
+<span id="cb2-63"><a href="#cb2-63"></a>            <span class="va">self</span>.vy <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-64"><a href="#cb2-64"></a>            <span class="cf">return</span> <span class="va">self</span>.y</span>
+<span id="cb2-65"><a href="#cb2-65"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.timeR:</span>
+<span id="cb2-66"><a href="#cb2-66"></a>            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.accelR</span>
+<span id="cb2-67"><a href="#cb2-67"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_E <span class="kw">and</span> <span class="va">self</span>.y <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb2-68"><a href="#cb2-68"></a>            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.brakeR</span>
+<span id="cb2-69"><a href="#cb2-69"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-70"><a href="#cb2-70"></a>            <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb2-71"><a href="#cb2-71"></a>        <span class="va">self</span>.y <span class="op">+=</span> <span class="va">self</span>.vy</span>
+<span id="cb2-72"><a href="#cb2-72"></a>        <span class="cf">return</span> <span class="va">self</span>.y</span>
+<span id="cb2-73"><a href="#cb2-73"></a></span>
+<span id="cb2-74"><a href="#cb2-74"></a>samplerate <span class="op">=</span> <span class="dv">48000</span></span>
+<span id="cb2-75"><a href="#cb2-75"></a>envelope <span class="op">=</span> AccelEnvelope(samplerate, <span class="fl">0.001</span>, <span class="fl">0.002</span>, <span class="fl">0.5</span>, <span class="fl">0.0003</span>, <span class="fl">0.0004</span>, <span class="fl">1.0</span>)</span>
+<span id="cb2-76"><a href="#cb2-76"></a>data <span class="op">=</span> [envelope.process() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span> <span class="op">*</span> samplerate)]</span>
+<span id="cb2-77"><a href="#cb2-77"></a></span>
+<span id="cb2-78"><a href="#cb2-78"></a>pyplot.plot(data, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Envelope&quot;</span>)</span>
+<span id="cb2-79"><a href="#cb2-79"></a>pyplot.show()</span></code></pre></div>
 <p>出力です。</p>
 <figure>
 <img src="img/ParabolicEnvelopeFromAccel.png" alt="Image of parabolic envelope." style="padding-bottom: 12px;"/>
@@ -486,58 +594,58 @@ b_R &amp;= \frac{2}{(1 - \beta_R) l_R^2} \\
 \]</span></p>
 <h3 id="実装-1">実装</h3>
 <p>Python3 です。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
-<a class="sourceLine" id="cb3-3" title="3"></a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="kw">class</span> AccelEnvelope:</a>
-<a class="sourceLine" id="cb3-5" title="5">    <span class="kw">def</span> <span class="fu">__init__</span>(</a>
-<a class="sourceLine" id="cb3-6" title="6">        <span class="va">self</span>,</a>
-<a class="sourceLine" id="cb3-7" title="7">        samplerate: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb3-8" title="8">        lengthA: <span class="bu">float</span>,  <span class="co"># In seconds.</span></a>
-<a class="sourceLine" id="cb3-9" title="9">        betaA: <span class="bu">float</span>,  <span class="co"># In (0, 1).</span></a>
-<a class="sourceLine" id="cb3-10" title="10">        lengthR: <span class="bu">float</span>,  <span class="co"># In seconds.</span></a>
-<a class="sourceLine" id="cb3-11" title="11">        betaR: <span class="bu">float</span>,  <span class="co"># In (0, 1).</span></a>
-<a class="sourceLine" id="cb3-12" title="12">    ):</a>
-<a class="sourceLine" id="cb3-13" title="13">        <span class="va">self</span>.counter: <span class="bu">int</span> <span class="op">=</span> <span class="dv">-1</span></a>
-<a class="sourceLine" id="cb3-14" title="14">        <span class="va">self</span>.y: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb3-15" title="15">        <span class="va">self</span>.vy: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb3-16" title="16"></a>
-<a class="sourceLine" id="cb3-17" title="17">        fs2 <span class="op">=</span> samplerate <span class="op">*</span> samplerate</a>
-<a class="sourceLine" id="cb3-18" title="18"></a>
-<a class="sourceLine" id="cb3-19" title="19">        <span class="va">self</span>.a_A: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> (betaA <span class="op">*</span> lengthA <span class="op">*</span> lengthA) <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb3-20" title="20">        <span class="va">self</span>.b_A: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> ((<span class="dv">1</span> <span class="op">-</span> betaA) <span class="op">*</span> lengthA <span class="op">*</span> lengthA) <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb3-21" title="21">        <span class="va">self</span>.n_A: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(lengthA <span class="op">*</span> betaA <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb3-22" title="22">        <span class="va">self</span>.n_p: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(lengthA <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb3-23" title="23"></a>
-<a class="sourceLine" id="cb3-24" title="24">        <span class="va">self</span>.a_R: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> (betaR <span class="op">*</span> lengthR <span class="op">*</span> lengthR) <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb3-25" title="25">        <span class="va">self</span>.b_R: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> ((<span class="dv">1</span> <span class="op">-</span> betaR) <span class="op">*</span> lengthR <span class="op">*</span> lengthR) <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb3-26" title="26">        <span class="va">self</span>.n_R: <span class="bu">int</span> <span class="op">=</span> <span class="va">self</span>.n_p <span class="op">+</span> <span class="bu">int</span>(lengthR <span class="op">*</span> betaR <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb3-27" title="27">        <span class="va">self</span>.n_E: <span class="bu">int</span> <span class="op">=</span> <span class="va">self</span>.n_p <span class="op">+</span> <span class="bu">int</span>(lengthR <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb3-28" title="28"></a>
-<a class="sourceLine" id="cb3-29" title="29">    <span class="kw">def</span> process(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb3-30" title="30">        <span class="va">self</span>.counter <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-31" title="31">        <span class="cf">if</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_A:</a>
-<a class="sourceLine" id="cb3-32" title="32">            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.a_A</a>
-<a class="sourceLine" id="cb3-33" title="33">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_p:</a>
-<a class="sourceLine" id="cb3-34" title="34">            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.b_A</a>
-<a class="sourceLine" id="cb3-35" title="35">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">==</span> <span class="va">self</span>.n_p:  <span class="co"># 念のため。</span></a>
-<a class="sourceLine" id="cb3-36" title="36">            <span class="va">self</span>.vy <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb3-37" title="37">            <span class="cf">return</span> <span class="va">self</span>.y</a>
-<a class="sourceLine" id="cb3-38" title="38">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_R:</a>
-<a class="sourceLine" id="cb3-39" title="39">            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.a_R</a>
-<a class="sourceLine" id="cb3-40" title="40">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_E <span class="kw">and</span> <span class="va">self</span>.y <span class="op">&gt;</span> <span class="dv">0</span>:</a>
-<a class="sourceLine" id="cb3-41" title="41">            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.b_R</a>
-<a class="sourceLine" id="cb3-42" title="42">        <span class="cf">else</span>:</a>
-<a class="sourceLine" id="cb3-43" title="43">            <span class="cf">return</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb3-44" title="44">        <span class="va">self</span>.y <span class="op">+=</span> <span class="va">self</span>.vy</a>
-<a class="sourceLine" id="cb3-45" title="45">        <span class="cf">return</span> <span class="va">self</span>.y</a>
-<a class="sourceLine" id="cb3-46" title="46"></a>
-<a class="sourceLine" id="cb3-47" title="47">samplerate <span class="op">=</span> <span class="dv">48000</span></a>
-<a class="sourceLine" id="cb3-48" title="48">envelope <span class="op">=</span> AccelEnvelope(samplerate, <span class="dv">2</span>, <span class="fl">0.2</span>, <span class="dv">3</span>, <span class="fl">0.8</span>)</a>
-<a class="sourceLine" id="cb3-49" title="49">data <span class="op">=</span> [envelope.process() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span> <span class="op">*</span> samplerate)]</a>
-<a class="sourceLine" id="cb3-50" title="50"></a>
-<a class="sourceLine" id="cb3-51" title="51">pyplot.plot(data, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Envelope&quot;</span>)</a>
-<a class="sourceLine" id="cb3-52" title="52">pyplot.show()</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">import</span> numpy</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">class</span> AccelEnvelope:</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
+<span id="cb3-6"><a href="#cb3-6"></a>        <span class="va">self</span>,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>        samplerate: <span class="bu">float</span>,</span>
+<span id="cb3-8"><a href="#cb3-8"></a>        lengthA: <span class="bu">float</span>,  <span class="co"># In seconds.</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>        betaA: <span class="bu">float</span>,  <span class="co"># In (0, 1).</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>        lengthR: <span class="bu">float</span>,  <span class="co"># In seconds.</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a>        betaR: <span class="bu">float</span>,  <span class="co"># In (0, 1).</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>    ):</span>
+<span id="cb3-13"><a href="#cb3-13"></a>        <span class="va">self</span>.counter: <span class="bu">int</span> <span class="op">=</span> <span class="dv">-1</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>        <span class="va">self</span>.y: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a>        <span class="va">self</span>.vy: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a></span>
+<span id="cb3-17"><a href="#cb3-17"></a>        fs2 <span class="op">=</span> samplerate <span class="op">*</span> samplerate</span>
+<span id="cb3-18"><a href="#cb3-18"></a></span>
+<span id="cb3-19"><a href="#cb3-19"></a>        <span class="va">self</span>.a_A: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> (betaA <span class="op">*</span> lengthA <span class="op">*</span> lengthA) <span class="op">/</span> fs2</span>
+<span id="cb3-20"><a href="#cb3-20"></a>        <span class="va">self</span>.b_A: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> ((<span class="dv">1</span> <span class="op">-</span> betaA) <span class="op">*</span> lengthA <span class="op">*</span> lengthA) <span class="op">/</span> fs2</span>
+<span id="cb3-21"><a href="#cb3-21"></a>        <span class="va">self</span>.n_A: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(lengthA <span class="op">*</span> betaA <span class="op">*</span> samplerate)</span>
+<span id="cb3-22"><a href="#cb3-22"></a>        <span class="va">self</span>.n_p: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(lengthA <span class="op">*</span> samplerate)</span>
+<span id="cb3-23"><a href="#cb3-23"></a></span>
+<span id="cb3-24"><a href="#cb3-24"></a>        <span class="va">self</span>.a_R: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> (betaR <span class="op">*</span> lengthR <span class="op">*</span> lengthR) <span class="op">/</span> fs2</span>
+<span id="cb3-25"><a href="#cb3-25"></a>        <span class="va">self</span>.b_R: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> ((<span class="dv">1</span> <span class="op">-</span> betaR) <span class="op">*</span> lengthR <span class="op">*</span> lengthR) <span class="op">/</span> fs2</span>
+<span id="cb3-26"><a href="#cb3-26"></a>        <span class="va">self</span>.n_R: <span class="bu">int</span> <span class="op">=</span> <span class="va">self</span>.n_p <span class="op">+</span> <span class="bu">int</span>(lengthR <span class="op">*</span> betaR <span class="op">*</span> samplerate)</span>
+<span id="cb3-27"><a href="#cb3-27"></a>        <span class="va">self</span>.n_E: <span class="bu">int</span> <span class="op">=</span> <span class="va">self</span>.n_p <span class="op">+</span> <span class="bu">int</span>(lengthR <span class="op">*</span> samplerate)</span>
+<span id="cb3-28"><a href="#cb3-28"></a></span>
+<span id="cb3-29"><a href="#cb3-29"></a>    <span class="kw">def</span> process(<span class="va">self</span>):</span>
+<span id="cb3-30"><a href="#cb3-30"></a>        <span class="va">self</span>.counter <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a>        <span class="cf">if</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_A:</span>
+<span id="cb3-32"><a href="#cb3-32"></a>            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.a_A</span>
+<span id="cb3-33"><a href="#cb3-33"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_p:</span>
+<span id="cb3-34"><a href="#cb3-34"></a>            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.b_A</span>
+<span id="cb3-35"><a href="#cb3-35"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">==</span> <span class="va">self</span>.n_p:  <span class="co"># 念のため。</span></span>
+<span id="cb3-36"><a href="#cb3-36"></a>            <span class="va">self</span>.vy <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-37"><a href="#cb3-37"></a>            <span class="cf">return</span> <span class="va">self</span>.y</span>
+<span id="cb3-38"><a href="#cb3-38"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_R:</span>
+<span id="cb3-39"><a href="#cb3-39"></a>            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.a_R</span>
+<span id="cb3-40"><a href="#cb3-40"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.n_E <span class="kw">and</span> <span class="va">self</span>.y <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-41"><a href="#cb3-41"></a>            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.b_R</span>
+<span id="cb3-42"><a href="#cb3-42"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-43"><a href="#cb3-43"></a>            <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb3-44"><a href="#cb3-44"></a>        <span class="va">self</span>.y <span class="op">+=</span> <span class="va">self</span>.vy</span>
+<span id="cb3-45"><a href="#cb3-45"></a>        <span class="cf">return</span> <span class="va">self</span>.y</span>
+<span id="cb3-46"><a href="#cb3-46"></a></span>
+<span id="cb3-47"><a href="#cb3-47"></a>samplerate <span class="op">=</span> <span class="dv">48000</span></span>
+<span id="cb3-48"><a href="#cb3-48"></a>envelope <span class="op">=</span> AccelEnvelope(samplerate, <span class="dv">2</span>, <span class="fl">0.2</span>, <span class="dv">3</span>, <span class="fl">0.8</span>)</span>
+<span id="cb3-49"><a href="#cb3-49"></a>data <span class="op">=</span> [envelope.process() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span> <span class="op">*</span> samplerate)]</span>
+<span id="cb3-50"><a href="#cb3-50"></a></span>
+<span id="cb3-51"><a href="#cb3-51"></a>pyplot.plot(data, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Envelope&quot;</span>)</span>
+<span id="cb3-52"><a href="#cb3-52"></a>pyplot.show()</span></code></pre></div>
 <p>出力です。この実装も終端の処理が適当なので小さなギャップがあります。また <span class="math inline">\(\beta\)</span> の方向がアタックとリリースで逆になっています。</p>
 <figure>
 <img src="img/ParabolicEnvelopeFromTime.png" alt="Image of parabolic envelope." style="padding-bottom: 12px;"/>
@@ -574,7 +682,7 @@ b_R &amp;= \frac{2}{(1 - \beta_R) l_R^2} \\
 </ul>
 <h3 id="区間-0-leq-t-leq-t_a-でピークに到達する場合の時点-t_ka-の導出">区間 <span class="math inline">\(0 \leq t \leq t_A\)</span> でピークに到達する場合の時点 <span class="math inline">\(t_{k,A}\)</span> の導出</h3>
 <p>区間 <span class="math inline">\(0 \leq t \leq t_A\)</span> での速度 <span class="math inline">\(\hat{\dot{y}}_A(t)\)</span> を求めます。 Maxima を使います。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb4-1" title="1"><span class="cn">y1_d1</span>: <span class="fu">diff</span>(γ^<span class="cn">t</span> * <span class="cn">a_A</span> * <span class="cn">t</span>^<span class="dv">2</span> / <span class="dv">2</span>, <span class="cn">t</span>);</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1"></a><span class="cn">y1_d1</span>: <span class="fu">diff</span>(γ^<span class="cn">t</span> * <span class="cn">a_A</span> * <span class="cn">t</span>^<span class="dv">2</span> / <span class="dv">2</span>, <span class="cn">t</span>);</span></code></pre></div>
 <p><span class="math display">\[
 \begin{aligned}
 \dot{\hat{y}}_A(t)
@@ -596,15 +704,15 @@ b_R &amp;= \frac{2}{(1 - \beta_R) l_R^2} \\
 t_A \log \gamma \leq -2
 \]</span></p>
 <p><span class="math inline">\(\dot{\hat{y}}_A(t) = 0\)</span> となる時点 <span class="math inline">\(t_{k, A}\)</span> を求めます。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb5-1" title="1"><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">y1_d1</span>, <span class="cn">t</span>);</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">y1_d1</span>, <span class="cn">t</span>);</span></code></pre></div>
 <p>2 つの解が得られますが、 <span class="math inline">\(t = 0\)</span> は使いません。エンベロープをトリガした瞬間の速度が 0 であることは事前に分かっているからです。よって <span class="math inline">\(t_{k, A}\)</span> は次の式になります。</p>
 <p><span class="math display">\[
 t_{k, A} = - \frac{2}{\log \gamma}
 \]</span></p>
 <h3 id="区間-t_a-leq-t-leq-t_p-でピークに到達する場合の時点-t_kp-の導出">区間 <span class="math inline">\(t_A \leq t \leq t_p\)</span> でピークに到達する場合の時点 <span class="math inline">\(t_{k,p}\)</span> の導出</h3>
 <p>区間 <span class="math inline">\(t_A \leq t \leq t_p\)</span> で速度 <span class="math inline">\(\hat{\dot{y}}_A(t)\)</span> が 0 になる時点 <span class="math inline">\(t_{k,p}\)</span> を求めます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode maxima"><code class="sourceCode maxima"><a class="sourceLine" id="cb6-1" title="1"><span class="cn">y2_d1</span>: <span class="fu">diff</span>(γ^<span class="cn">t</span> * (-<span class="cn">b_A</span> * <span class="cn">t</span>^<span class="dv">2</span> / <span class="dv">2</span> + <span class="cn">v_A</span> * <span class="cn">t</span> + <span class="cn">h_A</span>), <span class="cn">t</span>);</a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">y2_d1</span>, <span class="cn">t</span>);</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb6-1"><a href="#cb6-1"></a><span class="cn">y2_d1</span>: <span class="fu">diff</span>(γ^<span class="cn">t</span> * (-<span class="cn">b_A</span> * <span class="cn">t</span>^<span class="dv">2</span> / <span class="dv">2</span> + <span class="cn">v_A</span> * <span class="cn">t</span> + <span class="cn">h_A</span>), <span class="cn">t</span>);</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">y2_d1</span>, <span class="cn">t</span>);</span></code></pre></div>
 <p>2 つの解が得られました。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -624,76 +732,76 @@ t_{k,p,2} &amp;= \frac{
 <p>実装して確認したところ <span class="math inline">\(t_{k,p,2}\)</span> を使うと範囲 <span class="math inline">\([0, 1]\)</span> の出力が得られました。</p>
 <h3 id="実装-2">実装</h3>
 <p>Python3 です。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1"><span class="im">import</span> numpy</a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="im">import</span> math</a>
-<a class="sourceLine" id="cb7-3" title="3"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</a>
-<a class="sourceLine" id="cb7-4" title="4"></a>
-<a class="sourceLine" id="cb7-5" title="5"><span class="kw">class</span> AccelEnvelope:</a>
-<a class="sourceLine" id="cb7-6" title="6">    <span class="kw">def</span> <span class="fu">__init__</span>(</a>
-<a class="sourceLine" id="cb7-7" title="7">        <span class="va">self</span>,</a>
-<a class="sourceLine" id="cb7-8" title="8">        samplerate: <span class="bu">float</span>,</a>
-<a class="sourceLine" id="cb7-9" title="9">        lengthA: <span class="bu">float</span>,  <span class="co"># In seconds.</span></a>
-<a class="sourceLine" id="cb7-10" title="10">        betaA: <span class="bu">float</span>,  <span class="co"># In (0, 1).</span></a>
-<a class="sourceLine" id="cb7-11" title="11">        decay: <span class="bu">float</span>,  <span class="co"># In seconds.</span></a>
-<a class="sourceLine" id="cb7-12" title="12">    ):</a>
-<a class="sourceLine" id="cb7-13" title="13">        <span class="co"># Palabolic attack.</span></a>
-<a class="sourceLine" id="cb7-14" title="14">        <span class="va">self</span>.counter: <span class="bu">int</span> <span class="op">=</span> <span class="dv">-1</span></a>
-<a class="sourceLine" id="cb7-15" title="15">        <span class="va">self</span>.y: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb7-16" title="16">        <span class="va">self</span>.vy: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></a>
-<a class="sourceLine" id="cb7-17" title="17"></a>
-<a class="sourceLine" id="cb7-18" title="18">        fs2 <span class="op">=</span> samplerate <span class="op">*</span> samplerate</a>
-<a class="sourceLine" id="cb7-19" title="19"></a>
-<a class="sourceLine" id="cb7-20" title="20">        <span class="va">self</span>.a_A: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> (betaA <span class="op">*</span> lengthA <span class="op">*</span> lengthA) <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb7-21" title="21">        <span class="va">self</span>.b_A: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> ((<span class="dv">1</span> <span class="op">-</span> betaA) <span class="op">*</span> lengthA <span class="op">*</span> lengthA) <span class="op">/</span> fs2</a>
-<a class="sourceLine" id="cb7-22" title="22">        <span class="va">self</span>.t_A: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(lengthA <span class="op">*</span> betaA <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb7-23" title="23">        <span class="va">self</span>.t_p: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(lengthA <span class="op">*</span> samplerate)</a>
-<a class="sourceLine" id="cb7-24" title="24"></a>
-<a class="sourceLine" id="cb7-25" title="25">        <span class="co"># Exponential decay.</span></a>
-<a class="sourceLine" id="cb7-26" title="26">        <span class="va">self</span>.threshold: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1e-5</span></a>
-<a class="sourceLine" id="cb7-27" title="27">        <span class="va">self</span>.γ_D: <span class="bu">float</span> <span class="op">=</span> numpy.power(<span class="va">self</span>.threshold, <span class="dv">1</span> <span class="op">/</span> (decay <span class="op">*</span> samplerate))</a>
-<a class="sourceLine" id="cb7-28" title="28">        <span class="va">self</span>.valueD: <span class="bu">float</span> <span class="op">=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb7-29" title="29"></a>
-<a class="sourceLine" id="cb7-30" title="30">        <span class="co"># For normalization.</span></a>
-<a class="sourceLine" id="cb7-31" title="31">        <span class="va">self</span>.gain <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> <span class="va">self</span>.getPeak()</a>
-<a class="sourceLine" id="cb7-32" title="32">        <span class="co"># self.gain = 1 / self.getPeakAlt(samplerate, decay)  # Same result.</span></a>
-<a class="sourceLine" id="cb7-33" title="33"></a>
-<a class="sourceLine" id="cb7-34" title="34">    <span class="kw">def</span> getPeak(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb7-35" title="35">        log_γ <span class="op">=</span> numpy.log(<span class="va">self</span>.γ_D)</a>
-<a class="sourceLine" id="cb7-36" title="36">        <span class="cf">if</span> <span class="va">self</span>.t_A <span class="op">*</span> log_γ <span class="op">&lt;=</span> <span class="dv">-2</span>:</a>
-<a class="sourceLine" id="cb7-37" title="37">            <span class="va">self</span>.t_k <span class="op">=</span> <span class="dv">-2</span> <span class="op">/</span> numpy.log(<span class="va">self</span>.γ_D)  <span class="co"># Assign to self.t_k for debug.</span></a>
-<a class="sourceLine" id="cb7-38" title="38">            <span class="cf">return</span> <span class="va">self</span>.γ_D<span class="op">**</span><span class="va">self</span>.t_k <span class="op">*</span> <span class="va">self</span>.a_A <span class="op">*</span> <span class="va">self</span>.t_k <span class="op">*</span> <span class="va">self</span>.t_k <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb7-39" title="39">        temp <span class="op">=</span> <span class="va">self</span>.γ_D<span class="op">**</span><span class="va">self</span>.t_A <span class="op">*</span> <span class="va">self</span>.a_A</a>
-<a class="sourceLine" id="cb7-40" title="40">        v_A <span class="op">=</span> temp <span class="op">*</span> <span class="va">self</span>.t_A <span class="op">*</span> (<span class="va">self</span>.t_A <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> log_γ <span class="op">+</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb7-41" title="41">        h_A <span class="op">=</span> temp <span class="op">*</span> <span class="va">self</span>.t_A <span class="op">*</span> <span class="va">self</span>.t_A <span class="op">/</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb7-42" title="42"></a>
-<a class="sourceLine" id="cb7-43" title="43">        sqrt <span class="op">=</span> numpy.sqrt((v_A <span class="op">*</span> v_A <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">self</span>.b_A <span class="op">*</span> h_A) <span class="op">*</span> log_γ <span class="op">*</span> log_γ <span class="op">+</span></a>
-<a class="sourceLine" id="cb7-44" title="44">                          <span class="va">self</span>.b_A <span class="op">*</span> <span class="va">self</span>.b_A)</a>
-<a class="sourceLine" id="cb7-45" title="45">        t_k <span class="op">=</span> (sqrt <span class="op">+</span> v_A <span class="op">*</span> log_γ <span class="op">-</span> <span class="va">self</span>.b_A) <span class="op">/</span> (<span class="va">self</span>.b_A <span class="op">*</span> log_γ)</a>
-<a class="sourceLine" id="cb7-46" title="46">        <span class="va">self</span>.t_k <span class="op">=</span> t_k <span class="op">+</span> <span class="va">self</span>.t_A</a>
-<a class="sourceLine" id="cb7-47" title="47"></a>
-<a class="sourceLine" id="cb7-48" title="48">        <span class="cf">return</span> <span class="va">self</span>.γ_D<span class="op">**</span>t_k <span class="op">*</span> (<span class="op">-</span><span class="va">self</span>.b_A <span class="op">*</span> t_k <span class="op">*</span> t_k <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> v_A <span class="op">*</span> t_k <span class="op">+</span> h_A)</a>
-<a class="sourceLine" id="cb7-49" title="49"></a>
-<a class="sourceLine" id="cb7-50" title="50">    <span class="kw">def</span> process(<span class="va">self</span>):</a>
-<a class="sourceLine" id="cb7-51" title="51">        <span class="va">self</span>.counter <span class="op">+=</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb7-52" title="52">        <span class="cf">if</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.t_A:</a>
-<a class="sourceLine" id="cb7-53" title="53">            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.a_A</a>
-<a class="sourceLine" id="cb7-54" title="54">            <span class="va">self</span>.y <span class="op">+=</span> <span class="va">self</span>.vy</a>
-<a class="sourceLine" id="cb7-55" title="55">        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.t_p:</a>
-<a class="sourceLine" id="cb7-56" title="56">            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.b_A</a>
-<a class="sourceLine" id="cb7-57" title="57">            <span class="va">self</span>.y <span class="op">+=</span> <span class="va">self</span>.vy</a>
-<a class="sourceLine" id="cb7-58" title="58">        <span class="va">self</span>.valueD <span class="op">*=</span> <span class="va">self</span>.γ_D</a>
-<a class="sourceLine" id="cb7-59" title="59">        <span class="cf">return</span> <span class="va">self</span>.gain <span class="op">*</span> <span class="va">self</span>.y <span class="op">*</span> <span class="va">self</span>.valueD</a>
-<a class="sourceLine" id="cb7-60" title="60"></a>
-<a class="sourceLine" id="cb7-61" title="61">samplerate <span class="op">=</span> <span class="dv">48000</span></a>
-<a class="sourceLine" id="cb7-62" title="62">lengthA <span class="op">=</span> <span class="dv">2</span></a>
-<a class="sourceLine" id="cb7-63" title="63">betaA <span class="op">=</span> <span class="fl">0.2</span></a>
-<a class="sourceLine" id="cb7-64" title="64">decay <span class="op">=</span> <span class="dv">4</span></a>
-<a class="sourceLine" id="cb7-65" title="65"></a>
-<a class="sourceLine" id="cb7-66" title="66">envelope <span class="op">=</span> AccelEnvelope(samplerate, lengthA, betaA, decay)</a>
-<a class="sourceLine" id="cb7-67" title="67">data <span class="op">=</span> [envelope.process() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">int</span>(decay <span class="op">*</span> samplerate))]</a>
-<a class="sourceLine" id="cb7-68" title="68"></a>
-<a class="sourceLine" id="cb7-69" title="69">pyplot.plot(data, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Envelope&quot;</span>)</a>
-<a class="sourceLine" id="cb7-70" title="70">pyplot.show()</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="im">import</span> numpy</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="im">import</span> math</span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="kw">class</span> AccelEnvelope:</span>
+<span id="cb7-6"><a href="#cb7-6"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
+<span id="cb7-7"><a href="#cb7-7"></a>        <span class="va">self</span>,</span>
+<span id="cb7-8"><a href="#cb7-8"></a>        samplerate: <span class="bu">float</span>,</span>
+<span id="cb7-9"><a href="#cb7-9"></a>        lengthA: <span class="bu">float</span>,  <span class="co"># In seconds.</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>        betaA: <span class="bu">float</span>,  <span class="co"># In (0, 1).</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>        decay: <span class="bu">float</span>,  <span class="co"># In seconds.</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>    ):</span>
+<span id="cb7-13"><a href="#cb7-13"></a>        <span class="co"># Palabolic attack.</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>        <span class="va">self</span>.counter: <span class="bu">int</span> <span class="op">=</span> <span class="dv">-1</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>        <span class="va">self</span>.y: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-16"><a href="#cb7-16"></a>        <span class="va">self</span>.vy: <span class="bu">float</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a></span>
+<span id="cb7-18"><a href="#cb7-18"></a>        fs2 <span class="op">=</span> samplerate <span class="op">*</span> samplerate</span>
+<span id="cb7-19"><a href="#cb7-19"></a></span>
+<span id="cb7-20"><a href="#cb7-20"></a>        <span class="va">self</span>.a_A: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> (betaA <span class="op">*</span> lengthA <span class="op">*</span> lengthA) <span class="op">/</span> fs2</span>
+<span id="cb7-21"><a href="#cb7-21"></a>        <span class="va">self</span>.b_A: <span class="bu">float</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> ((<span class="dv">1</span> <span class="op">-</span> betaA) <span class="op">*</span> lengthA <span class="op">*</span> lengthA) <span class="op">/</span> fs2</span>
+<span id="cb7-22"><a href="#cb7-22"></a>        <span class="va">self</span>.t_A: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(lengthA <span class="op">*</span> betaA <span class="op">*</span> samplerate)</span>
+<span id="cb7-23"><a href="#cb7-23"></a>        <span class="va">self</span>.t_p: <span class="bu">int</span> <span class="op">=</span> <span class="bu">int</span>(lengthA <span class="op">*</span> samplerate)</span>
+<span id="cb7-24"><a href="#cb7-24"></a></span>
+<span id="cb7-25"><a href="#cb7-25"></a>        <span class="co"># Exponential decay.</span></span>
+<span id="cb7-26"><a href="#cb7-26"></a>        <span class="va">self</span>.threshold: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1e-5</span></span>
+<span id="cb7-27"><a href="#cb7-27"></a>        <span class="va">self</span>.γ_D: <span class="bu">float</span> <span class="op">=</span> numpy.power(<span class="va">self</span>.threshold, <span class="dv">1</span> <span class="op">/</span> (decay <span class="op">*</span> samplerate))</span>
+<span id="cb7-28"><a href="#cb7-28"></a>        <span class="va">self</span>.valueD: <span class="bu">float</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb7-29"><a href="#cb7-29"></a></span>
+<span id="cb7-30"><a href="#cb7-30"></a>        <span class="co"># For normalization.</span></span>
+<span id="cb7-31"><a href="#cb7-31"></a>        <span class="va">self</span>.gain <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> <span class="va">self</span>.getPeak()</span>
+<span id="cb7-32"><a href="#cb7-32"></a>        <span class="co"># self.gain = 1 / self.getPeakAlt(samplerate, decay)  # Same result.</span></span>
+<span id="cb7-33"><a href="#cb7-33"></a></span>
+<span id="cb7-34"><a href="#cb7-34"></a>    <span class="kw">def</span> getPeak(<span class="va">self</span>):</span>
+<span id="cb7-35"><a href="#cb7-35"></a>        log_γ <span class="op">=</span> numpy.log(<span class="va">self</span>.γ_D)</span>
+<span id="cb7-36"><a href="#cb7-36"></a>        <span class="cf">if</span> <span class="va">self</span>.t_A <span class="op">*</span> log_γ <span class="op">&lt;=</span> <span class="dv">-2</span>:</span>
+<span id="cb7-37"><a href="#cb7-37"></a>            <span class="va">self</span>.t_k <span class="op">=</span> <span class="dv">-2</span> <span class="op">/</span> numpy.log(<span class="va">self</span>.γ_D)  <span class="co"># Assign to self.t_k for debug.</span></span>
+<span id="cb7-38"><a href="#cb7-38"></a>            <span class="cf">return</span> <span class="va">self</span>.γ_D<span class="op">**</span><span class="va">self</span>.t_k <span class="op">*</span> <span class="va">self</span>.a_A <span class="op">*</span> <span class="va">self</span>.t_k <span class="op">*</span> <span class="va">self</span>.t_k <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb7-39"><a href="#cb7-39"></a>        temp <span class="op">=</span> <span class="va">self</span>.γ_D<span class="op">**</span><span class="va">self</span>.t_A <span class="op">*</span> <span class="va">self</span>.a_A</span>
+<span id="cb7-40"><a href="#cb7-40"></a>        v_A <span class="op">=</span> temp <span class="op">*</span> <span class="va">self</span>.t_A <span class="op">*</span> (<span class="va">self</span>.t_A <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> log_γ <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb7-41"><a href="#cb7-41"></a>        h_A <span class="op">=</span> temp <span class="op">*</span> <span class="va">self</span>.t_A <span class="op">*</span> <span class="va">self</span>.t_A <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb7-42"><a href="#cb7-42"></a></span>
+<span id="cb7-43"><a href="#cb7-43"></a>        sqrt <span class="op">=</span> numpy.sqrt((v_A <span class="op">*</span> v_A <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> <span class="va">self</span>.b_A <span class="op">*</span> h_A) <span class="op">*</span> log_γ <span class="op">*</span> log_γ <span class="op">+</span></span>
+<span id="cb7-44"><a href="#cb7-44"></a>                          <span class="va">self</span>.b_A <span class="op">*</span> <span class="va">self</span>.b_A)</span>
+<span id="cb7-45"><a href="#cb7-45"></a>        t_k <span class="op">=</span> (sqrt <span class="op">+</span> v_A <span class="op">*</span> log_γ <span class="op">-</span> <span class="va">self</span>.b_A) <span class="op">/</span> (<span class="va">self</span>.b_A <span class="op">*</span> log_γ)</span>
+<span id="cb7-46"><a href="#cb7-46"></a>        <span class="va">self</span>.t_k <span class="op">=</span> t_k <span class="op">+</span> <span class="va">self</span>.t_A</span>
+<span id="cb7-47"><a href="#cb7-47"></a></span>
+<span id="cb7-48"><a href="#cb7-48"></a>        <span class="cf">return</span> <span class="va">self</span>.γ_D<span class="op">**</span>t_k <span class="op">*</span> (<span class="op">-</span><span class="va">self</span>.b_A <span class="op">*</span> t_k <span class="op">*</span> t_k <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> v_A <span class="op">*</span> t_k <span class="op">+</span> h_A)</span>
+<span id="cb7-49"><a href="#cb7-49"></a></span>
+<span id="cb7-50"><a href="#cb7-50"></a>    <span class="kw">def</span> process(<span class="va">self</span>):</span>
+<span id="cb7-51"><a href="#cb7-51"></a>        <span class="va">self</span>.counter <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-52"><a href="#cb7-52"></a>        <span class="cf">if</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.t_A:</span>
+<span id="cb7-53"><a href="#cb7-53"></a>            <span class="va">self</span>.vy <span class="op">+=</span> <span class="va">self</span>.a_A</span>
+<span id="cb7-54"><a href="#cb7-54"></a>            <span class="va">self</span>.y <span class="op">+=</span> <span class="va">self</span>.vy</span>
+<span id="cb7-55"><a href="#cb7-55"></a>        <span class="cf">elif</span> <span class="va">self</span>.counter <span class="op">&lt;</span> <span class="va">self</span>.t_p:</span>
+<span id="cb7-56"><a href="#cb7-56"></a>            <span class="va">self</span>.vy <span class="op">-=</span> <span class="va">self</span>.b_A</span>
+<span id="cb7-57"><a href="#cb7-57"></a>            <span class="va">self</span>.y <span class="op">+=</span> <span class="va">self</span>.vy</span>
+<span id="cb7-58"><a href="#cb7-58"></a>        <span class="va">self</span>.valueD <span class="op">*=</span> <span class="va">self</span>.γ_D</span>
+<span id="cb7-59"><a href="#cb7-59"></a>        <span class="cf">return</span> <span class="va">self</span>.gain <span class="op">*</span> <span class="va">self</span>.y <span class="op">*</span> <span class="va">self</span>.valueD</span>
+<span id="cb7-60"><a href="#cb7-60"></a></span>
+<span id="cb7-61"><a href="#cb7-61"></a>samplerate <span class="op">=</span> <span class="dv">48000</span></span>
+<span id="cb7-62"><a href="#cb7-62"></a>lengthA <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-63"><a href="#cb7-63"></a>betaA <span class="op">=</span> <span class="fl">0.2</span></span>
+<span id="cb7-64"><a href="#cb7-64"></a>decay <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb7-65"><a href="#cb7-65"></a></span>
+<span id="cb7-66"><a href="#cb7-66"></a>envelope <span class="op">=</span> AccelEnvelope(samplerate, lengthA, betaA, decay)</span>
+<span id="cb7-67"><a href="#cb7-67"></a>data <span class="op">=</span> [envelope.process() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">int</span>(decay <span class="op">*</span> samplerate))]</span>
+<span id="cb7-68"><a href="#cb7-68"></a></span>
+<span id="cb7-69"><a href="#cb7-69"></a>pyplot.plot(data, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Envelope&quot;</span>)</span>
+<span id="cb7-70"><a href="#cb7-70"></a>pyplot.show()</span></code></pre></div>
 <p>出力です。図よりピークが 1.0 より少し大きいことが見て取れます。</p>
 <figure>
 <img src="img/ParabolicExponential.png" alt="Image of ." style="padding-bottom: 12px;"/>
