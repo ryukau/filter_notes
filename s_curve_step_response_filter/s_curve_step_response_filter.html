@@ -366,6 +366,7 @@ Update: 2020-10-15
 </ul></li>
 <li><a href="#比較">比較</a></li>
 <li><a href="#参考文献">参考文献</a></li>
+<li><a href="#変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -453,54 +454,60 @@ Update: 2020-10-15
 <span id="cb3-10"><a href="#cb3-10"></a></span>
 <span id="cb3-11"><a href="#cb3-11"></a>  Delay(Sample size = <span class="dv">65536</span>) : buffer(size) {}</span>
 <span id="cb3-12"><a href="#cb3-12"></a></span>
-<span id="cb3-13"><a href="#cb3-13"></a>  <span class="dt">void</span> resize(<span class="dt">uint32_t</span> size) {</span>
-<span id="cb3-14"><a href="#cb3-14"></a>    buffer.resize(size);</span>
-<span id="cb3-15"><a href="#cb3-15"></a>    wptr = <span class="dv">0</span>;</span>
-<span id="cb3-16"><a href="#cb3-16"></a>    rptr = <span class="dv">0</span>;</span>
-<span id="cb3-17"><a href="#cb3-17"></a>  }</span>
-<span id="cb3-18"><a href="#cb3-18"></a></span>
-<span id="cb3-19"><a href="#cb3-19"></a>  <span class="dt">void</span> reset() { <span class="bu">std::</span>fill(buf.begin(), buf.end(), <span class="dv">0</span>); }</span>
-<span id="cb3-20"><a href="#cb3-20"></a></span>
-<span id="cb3-21"><a href="#cb3-21"></a>  <span class="dt">void</span> setFrames(<span class="dt">uint32_t</span> delayFrames)</span>
-<span id="cb3-22"><a href="#cb3-22"></a>  {</span>
-<span id="cb3-23"><a href="#cb3-23"></a>    <span class="cf">if</span> (delayFrames &gt;= buf.size()) delayFrames = bufEnd;</span>
-<span id="cb3-24"><a href="#cb3-24"></a>    rptr = wptr - <span class="dt">int32_t</span>(delayFrames);</span>
-<span id="cb3-25"><a href="#cb3-25"></a>    <span class="cf">if</span> (rptr &lt; <span class="dv">0</span>) rptr += <span class="dt">int32_t</span>(buf.size());</span>
-<span id="cb3-26"><a href="#cb3-26"></a>  }</span>
-<span id="cb3-27"><a href="#cb3-27"></a></span>
-<span id="cb3-28"><a href="#cb3-28"></a>  Sample process(Sample input)</span>
-<span id="cb3-29"><a href="#cb3-29"></a>  {</span>
-<span id="cb3-30"><a href="#cb3-30"></a>    wptr = (wptr + <span class="dv">1</span>) % <span class="dt">int32_t</span>(buf.size());</span>
-<span id="cb3-31"><a href="#cb3-31"></a>    buf[wptr] = input;</span>
-<span id="cb3-32"><a href="#cb3-32"></a></span>
-<span id="cb3-33"><a href="#cb3-33"></a>    rptr = (rptr + <span class="dv">1</span>) % <span class="dt">int32_t</span>(buf.size());</span>
-<span id="cb3-34"><a href="#cb3-34"></a>    <span class="cf">return</span> buf[rptr];</span>
-<span id="cb3-35"><a href="#cb3-35"></a>  }</span>
-<span id="cb3-36"><a href="#cb3-36"></a>};</span></code></pre></div>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="dt">void</span> resize(<span class="dt">uint32_t</span> size)</span>
+<span id="cb3-14"><a href="#cb3-14"></a>  {</span>
+<span id="cb3-15"><a href="#cb3-15"></a>    buffer.resize(size);</span>
+<span id="cb3-16"><a href="#cb3-16"></a>    wptr = <span class="dv">0</span>;</span>
+<span id="cb3-17"><a href="#cb3-17"></a>    rptr = <span class="dv">0</span>;</span>
+<span id="cb3-18"><a href="#cb3-18"></a>  }</span>
+<span id="cb3-19"><a href="#cb3-19"></a></span>
+<span id="cb3-20"><a href="#cb3-20"></a>  <span class="dt">void</span> reset() { <span class="bu">std::</span>fill(buffer.begin(), buffer.end(), Sample(<span class="dv">0</span>)); }</span>
+<span id="cb3-21"><a href="#cb3-21"></a></span>
+<span id="cb3-22"><a href="#cb3-22"></a>  <span class="dt">void</span> setFrames(<span class="dt">uint32_t</span> delayFrames)</span>
+<span id="cb3-23"><a href="#cb3-23"></a>  {</span>
+<span id="cb3-24"><a href="#cb3-24"></a>    <span class="cf">if</span> (delayFrames &gt;= buffer.size()) delayFrames = buffer.size();</span>
+<span id="cb3-25"><a href="#cb3-25"></a>    rptr = wptr - <span class="dt">int32_t</span>(delayFrames);</span>
+<span id="cb3-26"><a href="#cb3-26"></a>    <span class="cf">if</span> (rptr &lt; <span class="dv">0</span>) rptr += <span class="dt">int32_t</span>(buffer.size());</span>
+<span id="cb3-27"><a href="#cb3-27"></a>  }</span>
+<span id="cb3-28"><a href="#cb3-28"></a></span>
+<span id="cb3-29"><a href="#cb3-29"></a>  Sample process(Sample input)</span>
+<span id="cb3-30"><a href="#cb3-30"></a>  {</span>
+<span id="cb3-31"><a href="#cb3-31"></a>    wptr = (wptr + <span class="dv">1</span>) % <span class="dt">int32_t</span>(buffer.size());</span>
+<span id="cb3-32"><a href="#cb3-32"></a>    buffer[wptr] = input;</span>
+<span id="cb3-33"><a href="#cb3-33"></a></span>
+<span id="cb3-34"><a href="#cb3-34"></a>    rptr = (rptr + <span class="dv">1</span>) % <span class="dt">int32_t</span>(buffer.size());</span>
+<span id="cb3-35"><a href="#cb3-35"></a>    <span class="cf">return</span> buffer[rptr];</span>
+<span id="cb3-36"><a href="#cb3-36"></a>  }</span>
+<span id="cb3-37"><a href="#cb3-37"></a>};</span></code></pre></div>
 <p>状態変数 <code>sum</code> を用意して、各サンプルでディレイへの入力を加算、ディレイからの出力を減算します。 <code>sum</code> をフィルタのタップ数で割った値がフィルタの出力です。</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1"></a><span class="co">// C++</span></span>
 <span id="cb4-2"><a href="#cb4-2"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> MovingAverage {</span>
 <span id="cb4-3"><a href="#cb4-3"></a><span class="kw">public</span>:</span>
 <span id="cb4-4"><a href="#cb4-4"></a>  Sample sum = <span class="dv">0</span>;</span>
-<span id="cb4-5"><a href="#cb4-5"></a>  Delay&lt;Sample&gt; delay;</span>
-<span id="cb4-6"><a href="#cb4-6"></a></span>
-<span id="cb4-7"><a href="#cb4-7"></a>  <span class="dt">void</span> reset() {</span>
-<span id="cb4-8"><a href="#cb4-8"></a>    sum = <span class="dv">0</span>;</span>
-<span id="cb4-9"><a href="#cb4-9"></a>    delay.reset();</span>
-<span id="cb4-10"><a href="#cb4-10"></a>  }</span>
-<span id="cb4-11"><a href="#cb4-11"></a></span>
-<span id="cb4-12"><a href="#cb4-12"></a>  <span class="dt">void</span> setSize(<span class="dt">uint32_t</span> size) {</span>
-<span id="cb4-13"><a href="#cb4-13"></a>    delay.setFrames(size);</span>
-<span id="cb4-14"><a href="#cb4-14"></a>  }</span>
-<span id="cb4-15"><a href="#cb4-15"></a></span>
-<span id="cb4-16"><a href="#cb4-16"></a>  Sample process(Sample input) {</span>
-<span id="cb4-17"><a href="#cb4-17"></a>    sum += input - delay.process(input);</span>
-<span id="cb4-18"><a href="#cb4-18"></a>    <span class="cf">return</span> sum / delay.buffer.size();</span>
-<span id="cb4-19"><a href="#cb4-19"></a>  }</span>
-<span id="cb4-20"><a href="#cb4-20"></a>};</span></code></pre></div>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="dt">uint32_t</span> size = <span class="dv">0</span>;</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  Delay&lt;Sample&gt; delay;</span>
+<span id="cb4-7"><a href="#cb4-7"></a></span>
+<span id="cb4-8"><a href="#cb4-8"></a>  <span class="dt">void</span> reset()</span>
+<span id="cb4-9"><a href="#cb4-9"></a>  {</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    sum = <span class="dv">0</span>;</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    delay.reset();</span>
+<span id="cb4-12"><a href="#cb4-12"></a>  }</span>
+<span id="cb4-13"><a href="#cb4-13"></a></span>
+<span id="cb4-14"><a href="#cb4-14"></a>  <span class="dt">void</span> setSize(<span class="dt">uint32_t</span> size)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>  {</span>
+<span id="cb4-16"><a href="#cb4-16"></a>    delay.setFrames(size);</span>
+<span id="cb4-17"><a href="#cb4-17"></a>    <span class="kw">this</span>-&gt;size = size;</span>
+<span id="cb4-18"><a href="#cb4-18"></a>  }</span>
+<span id="cb4-19"><a href="#cb4-19"></a></span>
+<span id="cb4-20"><a href="#cb4-20"></a>  <span class="dt">void</span> process(Sample input)</span>
+<span id="cb4-21"><a href="#cb4-21"></a>  {</span>
+<span id="cb4-22"><a href="#cb4-22"></a>    sum += input - delay.process(input);</span>
+<span id="cb4-23"><a href="#cb4-23"></a>    <span class="cf">return</span> sum / size;</span>
+<span id="cb4-24"><a href="#cb4-24"></a>  }</span>
+<span id="cb4-25"><a href="#cb4-25"></a>};</span></code></pre></div>
 <p>フィルタのタップ数を <span class="math inline">\(n\)</span> とします。畳み込みを直接計算すると 1 サンプルあたりの計算量は <span class="math inline">\(O(n)\)</span> です。 ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので 1 サンプルあたりの計算量が <span class="math inline">\(O(1)\)</span> に減ります。</p>
 <h4 id="補足">補足</h4>
-<p>Musicdsp.org のページでは、以下のコードのように入力で <code>1.0 - input</code> 、出力で <code>1.0 - output</code> を計算することで浮動小数点数による計算誤差を減らす手順がありますが、意味があるのかどうかわからないので実装していません。はっきりとは書いていませんが <code>input</code> の範囲は <code>[0.0, 1.0]</code> のようです。</p>
+<p>Musicdsp.org のページでは、以下のコードのように入力で <code>1.0 - input</code> 、出力で <code>1.0 - output</code> を計算することで浮動小数点数による計算誤差を減らす手順があります。はっきりとは書いていませんが <code>input</code> の範囲は <code>[0.0, 1.0]</code> のようです。</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">// C++</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> MovingAverage {</span>
 <span id="cb5-3"><a href="#cb5-3"></a><span class="kw">public</span>:</span>
@@ -512,53 +519,94 @@ Update: 2020-10-15
 <span id="cb5-9"><a href="#cb5-9"></a>    <span class="cf">return</span> Sample(<span class="dv">1</span>) - sum / delay.buffer.size();</span>
 <span id="cb5-10"><a href="#cb5-10"></a>  }</span>
 <span id="cb5-11"><a href="#cb5-11"></a>};</span></code></pre></div>
+<p>次のようなコードを書いて試してみました。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/s_curve_step_response_filter/cpp/roundingerror.cpp">テストコードへのリンク (github.com)</a></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">constexpr</span> <span class="dt">size_t</span> nLoop = <span class="dv">300</span>;</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="kw">constexpr</span> <span class="dt">uint32_t</span> size = <span class="dv">100</span>;</span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a>MovingAverage&lt;<span class="dt">float</span>&gt; av1;</span>
+<span id="cb6-5"><a href="#cb6-5"></a>av1.setSize(size);</span>
+<span id="cb6-6"><a href="#cb6-6"></a></span>
+<span id="cb6-7"><a href="#cb6-7"></a>MovingAverage&lt;<span class="dt">float</span>&gt; av2;</span>
+<span id="cb6-8"><a href="#cb6-8"></a>av2.setSize(size);</span>
+<span id="cb6-9"><a href="#cb6-9"></a></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="dt">float</span> big = <span class="fl">0.1</span><span class="bu">f</span>;</span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="dt">float</span> small = big;</span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; <span class="dv">23</span>; ++i) small /= <span class="dv">2</span>; <span class="co">// small = big / 2^23.</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; nLoop; ++i) {</span>
+<span id="cb6-15"><a href="#cb6-15"></a>  <span class="dt">float</span> input = (i / size) % <span class="dv">2</span> == <span class="dv">0</span> ? big : small;</span>
+<span id="cb6-16"><a href="#cb6-16"></a>  av1.process1(input); <span class="co">// 1 から引く手順なし。</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a>  av2.process2(input); <span class="co">// 1 から引く手順あり。</span></span>
+<span id="cb6-18"><a href="#cb6-18"></a>}</span></code></pre></div>
+<p>テスト時のコンパイラは Microsoft の cl.exe (Version 19.27.29111 for x86) を使いました。 <code>/fp:precise</code> と <code>fp:fast</code> を試しましたが、どちらも同じ値が出ました。</p>
+<p>テストでは <code>big</code> と <code>small</code> が 100 サンプルごとに切り替わる信号を移動平均フィルタに入力しています。</p>
+<p>テストによって分かった 1 から引く手順ありのときの問題点です。</p>
+<ul>
+<li><code>sum = 0</code> のときに正しくスムーシングされない。</li>
+<li>出力の最大値の仮数部が <code>big</code> より 1 ビット大きくなることがある。</li>
+<li>入力がすべて正の値でも、出力が負の値になることがある。 (<code>big = 0.9f</code> で確認。)</li>
+</ul>
+<p>1 から引く手順なしのときの問題点です。</p>
+<ul>
+<li>入力がすべて正の値でも、出力が負の値になることがある。 (<code>big = 0.7f</code> と <code>0.9f</code> で確認。)</li>
+</ul>
+<p>1 から引く手順ありだと数値誤差による問題が増えるので使わないほうが良さそうです。</p>
+<p>1 から引く手順なしでも 0 に近い小さな値が含まれる信号のときは予期しない符号の反転が起こるおそれがあるので注意が必要です。</p>
 <h2 id="bessel-フィルタ">Bessel フィルタ</h2>
-<p>Bessel フィルタは連続系で群遅延が maximally flat になることが特長の IIR フィルタです。離散化にバイリニア変換などを使うと周波数が歪むので特長が損なわれます。</p>
+<p>Bessel フィルタは連続系で群遅延が maximally flat になることが特長のフィルタですが、離散化にバイリニア変換などを使うと周波数が歪むので特長が損なわれます。</p>
+<p>Maximally flat はフィルタの専門用語で次の 2 つの性質を持ちます。</p>
+<ol type="1">
+<li>周波数が 0 のときに周波数や位相などの特性が所望の値となる。 (ローパスの場合。)</li>
+<li>通過域の特性ができる限り平坦。</li>
+</ol>
 <h3 id="ステップ応答-1">ステップ応答</h3>
 <p>SciPy の <code>signal.bessel()</code> を試します。 SciPy 1.5.2 では <code>signal.bessel()</code> はバイリニア変換を使っています。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Python3</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb6-4"><a href="#cb6-4"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb6-5"><a href="#cb6-5"></a></span>
-<span id="cb6-6"><a href="#cb6-6"></a>order <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a>delay <span class="op">=</span> <span class="dv">512</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a></span>
-<span id="cb6-9"><a href="#cb6-9"></a>sos <span class="op">=</span> signal.bessel(order, <span class="dv">2</span> <span class="op">/</span> (np.pi <span class="op">*</span> delay), norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>)</span>
-<span id="cb6-10"><a href="#cb6-10"></a></span>
-<span id="cb6-11"><a href="#cb6-11"></a>sig <span class="op">=</span> np.hstack((np.zeros(delay), np.ones(delay <span class="op">*</span> <span class="dv">2</span>)))</span>
-<span id="cb6-12"><a href="#cb6-12"></a>out <span class="op">=</span> signal.sosfilt(sos, sig)</span>
-<span id="cb6-13"><a href="#cb6-13"></a></span>
-<span id="cb6-14"><a href="#cb6-14"></a>plt.axvline(<span class="dv">2</span> <span class="op">*</span> delay, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">&quot;--&quot;</span>)</span>
-<span id="cb6-15"><a href="#cb6-15"></a>plt.plot(sig, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
-<span id="cb6-16"><a href="#cb6-16"></a>plt.plot(out, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;Bessel&quot;</span>)</span>
-<span id="cb6-17"><a href="#cb6-17"></a>plt.grid()</span>
-<span id="cb6-18"><a href="#cb6-18"></a>plt.legend()</span>
-<span id="cb6-19"><a href="#cb6-19"></a>plt.show()</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Python3</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb7-5"><a href="#cb7-5"></a></span>
+<span id="cb7-6"><a href="#cb7-6"></a>order <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>delay <span class="op">=</span> <span class="dv">512</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a></span>
+<span id="cb7-9"><a href="#cb7-9"></a>sos <span class="op">=</span> signal.bessel(order, <span class="dv">2</span> <span class="op">/</span> (np.pi <span class="op">*</span> delay), norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10"></a></span>
+<span id="cb7-11"><a href="#cb7-11"></a>sig <span class="op">=</span> np.hstack((np.zeros(delay), np.ones(delay <span class="op">*</span> <span class="dv">2</span>)))</span>
+<span id="cb7-12"><a href="#cb7-12"></a>out <span class="op">=</span> signal.sosfilt(sos, sig)</span>
+<span id="cb7-13"><a href="#cb7-13"></a></span>
+<span id="cb7-14"><a href="#cb7-14"></a>plt.axvline(<span class="dv">2</span> <span class="op">*</span> delay, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">&quot;--&quot;</span>)</span>
+<span id="cb7-15"><a href="#cb7-15"></a>plt.plot(sig, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
+<span id="cb7-16"><a href="#cb7-16"></a>plt.plot(out, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;Bessel&quot;</span>)</span>
+<span id="cb7-17"><a href="#cb7-17"></a>plt.grid()</span>
+<span id="cb7-18"><a href="#cb7-18"></a>plt.legend()</span>
+<span id="cb7-19"><a href="#cb7-19"></a>plt.show()</span></code></pre></div>
 <p>出力です。ステップ応答は S 字になりますがオーバーシュートが出ます。</p>
 <figure>
 <img src="img/BesselStepResponse.png" alt="" /><figcaption>Bessel filter step response.</figcaption>
 </figure>
 <h3 id="次セクションに分割したときのフィルタ係数">2 次セクションに分割したときのフィルタ係数</h3>
 <p>カットオフ周波数を自由に変更するために、以下の Python3 のコードと、 Neil Robertson さんによる <a href="https://www.dsprelated.com/showarticle/1137.php">Design IIR Filters Using Cascaded Biquads</a> で紹介されていた手法を組み合わせて C++ に移植します。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Python3</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb7-4"><a href="#cb7-4"></a></span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="kw">def</span> bessel(order, delay):</span>
-<span id="cb7-6"><a href="#cb7-6"></a>    z, p, k <span class="op">=</span> signal.besselap(order, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>)</span>
-<span id="cb7-7"><a href="#cb7-7"></a>    z, p, k <span class="op">=</span> signal.lp2lp_zpk(z, p, k, delay)</span>
-<span id="cb7-8"><a href="#cb7-8"></a>    z, p, k, _ <span class="op">=</span> signal.cont2discrete([z, p, k], <span class="dv">1</span>, method<span class="op">=</span><span class="st">&quot;bilinear&quot;</span>)</span>
-<span id="cb7-9"><a href="#cb7-9"></a>    <span class="cf">return</span> signal.zpk2sos(z, p, k)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Python3</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="kw">def</span> bessel(order, delay):</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    z, p, k <span class="op">=</span> signal.besselap(order, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>)</span>
+<span id="cb8-7"><a href="#cb8-7"></a>    z, p, k <span class="op">=</span> signal.lp2lp_zpk(z, p, k, delay)</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    z, p, k, _ <span class="op">=</span> signal.cont2discrete([z, p, k], <span class="dv">1</span>, method<span class="op">=</span><span class="st">&quot;bilinear&quot;</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    <span class="cf">return</span> signal.zpk2sos(z, p, k)</span></code></pre></div>
 <p>コードの <code>z, p, k</code> は <code>zero, pole, gain</code> の略です。</p>
 <h4 id="アナログプロトタイプ">アナログプロトタイプ</h4>
 <p>Bessel フィルタは極だけでゼロは一つもありません。このようなフィルタは全極フィルタ (all-pole filter) と呼ばれています。極は伝達関数の分母の多項式の根を求めることで計算できます。</p>
 <p>今回は root-finding アルゴリズムを評価、実装する手間を省きたかったので <code>signal.besselap()</code> から得られた極をそのまま定数として使うことにしました。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Python3</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb8-4"><a href="#cb8-4"></a>z, p, k <span class="op">=</span> signal.besselap(<span class="dv">4</span>, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>) <span class="co"># 4 次。</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a><span class="bu">print</span>(p.tolist())</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Python3</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb9-4"><a href="#cb9-4"></a>z, p, k <span class="op">=</span> signal.besselap(<span class="dv">4</span>, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>) <span class="co"># 4 次。</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="bu">print</span>(p.tolist())</span></code></pre></div>
 <p>整形した出力です。</p>
 <pre><code>[
   (-2.1037893971796273+2.6574180418567526j), # p1
@@ -568,13 +616,13 @@ Update: 2020-10-15
 ]</code></pre>
 <h4 id="カットオフ周波数の設定">カットオフ周波数の設定</h4>
 <p><code>signal.lp2lp_zpk()</code> はローパスのアナログプロトタイプのカットオフ周波数を設定する関数です。以下はエラー処理などを簡略化した SciPy 1.5.2 での実装の写しです。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># Python3</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="kw">def</span> lp2lp_zpk(z, p, k, wo<span class="op">=</span><span class="fl">1.0</span>):</span>
-<span id="cb10-3"><a href="#cb10-3"></a>    degree <span class="op">=</span> <span class="bu">len</span>(p) <span class="op">-</span> <span class="bu">len</span>(z)</span>
-<span id="cb10-4"><a href="#cb10-4"></a>    z_lp <span class="op">=</span> wo <span class="op">*</span> z</span>
-<span id="cb10-5"><a href="#cb10-5"></a>    p_lp <span class="op">=</span> wo <span class="op">*</span> p</span>
-<span id="cb10-6"><a href="#cb10-6"></a>    k_lp <span class="op">=</span> k <span class="op">*</span> wo<span class="op">**</span>degree</span>
-<span id="cb10-7"><a href="#cb10-7"></a>    <span class="cf">return</span> z_lp, p_lp, k_lp</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Python3</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">def</span> lp2lp_zpk(z, p, k, wo<span class="op">=</span><span class="fl">1.0</span>):</span>
+<span id="cb11-3"><a href="#cb11-3"></a>    degree <span class="op">=</span> <span class="bu">len</span>(p) <span class="op">-</span> <span class="bu">len</span>(z)</span>
+<span id="cb11-4"><a href="#cb11-4"></a>    z_lp <span class="op">=</span> wo <span class="op">*</span> z</span>
+<span id="cb11-5"><a href="#cb11-5"></a>    p_lp <span class="op">=</span> wo <span class="op">*</span> p</span>
+<span id="cb11-6"><a href="#cb11-6"></a>    k_lp <span class="op">=</span> k <span class="op">*</span> wo<span class="op">**</span>degree</span>
+<span id="cb11-7"><a href="#cb11-7"></a>    <span class="cf">return</span> z_lp, p_lp, k_lp</span></code></pre></div>
 <p>Bessel フィルタはゼロが無く、ゲインは別の方法で計算するので <code>z_lp</code> と <code>k_lp</code> は C++ のコードでは計算していません。</p>
 <h4 id="バイリニア変換">バイリニア変換</h4>
 <p>アナログプロトタイプからの離散化にはバイリニア変換を使います。次のバイリニア変換の式の <span class="math inline">\(s\)</span> に連続系の極を代入することで、離散フィルタの極に変換できます。</p>
@@ -599,102 +647,106 @@ H(z) = K \frac{(z + 1)^N}{\displaystyle \prod_{i=1}^{N} (z - p_i)}
 <p><span class="math display">\[
 \begin{aligned}
 H(z)
-  &amp;= K \prod_{i=1}^{N / 2} \frac{(z + 1)^2}{(z - p_i)(z - p_i^*)} \\
-  &amp;= K \prod_{i=1}^{N / 2} \frac{1 + 2 z^{-1} + z^{-2}}{
+  &amp;= \prod_{i=1}^{N / 2} K_i \frac{(z + 1)^2}{(z - p_i)(z - p_i^*)} \\
+  &amp;= \prod_{i=1}^{N / 2} K_i \frac{1 + 2 z^{-1} + z^{-2}}{
     1 - 2\,\mathrm{Re}(p_i) z^{-1} + |p_i|^2 z^{-2}
   }
 \end{aligned}
 \]</span></p>
-<p>一般的な 2次 IIR フィルタの伝達関数は次のように書けます。</p>
+<p>ゲインの計算式を出すために 2 次セクションを一つだけ取り出します。</p>
 <p><span class="math display">\[
-H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{a_0 + a_1 z^{-1} + a_2 z^{-2}}
+H(z) = K_i \frac{1 + 2 z^{-1} + z^{-2}}{1 - 2\,\mathrm{Re}(p_i) z^{-1} + |p_i|^2 z^{-2}}
 \]</span></p>
-<p><span class="math inline">\(z = e^{j \omega}\)</span> と代入して <span class="math inline">\(\omega = 0\)</span> のときに <span class="math inline">\(H(z) = 1\)</span> となるようなゲイン <span class="math inline">\(K\)</span> は次の式で計算できます。 <span class="math inline">\(z = e^{j \omega}\)</span> と代入するのは振幅応答を求めるときの計算手法です。</p>
+<p><span class="math inline">\(\omega = 0\)</span> のときに<a href="https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html">振幅特性</a> が 1 となるゲイン <span class="math inline">\(K_i\)</span> を求めます。振幅特性は <span class="math inline">\(z = e^{j \omega}\)</span> と代入すると計算できますが、ここでは <span class="math inline">\(\omega = 0\)</span> なので <span class="math inline">\(z = 1\)</span> と簡略化できます。</p>
 <p><span class="math display">\[
-\begin{aligned}
-H(z) = 1 &amp;= K \frac{b_0 + b_1 + b_2}{a_0 + a_1 + a_2}\\
-K &amp;= \frac{a_0 + a_1 + a_2}{b_0 + b_1 + b_2}
-\end{aligned}
+H(1) = 1 = K_i \frac{1 + 2 + 1}{1 - 2\,\mathrm{Re}(p_i) + |p_i|^2}
 \]</span></p>
-<p>Bessel フィルタでは <span class="math inline">\(a_0 = 1,\ b_0 + b_1 + b_2 = 4\)</span> で固定なので <span class="math inline">\(K = \dfrac{1 + a_1 + a_2}{4}\)</span> です。</p>
+<p><span class="math inline">\(K_i\)</span> について解きます。</p>
+<p><span class="math display">\[
+K_i = \frac{1 - 2\,\mathrm{Re}(p_i) + |p_i|^2}{4}
+\]</span></p>
+<p>すべての 2 次セクションのゲイン <span class="math inline">\(K_i\)</span> を掛け合わせることで、フィルタ全体のゲイン <span class="math inline">\(K\)</span> が計算できます。</p>
+<p><span class="math display">\[
+K = \prod_{i=1}^N K_i
+\]</span></p>
 <h4 id="c-での実装">C++ での実装</h4>
 <p>C++17 のフラグを立ててコンパイルしています。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="co">// C++</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
-<span id="cb11-3"><a href="#cb11-3"></a><span class="pp">#include </span><span class="im">&lt;complex&gt;</span></span>
-<span id="cb11-4"><a href="#cb11-4"></a></span>
-<span id="cb11-5"><a href="#cb11-5"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> Bessel4 {</span>
-<span id="cb11-6"><a href="#cb11-6"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">uint8_t</span> halfDegree = <span class="dv">4</span> / <span class="dv">2</span>;</span>
-<span id="cb11-7"><a href="#cb11-7"></a></span>
-<span id="cb11-8"><a href="#cb11-8"></a>  <span class="co">// 複素共役の極は無くても計算できる。</span></span>
-<span id="cb11-9"><a href="#cb11-9"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array&lt;<span class="bu">std::</span>complex&lt;Sample&gt;, halfDegree&gt; analogPole{{</span>
-<span id="cb11-10"><a href="#cb11-10"></a>    {Sample(-<span class="fl">2.1037893971796273</span>), Sample(+<span class="fl">2.6574180418567526</span>)},</span>
-<span id="cb11-11"><a href="#cb11-11"></a>    {Sample(-<span class="fl">2.8962106028203722</span>), Sample(+<span class="fl">0.8672341289345038</span>)},</span>
-<span id="cb11-12"><a href="#cb11-12"></a>  }};</span>
-<span id="cb11-13"><a href="#cb11-13"></a></span>
-<span id="cb11-14"><a href="#cb11-14"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; x0{};</span>
-<span id="cb11-15"><a href="#cb11-15"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; x1{};</span>
-<span id="cb11-16"><a href="#cb11-16"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; x2{};</span>
-<span id="cb11-17"><a href="#cb11-17"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; y0{};</span>
-<span id="cb11-18"><a href="#cb11-18"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; y1{};</span>
-<span id="cb11-19"><a href="#cb11-19"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; y2{};</span>
-<span id="cb11-20"><a href="#cb11-20"></a>  <span class="bu">std::</span>array&lt;<span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt;, halfDegree&gt; co; <span class="co">// フィルタ係数 a1 と a2 。</span></span>
-<span id="cb11-21"><a href="#cb11-21"></a>  Sample gain = <span class="dv">1</span>;</span>
-<span id="cb11-22"><a href="#cb11-22"></a></span>
-<span id="cb11-23"><a href="#cb11-23"></a>  Bessel4()</span>
-<span id="cb11-24"><a href="#cb11-24"></a>  {</span>
-<span id="cb11-25"><a href="#cb11-25"></a>    <span class="cf">for</span> (<span class="kw">auto</span> &amp;coef : co) coef.fill(<span class="dv">0</span>);</span>
-<span id="cb11-26"><a href="#cb11-26"></a>  }</span>
-<span id="cb11-27"><a href="#cb11-27"></a></span>
-<span id="cb11-28"><a href="#cb11-28"></a>  <span class="dt">void</span> reset(Sample value = <span class="dv">0</span>)</span>
-<span id="cb11-29"><a href="#cb11-29"></a>  {</span>
-<span id="cb11-30"><a href="#cb11-30"></a>    x0.fill(value);</span>
-<span id="cb11-31"><a href="#cb11-31"></a>    x1.fill(value);</span>
-<span id="cb11-32"><a href="#cb11-32"></a>    x2.fill(value);</span>
-<span id="cb11-33"><a href="#cb11-33"></a>    y0.fill(value);</span>
-<span id="cb11-34"><a href="#cb11-34"></a>    y1.fill(value);</span>
-<span id="cb11-35"><a href="#cb11-35"></a>    y2.fill(value);</span>
-<span id="cb11-36"><a href="#cb11-36"></a>  }</span>
-<span id="cb11-37"><a href="#cb11-37"></a></span>
-<span id="cb11-38"><a href="#cb11-38"></a>  <span class="dt">void</span> setDelay(Sample delayInSamples)</span>
-<span id="cb11-39"><a href="#cb11-39"></a>  {</span>
-<span id="cb11-40"><a href="#cb11-40"></a>    <span class="kw">auto</span> wo = Sample(<span class="fl">0.5</span>) / delayInSamples; <span class="co">// 遅延サンプル数を周波数に変換。</span></span>
-<span id="cb11-41"><a href="#cb11-41"></a></span>
-<span id="cb11-42"><a href="#cb11-42"></a>    gain = Sample(<span class="dv">1</span>);</span>
-<span id="cb11-43"><a href="#cb11-43"></a>    <span class="cf">for</span> (<span class="dt">uint8_t</span> i = <span class="dv">0</span>; i &lt; co.size(); ++i) {</span>
-<span id="cb11-44"><a href="#cb11-44"></a>      <span class="bu">std::</span>complex&lt;Sample&gt; pole = wo * analogPole[i]; <span class="co">// カットオフ周波数の適用。</span></span>
-<span id="cb11-45"><a href="#cb11-45"></a>      pole = (Sample(<span class="dv">2</span>) + pole) / (Sample(<span class="dv">2</span>) - pole); <span class="co">// バイリニア変換。</span></span>
-<span id="cb11-46"><a href="#cb11-46"></a>      co[i][<span class="dv">0</span>] = Sample(-<span class="dv">2</span>) * pole.real();</span>
-<span id="cb11-47"><a href="#cb11-47"></a>      co[i][<span class="dv">1</span>] = <span class="bu">std::</span>norm(pole);</span>
-<span id="cb11-48"><a href="#cb11-48"></a>      gain *= (Sample(<span class="dv">1</span>) + co[i][<span class="dv">0</span>] + co[i][<span class="dv">1</span>]) / Sample(<span class="dv">4</span>);</span>
-<span id="cb11-49"><a href="#cb11-49"></a>    }</span>
-<span id="cb11-50"><a href="#cb11-50"></a>  }</span>
-<span id="cb11-51"><a href="#cb11-51"></a></span>
-<span id="cb11-52"><a href="#cb11-52"></a>  Sample process(Sample input)</span>
-<span id="cb11-53"><a href="#cb11-53"></a>  {</span>
-<span id="cb11-54"><a href="#cb11-54"></a>    x0[<span class="dv">0</span>] = input;</span>
-<span id="cb11-55"><a href="#cb11-55"></a>    <span class="co">// x0[1] = y0[0];</span></span>
-<span id="cb11-56"><a href="#cb11-56"></a>    <span class="cf">for</span> (<span class="dt">uint8_t</span> i = <span class="dv">1</span>; i &lt; halfDegree; ++i) x0[i] = y0[i - <span class="dv">1</span>];</span>
-<span id="cb11-57"><a href="#cb11-57"></a></span>
-<span id="cb11-58"><a href="#cb11-58"></a>    <span class="cf">for</span> (<span class="dt">uint8_t</span> i = <span class="dv">0</span>; i &lt; halfDegree; ++i) {</span>
-<span id="cb11-59"><a href="#cb11-59"></a>      y0[<span class="dv">0</span>]</span>
-<span id="cb11-60"><a href="#cb11-60"></a>        = Sample(<span class="dv">1</span>) * x0[i]</span>
-<span id="cb11-61"><a href="#cb11-61"></a>        + Sample(<span class="dv">2</span>) * x1[i]</span>
-<span id="cb11-62"><a href="#cb11-62"></a>        + Sample(<span class="dv">1</span>) * x2[i]</span>
-<span id="cb11-63"><a href="#cb11-63"></a>        - co[i][<span class="dv">0</span>] * y1[i]</span>
-<span id="cb11-64"><a href="#cb11-64"></a>        - co[i][<span class="dv">1</span>] * y2[i];</span>
-<span id="cb11-65"><a href="#cb11-65"></a></span>
-<span id="cb11-66"><a href="#cb11-66"></a>      x2[i] = x1[i];</span>
-<span id="cb11-67"><a href="#cb11-67"></a>      x1[i] = x0[i];</span>
-<span id="cb11-68"><a href="#cb11-68"></a>      y2[i] = y1[i];</span>
-<span id="cb11-69"><a href="#cb11-69"></a>      y1[i] = y0[i];</span>
-<span id="cb11-70"><a href="#cb11-70"></a>    }</span>
-<span id="cb11-71"><a href="#cb11-71"></a></span>
-<span id="cb11-72"><a href="#cb11-72"></a>    <span class="cf">return</span> gain * y0[<span class="dv">1</span>];</span>
-<span id="cb11-73"><a href="#cb11-73"></a>  }</span>
-<span id="cb11-74"><a href="#cb11-74"></a>};</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">// C++</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="pp">#include </span><span class="im">&lt;complex&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> Bessel4 {</span>
+<span id="cb12-6"><a href="#cb12-6"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">uint8_t</span> halfDegree = <span class="dv">4</span> / <span class="dv">2</span>;</span>
+<span id="cb12-7"><a href="#cb12-7"></a></span>
+<span id="cb12-8"><a href="#cb12-8"></a>  <span class="co">// 複素共役の極は無くても計算できる。</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array&lt;<span class="bu">std::</span>complex&lt;Sample&gt;, halfDegree&gt; analogPole{{</span>
+<span id="cb12-10"><a href="#cb12-10"></a>    {Sample(-<span class="fl">2.1037893971796273</span>), Sample(+<span class="fl">2.6574180418567526</span>)},</span>
+<span id="cb12-11"><a href="#cb12-11"></a>    {Sample(-<span class="fl">2.8962106028203722</span>), Sample(+<span class="fl">0.8672341289345038</span>)},</span>
+<span id="cb12-12"><a href="#cb12-12"></a>  }};</span>
+<span id="cb12-13"><a href="#cb12-13"></a></span>
+<span id="cb12-14"><a href="#cb12-14"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; x0{};</span>
+<span id="cb12-15"><a href="#cb12-15"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; x1{};</span>
+<span id="cb12-16"><a href="#cb12-16"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; x2{};</span>
+<span id="cb12-17"><a href="#cb12-17"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; y0{};</span>
+<span id="cb12-18"><a href="#cb12-18"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; y1{};</span>
+<span id="cb12-19"><a href="#cb12-19"></a>  <span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; y2{};</span>
+<span id="cb12-20"><a href="#cb12-20"></a>  <span class="bu">std::</span>array&lt;<span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt;, halfDegree&gt; co; <span class="co">// フィルタ係数 a1 と a2 。</span></span>
+<span id="cb12-21"><a href="#cb12-21"></a>  Sample gain = <span class="dv">1</span>;</span>
+<span id="cb12-22"><a href="#cb12-22"></a></span>
+<span id="cb12-23"><a href="#cb12-23"></a>  Bessel4()</span>
+<span id="cb12-24"><a href="#cb12-24"></a>  {</span>
+<span id="cb12-25"><a href="#cb12-25"></a>    <span class="cf">for</span> (<span class="kw">auto</span> &amp;coef : co) coef.fill(<span class="dv">0</span>);</span>
+<span id="cb12-26"><a href="#cb12-26"></a>  }</span>
+<span id="cb12-27"><a href="#cb12-27"></a></span>
+<span id="cb12-28"><a href="#cb12-28"></a>  <span class="dt">void</span> reset(Sample value = <span class="dv">0</span>)</span>
+<span id="cb12-29"><a href="#cb12-29"></a>  {</span>
+<span id="cb12-30"><a href="#cb12-30"></a>    x0.fill(value);</span>
+<span id="cb12-31"><a href="#cb12-31"></a>    x1.fill(value);</span>
+<span id="cb12-32"><a href="#cb12-32"></a>    x2.fill(value);</span>
+<span id="cb12-33"><a href="#cb12-33"></a>    y0.fill(value);</span>
+<span id="cb12-34"><a href="#cb12-34"></a>    y1.fill(value);</span>
+<span id="cb12-35"><a href="#cb12-35"></a>    y2.fill(value);</span>
+<span id="cb12-36"><a href="#cb12-36"></a>  }</span>
+<span id="cb12-37"><a href="#cb12-37"></a></span>
+<span id="cb12-38"><a href="#cb12-38"></a>  <span class="dt">void</span> setDelay(Sample delayInSamples)</span>
+<span id="cb12-39"><a href="#cb12-39"></a>  {</span>
+<span id="cb12-40"><a href="#cb12-40"></a>    <span class="kw">auto</span> wo = Sample(<span class="fl">0.5</span>) / delayInSamples; <span class="co">// 遅延サンプル数を周波数に変換。</span></span>
+<span id="cb12-41"><a href="#cb12-41"></a></span>
+<span id="cb12-42"><a href="#cb12-42"></a>    gain = Sample(<span class="dv">1</span>);</span>
+<span id="cb12-43"><a href="#cb12-43"></a>    <span class="cf">for</span> (<span class="dt">uint8_t</span> i = <span class="dv">0</span>; i &lt; co.size(); ++i) {</span>
+<span id="cb12-44"><a href="#cb12-44"></a>      <span class="bu">std::</span>complex&lt;Sample&gt; pole = wo * analogPole[i]; <span class="co">// カットオフ周波数の適用。</span></span>
+<span id="cb12-45"><a href="#cb12-45"></a>      pole = (Sample(<span class="dv">2</span>) + pole) / (Sample(<span class="dv">2</span>) - pole); <span class="co">// バイリニア変換。</span></span>
+<span id="cb12-46"><a href="#cb12-46"></a>      co[i][<span class="dv">0</span>] = Sample(-<span class="dv">2</span>) * pole.real();</span>
+<span id="cb12-47"><a href="#cb12-47"></a>      co[i][<span class="dv">1</span>] = <span class="bu">std::</span>norm(pole);</span>
+<span id="cb12-48"><a href="#cb12-48"></a>      gain *= (Sample(<span class="dv">1</span>) + co[i][<span class="dv">0</span>] + co[i][<span class="dv">1</span>]) / Sample(<span class="dv">4</span>);</span>
+<span id="cb12-49"><a href="#cb12-49"></a>    }</span>
+<span id="cb12-50"><a href="#cb12-50"></a>  }</span>
+<span id="cb12-51"><a href="#cb12-51"></a></span>
+<span id="cb12-52"><a href="#cb12-52"></a>  Sample process(Sample input)</span>
+<span id="cb12-53"><a href="#cb12-53"></a>  {</span>
+<span id="cb12-54"><a href="#cb12-54"></a>    x0[<span class="dv">0</span>] = input;</span>
+<span id="cb12-55"><a href="#cb12-55"></a>    <span class="co">// x0[1] = y0[0];</span></span>
+<span id="cb12-56"><a href="#cb12-56"></a>    <span class="cf">for</span> (<span class="dt">uint8_t</span> i = <span class="dv">1</span>; i &lt; halfDegree; ++i) x0[i] = y0[i - <span class="dv">1</span>];</span>
+<span id="cb12-57"><a href="#cb12-57"></a></span>
+<span id="cb12-58"><a href="#cb12-58"></a>    <span class="cf">for</span> (<span class="dt">uint8_t</span> i = <span class="dv">0</span>; i &lt; halfDegree; ++i) {</span>
+<span id="cb12-59"><a href="#cb12-59"></a>      y0[<span class="dv">0</span>]</span>
+<span id="cb12-60"><a href="#cb12-60"></a>        = Sample(<span class="dv">1</span>) * x0[i]</span>
+<span id="cb12-61"><a href="#cb12-61"></a>        + Sample(<span class="dv">2</span>) * x1[i]</span>
+<span id="cb12-62"><a href="#cb12-62"></a>        + Sample(<span class="dv">1</span>) * x2[i]</span>
+<span id="cb12-63"><a href="#cb12-63"></a>        - co[i][<span class="dv">0</span>] * y1[i]</span>
+<span id="cb12-64"><a href="#cb12-64"></a>        - co[i][<span class="dv">1</span>] * y2[i];</span>
+<span id="cb12-65"><a href="#cb12-65"></a></span>
+<span id="cb12-66"><a href="#cb12-66"></a>      x2[i] = x1[i];</span>
+<span id="cb12-67"><a href="#cb12-67"></a>      x1[i] = x0[i];</span>
+<span id="cb12-68"><a href="#cb12-68"></a>      y2[i] = y1[i];</span>
+<span id="cb12-69"><a href="#cb12-69"></a>      y1[i] = y0[i];</span>
+<span id="cb12-70"><a href="#cb12-70"></a>    }</span>
+<span id="cb12-71"><a href="#cb12-71"></a></span>
+<span id="cb12-72"><a href="#cb12-72"></a>    <span class="cf">return</span> gain * y0[<span class="dv">1</span>];</span>
+<span id="cb12-73"><a href="#cb12-73"></a>  }</span>
+<span id="cb12-74"><a href="#cb12-74"></a>};</span></code></pre></div>
 <h2 id="thiran-ローパスフィルタ">Thiran ローパスフィルタ</h2>
-<p>Thiran ローパスフィルタは群遅延が maximally flat になるように設計されたフィルタです。 Maximally flat はフィルタの専門用語で、通過域の特性ができるだけ平坦になるという意味です。</p>
+<p>Thiran ローパスフィルタは群遅延が maximally flat になるように設計されたフィルタです。</p>
 <p>Thiran ローパスフィルタの伝達関数です。</p>
 <p><span class="math display">\[
 H(z) = \frac{2n!}{n!} \,
@@ -712,62 +764,59 @@ H(z) = \frac{2n!}{n!} \,
 <li><span class="math inline">\(\tau\)</span>: 所望の遅延 (desired delay) 。</li>
 </ul>
 <p>伝達関数をそのまま実装すると発散することがあります。分母の因数分解は無理そうなので、 2 次セクションに分割するなら多項式の根を探す (root-finding) アルゴリズムを使って数値的に計算するしかなさそうです。ここでは SciPy の <code>tf2sos</code> を使っています。 C++ では <a href="https://www.boost.org/doc/libs/1_74_0/libs/math/doc/html/root_finding.html">Boost の root-finding</a> が使えそうです。</p>
-<ul>
-<li>TODO: 係数の計算とテスト</li>
-</ul>
 <h3 id="ステップ応答-2">ステップ応答</h3>
 <p>ステップ応答を確認します。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Python3</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb12-3"><a href="#cb12-3"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb12-4"><a href="#cb12-4"></a><span class="im">import</span> scipy.special <span class="im">as</span> special</span>
-<span id="cb12-5"><a href="#cb12-5"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb12-6"><a href="#cb12-6"></a></span>
-<span id="cb12-7"><a href="#cb12-7"></a><span class="kw">def</span> thiranLowpass(n, τ):</span>
-<span id="cb12-8"><a href="#cb12-8"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb12-9"><a href="#cb12-9"></a><span class="co">    n: Order of filter.</span></span>
-<span id="cb12-10"><a href="#cb12-10"></a><span class="co">    τ: Desired delay in samples.</span></span>
-<span id="cb12-11"><a href="#cb12-11"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb12-12"><a href="#cb12-12"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb12-13"><a href="#cb12-13"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb12-14"><a href="#cb12-14"></a>        i <span class="op">=</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb12-15"><a href="#cb12-15"></a>        a[k] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">*</span> special.binom(n, k) <span class="op">*</span> np.prod((<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> i) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> k <span class="op">+</span> i))</span>
-<span id="cb12-16"><a href="#cb12-16"></a>    gain_numer <span class="op">=</span> special.factorial(<span class="dv">2</span> <span class="op">*</span> n, exact<span class="op">=</span><span class="va">True</span>) <span class="op">/</span> special.factorial(n, exact<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb12-17"><a href="#cb12-17"></a>    gain_denom <span class="op">=</span> np.prod(<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>, <span class="dv">2</span> <span class="op">*</span> n <span class="op">+</span> <span class="dv">1</span>))</span>
-<span id="cb12-18"><a href="#cb12-18"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
-<span id="cb12-19"><a href="#cb12-19"></a>    b[<span class="dv">0</span>] <span class="op">=</span> gain_numer <span class="op">/</span> gain_denom</span>
-<span id="cb12-20"><a href="#cb12-20"></a>    <span class="cf">return</span> (b, a)</span>
-<span id="cb12-21"><a href="#cb12-21"></a></span>
-<span id="cb12-22"><a href="#cb12-22"></a>order <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb12-23"><a href="#cb12-23"></a>delay <span class="op">=</span> <span class="dv">512</span></span>
-<span id="cb12-24"><a href="#cb12-24"></a></span>
-<span id="cb12-25"><a href="#cb12-25"></a>b, a <span class="op">=</span> thiranLowpass(order, delay <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb12-26"><a href="#cb12-26"></a>sos <span class="op">=</span> signal.tf2sos(b, a)</span>
-<span id="cb12-27"><a href="#cb12-27"></a></span>
-<span id="cb12-28"><a href="#cb12-28"></a>sig <span class="op">=</span> np.hstack((np.zeros(delay), np.ones(delay <span class="op">*</span> <span class="dv">2</span>)))</span>
-<span id="cb12-29"><a href="#cb12-29"></a>out <span class="op">=</span> signal.sosfilt(sos, sig)</span>
-<span id="cb12-30"><a href="#cb12-30"></a></span>
-<span id="cb12-31"><a href="#cb12-31"></a>plt.axvline(<span class="dv">2</span> <span class="op">*</span> delay, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">&quot;--&quot;</span>)</span>
-<span id="cb12-32"><a href="#cb12-32"></a>plt.plot(sig, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
-<span id="cb12-33"><a href="#cb12-33"></a>plt.plot(out, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;Thiran&quot;</span>)</span>
-<span id="cb12-34"><a href="#cb12-34"></a>plt.grid()</span>
-<span id="cb12-35"><a href="#cb12-35"></a>plt.legend()</span>
-<span id="cb12-36"><a href="#cb12-36"></a>plt.show()</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Python3</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="im">import</span> scipy.special <span class="im">as</span> special</span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-6"><a href="#cb13-6"></a></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="kw">def</span> thiranLowpass(n, τ):</span>
+<span id="cb13-8"><a href="#cb13-8"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="co">    n: Order of filter.</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="co">    τ: Desired delay in samples.</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb13-12"><a href="#cb13-12"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb13-13"><a href="#cb13-13"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb13-14"><a href="#cb13-14"></a>        i <span class="op">=</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb13-15"><a href="#cb13-15"></a>        a[k] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">*</span> special.binom(n, k) <span class="op">*</span> np.prod((<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> i) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> k <span class="op">+</span> i))</span>
+<span id="cb13-16"><a href="#cb13-16"></a>    gain_numer <span class="op">=</span> special.factorial(<span class="dv">2</span> <span class="op">*</span> n, exact<span class="op">=</span><span class="va">True</span>) <span class="op">/</span> special.factorial(n, exact<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-17"><a href="#cb13-17"></a>    gain_denom <span class="op">=</span> np.prod(<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>, <span class="dv">2</span> <span class="op">*</span> n <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb13-18"><a href="#cb13-18"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
+<span id="cb13-19"><a href="#cb13-19"></a>    b[<span class="dv">0</span>] <span class="op">=</span> gain_numer <span class="op">/</span> gain_denom</span>
+<span id="cb13-20"><a href="#cb13-20"></a>    <span class="cf">return</span> (b, a)</span>
+<span id="cb13-21"><a href="#cb13-21"></a></span>
+<span id="cb13-22"><a href="#cb13-22"></a>order <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb13-23"><a href="#cb13-23"></a>delay <span class="op">=</span> <span class="dv">512</span></span>
+<span id="cb13-24"><a href="#cb13-24"></a></span>
+<span id="cb13-25"><a href="#cb13-25"></a>b, a <span class="op">=</span> thiranLowpass(order, delay <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb13-26"><a href="#cb13-26"></a>sos <span class="op">=</span> signal.tf2sos(b, a)</span>
+<span id="cb13-27"><a href="#cb13-27"></a></span>
+<span id="cb13-28"><a href="#cb13-28"></a>sig <span class="op">=</span> np.hstack((np.zeros(delay), np.ones(delay <span class="op">*</span> <span class="dv">2</span>)))</span>
+<span id="cb13-29"><a href="#cb13-29"></a>out <span class="op">=</span> signal.sosfilt(sos, sig)</span>
+<span id="cb13-30"><a href="#cb13-30"></a></span>
+<span id="cb13-31"><a href="#cb13-31"></a>plt.axvline(<span class="dv">2</span> <span class="op">*</span> delay, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">&quot;--&quot;</span>)</span>
+<span id="cb13-32"><a href="#cb13-32"></a>plt.plot(sig, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
+<span id="cb13-33"><a href="#cb13-33"></a>plt.plot(out, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;Thiran&quot;</span>)</span>
+<span id="cb13-34"><a href="#cb13-34"></a>plt.grid()</span>
+<span id="cb13-35"><a href="#cb13-35"></a>plt.legend()</span>
+<span id="cb13-36"><a href="#cb13-36"></a>plt.show()</span></code></pre></div>
 <p>出力です。オーバーシュートが出ています。バイリニア変換した Bessel フィルタと同じに見えます。</p>
 <figure>
 <img src="img/ThiranStepResponse.png" alt="" /><figcaption>Thiran lowpass filter step response.</figcaption>
 </figure>
 <p>ゲインの値を定義通りに計算すると <code>delay</code> の値によってはステップ応答が 1 から少しずれた値に収束することがあります。 1 に収束させるときは <code>signal.freqz()</code> の値からゲインを計算できます。</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Python3</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">def</span> thiranLowpassFixedGain(n, τ):</span>
-<span id="cb13-3"><a href="#cb13-3"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb13-4"><a href="#cb13-4"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb13-5"><a href="#cb13-5"></a>        i <span class="op">=</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb13-6"><a href="#cb13-6"></a>        a[k] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">*</span> special.binom(n, k) <span class="op">*</span> np.prod((<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> i) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> k <span class="op">+</span> i))</span>
-<span id="cb13-7"><a href="#cb13-7"></a>    freq, resp <span class="op">=</span> signal.freqz(<span class="dv">1</span>, a, worN<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb13-8"><a href="#cb13-8"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
-<span id="cb13-9"><a href="#cb13-9"></a>    b[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> resp.real</span>
-<span id="cb13-10"><a href="#cb13-10"></a>    <span class="cf">return</span> (b, a)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Python3</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="kw">def</span> thiranLowpassFixedGain(n, τ):</span>
+<span id="cb14-3"><a href="#cb14-3"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb14-4"><a href="#cb14-4"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb14-5"><a href="#cb14-5"></a>        i <span class="op">=</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb14-6"><a href="#cb14-6"></a>        a[k] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">*</span> special.binom(n, k) <span class="op">*</span> np.prod((<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> i) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> k <span class="op">+</span> i))</span>
+<span id="cb14-7"><a href="#cb14-7"></a>    freq, resp <span class="op">=</span> signal.freqz(<span class="dv">1</span>, a, worN<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb14-8"><a href="#cb14-8"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
+<span id="cb14-9"><a href="#cb14-9"></a>    b[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> resp.real</span>
+<span id="cb14-10"><a href="#cb14-10"></a>    <span class="cf">return</span> (b, a)</span></code></pre></div>
 <h2 id="比較">比較</h2>
 <p>ここまでに紹介した 3 つのフィルタのステップ応答を比較します。</p>
 <ul>
@@ -790,6 +839,17 @@ H(z) = \frac{2n!}{n!} \,
 <li><a href="https://www.dsprelated.com/showarticle/1119.php">Design IIR Butterworth Filters Using 12 Lines of Code - Neil Robertson</a></li>
 <li><a href="https://www.dsprelated.com/showarticle/1137.php">Design IIR Filters Using Cascaded Biquads - Neil Robertson</a></li>
 <li><a href="https://pdfs.semanticscholar.org/cd84/b18a454fd04a7bfcd1995ddb8c4c6927cc87.pdf">Thiran, J. P. (1971). Recursive digital filters with maximally flat group delay.</a></li>
+<li><a href="https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html">Amplitude Response</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2020/10/16
+<ul>
+<li>ローパスの場合の Maximally flat の定義を追加。</li>
+<li>2 次セクションのゲインの導出を変更。</li>
+<li>移動平均フィルタの C++ のコードを修正。</li>
+<li>移動平均フィルタの誤差補正の検証を追加。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
