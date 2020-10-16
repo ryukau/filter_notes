@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2020-10-15" />
+<meta name="dcterms.date" content="2020-10-16" />
 <title>s_curve_step_response_filter</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2020-10-15
+Update: 2020-10-16
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -381,7 +381,11 @@ Update: 2020-10-15
 <li>Thiran ローパスフィルタ</li>
 </ul>
 <h2 id="移動平均フィルタの重ね掛け">移動平均フィルタの重ね掛け</h2>
-<p>移動平均フィルタは <a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Musicdsp.org の Lookahead Limiter</a> のページで紹介されている手法を使えば効率よく計算できます。この手法では重ね掛けを 1 回行ってフィルタ係数を矩形窓から三角窓の形に変えています。</p>
+<p><span class="math inline">\(x\)</span> を入力信号、 <span class="math inline">\(n\)</span> を現在時刻のサンプル数、 <span class="math inline">\(N\)</span> をフィルタの長さ (タップ数) とすると、移動平均フィルタは次の式で計算できます。</p>
+<p><span class="math display">\[
+y[n] = \frac{1}{N} \sum_{i=0}^{N-1} x[n - i]
+\]</span></p>
+<p>移動平均フィルタはフィルタ係数がすべて <span class="math inline">\(\dfrac{1}{N}\)</span> の矩形窓を畳み込む FIR フィルタと言い換えることができます。</p>
 <h3 id="移動平均フィルタの重ね掛け-1">移動平均フィルタの重ね掛け</h3>
 <p>直列につないだ FIR フィルタは、フィルタ係数を畳み込むことで 1 つのフィルタにまとめられます。矩形窓を畳み込んで、重ね掛けしたときのフィルタ係数がどうなるのか見てみます。</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Python3</span></span>
@@ -440,8 +444,13 @@ Update: 2020-10-15
 <img src="img/MovingAverageStepResponse.png" alt="" /><figcaption>Moving average and its convolution filters step responses.</figcaption>
 </figure>
 <h3 id="実装">実装</h3>
-<p>Musicdsp.org の<a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead Limiter</a> の記事で紹介されていた手法を使って実装します。</p>
-<p>整数サンプルの遅延を加えるディレイを用意します。</p>
+<p>移動平均フィルタは <a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Musicdsp.org の Lookahead Limiter</a> のページで紹介されている手法を使えば効率よく計算できます。このページでは移動平均の重ね掛けを 1 回行って、フィルタ係数を矩形窓から三角窓の形に変えています。</p>
+<p>状態変数 <span class="math inline">\(s\)</span> を用意します。時点 <span class="math inline">\(n\)</span> の移動平均フィルタの出力は次の式で計算できます。</p>
+<p><span class="math display">\[
+s = s + \frac{x[n] - x[n - N]}{N}
+\]</span></p>
+<p>移動平均フィルタを冒頭で紹介した定義から直接計算するとフィルタのタップ数 <span class="math inline">\(N\)</span> より 1 サンプルあたりの計算量は <span class="math inline">\(O(N)\)</span> です。 ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので 1 サンプルあたりの計算量が <span class="math inline">\(O(1)\)</span> に減ります。</p>
+<p><span class="math inline">\(N\)</span> サンプルの遅延を加えるディレイを用意します。 <span class="math inline">\(N\)</span> は整数です。</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">// C++</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
@@ -484,7 +493,7 @@ Update: 2020-10-15
 <span id="cb4-2"><a href="#cb4-2"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> MovingAverage {</span>
 <span id="cb4-3"><a href="#cb4-3"></a><span class="kw">public</span>:</span>
 <span id="cb4-4"><a href="#cb4-4"></a>  Sample sum = <span class="dv">0</span>;</span>
-<span id="cb4-5"><a href="#cb4-5"></a>  <span class="dt">uint32_t</span> size = <span class="dv">0</span>;</span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="dt">uint32_t</span> size = <span class="dv">0</span>; <span class="co">// フィルタのタップ数。</span></span>
 <span id="cb4-6"><a href="#cb4-6"></a>  Delay&lt;Sample&gt; delay;</span>
 <span id="cb4-7"><a href="#cb4-7"></a></span>
 <span id="cb4-8"><a href="#cb4-8"></a>  <span class="dt">void</span> reset()</span>
@@ -505,7 +514,6 @@ Update: 2020-10-15
 <span id="cb4-23"><a href="#cb4-23"></a>    <span class="cf">return</span> sum / size;</span>
 <span id="cb4-24"><a href="#cb4-24"></a>  }</span>
 <span id="cb4-25"><a href="#cb4-25"></a>};</span></code></pre></div>
-<p>フィルタのタップ数を <span class="math inline">\(n\)</span> とします。畳み込みを直接計算すると 1 サンプルあたりの計算量は <span class="math inline">\(O(n)\)</span> です。 ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので 1 サンプルあたりの計算量が <span class="math inline">\(O(1)\)</span> に減ります。</p>
 <h4 id="補足">補足</h4>
 <p>Musicdsp.org のページでは、以下のコードのように入力で <code>1.0 - input</code> 、出力で <code>1.0 - output</code> を計算することで浮動小数点数による計算誤差を減らす手順があります。はっきりとは書いていませんが <code>input</code> の範囲は <code>[0.0, 1.0]</code> のようです。</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">// C++</span></span>
@@ -847,6 +855,7 @@ H(z) = \frac{2n!}{n!} \,
 <ul>
 <li>ローパスの場合の Maximally flat の定義を追加。</li>
 <li>2 次セクションのゲインの導出を変更。</li>
+<li>移動平均フィルタの説明を追加。</li>
 <li>移動平均フィルタの C++ のコードを修正。</li>
 <li>移動平均フィルタの誤差補正の検証を追加。</li>
 </ul></li>
