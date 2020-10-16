@@ -365,6 +365,7 @@ Update: 2020-10-16
 <li><a href="#ステップ応答-2">ステップ応答</a></li>
 </ul></li>
 <li><a href="#比較">比較</a></li>
+<li><a href="#その他">その他</a></li>
 <li><a href="#参考文献">参考文献</a></li>
 <li><a href="#変更点">変更点</a></li>
 </ul></li>
@@ -839,6 +840,8 @@ H(z) = \frac{2n!}{n!} \,
 <p>離散系で S 字のステップ応答が欲しいときは、オーバーシュートがなく、計算も速くて簡単な移動平均の重ね掛けを使えばよさそうです。</p>
 <p>バイリニア変換した Bessel フィルタは、オーバーシュートがあり、移動平均の重ね掛けと比べると計算が重いですが、メモリの使用量が少ないという利点があります。移動平均の重ね掛けは遷移時間と同じサンプル数のメモリが必要です。</p>
 <p>Thiran ローパスフィルタはバイリニア変換した Bessel フィルタとほとんど同じですが、 2 次セクションに分割できないので使いどころはなさそうです。</p>
+<h2 id="その他">その他</h2>
+<p>オーバーシュートせずにステップ応答が S 字を描くフィルタとしては<a href="https://en.wikipedia.org/wiki/Gaussian_filter">ガウシアンフィルタ</a>や適当な<a href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>をフィルタ係数にした FIR フィルタも使えます。ただし、遷移時間の長さと同じタップ数が必要になるのでリアルタイム処理では重たくて使いづらいです。</p>
 <h2 id="参考文献">参考文献</h2>
 <ul>
 <li><a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead Limiter — Musicdsp.org documentation</a></li>
@@ -858,6 +861,7 @@ H(z) = \frac{2n!}{n!} \,
 <li>移動平均フィルタの説明を追加。</li>
 <li>移動平均フィルタの C++ のコードを修正。</li>
 <li>移動平均フィルタの誤差補正の検証を追加。</li>
+<li>その他の節を追加。</li>
 </ul></li>
 </ul>
 <footer>

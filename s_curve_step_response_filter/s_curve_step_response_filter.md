@@ -561,6 +561,9 @@ Bessel フィルタと Thiran ローパスフィルタのステップ応答は�
 
 Thiran ローパスフィルタはバイリニア変換した Bessel フィルタとほとんど同じですが、 2 次セクションに分割できないので使いどころはなさそうです。
 
+## その他
+オーバーシュートせずにステップ応答が S 字を描くフィルタとしては[ガウシアンフィルタ](https://en.wikipedia.org/wiki/Gaussian_filter)や適当な[窓関数](https://en.wikipedia.org/wiki/Window_function)をフィルタ係数にした FIR フィルタも使えます。ただし、遷移時間の長さと同じタップ数が必要になるのでリアルタイム処理では重たくて使いづらいです。
+
 ## 参考文献
 - [Lookahead Limiter — Musicdsp.org documentation](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html)
 - [hw2_p2_sol.pdf - 矩形窓と三角窓の畳み込み (www.cs.cmu.edu)](https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/homework/hw2_p2_sol.pdf)
@@ -577,3 +580,4 @@ Thiran ローパスフィルタはバイリニア変換した Bessel フィル�
   - 移動平均フィルタの説明を追加。
   - 移動平均フィルタの C++ のコードを修正。
   - 移動平均フィルタの誤差補正の検証を追加。
+  - その他の節を追加。
