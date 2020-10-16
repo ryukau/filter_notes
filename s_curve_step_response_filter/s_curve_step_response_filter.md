@@ -8,7 +8,13 @@
 - Thiran ローパスフィルタ
 
 ## 移動平均フィルタの重ね掛け
-移動平均フィルタは [Musicdsp.org の Lookahead Limiter](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html) のページで紹介されている手法を使えば効率よく計算できます。この手法では重ね掛けを 1 回行ってフィルタ係数を矩形窓から三角窓の形に変えています。
+$x$ を入力信号、 $n$ を現在時刻のサンプル数、 $N$ をフィルタの長さ (タップ数) とすると、移動平均フィルタは次の式で計算できます。
+
+$$
+y[n] = \frac{1}{N} \sum_{i=0}^{N-1} x[n - i]
+$$
+
+移動平均フィルタはフィルタ係数がすべて $\dfrac{1}{N}$ の矩形窓を畳み込む FIR フィルタと言い換えることができます。
 
 ### 移動平均フィルタの重ね掛け
 直列につないだ FIR フィルタは、フィルタ係数を畳み込むことで 1 つのフィルタにまとめられます。矩形窓を畳み込んで、重ね掛けしたときのフィルタ係数がどうなるのか見てみます。
@@ -76,9 +82,17 @@ plotStep()
 ![Moving average and its convolution filters step responses.](img/MovingAverageStepResponse.png)
 
 ### 実装
-Musicdsp.org の[Lookahead Limiter](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html) の記事で紹介されていた手法を使って実装します。
+移動平均フィルタは [Musicdsp.org の Lookahead Limiter](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html) のページで紹介されている手法を使えば効率よく計算できます。このページでは移動平均の重ね掛けを 1 回行って、フィルタ係数を矩形窓から三角窓の形に変えています。
 
-整数サンプルの遅延を加えるディレイを用意します。
+状態変数 $s$ を用意します。時点 $n$ の移動平均フィルタの出力は次の式で計算できます。
+
+$$
+s = s + \frac{x[n] - x[n - N]}{N}
+$$
+
+移動平均フィルタを冒頭で紹介した定義から直接計算するとフィルタのタップ数 $N$ より 1 サンプルあたりの計算量は $O(N)$ です。 ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので 1 サンプルあたりの計算量が $O(1)$ に減ります。
+
+$N$ サンプルの遅延を加えるディレイを用意します。 $N$ は整数です。
 
 ```c++
 // C++
@@ -127,7 +141,7 @@ public:
 template<typename Sample> class MovingAverage {
 public:
   Sample sum = 0;
-  uint32_t size = 0;
+  uint32_t size = 0; // フィルタのタップ数。
   Delay<Sample> delay;
 
   void reset()
@@ -149,8 +163,6 @@ public:
   }
 };
 ```
-
-フィルタのタップ数を $n$ とします。畳み込みを直接計算すると 1 サンプルあたりの計算量は $O(n)$ です。 ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので 1 サンプルあたりの計算量が $O(1)$ に減ります。
 
 #### 補足
 Musicdsp.org のページでは、以下のコードのように入力で `1.0 - input` 、出力で `1.0 - output` を計算することで浮動小数点数による計算誤差を減らす手順があります。はっきりとは書いていませんが `input` の範囲は `[0.0, 1.0]` のようです。
@@ -562,5 +574,6 @@ Thiran ローパスフィルタはバイリニア変換した Bessel フィル�
 - 2020/10/16
   - ローパスの場合の Maximally flat の定義を追加。
   - 2 次セクションのゲインの導出を変更。
+  - 移動平均フィルタの説明を追加。
   - 移動平均フィルタの C++ のコードを修正。
   - 移動平均フィルタの誤差補正の検証を追加。
