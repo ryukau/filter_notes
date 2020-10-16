@@ -87,7 +87,7 @@ plotStep()
 状態変数 $s$ を用意します。時点 $n$ の移動平均フィルタの出力は次の式で計算できます。
 
 $$
-s = s + \frac{x[n] - x[n - N]}{N}
+s[n] = s[n - 1] + \frac{x[n] - x[n - N]}{N}
 $$
 
 移動平均フィルタを冒頭で紹介した定義から直接計算するとフィルタのタップ数 $N$ より 1 サンプルあたりの計算量は $O(N)$ です。 ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので 1 サンプルあたりの計算量が $O(1)$ に減ります。
@@ -261,7 +261,7 @@ plt.show()
 
 ![Bessel filter step response.](img/BesselStepResponse.png)
 
-### 2 次セクションに分割したときのフィルタ係数
+### 2 次セクションへの分割
 カットオフ周波数を自由に変更するために、以下の Python3 のコードと、 Neil Robertson さんによる [Design IIR Filters Using Cascaded Biquads](https://www.dsprelated.com/showarticle/1137.php) で紹介されていた手法を組み合わせて C++ に移植します。
 
 ```python

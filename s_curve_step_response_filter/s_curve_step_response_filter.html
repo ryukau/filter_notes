@@ -353,7 +353,7 @@ Update: 2020-10-16
 </ul></li>
 <li><a href="#bessel-フィルタ">Bessel フィルタ</a><ul>
 <li><a href="#ステップ応答-1">ステップ応答</a></li>
-<li><a href="#次セクションに分割したときのフィルタ係数">2 次セクションに分割したときのフィルタ係数</a><ul>
+<li><a href="#次セクションへの分割">2 次セクションへの分割</a><ul>
 <li><a href="#アナログプロトタイプ">アナログプロトタイプ</a></li>
 <li><a href="#カットオフ周波数の設定">カットオフ周波数の設定</a></li>
 <li><a href="#バイリニア変換">バイリニア変換</a></li>
@@ -448,7 +448,7 @@ y[n] = \frac{1}{N} \sum_{i=0}^{N-1} x[n - i]
 <p>移動平均フィルタは <a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Musicdsp.org の Lookahead Limiter</a> のページで紹介されている手法を使えば効率よく計算できます。このページでは移動平均の重ね掛けを 1 回行って、フィルタ係数を矩形窓から三角窓の形に変えています。</p>
 <p>状態変数 <span class="math inline">\(s\)</span> を用意します。時点 <span class="math inline">\(n\)</span> の移動平均フィルタの出力は次の式で計算できます。</p>
 <p><span class="math display">\[
-s = s + \frac{x[n] - x[n - N]}{N}
+s[n] = s[n - 1] + \frac{x[n] - x[n - N]}{N}
 \]</span></p>
 <p>移動平均フィルタを冒頭で紹介した定義から直接計算するとフィルタのタップ数 <span class="math inline">\(N\)</span> より 1 サンプルあたりの計算量は <span class="math inline">\(O(N)\)</span> です。 ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので 1 サンプルあたりの計算量が <span class="math inline">\(O(1)\)</span> に減ります。</p>
 <p><span class="math inline">\(N\)</span> サンプルの遅延を加えるディレイを用意します。 <span class="math inline">\(N\)</span> は整数です。</p>
@@ -596,7 +596,7 @@ s = s + \frac{x[n] - x[n - N]}{N}
 <figure>
 <img src="img/BesselStepResponse.png" alt="" /><figcaption>Bessel filter step response.</figcaption>
 </figure>
-<h3 id="次セクションに分割したときのフィルタ係数">2 次セクションに分割したときのフィルタ係数</h3>
+<h3 id="次セクションへの分割">2 次セクションへの分割</h3>
 <p>カットオフ周波数を自由に変更するために、以下の Python3 のコードと、 Neil Robertson さんによる <a href="https://www.dsprelated.com/showarticle/1137.php">Design IIR Filters Using Cascaded Biquads</a> で紹介されていた手法を組み合わせて C++ に移植します。</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Python3</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
