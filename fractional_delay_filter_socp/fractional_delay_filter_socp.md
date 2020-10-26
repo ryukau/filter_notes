@@ -5,14 +5,14 @@ Putnam と Smith による [Design of Fractional Delay Filters Using Convex Opti
 
 $$
 \begin{aligned}
-\mathrm{minimize} \quad & t\\
-\mathrm{subject to} \quad &
+\text{minimize} \quad & t\\
+\text{subject to} \quad &
   \lVert
     \mathbf{\tilde{A}}_i \mathbf{x} - \mathbf{b}_i
   \rVert_2 < \mathbf{t}
   ,\quad
   i \in 1, \dots, M\\
-\mathrm{where}\quad &
+\text{where}\quad &
   \mathbf{\tilde{A}}_i = \begin{bmatrix}
     \mathrm{Re}(\mathbf{a}_i^T) & 0\\
     \mathrm{Im}(\mathbf{a}_i^T) & 0
@@ -397,3 +397,8 @@ CVXOPT のユーザガイドの例では `list` が使われているので `nda
 
 ## 参考文献
 - Putnam, William, and Julius Smith. ["Design of fractional delay filters using convex optimization."](https://ccrma.stanford.edu/~jos/resample/optfir.pdf) Proceedings of 1997 Workshop on Applications of Signal Processing to Audio and Acoustics. IEEE, 1997.
+
+## 変更点
+- 2020/10/26
+  - `\mathrm{subject to}` を `\text{subject to}` に修正。
+    - `\mathrm` を使うと Firefox 82.0 で subject と to の間のスペースが表示されない。
