@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2019-06-26" />
+<meta name="dcterms.date" content="2020-10-26" />
 <title>fractional_delay_filter_socp</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2019-06-26
+Update: 2020-10-26
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -349,6 +349,7 @@ Update: 2019-06-26
 <li><a href="#音のサンプル">音のサンプル</a></li>
 <li><a href="#その他">その他</a></li>
 <li><a href="#参考文献">参考文献</a></li>
+<li><a href="#変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -359,14 +360,14 @@ Update: 2019-06-26
 <p>論文の問題をまとめると、次の second-order cone problem の形になります。</p>
 <p><span class="math display">\[
 \begin{aligned}
-\mathrm{minimize} \quad &amp; t\\
-\mathrm{subject to} \quad &amp;
+\text{minimize} \quad &amp; t\\
+\text{subject to} \quad &amp;
   \lVert
     \mathbf{\tilde{A}}_i \mathbf{x} - \mathbf{b}_i
   \rVert_2 &lt; \mathbf{t}
   ,\quad
   i \in 1, \dots, M\\
-\mathrm{where}\quad &amp;
+\text{where}\quad &amp;
   \mathbf{\tilde{A}}_i = \begin{bmatrix}
     \mathrm{Re}(\mathbf{a}_i^T) &amp; 0\\
     \mathrm{Im}(\mathbf{a}_i^T) &amp; 0
@@ -718,6 +719,16 @@ Audio of delay with low speed playback. 32x oversampling, N = 32, omega_max = 0.
 <h2 id="参考文献">参考文献</h2>
 <ul>
 <li>Putnam, William, and Julius Smith. <a href="https://ccrma.stanford.edu/~jos/resample/optfir.pdf">“Design of fractional delay filters using convex optimization.”</a> Proceedings of 1997 Workshop on Applications of Signal Processing to Audio and Acoustics. IEEE, 1997.</li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2020/10/26
+<ul>
+<li><code>\mathrm{subject to}</code> を <code>\text{subject to}</code> に修正。
+<ul>
+<li><code>\mathrm</code> を使うと Firefox 82.0 で subject と to の間のスペースが表示されない。</li>
+</ul></li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
