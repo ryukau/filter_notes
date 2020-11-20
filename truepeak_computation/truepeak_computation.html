@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2020-11-20" />
+<title>truepeak_computation</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
+crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+onload="renderMathInElement(document.body);"></script>
+
+<style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+font-family: inherit;
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 4px;
+margin: 2px;
+line-height: calc(1em + 16px);
+}
+
+a {
+text-decoration: none;
+}
+
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
+padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
+}
+
+tr:nth-child(odd) {
+background: #eeeeee;
+}
+
+tr:nth-child(even) {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+td {
+height: 1.5em;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
+}
+
+li {
+margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2020-11-20
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#トゥルーピークの計算">トゥルーピークの計算</a><ul>
+<li><a href="#sinc-補間">Sinc 補間</a></li>
+<li><a href="#分数ディレイフィルタ">分数ディレイフィルタ</a><ul>
+<li><a href="#thiran-オールパスフィルタ">Thiran オールパスフィルタ</a></li>
+<li><a href="#bs.1770-fir">BS.1770 FIR</a></li>
+<li><a href="#分数ディレイフィルタによるトゥルーピークの計算方法">分数ディレイフィルタによるトゥルーピークの計算方法</a></li>
+</ul></li>
+<li><a href="#評価">評価</a><ul>
+<li><a href="#ebu-tech-3341-のテスト">EBU TECH 3341 のテスト</a></li>
+<li><a href="#データセット">データセット</a></li>
+<li><a href="#計算速度の比較">計算速度の比較</a></li>
+<li><a href="#socp-fir-のパラメータ設定">SOCP FIR のパラメータ設定</a><ul>
+<li><a href="#オーバーサンプリングの倍率とフィルタの長さの設定">オーバーサンプリングの倍率とフィルタの長さの設定</a></li>
+<li><a href="#bs.1770-fir-より効率のいいパラメータ">BS.1770 FIR より効率のいいパラメータ</a></li>
+</ul></li>
+<li><a href="#ebu-tech-3341-のトゥルーピークテストを通る最小の-socp-fir">EBU TECH 3341 のトゥルーピークテストを通る最小の SOCP FIR</a></li>
+<li><a href="#c-での実装">C++ での実装</a></li>
+</ul></li>
+<li><a href="#離散ピークとトゥルーピークの差の最大値">離散ピークとトゥルーピークの差の最大値</a><ul>
+<li><a href="#長さが無限の信号">長さが無限の信号</a></li>
+<li><a href="#長さが有限の信号">長さが有限の信号</a></li>
+<li><a href="#まとめ">まとめ</a></li>
+</ul></li>
+<li><a href="#その他">その他</a><ul>
+<li><a href="#sinc-補間の有効なタップ数">Sinc 補間の有効なタップ数</a></li>
+</ul></li>
+<li><a href="#実験に使用した音声データの一覧">実験に使用した音声データの一覧</a></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul></li>
+</ul>
+</nav>
+</details>
+</header>
+<h1 id="トゥルーピークの計算">トゥルーピークの計算</h1>
+<p>トゥルーピーク (true-peak) は離散信号のサンプル間を考慮したピーク値のことで、インターサンプルピーク (inter-sample peak) と呼ばれることもあります。</p>
+<p>トゥルーピークという言葉を使っている資料としては <a href="https://www.itu.int/rec/R-REC-BS.1770/en">ITU-R BS.1770</a> がありますが、はっきりとした定義は書いていません。そこで、この文章ではトゥルーピークを以下のように定義します。</p>
+<blockquote>
+<p>離散信号を sinc 補間して得られる、連続な信号の絶対値の最大値。</p>
+</blockquote>
+<p>ここではトゥルーピークの計算に適当なフィルタとそのパラメータを調べています。また、理論上の最悪の場合にトゥルーピークの真値と近似値がどれくらい異なるのかを調べています。</p>
+<h2 id="sinc-補間">Sinc 補間</h2>
+<p><a href="https://ccrma.stanford.edu/~jos/Interpolation/Ideal_Bandlimited_Sinc_Interpolation.html">Sinc 補間</a>を使えば、一定の間隔でサンプリングされた離散信号から、帯域制限された連続な信号を復元できます。帯域制限された信号とは、連続系から離散系に変換したときにエイリアシングノイズが出ない信号のことです。</p>
+<p>以下は Sinc 補間の式です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+x(t) &amp;= \sum_{n=-\infty}^{\infty} x[n] \mathrm{sinc} \left( t - n \right)\\
+\mathrm{sinc}(x) &amp;= \frac{\sin(\pi x)}{\pi x}
+\end{aligned}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(x(t)\)</span>: 連続信号。 <span class="math inline">\(t\)</span> はサンプル数で表された実数の時点。</li>
+<li><span class="math inline">\(x[n]\)</span>: 離散信号。 <span class="math inline">\(n\)</span> はサンプル数で表された整数の時点。</li>
+</ul>
+<p>Sinc 補間は <span class="math inline">\(\mathrm{sinc}(t-n)\)</span> を無限の長さに渡って畳み込む <a href="https://en.wikipedia.org/wiki/Finite_impulse_response">FIR</a> フィルタです。現実には無限の長さのフィルタは計算できないので、録音した信号の範囲外を 0 と仮定して計算します。ここでは入力信号 <span class="math inline">\(x\)</span> の 2 倍の長さのフィルタ係数を用意して、 <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve.html"><code>scipy.signal.convolve</code></a> で畳み込んでいます。</p>
+<p>Sinc 補間はトゥルーピークを求めたい信号が全て録音された後でないと計算できないので、リアルタイムでは使えません。そこで、精度は下がるものの素早く計算できる分数ディレイフィルタ (fractional delay filter) を使います。例えば ITU-R BS.1770-4 の Annex 2 にはトゥルーピークを計算する FIR の分数ディレイフィルタが掲載されています。</p>
+<h2 id="分数ディレイフィルタ">分数ディレイフィルタ</h2>
+<p>分数ディレイフィルタはサンプル間の値を計算するように設計されたフィルタのことです。大まかに以下のような特徴があります。</p>
+<ul>
+<li>サンプル数で遅延時間を指定できる。</li>
+<li>指定した遅延時間と一致するように群遅延特性がだいたい平らになる。</li>
+</ul>
+<p>より詳しくは以下の資料が参考になります。</p>
+<ul>
+<li><a href="https://ccrma.stanford.edu/~jos/Interpolation/">MUS420 Lecture 4A Interpolated Delay Lines, Ideal Bandlimited Interpolation, and Fractional Delay Filter Design</a></li>
+</ul>
+<p>ここでは以下の分数ディレイフィルタを比較します。</p>
+<ul>
+<li>凸最適化を用いた分数ディレイフィルタ (SOCP FIR)</li>
+<li>ラグランジュ補間</li>
+<li>Thiran オールパスフィルタ</li>
+<li>ITU-R BS.1770-4 の Annex 2 に掲載されているフィルタ (BS.1770 FIR)</li>
+</ul>
+<p>ラグランジュ補間と Thiran オールパスフィルタは次数を変えることで精度と計算速度のバランスを調節できます。 SOCP FIR は以下の 4 つのパラメータがあります。</p>
+<ul>
+<li>フィルタの長さ <code>N</code></li>
+<li>遅延の範囲の最小値 <code>delta_min</code></li>
+<li>設計したいフィルタ特性が保証される周波数領域の上限 <code>omega_max</code></li>
+<li>周波数領域の分割数 <code>omega_density</code></li>
+</ul>
+<p>遅延は <code>[delta_min, delta_min + 1]</code> サンプルの範囲で設定されます。例えば <code>delta_min=5.0</code> かつ、オーバーサンプリングが 4 倍のときは <code>[5.0, 5.25, 5.5, 5.75, 6.0]</code> の 5 つのフィルタを組にして設計します。</p>
+<p>SOCP FIR の計算方法は以下のリンク先に掲載しています。</p>
+<ul>
+<li><a href="https://ryukau.github.io/filter_notes/fractional_delay_filter_socp/fractional_delay_filter_socp.html">凸最適化を用いた分数ディレイフィルタの設計</a> (SOCP FIR)</li>
+</ul>
+<p>ラグランジュ補間の計算方法は以下のリンク先に掲載しています。</p>
+<ul>
+<li><a href="https://ryukau.github.io/filter_notes/delay/delay.html#%E5%88%86%E6%95%B0%E3%83%87%E3%82%A3%E3%83%AC%E3%82%A4%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF">ディレイの実装 - 分数ディレイフィルタ</a> (ラグランジュ補間)</li>
+</ul>
+<p>Thiran オールパスフィルタと BS.1770 FIR については、ここで簡単に紹介します。</p>
+<h3 id="thiran-オールパスフィルタ">Thiran オールパスフィルタ</h3>
+<p>Thiran オールパスフィルタは <a href="https://en.wikipedia.org/wiki/Infinite_impulse_response">IIR</a> の分数ディレイフィルタです。</p>
+<p>次の式は <span class="math inline">\(N\)</span> 次の離散オールパスフィルタの伝達関数です。</p>
+<p><span class="math display">\[
+H(z) = \frac{
+  a_N + a_{(N-1)} z^{-1} + \dots + a_1 z^{-(N-1)} + z^{-N}
+}{
+  1 + a_1 z^{-1} + \dots + a_{N-1} z^{-(N-1)} + a_N z^{-N}
+}
+\]</span></p>
+<p>Thiran オールパスフィルタでは以下の式によって <span class="math inline">\(a_1, \dots , a_N\)</span> の値を決めます。</p>
+<p><span class="math display">\[
+a_k = (-1)^k \binom{N}{k} \prod_{n=0}^{N} \frac{D - N + n}{D - N + k + n}
+\]</span></p>
+<p><span class="math inline">\(k\)</span> は <span class="math inline">\(1\)</span> から <span class="math inline">\(N\)</span> の範囲のインデックスです。</p>
+<p><span class="math inline">\(D\)</span> は分数ディレイのサンプル数で、 <span class="math inline">\(N\)</span> から <span class="math inline">\(N + 1\)</span> の範囲で指定するといいそうです。例えば 16 次で 0.1 サンプルの分数ディレイが欲しいときは <span class="math inline">\(D = 16.1\)</span> とします。</p>
+<p><span class="math inline">\(D = N - k\)</span> のときに 0 除算が起こります。 <span class="math inline">\(D \bmod 1 \neq 0\)</span> となるように <span class="math inline">\(D\)</span> を設定すると 0 除算を避けられます。</p>
+<ul>
+<li><a href="https://ccrma.stanford.edu/~jos/pasp/Thiran_Allpass_Interpolators.html">Thiran Allpass Interpolators</a></li>
+</ul>
+<h3 id="bs.1770-fir">BS.1770 FIR</h3>
+<p>BS.1770 FIR は ITR-R BS.1770-4 の Annex 2 に掲載されている FIR の分数ディレイフィルタです。以下は JSON 形式にしたフィルタ係数です。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="dt">&quot;Phase 0&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="fl">0.001708984375</span><span class="ot">,</span> <span class="fl">0.010986328125</span><span class="ot">,</span> <span class="fl">-0.0196533203125</span><span class="ot">,</span> <span class="fl">0.033203125</span><span class="ot">,</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    <span class="fl">-0.0594482421875</span><span class="ot">,</span> <span class="fl">0.1373291015625</span><span class="ot">,</span> <span class="fl">0.97216796875</span><span class="ot">,</span> <span class="fl">-0.102294921875</span><span class="ot">,</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="fl">0.047607421875</span><span class="ot">,</span> <span class="fl">-0.026611328125</span><span class="ot">,</span> <span class="fl">0.014892578125</span><span class="ot">,</span> <span class="fl">-0.00830078125</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>  <span class="dt">&quot;Phase 1&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="fl">-0.0291748046875</span><span class="ot">,</span> <span class="fl">0.029296875</span><span class="ot">,</span> <span class="fl">-0.0517578125</span><span class="ot">,</span> <span class="fl">0.089111328125</span><span class="ot">,</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="fl">-0.16650390625</span><span class="ot">,</span> <span class="fl">0.465087890625</span><span class="ot">,</span> <span class="fl">0.77978515625</span><span class="ot">,</span> <span class="fl">-0.2003173828125</span><span class="ot">,</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a>    <span class="fl">0.1015625</span><span class="ot">,</span> <span class="fl">-0.0582275390625</span><span class="ot">,</span> <span class="fl">0.0330810546875</span><span class="ot">,</span> <span class="fl">-0.0189208984375</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a>  <span class="dt">&quot;Phase 2&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a>    <span class="fl">-0.0189208984375</span><span class="ot">,</span> <span class="fl">0.0330810546875</span><span class="ot">,</span> <span class="fl">-0.0582275390625</span><span class="ot">,</span> <span class="fl">0.1015625</span><span class="ot">,</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>    <span class="fl">-0.2003173828125</span><span class="ot">,</span> <span class="fl">0.77978515625</span><span class="ot">,</span> <span class="fl">0.465087890625</span><span class="ot">,</span> <span class="fl">-0.16650390625</span><span class="ot">,</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>    <span class="fl">0.089111328125</span><span class="ot">,</span> <span class="fl">-0.0517578125</span><span class="ot">,</span> <span class="fl">0.029296875</span><span class="ot">,</span> <span class="fl">-0.0291748046875</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a>  <span class="dt">&quot;Phase 3&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a>    <span class="fl">-0.00830078125</span><span class="ot">,</span> <span class="fl">0.014892578125</span><span class="ot">,</span> <span class="fl">-0.026611328125</span><span class="ot">,</span> <span class="fl">0.047607421875</span><span class="ot">,</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a>    <span class="fl">-0.102294921875</span><span class="ot">,</span> <span class="fl">0.97216796875</span><span class="ot">,</span> <span class="fl">0.1373291015625</span><span class="ot">,</span> <span class="fl">-0.0594482421875</span><span class="ot">,</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a>    <span class="fl">0.033203125</span><span class="ot">,</span> <span class="fl">-0.0196533203125</span><span class="ot">,</span> <span class="fl">0.010986328125</span><span class="ot">,</span> <span class="fl">0.001708984375</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a>  <span class="ot">]</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="fu">}</span></span></code></pre></div>
+<p>Phase 0 の配列の前後を逆にすると Phase 3 、 Phase 1 の配列の前後を逆にすると Phase 2 と係数が同じになります。</p>
+<p>BS.1770 FIR の振幅、位相、群遅延特性です。</p>
+<figure>
+<img src="img/bs1770_fir.png" alt="Plot of ITU-R BS.1770-4 FIR filter responses." style="padding-bottom: 12px;"/>
+</figure>
+<p>群遅延特性の通過域が波打っているので SOCP FIR のように見えます。また群遅延特性から [5, 6) サンプルの遅れが加わることがわかりました。</p>
+<p>計算方法はずっと下のほうにある「C++ での実装」に掲載しています。フィルタ係数を入れ替えれて、 <code>bufferSize = 12</code> 、 <code>intDelay = 5</code> と変更すれば計算できます。</p>
+<p>BS.1770 FIR のフィルタ係数は末尾がどれも <code>...125, 375, 625, 875</code> などになっているので有理数で表現できそうです。以下は Maxima の <a href="http://maxima.sourceforge.net/docs/manual/maxima_76.html#index-rat"><code>rat</code></a> を用いて有理数に変換したフィルタ係数です。</p>
+<pre><code>Phase0: [
+  7/4096, 45/4096, -161/8192, 17/512,
+  -487/8192, 1125/8192, 1991/2048, -419/4096,
+  195/4096, -109/4096, 61/4096, -17/2048
+];
+Phase1: [
+  -239/8192, 15/512, -53/1024, 365/4096,
+  -341/2048, 1905/4096, 1597/2048, -1641/8192,
+  13/128, -477/8192, 271/8192, -155/8192
+];
+Phase2: [
+  -155/8192, 271/8192, -477/8192, 13/128,
+  -1641/8192, 1597/2048, 1905/4096, -341/2048,
+  365/4096, -53/1024, 15/512, -239/8192
+];
+Phase3: [
+  -17/2048, 61/4096, -109/4096, 195/4096,
+  -419/4096, 1991/2048, 1125/8192, -487/8192,
+  17/512, -161/8192, 45/4096, 7/4096
+];</code></pre>
+<h3 id="分数ディレイフィルタによるトゥルーピークの計算方法">分数ディレイフィルタによるトゥルーピークの計算方法</h3>
+<p>分数ディレイフィルタを使ったトゥルーピークの計算方法は大まかに以下のようになります。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c++"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="dt">float</span> process(<span class="dt">float</span> input)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>{</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  <span class="dt">float</span> truepeak = <span class="fl">0.0</span><span class="bu">f</span>;</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="cf">for</span> (<span class="kw">auto</span> &amp;fd : fractionalDelays) {</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="dt">float</span> candidate = <span class="bu">std::</span>fabs(fd.process(input));</span>
+<span id="cb3-6"><a href="#cb3-6"></a>    truepeak = <span class="bu">std::</span>max(truepeak, candidate);</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  }</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="cf">return</span> truepeak;</span>
+<span id="cb3-9"><a href="#cb3-9"></a>}</span></code></pre></div>
+<p><code>fractionalDelays</code> は分数ディレイフィルタをまとめた配列で、長さはオーバーサンプリングの倍率から 1 を引いた値と同じです。例えば 4 倍のオーバーサンプリングなら <code>[0.0, 0.25, 0.5, 0.75]</code> の分数ディレイを計算します。分数ディレイが 0.0 のときは入力サンプルをそのまま使えばいいので、実装を工夫すれば分数ディレイフィルタの計算を 1 つ省略できます。</p>
+<p>以下のリンク先で各分数ディレイフィルタの実装例を読めます。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/code/cpp/benchmark/bench.cpp">C++ による分数ディレイフィルタの実装例を読む (github.com)</a></li>
+</ul>
+<h2 id="評価">評価</h2>
+<p>どの分数ディレイフィルタを使ってオーバーサンプリングをどのくらいにすればいいのかを決めるために評価を行います。以下の手順で絞り込みを行っています。</p>
+<ol type="1">
+<li><a href="https://tech.ebu.ch/publications/tech3341">EBU TECH 3341</a> のテストを通る、最小の分数ディレイフィルタの長さを求める。</li>
+<li>1 で得られた分数ディレイフィルタの中から最も速いものを選ぶ。</li>
+<li>2 で最も速かった分数ディレイフィルタのパラメータ設定について詳細を調べる。</li>
+</ol>
+<h3 id="ebu-tech-3341-のテスト">EBU TECH 3341 のテスト</h3>
+<p>EBU TECH 3341 の Table 1 (pp.10-11) にトゥルーピークのテストがいくつか載っています。以下は EBU TECH 3341 のダウンロードリンクです。</p>
+<ul>
+<li><a href="https://tech.ebu.ch/publications/tech3341">EBU Technology &amp; Innovation - ‘EBU Mode’ metering to supplement EBU R 128 loudness normalisation</a></li>
+</ul>
+<p>以下の表は EBU TECH 3341 の Table 1 のトゥルーピークのテストの意訳です。</p>
+<p>意訳始め。</p>
+<hr />
+<table>
+<thead>
+<tr class="header">
+<th>番号</th>
+<th>テスト信号</th>
+<th>予期される応答 (許容誤差)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>15</td>
+<td>信号 1 、 周波数 <code>fs / 4</code> Hz 、振幅 0.50 FFS 、位相 0.0° のサイン波</td>
+<td>−6.0 (+0.2/−0.4) dBTP</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td>信号 1 、 周波数 <code>fs / 4</code> Hz 、振幅 0.50 FFS 、位相 45.0° のサイン波</td>
+<td>−6.0 (+0.2/−0.4) dBTP</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td>信号 1 、 周波数 <code>fs / 6</code> Hz 、振幅 0.50 FFS 、位相 60.0° のサイン波</td>
+<td>−6.0 (+0.2/−0.4) dBTP</td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td>信号 1 、 周波数 <code>fs / 8</code> Hz 、振幅 0.50 FFS 、位相 67.5° のサイン波</td>
+<td>−6.0 (+0.2/−0.4) dBTP</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td>信号 1 、 周波数 <code>fs / 4</code> Hz 、振幅 1.41 FFS 、位相 45.0° のサイン波</td>
+<td>+3.0 (+0.2/−0.4) dBTP</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td>信号 2 、 0 サンプルオフセット</td>
+<td>0.0 (+0.2/−0.4) dBTP</td>
+</tr>
+<tr class="odd">
+<td>21</td>
+<td>信号 2 、 1 サンプルオフセット</td>
+<td>0.0 (+0.2/−0.4) dBTP</td>
+</tr>
+<tr class="even">
+<td>22</td>
+<td>信号 2 、 2 サンプルオフセット</td>
+<td>0.0 (+0.2/−0.4) dBTP</td>
+</tr>
+<tr class="odd">
+<td>23</td>
+<td>信号 2 、 3 サンプルオフセット</td>
+<td>0.0 (+0.2/−0.4) dBTP</td>
+</tr>
+</tbody>
+</table>
+<p>信号 1 と信号 2 の定義です。</p>
+<ol type="1">
+<li>合成されたトーンの全長は重要でないが、トーンの両端に 10 ms のフェードイン、フェードアウトを入れること。</li>
+<li>周波数 <code>fs / 6</code> Hz 、振幅 1.41 FFS のサイン波に、周波数 <code>fs / 4</code> Hz、振幅 1.00 FFS のサイン波を 1 周期含む。 1 周期のサイン波の両端で位相が連続であること。信号は <code>4 * fs</code> で合成され、先頭に 0 サンプルのオフセットを加えられた上で、ローパスフィルタをかけて、 <code>fs</code> にダウンサンプリングされる。合成されたトーンの全長は重要でないが、両端に短いフェードイン、フェードアウトを入れること。</li>
+</ol>
+<hr />
+<p>意訳終わり。</p>
+<p>合成されたトーンの全長は重要でない (the duration of the synthesized tone does not matter) とありますが、 sinc 補間を計算するときは信号の長さでトゥルーピークの値が変わることがあります。</p>
+<p>ここでの評価は EBU によって用意されたテスト信号を使っています。テスト信号は以下のリンクからダウンロードできます。</p>
+<ul>
+<li><a href="https://tech.ebu.ch/publications/ebu_loudness_test_set">EBU TECH 3341, 3342, 3343 のテスト信号のダウンロードページ</a></li>
+</ul>
+<p>それぞれの分数ディレイフィルタについて EBU TECH 3341 のテストを通る最小の次数を探しました。以下のリンクにテストコードを掲載しています。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/code/ebutest.py">EBU TECH 3341 のトゥルーピークのテストコードを読む (github.com)</a></li>
+</ul>
+<p>結果は以下のようになりました。</p>
+<table>
+<thead>
+<tr class="header">
+<th>分数ディレイ</th>
+<th>パラメータ</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ラグランジュ補間</td>
+<td>11 次</td>
+</tr>
+<tr class="even">
+<td>Thiran オールパス</td>
+<td>12 次</td>
+</tr>
+<tr class="odd">
+<td>SOCP FIR</td>
+<td>フィルタの長さ 12 、 <code>omega_max=0.5</code> 、 <code>omega_density=1</code> 、 <code>delta_min=5</code></td>
+</tr>
+</tbody>
+</table>
+<p>SOCP FIR のパラメータはフィルタの長さを BS.1770 FIR と同じ 12 に固定した上で、残りのパラメータの値を試行錯誤によって見つけました。</p>
+<h3 id="データセット">データセット</h3>
+<p>以降では EBU TECH 3341 に加えて <a href="https://freesound.org/">freesound.org</a> で集めたデータを使って誤差などを測定しています。データは freesound.org のトップページから Sounds -&gt; Give me a random sound! と辿ってランダムにダウンロードしました。以下のリンク先に使用データの一覧を掲載しています。</p>
+<ul>
+<li><a href="code/data/dataset.md">実験に使った freesound.org のデータの一覧</a></li>
+</ul>
+<h3 id="計算速度の比較">計算速度の比較</h3>
+<p>上で調べた EBU TECH 3341 のテストを通るパラメータを使ったときに、どの分数ディレイフィルタが最も速く計算できるのかを調べました。</p>
+<p>以下のリンクにベンチマークのコードを掲載しています。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/code/cpp/benchmark/bench.cpp">分数ディレイフィルタのベンチマークのコードを読む (github.com)</a></li>
+</ul>
+<p>コンパイラオプションは CMake に任せました。 Visual Studio 2019 をインストールした Windows 10 で <code>cmake --build . --config release</code> としてビルドしています。</p>
+<p>今回の実装では、以下の順に計算が速いという結果が出ました。</p>
+<ol type="1">
+<li>SOCP FIR と BS.1770 FIR</li>
+<li>Thiran オールパス</li>
+<li>ラグランジュ補間</li>
+</ol>
+<p>SOCP FIR と BS.1770 FIR はフィルタの長さが同じなので計算時間も同じでした。これら 2 つの FIR と比べると Thiran オールパスは 2 倍、ラグランジュ補間は 4~5 倍ほどの計算時間がかかりました。</p>
+<h3 id="socp-fir-のパラメータ設定">SOCP FIR のパラメータ設定</h3>
+<p>高速な SOCP FIR に注目してパラメータを設定します。</p>
+<h4 id="オーバーサンプリングの倍率とフィルタの長さの設定">オーバーサンプリングの倍率とフィルタの長さの設定</h4>
+<p>オーバーサンプリングの倍率とフィルタの長さを変えたときに SOCP FIR の誤差がどう変わるかを調べました。ここでは <code>omega_max = 0.5</code> で固定しています。</p>
+<p>ここでは sinc 補間によって計算されたトゥルーピークを真値、 SOCP FIR によって計算されたトゥルーピークの値を近似値としています。真値と近似値の間で以下の誤差を測りました。</p>
+<ul>
+<li>全ての近似値の平均絶対誤差</li>
+<li>アンダーリード (under-read) の平均誤差</li>
+<li>オーバーリード (over-read) の平均誤差</li>
+</ul>
+<p>近似値が真値よりも小さいことをアンダーリード、近似値が真値よりも大きいことをオーバーリードと呼んでいます。トゥルーピークの目的は離散信号を連続信号にしたときの歪みを抑えることです。アンダーリードのときの近似値に基づいて音量を下げても歪みが防げないので、別に分けて平均誤差を取りました。オーバーリードはついでに測りました。アンダーリードは全て負の値、オーバーリードは全て正の値の誤差なので、絶対値を使わずに平均を取っています。</p>
+<p>一つの音のデータの誤差は以下の手順で計算しています。</p>
+<ol type="1">
+<li>Sinc 補間によるトゥルーピークの真値の最大値を計算。</li>
+<li>SOCP FIR によるトゥルーピークの近似値の最大値を計算。</li>
+<li>真値と近似値の差から、平均絶対誤差、アンダーリード、オーバーリードを計算。</li>
+</ol>
+<p>SOCP FIR の他のパラメータは <code>delta_min = N / 2 - 1</code> 、 <code>omega_density = 1</code> としています。 <code>N</code> はフィルタの長さです。</p>
+<p>以下はオーバーサンプリングの倍率と SOCP FIR のフィルタの長さを変えたときのトゥルーピークの近似値の平均絶対誤差です。 1 つめのプロットを見るとフィルタの長さが偶数のときはオーバーサンプリングの倍率を偶数にしたほうが誤差が減るように見えます。 3 つめと 4 つめのプロットを見るとオーバーサンプリングの倍率が偶数、奇数のどちらであるかに関わらず、フィルタの長さが奇数のときに誤差が減っています。</p>
+<figure>
+<img src="img/socp_truepeak.png" alt="Plot of absolute mean error of truepeak between sinc interpolation and SOCP FIR approximation." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下はオーバーサンプリングの倍率と SOCP FIR のフィルタの長さを変えたときのアンダーリードの平均誤差です。</p>
+<p>全体の平均絶対誤差のプロットと似たような傾向が見られます。縦軸の値に注目すると全体の誤差のうち、アンダーリードが占める割合がオーバーリードよりも大きいことがわかります。この傾向はデータセットによって変わるかもしれません。</p>
+<p>2 つめのプロットを見るとフィルタの長さが奇数のときはオーバーサンプリングの倍率が奇数のときにアンダーリードが減っているように見えます。</p>
+<figure>
+<img src="img/socp_underread.png" alt="Plot of mean error of underread." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下はオーバーサンプリングの倍率と SOCP FIR のフィルタの長さを変えたときのオーバーリードの平均誤差です。</p>
+<p>1 つめと 2 つめのプロットを見るとオーバーサンプリングの倍率が低いほどオーバーリードが減る傾向があるように見えます。 3 つめと 4 つめのプロットを見るとオーバーリードはフィルタの長さが偶数のときに減るようです。</p>
+<figure>
+<img src="img/socp_overread.png" alt="Plot of mean error of overread." style="padding-bottom: 12px;"/>
+</figure>
+<p>結果より SOCP FIR のパラメータは以下のように決めるとよさそうです。</p>
+<ul>
+<li>アンダーリードによる誤差を減らすときは、フィルタの長さを奇数にする。</li>
+<li>オーバーリードによる誤差を減らすときは、フィルタの長さを偶数にする。</li>
+</ul>
+<p>オーバーサンプリングの倍率については一概には言えませんが、高いほどアンダーリードが減り、低いほどオーバーリードが減っているように見えます。フィルタの長さが偶数のときは、オーバーサンプリングの倍率が偶数になるとアンダーリードが減る傾向があるように見えます。同様にフィルタの長さが奇数のときはオーバーサンプリングの倍率が奇数のときにアンダーリードが減っているように見えます。</p>
+<p>原則としてはアンダーリードを減らしつつ、全体の誤差も少なくしたいです。この要件を満たすにはフィルタの長さを奇数にして、オーバーサンプリングの倍率をできる限り高くすると良さそうです。</p>
+<h4 id="bs.1770-fir-より効率のいいパラメータ">BS.1770 FIR より効率のいいパラメータ</h4>
+<p>以下の図は SOCP FIR のパラメータを変えて EBU TECH 3341 のテストを通るかどうか、また BS.1770 FIR よりも誤差が小さいかどうかを調べた結果のプロットです。ここではオーバーサンプリングの倍率を 4 倍に固定してフィルタの長さと <code>omega_max</code> を変えています。マーカーがある箇所は EBU TECH 3341 テストを通った、あるいは BS.1770 FIR よりも誤差が小さかったことを示しています。つまり 4 つのマーカーが全て表示されているパラメータは質がいいと考えられます。</p>
+<figure>
+<img src="img/socp_test_4x.png" alt="Plot of distribution of better SOCP FIR parameter." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下の図は 4 つのマーカーが全て表示されているパラメータだけを抜き出したプロットです。</p>
+<figure>
+<img src="img/socp_reasonable_4x.png" alt="Summarized plot of distribution of better SOCP FIR parameter." style="padding-bottom: 12px;"/>
+</figure>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/code/socpebutest.py">BS.1770 FIR より効率のいい SOCP FIR のパラメータをプロットするコードを読む (github.com)</a></li>
+</ul>
+<p>EBU TECH 3341 のテストを通り、 BS.1770 FIR よりも誤差の小さい SOCP FIR は以下のパラメータで設計できることがわかりました。</p>
+<ul>
+<li>フィルタの長さ 7</li>
+<li>オーバーサンプリング 4 倍</li>
+<li><code>omega_max</code> は 0.65 から 0.675</li>
+</ul>
+<p>EBU TECH 3341 のテストを通るだけでいいならフィルタの長さは最小で 5 まで減らせそうです。</p>
+<p>以下は誤差の比較です。 BS.1770 FIR の誤差も再掲しています。フィルタの長さ 5 の SOCP FIR の誤差は測定した中で一番小さかったものを載せています。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="dt">&quot;ITU-R BS.1770 FIR&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.0011130596765247989</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.0005132591093803915</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0005998005671444072</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>  <span class="fu">},</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>  <span class="dt">&quot;SOCP FIR, Length=5, Oversample=4, omega_max=0.525&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.0010093198109477944</span><span class="fu">,</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.00011114454719077043</span><span class="fu">,</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0008981752637570242</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>  <span class="fu">},</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>  <span class="dt">&quot;SOCP FIR, Length=7, Oversample=4, omega_max=0.650&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.000835934970347886</span><span class="fu">,</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.0002524608391844861</span><span class="fu">,</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0005834741311634001</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a>  <span class="fu">},</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a>  <span class="dt">&quot;SOCP FIR, Length=7, Oversample=4, omega_max=0.675&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-18"><a href="#cb4-18"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.0009051819175772438</span><span class="fu">,</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.0003487720212173245</span><span class="fu">,</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0005564098963599192</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a>  <span class="fu">}</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="fu">}</span></span></code></pre></div>
+<p>以下はフィルタの長さを 7 、 オーバーサンプリングの倍率を 4 倍とした SOCP FIR フィルタの特性です。</p>
+<figure>
+<img src="img/socp_fir_length7_oversample4.png" alt="Plot of SOCP FIR filter responses. Length is 7, oversampling is 4x, and omega_max is 0.650." style="padding-bottom: 12px;"/>
+</figure>
+<p>SOCP FIR フィルタの長さを <span class="math inline">\(N\)</span> とすると、遅延を <span class="math inline">\([N/2 - 1, N/2]\)</span> の範囲で設定していること注意してください。このように遅延を設定すると誤差は減りますが、フィルタの長さが奇数のときに、群遅延特性がサンプル間ではなく、サンプルの前後に広がる形になります。例えばフィルタの長さが 15 なら <code>[6.5, 7.5]</code> の範囲で遅延を設定したほうが、 <code>(6.0, 7.0)</code> や <code>(7.0, 8.0)</code> と範囲を設定するよりも誤差が減ります。ただし、今回のデータセットでは遅延を <span class="math inline">\(\lfloor N/2 \rfloor - 1\)</span> と設定したときでもフィルタの長さを奇数にしたほうが誤差が減りました。</p>
+<p>インデックス 2 のフィルタは分数ディレイが 0.0 サンプルなので、入力サンプルをそのまま使うことで計算を省略できます。</p>
+<p>インデックス 4 のフィルタも群遅延が平坦な部分については次の入力サンプルのインデックス 0 のフィルタと計算結果が重複するので、多少誤差が増えてもいいなら省略できます。以下はインデックス 4 のフィルタの有無による誤差の比較です。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="dt">&quot;SOCP FIR, Length=7, Oversample=4, omega_max=0.650&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.000835934970347886</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.0002524608391844861</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0005834741311634001</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="fu">},</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>  <span class="dt">&quot;SOCP FIR, Length=7, Oversample=4, omega_max=0.650, without last index&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.0008398454979237256</span><span class="fu">,</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.00023053871198559192</span><span class="fu">,</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0006093067859381339</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>  <span class="fu">}</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="fu">}</span></span></code></pre></div>
+<p>このフィルタについてはインデックス 4 を省略するとアンダーリードが BS.1770 FIR よりも大きくなります。</p>
+<p>以下はインデックス 2 を省略したフィルタ係数です。インデックスは上から 0, 1, 3, 4 です。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1"></a><span class="ot">[</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="ot">[</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="fl">0.03396642725330925</span><span class="ot">,</span> <span class="fl">-0.12673821137646601</span><span class="ot">,</span> <span class="fl">0.5759982312324312</span><span class="ot">,</span> <span class="fl">0.6592123095604063</span><span class="ot">,</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="fl">-0.19435321143573606</span><span class="ot">,</span> <span class="fl">0.0782612693103079</span><span class="ot">,</span> <span class="fl">-0.025807862651826587</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>  <span class="ot">],</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="ot">[</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="fl">0.021616078095824397</span><span class="ot">,</span> <span class="fl">-0.07539816970638001</span><span class="ot">,</span> <span class="fl">0.2653441329619578</span><span class="ot">,</span> <span class="fl">0.9081714824861011</span><span class="ot">,</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="fl">-0.16017585860369898</span><span class="ot">,</span> <span class="fl">0.059489586593950955</span><span class="ot">,</span> <span class="fl">-0.018863293456169244</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="ot">],</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>  <span class="ot">[</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>    <span class="fl">-0.018863293456169286</span><span class="ot">,</span> <span class="fl">0.05948958659395098</span><span class="ot">,</span> <span class="fl">-0.16017585860369907</span><span class="ot">,</span> <span class="fl">0.908171482486101</span><span class="ot">,</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a>    <span class="fl">0.2653441329619578</span><span class="ot">,</span> <span class="fl">-0.07539816970638011</span><span class="ot">,</span> <span class="fl">0.02161607809582444</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="ot">],</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a>  <span class="ot">[</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a>    <span class="fl">-0.02580786265182662</span><span class="ot">,</span> <span class="fl">0.07826126931030812</span><span class="ot">,</span> <span class="fl">-0.1943532114357363</span><span class="ot">,</span> <span class="fl">0.6592123095604064</span><span class="ot">,</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a>    <span class="fl">0.5759982312324308</span><span class="ot">,</span> <span class="fl">-0.12673821137646582</span><span class="ot">,</span> <span class="fl">0.033966427253309124</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a>  <span class="ot">]</span></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="ot">]</span></span></code></pre></div>
+<h3 id="ebu-tech-3341-のトゥルーピークテストを通る最小の-socp-fir">EBU TECH 3341 のトゥルーピークテストを通る最小の SOCP FIR</h3>
+<p>ここでは BS.1770 FIR より誤差が大きいものの、 EBU TECH 3341 のテストは通るフィルタを掲載しています。以下は SOCP FIR のパラメータです。</p>
+<ul>
+<li>フィルタの長さ 5</li>
+<li>オーバーサンプリング 4 倍</li>
+<li><code>omega_max</code> は 0.525</li>
+</ul>
+<p>以下はフィルタ係数です。インデックスは上から 0, 1, 3, 4 です。インデックス 4 を省略するとテストを通らなくなります。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1"></a><span class="ot">[</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="ot">[</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="fl">-0.0751360050029161</span><span class="ot">,</span> <span class="fl">0.5273409465119645</span><span class="ot">,</span> <span class="fl">0.678369080642087</span><span class="ot">,</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fl">-0.17854734458879204</span><span class="ot">,</span> <span class="fl">0.04698995690696311</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="ot">],</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="ot">[</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="fl">-0.04390964025848337</span><span class="ot">,</span> <span class="fl">0.23798632863349117</span><span class="ot">,</span> <span class="fl">0.9146390367695467</span><span class="ot">,</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>    <span class="fl">-0.14391204608426109</span><span class="ot">,</span> <span class="fl">0.03486831203681682</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>  <span class="ot">],</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>  <span class="ot">[</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>    <span class="fl">0.03486831203681702</span><span class="ot">,</span> <span class="fl">-0.1439120460842612</span><span class="ot">,</span> <span class="fl">0.9146390367695467</span><span class="ot">,</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>    <span class="fl">0.237986328633491</span><span class="ot">,</span> <span class="fl">-0.04390964025848315</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a>  <span class="ot">],</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>  <span class="ot">[</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>    <span class="fl">0.04698995690696286</span><span class="ot">,</span> <span class="fl">-0.17854734458879132</span><span class="ot">,</span> <span class="fl">0.6783690806420861</span><span class="ot">,</span></span>
+<span id="cb7-16"><a href="#cb7-16"></a>    <span class="fl">0.5273409465119651</span><span class="ot">,</span> <span class="fl">-0.07513600500291616</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a>  <span class="ot">]</span></span>
+<span id="cb7-18"><a href="#cb7-18"></a><span class="ot">]</span></span></code></pre></div>
+<p>フィルタの特性です。</p>
+<figure>
+<img src="img/socp_fir_length5_oversample4.png" alt="Plot of SOCP FIR filter responses. Length is 5, oversampling is 4x, and omega_max is 0.525." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="c-での実装">C++ での実装</h3>
+<p>フィルタの長さを 7 、 オーバーサンプリングを 4 倍、 <code>omega_max</code> を 0.65 とした SOCP FIR によるトゥルーピークメーターの C++17 での実装です。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> SOCPFIR {</span>
+<span id="cb8-6"><a href="#cb8-6"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">size_t</span> bufferSize = <span class="dv">7</span>;</span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">size_t</span> intDelay = <span class="dv">3</span>;</span>
+<span id="cb8-8"><a href="#cb8-8"></a></span>
+<span id="cb8-9"><a href="#cb8-9"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array&lt;<span class="bu">std::</span>array&lt;Sample, bufferSize&gt;, <span class="dv">4</span>&gt; coefficient{{</span>
+<span id="cb8-10"><a href="#cb8-10"></a>    {Sample(<span class="fl">0.03396642725330925</span>), Sample(-<span class="fl">0.12673821137646601</span>),</span>
+<span id="cb8-11"><a href="#cb8-11"></a>     Sample(<span class="fl">0.5759982312324312</span>), Sample(<span class="fl">0.6592123095604063</span>), Sample(-<span class="fl">0.19435321143573606</span>),</span>
+<span id="cb8-12"><a href="#cb8-12"></a>     Sample(<span class="fl">0.0782612693103079</span>), Sample(-<span class="fl">0.025807862651826587</span>)},</span>
+<span id="cb8-13"><a href="#cb8-13"></a>    {Sample(<span class="fl">0.021616078095824397</span>), Sample(-<span class="fl">0.07539816970638001</span>),</span>
+<span id="cb8-14"><a href="#cb8-14"></a>     Sample(<span class="fl">0.2653441329619578</span>), Sample(<span class="fl">0.9081714824861011</span>), Sample(-<span class="fl">0.16017585860369898</span>),</span>
+<span id="cb8-15"><a href="#cb8-15"></a>     Sample(<span class="fl">0.059489586593950955</span>), Sample(-<span class="fl">0.018863293456169244</span>)},</span>
+<span id="cb8-16"><a href="#cb8-16"></a>    {Sample(-<span class="fl">0.018863293456169286</span>), Sample(<span class="fl">0.05948958659395098</span>),</span>
+<span id="cb8-17"><a href="#cb8-17"></a>     Sample(-<span class="fl">0.16017585860369907</span>), Sample(<span class="fl">0.908171482486101</span>), Sample(<span class="fl">0.2653441329619578</span>),</span>
+<span id="cb8-18"><a href="#cb8-18"></a>     Sample(-<span class="fl">0.07539816970638011</span>), Sample(<span class="fl">0.02161607809582444</span>)},</span>
+<span id="cb8-19"><a href="#cb8-19"></a>    {Sample(-<span class="fl">0.02580786265182662</span>), Sample(<span class="fl">0.07826126931030812</span>),</span>
+<span id="cb8-20"><a href="#cb8-20"></a>     Sample(-<span class="fl">0.1943532114357363</span>), Sample(<span class="fl">0.6592123095604064</span>), Sample(<span class="fl">0.5759982312324308</span>),</span>
+<span id="cb8-21"><a href="#cb8-21"></a>     Sample(-<span class="fl">0.12673821137646582</span>), Sample(<span class="fl">0.033966427253309124</span>)},</span>
+<span id="cb8-22"><a href="#cb8-22"></a>  }};</span>
+<span id="cb8-23"><a href="#cb8-23"></a>};</span>
+<span id="cb8-24"><a href="#cb8-24"></a></span>
+<span id="cb8-25"><a href="#cb8-25"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample, <span class="kw">typename</span> FractionalDelayFIR&gt; <span class="kw">class</span> TruePeakMeterFIR {</span>
+<span id="cb8-26"><a href="#cb8-26"></a>  <span class="bu">std::</span>array&lt;Sample, FractionalDelayFIR::bufferSize&gt; buf{};</span>
+<span id="cb8-27"><a href="#cb8-27"></a></span>
+<span id="cb8-28"><a href="#cb8-28"></a><span class="kw">public</span>:</span>
+<span id="cb8-29"><a href="#cb8-29"></a>  <span class="dt">void</span> reset() { buf.fill(Sample(<span class="dv">0</span>)); }</span>
+<span id="cb8-30"><a href="#cb8-30"></a></span>
+<span id="cb8-31"><a href="#cb8-31"></a>  Sample process(Sample input)</span>
+<span id="cb8-32"><a href="#cb8-32"></a>  {</span>
+<span id="cb8-33"><a href="#cb8-33"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; buf.size() - <span class="dv">1</span>; ++i) buf[i] = buf[i + <span class="dv">1</span>];</span>
+<span id="cb8-34"><a href="#cb8-34"></a>    buf.back() = input;</span>
+<span id="cb8-35"><a href="#cb8-35"></a></span>
+<span id="cb8-36"><a href="#cb8-36"></a>    Sample max = <span class="bu">std::</span>fabs(buf[FractionalDelayFIR::intDelay]);</span>
+<span id="cb8-37"><a href="#cb8-37"></a>    <span class="cf">for</span> (<span class="at">const</span> <span class="kw">auto</span> &amp;phase : FractionalDelayFIR::coefficient) {</span>
+<span id="cb8-38"><a href="#cb8-38"></a>      Sample sum = <span class="dv">0</span>;</span>
+<span id="cb8-39"><a href="#cb8-39"></a>      <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; phase.size(); ++i) sum += buf[i] * phase[i];</span>
+<span id="cb8-40"><a href="#cb8-40"></a>      max = <span class="bu">std::</span>max(max, <span class="bu">std::</span>fabs(sum));</span>
+<span id="cb8-41"><a href="#cb8-41"></a>    }</span>
+<span id="cb8-42"><a href="#cb8-42"></a>    <span class="cf">return</span> max;</span>
+<span id="cb8-43"><a href="#cb8-43"></a>  }</span>
+<span id="cb8-44"><a href="#cb8-44"></a>};</span>
+<span id="cb8-45"><a href="#cb8-45"></a></span>
+<span id="cb8-46"><a href="#cb8-46"></a><span class="dt">int</span> main()</span>
+<span id="cb8-47"><a href="#cb8-47"></a>{</span>
+<span id="cb8-48"><a href="#cb8-48"></a>  <span class="co">// 1 サンプルだけ計算する例。</span></span>
+<span id="cb8-49"><a href="#cb8-49"></a>  TruePeakMeterFIR&lt;<span class="dt">float</span>, SOCPFIR&lt;<span class="dt">float</span>&gt;&gt; bs1770;</span>
+<span id="cb8-50"><a href="#cb8-50"></a>  <span class="bu">std::</span>cout &lt;&lt; bs1770.process(<span class="fl">1.0</span><span class="bu">f</span>) &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
+<span id="cb8-51"><a href="#cb8-51"></a></span>
+<span id="cb8-52"><a href="#cb8-52"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb8-53"><a href="#cb8-53"></a>}</span></code></pre></div>
+<h2 id="離散ピークとトゥルーピークの差の最大値">離散ピークとトゥルーピークの差の最大値</h2>
+<p>理論上のトゥルーピークの最大値がどれくらいになるのかを調べます。</p>
+<p>ここでは離散信号の絶対値の最大値を離散ピークと呼びます。 <span class="math inline">\(x\)</span> を入力信号とすると以下の式で離散ピーク <span class="math inline">\(P\)</span> が計算できます。</p>
+<p><span class="math display">\[
+P(x) = \max(|x|)
+\]</span></p>
+<h3 id="長さが無限の信号">長さが無限の信号</h3>
+<p>Sinc 補間の式を再掲します。</p>
+<p><span class="math display">\[
+x(t) = \sum_{n=-\infty}^{\infty} x[n] \mathrm{sinc} \left( t - n \right)
+\]</span></p>
+<p>ダイナミックレンジの範囲を <span class="math inline">\([-1, 1]\)</span> とすると、離散信号 <span class="math inline">\(x[n]\)</span> が <span class="math inline">\(\mathrm{sgn}(\mathrm{sinc}(t - n))\)</span> のときに離散ピークと sinc 補間から得られるトゥルーピークの差が最大になります。 <span class="math inline">\(\mathrm{sgn}\)</span> は <a href="https://mathworld.wolfram.com/Sign.html">符号関数</a> です。以降ではこれら 2 つのピークの差が最大になる場合を、最悪の場合と呼びます。</p>
+<p>以下は <span class="math inline">\(x[n]\)</span> に <span class="math inline">\(\mathrm{sgn}(\mathrm{sinc}(t - n))\)</span> を代入した、最悪の場合の sinc 補間の式です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat{x}(t)
+&amp;= \sum_{n=-\infty}^{\infty} \mathrm{sgn}(\mathrm{sinc}(t - n)) \mathrm{sinc} \left( t - n \right)\\
+&amp;= \sum_{n=-\infty}^{\infty} |\mathrm{sinc} \left( t-n \right)|\\
+&amp;= \sum_{n=-\infty}^{\infty} \left| \frac{\sin(\pi (t-n))}{\pi(t-n)} \right|\\
+\end{aligned}
+\]</span></p>
+<p>よくわからないので適当に範囲などを変えた式を Wolfram Alpha に入力したところ以下のような出力が得られました。</p>
+<pre><code>sum_(x=0)^n abs(sin(π (x + 0.5))/(π (x + 0.5)))
+  ≈ 0.31831 (polygamma(0, n + 1.5) + 1.96351)</code></pre>
+<p><code>polygamma(0, ...)</code> は次数 0 の <a href="(https://mathworld.wolfram.com/PolygammaFunction.html)">polygamma function</a> です。 Polygamma function の次数が 0 のときは <a href="https://mathworld.wolfram.com/DigammaFunction.html">digamma function</a> になるそうです。</p>
+<p><span class="math display">\[
+\mathtt{polygamma}(n, z)
+= \psi^{(n)}(z)
+= \frac{d^{(n+1)}}{d z^{(n+1)}} \ln \Gamma(z)
+\]</span></p>
+<p>Digamma function は <span class="math inline">\(0\)</span> から <span class="math inline">\(\infty\)</span> までの総和の形に変形できるようなので sinc 補間の式をさらに変形します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat{x}(t)
+&amp;= \sum_{n=-\infty}^{\infty} \left| \frac{\sin(\pi (t-n))}{\pi(t-n)} \right|\\
+&amp;= \sum_{n=-\infty}^{0} \left| \frac{\sin(\pi (t-n))}{\pi(t-n)} \right|
+  + \sum_{n=1}^{\infty} \left| \frac{\sin(\pi (t-n))}{\pi(t-n)} \right|\\
+&amp;= \sum_{n=0}^{\infty} \left| \frac{\sin(\pi (t+n))}{\pi(t+n)} \right|
+  + \sum_{n=0}^{\infty} \left| \frac{\sin(\pi (t-n-1))}{\pi(t-n-1)} \right|\\
+\end{aligned}
+\]</span></p>
+<p>総和のインデックスを <span class="math inline">\(0\)</span> から <span class="math inline">\(\infty\)</span> に変形しました。さらに <span class="math inline">\(t \in [0, 1]\)</span> と制限すれば絶対値の計算を外すことができます。 <span class="math inline">\(t \in [0, 1]\)</span> と制限する操作は離散信号のインデックスを <span class="math inline">\(- \mathrm{floor}(t)\)</span> ずらすことと同じです。</p>
+<p>2 つの総和の分母は <span class="math inline">\(t \in [0, 1]\)</span> の条件と、三角関数の <span class="math inline">\(\sin(\pi n + t) = \pm \sin(t)\)</span> という性質から以下のように変形できます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+|\sin(\pi (t+n)))| &amp;= \sin(\pi t)\\
+|\sin(\pi (t-n-1))| &amp;= -\sin(\pi (t - 1))\\
+\end{aligned}
+\]</span></p>
+<p>2 つの総和の分子は <span class="math inline">\(t \in [0, 1]\)</span> かつ <span class="math inline">\(n \geq 0\)</span> という条件から以下のように変形できます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+|\pi(t+n)| &amp;= \pi(t+n)\\
+|\pi(t-n-1)| &amp;= \pi(n + 1 - t)\\
+\end{aligned}
+\]</span></p>
+<p>最悪の場合の sinc 補間の式をさらに変形します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat{x}(t)
+&amp;= \sum_{n=0}^{\infty} \left| \frac{\sin(\pi (t+n))}{\pi(t+n)} \right|
+  + \sum_{n=0}^{\infty} \left| \frac{\sin(\pi (t-n-1))}{\pi(t-n-1)} \right|\\
+&amp;= \frac{\sin(\pi t)}{\pi} \sum_{n=0}^{\infty} \frac{1}{t+n}
+  - \frac{\sin(\pi (t - 1))}{\pi} \sum_{n=0}^{\infty} \frac{1}{n+1-t}\\
+\end{aligned}
+\]</span></p>
+<p>総和を片方ずつ Wolfram Alpha に入れたところ以下の部分総和の式が出てきました。</p>
+<pre><code>sum_(n=0)^m sin(π t)/(π (t + n))
+  = (
+      sin(π t) polygamma(0, t + m + 1)
+    - sin(π t) polygamma(0, t)
+    )/π
+
+sum_(n=0)^m sin(π (t - 1))/(π (n + 1 - t))
+  = (
+      sin(π (t - 1)) polygamma(0, -t + m + 2)
+    - sin(π (t - 1)) polygamma(0, 1 - t)
+    )/π</code></pre>
+<p>前述のように次数 0 の polygamma function <span class="math inline">\(\psi^{(0)}(z)\)</span> は digamma function <span class="math inline">\(\psi(z)\)</span> です。また <span class="math inline">\(\psi(\infty)\)</span> は無限なので <span class="math inline">\(m \to \infty\)</span> の極限をとれば、最悪の場合の sinc 補間の式は発散します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\lim_{m \to \infty} \hat{x}(t)
+&amp;= \lim_{m \to \infty} \left(
+    \frac{\sin(\pi t)}{\pi} \sum_{n=0}^{m} \frac{1}{t+n}
+  - \frac{\sin(\pi (t - 1))}{\pi} \sum_{n=0}^{m} \frac{1}{n+1-t}
+  \right)\\
+&amp;= \lim_{m \to \infty} \left(
+    \frac{\sin(\pi t)}{\pi} (\psi(t + m + 1) - \psi(t))
+  - \frac{\sin(\pi (t - 1))}{\pi} (\psi(-t + m + 2) - \psi(1 - t))
+  \right)\\
+&amp;= \frac{\sin(\pi t)}{\pi} (\infty - \psi(t))
+  - \frac{\sin(\pi (t - 1))}{\pi} (\infty - \psi(1 - t))\\
+&amp;= + \infty
+\end{aligned}
+\]</span></p>
+<p>よって離散ピークとトゥルーピークの差は最悪の場合、無限になります。ただし、信号の長さが有限なら差も有限になりそうです。</p>
+<h3 id="長さが有限の信号">長さが有限の信号</h3>
+<p>信号の長さが有限のときの差の最大値について調べます。 Digamma function による計算のコードです。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Python3</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="im">from</span> scipy.special <span class="im">import</span> psi</span>
+<span id="cb11-4"><a href="#cb11-4"></a></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="kw">def</span> calcWorstTruePeak(nSample, fraction<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb11-6"><a href="#cb11-6"></a>    m <span class="op">=</span> nSample <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>    t <span class="op">=</span> fraction</span>
+<span id="cb11-8"><a href="#cb11-8"></a>    A <span class="op">=</span> (psi(t <span class="op">+</span> m <span class="op">+</span> <span class="dv">1</span>) <span class="op">-</span> psi(t)) <span class="op">*</span> np.sin(np.pi <span class="op">*</span> t) <span class="op">/</span> np.pi</span>
+<span id="cb11-9"><a href="#cb11-9"></a>    B <span class="op">=</span> (psi(<span class="op">-</span>t <span class="op">+</span> m <span class="op">+</span> <span class="dv">2</span>) <span class="op">-</span> psi(<span class="dv">1</span> <span class="op">-</span> t)) <span class="op">*</span> np.sin(np.pi <span class="op">*</span> (t <span class="op">-</span> <span class="dv">1</span>)) <span class="op">/</span> np.pi</span>
+<span id="cb11-10"><a href="#cb11-10"></a>    <span class="cf">return</span> A <span class="op">-</span> B</span></code></pre></div>
+<p>Digamma function を使う方法の他に、総和をそのまま計算するコードも書いて同じ値が出るのか確認しました。確認用に書いたコードは以下のリンク先に掲載しています。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/code/cpp/sincerror/sincerror.cpp">for 文によって長さが有限の最悪の場合の信号のトゥルーピークを計算するコードを読む (github.com)</a></li>
+</ul>
+<p>結果です。これらは最悪の場合の値なので、実際の差はより小さくなるはずです。</p>
+<table>
+<thead>
+<tr class="header">
+<th>信号の長さ</th>
+<th>サンプル数</th>
+<th>差の最大値 (fs=48000)</th>
+<th>dB (fs=48000)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1 秒</td>
+<td>1 * fs</td>
+<td>15.06330969705911</td>
+<td>23.55840810296123</td>
+</tr>
+<tr class="even">
+<td>1 分</td>
+<td>60 * fs</td>
+<td>20.27634709353383</td>
+<td>26.13979433865427</td>
+</tr>
+<tr class="odd">
+<td>1 時間</td>
+<td>60 * 60 * fs</td>
+<td>25.4894283622857</td>
+<td>28.12720191778964</td>
+</tr>
+<tr class="even">
+<td>1 日</td>
+<td>24 * 60 * 60 * fs</td>
+<td>29.53585217059294</td>
+<td>29.406990113422037</td>
+</tr>
+</tbody>
+</table>
+<p>差の最大値とは、最悪の場合の信号の離散ピークとトゥルーピークの差の最大値です。 dB はダイナミックレンジを [-1.0, 1.0] として、差の最大値をデシベルに変換した値です。</p>
+<h3 id="まとめ">まとめ</h3>
+<p>理論上は離散ピークとトゥルーピークの差の最大値は無限に発散します。</p>
+<p>計算上は信号の長さが有限なので、差の最大値も有限になります。差の最大値は以下の式で計算できます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+P_{\mathrm{sinc}}(\hat{x}, t) - P(\hat{x}) &amp;= \begin{cases}
+  1,       &amp; \text{if}\; t \bmod 1 = 0,\\
+  D(t, N/2), &amp; \text{otherwise}.
+\end{cases}\\\\
+D(t, m) &amp;= \left(
+    \frac{\sin(\pi t)}{\pi} (\psi(t + m + 1) - \psi(t))
+  - \frac{\sin(\pi (t - 1))}{\pi} (\psi(-t + m + 2) - \psi(1 - t))
+  \right)
+  - 1
+\end{aligned}
+\]</span></p>
+<p>パラメータ一覧。</p>
+<ul>
+<li><span class="math inline">\(t\)</span>: 分数ディレイ。範囲は <span class="math inline">\([0, 1]\)</span> 。</li>
+<li><span class="math inline">\(N\)</span>: 信号の長さ。 0 以上の整数。</li>
+</ul>
+<p>関数一覧。</p>
+<ul>
+<li><span class="math inline">\(\hat{x}\)</span>: 離散ピークとトゥルーピークの差が最大となる入力信号</li>
+<li><span class="math inline">\(P_{\mathrm{sinc}}\)</span>: Sinc 補間に基づくトゥルーピーク</li>
+<li><span class="math inline">\(P\)</span>: 離散ピーク</li>
+<li><span class="math inline">\(\psi\)</span>: <a href="https://mathworld.wolfram.com/DigammaFunction.html">Digamma function</a></li>
+</ul>
+<p><span class="math inline">\(t = 0.5\)</span> のときは差の計算式を以下に簡略化できます。</p>
+<p><span class="math display">\[
+D(0.5, m) = \frac{2}{\pi} (\psi(m + 1.5) - \psi(0.5)) - 1
+\]</span></p>
+<h2 id="その他">その他</h2>
+<h3 id="sinc-補間の有効なタップ数">Sinc 補間の有効なタップ数</h3>
+<p>32 bit や 64 bit の浮動小数点数で計算するときは小さい値が丸めによって無視されるので sinc 補間のフィルタのタップ数を有限の長さで打ち切ることができそうです。以下のようなコードを書いて調べてみました。</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">// C++</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> T&gt; T sinc(T x) { <span class="cf">return</span> x != <span class="dv">0</span> ? <span class="bu">std::</span>sin(x) / x : T(<span class="dv">1</span>); }</span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> T&gt; T toDecibel(T x) { <span class="cf">return</span> T(<span class="dv">20</span>) * <span class="bu">std::</span>log10(x); }</span>
+<span id="cb12-7"><a href="#cb12-7"></a></span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> FLOAT&gt; <span class="dt">void</span> testSincWidth(<span class="dt">uint64_t</span> step = <span class="dv">1</span>, <span class="dt">uint64_t</span> start = <span class="dv">0</span>)</span>
+<span id="cb12-9"><a href="#cb12-9"></a>{</span>
+<span id="cb12-10"><a href="#cb12-10"></a>  <span class="dt">uint64_t</span> i = start;</span>
+<span id="cb12-11"><a href="#cb12-11"></a>  <span class="dt">int</span> exponent = <span class="dv">0</span>;</span>
+<span id="cb12-12"><a href="#cb12-12"></a>  <span class="cf">while</span> (exponent &gt; -<span class="bu">std::</span>numeric_limits&lt;FLOAT&gt;::digits) {</span>
+<span id="cb12-13"><a href="#cb12-13"></a>    FLOAT value = sinc(FLOAT(i));</span>
+<span id="cb12-14"><a href="#cb12-14"></a>    <span class="bu">std::</span>frexp(value, &amp;exponent);</span>
+<span id="cb12-15"><a href="#cb12-15"></a>    i += step;</span>
+<span id="cb12-16"><a href="#cb12-16"></a>  }</span>
+<span id="cb12-17"><a href="#cb12-17"></a>  <span class="bu">std::</span>cout &lt;&lt; i &lt;&lt; <span class="st">&quot;: &quot;</span> &lt;&lt; sinc(FLOAT(i)) &lt;&lt; <span class="st">&quot;, &quot;</span> &lt;&lt; exponent &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
+<span id="cb12-18"><a href="#cb12-18"></a>}</span>
+<span id="cb12-19"><a href="#cb12-19"></a></span>
+<span id="cb12-20"><a href="#cb12-20"></a><span class="dt">int</span> main()</span>
+<span id="cb12-21"><a href="#cb12-21"></a>{</span>
+<span id="cb12-22"><a href="#cb12-22"></a>  testSincWidth&lt;<span class="dt">float</span>&gt;();</span>
+<span id="cb12-23"><a href="#cb12-23"></a>  testSincWidth&lt;<span class="dt">double</span>&gt;(<span class="dv">10000</span>);</span>
+<span id="cb12-24"><a href="#cb12-24"></a>}</span></code></pre></div>
+<p>Sinc 関数の最大値は 1 です。よって浮動小数点数で表された <code>1.0</code> と <code>sinc(x)</code> の指数部の差が <code>std::numeric_limits&lt;FLOAT&gt;::digits</code> 以上なら丸め誤差によって無視されます。上のコードの <code>while</code> の条件式でこの判断をしています。 <code>1.0</code> の指数部は 1 ですが、上のコードでは省略して <code>while(exponent &gt; -digits)</code> としています (<code>1 - exponent &lt;= digits</code> と等価) 。</p>
+<p>出力されたインデックスは <code>float</code> で 61394 、 <code>double</code> で 2223497001 となりました。上のコードでは sinc 関数の片側だけを見ているので、得られたインデックスを <code>m</code> とすると、少なくとも <code>2 * m - 1</code> の長さのタップ数が必要になります。このアプローチの実用性はなさそうです。</p>
+<p>出力されたインデックス以降で浮動小数点数の丸めによって切り捨てられない大きさの値が現れないことは確認していないので注意してください。</p>
+<h2 id="実験に使用した音声データの一覧">実験に使用した音声データの一覧</h2>
+<ul>
+<li><a href="https://tech.ebu.ch/publications/tech3341">EBU Technology &amp; Innovation - ‘EBU Mode’ metering to supplement EBU R 128 loudness normalisation</a></li>
+<li><a href="code/data/dataset.md">実験に使った freesound.org のデータの一覧</a></li>
+</ul>
+<h2 id="参考文献">参考文献</h2>
+<ul>
+<li><a href="https://ccrma.stanford.edu/~jos/Interpolation/">MUS420 Lecture 4A Interpolated Delay Lines, Ideal Bandlimited Interpolation, and Fractional Delay Filter Design</a></li>
+<li><a href="https://www.itu.int/rec/R-REC-BS.1770/en">BS.1770 : Algorithms to measure audio programme loudness and true-peak audio level</a></li>
+<li><a href="https://tech.ebu.ch/publications/tech3341">EBU Technology &amp; Innovation - ‘EBU Mode’ metering to supplement EBU R 128 loudness normalisation</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Whittaker%E2%80%93Shannon_interpolation_formula">Whittaker–Shannon interpolation formula - Wikipedia</a></li>
+<li><a href="https://mathworld.wolfram.com/SincFunction.html">Sinc Function – from Wolfram MathWorld</a></li>
+<li><a href="https://mathworld.wolfram.com/NyquistFrequency.html">Nyquist Frequency – from Wolfram MathWorld</a></li>
+<li><a href="https://mathworld.wolfram.com/DigammaFunction.html">Digamma Function – from Wolfram MathWorld</a></li>
+<li><a href="https://www.hitachi-hightech.com/jp/products/device/semiconductor/accuracy-precision.html">3. 正確度と精度 ：半導体の部屋：日立ハイテク</a></li>
+<li><a href="https://www.llvm.org/docs/Vectorizers.html">Auto-Vectorization in LLVM — LLVM 12 documentation</a></li>
+</ul>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
