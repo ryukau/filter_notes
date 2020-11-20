@@ -1,7 +1,7 @@
 # トゥルーピークの計算の調査に使用したコード
 以下のリンクから本記事を読めます。
 
-- [トゥルーピークの計算を読む (github.io)](../truepeak_computation.html)
+- [トゥルーピークの計算を読む (github.io)](https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html)
 
 ## 使用ライブラリ
 実効には以下のライブラリが必要です。
