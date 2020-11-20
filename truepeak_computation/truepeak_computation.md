@@ -29,7 +29,7 @@ Sinc 補間はトゥルーピークを求めたい信号が全て録音された
 ## 分数ディレイフィルタ
 分数ディレイフィルタはサンプル間の値を計算するように設計されたフィルタのことです。大まかに以下のような特徴があります。
 
-- サンプル数で遅延時間を指定できる。
+- 遅延時間のサンプル数を正の実数で指定して設計できる。
 - 指定した遅延時間と一致するように群遅延特性がだいたい平らになる。
 
 より詳しくは以下の資料が参考になります。
@@ -52,7 +52,7 @@ Sinc 補間はトゥルーピークを求めたい信号が全て録音された
 
 遅延は `[delta_min, delta_min + 1]` サンプルの範囲で設定されます。例えば `delta_min=5.0` かつ、オーバーサンプリングが 4 倍のときは `[5.0, 5.25, 5.5, 5.75, 6.0]` の 5 つのフィルタを組にして設計します。
 
-SOCP FIR の計算方法は以下のリンク先に掲載しています。
+SOCP FIR の計算方法は以下のリンク先に掲載しています。上で紹介した SOCP FIR のパラメータ名はリンク先のコードに基づいています。
 
 - [凸最適化を用いた分数ディレイフィルタの設計](https://ryukau.github.io/filter_notes/fractional_delay_filter_socp/fractional_delay_filter_socp.html) (SOCP FIR)
 
@@ -83,7 +83,7 @@ $$
 
 $k$ は $1$ から $N$ の範囲のインデックスです。
 
-$D$ は分数ディレイのサンプル数で、 $N$ から $N + 1$ の範囲で指定するといいそうです。例えば 16 次で 0.1 サンプルの分数ディレイが欲しいときは $D = 16.1$ とします。
+$D$ は分数ディレイのサンプル数で、 $(N, N + 1)$ の範囲で指定するといいそうです。例えば 16 次で 0.1 サンプルの分数ディレイが欲しいときは $D = 16.1$ とします。
 
 $D = N - k$ のときに 0 除算が起こります。 $D \bmod 1 \neq 0$ となるように $D$ を設定すると 0 除算を避けられます。
 
@@ -127,7 +127,7 @@ BS.1770 FIR の振幅、位相、群遅延特性です。
 
 群遅延特性の通過域が波打っているので SOCP FIR のように見えます。また群遅延特性から [5, 6) サンプルの遅れが加わることがわかりました。
 
-計算方法はずっと下のほうにある「C++ での実装」に掲載しています。フィルタ係数を入れ替えれて、 `bufferSize = 12` 、 `intDelay = 5` と変更すれば計算できます。
+計算方法はずっと下のほうにある「C++ での実装」に掲載しています。フィルタ係数を入れ替えて、 `bufferSize = 12` 、 `intDelay = 5` と変更すれば計算できます。
 
 BS.1770 FIR のフィルタ係数は末尾がどれも `...125, 375, 625, 875` などになっているので有理数で表現できそうです。以下は Maxima の [`rat`](http://maxima.sourceforge.net/docs/manual/maxima_76.html#index-rat) を用いて有理数に変換したフィルタ係数です。
 
@@ -216,6 +216,8 @@ EBU TECH 3341 の Table 1 (pp.10-11) にトゥルーピークのテストがい�
 
 合成されたトーンの全長は重要でない (the duration of the synthesized tone does not matter) とありますが、 sinc 補間を計算するときは信号の長さでトゥルーピークの値が変わることがあります。
 
+dBTP はデシベルで表したトゥルーピークのことです。 dB はデシベル、 TP はトゥルーピークのことです。
+
 ここでの評価は EBU によって用意されたテスト信号を使っています。テスト信号は以下のリンクからダウンロードできます。
 
 - [EBU TECH 3341, 3342, 3343 のテスト信号のダウンロードページ](https://tech.ebu.ch/publications/ebu_loudness_test_set)
@@ -286,7 +288,7 @@ SOCP FIR の他のパラメータは `delta_min = N / 2 - 1` 、 `omega_density 
 
 以下はオーバーサンプリングの倍率と SOCP FIR のフィルタの長さを変えたときのアンダーリードの平均誤差です。
 
-全体の平均絶対誤差のプロットと似たような傾向が見られます。縦軸の値に注目すると全体の誤差のうち、アンダーリードが占める割合がオーバーリードよりも大きいことがわかります。この傾向はデータセットによって変わるかもしれません。
+平均絶対誤差のプロットと似たような傾向が見られます。縦軸の値に注目すると全体の誤差のうち、アンダーリードが占める割合がオーバーリードよりも大きいことがわかります。この傾向はデータセットによって変わるかもしれません。
 
 2 つめのプロットを見るとフィルタの長さが奇数のときはオーバーサンプリングの倍率が奇数のときにアンダーリードが減っているように見えます。
 
@@ -335,7 +337,7 @@ EBU TECH 3341 のテストを通り、 BS.1770 FIR よりも誤差の小さい S
 
 EBU TECH 3341 のテストを通るだけでいいならフィルタの長さは最小で 5 まで減らせそうです。
 
-以下は誤差の比較です。 BS.1770 FIR の誤差も再掲しています。フィルタの長さ 5 の SOCP FIR の誤差は測定した中で一番小さかったものを載せています。
+以下は誤差の比較です。フィルタの長さ 5 の SOCP FIR の誤差は測定した中で一番小さかったものを載せています。
 
 ```json
 {
@@ -389,7 +391,7 @@ SOCP FIR フィルタの長さを $N$ とすると、遅延を $[N/2 - 1, N/2]$ 
 }
 ```
 
-このフィルタについてはインデックス 4 を省略するとアンダーリードが BS.1770 FIR よりも大きくなります。
+このフィルタについてはインデックス 4 を省略するとアンダーリードが BS.1770 FIR よりも大きくなるので、省略しないほうが良さそうです。
 
 以下はインデックス 2 を省略したフィルタ係数です。インデックスは上から 0, 1, 3, 4 です。
 
@@ -444,7 +446,7 @@ SOCP FIR フィルタの長さを $N$ とすると、遅延を $[N/2 - 1, N/2]$ 
 ]
 ```
 
-フィルタの特性です。
+以下はフィルタの特性です。
 
 <figure>
 <img src="img/socp_fir_length5_oversample4.png" alt="Plot of SOCP FIR filter responses. Length is 5, oversampling is 4x, and omega_max is 0.525." style="padding-bottom: 12px;"/>
@@ -525,7 +527,7 @@ $$
 x(t) = \sum_{n=-\infty}^{\infty} x[n] \mathrm{sinc} \left( t - n \right)
 $$
 
-ダイナミックレンジの範囲を $[-1, 1]$ とすると、離散信号 $x[n]$ が $\mathrm{sgn}(\mathrm{sinc}(t - n))$ のときに離散ピークと sinc 補間から得られるトゥルーピークの差が最大になります。 $\mathrm{sgn}$ は [符号関数](https://mathworld.wolfram.com/Sign.html) です。以降ではこれら 2 つのピークの差が最大になる場合を、最悪の場合と呼びます。
+ダイナミックレンジの範囲を $[-1, 1]$ とすると、離散信号 $x[n]$ が $\mathrm{sgn}(\mathrm{sinc}(t - n))$ のときに離散ピークと sinc 補間から得られるトゥルーピークの差が最大になります。 $\mathrm{sgn}$ は [符号関数](https://mathworld.wolfram.com/Sign.html) です。以降では離散ピークとトゥルーピークの差が最大になる場合を、最悪の場合と呼びます。
 
 以下は $x[n]$ に $\mathrm{sgn}(\mathrm{sinc}(t - n))$ を代入した、最悪の場合の sinc 補間の式です。
 
@@ -553,7 +555,7 @@ $$
 = \frac{d^{(n+1)}}{d z^{(n+1)}} \ln \Gamma(z)
 $$
 
-Digamma function は $0$ から $\infty$ までの総和の形に変形できるようなので sinc 補間の式をさらに変形します。
+Digamma function は $0$ から $\infty$ までの総和の形に変形できるようなので最悪の場合の sinc 補間の式をさらに変形します。
 
 $$
 \begin{aligned}
@@ -651,7 +653,7 @@ def calcWorstTruePeak(nSample, fraction=0.5):
     return A - B
 ```
 
-Digamma function を使う方法の他に、総和をそのまま計算するコードも書いて同じ値が出るのか確認しました。確認用に書いたコードは以下のリンク先に掲載しています。
+Digamma function を使う方法の他に、総和を `for` 文で愚直に計算するコードも書いて同じ値が出るのか確認しました。確認用に書いたコードは以下のリンク先に掲載しています。
 
 - [for 文によって長さが有限の最悪の場合の信号のトゥルーピークを計算するコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/code/cpp/sincerror/sincerror.cpp)
 
@@ -674,7 +676,7 @@ Digamma function を使う方法の他に、総和をそのまま計算するコ
 $$
 \begin{aligned}
 P_{\mathrm{sinc}}(\hat{x}, t) - P(\hat{x}) &= \begin{cases}
-  1,       & \text{if}\; t \bmod 1 = 0,\\
+  1,       & \text{if}\quad t \bmod 1 = 0,\\
   D(t, N/2), & \text{otherwise}.
 \end{cases}\\\\
 D(t, m) &= \left(
@@ -754,3 +756,7 @@ Sinc 関数の最大値は 1 です。よって浮動小数点数で表された
 - [Digamma Function -- from Wolfram MathWorld](https://mathworld.wolfram.com/DigammaFunction.html)
 - [3. 正確度と精度 ：半導体の部屋：日立ハイテク](https://www.hitachi-hightech.com/jp/products/device/semiconductor/accuracy-precision.html)
 - [Auto-Vectorization in LLVM — LLVM 12 documentation](https://www.llvm.org/docs/Vectorizers.html)
+
+## 変更点
+- 2020/11/20
+  - 文章の整理。
