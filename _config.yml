@@ -14,6 +14,13 @@ exclude:
 - control_rate_interpolation/control_rate_interpolation.md
 - delay/delay.md
 - doublefilter/doublefilter.md
+- downsampling/_dump/note.md
+- downsampling/_dump/oversampling.md
+- downsampling/_dump/polyphase_iir.md
+- downsampling/_dump/remez.md
+- downsampling/_dump/test.md
+- downsampling/code/cpp/decimation/vcpkg.md
+- downsampling/downsampling.md
 - dr110_cymbal/demo/README.md
 - dr110_cymbal/dr110_cymbal.md
 - exponential_envelope/exponential_envelope.md
@@ -33,7 +40,7 @@ exclude:
 - parabolic_envelope/parabolic_envelope.md
 - parabolic_envelope/parabolic_envelope_exp.md
 - peak_hold_envelope/_dump/hold_backward.md
-- peak_hold_envelope/hold_envelope.md
+- peak_hold_envelope/peak_hold_envelope.md
 - pitch_estimation/pitch_estimation.md
 - pitch_estimation/plot_gallery_pitch_estimation.md
 - polyblamp_residual/polyblamp_residual.md
