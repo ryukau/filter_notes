@@ -18,7 +18,7 @@ def plotSignal(signals, labels, title, legendLocation=0):
     plt.legend(loc=legendLocation)
     plt.grid()
 
-    filename = "img/" + title.lower().replace(" ", "_") + ".svg"
+    filename = "../img/" + title.lower().replace(" ", "_") + ".svg"
     plt.savefig(filename)
 
 def peakHoldForwardSimple(sig, init=0):
