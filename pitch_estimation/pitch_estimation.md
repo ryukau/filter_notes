@@ -13,7 +13,7 @@ YINの処理の流れは次のようになります。
 3. 取得したインデックスからピッチを計算。
 
 ### Cumulative Mean Normalized Difference Function の定義
-Cumulative mean normalized difference は次のように定義されています。式中の $x[i]$ は配列 $x$ のインデックス $i$ の値を意味します。 $t$ は入力信号のインデックスです。
+Cumulative mean normalized difference は次のように定義されています。式中の $x[i]$ は配列 $x$ のインデックス $i$ の値を意味します。 $t$ は入力信号の区間のインデックスです。
 
 $$
 d'_t[\tau] = \begin{cases}
@@ -43,7 +43,7 @@ $$
 
 これらの式を見たとき $t$ と $\tau$ について混乱したのでまとめます。
 
-$t$ は今からピッチを推定したい信号の、ある時点を表しています。信号から一つのピッチの値を取り出したいときは、信号の開始時点を $t=0$ と考えることができます。以降では常に $t=0$ として信号全体の相関を計算することにします。
+$t$ は今からピッチを推定したい信号の、自己相関を計算する区間の開始時点を表しています。 FFT を用いるときによくあるのですが、信号を $2^n$ サンプルごとなどに分割して処理することを想定しているようです。後で出てくる  `python_speech_features.sigproc.framesig` はこの分割を行う関数です。信号全体から一つのピッチの値を取り出したいときは、信号の開始時点を $t=0$ と考えることができます。以降では 1 区間での計算だけを扱うので簡略化のために常に $t=0$ とします。
 
 $\tau$ は自己相関を計算する区間のインデックスを表しています。信号全体の自己相関を計算するとき $\tau$ の範囲は $[0, N -1]$ になります。
 
@@ -416,16 +416,16 @@ def mpm_type2(data, samplerate):
 ## YINとMPMの組み合わせ
 8通りの手法の組み合わせが考えられます。名前が長いので cumulative mean normalized difference を CMND 、 normalized square difference を NSD と省略します。
 
-|周期の探索|差分関数|自己相関関数|備考|
-|-|-|-|-|
-| YIN | CMND | Type I | オリジナルYIN |
-| YIN | CMND | Type II | |
-| YIN | NSD | Type I | |
-| YIN | NSD | Type II | |
-| MPM | CMND | Type I | |
-| MPM | CMND | Type II | |
-| MPM | NSD | Type I | |
-| MPM | NSD | Type II | オリジナルMPM |
+| 周期の探索 | 差分関数 | 自己相関関数 | 備考          |
+| ---------- | -------- | ------------ | ------------- |
+| YIN        | CMND     | Type I       | オリジナルYIN |
+| YIN        | CMND     | Type II      |               |
+| YIN        | NSD      | Type I       |               |
+| YIN        | NSD      | Type II      |               |
+| MPM        | CMND     | Type I       |               |
+| MPM        | CMND     | Type II      |               |
+| MPM        | NSD      | Type I       |               |
+| MPM        | NSD      | Type II      | オリジナルMPM |
 
 ### YIN-NSD
 YIN の周期の探索でピッチを推定できるように NSD を加工します。

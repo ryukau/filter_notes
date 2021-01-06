@@ -383,7 +383,7 @@ Update: 2019-08-29
 <li>取得したインデックスからピッチを計算。</li>
 </ol>
 <h3 id="cumulative-mean-normalized-difference-function-の定義">Cumulative Mean Normalized Difference Function の定義</h3>
-<p>Cumulative mean normalized difference は次のように定義されています。式中の <span class="math inline">\(x[i]\)</span> は配列 <span class="math inline">\(x\)</span> のインデックス <span class="math inline">\(i\)</span> の値を意味します。 <span class="math inline">\(t\)</span> は入力信号のインデックスです。</p>
+<p>Cumulative mean normalized difference は次のように定義されています。式中の <span class="math inline">\(x[i]\)</span> は配列 <span class="math inline">\(x\)</span> のインデックス <span class="math inline">\(i\)</span> の値を意味します。 <span class="math inline">\(t\)</span> は入力信号の区間のインデックスです。</p>
 <p><span class="math display">\[
 d&#39;_t[\tau] = \begin{cases}
   1, &amp;\text{if }\tau = 0,\\
@@ -406,7 +406,7 @@ r&#39;_t[\tau] &amp;= \sum_{j=t}^{t + N - \tau - 1} x[j] x[j + \tau],\quad\text{
 \end{aligned}
 \]</span></p>
 <p>これらの式を見たとき <span class="math inline">\(t\)</span> と <span class="math inline">\(\tau\)</span> について混乱したのでまとめます。</p>
-<p><span class="math inline">\(t\)</span> は今からピッチを推定したい信号の、ある時点を表しています。信号から一つのピッチの値を取り出したいときは、信号の開始時点を <span class="math inline">\(t=0\)</span> と考えることができます。以降では常に <span class="math inline">\(t=0\)</span> として信号全体の相関を計算することにします。</p>
+<p><span class="math inline">\(t\)</span> は今からピッチを推定したい信号の、自己相関を計算する区間の開始時点を表しています。 FFT を用いるときによくあるのですが、信号を <span class="math inline">\(2^n\)</span> サンプルごとなどに分割して処理することを想定しているようです。後で出てくる <code>python_speech_features.sigproc.framesig</code> はこの分割を行う関数です。信号全体から一つのピッチの値を取り出したいときは、信号の開始時点を <span class="math inline">\(t=0\)</span> と考えることができます。以降では 1 区間での計算だけを扱うので簡略化のために常に <span class="math inline">\(t=0\)</span> とします。</p>
 <p><span class="math inline">\(\tau\)</span> は自己相関を計算する区間のインデックスを表しています。信号全体の自己相関を計算するとき <span class="math inline">\(\tau\)</span> の範囲は <span class="math inline">\([0, N -1]\)</span> になります。</p>
 <p>またYINの論文の fig. 1. (c) を見ると type I の自己相関の計算では <span class="math inline">\(x\)</span> が周期 <span class="math inline">\(N\)</span> で反復することを仮定しているようです。 type II の自己相関の計算では <span class="math inline">\(x\)</span> のインデックスが <span class="math inline">\([0, N - 1]\)</span> の範囲外のとき <span class="math inline">\(x\)</span> の値を0としています。</p>
 <h3 id="自己相関の計算">自己相関の計算</h3>
