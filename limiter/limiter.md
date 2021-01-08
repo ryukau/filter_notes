@@ -29,9 +29,11 @@ C(x) = \begin{cases}
 $$
 
 ## 実装
-C++17 で実装します。
+C++17 で実装します。コンパイルして実行できる完全なコードを以下のリンクに掲載しています。
 
-コンパイルには以下のインクルードが必要です。
+- [完全なリミッタの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/limiter/cpp/example/example.cpp)
+
+この記事で掲載しているコードは以下のインクルードを省略しています。
 
 ```c++
 #include <algorithm>
