@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2021-01-08" />
+<title>limiter</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
+crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+onload="renderMathInElement(document.body);"></script>
+
+<style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+font-family: inherit;
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 4px;
+margin: 2px;
+line-height: calc(1em + 16px);
+}
+
+a {
+text-decoration: none;
+}
+
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
+padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
+}
+
+tr:nth-child(odd) {
+background: #eeeeee;
+}
+
+tr:nth-child(even) {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+td {
+height: 1.5em;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
+}
+
+li {
+margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2021-01-08
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#リミッタの実装">リミッタの実装</a><ul>
+<li><a href="#ブロック線図">ブロック線図</a></li>
+<li><a href="#実装">実装</a><ul>
+<li><a href="#二重移動平均フィルタ">二重移動平均フィルタ</a></li>
+<li><a href="#リミッタの実装-1">リミッタの実装</a><ul>
+<li><a href="#アタック時間の変更">アタック時間の変更</a></li>
+<li><a href="#リリース時間の設定">リリース時間の設定</a></li>
+<li><a href="#サステイン">サステイン</a></li>
+<li><a href="#特性曲線とゲインの計算">特性曲線とゲインの計算</a></li>
+<li><a href="#リリースの計算">リリースの計算</a></li>
+<li><a href="#ソフトクリップ">ソフトクリップ</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#その他">その他</a><ul>
+<li><a href="#lookahead-limiter-の記事の訳">Lookahead Limiter の記事の訳</a></li>
+<li><a href="#継時マスキング">継時マスキング</a></li>
+<li><a href="#matlab-のリミッタ">MATLAB のリミッタ</a></li>
+</ul></li>
+<li><a href="#参考文献">参考文献</a></li>
+<li><a href="#参考にしたプラグイン">参考にしたプラグイン</a></li>
+</ul></li>
+</ul>
+</nav>
+</details>
+</header>
+<h1 id="リミッタの実装">リミッタの実装</h1>
+<p>シンセサイザやエフェクタの部品として使えるような簡易なリミッタを作ります。ここで作るリミッタはどんな入力ががあっても、振幅を必ずしきい値以下に制限することを目的とします。</p>
+<p>Waves の L1 が発表されてから <a href="https://en.wikipedia.org/wiki/Waves_Audio#History">25 年以上経っている</a>ので既存の実装と解説が 1 つくらい見つかるだろうと思っていたのですが、 “dynamic range limiter algorithm” でグーグル検索しても 1 次ローパスを使った振幅を完全に制限できない実装ばかり出てきました。そこで既存のプラグインを調べていたところ、 FL 付属の <a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm">Fruity Limiter</a> のマニュアルに <a href="https://www.musicdsp.org/en/latest/index.html">musicdsp.org</a> へのクレジットがありました。この記事で紹介している実装は musicdsp.org の <a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead Limiter</a> とほとんど同じです。ただし、ピークホールドについては Lookahead Limiter の記事には詳細が書いていなかったので<a href="../peak_hold_envelope/peak_hold_envelope.html">試行錯誤して作りました</a>。</p>
+<h2 id="ブロック線図">ブロック線図</h2>
+<p>今回実装するリミッタのブロック線図です。</p>
+<figure>
+<img src="img/limiter_block_diagram.svg" alt="Block diagram of limiter." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下の 4 つの部品が必要です。</p>
+<ul>
+<li>特性曲線 (Characteristic Curve)</li>
+<li><a href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールド</a> (Peak Hold)</li>
+<li><a href="../s_curve_step_response_filter/s_curve_step_response_filter.html">スムーシングフィルタ</a> (Smoothing Filter)</li>
+<li><a href="../delay/delay.html">ディレイ</a> (Delay)</li>
+</ul>
+<p>ピークホールド、スムーシングフィルタ、ディレイについてはリンク先の記事で実装を紹介しています。</p>
+<p>特性曲線は振幅についてのリミッタの入出力特性を表した曲線のことです。ここでは計算が簡単なハードクリッピングの特性を使います。入力を <span class="math inline">\(x\)</span> 、リミッタのしきい値を <span class="math inline">\(h\)</span> とすると以下の式でハードクリッピングの特性曲線 <span class="math inline">\(C\)</span> を計算できます。</p>
+<p><span class="math display">\[
+C(x) = \begin{cases}
+  x &amp; \text{if}\ |x| &lt; h \\
+  h &amp; \text{otherwise}
+\end{cases}
+\]</span></p>
+<h2 id="実装">実装</h2>
+<p>C++17 で実装します。</p>
+<p>コンパイルには以下のインクルードが必要です。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span></code></pre></div>
+<h3 id="二重移動平均フィルタ">二重移動平均フィルタ</h3>
+<p>二重移動平均フィルタはステップ応答が S 字になるフィルタです。フィルタ係数が<a href="https://en.wikipedia.org/wiki/Window_function#Triangular_window">三角窓</a>の形をしています。リミッタは入力信号をエンベロープで AM 変調する部品なので、ステップ応答が S 字であれば変調が目立つときでもサイン波で AM 変調したような音になることを期待しています。</p>
+<p>以下の実装は単純な畳み込みよりも出力がやや大きくなることがあります。</p>
+<p><code>Delay</code> の実装は「<a href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールドによるエンベロープ</a>」を参照してください。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> DoubleAverageFilter {</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  Sample sum1 = <span class="dv">0</span>;</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  Sample sum2 = <span class="dv">0</span>;</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  Sample buf = <span class="dv">0</span>; <span class="co">// 出力が 1 サンプル前にずれるのを補正するディレイのバッファ。</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">size_t</span> halfDelayFrames = <span class="dv">0</span>;</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  Delay&lt;Sample&gt; delay1;</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  Delay&lt;Sample&gt; delay2;</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="dt">void</span> resize(<span class="dt">size_t</span> size)</span>
+<span id="cb2-10"><a href="#cb2-10"></a>  {</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    delay1.resize(size / <span class="dv">2</span>);</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    delay2.resize(size / <span class="dv">2</span>);</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  }</span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a>  <span class="dt">void</span> reset()</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  {</span>
+<span id="cb2-17"><a href="#cb2-17"></a>    sum1 = <span class="dv">0</span>;</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    sum2 = <span class="dv">0</span>;</span>
+<span id="cb2-19"><a href="#cb2-19"></a>    buf = <span class="dv">0</span>;</span>
+<span id="cb2-20"><a href="#cb2-20"></a>    delay1.reset();</span>
+<span id="cb2-21"><a href="#cb2-21"></a>    delay2.reset();</span>
+<span id="cb2-22"><a href="#cb2-22"></a>  }</span>
+<span id="cb2-23"><a href="#cb2-23"></a></span>
+<span id="cb2-24"><a href="#cb2-24"></a>  <span class="dt">void</span> setFrames(<span class="dt">size_t</span> frames)</span>
+<span id="cb2-25"><a href="#cb2-25"></a>  {</span>
+<span id="cb2-26"><a href="#cb2-26"></a>    halfDelayFrames = frames / <span class="dv">2</span>;</span>
+<span id="cb2-27"><a href="#cb2-27"></a>    delay1.setFrames(halfDelayFrames);</span>
+<span id="cb2-28"><a href="#cb2-28"></a>    delay2.setFrames(halfDelayFrames);</span>
+<span id="cb2-29"><a href="#cb2-29"></a>  }</span>
+<span id="cb2-30"><a href="#cb2-30"></a></span>
+<span id="cb2-31"><a href="#cb2-31"></a>  Sample process(<span class="at">const</span> Sample input)</span>
+<span id="cb2-32"><a href="#cb2-32"></a>  {</span>
+<span id="cb2-33"><a href="#cb2-33"></a>    sum1 += buf - delay1.process(buf);</span>
+<span id="cb2-34"><a href="#cb2-34"></a>    <span class="kw">auto</span> out1 = sum1 / halfDelayFrames;</span>
+<span id="cb2-35"><a href="#cb2-35"></a></span>
+<span id="cb2-36"><a href="#cb2-36"></a>    sum2 += out1 - delay2.process(out1);</span>
+<span id="cb2-37"><a href="#cb2-37"></a>    <span class="kw">auto</span> out2 = sum2 / halfDelayFrames;</span>
+<span id="cb2-38"><a href="#cb2-38"></a></span>
+<span id="cb2-39"><a href="#cb2-39"></a>    buf = input;</span>
+<span id="cb2-40"><a href="#cb2-40"></a>    <span class="cf">return</span> out2;</span>
+<span id="cb2-41"><a href="#cb2-41"></a>  }</span>
+<span id="cb2-42"><a href="#cb2-42"></a>};</span></code></pre></div>
+<h3 id="リミッタの実装-1">リミッタの実装</h3>
+<p>リミッタの実装です。 <code>Delay</code> と <code>PeakHold</code> の実装は「<a href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールドによるエンベロープ</a>」を参照してください。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> Limiter {</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="at">static</span> <span class="kw">constexpr</span> Sample fixedGain = Sample(<span class="fl">0.9965520801347684</span>); <span class="co">// -0.03dB.</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>  <span class="at">static</span> <span class="kw">constexpr</span> Sample releaseConstant = Sample(<span class="fl">1e-5</span>); <span class="co">// 適当な小さい値。</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a></span>
+<span id="cb3-5"><a href="#cb3-5"></a>  Sample threshold = Sample(<span class="fl">0.1</span>);</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  Sample gain = Sample(<span class="dv">1</span>);</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  Sample release = <span class="dv">0</span>; <span class="co">// 指数関数的増加のためのリリース係数。</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="dt">size_t</span> attackFrames = <span class="dv">0</span>;</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a>  PeakHold&lt;Sample&gt; hold;</span>
+<span id="cb3-11"><a href="#cb3-11"></a>  DoubleAverageFilter&lt;Sample&gt; smoother;</span>
+<span id="cb3-12"><a href="#cb3-12"></a>  Delay&lt;Sample&gt; lookaheadDelay;</span>
+<span id="cb3-13"><a href="#cb3-13"></a></span>
+<span id="cb3-14"><a href="#cb3-14"></a>  <span class="dt">size_t</span> latency() { <span class="cf">return</span> attackFrames; }</span>
+<span id="cb3-15"><a href="#cb3-15"></a></span>
+<span id="cb3-16"><a href="#cb3-16"></a>  <span class="dt">void</span> resize(<span class="dt">size_t</span> size)</span>
+<span id="cb3-17"><a href="#cb3-17"></a>  {</span>
+<span id="cb3-18"><a href="#cb3-18"></a>    size += size % <span class="dv">2</span>;</span>
+<span id="cb3-19"><a href="#cb3-19"></a>    hold.resize(size);</span>
+<span id="cb3-20"><a href="#cb3-20"></a>    smoother.resize(size);</span>
+<span id="cb3-21"><a href="#cb3-21"></a>    lookaheadDelay.resize(size);</span>
+<span id="cb3-22"><a href="#cb3-22"></a>  }</span>
+<span id="cb3-23"><a href="#cb3-23"></a></span>
+<span id="cb3-24"><a href="#cb3-24"></a>  <span class="dt">void</span> reset()</span>
+<span id="cb3-25"><a href="#cb3-25"></a>  {</span>
+<span id="cb3-26"><a href="#cb3-26"></a>    gain = Sample(<span class="dv">1</span>);</span>
+<span id="cb3-27"><a href="#cb3-27"></a>    hold.reset();</span>
+<span id="cb3-28"><a href="#cb3-28"></a>    smoother.reset();</span>
+<span id="cb3-29"><a href="#cb3-29"></a>    lookaheadDelay.reset();</span>
+<span id="cb3-30"><a href="#cb3-30"></a>  }</span>
+<span id="cb3-31"><a href="#cb3-31"></a></span>
+<span id="cb3-32"><a href="#cb3-32"></a>  <span class="dt">void</span> prepare(</span>
+<span id="cb3-33"><a href="#cb3-33"></a>    Sample sampleRate,</span>
+<span id="cb3-34"><a href="#cb3-34"></a>    Sample attackSeconds,</span>
+<span id="cb3-35"><a href="#cb3-35"></a>    Sample sustainSeconds,</span>
+<span id="cb3-36"><a href="#cb3-36"></a>    Sample releaseSeconds,</span>
+<span id="cb3-37"><a href="#cb3-37"></a>    Sample threshold)</span>
+<span id="cb3-38"><a href="#cb3-38"></a>  {</span>
+<span id="cb3-39"><a href="#cb3-39"></a>    <span class="kw">auto</span> prevAttack = attackFrames;</span>
+<span id="cb3-40"><a href="#cb3-40"></a>    attackFrames = <span class="dt">size_t</span>(sampleRate * attackSeconds);</span>
+<span id="cb3-41"><a href="#cb3-41"></a>    attackFrames += attackFrames % <span class="dv">2</span>; <span class="co">// DoubleAverageFilter のために 2 の倍数にする。</span></span>
+<span id="cb3-42"><a href="#cb3-42"></a>    <span class="cf">if</span> (prevAttack != attackFrames) reset();</span>
+<span id="cb3-43"><a href="#cb3-43"></a></span>
+<span id="cb3-44"><a href="#cb3-44"></a>    release</span>
+<span id="cb3-45"><a href="#cb3-45"></a>      = <span class="bu">std::</span>pow(Sample(<span class="dv">1</span> / releaseConstant), Sample(<span class="dv">1</span> / (releaseSeconds * sampleRate)));</span>
+<span id="cb3-46"><a href="#cb3-46"></a></span>
+<span id="cb3-47"><a href="#cb3-47"></a>    <span class="kw">this</span>-&gt;threshold = threshold;</span>
+<span id="cb3-48"><a href="#cb3-48"></a></span>
+<span id="cb3-49"><a href="#cb3-49"></a>    hold.setFrames(attackFrames + <span class="dt">size_t</span>(sampleRate * sustainSeconds));</span>
+<span id="cb3-50"><a href="#cb3-50"></a>    smoother.setFrames(attackFrames);</span>
+<span id="cb3-51"><a href="#cb3-51"></a>    lookaheadDelay.setFrames(attackFrames);</span>
+<span id="cb3-52"><a href="#cb3-52"></a>  }</span>
+<span id="cb3-53"><a href="#cb3-53"></a></span>
+<span id="cb3-54"><a href="#cb3-54"></a>  <span class="kw">inline</span> Sample applyCharacteristicCurve(Sample x0)</span>
+<span id="cb3-55"><a href="#cb3-55"></a>  {</span>
+<span id="cb3-56"><a href="#cb3-56"></a>    <span class="cf">return</span> x0 &gt; threshold ? threshold / x0 : Sample(<span class="dv">1</span>);</span>
+<span id="cb3-57"><a href="#cb3-57"></a>  }</span>
+<span id="cb3-58"><a href="#cb3-58"></a></span>
+<span id="cb3-59"><a href="#cb3-59"></a>  <span class="kw">inline</span> Sample softClip(Sample x0, Sample ratio)</span>
+<span id="cb3-60"><a href="#cb3-60"></a>  {</span>
+<span id="cb3-61"><a href="#cb3-61"></a>    <span class="at">const</span> <span class="kw">auto</span> absed = <span class="bu">std::</span>fabs(x0);</span>
+<span id="cb3-62"><a href="#cb3-62"></a></span>
+<span id="cb3-63"><a href="#cb3-63"></a>    <span class="at">const</span> <span class="kw">auto</span> a1 = threshold * ratio;</span>
+<span id="cb3-64"><a href="#cb3-64"></a>    <span class="cf">if</span> (absed &lt;= a1) <span class="cf">return</span> x0;</span>
+<span id="cb3-65"><a href="#cb3-65"></a></span>
+<span id="cb3-66"><a href="#cb3-66"></a>    <span class="at">const</span> <span class="kw">auto</span> a2 = <span class="dv">2</span> * threshold - a1;</span>
+<span id="cb3-67"><a href="#cb3-67"></a>    <span class="cf">if</span> (absed &gt;= a2) <span class="cf">return</span> threshold;</span>
+<span id="cb3-68"><a href="#cb3-68"></a></span>
+<span id="cb3-69"><a href="#cb3-69"></a>    <span class="cf">return</span> <span class="bu">std::</span>copysign(</span>
+<span id="cb3-70"><a href="#cb3-70"></a>      threshold + (a2 - absed) * (a2 - absed) * Sample(<span class="fl">0.25</span>) / (a1 - threshold), x0);</span>
+<span id="cb3-71"><a href="#cb3-71"></a>  }</span>
+<span id="cb3-72"><a href="#cb3-72"></a></span>
+<span id="cb3-73"><a href="#cb3-73"></a>  Sample process(<span class="at">const</span> Sample input)</span>
+<span id="cb3-74"><a href="#cb3-74"></a>  {</span>
+<span id="cb3-75"><a href="#cb3-75"></a>    <span class="kw">auto</span> holdGain = hold.process(<span class="bu">std::</span>fabs(input));</span>
+<span id="cb3-76"><a href="#cb3-76"></a>    <span class="kw">auto</span> candidate = applyCharacteristicCurve(holdGain);</span>
+<span id="cb3-77"><a href="#cb3-77"></a>    gain = <span class="bu">std::</span>min(gain * release, candidate);</span>
+<span id="cb3-78"><a href="#cb3-78"></a></span>
+<span id="cb3-79"><a href="#cb3-79"></a>    <span class="kw">auto</span> smoothed = smoother.process(gain);</span>
+<span id="cb3-80"><a href="#cb3-80"></a>    <span class="kw">auto</span> delayed = lookaheadDelay.process(input);</span>
+<span id="cb3-81"><a href="#cb3-81"></a>    <span class="cf">return</span> softClip(smoothed * delayed, fixedGain);</span>
+<span id="cb3-82"><a href="#cb3-82"></a>  }</span>
+<span id="cb3-83"><a href="#cb3-83"></a>};</span>
+<span id="cb3-84"><a href="#cb3-84"></a></span>
+<span id="cb3-85"><a href="#cb3-85"></a><span class="pp">#include </span><span class="im">&lt;iomanip&gt;</span></span>
+<span id="cb3-86"><a href="#cb3-86"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb3-87"><a href="#cb3-87"></a><span class="pp">#include </span><span class="im">&lt;limits&gt;</span></span>
+<span id="cb3-88"><a href="#cb3-88"></a><span class="pp">#include </span><span class="im">&lt;random&gt;</span></span>
+<span id="cb3-89"><a href="#cb3-89"></a></span>
+<span id="cb3-90"><a href="#cb3-90"></a><span class="dt">int</span> main() {</span>
+<span id="cb3-91"><a href="#cb3-91"></a>  <span class="kw">constexpr</span> <span class="dt">size_t</span> sampleRate = <span class="dv">48000</span>;</span>
+<span id="cb3-92"><a href="#cb3-92"></a>  <span class="kw">constexpr</span> <span class="dt">float</span> maxPeak = <span class="fl">10.0</span><span class="bu">f</span>;</span>
+<span id="cb3-93"><a href="#cb3-93"></a></span>
+<span id="cb3-94"><a href="#cb3-94"></a>  <span class="co">// テスト信号の生成。</span></span>
+<span id="cb3-95"><a href="#cb3-95"></a>  <span class="bu">std::</span>random_device rd;</span>
+<span id="cb3-96"><a href="#cb3-96"></a>  <span class="bu">std::</span>mt19937_64 rng(rd());</span>
+<span id="cb3-97"><a href="#cb3-97"></a>  <span class="bu">std::</span>uniform_real_distribution&lt;<span class="dt">float</span>&gt; dist(-maxPeak, maxPeak);</span>
+<span id="cb3-98"><a href="#cb3-98"></a></span>
+<span id="cb3-99"><a href="#cb3-99"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; input(sampleRate);</span>
+<span id="cb3-100"><a href="#cb3-100"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; input.size(); ++i) input[i] = dist(rng);</span>
+<span id="cb3-101"><a href="#cb3-101"></a></span>
+<span id="cb3-102"><a href="#cb3-102"></a>  <span class="co">// Limiter の使用例。</span></span>
+<span id="cb3-103"><a href="#cb3-103"></a>  Limiter&lt;<span class="dt">float</span>&gt; limiter;</span>
+<span id="cb3-104"><a href="#cb3-104"></a>  limiter.resize(<span class="dv">65536</span>);</span>
+<span id="cb3-105"><a href="#cb3-105"></a>  limiter.prepare(sampleRate, <span class="fl">0.002</span><span class="bu">f</span>, <span class="fl">0.002</span><span class="bu">f</span>, <span class="fl">0.1</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>);</span>
+<span id="cb3-106"><a href="#cb3-106"></a></span>
+<span id="cb3-107"><a href="#cb3-107"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; output(input.size());</span>
+<span id="cb3-108"><a href="#cb3-108"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; input.size(); ++i) output[i] = limiter.process(input[i]);</span>
+<span id="cb3-109"><a href="#cb3-109"></a></span>
+<span id="cb3-110"><a href="#cb3-110"></a>  <span class="co">// 出力がしきい値以下に制限されているか確認。</span></span>
+<span id="cb3-111"><a href="#cb3-111"></a>  <span class="dt">float</span> max = <span class="dv">0</span>;</span>
+<span id="cb3-112"><a href="#cb3-112"></a>  <span class="cf">for</span> (<span class="at">const</span> <span class="kw">auto</span> &amp;value : output) {</span>
+<span id="cb3-113"><a href="#cb3-113"></a>    <span class="kw">auto</span> absed = <span class="bu">std::</span>fabs(value);</span>
+<span id="cb3-114"><a href="#cb3-114"></a>    <span class="cf">if</span> (absed &gt; limiter.threshold &amp;&amp; absed &gt; max) max = absed;</span>
+<span id="cb3-115"><a href="#cb3-115"></a>  }</span>
+<span id="cb3-116"><a href="#cb3-116"></a></span>
+<span id="cb3-117"><a href="#cb3-117"></a>  <span class="cf">if</span> (max == <span class="dv">0</span>) {</span>
+<span id="cb3-118"><a href="#cb3-118"></a>    <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Limiting succeeded.</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
+<span id="cb3-119"><a href="#cb3-119"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-120"><a href="#cb3-120"></a>    <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Limiting failed.</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb3-121"><a href="#cb3-121"></a>              &lt;&lt; <span class="bu">std::</span>setprecision(<span class="bu">std::</span>numeric_limits&lt;<span class="dt">float</span>&gt;::digits10 + <span class="dv">1</span>)</span>
+<span id="cb3-122"><a href="#cb3-122"></a>              &lt;&lt; <span class="st">&quot;threshold: &quot;</span> &lt;&lt; limiter.threshold &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb3-123"><a href="#cb3-123"></a>              &lt;&lt; <span class="st">&quot;max      : &quot;</span> &lt;&lt; max &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
+<span id="cb3-124"><a href="#cb3-124"></a>  }</span>
+<span id="cb3-125"><a href="#cb3-125"></a>}</span></code></pre></div>
+<h4 id="アタック時間の変更">アタック時間の変更</h4>
+<p><code>prepare</code> について見ていきます。</p>
+<p>今回の実装ではアタック時間を変更すると一時的に振幅の制限が保証されなくなります。これはピークホールドが前から順にすべてのサンプルを入力しないと正しく動作しないことが原因です。そこで以下のコードのようにアタック時間が変更されたときはディレイのバッファをいったんリセットしています。リセットによってポップノイズが出てしまいますが、フィードバック経路で使うような場面ではリミッタのしきい値を超える振幅が出力されるよりは安全だと判断しています。</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">auto</span> prevAttack = attackFrames;</span>
+<span id="cb4-2"><a href="#cb4-2"></a>attackFrames = <span class="dt">size_t</span>(sampleRate * attackSeconds);</span>
+<span id="cb4-3"><a href="#cb4-3"></a>attackFrames += attackFrames % <span class="dv">2</span>;</span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="cf">if</span> (prevAttack != attackFrames) reset();</span></code></pre></div>
+<h4 id="リリース時間の設定">リリース時間の設定</h4>
+<p>以下では <code>releaseSeconds</code> 秒後に <code>releaseConstant</code> から 1 に到達するような係数を設定しています。</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a>release</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  = <span class="bu">std::</span>pow(Sample(<span class="dv">1</span> / releaseConstant), Sample(<span class="dv">1</span> / (releaseSeconds * sampleRate)));</span></code></pre></div>
+<p>今回の実装では適当に <code>releaseConstant = 1e-5</code> としています。 <code>releaseConstant</code> は 0 に近い小さな値ならなんでもいいですが、小さくするとそれだけリリースが長くなります。</p>
+<p><code>release</code> を <span class="math inline">\(R\)</span> 、 <code>releaseConstant</code> を <span class="math inline">\(C\)</span> 、 <code>releaseSeconds * sampleRate</code> を <span class="math inline">\(t\)</span> と置くと以下の関係があります。</p>
+<p><span class="math display">\[
+1 = C R^t
+\]</span></p>
+<p><span class="math inline">\(R\)</span> について解くと上のコードの計算式になります。</p>
+<p><span class="math display">\[
+R = \left( \frac{1}{C} \right)^{1/t}
+\]</span></p>
+<h4 id="サステイン">サステイン</h4>
+<p>ホールド時間だけを長くすることでサステインを加えられます。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a>hold.setFrames(attackFrames + <span class="dt">size_t</span>(sampleRate * sustainSeconds));</span>
+<span id="cb6-2"><a href="#cb6-2"></a>smoother.setFrames(attackFrames);</span>
+<span id="cb6-3"><a href="#cb6-3"></a>lookaheadDelay.setFrames(attackFrames);</span></code></pre></div>
+<h4 id="特性曲線とゲインの計算">特性曲線とゲインの計算</h4>
+<p><code>process</code> について見ていきます。</p>
+<p>リミッタでは音量を下げたいので、特性曲線を計算するついでに入力の絶対値の逆数 <code>threshold / x0</code> を計算してゲインとしています。 <code>threshold</code> を 0 より大きい値に制限すれば 0 除算も防げます。 <code>applyCharacteristicCurve</code> の出力は必ず <code>[0, 1]</code> の範囲に収まります。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">inline</span> Sample applyCharacteristicCurve(Sample x0)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>{</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="cf">return</span> x0 &gt; threshold ? threshold / x0 : Sample(<span class="dv">1</span>);</span>
+<span id="cb7-4"><a href="#cb7-4"></a>}</span>
+<span id="cb7-5"><a href="#cb7-5"></a></span>
+<span id="cb7-6"><a href="#cb7-6"></a>Sample process(<span class="at">const</span> Sample input)</span>
+<span id="cb7-7"><a href="#cb7-7"></a>{</span>
+<span id="cb7-8"><a href="#cb7-8"></a>  <span class="co">// ...</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>  <span class="kw">auto</span> candidate = applyCharacteristicCurve(holdGain);</span>
+<span id="cb7-10"><a href="#cb7-10"></a>  <span class="co">// ...</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>}</span></code></pre></div>
+<h4 id="リリースの計算">リリースの計算</h4>
+<p>リリースの計算は先に計算した係数 <code>release</code> を毎サンプル掛け合わせるだけです。リリース中に大きなピークが入力されたときは <code>std::min</code> によってリリースが中断されます。 <code>gain</code> と <code>candidate</code> は入力が大きいほど 0 に近づきます。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a>gain = <span class="bu">std::</span>min(gain * release, candidate);</span></code></pre></div>
+<h4 id="ソフトクリップ">ソフトクリップ</h4>
+<p>上で紹介した <code>DoubleAverageFilter</code> は浮動小数点数の計算誤差によって単純な畳み込みよりも出力がやや大きくなります。ほとんど無視できる程度の誤差なのですが、リミッタではしきい値を超える振幅を出力してしまう問題の原因になります。しきい値を超える量については、今回使ったテスト音源だと例えばしきい値 1 に対して振幅 1.001 が出力されるといった具合でした。この問題の解決法として以下の 2 つの方法が考えられます。</p>
+<ul>
+<li><code>threshold</code> を指定された値から少し下げる。</li>
+<li>出力をクリッピングする。</li>
+</ul>
+<p>今回は出力の最大振幅が間違いなくしきい値と一致するクリッピングを使いました。 <code>threshold</code> を下げる方法は、入力信号や <code>threshold</code> の下げ幅によって誤差が変わるという面倒な特性があるので、どれだけ下げればいいのかがよくわからなかったです。</p>
+<p>今回は以下のソフトクリップ曲線を使いました。</p>
+<figure>
+<img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下は適当に作ったソフトクリップ曲線 <span class="math inline">\(S\)</span> の計算式です。上の図のオレンジの部分では 2 次曲線を使っていますが、<a href="https://en.wikipedia.org/wiki/Monotonic_function">単調</a>かつ傾きが一致するように繋がれば何でもいいです。 <span class="math inline">\(\mathrm{sgn}\)</span> は<a href="https://en.wikipedia.org/wiki/Sign_function">符号関数</a>です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+S(x) &amp;= \begin{cases}
+  x &amp; \text{if}\ |x| &lt; a_1
+    &amp;&amp; \text{(linear region)}\\
+  h + \mathrm{sgn}(x) \dfrac{0.25 (a_2 - |x|)^2}{a_1 - h}  &amp; \text{if}\ a_1 \leq|x| &lt; a_2
+    &amp;&amp; \text{(2nd order region)}\\
+  h &amp; \text{if}\ a_2 \leq |x|
+    &amp;&amp; \text{(clipping region)}\\
+\end{cases}
+\\
+a_1 &amp;= rh\\
+a_2 &amp;= 2h - a_1
+\end{aligned}
+\]</span></p>
+<p>変数の一覧です。</p>
+<ul>
+<li><span class="math inline">\(x\)</span>: 入力信号</li>
+<li><span class="math inline">\(h\)</span>: リミッタのしきい値</li>
+<li><span class="math inline">\(r\)</span>: しきい値以下の非線形領域の割合。</li>
+</ul>
+<p>2 次曲線領域 (2nd order region) が前後と滑らかにつながることを確認します。まず <span class="math inline">\(L = h - a_1 = a_2 - h\)</span> と置きます。つまり 2 次曲線領域は入力に対して <span class="math inline">\(2L\)</span> 、出力に対して <span class="math inline">\(L\)</span> の幅を持っています。</p>
+<p><span class="math inline">\(\xi = a_2 - |x|\)</span> とすると、曲線 <span class="math inline">\(S\)</span> の 2 次曲線領域の式 <span class="math inline">\(S_2\)</span> は以下のように書き換えられます。</p>
+<p><span class="math display">\[
+S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
+\]</span></p>
+<p><span class="math inline">\(\xi\)</span> について微分します。</p>
+<p><span class="math display">\[
+\frac{d S_2}{d \xi} = - \mathrm{sgn}(x) \frac{0.5}{L} \xi
+\]</span></p>
+<ul>
+<li><span class="math inline">\(|x| = a_1\)</span> のとき <span class="math inline">\(\xi = a_2 - a_1 = 2L\)</span> なので、傾きは <span class="math inline">\(-\mathrm{sgn}(x)\)</span> 。</li>
+<li><span class="math inline">\(|x| = a_2\)</span> のとき <span class="math inline">\(\xi = 0\)</span> なので、傾きは 0 。</li>
+</ul>
+<p><span class="math inline">\(-\mathrm{sgn}(x)\)</span> は <span class="math inline">\(x\)</span> の符号が - のときに 1 、 + のときに -1 になります。上の曲線の図で言うと <span class="math inline">\(x\)</span> が負のときは左から右、 <span class="math inline">\(x\)</span> が正のときは右から左に向かって <span class="math inline">\(\xi\)</span> が増えるので線形領域と傾きが一致します。</p>
+<figure>
+<img src="img/softclip_smoothness.svg" alt="Image of soft-clipping curve with the direction of ξ depending on the sign of x." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下はリミッタの実装から抜粋したソフトクリッピングのコードです。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">inline</span> Sample softClip(Sample x0, Sample ratio)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>{</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="at">const</span> <span class="kw">auto</span> absed = <span class="bu">std::</span>fabs(x0);</span>
+<span id="cb9-4"><a href="#cb9-4"></a></span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="at">const</span> <span class="kw">auto</span> a1 = threshold * ratio;</span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="cf">if</span> (absed &lt;= a1) <span class="cf">return</span> x0;</span>
+<span id="cb9-7"><a href="#cb9-7"></a></span>
+<span id="cb9-8"><a href="#cb9-8"></a>  <span class="at">const</span> <span class="kw">auto</span> a2 = <span class="dv">2</span> * threshold - a1;</span>
+<span id="cb9-9"><a href="#cb9-9"></a>  <span class="cf">if</span> (absed &gt;= a2) <span class="cf">return</span> threshold;</span>
+<span id="cb9-10"><a href="#cb9-10"></a></span>
+<span id="cb9-11"><a href="#cb9-11"></a>  <span class="cf">return</span> <span class="bu">std::</span>copysign(</span>
+<span id="cb9-12"><a href="#cb9-12"></a>    threshold + (a2 - absed) * (a2 - absed) * Sample(<span class="fl">0.25</span>) / (a1 - threshold), x0);</span>
+<span id="cb9-13"><a href="#cb9-13"></a>}</span>
+<span id="cb9-14"><a href="#cb9-14"></a></span>
+<span id="cb9-15"><a href="#cb9-15"></a>Sample process(<span class="at">const</span> Sample input)</span>
+<span id="cb9-16"><a href="#cb9-16"></a>{</span>
+<span id="cb9-17"><a href="#cb9-17"></a>  <span class="co">// ...</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a>  <span class="cf">return</span> softClip(smoothed * delayed, fixedGain);</span>
+<span id="cb9-19"><a href="#cb9-19"></a>}</span></code></pre></div>
+<h2 id="その他">その他</h2>
+<h3 id="lookahead-limiter-の記事の訳">Lookahead Limiter の記事の訳</h3>
+<p>musicdsp.org の Lookahead Limiter の記事の訳を別ページに掲載しています。</p>
+<ul>
+<li><a href="./musicdsp_lookahead_limiter.html">Lookahead Limiter の記事の訳を読む (github.io)</a></li>
+</ul>
+<h3 id="継時マスキング">継時マスキング</h3>
+<p><a href="https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0">継時マスキング</a> (<a href="https://en.wikipedia.org/wiki/Auditory_masking#Temporal_masking">temporal masking</a>) は、突然大きな音がしたときは前後にある小さな音が聞こえにくくなるという人間の聴覚の性質です。リミッタはピークの前後をエンベロープで歪ませて振幅を制限します。ピークの前後は継時マスキングによってもともと聞こえていないので、歪ませても違和感が少ないと考えることができます。</p>
+<p>継時マスキングは、<a href="https://ccrma.stanford.edu/~bosse/proj/node21.html">突然の大きい音の前では 20 ms 以下、後では 200 ms 以下の長さにわたって起こる</a>そうです。よってリミッタを耳で評価するときはアタック時間を 20 ms 以下、リリース時間を 200 ms 以下に設定してドラムなどの音を入力したときに違和感を感じないことが一つの目安になります。アタックが遅い音は継時マスキングの条件から外れるので、より長いアタック時間やリリース時間が使えるかもしれません。</p>
+<h3 id="matlab-のリミッタ">MATLAB のリミッタ</h3>
+<p>既存のリミッタの実装を探していた時に MATLAB のリミッタを見つけました。下のほうにアルゴリズムが載っています。</p>
+<ul>
+<li><a href="https://www.mathworks.com/help/audio/ref/limiter-system-object.html">Dynamic range limiter - MATLAB</a></li>
+</ul>
+<p>実装して試してみたのですが入力信号によっては振幅がしきい値を超えるケースがありました。フィルタ出力がピーク振幅に到達するまでピークホールドを行っておらず、また入力にディレイをかけてピークを合わせてもいません。スムーシングには 1 次ローパス (exponential moving average フィルタ) が使われています。</p>
+<p>多少なら振幅の制限に失敗しても問題が無いときは使えるかもしれません。</p>
+<h2 id="参考文献">参考文献</h2>
+<ul>
+<li><a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead Limiter — Musicdsp.org documentation</a></li>
+<li><a href="http://iem.at/~zmoelnig/publications/limiter/">how to make a DIGITAL LIMITER</a></li>
+<li><a href="https://www.mathworks.com/help/audio/ref/limiter-system-object.html">Dynamic range limiter - MATLAB</a></li>
+</ul>
+<h2 id="参考にしたプラグイン">参考にしたプラグイン</h2>
+<ul>
+<li><a href="http://www.yohng.com/software/w1limit.html">yohng.com · W1 Limiter</a></li>
+<li><a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm">Fruity Limiter - Effect Plugin</a></li>
+</ul>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
