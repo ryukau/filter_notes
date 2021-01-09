@@ -1,6 +1,8 @@
 # ピークホールドによるエンベロープ
 音のリミッタで使うために、ピークホールドを使ったエンベロープの検出を実装します。
 
+ある信号の絶対値をなだらかに包み込むような信号のことを、その信号のエンベロープと言います。しきい値やニーなどの特性を加えたエンベロープの逆数を入力信号に掛け合わせることで音量を制限するリミッタが作れます。
+
 ## 前向きホールド
 入力信号の絶対値を計算します。
 
@@ -8,7 +10,7 @@
 <img src="img/input_signal.svg" alt="Plot of input signal and its absolute value." style="padding-bottom: 12px;"/>
 </figure>
 
-絶対値を前から順に読み取って、そのときまでの最大値を出力します。これがもっとも単純な前向きホールドです。
+絶対値を前から順に読み取って、そのときまでの最大値を出力します。これが単純な前向きホールドです。
 
 <figure>
 <img src="img/simple_forward_peak_hold.svg" alt="Plot of simple forward peak hold." style="padding-bottom: 12px;"/>
@@ -64,11 +66,9 @@ plt.show()
 ```
 
 ## スムーシング
-ある信号の絶対値をなだらかに包み込むような信号のことを、その信号のエンベロープと言います。しきい値やニーなどの特性を加えたエンベロープの逆数を入力信号に掛け合わせることで音量を制限するリミッタが作れます。
+前向きホールドによるエンベロープをそのまま使うとホールド値を忘れるときにポップノイズが出てしまうので、フィルタを使ってスムーシングします。ここで使うフィルタは一定時間同じ値が入力されると、その値に到達することが保証されているものとします。移動平均フィルタの重ね掛けや、 Bessel フィルタはこのような設計ができます。リミッタ向きのフィルタについては[「ステップ応答が S 字を描くフィルタ」](../s_curve_step_response_filter/s_curve_step_response_filter.html)にまとめています。
 
-前向きホールドによるエンベロープをそのまま使うとホールド値を忘れるときにポップノイズが出てしまうので、フィルタを使ってスムーシングします。ここで使うフィルタは、一定時間同じ値が入力されると、その値に到達することが保証されているものとします。移動平均フィルタの重ね掛けや、 Bessel フィルタはこのような設計ができます。リミッタ向きのフィルタについては[「ステップ応答が S 字を描くフィルタ」](../s_curve_step_response_filter/s_curve_step_response_filter.html)にまとめています。
-
-以降では、以下のコードで設計した三角窓の FIR フィルタを使います。
+以降では以下のコードで設計した三角窓の FIR フィルタを使います。
 
 ```python
 def makeTriangleFir(delay):
@@ -81,13 +81,13 @@ def makeTriangleFir(delay):
     return fir / np.sum(fir)
 ```
 
-前向きホールドの出力にフィルタをかけると立ち上がりと立ち下りが鈍るので、入力信号との間でピークの位置がずれます。以降ではホールドの出力にフィルタをかけた信号をエンベロープと呼びます。
+前向きホールドによるエンベロープにフィルタをかけると立ち上がりと立ち下りが鈍るので、入力信号との間でピークの位置がずれます。
 
 <figure>
 <img src="img/smoothed_hold.svg" alt="Plot of smoothed hold." style="padding-bottom: 12px;"/>
 </figure>
 
-そこで入力信号にディレイをかけてエンベロープとピークの位置をあわせます。実装によりますが、リミッタのレイテンシはこのディレイから来ています。
+ずれを直すため入力信号にディレイをかけてエンベロープとピークの位置をあわせます。実装によりますが、リミッタのレイテンシはこのディレイから来ています。
 
 <figure>
 <img src="img/smoothed_hold_and_delayed_signal_arrow.svg" alt="Plot of smoothed hold and delayed signal." style="padding-bottom: 12px;"/>
@@ -196,7 +196,7 @@ def idealPeakHoldFast(sig, holdTime):
     return out
 ```
 
-以下は理想的なホールドの出力です。高速な実装と理想的な実装の出力が一致しています。
+以下は理想的なホールドの出力です。高速な実装と素朴な実装の出力が一致しています。
 
 <figure>
 <img src="img/ideal_hold.svg" alt="Plot of ideal hold envelope." style="padding-bottom: 12px;"/>
@@ -286,7 +286,7 @@ if __name__ == "__main__":
 
 フィルタの遅延はホールド時間以下の任意のサンプル数に設定できますが、値によっては誤差が増えます。上のコードでは誤差の上限を適当に `8 * np.finfo(np.float64).eps` としています。
 
-はみ出しを検知したときは `Test failed: ...` を出力します。シード値 0 から 1023 まで今回実装した理想的なホールドをテストしたところ、はみ出しは検知されませんでした。
+はみ出しを検知したときは `Test failed: ...` を出力します。シード値 0 から 1023 まで理想的なホールドをテストしたところ、はみ出しは検知されませんでした。
 
 ### C++ による実装
 以下のコードの `PeakHold` が理想的なホールドです。
@@ -492,7 +492,7 @@ def peakHoldBackward(sig, holdtime, reset=0):
     return out
 ```
 
-以下は前向きと後ろ向きホールドを組み合わせても理想的なホールドの生成に失敗するケースです。黒い縦線が入力、青い縦線がディレイをかけた入力です。
+以下は前向きと後ろ向きホールドを組み合わせても理想的なホールドの生成に失敗するケースです。黒い縦線が入力、青い縦の点線がディレイをかけた入力です。赤の実線が前向きホールドの出力、緑の実線が後ろ向きホールドの出力です。
 
 <figure>
 <img src="img/backward_hold_fail.svg" alt="Example plots of a case that backward hold fails to make correct envelope." style="padding-bottom: 12px;"/>
@@ -503,3 +503,7 @@ def peakHoldBackward(sig, holdtime, reset=0):
 - b は a のホールド時間内に現れる。
 - c は b のホールド時間内に現れる。
 - a > b かつ c > b 。
+
+## 変更点
+- 2021/01/09
+  - 文章の整理。

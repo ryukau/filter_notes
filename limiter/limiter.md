@@ -3,6 +3,10 @@
 
 Waves の L1 が発表されてから [25 年以上経っている](https://en.wikipedia.org/wiki/Waves_Audio#History)ので既存の実装と解説が 1 つくらい見つかるだろうと思っていたのですが、 "dynamic range limiter algorithm" でグーグル検索しても 1 次ローパスを使った振幅を完全に制限できない実装ばかり出てきました。そこで既存のプラグインを調べていたところ、 FL 付属の [Fruity Limiter](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm) のマニュアルに [musicdsp.org](https://www.musicdsp.org/en/latest/index.html) へのクレジットがありました。この記事で紹介している実装は musicdsp.org の [Lookahead Limiter](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html) とほとんど同じです。ただし、ピークホールドについては Lookahead Limiter の記事には詳細が書いていなかったので[試行錯誤して作りました](../peak_hold_envelope/peak_hold_envelope.html)。
 
+Lookahead Limiter の記事の訳を別ページに掲載しています。
+
+- [Lookahead Limiter の記事の訳を読む (github.io)](./musicdsp_lookahead_limiter.html)
+
 ## ブロック線図
 今回実装するリミッタのブロック線図です。
 
@@ -17,9 +21,9 @@ Waves の L1 が発表されてから [25 年以上経っている](https://en.w
 - [スムーシングフィルタ](../s_curve_step_response_filter/s_curve_step_response_filter.html) (Smoothing Filter)
 - [ディレイ](../delay/delay.html) (Delay)
 
-ピークホールド、スムーシングフィルタ、ディレイについてはリンク先の記事で実装を紹介しています。
+ピークホールド、スムーシングフィルタ、ディレイについては上の一覧のリンク先で実装を紹介しています。
 
-特性曲線は振幅についてのリミッタの入出力特性を表した曲線のことです。ここでは計算が簡単なハードクリッピングの特性を使います。入力を $x$ 、リミッタのしきい値を $h$ とすると以下の式でハードクリッピングの特性曲線 $C$ を計算できます。
+特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を $x$ 、リミッタのしきい値を $h$ とすると以下の式でハードクリップの特性曲線 $C$ を計算できます。
 
 $$
 C(x) = \begin{cases}
@@ -46,7 +50,7 @@ C++17 で実装します。コンパイルして実行できる完全なコー�
 
 以下の実装は単純な畳み込みよりも出力がやや大きくなることがあります。
 
-`Delay` の実装は「[ピークホールドによるエンベロープ](../peak_hold_envelope/peak_hold_envelope.html)」を参照してください。
+`Delay` の実装は「[ピークホールドによるエンベロープ](../peak_hold_envelope/peak_hold_envelope.html)」に掲載しています。
 
 ```c++
 template<typename Sample> struct DoubleAverageFilter {
@@ -94,7 +98,9 @@ template<typename Sample> struct DoubleAverageFilter {
 ```
 
 ### リミッタの実装
-リミッタの実装です。 `Delay` と `PeakHold` の実装は「[ピークホールドによるエンベロープ](../peak_hold_envelope/peak_hold_envelope.html)」を参照してください。
+リミッタの実装です。アタック、リリース、サステインの時間を設定できます。アタックと呼んでいるのは二重移動平均フィルタによる遅延なので、実際はリリースにも影響します。リリースは指数関数的に増加します。リリース時間はどれだけゲインを下げたかで変わるので、あくまでも目安です。
+
+`Delay` と `PeakHold` の実装は「[ピークホールドによるエンベロープ](../peak_hold_envelope/peak_hold_envelope.html)」に掲載しています。
 
 ```c++
 template<typename Sample> struct Limiter {
@@ -227,7 +233,7 @@ int main() {
 #### アタック時間の変更
 `prepare` について見ていきます。
 
-今回の実装ではアタック時間を変更すると一時的に振幅の制限が保証されなくなります。これはピークホールドが前から順にすべてのサンプルを入力しないと正しく動作しないことが原因です。そこで以下のコードのようにアタック時間が変更されたときはディレイのバッファをいったんリセットしています。リセットによってポップノイズが出てしまいますが、フィードバック経路で使うような場面ではリミッタのしきい値を超える振幅が出力されるよりは安全だと判断しています。
+今回の実装ではアタック時間を変更すると一時的に振幅の制限が保証されなくなります。これはピークホールドが前から順にすべてのサンプルを入力しないと正しく動作しないことが原因です。そこでアタック時間が変更されたときは、以下のコードのようにディレイのバッファをいったんリセットしています。リセットによってポップノイズが出てしまいますが、フィードバック経路で使うような場面ではリミッタのしきい値を超える振幅が出力されるよりは安全だと判断しています。
 
 ```c++
 auto prevAttack = attackFrames;
@@ -244,7 +250,7 @@ release
   = std::pow(Sample(1 / releaseConstant), Sample(1 / (releaseSeconds * sampleRate)));
 ```
 
-今回の実装では適当に `releaseConstant = 1e-5` としています。 `releaseConstant` は 0 に近い小さな値ならなんでもいいですが、小さくするとそれだけリリースが長くなります。
+今回の実装では `releaseConstant = 1e-5` としています。 `releaseConstant` は 0 に近い任意の小さな値です。値を小さくするほどリリースが長くなります。
 
 `release` を $R$ 、 `releaseConstant` を $C$ 、 `releaseSeconds * sampleRate` を $t$ と置くと以下の関係があります。
 
@@ -287,19 +293,19 @@ Sample process(const Sample input)
 ```
 
 #### リリースの計算
-リリースの計算は先に計算した係数 `release` を毎サンプル掛け合わせるだけです。リリース中に大きなピークが入力されたときは `std::min` によってリリースが中断されます。 `gain` と `candidate` は入力が大きいほど 0 に近づきます。
+リリースの計算は事前に計算した係数 `release` を毎サンプル掛け合わせるだけです。リリース中に大きなピークが入力されたときは `std::min` によってリリースが中断されます。 `gain` と `candidate` は入力が大きいほど 0 に近づきます。
 
 ```c++
 gain = std::min(gain * release, candidate);
 ```
 
 #### ソフトクリップ
-上で紹介した `DoubleAverageFilter` は浮動小数点数の計算誤差によって単純な畳み込みよりも出力がやや大きくなります。ほとんど無視できる程度の誤差なのですが、リミッタではしきい値を超える振幅を出力してしまう問題の原因になります。しきい値を超える量については、今回使ったテスト音源だと例えばしきい値 1 に対して振幅 1.001 が出力されるといった具合でした。この問題の解決法として以下の 2 つの方法が考えられます。
+上で紹介した `DoubleAverageFilter` は単純な畳み込みよりも出力が少しだけ大きくなります。この誤差はリミッタがしきい値を超える振幅を出力してしまう問題の原因になります。例えば今回使ったテスト音源だと、しきい値 1 に対して振幅 1.001 が出力されるといった具合でした。この問題の解決法として以下の 2 つの方法が考えられます。
 
 - `threshold` を指定された値から少し下げる。
 - 出力をクリッピングする。
 
-今回は出力の最大振幅が間違いなくしきい値と一致するクリッピングを使いました。 `threshold` を下げる方法は、入力信号や `threshold` の下げ幅によって誤差が変わるという面倒な特性があるので、どれだけ下げればいいのかがよくわからなかったです。
+今回は出力の最大振幅が確実にしきい値と一致するクリッピングを使いました。 `threshold` を下げる方法は、入力信号の振幅や `threshold` の下げ幅によって誤差が変わってしまうので、どれだけ下げればいいのかわからなかったです。
 
 今回は以下のソフトクリップ曲線を使いました。
 
@@ -307,7 +313,7 @@ gain = std::min(gain * release, candidate);
 <img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
 </figure>
 
-以下は適当に作ったソフトクリップ曲線 $S$ の計算式です。上の図のオレンジの部分では 2 次曲線を使っていますが、[単調](https://en.wikipedia.org/wiki/Monotonic_function)かつ傾きが一致するように繋がれば何でもいいです。 $\mathrm{sgn}$ は[符号関数](https://en.wikipedia.org/wiki/Sign_function)です。
+以下は今回使ったソフトクリップ曲線 $S$ の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。[単調](https://en.wikipedia.org/wiki/Monotonic_function)かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。 $\mathrm{sgn}$ は[符号関数](https://en.wikipedia.org/wiki/Sign_function)です。
 
 $$
 \begin{aligned}
@@ -331,9 +337,9 @@ $$
 - $h$: リミッタのしきい値
 - $r$: しきい値以下の非線形領域の割合。
 
-2 次曲線領域 (2nd order region) が前後と滑らかにつながることを確認します。まず $L = h - a_1 = a_2 - h$ と置きます。つまり 2 次曲線領域は入力に対して $2L$ 、出力に対して $L$ の幅を持っています。
+2 次曲線領域 (2nd order region) の両端の傾きが、前後の領域の傾きと一致することを確認します。まず $L = h - a_1 = a_2 - h$ と置きます。このとき 2 次曲線領域は入力に対して $a_1 \text{--} a_2$ 間で $2L$ 、出力に対して $a_1 \text{--} h$ 間で $L$ の幅を持っています。
 
-$\xi = a_2 - |x|$ とすると、曲線 $S$ の 2 次曲線領域の式 $S_2$ は以下のように書き換えられます。
+$\xi = a_2 - |x|$ とすると、曲線 $S$ の 2 次曲線領域の式 $S_2$ は以下のように変形できます。
 
 $$
 S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
@@ -348,7 +354,7 @@ $$
 - $|x| = a_1$ のとき $\xi = a_2 - a_1 = 2L$ なので、傾きは $-\mathrm{sgn}(x)$ 。
 - $|x| = a_2$ のとき $\xi = 0$ なので、傾きは 0 。
 
-$-\mathrm{sgn}(x)$ は $x$ の符号が - のときに 1 、 + のときに -1 になります。上の曲線の図で言うと $x$ が負のときは左から右、 $x$ が正のときは右から左に向かって $\xi$ が増えるので線形領域と傾きが一致します。
+$-\mathrm{sgn}(x)$ は $x$ の符号が - のときに 1 、 + のときに -1 になります。下の図で言うと $x$ が負のときは左から右、 $x$ が正のときは右から左に向かって $\xi$ が増えるので線形領域と傾きが一致します。
 
 <figure>
 <img src="img/softclip_smoothness.svg" alt="Image of soft-clipping curve with the direction of ξ depending on the sign of x." style="padding-bottom: 12px;"/>
@@ -380,11 +386,6 @@ Sample process(const Sample input)
 ```
 
 ## その他
-### Lookahead Limiter の記事の訳
-musicdsp.org の Lookahead Limiter の記事の訳を別ページに掲載しています。
-
-- [Lookahead Limiter の記事の訳を読む (github.io)](./musicdsp_lookahead_limiter.html)
-
 ### 継時マスキング
 [継時マスキング](https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0) ([temporal masking](https://en.wikipedia.org/wiki/Auditory_masking#Temporal_masking)) は、突然大きな音がしたときは前後にある小さな音が聞こえにくくなるという人間の聴覚の性質です。リミッタはピークの前後をエンベロープで歪ませて振幅を制限します。ピークの前後は継時マスキングによってもともと聞こえていないので、歪ませても違和感が少ないと考えることができます。
 
@@ -395,15 +396,18 @@ musicdsp.org の Lookahead Limiter の記事の訳を別ページに掲載して
 
 - [Dynamic range limiter - MATLAB](https://www.mathworks.com/help/audio/ref/limiter-system-object.html)
 
-実装して試してみたのですが入力信号によっては振幅がしきい値を超えるケースがありました。フィルタ出力がピーク振幅に到達するまでピークホールドを行っておらず、また入力にディレイをかけてピークを合わせてもいません。スムーシングには 1 次ローパス (exponential moving average フィルタ) が使われています。
-
-多少なら振幅の制限に失敗しても問題が無いときは使えるかもしれません。
+実装して試してみたのですが入力信号によっては振幅がしきい値を超えるケースがありました。フィルタ出力がピーク振幅に到達するまでピークホールドを行っておらず、また入力にディレイをかけてピークを合わせてもいません。スムーシングには 1 次ローパス (exponential moving average フィルタ) が使われています。 1 次ローパスの出力は指数曲線を描くので、振幅を確実に制限するときには使えないです。
 
 ## 参考文献
 - [Lookahead Limiter — Musicdsp.org documentation](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html)
-- [how to make a DIGITAL LIMITER](http://iem.at/~zmoelnig/publications/limiter/)
 - [Dynamic range limiter - MATLAB](https://www.mathworks.com/help/audio/ref/limiter-system-object.html)
+- [how to make a DIGITAL LIMITER](http://iem.at/~zmoelnig/publications/limiter/)
 
 ## 参考にしたプラグイン
 - [yohng.com · W1 Limiter](http://www.yohng.com/software/w1limit.html)
 - [Fruity Limiter - Effect Plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm)
+
+## 変更点
+- 2021/01/09
+  - Lookahead Limiter の記事の訳へのリンクを文脈に沿った位置に変更。
+  - 文章の整理。

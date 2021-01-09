@@ -356,6 +356,7 @@ Update: 2021-01-06
 <li><a href="#その他">その他</a><ul>
 <li><a href="#後ろ向きホールド">後ろ向きホールド</a></li>
 </ul></li>
+<li><a href="#変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -363,12 +364,13 @@ Update: 2021-01-06
 </header>
 <h1 id="ピークホールドによるエンベロープ">ピークホールドによるエンベロープ</h1>
 <p>音のリミッタで使うために、ピークホールドを使ったエンベロープの検出を実装します。</p>
+<p>ある信号の絶対値をなだらかに包み込むような信号のことを、その信号のエンベロープと言います。しきい値やニーなどの特性を加えたエンベロープの逆数を入力信号に掛け合わせることで音量を制限するリミッタが作れます。</p>
 <h2 id="前向きホールド">前向きホールド</h2>
 <p>入力信号の絶対値を計算します。</p>
 <figure>
 <img src="img/input_signal.svg" alt="Plot of input signal and its absolute value." style="padding-bottom: 12px;"/>
 </figure>
-<p>絶対値を前から順に読み取って、そのときまでの最大値を出力します。これがもっとも単純な前向きホールドです。</p>
+<p>絶対値を前から順に読み取って、そのときまでの最大値を出力します。これが単純な前向きホールドです。</p>
 <figure>
 <img src="img/simple_forward_peak_hold.svg" alt="Plot of simple forward peak hold." style="padding-bottom: 12px;"/>
 </figure>
@@ -414,9 +416,8 @@ Update: 2021-01-06
 <span id="cb1-31"><a href="#cb1-31"></a>plt.plot(holdF, label<span class="op">=</span><span class="st">&quot;Forward Hold&quot;</span>)</span>
 <span id="cb1-32"><a href="#cb1-32"></a>plt.show()</span></code></pre></div>
 <h2 id="スムーシング">スムーシング</h2>
-<p>ある信号の絶対値をなだらかに包み込むような信号のことを、その信号のエンベロープと言います。しきい値やニーなどの特性を加えたエンベロープの逆数を入力信号に掛け合わせることで音量を制限するリミッタが作れます。</p>
-<p>前向きホールドによるエンベロープをそのまま使うとホールド値を忘れるときにポップノイズが出てしまうので、フィルタを使ってスムーシングします。ここで使うフィルタは、一定時間同じ値が入力されると、その値に到達することが保証されているものとします。移動平均フィルタの重ね掛けや、 Bessel フィルタはこのような設計ができます。リミッタ向きのフィルタについては<a href="../s_curve_step_response_filter/s_curve_step_response_filter.html">「ステップ応答が S 字を描くフィルタ」</a>にまとめています。</p>
-<p>以降では、以下のコードで設計した三角窓の FIR フィルタを使います。</p>
+<p>前向きホールドによるエンベロープをそのまま使うとホールド値を忘れるときにポップノイズが出てしまうので、フィルタを使ってスムーシングします。ここで使うフィルタは一定時間同じ値が入力されると、その値に到達することが保証されているものとします。移動平均フィルタの重ね掛けや、 Bessel フィルタはこのような設計ができます。リミッタ向きのフィルタについては<a href="../s_curve_step_response_filter/s_curve_step_response_filter.html">「ステップ応答が S 字を描くフィルタ」</a>にまとめています。</p>
+<p>以降では以下のコードで設計した三角窓の FIR フィルタを使います。</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> makeTriangleFir(delay):</span>
 <span id="cb2-2"><a href="#cb2-2"></a>    <span class="co">&quot;&quot;&quot;delay は 2 より大きい整数。&quot;&quot;&quot;</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a>    fir <span class="op">=</span> np.interp(</span>
@@ -425,11 +426,11 @@ Update: 2021-01-06
 <span id="cb2-6"><a href="#cb2-6"></a>        [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>],</span>
 <span id="cb2-7"><a href="#cb2-7"></a>    )</span>
 <span id="cb2-8"><a href="#cb2-8"></a>    <span class="cf">return</span> fir <span class="op">/</span> np.<span class="bu">sum</span>(fir)</span></code></pre></div>
-<p>前向きホールドの出力にフィルタをかけると立ち上がりと立ち下りが鈍るので、入力信号との間でピークの位置がずれます。以降ではホールドの出力にフィルタをかけた信号をエンベロープと呼びます。</p>
+<p>前向きホールドによるエンベロープにフィルタをかけると立ち上がりと立ち下りが鈍るので、入力信号との間でピークの位置がずれます。</p>
 <figure>
 <img src="img/smoothed_hold.svg" alt="Plot of smoothed hold." style="padding-bottom: 12px;"/>
 </figure>
-<p>そこで入力信号にディレイをかけてエンベロープとピークの位置をあわせます。実装によりますが、リミッタのレイテンシはこのディレイから来ています。</p>
+<p>ずれを直すため入力信号にディレイをかけてエンベロープとピークの位置をあわせます。実装によりますが、リミッタのレイテンシはこのディレイから来ています。</p>
 <figure>
 <img src="img/smoothed_hold_and_delayed_signal_arrow.svg" alt="Plot of smoothed hold and delayed signal." style="padding-bottom: 12px;"/>
 </figure>
@@ -518,7 +519,7 @@ Update: 2021-01-06
 <span id="cb4-31"><a href="#cb4-31"></a>        out[i] <span class="op">=</span> hold[<span class="dv">0</span>] <span class="cf">if</span> <span class="bu">len</span>(hold) <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span> <span class="co"># 手順 5</span></span>
 <span id="cb4-32"><a href="#cb4-32"></a></span>
 <span id="cb4-33"><a href="#cb4-33"></a>    <span class="cf">return</span> out</span></code></pre></div>
-<p>以下は理想的なホールドの出力です。高速な実装と理想的な実装の出力が一致しています。</p>
+<p>以下は理想的なホールドの出力です。高速な実装と素朴な実装の出力が一致しています。</p>
 <figure>
 <img src="img/ideal_hold.svg" alt="Plot of ideal hold envelope." style="padding-bottom: 12px;"/>
 </figure>
@@ -594,7 +595,7 @@ Update: 2021-01-06
 <span id="cb6-37"><a href="#cb6-37"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
 <span id="cb6-38"><a href="#cb6-38"></a>    testIdealHoldRandom()</span></code></pre></div>
 <p>フィルタの遅延はホールド時間以下の任意のサンプル数に設定できますが、値によっては誤差が増えます。上のコードでは誤差の上限を適当に <code>8 * np.finfo(np.float64).eps</code> としています。</p>
-<p>はみ出しを検知したときは <code>Test failed: ...</code> を出力します。シード値 0 から 1023 まで今回実装した理想的なホールドをテストしたところ、はみ出しは検知されませんでした。</p>
+<p>はみ出しを検知したときは <code>Test failed: ...</code> を出力します。シード値 0 から 1023 まで理想的なホールドをテストしたところ、はみ出しは検知されませんでした。</p>
 <h3 id="c-による実装">C++ による実装</h3>
 <p>以下のコードの <code>PeakHold</code> が理想的なホールドです。</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
@@ -784,7 +785,7 @@ H_I(x) = \max(H_F(x), H_B(x) z^{-d})
 <span id="cb8-12"><a href="#cb8-12"></a>            counter <span class="op">=</span> holdtime</span>
 <span id="cb8-13"><a href="#cb8-13"></a>        out[i] <span class="op">=</span> hold</span>
 <span id="cb8-14"><a href="#cb8-14"></a>    <span class="cf">return</span> out</span></code></pre></div>
-<p>以下は前向きと後ろ向きホールドを組み合わせても理想的なホールドの生成に失敗するケースです。黒い縦線が入力、青い縦線がディレイをかけた入力です。</p>
+<p>以下は前向きと後ろ向きホールドを組み合わせても理想的なホールドの生成に失敗するケースです。黒い縦線が入力、青い縦の点線がディレイをかけた入力です。赤の実線が前向きホールドの出力、緑の実線が後ろ向きホールドの出力です。</p>
 <figure>
 <img src="img/backward_hold_fail.svg" alt="Example plots of a case that backward hold fails to make correct envelope." style="padding-bottom: 12px;"/>
 </figure>
@@ -793,6 +794,13 @@ H_I(x) = \max(H_F(x), H_B(x) z^{-d})
 <li>b は a のホールド時間内に現れる。</li>
 <li>c は b のホールド時間内に現れる。</li>
 <li>a &gt; b かつ c &gt; b 。</li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2021/01/09
+<ul>
+<li>文章の整理。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
