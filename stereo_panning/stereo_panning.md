@@ -23,10 +23,10 @@ y_R &= R \cdot x\\
 \end{aligned}
 $$
 
-また $L^2 + R^2$ で計算できる音のパワーがあります。パワーは、スピーカから人間の耳に至るまでの反響や位相のずれなどを加味した、大まかな音量を表しています。
+$L^2 + R^2$ で音のパワーを計算できます。パワーは、スピーカから人間の耳に至るまでの反響や位相のずれなどを加味した、大まかな音量を表しています。
 
 ### 線形パンニング
-線形パンニングは $p$ の値をそのまま使って直線的にゲインを変えるパンニングです。利点はパンを振った後でも左右のチャンネルを足し合わせると元のモノラル信号に戻ることです。欠点は中央にパンを振った音が左右の音より小さく聞こえることです。
+線形パンニングは $p$ の値をそのまま使って直線的にゲインを変えるパンニングです。利点はパンを振った後でも左右のチャンネルを足し合わせると元のモノラル信号に戻ることです。欠点は中央にパンを振ると左右にパンを振ったときよりも音が小さく聞こえることです。
 
 線形パンニングの計算式です。
 
@@ -44,7 +44,7 @@ def panMonoLinear(pan):
     return (1 - pan, pan)
 ```
 
-以下の図は線形パンニングのゲイン特性のプロットです。左から順に各チャンネルのゲイン、左右を足し合わせたときのゲイン、パワーを表しています。パンが 0.5 のときパワーが下がっていることが確認できます。
+以下の図は線形パンニングのゲイン特性のプロットです。左から順に各チャンネルのゲイン、左右を足し合わせたときのゲイン、パワーを表しています。パンが 0.5 のときパワーが下がっているので再生環境によっては音が小さくなることが確認できます。
 
 <figure>
 <img src="img/panMonoLinear.svg" alt="Plot of linear panning gain curve." style="padding-bottom: 12px;"/>
@@ -120,8 +120,8 @@ def panMonoIntermediatePower(pan):
 
 - $G_{LL}$: 左 → 左のゲイン
 - $G_{LR}$: 左 → 右のゲイン
-- $G_{RR}$: 右 → 左のゲイン
-- $G_{RL}$: 右 → 右のゲイン
+- $G_{RL}$: 右 → 左のゲイン
+- $G_{RR}$: 右 → 右のゲイン
 
 入力信号を $x$ 、出力信号を $y$ とします。チャンネルは下付き文字で $x_L$ や $y_R$ のように表すことにします。このとき出力信号は以下の式で計算できます。中点 $\cdot$ は乗算を表しています。
 
@@ -132,7 +132,7 @@ y_R &= R \cdot (G_{LR} \cdot x_L + G_{RR} \cdot x_R)\\
 \end{aligned}
 $$
 
-ここで $L, R$ をかける前のゲインの和が 1 になるようにします。これは左右で同じ信号が入力されたときにモノラル → ステレオパンニングと同じ振る舞いをさせたいからです。
+左右で同じ信号が入力されたときにモノラル → ステレオパンニングと同じ振る舞いをさせたいので、 $L, R$ をかける前のゲインの和が 1 になるようにします。
 
 $$
 \begin{aligned}
@@ -141,7 +141,7 @@ G_{LR} + G_{RR} &= 1\\
 \end{aligned}
 $$
 
-左右で同じ信号 $x$ が入力されたとき、出力信号の式を以下のように変形できます。
+すると左右で同じ信号 $x$ が入力されたとき、出力信号の式を以下のように変形できます。
 
 $$
 \begin{aligned}
@@ -150,7 +150,7 @@ y_R = R \cdot x\\
 \end{aligned}
 $$
 
-モノラル → ステレオパンニングの計算と同じ式になりました。ゲイン $L, R$ はモノラル → ステレオパンニングの式がそのまま使えます。
+モノラル → ステレオパンニングの計算式と同じになっています。ゲイン $L, R$ はモノラル → ステレオパンニングの式がそのまま使えます。
 
 ### 直線的なフェード
 ステレオ → ステレオパンニングで導入された 4 つのゲイン $G_{LL}, G_{LR}, G_{RR}, G_{RL}$ をどう決めればいいのか見ていきます。
@@ -260,7 +260,7 @@ sigR = gainR * (LR * source[0] + RR * source[1])
 <img src="img/stereo_panning_partial_2nd_order_diff1.svg" alt="Plot of differentiation of G_LL respect to p." style="padding-bottom: 12px;"/>
 </figure>
 
-$\dfrac{dG_{LL}}{dp}$ の図の斜線の領域の面積は 0.5 です。これは横軸 $p$ の 0 から 0.5 の区間での $G_{LL}$ の増分です。ここで台形の面積の式から以下の等式が立ちます。
+$\dfrac{dG_{LL}}{dp}$ の図の斜線の領域の面積は 0.5 です。これは横軸 $p$ の 0 から 0.5 の区間での $G_{LL}$ の増分です。台形の面積の式から以下の等式が立ちます。
 
 $$
 \frac{(a + 0.5)}{2} h = 0.5
@@ -615,6 +615,7 @@ def panStereoSoftplus(pan, param=0.5):
 <img src="img/panStereoSoftplus.svg" alt="Plot of leaky curve using softplus function for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
 
+- [Rectifier (neural networks) - Wikipedia](https://en.wikipedia.org/wiki/Rectifier_(neural_networks)#Softplus)
 
 ### 波打つフェード (Sinc)
 $G_{LL}$ の式を立てます。
@@ -649,6 +650,8 @@ def panStereoSinc(pan, param=0.5):
 <figure>
 <img src="img/panStereoSinc.svg" alt="Plot of bouncing curve using sinc function for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
+
+- [Sinc function - Wikipedia](https://en.wikipedia.org/wiki/Sinc_function)
 
 ## 音のサンプル
 データ量を減らすため圧縮に [opus](https://opus-codec.org/) を使っています。
@@ -870,3 +873,9 @@ def panStereoSinc(pan, param=0.5):
 
 ## 参考文献
 - [Loudness Concepts & Panning Laws](http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/)
+
+## 変更点
+- 2021/01/13
+  - 記号の間違いを修正。
+  - 文章の整理。
+  - Softplus と sinc 関数のリンクを追加

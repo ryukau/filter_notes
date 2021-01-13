@@ -369,6 +369,7 @@ Update: 2021-01-11
 </ul></li>
 </ul></li>
 <li><a href="#参考文献">参考文献</a></li>
+<li><a href="#変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -394,9 +395,9 @@ y_L &amp;= L \cdot x\\
 y_R &amp;= R \cdot x\\
 \end{aligned}
 \]</span></p>
-<p>また <span class="math inline">\(L^2 + R^2\)</span> で計算できる音のパワーがあります。パワーは、スピーカから人間の耳に至るまでの反響や位相のずれなどを加味した、大まかな音量を表しています。</p>
+<p><span class="math inline">\(L^2 + R^2\)</span> で音のパワーを計算できます。パワーは、スピーカから人間の耳に至るまでの反響や位相のずれなどを加味した、大まかな音量を表しています。</p>
 <h3 id="線形パンニング">線形パンニング</h3>
-<p>線形パンニングは <span class="math inline">\(p\)</span> の値をそのまま使って直線的にゲインを変えるパンニングです。利点はパンを振った後でも左右のチャンネルを足し合わせると元のモノラル信号に戻ることです。欠点は中央にパンを振った音が左右の音より小さく聞こえることです。</p>
+<p>線形パンニングは <span class="math inline">\(p\)</span> の値をそのまま使って直線的にゲインを変えるパンニングです。利点はパンを振った後でも左右のチャンネルを足し合わせると元のモノラル信号に戻ることです。欠点は中央にパンを振ると左右にパンを振ったときよりも音が小さく聞こえることです。</p>
 <p>線形パンニングの計算式です。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -407,7 +408,7 @@ R &amp;= p
 <p>コードにします。 <code>pan == 0.0</code> で左いっぱい、 <code>pan == 0.5</code> でセンター、 <code>pan == 1.0</code> で右いっぱいです。戻り値は <code>(左チャンネルのゲイン, 右チャンネルのゲイン)</code> となっています。</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">def</span> panMonoLinear(pan):</span>
 <span id="cb1-2"><a href="#cb1-2"></a>    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">-</span> pan, pan)</span></code></pre></div>
-<p>以下の図は線形パンニングのゲイン特性のプロットです。左から順に各チャンネルのゲイン、左右を足し合わせたときのゲイン、パワーを表しています。パンが 0.5 のときパワーが下がっていることが確認できます。</p>
+<p>以下の図は線形パンニングのゲイン特性のプロットです。左から順に各チャンネルのゲイン、左右を足し合わせたときのゲイン、パワーを表しています。パンが 0.5 のときパワーが下がっているので再生環境によっては音が小さくなることが確認できます。</p>
 <figure>
 <img src="img/panMonoLinear.svg" alt="Plot of linear panning gain curve." style="padding-bottom: 12px;"/>
 </figure>
@@ -460,8 +461,8 @@ R &amp;= \sqrt{p \sin(\theta)}
 <ul>
 <li><span class="math inline">\(G_{LL}\)</span>: 左 → 左のゲイン</li>
 <li><span class="math inline">\(G_{LR}\)</span>: 左 → 右のゲイン</li>
-<li><span class="math inline">\(G_{RR}\)</span>: 右 → 左のゲイン</li>
-<li><span class="math inline">\(G_{RL}\)</span>: 右 → 右のゲイン</li>
+<li><span class="math inline">\(G_{RL}\)</span>: 右 → 左のゲイン</li>
+<li><span class="math inline">\(G_{RR}\)</span>: 右 → 右のゲイン</li>
 </ul>
 <p>入力信号を <span class="math inline">\(x\)</span> 、出力信号を <span class="math inline">\(y\)</span> とします。チャンネルは下付き文字で <span class="math inline">\(x_L\)</span> や <span class="math inline">\(y_R\)</span> のように表すことにします。このとき出力信号は以下の式で計算できます。中点 <span class="math inline">\(\cdot\)</span> は乗算を表しています。</p>
 <p><span class="math display">\[
@@ -470,21 +471,21 @@ y_L &amp;= L \cdot (G_{LL} \cdot x_L + G_{RL} \cdot x_R)\\
 y_R &amp;= R \cdot (G_{LR} \cdot x_L + G_{RR} \cdot x_R)\\
 \end{aligned}
 \]</span></p>
-<p>ここで <span class="math inline">\(L, R\)</span> をかける前のゲインの和が 1 になるようにします。これは左右で同じ信号が入力されたときにモノラル → ステレオパンニングと同じ振る舞いをさせたいからです。</p>
+<p>左右で同じ信号が入力されたときにモノラル → ステレオパンニングと同じ振る舞いをさせたいので、 <span class="math inline">\(L, R\)</span> をかける前のゲインの和が 1 になるようにします。</p>
 <p><span class="math display">\[
 \begin{aligned}
 G_{LL} + G_{RL} &amp;= 1\\
 G_{LR} + G_{RR} &amp;= 1\\
 \end{aligned}
 \]</span></p>
-<p>左右で同じ信号 <span class="math inline">\(x\)</span> が入力されたとき、出力信号の式を以下のように変形できます。</p>
+<p>すると左右で同じ信号 <span class="math inline">\(x\)</span> が入力されたとき、出力信号の式を以下のように変形できます。</p>
 <p><span class="math display">\[
 \begin{aligned}
 y_L = L \cdot x\\
 y_R = R \cdot x\\
 \end{aligned}
 \]</span></p>
-<p>モノラル → ステレオパンニングの計算と同じ式になりました。ゲイン <span class="math inline">\(L, R\)</span> はモノラル → ステレオパンニングの式がそのまま使えます。</p>
+<p>モノラル → ステレオパンニングの計算式と同じになっています。ゲイン <span class="math inline">\(L, R\)</span> はモノラル → ステレオパンニングの式がそのまま使えます。</p>
 <h3 id="直線的なフェード">直線的なフェード</h3>
 <p>ステレオ → ステレオパンニングで導入された 4 つのゲイン <span class="math inline">\(G_{LL}, G_{LR}, G_{RR}, G_{RL}\)</span> をどう決めればいいのか見ていきます。</p>
 <p>出力の計算式を再掲します。</p>
@@ -567,7 +568,7 @@ G_{LR} &amp;= 1 - G_{RR}\\
 <figure>
 <img src="img/stereo_panning_partial_2nd_order_diff1.svg" alt="Plot of differentiation of G_LL respect to p." style="padding-bottom: 12px;"/>
 </figure>
-<p><span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span> の図の斜線の領域の面積は 0.5 です。これは横軸 <span class="math inline">\(p\)</span> の 0 から 0.5 の区間での <span class="math inline">\(G_{LL}\)</span> の増分です。ここで台形の面積の式から以下の等式が立ちます。</p>
+<p><span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span> の図の斜線の領域の面積は 0.5 です。これは横軸 <span class="math inline">\(p\)</span> の 0 から 0.5 の区間での <span class="math inline">\(G_{LL}\)</span> の増分です。台形の面積の式から以下の等式が立ちます。</p>
 <p><span class="math display">\[
 \frac{(a + 0.5)}{2} h = 0.5
 \]</span></p>
@@ -838,6 +839,9 @@ v_{\max} &amp;= \mathrm{softplus}(0.5 k)\\
 <figure>
 <img src="img/panStereoSoftplus.svg" alt="Plot of leaky curve using softplus function for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Rectifier_(neural_networks)#Softplus">Rectifier (neural networks) - Wikipedia</a></li>
+</ul>
 <h3 id="波打つフェード-sinc">波打つフェード (Sinc)</h3>
 <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。</p>
 <p><span class="math display">\[
@@ -864,6 +868,9 @@ G_{LL}(p) = \begin{cases}
 <figure>
 <img src="img/panStereoSinc.svg" alt="Plot of bouncing curve using sinc function for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Sinc_function">Sinc function - Wikipedia</a></li>
+</ul>
 <h2 id="音のサンプル">音のサンプル</h2>
 <p>データ量を減らすため圧縮に <a href="https://opus-codec.org/">opus</a> を使っています。</p>
 <h3 id="モノラル-ステレオパンニング">モノラル → ステレオパンニング</h3>
@@ -1114,6 +1121,15 @@ S 字のフェード, n = 1
 <h2 id="参考文献">参考文献</h2>
 <ul>
 <li><a href="http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/">Loudness Concepts &amp; Panning Laws</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2021/01/13
+<ul>
+<li>記号の間違いを修正。</li>
+<li>文章の整理。</li>
+<li>Softplus と sinc 関数のリンクを追加</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
