@@ -1,5 +1,5 @@
 # リミッタの実装
-シンセサイザやエフェクタの部品として使えるような簡易なリミッタを作ります。ここで作るリミッタはどんな入力ががあっても、振幅を必ずしきい値以下に制限することを目的とします。
+シンセサイザやエフェクタの部品として使えるような簡易なリミッタを作ります。ここで作るリミッタはどんな入力があっても、振幅を必ずしきい値以下に制限することを目的とします。
 
 Waves の L1 が発表されてから [25 年以上経っている](https://en.wikipedia.org/wiki/Waves_Audio#History)ので既存の実装と解説が 1 つくらい見つかるだろうと思っていたのですが、 "dynamic range limiter algorithm" でグーグル検索しても 1 次ローパスを使った振幅を完全に制限できない実装ばかり出てきました。そこで既存のプラグインを調べていたところ、 FL 付属の [Fruity Limiter](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm) のマニュアルに [musicdsp.org](https://www.musicdsp.org/en/latest/index.html) へのクレジットがありました。この記事で紹介している実装は musicdsp.org の [Lookahead Limiter](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html) とほとんど同じです。ただし、ピークホールドについては Lookahead Limiter の記事には詳細が書いていなかったので[試行錯誤して作りました](../peak_hold_envelope/peak_hold_envelope.html)。
 
@@ -410,4 +410,6 @@ Sample process(const Sample input)
 ## 変更点
 - 2021/01/09
   - Lookahead Limiter の記事の訳へのリンクを文脈に沿った位置に変更。
+  - 文章の整理。
+- 2021/01/18
   - 文章の整理。

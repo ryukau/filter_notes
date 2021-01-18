@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2021-01-11" />
+<meta name="dcterms.date" content="2021-01-13" />
 <title>stereo_panning</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2021-01-11
+Update: 2021-01-13
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -460,8 +460,8 @@ R &amp;= \sqrt{p \sin(\theta)}
 <p>ステレオ → ステレオパンニングでは、モノラル → ステレオパンニングのゲイン <span class="math inline">\(L, R\)</span> に加えて、入力と出力のチャンネル数を掛け合わせた 4 つのゲインを計算します。それぞれのゲインに記号を割り当てます。</p>
 <ul>
 <li><span class="math inline">\(G_{LL}\)</span>: 左 → 左のゲイン</li>
-<li><span class="math inline">\(G_{LR}\)</span>: 左 → 右のゲイン</li>
 <li><span class="math inline">\(G_{RL}\)</span>: 右 → 左のゲイン</li>
+<li><span class="math inline">\(G_{LR}\)</span>: 左 → 右のゲイン</li>
 <li><span class="math inline">\(G_{RR}\)</span>: 右 → 右のゲイン</li>
 </ul>
 <p>入力信号を <span class="math inline">\(x\)</span> 、出力信号を <span class="math inline">\(y\)</span> とします。チャンネルは下付き文字で <span class="math inline">\(x_L\)</span> や <span class="math inline">\(y_R\)</span> のように表すことにします。このとき出力信号は以下の式で計算できます。中点 <span class="math inline">\(\cdot\)</span> は乗算を表しています。</p>
@@ -505,12 +505,16 @@ G_{LR} &amp;= 1 - G_{RR}\\
 \end{aligned}
 \]</span></p>
 <p>つまり <span class="math inline">\(G_{LL}\)</span> と <span class="math inline">\(G_{RR}\)</span> のゲインだけを決めればいいわけです。</p>
-<p>また、パンの位置 <span class="math inline">\(p\)</span> によって以下の条件をつけます。</p>
+<p>また、パンの位置 <span class="math inline">\(p\)</span> によって <span class="math inline">\(G_{LL}\)</span> に以下の条件をつけます。</p>
 <ul>
-<li>パンが中央のとき (<span class="math inline">\(p = 0.5\)</span>) 、入力をバイパスしたいので <span class="math inline">\(G_{LL}\)</span> と <span class="math inline">\(G_{RR}\)</span> は 1 。</li>
-<li>パンが左に振れているとき (<span class="math inline">\(p &lt; 0.5\)</span>) 、右出力 <span class="math inline">\(y_R\)</span> に左入力 <span class="math inline">\(x_L\)</span> を混ぜたくないので、 <span class="math inline">\(G_{RR}\)</span> は 1 。</li>
+<li>パンが中央のとき (<span class="math inline">\(p = 0.5\)</span>) 、入力をバイパスしたいので <span class="math inline">\(G_{LL}\)</span> は 1 。</li>
 <li>パンが右に振れているとき (<span class="math inline">\(p &gt; 0.5\)</span>) 、左出力 <span class="math inline">\(y_L\)</span> に右入力 <span class="math inline">\(x_R\)</span> を混ぜたくないので、 <span class="math inline">\(G_{LL}\)</span> は 1 。</li>
 <li>パンが左いっぱいに振れたとき (<span class="math inline">\(p = 0\)</span>) 、左出力 <span class="math inline">\(y_L\)</span> で左右の入力を均等に混ぜたいので、 <span class="math inline">\(G_{LL}\)</span> は 0.5 。</li>
+</ul>
+<p>同様に <span class="math inline">\(G_{RR}\)</span> に以下の条件をつけます。</p>
+<ul>
+<li>パンが中央のとき (<span class="math inline">\(p = 0.5\)</span>) 、入力をバイパスしたいので <span class="math inline">\(G_{RR}\)</span> は 1 。</li>
+<li>パンが左に振れているとき (<span class="math inline">\(p &lt; 0.5\)</span>) 、右出力 <span class="math inline">\(y_R\)</span> に左入力 <span class="math inline">\(x_L\)</span> を混ぜたくないので、 <span class="math inline">\(G_{RR}\)</span> は 1 。</li>
 <li>パンが右いっぱいに振れたとき (<span class="math inline">\(p = 1\)</span>) 、右出力 <span class="math inline">\(y_R\)</span> で左右の入力を均等に混ぜたいので、 <span class="math inline">\(G_{RR}\)</span> は 0.5 。</li>
 </ul>
 <p>上の条件を直線でつなぐと直線的なフェードになります。以下は直線的なフェードの図です。</p>
@@ -1129,6 +1133,10 @@ S 字のフェード, n = 1
 <li>記号の間違いを修正。</li>
 <li>文章の整理。</li>
 <li>Softplus と sinc 関数のリンクを追加</li>
+</ul></li>
+<li>2021/01/18
+<ul>
+<li>文章の整理。</li>
 </ul></li>
 </ul>
 <footer>

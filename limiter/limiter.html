@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2021-01-08" />
+<meta name="dcterms.date" content="2021-01-09" />
 <title>limiter</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2021-01-08
+Update: 2021-01-09
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -369,7 +369,7 @@ Update: 2021-01-08
 </details>
 </header>
 <h1 id="リミッタの実装">リミッタの実装</h1>
-<p>シンセサイザやエフェクタの部品として使えるような簡易なリミッタを作ります。ここで作るリミッタはどんな入力ががあっても、振幅を必ずしきい値以下に制限することを目的とします。</p>
+<p>シンセサイザやエフェクタの部品として使えるような簡易なリミッタを作ります。ここで作るリミッタはどんな入力があっても、振幅を必ずしきい値以下に制限することを目的とします。</p>
 <p>Waves の L1 が発表されてから <a href="https://en.wikipedia.org/wiki/Waves_Audio#History">25 年以上経っている</a>ので既存の実装と解説が 1 つくらい見つかるだろうと思っていたのですが、 “dynamic range limiter algorithm” でグーグル検索しても 1 次ローパスを使った振幅を完全に制限できない実装ばかり出てきました。そこで既存のプラグインを調べていたところ、 FL 付属の <a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm">Fruity Limiter</a> のマニュアルに <a href="https://www.musicdsp.org/en/latest/index.html">musicdsp.org</a> へのクレジットがありました。この記事で紹介している実装は musicdsp.org の <a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead Limiter</a> とほとんど同じです。ただし、ピークホールドについては Lookahead Limiter の記事には詳細が書いていなかったので<a href="../peak_hold_envelope/peak_hold_envelope.html">試行錯誤して作りました</a>。</p>
 <p>Lookahead Limiter の記事の訳を別ページに掲載しています。</p>
 <ul>
@@ -716,6 +716,10 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 <li>2021/01/09
 <ul>
 <li>Lookahead Limiter の記事の訳へのリンクを文脈に沿った位置に変更。</li>
+<li>文章の整理。</li>
+</ul></li>
+<li>2021/01/18
+<ul>
 <li>文章の整理。</li>
 </ul></li>
 </ul>
