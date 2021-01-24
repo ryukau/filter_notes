@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2021-01-24" />
+<title>wavetable_pitchbend</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
+crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+onload="renderMathInElement(document.body);"></script>
+
+<style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+font-family: inherit;
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 4px;
+margin: 2px;
+line-height: calc(1em + 16px);
+}
+
+a {
+text-decoration: none;
+}
+
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
+padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
+}
+
+tr:nth-child(odd) {
+background: #eeeeee;
+}
+
+tr:nth-child(even) {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+td {
+height: 1.5em;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
+}
+
+li {
+margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2021-01-24
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#ウェーブテーブルのピッチベンド">ウェーブテーブルのピッチベンド</a><ul>
+<li><a href="#ウェーブテーブルの帯域制限">ウェーブテーブルの帯域制限</a></li>
+<li><a href="#ピッチベンド">ピッチベンド</a><ul>
+<li><a href="#コード">コード</a></li>
+</ul></li>
+<li><a href="#設計のポイント">設計のポイント</a></li>
+<li><a href="#オーバーサンプリングを行う実装">オーバーサンプリングを行う実装</a><ul>
+<li><a href="#コード-1">コード</a></li>
+<li><a href="#出力の癖">出力の癖</a></li>
+</ul></li>
+<li><a href="#オーバーサンプリングを行わない実装">オーバーサンプリングを行わない実装</a><ul>
+<li><a href="#コード-2">コード</a></li>
+<li><a href="#出力の癖-1">出力の癖</a></li>
+<li><a href="#ミップマップを使う実装">ミップマップを使う実装</a></li>
+</ul></li>
+<li><a href="#音のサンプル">音のサンプル</a><ul>
+<li><a href="#オーバーサンプリングを行う実装のポップノイズ">オーバーサンプリングを行う実装のポップノイズ</a></li>
+</ul></li>
+<li><a href="#参考文献">参考文献</a></li>
+</ul></li>
+</ul>
+</nav>
+</details>
+</header>
+<h1 id="ウェーブテーブルのピッチベンド">ウェーブテーブルのピッチベンド</h1>
+<p><a href="http://yoshimi.sourceforge.net/">Yoshimi</a> の ADDSynth ではユーザが生成した波形を FFT して得られた周波数成分を内部的に保持しています。そして、この周波数成分をノートオンごとに帯域制限して IFFT することでエイリアシングを低減しています。 ADDSynth の方法はノートの音程が一定ならエイリアシングノイズを消せますが、ピッチベンドがかかると高次の倍音の欠落あるいはエイリアシングノイズが出ます。ここではピッチベンドをかけても倍音の欠落やエイリアシングノイズが出ない方法を調べます。</p>
+<p>ここで紹介するテクニックは Laurent de Soras さんによる <a href="http://ldesoras.free.fr/doc/articles/resampler-en.pdf">The Quest For The Perfect Resampler</a> の内容を基にしています。</p>
+<p>文中のコードは Python3 です。実行には <a href="https://www.scipy.org/">SciPy</a>, <a href="https://numpy.org/">NumPy</a> が必要です。</p>
+<h2 id="ウェーブテーブルの帯域制限">ウェーブテーブルの帯域制限</h2>
+<p>帯域制限の方法の要旨を再掲します。詳細は「<a href="../wavetable/wavetable.html">ウェーブテーブルのエイリアシングの低減</a>」 にまとめています。</p>
+<p>まず、波形の周波数成分を用意します。ユーザに直接入力させる方法と、ユーザが指定した波形を FFT する方法があります。</p>
+<p>サンプリング周波数を <span class="math inline">\(f_s\)</span>​ 、合成する音の周波数 (基本周波数) を <span class="math inline">\(f_0\)</span> とすると、ナイキスト周波数を超えない最大の倍音の次数は <span class="math inline">\(\displaystyle N_h = \left\lfloor \frac{f_s}{2 f_0} \right\rfloor\)</span> です。よって <span class="math inline">\(N_h + 1\)</span> より高い周波数成分の値を 0 にしてから IFFT によってウェーブテーブルを生成することで帯域制限できます。</p>
+<p>逆に言えば、周波数成分を帯域制限せずに生成したウェーブテーブルの長さが <span class="math inline">\(N\)</span> のとき、再生時の周波数が <span class="math inline">\(f_0 = \dfrac{f_s}{2N}\)</span> までならエイリアシングが起こりません。 <span class="math inline">\(N_h\)</span> は 0 以上の整数なので計算に床関数が必要ですが、 <span class="math inline">\(f_0\)</span> は実数なので床関数がなくなっています。</p>
+<h2 id="ピッチベンド">ピッチベンド</h2>
+<p>例を作ってピッチベンドの挙動を見ていきます。サンプリング周波数 <span class="math inline">\(f_s = 48000\,\text{[Hz]}\)</span> 、基本周波数 <span class="math inline">\(f_0 = 880\,\text{[Hz]}\)</span> として帯域制限したウェーブテーブルを生成します。</p>
+<figure>
+<img src="img/table.svg" alt="Plot of wavetable and its spectrum." style="padding-bottom: 12px;"/>
+</figure>
+<p>生成したウェーブテーブルを指定したピッチで再生します。</p>
+<p>以下はウェーブテーブルを一定の周波数 <span class="math inline">\(f_0\)</span> で再生したときのスペクトログラムです。明るい線がウェーブテーブルの倍音です。再生時の周波数が一定なので横一直線に伸びています。</p>
+<figure>
+<img src="img/ConstantPitch.png" alt="Plot of a spectrogram of wavetable oscillator with constant pitch." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下は基本周波数より高くなるようにウェーブテーブルオシレータを <span class="math inline">\(f_0\)</span> から <span class="math inline">\(2 f_0\)</span> までピッチベンドしたときのスペクトログラムです。明るい線が上端で跳ね返っているように見えるのがエイリアシングノイズです。</p>
+<figure>
+<img src="img/RisingPitch.png" alt="Plot of a spectrogram of wavetable oscillator with rising pitch." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下は基本周波数より低くなるようにウェーブテーブルオシレータを <span class="math inline">\(f_0\)</span> から <span class="math inline">\(0.5f_0\)</span> までピッチベンドしたときのスペクトログラムです。高次の倍音が欠けています。</p>
+<figure>
+<img src="img/FallingPitch.png" alt="Plot of a spectrogram of wavetable oscillator with falling pitch." style="padding-bottom: 12px;"/>
+</figure>
+<p>倍音の欠落とエイリアシングノイズの問題を解決するためにはオーバーサンプリングが使えます。オーバーサンプリングの倍率を <span class="math inline">\(L\)</span> とするとナイキスト周波数を超えない最大の倍音の次数は <span class="math inline">\(\displaystyle N_h = \left\lfloor \frac{f_s}{2 L f_0} \right\rfloor\)</span> です。例として 2 倍のオーバーサンプリングを行います。</p>
+<figure>
+<img src="img/table2x.svg" alt="Plot of 2 times oversampled wavetable and its spectrum." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下は基本周波数より高くなるようにウェーブテーブルオシレータを <span class="math inline">\(f_0\)</span> から <span class="math inline">\(2 f_0\)</span> までピッチベンドしたときのスペクトログラムです。オーバーサンプリングによってできたマージンがあるのでエイリアシングが出ていません。</p>
+<figure>
+<img src="img/RisingPitch2x.png" alt="Plot of a spectrogram of 2 times oversampled wavetable oscillator with rising pitch." style="padding-bottom: 12px;"/>
+</figure>
+<p>マージンに現れた成分はダウンサンプリング時にかけるローパスフィルタで低減できます。以下はローパスフィルタをかけた後の信号のスペクトログラムです。</p>
+<figure>
+<img src="img/FilteredRisingPitch2x.png" alt="Plot of a spectrogram of wavetable oscillator after passing down-sampling lowpass filter." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下はフィルタをかけた信号をデシメーションした後のスペクトログラムです。オーバーサンプリングなしで高いほうに向かってピッチベンドしたときと比べると、エイリアシングノイズが消えていることが確認できます。また、ダウンサンプリングのフィルタによって 20000 Hz 以上の成分が低減されているので、図の上部が真っ黒になっています。</p>
+<figure>
+<img src="img/FilteredRisingPitch2xDecimated.png" alt="Plot of a spectrogram of down-sampled wavetable oscillator output." style="padding-bottom: 12px;"/>
+</figure>
+<p>アップサンプリングの倍率を <span class="math inline">\(L\)</span> とするとエイリアシングノイズが出ないピッチベンドの範囲は <span class="math inline">\([f_0, L f_0)\)</span> です。ダウンサンプリングに使うローパスフィルタが理想的な特性ならピッチベンドの範囲の上限を <span class="math inline">\(\dfrac{3}{2} L f_0\)</span> まで広くできます。あとは必要な範囲に応じて複数のウェーブテーブルを用意して、入力されたピッチによって再生するウェーブテーブルを切り替えることで、ピッチベンドしてもエイリアシングノイズが出ないオシレータが作れます。</p>
+<p>基本周波数より低くなるようにピッチベンドするとオーバーサンプリングの有無にかかわらず倍音の欠落が防げません。よって切り替えを行うときには、基本周波数が入力された周波数 <span class="math inline">\(f\)</span> 以下のウェーブテーブルの中から、基本周波数が <span class="math inline">\(f\)</span> に最も近いものを選びます。</p>
+<h3 id="コード">コード</h3>
+<p>ここまで掲載した図の作成に使ったウェーブテーブルの生成とピッチベンドのテストコードです。 <code>table</code> がウェーブテーブルです。プロットの部分は省略しています。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">def</span> saw_spectrum(size):</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    spec <span class="op">=</span> [<span class="dv">0</span>] <span class="op">+</span> [(<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">/</span> k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">int</span>(size <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span>))]</span>
+<span id="cb1-6"><a href="#cb1-6"></a>    spec <span class="op">=</span> <span class="op">-</span>1j <span class="op">*</span> size <span class="op">/</span> np.pi <span class="op">*</span> np.array(spec)</span>
+<span id="cb1-7"><a href="#cb1-7"></a>    <span class="cf">return</span> spec</span>
+<span id="cb1-8"><a href="#cb1-8"></a></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="kw">def</span> renderTable(table, freqStart, freqEnd, fs):</span>
+<span id="cb1-10"><a href="#cb1-10"></a>    phase <span class="op">=</span> np.linspace(freqStart <span class="op">/</span> fs, freqEnd <span class="op">/</span> fs, fs).cumsum() <span class="op">%</span> <span class="fl">1.0</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a>    x <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="bu">len</span>(table))</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    <span class="cf">return</span> np.interp(phase, x, table, period<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb1-13"><a href="#cb1-13"></a></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="kw">def</span> testNaiveTable(fs<span class="op">=</span><span class="dv">48000</span>, f0<span class="op">=</span><span class="dv">880</span>, size<span class="op">=</span><span class="dv">8192</span>):</span>
+<span id="cb1-15"><a href="#cb1-15"></a>    <span class="co">&quot;&quot;&quot;オーバーサンプリングなし。&quot;&quot;&quot;</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a>    source <span class="op">=</span> saw_spectrum(size)  <span class="co"># のこぎり波の周波数成分を生成。</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a></span>
+<span id="cb1-18"><a href="#cb1-18"></a>    spectrum <span class="op">=</span> source.copy()</span>
+<span id="cb1-19"><a href="#cb1-19"></a>    cutoff <span class="op">=</span> <span class="bu">int</span>(fs <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> f0))  <span class="co"># 数式の N_h に対応。</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a>    spectrum[cutoff:] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a>    table <span class="op">=</span> np.fft.irfft(spectrum)</span>
+<span id="cb1-22"><a href="#cb1-22"></a></span>
+<span id="cb1-23"><a href="#cb1-23"></a>    sigF0 <span class="op">=</span> renderTable(table, f0, f0, fs)          <span class="co"># ピッチ一定</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a>    sigUp <span class="op">=</span> renderTable(table, f0, <span class="dv">2</span> <span class="op">*</span> f0, fs)      <span class="co"># ピッチ上昇</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a>    sigDown <span class="op">=</span> renderTable(table, f0, <span class="fl">0.5</span> <span class="op">*</span> f0, fs)  <span class="co"># ピッチ下降</span></span>
+<span id="cb1-26"><a href="#cb1-26"></a></span>
+<span id="cb1-27"><a href="#cb1-27"></a>    <span class="co"># プロットは省略</span></span>
+<span id="cb1-28"><a href="#cb1-28"></a></span>
+<span id="cb1-29"><a href="#cb1-29"></a><span class="kw">def</span> test2xTable(fs<span class="op">=</span><span class="dv">48000</span>, f0<span class="op">=</span><span class="dv">880</span>, size<span class="op">=</span><span class="dv">8192</span>):</span>
+<span id="cb1-30"><a href="#cb1-30"></a>    <span class="co">&quot;&quot;&quot;2倍のオーバーサンプリング。&quot;&quot;&quot;</span></span>
+<span id="cb1-31"><a href="#cb1-31"></a>    oversample <span class="op">=</span> <span class="dv">2</span>  <span class="co"># 数式の L に対応。</span></span>
+<span id="cb1-32"><a href="#cb1-32"></a>    upRate <span class="op">=</span> oversample <span class="op">*</span> fs</span>
+<span id="cb1-33"><a href="#cb1-33"></a></span>
+<span id="cb1-34"><a href="#cb1-34"></a>    source <span class="op">=</span> saw_spectrum(size)</span>
+<span id="cb1-35"><a href="#cb1-35"></a></span>
+<span id="cb1-36"><a href="#cb1-36"></a>    spectrum <span class="op">=</span> source.copy()</span>
+<span id="cb1-37"><a href="#cb1-37"></a>    cutoff <span class="op">=</span> <span class="bu">int</span>(upRate <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> oversample <span class="op">*</span> f0))  <span class="co"># 数式の N_h に対応。</span></span>
+<span id="cb1-38"><a href="#cb1-38"></a>    spectrum[cutoff:] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-39"><a href="#cb1-39"></a>    table <span class="op">=</span> np.fft.irfft(spectrum)</span>
+<span id="cb1-40"><a href="#cb1-40"></a></span>
+<span id="cb1-41"><a href="#cb1-41"></a>    lowpass <span class="op">=</span> signal.ellip(<span class="dv">12</span>, <span class="fl">0.01</span>, <span class="dv">100</span>, <span class="fl">0.4</span>, <span class="st">&quot;low&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>, fs<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb1-42"><a href="#cb1-42"></a></span>
+<span id="cb1-43"><a href="#cb1-43"></a>    sigUp <span class="op">=</span> renderTable(table, f0, <span class="dv">2</span> <span class="op">*</span> f0, upRate)</span>
+<span id="cb1-44"><a href="#cb1-44"></a>    sigFiltered <span class="op">=</span> signal.sosfilt(lowpass, sigUp)</span>
+<span id="cb1-45"><a href="#cb1-45"></a>    sigDecimated <span class="op">=</span> sigFiltered[::<span class="dv">2</span>]</span>
+<span id="cb1-46"><a href="#cb1-46"></a></span>
+<span id="cb1-47"><a href="#cb1-47"></a>    <span class="co"># プロットは省略</span></span>
+<span id="cb1-48"><a href="#cb1-48"></a></span>
+<span id="cb1-49"><a href="#cb1-49"></a>testNaiveTable()</span>
+<span id="cb1-50"><a href="#cb1-50"></a>test2xTable()</span></code></pre></div>
+<h2 id="設計のポイント">設計のポイント</h2>
+<p>以下はウェーブテーブルオシレータの仕様を決める変数の一覧です。</p>
+<ul>
+<li>オーバーサンプリングの倍率</li>
+<li>1 つのウェーブテーブルのピッチベンドの範囲</li>
+<li>ウェーブテーブルの長さ</li>
+<li>倍音が欠落しない最低周波数</li>
+</ul>
+<p>まずオーバーサンプリングの倍率を決めます。すると 1 つのウェーブテーブルのピッチベンドの範囲も決まります。 FM などのモジュレーションのかかり方を細かくチューニングしたいときはオーバーサンプリングの倍率と 1 つのウェーブテーブルのピッチベンドの範囲を分けて決めることも考えられます。</p>
+<p>次にウェーブテーブルの長さ <span class="math inline">\(N\)</span> を決めます。するとオシレータ全体で倍音の欠落が起こらない最低周波数は <span class="math inline">\(f_s / N\)</span> となります。逆に最低周波数 <span class="math inline">\(f_L\)</span> から <span class="math inline">\(N\)</span> を決めたいときは以下の式が使えます。</p>
+<p><span class="math display">\[
+N = \frac{f_s}{f_L}
+\]</span></p>
+<p>最低周波数 <span class="math inline">\(f_L\)</span> は、ナイキスト周波数 <span class="math inline">\(f_s / 2\)</span> から 1 つのウェーブテーブルのピッチベンドの範囲を減算していくように決めると帯域制限の計算が簡単になります。例えば 1 つのウェーブテーブルのピッチベンドの範囲が 1 オクターブのときは、 <span class="math inline">\(N\)</span> を 2 のべき乗にして、波形の周波数成分の高いほうから全体の <span class="math inline">\(\dfrac{N}{2}, \dfrac{N}{4}, \dfrac{N}{8}, \dots\)</span> 個の要素を 0 埋めすることで帯域制限できます。</p>
+<p>以下は 1 オクターブ間隔で生成したウェーブテーブルと基本周波数、インデックスの対応表です。インデックスがそのまま基本周波数のオクターブ差になっています。表の半音 (semitone) は <span class="math inline">\(f_L\)</span> を 0 とした相対的な値です。</p>
+<figure>
+<img src="img/multi_wavetable.svg" alt="Image of ." style="padding-bottom: 12px;"/>
+</figure>
+<h2 id="オーバーサンプリングを行う実装">オーバーサンプリングを行う実装</h2>
+<p>オーバーサンプリングを行うウェーブテーブルオシレータのブロック線図です。</p>
+<figure>
+<img src="img/simple_wavetable_block_diagram.svg" alt="Block diagram of simple wavetable oscillator." style="padding-bottom: 12px;"/>
+</figure>
+<p>ピッチベンドの範囲は <span class="math inline">\([f_0, 2 f_0)\)</span> とします。こうすると事前に用意するウェーブテーブルが 1 オクターブ間隔になります。</p>
+<h3 id="コード-1">コード</h3>
+<p>以下は 2 倍のオーバーサンプリングを行うウェーブテーブルオシレータのコードです。波形はのこぎり波で固定しています。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">def</span> frequencyToMidinote(freq):</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="cf">return</span> <span class="dv">12</span> <span class="op">*</span> np.log2(freq <span class="op">/</span> <span class="dv">440</span>) <span class="op">+</span> <span class="dv">69</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="kw">def</span> midinoteToFrequency(note):</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    <span class="cf">return</span> <span class="dv">440</span> <span class="op">*</span> np.exp2((note <span class="op">-</span> <span class="dv">69</span>) <span class="op">/</span> <span class="dv">12</span>)</span>
+<span id="cb2-9"><a href="#cb2-9"></a></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="kw">def</span> saw_spectrum(size):</span>
+<span id="cb2-11"><a href="#cb2-11"></a>    spec <span class="op">=</span> [<span class="dv">0</span>] <span class="op">+</span> [(<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">/</span> k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">int</span>(size <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span>))]</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    spec <span class="op">=</span> <span class="op">-</span>1j <span class="op">*</span> size <span class="op">/</span> np.pi <span class="op">*</span> np.array(spec)</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    <span class="cf">return</span> spec</span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="kw">class</span> TableOsc:</span>
+<span id="cb2-16"><a href="#cb2-16"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, samplerate, oversample<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb2-17"><a href="#cb2-17"></a>        <span class="va">self</span>.fs <span class="op">=</span> oversample <span class="op">*</span> samplerate</span>
+<span id="cb2-18"><a href="#cb2-18"></a>        <span class="va">self</span>.phase <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a></span>
+<span id="cb2-20"><a href="#cb2-20"></a>        exponent <span class="op">=</span> <span class="bu">int</span>(np.log2(<span class="va">self</span>.fs <span class="op">/</span> <span class="dv">10</span>))  <span class="co"># 倍音が欠けない最低の周波数は 10 Hz.</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a>        size <span class="op">=</span> <span class="dv">2</span><span class="op">**</span>exponent</span>
+<span id="cb2-22"><a href="#cb2-22"></a>        spectrum <span class="op">=</span> saw_spectrum(size)</span>
+<span id="cb2-23"><a href="#cb2-23"></a></span>
+<span id="cb2-24"><a href="#cb2-24"></a>        <span class="va">self</span>.basefreq <span class="op">=</span> <span class="va">self</span>.fs <span class="op">/</span> size</span>
+<span id="cb2-25"><a href="#cb2-25"></a>        <span class="va">self</span>.basenote <span class="op">=</span> frequencyToMidinote(<span class="va">self</span>.basefreq)</span>
+<span id="cb2-26"><a href="#cb2-26"></a></span>
+<span id="cb2-27"><a href="#cb2-27"></a>        <span class="va">self</span>.table <span class="op">=</span> []</span>
+<span id="cb2-28"><a href="#cb2-28"></a>        <span class="cf">for</span> idx <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, exponent <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb2-29"><a href="#cb2-29"></a>            spec <span class="op">=</span> np.zeros_like(spectrum)</span>
+<span id="cb2-30"><a href="#cb2-30"></a>            cutoff <span class="op">=</span> <span class="bu">int</span>(size <span class="op">/</span> <span class="dv">2</span><span class="op">**</span>(idx))</span>
+<span id="cb2-31"><a href="#cb2-31"></a>            spec[:cutoff] <span class="op">=</span> spectrum[:cutoff]</span>
+<span id="cb2-32"><a href="#cb2-32"></a>            tbl <span class="op">=</span> np.fft.irfft(spec)</span>
+<span id="cb2-33"><a href="#cb2-33"></a>            tbl <span class="op">=</span> np.hstack((tbl, tbl[<span class="dv">0</span>]))</span>
+<span id="cb2-34"><a href="#cb2-34"></a>            <span class="va">self</span>.table.append(tbl)</span>
+<span id="cb2-35"><a href="#cb2-35"></a></span>
+<span id="cb2-36"><a href="#cb2-36"></a>    <span class="kw">def</span> process(<span class="va">self</span>, note):</span>
+<span id="cb2-37"><a href="#cb2-37"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-38"><a href="#cb2-38"></a><span class="co">        note は MIDI ノート番号。</span></span>
+<span id="cb2-39"><a href="#cb2-39"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb2-40"><a href="#cb2-40"></a>        <span class="va">self</span>.phase <span class="op">+=</span> midinoteToFrequency(note) <span class="op">/</span> <span class="va">self</span>.fs</span>
+<span id="cb2-41"><a href="#cb2-41"></a>        <span class="va">self</span>.phase <span class="op">-=</span> np.floor(<span class="va">self</span>.phase)</span>
+<span id="cb2-42"><a href="#cb2-42"></a></span>
+<span id="cb2-43"><a href="#cb2-43"></a>        octave <span class="op">=</span> <span class="bu">int</span>(np.clip((note <span class="op">-</span> <span class="va">self</span>.basenote) <span class="op">/</span> <span class="dv">12</span>, <span class="dv">0</span>, <span class="bu">len</span>(<span class="va">self</span>.table) <span class="op">-</span> <span class="dv">1</span>))</span>
+<span id="cb2-44"><a href="#cb2-44"></a>        pos <span class="op">=</span> (<span class="bu">len</span>(<span class="va">self</span>.table[<span class="dv">0</span>]) <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> <span class="va">self</span>.phase</span>
+<span id="cb2-45"><a href="#cb2-45"></a>        idx <span class="op">=</span> <span class="bu">int</span>(pos)</span>
+<span id="cb2-46"><a href="#cb2-46"></a>        frac <span class="op">=</span> pos <span class="op">-</span> idx</span>
+<span id="cb2-47"><a href="#cb2-47"></a></span>
+<span id="cb2-48"><a href="#cb2-48"></a>        x0 <span class="op">=</span> <span class="va">self</span>.table[octave][idx]</span>
+<span id="cb2-49"><a href="#cb2-49"></a>        x1 <span class="op">=</span> <span class="va">self</span>.table[octave][idx <span class="op">+</span> <span class="dv">1</span>]</span>
+<span id="cb2-50"><a href="#cb2-50"></a>        <span class="cf">return</span> x0 <span class="op">+</span> frac <span class="op">*</span> (x1 <span class="op">-</span> x0)</span>
+<span id="cb2-51"><a href="#cb2-51"></a></span>
+<span id="cb2-52"><a href="#cb2-52"></a>gain <span class="op">=</span> <span class="fl">0.25</span></span>
+<span id="cb2-53"><a href="#cb2-53"></a>samplerate <span class="op">=</span> <span class="dv">48000</span></span>
+<span id="cb2-54"><a href="#cb2-54"></a>lowpass <span class="op">=</span> signal.ellip(<span class="dv">12</span>, <span class="fl">0.01</span>, <span class="dv">100</span>, <span class="fl">0.4</span>, <span class="st">&quot;low&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>, fs<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb2-55"><a href="#cb2-55"></a></span>
+<span id="cb2-56"><a href="#cb2-56"></a>osc <span class="op">=</span> TableOsc(samplerate)</span>
+<span id="cb2-57"><a href="#cb2-57"></a></span>
+<span id="cb2-58"><a href="#cb2-58"></a>sig <span class="op">=</span> np.empty(<span class="dv">16</span> <span class="op">*</span> samplerate)</span>
+<span id="cb2-59"><a href="#cb2-59"></a>note <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">128</span>, <span class="bu">len</span>(sig) <span class="op">//</span> <span class="dv">2</span>)</span>
+<span id="cb2-60"><a href="#cb2-60"></a>note <span class="op">=</span> np.hstack((note, np.flip(note)))</span>
+<span id="cb2-61"><a href="#cb2-61"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sig)):</span>
+<span id="cb2-62"><a href="#cb2-62"></a>    sig[i] <span class="op">=</span> osc.process(note[i])</span>
+<span id="cb2-63"><a href="#cb2-63"></a>sig <span class="op">=</span> gain <span class="op">*</span> signal.sosfilt(lowpass, sig)[::<span class="dv">2</span>]</span></code></pre></div>
+<p><code>sig</code> がレンダリング結果です。</p>
+<p><code>frequencyToMidinote</code> と <code>midinoteToFrequency</code> は MIDI ノート番号と周波数を変換する関数です。以下のページに計算式が載っています。</p>
+<ul>
+<li><a href="http://newt.phys.unsw.edu.au/jw/notes.html">Note names, MIDI numbers and frequencies</a></li>
+</ul>
+<p><code>saw_spectrum</code> はのこぎり波のスペクトラムを生成する関数です。以下のリンク先の式を参考に、位相を 180° ずらしています。</p>
+<ul>
+<li><a href="https://mathworld.wolfram.com/FourierSeriesSawtoothWave.html">Fourier Series–Sawtooth Wave – from Wolfram MathWorld</a></li>
+</ul>
+<p><code>__init__</code> ではウェーブテーブルの長さが <span class="math inline">\(2^k\)</span> になるようにしています。 <span class="math inline">\(k\)</span> はコードの <code>exponent</code> と対応しています。</p>
+<p>ウェーブテーブルの補間には線形補間を使っています。インデックスの余り演算を避けるために <code>self.table</code> の先頭の値を最後尾に追加して、長さを <span class="math inline">\(2^k + 1\)</span> にしています。例えばウェーブテーブルの値が <code>[0, 1, 2]</code> のときは <code>[0, 1, 2, 0]</code> に変換されます。</p>
+<p>C++ による実装は別ページに掲載しています。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/cpp/bench/bench.cpp#L232">TableOsc の C++ 実装を読む (github.com)</a></li>
+</ul>
+<h3 id="出力の癖">出力の癖</h3>
+<p>以下の図は <code>TableOsc</code> の出力のスペクトログラムです。MIDI ノート番号で 0, 128, 0 とピッチベンドしています。</p>
+<figure>
+<img src="img/TableOsc.png" alt="Spectrogram of an output of 2 times oversampled wavetable oscillator." style="padding-bottom: 12px;"/>
+</figure>
+<p>エイリアシングは抑えられていますが、垂直な縦線が見えるのでポップノイズが出ています。このポップノイズはウェーブテーブルの切り替えによって発生しています。</p>
+<p>ポップノイズの低減方法としては以下の 2 つのアプローチがあります。</p>
+<ul>
+<li>オーバーサンプリングの倍率を上げる。</li>
+<li>ウェーブテーブルを周波数軸に沿った方向でも補間する。</li>
+</ul>
+<p>オーバーサンプリングを 8 倍まで上げるとポップノイズが聞こえなくなりました。</p>
+<p>ウェーブテーブルを周波数軸に沿った方向でも線形補間すると、 2 倍のオーバーサンプリングでもポップノイズが聞こえなくなります。この補間は位相と周波数の軸に沿った<a href="https://en.wikipedia.org/wiki/Bilinear_interpolation">バイリニア補間</a>です。ただし、周波数方向の補間によって、高次の倍音が弱まる区間が現れる欠点があります。以下は 2 倍のオーバーサンプリングで周波数方向の補間を追加したときのスペクトログラムです。図の上側の周期的に暗くなっているところで倍音が弱まっています。</p>
+<figure>
+<img src="img/TableOscBilinear.png" alt="Spectrogram of an output of bilinear interpolated wavetable oscillator." style="padding-bottom: 12px;"/>
+</figure>
+<p>倍音の弱まりを抑えるには、結局のところオーバーサンプリングの倍率を上げて対処することになります。ただし、周波数方向の補間なしのときと比べると、低めの倍率が使えるかもしれません。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/pitchbend.py#L78">バイリニア補間を使った Python3 の実装を読む (github.com)</a></li>
+</ul>
+<h2 id="オーバーサンプリングを行わない実装">オーバーサンプリングを行わない実装</h2>
+<p>ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は <a href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a> で使いました。</p>
+<h3 id="コード-2">コード</h3>
+<p>以下はオーバーサンプリングを行わないウェーブテーブルオシレータのコードです。 1 半音ごとに、合計 137 のウェーブテーブルを用意しています。波形はのこぎり波で固定しています。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">class</span> LpsOsc:</span>
+<span id="cb3-2"><a href="#cb3-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, samplerate):</span>
+<span id="cb3-3"><a href="#cb3-3"></a>        <span class="va">self</span>.fs <span class="op">=</span> samplerate</span>
+<span id="cb3-4"><a href="#cb3-4"></a>        <span class="va">self</span>.phase <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a>        minFreq <span class="op">=</span> midinoteToFrequency(<span class="dv">0</span>)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>        expFloat <span class="op">=</span> np.log2(<span class="va">self</span>.fs <span class="op">/</span> np.floor(minFreq))</span>
+<span id="cb3-8"><a href="#cb3-8"></a>        exponent <span class="op">=</span> <span class="bu">int</span>(np.ceil(expFloat))</span>
+<span id="cb3-9"><a href="#cb3-9"></a>        <span class="va">self</span>.size <span class="op">=</span> <span class="dv">2</span><span class="op">**</span>exponent</span>
+<span id="cb3-10"><a href="#cb3-10"></a>        spectrum <span class="op">=</span> saw_spectrum(<span class="va">self</span>.size)</span>
+<span id="cb3-11"><a href="#cb3-11"></a></span>
+<span id="cb3-12"><a href="#cb3-12"></a>        <span class="va">self</span>.table <span class="op">=</span> []</span>
+<span id="cb3-13"><a href="#cb3-13"></a>        <span class="va">self</span>.maxNote <span class="op">=</span> np.ceil(frequencyToMidinote(<span class="dv">20000</span>))</span>
+<span id="cb3-14"><a href="#cb3-14"></a>        spec <span class="op">=</span> np.zeros_like(spectrum)</span>
+<span id="cb3-15"><a href="#cb3-15"></a>        <span class="cf">for</span> idx <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">int</span>(<span class="va">self</span>.maxNote)):</span>
+<span id="cb3-16"><a href="#cb3-16"></a>            freq <span class="op">=</span> midinoteToFrequency(idx)</span>
+<span id="cb3-17"><a href="#cb3-17"></a>            cutoff <span class="op">=</span> <span class="bu">int</span>(<span class="bu">len</span>(spectrum) <span class="op">*</span> minFreq <span class="op">/</span> freq)</span>
+<span id="cb3-18"><a href="#cb3-18"></a></span>
+<span id="cb3-19"><a href="#cb3-19"></a>            spec[:cutoff] <span class="op">=</span> spectrum[:cutoff]</span>
+<span id="cb3-20"><a href="#cb3-20"></a>            spec[cutoff:] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-21"><a href="#cb3-21"></a></span>
+<span id="cb3-22"><a href="#cb3-22"></a>            tbl <span class="op">=</span> np.fft.irfft(spec)</span>
+<span id="cb3-23"><a href="#cb3-23"></a>            tbl <span class="op">=</span> np.hstack((tbl, tbl[<span class="dv">0</span>]))</span>
+<span id="cb3-24"><a href="#cb3-24"></a>            <span class="va">self</span>.table.append(tbl)</span>
+<span id="cb3-25"><a href="#cb3-25"></a>        <span class="va">self</span>.table.append(np.zeros_like(<span class="va">self</span>.table[<span class="dv">0</span>]))</span>
+<span id="cb3-26"><a href="#cb3-26"></a></span>
+<span id="cb3-27"><a href="#cb3-27"></a>    <span class="kw">def</span> processPhase(<span class="va">self</span>, note):</span>
+<span id="cb3-28"><a href="#cb3-28"></a>        tick <span class="op">=</span> midinoteToFrequency(note) <span class="op">*</span> <span class="va">self</span>.size <span class="op">/</span> <span class="va">self</span>.fs</span>
+<span id="cb3-29"><a href="#cb3-29"></a>        <span class="cf">if</span> tick <span class="op">&gt;=</span> <span class="va">self</span>.size <span class="kw">or</span> tick <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-30"><a href="#cb3-30"></a>            tick <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a></span>
+<span id="cb3-32"><a href="#cb3-32"></a>        <span class="va">self</span>.phase <span class="op">+=</span> tick</span>
+<span id="cb3-33"><a href="#cb3-33"></a>        <span class="cf">if</span> <span class="va">self</span>.phase <span class="op">&gt;=</span> <span class="va">self</span>.size:</span>
+<span id="cb3-34"><a href="#cb3-34"></a>            <span class="va">self</span>.phase <span class="op">-=</span> <span class="va">self</span>.size</span>
+<span id="cb3-35"><a href="#cb3-35"></a></span>
+<span id="cb3-36"><a href="#cb3-36"></a>    <span class="kw">def</span> processLow(<span class="va">self</span>, note):</span>
+<span id="cb3-37"><a href="#cb3-37"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb3-38"><a href="#cb3-38"></a><span class="co">        note が 0 以下のときは self.table[0] だけでレンダリング。</span></span>
+<span id="cb3-39"><a href="#cb3-39"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb3-40"><a href="#cb3-40"></a>        idx <span class="op">=</span> <span class="bu">int</span>(<span class="va">self</span>.phase)</span>
+<span id="cb3-41"><a href="#cb3-41"></a>        a0 <span class="op">=</span> <span class="va">self</span>.table[<span class="dv">0</span>][idx]</span>
+<span id="cb3-42"><a href="#cb3-42"></a>        a1 <span class="op">=</span> <span class="va">self</span>.table[<span class="dv">0</span>][idx <span class="op">+</span> <span class="dv">1</span>]</span>
+<span id="cb3-43"><a href="#cb3-43"></a>        fracX <span class="op">=</span> <span class="va">self</span>.phase <span class="op">-</span> np.floor(<span class="va">self</span>.phase)</span>
+<span id="cb3-44"><a href="#cb3-44"></a>        <span class="cf">return</span> a0 <span class="op">+</span> fracX <span class="op">*</span> (a1 <span class="op">-</span> a0)</span>
+<span id="cb3-45"><a href="#cb3-45"></a></span>
+<span id="cb3-46"><a href="#cb3-46"></a>    <span class="kw">def</span> process(<span class="va">self</span>, note):</span>
+<span id="cb3-47"><a href="#cb3-47"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb3-48"><a href="#cb3-48"></a><span class="co">        note は MIDI ノート番号。</span></span>
+<span id="cb3-49"><a href="#cb3-49"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb3-50"><a href="#cb3-50"></a>        <span class="va">self</span>.processPhase(note)</span>
+<span id="cb3-51"><a href="#cb3-51"></a></span>
+<span id="cb3-52"><a href="#cb3-52"></a>        <span class="cf">if</span> note <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-53"><a href="#cb3-53"></a>            <span class="cf">return</span> processLow(note)</span>
+<span id="cb3-54"><a href="#cb3-54"></a></span>
+<span id="cb3-55"><a href="#cb3-55"></a>        nn <span class="op">=</span> <span class="bu">int</span>(note)</span>
+<span id="cb3-56"><a href="#cb3-56"></a>        <span class="cf">if</span> nn <span class="op">&gt;=</span> <span class="va">self</span>.maxNote:</span>
+<span id="cb3-57"><a href="#cb3-57"></a>            nn <span class="op">=</span> <span class="va">self</span>.maxNote <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb3-58"><a href="#cb3-58"></a></span>
+<span id="cb3-59"><a href="#cb3-59"></a>        idx <span class="op">=</span> <span class="bu">int</span>(<span class="va">self</span>.phase)</span>
+<span id="cb3-60"><a href="#cb3-60"></a>        a0 <span class="op">=</span> <span class="va">self</span>.table[nn][idx]</span>
+<span id="cb3-61"><a href="#cb3-61"></a>        a1 <span class="op">=</span> <span class="va">self</span>.table[nn][idx <span class="op">+</span> <span class="dv">1</span>]</span>
+<span id="cb3-62"><a href="#cb3-62"></a>        b0 <span class="op">=</span> <span class="va">self</span>.table[nn <span class="op">+</span> <span class="dv">1</span>][idx]</span>
+<span id="cb3-63"><a href="#cb3-63"></a>        b1 <span class="op">=</span> <span class="va">self</span>.table[nn <span class="op">+</span> <span class="dv">1</span>][idx <span class="op">+</span> <span class="dv">1</span>]</span>
+<span id="cb3-64"><a href="#cb3-64"></a></span>
+<span id="cb3-65"><a href="#cb3-65"></a>        fracX <span class="op">=</span> <span class="va">self</span>.phase <span class="op">-</span> np.floor(<span class="va">self</span>.phase)</span>
+<span id="cb3-66"><a href="#cb3-66"></a>        x0 <span class="op">=</span> a0 <span class="op">+</span> fracX <span class="op">*</span> (a1 <span class="op">-</span> a0)</span>
+<span id="cb3-67"><a href="#cb3-67"></a>        x1 <span class="op">=</span> b0 <span class="op">+</span> fracX <span class="op">*</span> (b1 <span class="op">-</span> b0)</span>
+<span id="cb3-68"><a href="#cb3-68"></a></span>
+<span id="cb3-69"><a href="#cb3-69"></a>        fracY <span class="op">=</span> note <span class="op">-</span> nn</span>
+<span id="cb3-70"><a href="#cb3-70"></a>        <span class="cf">return</span> x0 <span class="op">+</span> fracY <span class="op">*</span> (x1 <span class="op">-</span> x0)</span>
+<span id="cb3-71"><a href="#cb3-71"></a></span>
+<span id="cb3-72"><a href="#cb3-72"></a>gain <span class="op">=</span> <span class="fl">0.25</span></span>
+<span id="cb3-73"><a href="#cb3-73"></a>samplerate <span class="op">=</span> <span class="dv">48000</span></span>
+<span id="cb3-74"><a href="#cb3-74"></a></span>
+<span id="cb3-75"><a href="#cb3-75"></a>osc <span class="op">=</span> LpsOsc(samplerate)</span>
+<span id="cb3-76"><a href="#cb3-76"></a></span>
+<span id="cb3-77"><a href="#cb3-77"></a>sig <span class="op">=</span> np.empty(<span class="dv">8</span> <span class="op">*</span> samplerate)</span>
+<span id="cb3-78"><a href="#cb3-78"></a>note <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">128</span>, <span class="bu">len</span>(sig) <span class="op">//</span> <span class="dv">2</span>)</span>
+<span id="cb3-79"><a href="#cb3-79"></a>note <span class="op">=</span> np.hstack((note, np.flip(note)))</span>
+<span id="cb3-80"><a href="#cb3-80"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sig)):</span>
+<span id="cb3-81"><a href="#cb3-81"></a>    sig[i] <span class="op">=</span> osc.process(note[i])</span>
+<span id="cb3-82"><a href="#cb3-82"></a>sig <span class="op">=</span> gain <span class="op">*</span> sig</span></code></pre></div>
+<p>補間にはバイリニア補間を使っています。</p>
+<p><code>self.table</code> のインデックスは MIDI ノート番号と対応しています。 <code>process</code> に入力された <code>note</code> が 0 より小さいときは、 <code>processLow</code> に飛んでインデックス 0 のウェーブテーブルだけを使って出力を計算しています。</p>
+<p>C++ による実装は別ページに掲載しています。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/cpp/bench/bench.cpp#L460">LpsOsc の C++ 実装を読む (github.com)</a></li>
+</ul>
+<h3 id="出力の癖-1">出力の癖</h3>
+<p>以下の図は <code>LpsOsc</code> の出力のスペクトログラムです。MIDI ノート番号で 0, 128, 0 とピッチベンドしています。</p>
+<figure>
+<img src="img/LpsOsc.png" alt="Spectrogram of an output of wavetable oscillator without oversampling." style="padding-bottom: 12px;"/>
+</figure>
+<p>図の上側を見ると少しだけエイリアシングノイズが出ていることが確認できます。原因はわからなかったのですが、以下の変更では解決しませんでした。</p>
+<ul>
+<li><code>process</code> 内の <code>self.table</code> の一つ目のインデックスの変更。</li>
+<li><code>cutoff</code> の変更。</li>
+<li>バイリニア補間から位相方向のみの線形補間に変更。</li>
+</ul>
+<p>全体としてはエイリアシングノイズが低減できているので使える場面はありそうです。速度はオーバーサンプリングがない分だけ速いです。ただし、ウェーブテーブルが長くなると遅くなる可能性があります。</p>
+<h3 id="ミップマップを使う実装">ミップマップを使う実装</h3>
+<p>The Quest For The Perfect Resampler で紹介されていた方法です。</p>
+<p><a href="https://en.wikipedia.org/wiki/Mipmap">ミップマップ</a>は3DCG のテクスチャで使われる手法です。事前にテクスチャの画素数を <span class="math inline">\(1/4^n\)</span> に減らしたデータを用意しておいて、カメラからの距離に応じて十分に解像度の低いデータを選ぶことで計算量を減らすことができます。</p>
+<p>音のデータは 1 次元なので 1 オクターブごとにウェーブテーブルの長さを半分にしていきます。言い換えると 1 オクターブ上がるごとにサンプリング周波数を半分にしていきます。</p>
+<p>ミップマップを使ったウェーブテーブルの利点は、メモリが節約できる点です。ウェーブテーブルの数を <span class="math inline">\(M\)</span> 、最も倍音を多く含むウェーブテーブルの長さを <span class="math inline">\(N\)</span> とすると、必要なメモリの量はミップマップありのときで <span class="math inline">\(2N\)</span> 、 ミップマップなしのときで <span class="math inline">\(NM\)</span> です。</p>
+<p>ミップマップの欠点は補間の計算量です。入力されたピッチに応じてフィルタ係数を計算しなおしつつアップサンプリングする必要があるので、線形補間と比べるとかなり重たそうです。補間以外の部分を実装して速度を比較してみたのですが、オーバーサンプリングありの実装とほぼ同じだったのでテスト対象から外しました。</p>
+<p>以下は線形補間を使ったミップマップオシレータのスペクトログラムです。補間の質が悪いので、全体に薄くノイズが乗っていることが見て取れます。</p>
+<figure>
+<img src="img/MipmapOsc.png" alt="Spectrogram of an output of mipmap wavetable oscillator with linear interpolation." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下は C++ と Python3 による実装へのリンクです。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/cpp/bench/bench.cpp#L381">MipmapOsc の C++ 実装を読む (github.com)</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/pitchbend.py#L124">MipmapOsc の Python3 実装を読む (github.com)</a></li>
+</ul>
+<h2 id="音のサンプル">音のサンプル</h2>
+<p>各実装でのこぎり波をレンダリングした結果です。</p>
+<figure>
+<figcaption>
+オーバーサンプリングを行う実装、2 倍のオーバーサンプリング
+</figcaption>
+<audio controls>
+<source src="snd/simple.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+オーバーサンプリングを行わない実装
+</figcaption>
+<audio controls>
+<source src="snd/lpsosc.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+ミップマップを使う実装、線形補間
+</figcaption>
+<audio controls>
+<source src="snd/mipmap.wav" type="audio/wav">
+</audio>
+</figure>
+<p>オーバーサンプリングを行う実装は、音が高くなったときにウェーブテーブルの切り替えによるポップノイズが聞こえます。ミップマップを使う実装では音が高くなったときに線形補間によるノイズが聞こえます。</p>
+<h3 id="オーバーサンプリングを行う実装のポップノイズ">オーバーサンプリングを行う実装のポップノイズ</h3>
+<p>以下はオーバーサンプリングを行う実装で、オーバーサンプリングの倍率と、周波数方向の補間の有無を変えて、のこぎり波をレンダリングした結果です。</p>
+<figure>
+<figcaption>
+2 倍のオーバーサンプリング、位相方向のみ線形補間
+</figcaption>
+<audio controls>
+<source src="snd/TableOsc_x2_switch.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+4 倍のオーバーサンプリング、位相方向のみ線形補間
+</figcaption>
+<audio controls>
+<source src="snd/TableOsc_x4_switch.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+8 倍のオーバーサンプリング、位相方向のみ線形補間
+</figcaption>
+<audio controls>
+<source src="snd/TableOsc_x8_switch.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+2 倍のオーバーサンプリング、位相方向と周波数方向でバイリニア補間
+</figcaption>
+<audio controls>
+<source src="snd/TableOscBilinear_x2_switch.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+4 倍のオーバーサンプリング、位相方向と周波数方向でバイリニア補間
+</figcaption>
+<audio controls>
+<source src="snd/TableOscBilinear_x4_switch.wav" type="audio/wav">
+</audio>
+</figure>
+<figure>
+<figcaption>
+8 倍のオーバーサンプリング、位相方向と周波数方向でバイリニア補間
+</figcaption>
+<audio controls>
+<source src="snd/TableOscBilinear_x8_switch.wav" type="audio/wav">
+</audio>
+</figure>
+<p>4 倍のオーバーサンプリング、位相方向のみ線形補間では、音量を上げるとポップノイズを聞き取ることができます。</p>
+<p>2 倍のオーバーサンプリング、位相方向と周波数方向でバイリニア補間での、高次倍音の周期的な弱まりは聞き取れなかったです。波形によって変わるかもしれません。</p>
+<h2 id="参考文献">参考文献</h2>
+<ul>
+<li><a href="http://ldesoras.free.fr/doc/articles/resampler-en.pdf">The Quest For The Perfect Resampler - resampler-en.pdf</a></li>
+<li><a href="http://newt.phys.unsw.edu.au/jw/notes.html">Note names, MIDI numbers and frequencies</a></li>
+<li><a href="https://mathworld.wolfram.com/FourierSeriesSawtoothWave.html">Fourier Series–Sawtooth Wave – from Wolfram MathWorld</a></li>
+</ul>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
