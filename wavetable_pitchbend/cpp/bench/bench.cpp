@@ -243,23 +243,27 @@ public:
   {
     this->sampleRate = Sample(2) * sampleRate;
 
+    // Numerator in log2 is added for experiment.
+    // It is the lowest frequency that the wavetable can play without loss of harmonics.
+    // 1 Hz in this case.
     auto exponent = size_t(std::floor(std::log2(this->sampleRate / Sample(1))));
-    if (exponent >= std::numeric_limits<size_t>::digits)
-      exponent = std::numeric_limits<size_t>::digits - 1;
+    exponent = std::clamp<size_t>(exponent, 1, std::numeric_limits<size_t>::digits - 1);
     size = size_t(1) << exponent;
     auto spectrum = generateSawSpectrum<Sample>(size);
 
     pocketfft::shape_t shape{size};
     fft.setShape(shape);
 
-    basenote = frequencyToMidinote(this->sampleRate / Sample(size));
+    basenote = frequencyToMidinote(this->sampleRate / Sample(2 * size));
 
-    if (exponent <= 2) exponent = 3;
-    table.resize(exponent - 2);
+    // On cutoff calculation:
+    // - `idx + 1` is the same as using `tableSize / 2` as numerator.
+    // - Last +1 for DC component.
+    table.resize(exponent);
     std::vector<std::complex<Sample>> spec(spectrum.size());
     for (size_t idx = 0; idx < table.size(); ++idx) {
       std::fill(spec.begin(), spec.end(), std::complex<Sample>(0, 0));
-      auto cutoff = size / (size_t(1) << (idx + 2));
+      auto cutoff = size / (size_t(1) << (idx + 1)) + 1; // +1 for DC component.
       std::copy(spectrum.begin(), spectrum.begin() + cutoff, spec.begin());
 
       table[idx].resize(size + 1);
@@ -284,7 +288,7 @@ public:
 
   Sample processSample(Sample note)
   {
-    phase += midinoteToFrequency(note) / sampleRate;
+    phase += std::clamp(midinoteToFrequency(note) / sampleRate, Sample(0), Sample(0.5));
     phase -= std::floor(phase);
 
     auto pos = Sample(size) * phase;
@@ -326,12 +330,12 @@ public:
     pocketfft::shape_t shape{tableSize};
     fft.setShape(shape);
 
-    basenote = frequencyToMidinote(this->sampleRate / Sample(tableSize));
+    basenote = frequencyToMidinote(this->sampleRate / Sample(2 * tableSize));
 
     std::vector<std::complex<Sample>> spec(spectrum.size());
     for (size_t idx = 0; idx < nOctave; ++idx) {
       std::fill(spec.begin(), spec.end(), std::complex<Sample>(0, 0));
-      auto cutoff = tableSize / (size_t(1) << (idx + 2));
+      auto cutoff = tableSize / (size_t(1) << (idx + 1)) + 1;
       std::copy(spectrum.begin(), spectrum.begin() + cutoff, spec.begin());
 
       fft.c2r(spec.data(), table[idx].data());
@@ -357,7 +361,7 @@ public:
 
   Sample processSample(Sample note)
   {
-    phase += midinoteToFrequency(note) / sampleRate;
+    phase += std::clamp(midinoteToFrequency(note) / sampleRate, Sample(0), Sample(0.5));
     phase -= std::floor(phase);
 
     auto pos = Sample(tableSize) * phase;
@@ -368,6 +372,100 @@ public:
     auto x0 = table[octave][idx];
     auto x1 = table[octave][idx + 1];
     return x0 + frac * (x1 - x0);
+  }
+
+  Sample process(Sample note)
+  {
+    std::array<Sample, 2> sample;
+    for (auto &value : sample) value = processSample(note);
+    return lowpass.process(sample);
+  }
+};
+
+template<typename Sample> class TableOscAltInterval {
+public:
+  Sample sampleRate = Sample(44100);
+  Sample phase = Sample(0);
+  Sample basenote = Sample(0);
+  Sample interval = Sample(12);
+  Sample maxIdx = Sample(0);
+  size_t size = 0;
+  SosFilter<Sample, SosEllipticDecimation2<float>, 2> lowpass;
+  std::vector<std::vector<Sample>> table;
+  PocketFFT<Sample> fft;
+
+  TableOscAltInterval(Sample sampleRate)
+  {
+    this->sampleRate = Sample(2) * sampleRate;
+
+    auto exponent = size_t(std::log2(this->sampleRate / Sample(10)));
+    exponent = std::clamp<size_t>(exponent, 1, std::numeric_limits<size_t>::digits - 1);
+    size = size_t(1) << exponent;
+    auto specSize = size / 2;
+    auto spectrum = generateSawSpectrum<Sample>(size);
+
+    pocketfft::shape_t shape{size};
+    fft.setShape(shape);
+
+    const Sample bendRange = Sample(1.5);
+    const size_t nTable
+      = size_t(-std::log(Sample(1) / Sample(specSize)) / std::log(bendRange));
+    maxIdx = Sample(nTable - 1);
+
+    basenote = frequencyToMidinote(this->sampleRate / Sample(size));
+    interval = Sample(12) * std::log2(bendRange);
+
+    table.resize(nTable + 1); // Last table is filled by 0.
+    std::vector<std::complex<Sample>> spec(spectrum.size());
+    for (size_t idx = 0; idx < table.size() - 1; ++idx) {
+      std::fill(spec.begin(), spec.end(), std::complex<Sample>(0, 0));
+      auto cutoff = size_t(specSize * std::pow(bendRange, -Sample(idx))) + 1;
+      std::copy(spectrum.begin(), spectrum.begin() + cutoff, spec.begin());
+
+      table[idx].resize(size + 1);
+      fft.c2r(spec.data(), table[idx].data());
+      table[idx].back() = table[idx][0];
+    }
+    table.back().resize(size + 1);
+    std::fill(table.back().begin(), table.back().end(), Sample(0));
+  }
+
+  void reset()
+  {
+    phase = Sample(0);
+    lowpass.reset();
+  }
+
+  void debugRenderTable()
+  {
+    for (size_t idx = 0; idx < table.size(); ++idx) {
+      std::string name = "snd/altinterval" + std::to_string(idx) + ".wav";
+      writeWave(name, table[idx], size_t(sampleRate));
+    }
+  }
+
+  Sample processSample(Sample note)
+  {
+    phase += std::clamp(midinoteToFrequency(note) / sampleRate, Sample(0), Sample(0.5));
+    phase -= std::floor(phase);
+
+    auto octFloat = std::clamp((note - basenote) / interval, Sample(0), maxIdx);
+    auto iTbl = size_t(octFloat);
+    auto yFrac = octFloat - Sample(iTbl);
+
+    auto pos = Sample(size) * phase;
+    auto idx = size_t(pos);
+    auto xFrac = pos - Sample(idx);
+
+    auto a0 = table[iTbl][idx];
+    auto a1 = table[iTbl][idx + 1];
+    auto s0 = a0 + xFrac * (a1 - a0);
+
+    auto b0 = table[iTbl + 1][idx];
+    auto b1 = table[iTbl + 1][idx + 1];
+    auto s1 = b0 + xFrac * (b1 - b0);
+
+    return s0 + yFrac * (s1 - s0);
   }
 
   Sample process(Sample note)
@@ -436,7 +534,7 @@ public:
 
   Sample processSample(Sample note)
   {
-    phase += midinoteToFrequency(note) / sampleRate;
+    phase += std::clamp(midinoteToFrequency(note) / sampleRate, Sample(0), Sample(0.5));
     phase -= std::floor(phase);
 
     auto octave = std::clamp(size_t(note - basenote) / 12, size_t(0), table.size() - 1);
@@ -651,7 +749,7 @@ template<typename Osc> void bench(std::string name)
   constexpr float sampleRate = 48000.0f;
 
   Osc osc(sampleRate);
-  osc.debugRenderTable();
+  // osc.debugRenderTable();
 
   double sumElapsed = 0.0;
   std::vector<float> wav;
@@ -659,7 +757,6 @@ template<typename Osc> void bench(std::string name)
   for (size_t loop = 0; loop < nLoop; ++loop) {
     osc.reset();
     for (size_t i = 0; i < wav.size(); ++i) {
-      // auto note = 50.0f * (1.0f + std::sin(float(twopi) * i / float(sampleRate)));
       auto note = 128.0f * i / float(wav.size());
 
       auto start = std::chrono::steady_clock::now();
@@ -678,28 +775,23 @@ template<typename Osc> void bench(std::string name)
   writeWave(filename, wav, size_t(sampleRate));
 }
 
-template<typename Osc> void testFM(std::string name)
+template<typename Osc> void testOutOfRangePitch(std::string name)
 {
   constexpr float sampleRate = 48000.0f;
 
-  Osc osc1(sampleRate);
-  Osc osc2(sampleRate);
-  SosFilter<float, SosEllipticDecimation2<float>, 2> lowpass;
+  Osc osc(sampleRate);
+  osc.reset();
 
   std::vector<float> wav;
   wav.resize(8 * size_t(sampleRate));
-
-  float basenote = 36.0f;
-  std::array<float, 2> sample;
   for (size_t i = 0; i < wav.size(); ++i) {
-    for (auto &value : sample) {
-      auto mod = 80.0f * osc1.processSample(basenote + 40.77f);
-      value = 0.25f * osc2.processSample(basenote + mod);
-    }
-    wav[i] = lowpass.process(sample);
+    auto note = 300.0f * i / float(wav.size()) - 100;
+    wav[i] = 0.25f * osc.process(note);
   }
+  std::cout << name << ": "
+            << "\n";
 
-  std::string filename = "snd/FM_" + name + ".wav";
+  std::string filename = "snd/testPitch_" + name + ".wav";
   writeWave(filename, wav, size_t(sampleRate));
 }
 
@@ -711,12 +803,18 @@ int main()
   std::cout << "\n--- Benchmark\n";
   bench<TableOsc<float>>("Simple");
   bench<ArrayOsc<float>>("Array");
+  bench<TableOscAltInterval<float>>("AltInterval");
   bench<MipmapOsc<float>>("Mipmap");
   bench<LpsOsc<float>>("Lpsosc");
   bench<CpsOsc<float>>("Cpsosc");
 
-  std::cout << "\n--- FM\n";
-  // testFM<TableOsc<float>>("Simple");
+  std::cout << "\n--- Test out of range pitch\n";
+  testOutOfRangePitch<TableOsc<float>>("Simple");
+  testOutOfRangePitch<ArrayOsc<float>>("Array");
+  testOutOfRangePitch<TableOscAltInterval<float>>("AltInterval");
+  testOutOfRangePitch<MipmapOsc<float>>("Mipmap");
+  testOutOfRangePitch<LpsOsc<float>>("Lpsosc");
+  testOutOfRangePitch<CpsOsc<float>>("Cpsosc");
 
   return 0;
 }

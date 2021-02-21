@@ -1,3 +1,4 @@
+import gc
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal as signal
@@ -31,6 +32,17 @@ def tri_spectrum(size):
         spec[n] = sign / (n * n)
     return spec * (size * 4 / np.pi**2)
 
+def cubicInterp(y0, y1, y2, y3, t):
+    """
+    Range of t is in [0, 1]. Interpolates in between y1 and y2.
+    """
+    t2 = t * t
+    c0 = y1 - y2
+    c1 = (y2 - y0) / 2
+    c2 = c0 + c1
+    c3 = c0 + c2 + (y3 - y1) / 2
+    return c3 * t * t2 - (c2 + c3) * t2 + c1 * t + y1
+
 def plotSos(sos):
     w, h = signal.sosfreqz(sos)
     amp = toDecibel(np.abs(h))
@@ -46,14 +58,15 @@ class TableOsc:
         exponent = int(np.log2(self.fs / 10))
         size = 2**exponent  # Lowest to 10 Hz.
         spectrum = saw_spectrum(size)
+        specSize = size / 2
 
-        self.basefreq = self.fs / size
+        self.basefreq = self.fs / (2 * size)
         self.basenote = frequencyToMidinote(self.basefreq)
 
         self.table = []
-        for idx in range(2, exponent + 1):
+        for idx in range(exponent + 1):
             spec = np.zeros_like(spectrum)
-            cutoff = int(size / 2**(idx))
+            cutoff = int(specSize / 2**(idx)) + 1  # +1 for DC component.
             spec[:cutoff] = spectrum[:cutoff]
             tbl = np.fft.irfft(spec)
             tbl = np.hstack((tbl, tbl[0]))
@@ -83,14 +96,15 @@ class TableOscBilinear:
         exponent = int(np.log2(self.fs / 10))
         size = 2**exponent  # Lowest to 10 Hz.
         spectrum = saw_spectrum(size)
+        specSize = size / 2
 
-        self.basefreq = self.fs / size
+        self.basefreq = self.fs / (2 * size)
         self.basenote = frequencyToMidinote(self.basefreq)
 
         self.table = []
-        for idx in range(2, exponent + 1):
+        for idx in range(exponent + 1):
             spec = np.zeros_like(spectrum)
-            cutoff = int(size / 2**(idx))
+            cutoff = int(specSize / 2**(idx)) + 1  # +1 for DC component.
             spec[:cutoff] = spectrum[:cutoff]
             tbl = np.fft.irfft(spec)
             tbl = np.hstack((tbl, tbl[0]))
@@ -119,7 +133,59 @@ class TableOscBilinear:
         x1 = self.table[octave + 1][idx + 1]
         s1 = x0 + xFrac * (x1 - x0)
 
-        return s0 + yFrac * (x1 - s0)
+        return s0 + yFrac * (s1 - s0)
+
+class TableOscAltInterval:
+    def __init__(self, samplerate, oversample=2):
+        self.fs = oversample * samplerate
+        self.phase = 0
+
+        size = 2**int(np.log2(self.fs / 10))  # Lowest to 10 Hz.
+        specSize = size / 2
+        spectrum = saw_spectrum(size)
+
+        bendRange = 1.5
+        nTable = int(-np.log(1 / specSize) / np.log(bendRange))
+
+        self.basefreq = self.fs / size
+        self.basenote = frequencyToMidinote(self.basefreq)
+        self.interval = 12 * np.log2(bendRange)
+
+        self.table = []
+        for idx in range(nTable):
+            spec = np.zeros_like(spectrum)
+            cutoff = int(specSize * bendRange**(-idx))
+            spec[:cutoff] = spectrum[:cutoff]
+            tbl = np.fft.irfft(spec)
+            tbl = np.hstack((tbl, tbl[0]))
+            self.table.append(tbl)
+        self.table.append(np.zeros_like(self.table[0]))
+        exit()
+
+    def process(self, note):
+        """
+        note is midinote number.
+        """
+        self.phase += midinoteToFrequency(note) / self.fs
+        self.phase -= np.floor(self.phase)
+
+        octFloat = np.clip((note - self.basenote) / self.interval, 0, len(self.table) - 2)
+        iTbl = int(octFloat)
+        yFrac = octFloat - iTbl
+
+        pos = (len(self.table[0]) - 1) * self.phase
+        idx = int(pos)
+        xFrac = pos - idx
+
+        x0 = self.table[iTbl][idx]
+        x1 = self.table[iTbl][idx + 1]
+        s0 = x0 + xFrac * (x1 - x0)
+
+        x0 = self.table[iTbl + 1][idx]
+        x1 = self.table[iTbl + 1][idx + 1]
+        s1 = x0 + xFrac * (x1 - x0)
+
+        return s0 + yFrac * (s1 - s0)
 
 class MipmapOsc:
     def __init__(self, samplerate, oversample=2):
@@ -157,6 +223,48 @@ class MipmapOsc:
         x0 = self.table[octave][idx]
         x1 = self.table[octave][idx + 1]
         return x0 + frac * (x1 - x0)
+
+class MipmapOscCubic:
+    def __init__(self, samplerate, oversample=2):
+        self.fs = oversample * samplerate
+        self.phase = 0
+
+        exponent = int(np.log2(self.fs / 10))  # Lowest to 10 Hz.
+        size = 2**exponent
+        spectrum = saw_spectrum(size)
+
+        self.basefreq = self.fs / size
+        self.basenote = frequencyToMidinote(self.basefreq)
+
+        nOctave = exponent - 2
+        self.table = []
+        for idx in range(nOctave):
+            cutoff = int(size / 2**(idx + 2)) + 1
+            spec = spectrum[:cutoff] / 2**(idx + 1)
+            tbl = np.fft.irfft(spec)
+            tbl = np.hstack((tbl[-1], tbl, tbl[0], tbl[1]))
+            self.table.append(tbl)
+        self.ylim = len(self.table) - 1
+
+    def process(self, note):
+        """
+        note is midinote number.
+        """
+        self.phase += midinoteToFrequency(note) / self.fs
+        self.phase -= np.floor(self.phase)
+
+        octave = int(np.clip((note - self.basenote) / 12, 0, self.ylim))
+        pos = (len(self.table[octave]) - 3) * self.phase
+        idx = int(pos)
+        frac = pos - idx
+
+        return cubicInterp(
+            self.table[octave][idx],
+            self.table[octave][idx + 1],
+            self.table[octave][idx + 2],
+            self.table[octave][idx + 3],
+            pos - idx,
+        )
 
 class LpsOsc:
     """
@@ -228,17 +336,6 @@ class LpsOsc:
 
         fracY = note - nn
         return x0 + fracY * (x1 - x0)
-
-def cubicInterp(y0, y1, y2, y3, t):
-    """
-    Range of t is in [0, 1]. Interpolates in between y1 and y2.
-    """
-    t2 = t * t
-    c0 = y1 - y2
-    c1 = (y2 - y0) / 2
-    c2 = c0 + c1
-    c3 = c0 + c2 + (y3 - y1) / 2
-    return c3 * t * t2 - (c2 + c3) * t2 + c1 * t + y1
 
 class CpsOsc:
     """
@@ -330,6 +427,8 @@ def plotSpectrogram(sig, samplerate, name):
     plt.savefig("img/" + name + ".png")
     plt.close("all")
 
+    gc.collect()  # Maybe out of memory on 32bit CPython.
+
 def testTableOsc():
     gain = 0.25
     samplerate = 48000
@@ -372,6 +471,27 @@ def testTableOscBilinear():
     # plotSpectrum(sig)
     plotSpectrogram(sig, samplerate, "TableOscBilinear")
 
+def testTableOscAltInterval():
+    gain = 0.25
+    samplerate = 48000
+    lowpass = signal.ellip(12, 0.01, 100, 0.48, "low", output="sos", fs=2)
+    # plotSos(lowpass)
+
+    osc = TableOscAltInterval(samplerate)
+
+    sig = np.empty(16 * samplerate)
+    note = np.linspace(0, 128, len(sig) // 2)
+    note = np.hstack((note, np.flip(note)))
+    for i in range(len(sig)):
+        sig[i] = osc.process(note[i])
+    sig = gain * signal.sosfilt(lowpass, sig)[::2]
+
+    Path("snd").mkdir(parents=True, exist_ok=True)
+    soundfile.write("snd/altInterval.wav", sig, samplerate, subtype="FLOAT")
+
+    # plotSpectrum(sig)
+    plotSpectrogram(sig, samplerate, "TableOscAltInterval")
+
 def testMipmapOsc():
     gain = 0.25
     samplerate = 48000
@@ -391,6 +511,26 @@ def testMipmapOsc():
 
     # plotSpectrum(sig)
     plotSpectrogram(sig, samplerate, "MipmapOsc")
+
+def testMipmapOscCubic():
+    gain = 0.25
+    samplerate = 48000
+    lowpass = signal.ellip(12, 0.01, 100, 0.4, "low", output="sos", fs=2)
+
+    osc = MipmapOscCubic(samplerate)
+
+    sig = np.empty(16 * samplerate)
+    note = np.linspace(0, 128, len(sig) // 2)
+    note = np.hstack((note, np.flip(note)))
+    for i in range(len(sig)):
+        sig[i] = osc.process(note[i])
+    sig = gain * signal.sosfilt(lowpass, sig)[::2]
+
+    Path("snd").mkdir(parents=True, exist_ok=True)
+    soundfile.write("snd/mipmapcubic.wav", sig, samplerate, subtype="FLOAT")
+
+    # plotSpectrum(sig)
+    plotSpectrogram(sig, samplerate, "MipmapOscCubic")
 
 def testLpsOsc():
     gain = 0.25
@@ -432,6 +572,8 @@ def testCpsOsc():
 
 testTableOsc()
 testTableOscBilinear()
+testTableOscAltInterval()
 testMipmapOsc()
+testMipmapOscCubic()
 testLpsOsc()
 testCpsOsc()

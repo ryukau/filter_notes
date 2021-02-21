@@ -1,3 +1,4 @@
+import gc
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal as signal
@@ -26,15 +27,9 @@ def plot(sig, samplerate, name):
     plt.xlabel("Time [s]")
     plt.savefig("img/" + name + ".png")
 
-datapaths = [
-    Path("snd/chirp_Simple.wav"),
-    Path("snd/chirp_Mipmap.wav"),
-    Path("snd/chirp_Lpsosc.wav"),
-    Path("snd/chirp_Cpsosc.wav"),
-]
-
 Path("img").mkdir(parents=True, exist_ok=True)
-for path in datapaths:
+for path in Path("snd").glob("chirp_*.wav"):
+    print(f"Plotting {path}")
     data, samplerate = soundfile.read(str(path))
     plot(data, samplerate, path.stem)
-# plt.show()
+    gc.collect()  # It goes out of memory with 32bit CPython (x86) on Windows.
