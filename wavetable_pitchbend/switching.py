@@ -1,3 +1,4 @@
+import gc
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal as signal
@@ -40,14 +41,15 @@ class TableOsc:
         exponent = int(np.log2(self.fs / 10))
         size = 2**exponent  # Lowest to 10 Hz.
         spectrum = saw_spectrum(size)
+        specSize = size / 2
 
-        self.basefreq = self.fs / size  # basefreq * 2**(exponent - 2) = fs / 2
+        self.basefreq = self.fs / (2 * size)
         self.basenote = frequencyToMidinote(self.basefreq)
 
         self.table = []
-        for idx in range(2, exponent):
+        for idx in range(exponent + 1):
             spec = np.zeros_like(spectrum)
-            cutoff = int(size / 2**(idx))
+            cutoff = int(specSize / 2**(idx)) + 1  # +1 for DC component.
             spec[:cutoff] = spectrum[:cutoff]
             tbl = np.fft.irfft(spec)
             tbl = np.hstack((tbl, tbl[0]))
@@ -83,14 +85,15 @@ class TableOscBilinear:
         exponent = int(np.log2(self.fs / 10))
         size = 2**exponent  # Lowest to 10 Hz.
         spectrum = saw_spectrum(size)
+        specSize = size / 2
 
-        self.basefreq = self.fs / size  # basefreq * 2**(exponent - 2) = fs / 2
+        self.basefreq = self.fs / (2 * size)
         self.basenote = frequencyToMidinote(self.basefreq)
 
         self.table = []
-        for idx in range(2, exponent + 1):
+        for idx in range(exponent + 1):
             spec = np.zeros_like(spectrum)
-            cutoff = int(size / 2**(idx))
+            cutoff = int(specSize / 2**(idx)) + 1  # +1 for DC component.
             spec[:cutoff] = spectrum[:cutoff]
             tbl = np.fft.irfft(spec)
             tbl = np.hstack((tbl, tbl[0]))
@@ -158,6 +161,8 @@ def plotSpectrogram(sig, debugSig, samplerate, name):
     plt.close("all")
 
 def testOsc(oversample: int, Osc):
+    print(f"Processing: {oversample}x {Osc.__name__}")
+
     gain = 0.25
     samplerate = 48000
     lowpass = signal.ellip(12, 0.01, 100, 0.4, "low", output="sos", fs=oversample)
@@ -181,6 +186,8 @@ def testOsc(oversample: int, Osc):
     soundfile.write(f"snd/{name}.wav", sig, samplerate, subtype="FLOAT")
 
     plotSpectrogram(sig, switched, samplerate, name)  # debug
+
+    gc.collect()  # Maybe goes out of memory with 32bit CPython.
 
 testOsc(2, TableOsc)
 testOsc(2, TableOscBilinear)
