@@ -562,7 +562,7 @@ public:
   }
 };
 
-// Linear interpolated mipmap.
+// Mipmap wavetable oscillator using upsampler.
 template<typename Sample, typename InterpFir> class MipmapOscDeSoras {
 public:
   Sample sampleRate = Sample(44100);
