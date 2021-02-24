@@ -160,7 +160,7 @@ def plotSpectrogram(sig, debugSig, samplerate, name):
     plt.savefig("img/" + name + ".png")
     plt.close("all")
 
-def testOsc(oversample: int, Osc):
+def testOsc(Osc, oversample: int):
     print(f"Processing: {oversample}x {Osc.__name__}")
 
     gain = 0.25
@@ -189,9 +189,9 @@ def testOsc(oversample: int, Osc):
 
     gc.collect()  # Maybe goes out of memory with 32bit CPython.
 
-testOsc(2, TableOsc)
-testOsc(2, TableOscBilinear)
-testOsc(4, TableOsc)
-testOsc(4, TableOscBilinear)
-testOsc(8, TableOsc)
-testOsc(8, TableOscBilinear)
+testOsc(TableOsc, 2)
+testOsc(TableOscBilinear, 2)
+testOsc(TableOsc, 4)
+testOsc(TableOscBilinear, 4)
+testOsc(TableOsc, 8)
+testOsc(TableOscBilinear, 8)
