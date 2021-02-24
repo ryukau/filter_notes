@@ -219,7 +219,7 @@ public:
 </figure>
 
 #### インデックス方向の補間なし
-まずは De Soras さんの資料に基づいて 1 オクターブ間隔で倍音を削ったウェーブテーブルを試します。 1 つのウェーブテーブルのピッチベンドの範囲は $[1, 2)$ です。
+まずは De Soras さんの資料に基づいて 1 オクターブ間隔で倍音を削ったウェーブテーブルを試します。 1 つのウェーブテーブルのピッチベンドの範囲は $[1, 2)$ で、 $B=2, H=1$ です。
 
 以下はコードへのリンクです。
 
@@ -237,13 +237,44 @@ public:
 - [ウェーブテーブルの切り替えがポップノイズの原因になっていることを確認するコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/switching.py)
 
 #### インデックス方向を線形補間
-ウェーブテーブルをインデックス方向で補間することでポップノイズの低減方法を図ります。コードにインデックス方向の線形補間を加えます。
+ウェーブテーブルをインデックス方向で補間することでポップノイズの低減を図ります。以下はインデックス方向の線形補間を加えたコード例です。
 
-以下はコードへのリンクです。
+```c++
+// ウェーブテーブルオシレータのクラスメソッドの抜粋。
+//
+// note は MIDI ノート番号。
+// maxIdx = table.size() - 2 。
+//
+float processSample(float note)
+{
+  phase += std::clamp(midinoteToFrequency(note) / sampleRate, float(0), float(0.5));
+  phase -= std::floor(phase);
+
+  auto octFloat = std::clamp((note - basenote) / interval, float(0), maxIdx);
+  auto iTbl = size_t(octFloat);
+  auto yFrac = octFloat - float(iTbl);
+
+  auto pos = float(size) * phase;
+  auto idx = size_t(pos);
+  auto xFrac = pos - float(idx);
+
+  auto a0 = table[iTbl][idx];
+  auto a1 = table[iTbl][idx + 1];
+  auto s0 = a0 + xFrac * (a1 - a0); // 位相方向の線形補間。
+
+  auto b0 = table[iTbl + 1][idx];
+  auto b1 = table[iTbl + 1][idx + 1];
+  auto s1 = b0 + xFrac * (b1 - b0); // 位相方向の線形補間。
+
+  return s0 + yFrac * (s1 - s0); // インデックス方向の線形補間。
+}
+```
+
+以下は完全な実装へのリンクです。
 
 - [Python 3 によるオーバーサンプリングあり、インデックス方向の補間ありの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L80)
 
-以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。ポップノイズは消えましたが、図の上部で波打つように暗くなっている箇所で高次の倍音が弱くなっています。
+以下はインデックス方向を線形補間した実装で MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。ポップノイズは消えましたが、図の上部で波打つように暗くなっている箇所で高次の倍音が弱くなっています。
 
 <figure>
 <img src="img/TableOscBilinear.png" alt="Spectrogram of an output of bilinear interpolated wavetable oscillator." style="padding-bottom: 12px;"/>
@@ -258,7 +289,7 @@ public:
 - ウェーブテーブルはナイキスト周波数の $H$ 倍までの周波数成分を含む。
 - $L$ 倍のオーバーサンプリング。
 
-このとき以下の不等式を満たせばエイリアシングは起こりません。
+このとき以下の条件を満たせばエイリアシングは起こりません。
 
 $$
 BH \leq 2L - 1, \quad B \geq 1, \quad H \geq 1.
@@ -277,7 +308,7 @@ $L = 2$ のとき $B = H = \sqrt{3}$ です。
 - [Python 3 によるオーバーサンプリングあり、最適な設計の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L127)
 - [C++ によるオーバーサンプリングあり、最適な設計の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L391)
 
-以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。テーブルの数は増えましたが、エイリアシングも倍音の弱まりもなくなっています。
+以下は最適な設計による実装で MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。テーブルの数は増えましたが、エイリアシングも倍音の弱まりもなくなっています。
 
 <figure>
 <img src="img/TableOscAltInterval.png" alt="Spectrogram of an output of bilinear interpolated wavetable oscillator." style="padding-bottom: 12px;"/>
@@ -286,9 +317,7 @@ $L = 2$ のとき $B = H = \sqrt{3}$ です。
 ここまでやってしまえば、あとはダウンサンプリングのローパスフィルタの設計くらいでしか品質は変わりません。
 
 ### オーバーサンプリングなしの実装
-ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は [CubicPadSynth](https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html) で使いました。ただし CubicPadSynth は倍音のカットオフの計算を間違えているので、正しい実装は下のリンク先のコードを参照してください。
-
-以下はコードへのリンクです。
+ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は [CubicPadSynth](https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html) で使いました。ただし CubicPadSynth は倍音のカットオフの計算を間違えているので、正しい実装は以下のリンク先のコードを参照してください。
 
 - [Python 3 によるオーバーサンプリングなしの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L257)
 - [C++ によるオーバーサンプリングなしの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L666)
@@ -304,7 +333,7 @@ $L = 2$ のとき $B = H = \sqrt{3}$ です。
 ### ミップマップを使う実装
 The Quest For The Perfect Resampler で紹介されているミップマップを使う方法も実装して試しました。
 
-メモリを節約したいときはミップマップを使うことができます。以下はウェーブテーブルのミップマップを表した図です。
+メモリを節約したいときはミップマップを使うことができます。以下はウェーブテーブルのミップマップを表した図です。図の左の数字はウェーブテーブルのインデックスです。
 
 <figure>
 <img src="img/mipmap_table.svg" alt="Image of mipmap tables." style="padding-bottom: 12px;"/>
@@ -313,7 +342,7 @@ The Quest For The Perfect Resampler で紹介されているミップマップ�
 
 ミップマップを使うとウェーブテーブルの間隔が 1 オクターブに固定されるので、インデックス方向の補間による倍音の弱まりが避けられない点に注意してください。
 
-ミップマップを使うときは質のいいアップサンプラを使わないと耳で聴きとれるノイズがでます。以下は形補間を使ったときに MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。全体に薄くノイズが乗っていることが見て取れます。
+以下はミップマップを位相方向に線形補間する実装で MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。全体に薄くノイズが乗っていることが見て取れます。
 
 <figure>
 <img src="img/MipmapOsc.png" alt="Spectrogram of mipmap oscillator using linear interpolation on phase direction." style="padding-bottom: 12px;"/>
@@ -323,6 +352,8 @@ The Quest For The Perfect Resampler で紹介されているミップマップ�
 
 - [Python 3 によるミップマップと線形補間を使ったオシレータの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L257)
 - [C++ によるミップマップと線形補間を使ったオシレータの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L178)
+
+ミップマップの線形補間は質が悪すぎるので De Soras さんの資料にならってアップサンプラを使います。
 
 #### アップサンプラのフィルタ設計
 以下のパラメータを決めます。
@@ -418,21 +449,25 @@ Sample processTable(const Sample phase, const size_t octave)
 
 De Soras さんの資料では `fir[firIdx][j + 1] - fir[firIdx][j]` を事前に計算して別の配列にしておくことで計算量を減らす方法が紹介されています。
 
-以下のリンク先でミップマップとアップサンプラを使ったオシレータのコードが読めます。
+以下のリンク先にミップマップとアップサンプラを使ったオシレータのコードを掲載しています。
 
 - [C++ によるミップマップとアップサンプラを使ったオシレータの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L566)
 
-以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングはウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、インデックス方向の補間によって高次の倍音が弱くなっているからです。
+以下のリンク先にアップサンプラのフィルタを設計する Python 3 のコードを掲載しています。
+
+- [アップサンプラのフィルタを設計するコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/cpp/bench/fir.py)
+
+以下は位相方向の補間にアップサンプラを使ったミップマップオシレータで、 MIDI ノート番号 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングがウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、インデックス方向の補間によって高次の倍音が弱くなっているからです。
 
 <figure>
 <img src="img/chirp_MipmapDeSoras.png" alt="Spectrogram of mipmap oscillator using upsampler." style="padding-bottom: 12px;"/>
 </figure>
 
-ミップマップを使う方法はアップサンプラのフィルタの質で大きく音が変わります。 $f_p$ を 0.5 以下にすると今回のように倍音の弱まりが出ます。かと言って $f_p$ を 0.5 にすると $f_s$ を 0.5 より大きい値にする必要が出てくるので、今度はエイリアシングノイズが出ます。 $N_{\mathrm{fir}}$ の値を大きくすることで倍音の弱まりとエイリアシングの両方を改善できますが、今度は計算が重たくなります。
+ミップマップを使う方法はアップサンプラのフィルタの質で大きく音が変わります。 $f_p$ を 0.5 以下にすると今回のように倍音の弱まりが出ます。かと言って $f_p$ を 0.5 にすると $f_s$ を 0.5 より大きい値にする必要が出てくるので、今度はエイリアシングノイズが出ます。
 
-インデックス方向の線形補間を行うときは 1 サンプルあたりで 2 回の畳み込みが必要になります。簡単なベンチマークを取ったところ、今回実装した $N_{\mathrm{fir}} = 32$ でインデックス方向の線形補間ありのミップマップは、オーバーサンプリングありの実装と比べて約 1.5 倍ほどの計算時間がかかりました。
+$N_{\mathrm{fir}}$ の値を大きくすることで倍音の弱まりとエイリアシングの両方を改善できますが、今度は計算が重たくなります。さらにインデックス方向の線形補間を行うときは 1 サンプルあたりの計算量が約 2 倍になります。簡単なベンチマークを取ったところ、今回実装した $N_{\mathrm{fir}} = 32$ でインデックス方向の線形補間ありのミップマップは、オーバーサンプリングありの実装と比べて約 1.5 倍ほどの計算時間がかかりました。
 
-他の実装にない特徴として、アップサンプラのフィルタをローパス以外の特性に変えてエフェクトをかけることができそうです。
+ミップマップを使う方法は計算量から見るとあまり魅力的ではないですが、アップサンプラのフィルタをローパス以外の特性に変えてエフェクトをかけられるという他の実装にない特長があります。
 
 ## 音のサンプル
 各実装でのこぎり波をレンダリングした結果です。
@@ -479,11 +514,11 @@ De Soras さんの資料では `fir[firIdx][j + 1] - fir[firIdx][j]` を事前�
   </audio>
 </figure>
 
-「オーバーサンプリングを行う実装 - 最適な設計」と「オーバーサンプリングを行わない実装」はエイリアシングも倍音の弱まりもないので理想的な音です。オーバーサンプリングを行う実装はダウンサンプリングのローパスに楕円フィルタを使っているので高域の位相特性があまりよくないのですが、耳で聴きとることは困難です。
-
 「オーバーサンプリングを行う実装 - インデックス方向の補間なし」は音量を上げるとテーブルの切り替え時のポップノイズが聞こえます。
 
 「オーバーサンプリングを行う実装 - インデックス方向を線形補間」と「ミップマップ - アップサンプラ」は高次の倍音が弱まっています。「ミップマップ - アップサンプラ」では倍音の弱まりが聞き取れます。
+
+「オーバーサンプリングを行う実装 - 最適な設計」と「オーバーサンプリングを行わない実装」はエイリアシングも倍音の弱まりもないので理想的な音です。オーバーサンプリングを行う実装はダウンサンプリングのローパスに楕円フィルタを使っているので高域の位相特性があまりよくないのですが、耳で聴きとることは困難です。
 
 「ミップマップ - 線形補間」はエイリアシングが大量に出ているので明らかに音が違います。
 

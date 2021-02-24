@@ -535,7 +535,7 @@ i = \left\lfloor \frac{\nu - \mathtt{basenote}}{\mathtt{interval}} \right\rfloor
 <img src="img/simple_wavetable_block_diagram.svg" alt="Block diagram of simple wavetable oscillator." style="padding-bottom: 12px;"/>
 </figure>
 <h4 id="インデックス方向の補間なし">インデックス方向の補間なし</h4>
-<p>まずは De Soras さんの資料に基づいて 1 オクターブ間隔で倍音を削ったウェーブテーブルを試します。 1 つのウェーブテーブルのピッチベンドの範囲は <span class="math inline">\([1, 2)\)</span> です。</p>
+<p>まずは De Soras さんの資料に基づいて 1 オクターブ間隔で倍音を削ったウェーブテーブルを試します。 1 つのウェーブテーブルのピッチベンドの範囲は <span class="math inline">\([1, 2)\)</span> で、 <span class="math inline">\(B=2, H=1\)</span> です。</p>
 <p>以下はコードへのリンクです。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L42">Python 3 によるオーバーサンプリングあり、インデックス方向の補間なしの実装を読む (github.com)</a></li>
@@ -550,12 +550,40 @@ i = \left\lfloor \frac{\nu - \mathtt{basenote}}{\mathtt{interval}} \right\rfloor
 <li><a href="https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/switching.py">ウェーブテーブルの切り替えがポップノイズの原因になっていることを確認するコードを読む (github.com)</a></li>
 </ul>
 <h4 id="インデックス方向を線形補間">インデックス方向を線形補間</h4>
-<p>ウェーブテーブルをインデックス方向で補間することでポップノイズの低減方法を図ります。コードにインデックス方向の線形補間を加えます。</p>
-<p>以下はコードへのリンクです。</p>
+<p>ウェーブテーブルをインデックス方向で補間することでポップノイズの低減を図ります。以下はインデックス方向の線形補間を加えたコード例です。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">// ウェーブテーブルオシレータのクラスメソッドの抜粋。</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co">//</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">// note は MIDI ノート番号。</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">// maxIdx = table.size() - 2 。</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">//</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="dt">float</span> processSample(<span class="dt">float</span> note)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>{</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  phase += <span class="bu">std::</span>clamp(midinoteToFrequency(note) / sampleRate, <span class="dt">float</span>(<span class="dv">0</span>), <span class="dt">float</span>(<span class="fl">0.5</span>));</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  phase -= <span class="bu">std::</span>floor(phase);</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a>  <span class="kw">auto</span> octFloat = <span class="bu">std::</span>clamp((note - basenote) / interval, <span class="dt">float</span>(<span class="dv">0</span>), maxIdx);</span>
+<span id="cb3-12"><a href="#cb3-12"></a>  <span class="kw">auto</span> iTbl = <span class="dt">size_t</span>(octFloat);</span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="kw">auto</span> yFrac = octFloat - <span class="dt">float</span>(iTbl);</span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a>  <span class="kw">auto</span> pos = <span class="dt">float</span>(size) * phase;</span>
+<span id="cb3-16"><a href="#cb3-16"></a>  <span class="kw">auto</span> idx = <span class="dt">size_t</span>(pos);</span>
+<span id="cb3-17"><a href="#cb3-17"></a>  <span class="kw">auto</span> xFrac = pos - <span class="dt">float</span>(idx);</span>
+<span id="cb3-18"><a href="#cb3-18"></a></span>
+<span id="cb3-19"><a href="#cb3-19"></a>  <span class="kw">auto</span> a0 = table[iTbl][idx];</span>
+<span id="cb3-20"><a href="#cb3-20"></a>  <span class="kw">auto</span> a1 = table[iTbl][idx + <span class="dv">1</span>];</span>
+<span id="cb3-21"><a href="#cb3-21"></a>  <span class="kw">auto</span> s0 = a0 + xFrac * (a1 - a0); <span class="co">// 位相方向の線形補間。</span></span>
+<span id="cb3-22"><a href="#cb3-22"></a></span>
+<span id="cb3-23"><a href="#cb3-23"></a>  <span class="kw">auto</span> b0 = table[iTbl + <span class="dv">1</span>][idx];</span>
+<span id="cb3-24"><a href="#cb3-24"></a>  <span class="kw">auto</span> b1 = table[iTbl + <span class="dv">1</span>][idx + <span class="dv">1</span>];</span>
+<span id="cb3-25"><a href="#cb3-25"></a>  <span class="kw">auto</span> s1 = b0 + xFrac * (b1 - b0); <span class="co">// 位相方向の線形補間。</span></span>
+<span id="cb3-26"><a href="#cb3-26"></a></span>
+<span id="cb3-27"><a href="#cb3-27"></a>  <span class="cf">return</span> s0 + yFrac * (s1 - s0); <span class="co">// インデックス方向の線形補間。</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a>}</span></code></pre></div>
+<p>以下は完全な実装へのリンクです。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L80">Python 3 によるオーバーサンプリングあり、インデックス方向の補間ありの実装を読む (github.com)</a></li>
 </ul>
-<p>以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。ポップノイズは消えましたが、図の上部で波打つように暗くなっている箇所で高次の倍音が弱くなっています。</p>
+<p>以下はインデックス方向を線形補間した実装で MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。ポップノイズは消えましたが、図の上部で波打つように暗くなっている箇所で高次の倍音が弱くなっています。</p>
 <figure>
 <img src="img/TableOscBilinear.png" alt="Spectrogram of an output of bilinear interpolated wavetable oscillator." style="padding-bottom: 12px;"/>
 </figure>
@@ -567,7 +595,7 @@ i = \left\lfloor \frac{\nu - \mathtt{basenote}}{\mathtt{interval}} \right\rfloor
 <li>ウェーブテーブルはナイキスト周波数の <span class="math inline">\(H\)</span> 倍までの周波数成分を含む。</li>
 <li><span class="math inline">\(L\)</span> 倍のオーバーサンプリング。</li>
 </ul>
-<p>このとき以下の不等式を満たせばエイリアシングは起こりません。</p>
+<p>このとき以下の条件を満たせばエイリアシングは起こりません。</p>
 <p><span class="math display">\[
 BH \leq 2L - 1, \quad B \geq 1, \quad H \geq 1.
 \]</span></p>
@@ -581,14 +609,13 @@ B = H = \sqrt{2L - 1}
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L127">Python 3 によるオーバーサンプリングあり、最適な設計の実装を読む (github.com)</a></li>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L391">C++ によるオーバーサンプリングあり、最適な設計の実装を読む (github.com)</a></li>
 </ul>
-<p>以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。テーブルの数は増えましたが、エイリアシングも倍音の弱まりもなくなっています。</p>
+<p>以下は最適な設計による実装で MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。テーブルの数は増えましたが、エイリアシングも倍音の弱まりもなくなっています。</p>
 <figure>
 <img src="img/TableOscAltInterval.png" alt="Spectrogram of an output of bilinear interpolated wavetable oscillator." style="padding-bottom: 12px;"/>
 </figure>
 <p>ここまでやってしまえば、あとはダウンサンプリングのローパスフィルタの設計くらいでしか品質は変わりません。</p>
 <h3 id="オーバーサンプリングなしの実装">オーバーサンプリングなしの実装</h3>
-<p>ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は <a href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a> で使いました。ただし CubicPadSynth は倍音のカットオフの計算を間違えているので、正しい実装は下のリンク先のコードを参照してください。</p>
-<p>以下はコードへのリンクです。</p>
+<p>ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は <a href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a> で使いました。ただし CubicPadSynth は倍音のカットオフの計算を間違えているので、正しい実装は以下のリンク先のコードを参照してください。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L257">Python 3 によるオーバーサンプリングなしの実装を読む (github.com)</a></li>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L666">C++ によるオーバーサンプリングなしの実装を読む (github.com)</a></li>
@@ -600,12 +627,12 @@ B = H = \sqrt{2L - 1}
 <p>オーバーサンプリングがない分だけ速いので使える場面はありそうです。ただし、メモリを大量に使うのでウェーブテーブルがあまりにも長くなるとパフォーマンスが落ちます。</p>
 <h3 id="ミップマップを使う実装">ミップマップを使う実装</h3>
 <p>The Quest For The Perfect Resampler で紹介されているミップマップを使う方法も実装して試しました。</p>
-<p>メモリを節約したいときはミップマップを使うことができます。以下はウェーブテーブルのミップマップを表した図です。</p>
+<p>メモリを節約したいときはミップマップを使うことができます。以下はウェーブテーブルのミップマップを表した図です。図の左の数字はウェーブテーブルのインデックスです。</p>
 <figure>
 <img src="img/mipmap_table.svg" alt="Image of mipmap tables." style="padding-bottom: 12px;"/>
 </figure>
 <p>ミップマップを使うとウェーブテーブルの間隔が 1 オクターブに固定されるので、インデックス方向の補間による倍音の弱まりが避けられない点に注意してください。</p>
-<p>ミップマップを使うときは質のいいアップサンプラを使わないと耳で聴きとれるノイズがでます。以下は形補間を使ったときに MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。全体に薄くノイズが乗っていることが見て取れます。</p>
+<p>以下はミップマップを位相方向に線形補間する実装で MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。全体に薄くノイズが乗っていることが見て取れます。</p>
 <figure>
 <img src="img/MipmapOsc.png" alt="Spectrogram of mipmap oscillator using linear interpolation on phase direction." style="padding-bottom: 12px;"/>
 </figure>
@@ -614,6 +641,7 @@ B = H = \sqrt{2L - 1}
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L257">Python 3 によるミップマップと線形補間を使ったオシレータの実装を読む (github.com)</a></li>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L178">C++ によるミップマップと線形補間を使ったオシレータの実装を読む (github.com)</a></li>
 </ul>
+<p>ミップマップの線形補間は質が悪すぎるので De Soras さんの資料にならってアップサンプラを使います。</p>
 <h4 id="アップサンプラのフィルタ設計">アップサンプラのフィルタ設計</h4>
 <p>以下のパラメータを決めます。</p>
 <ul>
@@ -626,34 +654,34 @@ B = H = \sqrt{2L - 1}
 <p><span class="math inline">\(f_p\)</span> と <span class="math inline">\(f_s\)</span> の値は適当に決めています。ここでは出力のナイキスト周波数は 0.5 です。またローパスなので <span class="math inline">\(f_p &lt; f_s\)</span> を満たす必要があります。 <span class="math inline">\(f_s\)</span> が 0.5 より大きいとエイリアシングが出ます。しかし <span class="math inline">\(f_p\)</span> が 0.5 より小さいと高次の倍音が弱くなります。</p>
 <p><span class="math inline">\(N\)</span> と <span class="math inline">\(M\)</span> は増やすほどフィルタの質が良くなります。 De Soras さんの資料では <span class="math inline">\(N = 12, M = 64\)</span> としていますが、ここでは <span class="math inline">\(N = 32, M = 64\)</span> としました。</p>
 <p>Python3 と SciPy を使ってフィルタを設計します。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a>f_p <span class="op">=</span> <span class="fl">0.4</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a>f_s <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>N_fir <span class="op">=</span> <span class="dv">32</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a>M_fir <span class="op">=</span> <span class="dv">64</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a></span>
-<span id="cb3-9"><a href="#cb3-9"></a>bands <span class="op">=</span> np.hstack((</span>
-<span id="cb3-10"><a href="#cb3-10"></a>    [<span class="dv">0</span>, f_p],</span>
-<span id="cb3-11"><a href="#cb3-11"></a>    [f_s, M_fir <span class="op">/</span> <span class="dv">2</span>],</span>
-<span id="cb3-12"><a href="#cb3-12"></a>))</span>
-<span id="cb3-13"><a href="#cb3-13"></a>desired <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb3-14"><a href="#cb3-14"></a>weight <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">100</span>)</span>
-<span id="cb3-15"><a href="#cb3-15"></a>fir <span class="op">=</span> signal.remez(N_fir <span class="op">*</span> M_fir <span class="op">-</span> <span class="dv">1</span>, bands, desired, weight, fs<span class="op">=</span>M_fir, maxiter<span class="op">=</span><span class="dv">1024</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a>f_p <span class="op">=</span> <span class="fl">0.4</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>f_s <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>N_fir <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>M_fir <span class="op">=</span> <span class="dv">64</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a></span>
+<span id="cb4-9"><a href="#cb4-9"></a>bands <span class="op">=</span> np.hstack((</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    [<span class="dv">0</span>, f_p],</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    [f_s, M_fir <span class="op">/</span> <span class="dv">2</span>],</span>
+<span id="cb4-12"><a href="#cb4-12"></a>))</span>
+<span id="cb4-13"><a href="#cb4-13"></a>desired <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb4-14"><a href="#cb4-14"></a>weight <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">100</span>)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>fir <span class="op">=</span> signal.remez(N_fir <span class="op">*</span> M_fir <span class="op">-</span> <span class="dv">1</span>, bands, desired, weight, fs<span class="op">=</span>M_fir, maxiter<span class="op">=</span><span class="dv">1024</span>)</span></code></pre></div>
 <p>設計したフィルタをポリフェイズ分解します。各フェイズの出力振幅を 1 に正規化したいので <code>splitPolyPhase</code> の呼び出しで <code>M * fir</code> としています。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="im">import</span> json</span>
-<span id="cb4-2"><a href="#cb4-2"></a></span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="kw">def</span> splitPolyPhase(fir, nPhase):</span>
-<span id="cb4-4"><a href="#cb4-4"></a>    padding <span class="op">=</span> nPhase <span class="op">-</span> <span class="bu">len</span>(fir) <span class="op">%</span> nPhase</span>
-<span id="cb4-5"><a href="#cb4-5"></a>    fir <span class="op">=</span> np.hstack((fir, np.zeros(padding)))</span>
-<span id="cb4-6"><a href="#cb4-6"></a>    polyphase <span class="op">=</span> []</span>
-<span id="cb4-7"><a href="#cb4-7"></a>    <span class="cf">for</span> phase <span class="kw">in</span> <span class="bu">range</span>(nPhase):</span>
-<span id="cb4-8"><a href="#cb4-8"></a>        part <span class="op">=</span> fir[phase::nPhase]</span>
-<span id="cb4-9"><a href="#cb4-9"></a>        polyphase.append(part.tolist())</span>
-<span id="cb4-10"><a href="#cb4-10"></a>    <span class="cf">return</span> polyphase</span>
-<span id="cb4-11"><a href="#cb4-11"></a></span>
-<span id="cb4-12"><a href="#cb4-12"></a>fir <span class="op">=</span> splitPolyPhase(M <span class="op">*</span> fir, M)[::<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">import</span> json</span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">def</span> splitPolyPhase(fir, nPhase):</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    padding <span class="op">=</span> nPhase <span class="op">-</span> <span class="bu">len</span>(fir) <span class="op">%</span> nPhase</span>
+<span id="cb5-5"><a href="#cb5-5"></a>    fir <span class="op">=</span> np.hstack((fir, np.zeros(padding)))</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    polyphase <span class="op">=</span> []</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="cf">for</span> phase <span class="kw">in</span> <span class="bu">range</span>(nPhase):</span>
+<span id="cb5-8"><a href="#cb5-8"></a>        part <span class="op">=</span> fir[phase::nPhase]</span>
+<span id="cb5-9"><a href="#cb5-9"></a>        polyphase.append(part.tolist())</span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="cf">return</span> polyphase</span>
+<span id="cb5-11"><a href="#cb5-11"></a></span>
+<span id="cb5-12"><a href="#cb5-12"></a>fir <span class="op">=</span> splitPolyPhase(M <span class="op">*</span> fir, M)[::<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div>
 <p>得られた <code>fir</code> は以下のような 2 次元配列になっています。</p>
 <pre><code>[
   [/* ポリフェイズ 0 の FIR 係数 */],
@@ -662,43 +690,47 @@ B = H = \sqrt{2L - 1}
   // ...
 ]</code></pre>
 <p>ミップマップを <code>fir</code> で補間するには以下のように計算します。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a><span class="co">// phase は [0.0, 1.0) の範囲で正規化された現在の位相。</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="co">// octave は入力されたピッチから決めたウェーブテーブルのインデックス。</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a>Sample processTable(<span class="at">const</span> Sample phase, <span class="at">const</span> <span class="dt">size_t</span> octave)</span>
-<span id="cb6-4"><a href="#cb6-4"></a>{</span>
-<span id="cb6-5"><a href="#cb6-5"></a>  <span class="cf">if</span> (octave &gt;= table.size()) <span class="cf">return</span> Sample(<span class="dv">0</span>);</span>
-<span id="cb6-6"><a href="#cb6-6"></a>  <span class="at">const</span> <span class="kw">auto</span> &amp;tbl = table[octave]; <span class="co">// table はミップマップの 2 次元配列。</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a></span>
-<span id="cb6-8"><a href="#cb6-8"></a>  <span class="kw">auto</span> tblPos = Sample(tbl.size()) * phase;</span>
-<span id="cb6-9"><a href="#cb6-9"></a>  <span class="kw">auto</span> tblIdx = <span class="dt">size_t</span>(tblPos);</span>
-<span id="cb6-10"><a href="#cb6-10"></a>  <span class="kw">auto</span> tblFrac = tblPos - Sample(tblIdx);</span>
-<span id="cb6-11"><a href="#cb6-11"></a></span>
-<span id="cb6-12"><a href="#cb6-12"></a>  <span class="kw">auto</span> firPos = Sample(InterpFir::nPhase) * tblFrac;</span>
-<span id="cb6-13"><a href="#cb6-13"></a>  <span class="kw">auto</span> firIdx = <span class="dt">size_t</span>(firPos);</span>
-<span id="cb6-14"><a href="#cb6-14"></a>  <span class="kw">auto</span> firFrac = firPos - Sample(firIdx);</span>
-<span id="cb6-15"><a href="#cb6-15"></a></span>
-<span id="cb6-16"><a href="#cb6-16"></a>  <span class="co">// `tbl.size()` は常に 2^n 。よって `tbl.size() - 1` は常に `0b0..1..` 。</span></span>
-<span id="cb6-17"><a href="#cb6-17"></a>  <span class="kw">auto</span> bitmask = tbl.size() - <span class="dv">1</span>;</span>
-<span id="cb6-18"><a href="#cb6-18"></a></span>
-<span id="cb6-19"><a href="#cb6-19"></a>  <span class="kw">auto</span> sum = Sample(<span class="dv">0</span>);</span>
-<span id="cb6-20"><a href="#cb6-20"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> j = <span class="dv">0</span>; j &lt; InterpFir::bufferSize; ++j) {</span>
-<span id="cb6-21"><a href="#cb6-21"></a>    sum += tbl[(tblIdx + j) &amp; bitmask] <span class="co">// ビットマスクでインデックスの巻き戻し。</span></span>
-<span id="cb6-22"><a href="#cb6-22"></a>      * (InterpFir::coefficient[firIdx][j] + firFrac * InterpFir::diff[firIdx][j]);</span>
-<span id="cb6-23"><a href="#cb6-23"></a>  }</span>
-<span id="cb6-24"><a href="#cb6-24"></a>  <span class="cf">return</span> sum;</span>
-<span id="cb6-25"><a href="#cb6-25"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">// phase は [0.0, 1.0) の範囲で正規化された現在の位相。</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="co">// octave は入力されたピッチから決めたウェーブテーブルのインデックス。</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>Sample processTable(<span class="at">const</span> Sample phase, <span class="at">const</span> <span class="dt">size_t</span> octave)</span>
+<span id="cb7-4"><a href="#cb7-4"></a>{</span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="cf">if</span> (octave &gt;= table.size()) <span class="cf">return</span> Sample(<span class="dv">0</span>);</span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="at">const</span> <span class="kw">auto</span> &amp;tbl = table[octave]; <span class="co">// table はミップマップの 2 次元配列。</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a>  <span class="kw">auto</span> tblPos = Sample(tbl.size()) * phase;</span>
+<span id="cb7-9"><a href="#cb7-9"></a>  <span class="kw">auto</span> tblIdx = <span class="dt">size_t</span>(tblPos);</span>
+<span id="cb7-10"><a href="#cb7-10"></a>  <span class="kw">auto</span> tblFrac = tblPos - Sample(tblIdx);</span>
+<span id="cb7-11"><a href="#cb7-11"></a></span>
+<span id="cb7-12"><a href="#cb7-12"></a>  <span class="kw">auto</span> firPos = Sample(InterpFir::nPhase) * tblFrac;</span>
+<span id="cb7-13"><a href="#cb7-13"></a>  <span class="kw">auto</span> firIdx = <span class="dt">size_t</span>(firPos);</span>
+<span id="cb7-14"><a href="#cb7-14"></a>  <span class="kw">auto</span> firFrac = firPos - Sample(firIdx);</span>
+<span id="cb7-15"><a href="#cb7-15"></a></span>
+<span id="cb7-16"><a href="#cb7-16"></a>  <span class="co">// `tbl.size()` は常に 2^n 。よって `tbl.size() - 1` は常に `0b0..1..` 。</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a>  <span class="kw">auto</span> bitmask = tbl.size() - <span class="dv">1</span>;</span>
+<span id="cb7-18"><a href="#cb7-18"></a></span>
+<span id="cb7-19"><a href="#cb7-19"></a>  <span class="kw">auto</span> sum = Sample(<span class="dv">0</span>);</span>
+<span id="cb7-20"><a href="#cb7-20"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> j = <span class="dv">0</span>; j &lt; InterpFir::bufferSize; ++j) {</span>
+<span id="cb7-21"><a href="#cb7-21"></a>    sum += tbl[(tblIdx + j) &amp; bitmask] <span class="co">// ビットマスクでインデックスの巻き戻し。</span></span>
+<span id="cb7-22"><a href="#cb7-22"></a>      * (InterpFir::coefficient[firIdx][j] + firFrac * InterpFir::diff[firIdx][j]);</span>
+<span id="cb7-23"><a href="#cb7-23"></a>  }</span>
+<span id="cb7-24"><a href="#cb7-24"></a>  <span class="cf">return</span> sum;</span>
+<span id="cb7-25"><a href="#cb7-25"></a>}</span></code></pre></div>
 <p>De Soras さんの資料では <code>fir[firIdx][j + 1] - fir[firIdx][j]</code> を事前に計算して別の配列にしておくことで計算量を減らす方法が紹介されています。</p>
-<p>以下のリンク先でミップマップとアップサンプラを使ったオシレータのコードが読めます。</p>
+<p>以下のリンク先にミップマップとアップサンプラを使ったオシレータのコードを掲載しています。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L566">C++ によるミップマップとアップサンプラを使ったオシレータの実装を読む (github.com)</a></li>
 </ul>
-<p>以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングはウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、インデックス方向の補間によって高次の倍音が弱くなっているからです。</p>
+<p>以下のリンク先にアップサンプラのフィルタを設計する Python 3 のコードを掲載しています。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/cpp/bench/fir.py">アップサンプラのフィルタを設計するコードを読む (github.com)</a></li>
+</ul>
+<p>以下は位相方向の補間にアップサンプラを使ったミップマップオシレータで、 MIDI ノート番号 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングがウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、インデックス方向の補間によって高次の倍音が弱くなっているからです。</p>
 <figure>
 <img src="img/chirp_MipmapDeSoras.png" alt="Spectrogram of mipmap oscillator using upsampler." style="padding-bottom: 12px;"/>
 </figure>
-<p>ミップマップを使う方法はアップサンプラのフィルタの質で大きく音が変わります。 <span class="math inline">\(f_p\)</span> を 0.5 以下にすると今回のように倍音の弱まりが出ます。かと言って <span class="math inline">\(f_p\)</span> を 0.5 にすると <span class="math inline">\(f_s\)</span> を 0.5 より大きい値にする必要が出てくるので、今度はエイリアシングノイズが出ます。 <span class="math inline">\(N_{\mathrm{fir}}\)</span> の値を大きくすることで倍音の弱まりとエイリアシングの両方を改善できますが、今度は計算が重たくなります。</p>
-<p>インデックス方向の線形補間を行うときは 1 サンプルあたりで 2 回の畳み込みが必要になります。簡単なベンチマークを取ったところ、今回実装した <span class="math inline">\(N_{\mathrm{fir}} = 32\)</span> でインデックス方向の線形補間ありのミップマップは、オーバーサンプリングありの実装と比べて約 1.5 倍ほどの計算時間がかかりました。</p>
-<p>他の実装にない特徴として、アップサンプラのフィルタをローパス以外の特性に変えてエフェクトをかけることができそうです。</p>
+<p>ミップマップを使う方法はアップサンプラのフィルタの質で大きく音が変わります。 <span class="math inline">\(f_p\)</span> を 0.5 以下にすると今回のように倍音の弱まりが出ます。かと言って <span class="math inline">\(f_p\)</span> を 0.5 にすると <span class="math inline">\(f_s\)</span> を 0.5 より大きい値にする必要が出てくるので、今度はエイリアシングノイズが出ます。</p>
+<p><span class="math inline">\(N_{\mathrm{fir}}\)</span> の値を大きくすることで倍音の弱まりとエイリアシングの両方を改善できますが、今度は計算が重たくなります。さらにインデックス方向の線形補間を行うときは 1 サンプルあたりの計算量が約 2 倍になります。簡単なベンチマークを取ったところ、今回実装した <span class="math inline">\(N_{\mathrm{fir}} = 32\)</span> でインデックス方向の線形補間ありのミップマップは、オーバーサンプリングありの実装と比べて約 1.5 倍ほどの計算時間がかかりました。</p>
+<p>ミップマップを使う方法は計算量から見るとあまり魅力的ではないですが、アップサンプラのフィルタをローパス以外の特性に変えてエフェクトをかけられるという他の実装にない特長があります。</p>
 <h2 id="音のサンプル">音のサンプル</h2>
 <p>各実装でのこぎり波をレンダリングした結果です。</p>
 <figure>
@@ -749,9 +781,9 @@ B = H = \sqrt{2L - 1}
 <source src="snd/chirp_MipmapDeSoras.wav" type="audio/wav">
 </audio>
 </figure>
-<p>「オーバーサンプリングを行う実装 - 最適な設計」と「オーバーサンプリングを行わない実装」はエイリアシングも倍音の弱まりもないので理想的な音です。オーバーサンプリングを行う実装はダウンサンプリングのローパスに楕円フィルタを使っているので高域の位相特性があまりよくないのですが、耳で聴きとることは困難です。</p>
 <p>「オーバーサンプリングを行う実装 - インデックス方向の補間なし」は音量を上げるとテーブルの切り替え時のポップノイズが聞こえます。</p>
 <p>「オーバーサンプリングを行う実装 - インデックス方向を線形補間」と「ミップマップ - アップサンプラ」は高次の倍音が弱まっています。「ミップマップ - アップサンプラ」では倍音の弱まりが聞き取れます。</p>
+<p>「オーバーサンプリングを行う実装 - 最適な設計」と「オーバーサンプリングを行わない実装」はエイリアシングも倍音の弱まりもないので理想的な音です。オーバーサンプリングを行う実装はダウンサンプリングのローパスに楕円フィルタを使っているので高域の位相特性があまりよくないのですが、耳で聴きとることは困難です。</p>
 <p>「ミップマップ - 線形補間」はエイリアシングが大量に出ているので明らかに音が違います。</p>
 <h2 id="その他">その他</h2>
 <p>ウェーブテーブルの標準的な長さは Serum で使われている 2048 サンプルのようです。サンプリング周波数が 48000 Hz のとき <code>48000 / 2048 = 23.4375</code> Hz までなら高次の倍音が欠けません。</p>
