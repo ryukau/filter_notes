@@ -19,7 +19,7 @@ def plot(sig, samplerate, name):
     spectre = 20 * np.log10(absed / np.max(absed))
     spectre = np.where(spectre < -200, -200, spectre)
 
-    plt.figure()
+    plt.figure(figsize=(8, 4), tight_layout=True)
     plt.pcolormesh(time, freq, spectre, cmap="magma", shading="gouraud")
     plt.yscale("log")
     plt.ylim((20, samplerate / 2))
@@ -27,9 +27,10 @@ def plot(sig, samplerate, name):
     plt.xlabel("Time [s]")
     plt.savefig("img/" + name + ".png")
 
+    gc.collect()  # It goes out of memory with 32bit CPython (x86) on Windows.
+
 Path("img").mkdir(parents=True, exist_ok=True)
 for path in Path("snd").glob("chirp_*.wav"):
     print(f"Plotting {path}")
     data, samplerate = soundfile.read(str(path))
     plot(data, samplerate, path.stem)
-    gc.collect()  # It goes out of memory with 32bit CPython (x86) on Windows.

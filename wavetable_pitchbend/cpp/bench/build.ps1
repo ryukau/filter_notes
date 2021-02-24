@@ -8,6 +8,7 @@ if (!(test-path snd)) {
   mkdir snd
 }
 
+# python fir.py
 cmake --build build --config release
 ./build/Release/bench.exe
 python plot.py

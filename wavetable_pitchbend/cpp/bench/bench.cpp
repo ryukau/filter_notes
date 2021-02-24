@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "fir.hpp"
+
 constexpr double pi = 3.14159265358979323846264338;
 constexpr double twopi = 2.0 * pi;
 
@@ -229,6 +231,8 @@ std::vector<std::complex<Sample>> generateSawSpectrum(size_t size)
   return spectrum;
 }
 
+// Octave interval wavetable.
+// This oscillator makes pop noise when switching table during pitchbend.
 template<typename Sample> class TableOsc {
 public:
   Sample sampleRate = Sample(44100);
@@ -263,7 +267,7 @@ public:
     std::vector<std::complex<Sample>> spec(spectrum.size());
     for (size_t idx = 0; idx < table.size(); ++idx) {
       std::fill(spec.begin(), spec.end(), std::complex<Sample>(0, 0));
-      auto cutoff = size / (size_t(1) << (idx + 1)) + 1; // +1 for DC component.
+      auto cutoff = size / (size_t(2) << idx) + 1; // +1 for DC component.
       std::copy(spectrum.begin(), spectrum.begin() + cutoff, spec.begin());
 
       table[idx].resize(size + 1);
@@ -281,7 +285,7 @@ public:
   void debugRenderTable()
   {
     for (size_t idx = 0; idx < table.size(); ++idx) {
-      std::string name = "snd/simple" + std::to_string(idx) + ".wav";
+      std::string name = "snd/TableOsc" + std::to_string(idx) + ".wav";
       writeWave(name, table[idx], size_t(sampleRate));
     }
   }
@@ -309,6 +313,7 @@ public:
   }
 };
 
+// Using std::array instead of std::vector to see the performance.
 template<typename Sample> class ArrayOsc {
 public:
   static constexpr size_t tableSize = 8192;
@@ -335,7 +340,7 @@ public:
     std::vector<std::complex<Sample>> spec(spectrum.size());
     for (size_t idx = 0; idx < nOctave; ++idx) {
       std::fill(spec.begin(), spec.end(), std::complex<Sample>(0, 0));
-      auto cutoff = tableSize / (size_t(1) << (idx + 1)) + 1;
+      auto cutoff = tableSize / (size_t(2) << idx) + 1;
       std::copy(spectrum.begin(), spectrum.begin() + cutoff, spec.begin());
 
       fft.c2r(spec.data(), table[idx].data());
@@ -353,7 +358,7 @@ public:
   {
     std::vector<Sample> wav(table[0].size());
     for (size_t idx = 0; idx < nOctave; ++idx) {
-      std::string name = "snd/array" + std::to_string(idx) + ".wav";
+      std::string name = "snd/ArrayOsc" + std::to_string(idx) + ".wav";
       std::copy(table[idx].begin(), table[idx].end(), wav.begin());
       writeWave(name, wav, size_t(sampleRate));
     }
@@ -382,8 +387,11 @@ public:
   }
 };
 
+// Optimal wavetable.
 template<typename Sample> class TableOscAltInterval {
 public:
+  static constexpr Sample bendRange = Sample(1.7320508075688772935); // sqrt(3).
+
   Sample sampleRate = Sample(44100);
   Sample phase = Sample(0);
   Sample basenote = Sample(0);
@@ -407,9 +415,7 @@ public:
     pocketfft::shape_t shape{size};
     fft.setShape(shape);
 
-    const Sample bendRange = Sample(1.5);
-    const size_t nTable
-      = size_t(-std::log(Sample(1) / Sample(specSize)) / std::log(bendRange));
+    const size_t nTable = size_t(std::log(Sample(specSize)) / std::log(bendRange));
     maxIdx = Sample(nTable - 1);
 
     basenote = frequencyToMidinote(this->sampleRate / Sample(size));
@@ -439,7 +445,7 @@ public:
   void debugRenderTable()
   {
     for (size_t idx = 0; idx < table.size(); ++idx) {
-      std::string name = "snd/altinterval" + std::to_string(idx) + ".wav";
+      std::string name = "snd/TableOscAltInterval" + std::to_string(idx) + ".wav";
       writeWave(name, table[idx], size_t(sampleRate));
     }
   }
@@ -476,7 +482,8 @@ public:
   }
 };
 
-template<typename Sample> class MipmapOsc {
+// Linear interpolated mipmap.
+template<typename Sample> class MipmapOscLinear {
 public:
   Sample sampleRate = Sample(44100);
   Sample phase = Sample(0);
@@ -486,29 +493,27 @@ public:
   std::vector<std::vector<Sample>> table;
   PocketFFT<Sample> fft;
 
-  MipmapOsc(Sample sampleRate)
+  MipmapOscLinear(Sample sampleRate)
   {
     this->sampleRate = Sample(2) * sampleRate;
 
     auto exponent = size_t(std::floor(std::log2(this->sampleRate / Sample(1))));
-    if (exponent >= std::numeric_limits<size_t>::digits)
-      exponent = std::numeric_limits<size_t>::digits - 1;
+    exponent = std::clamp<size_t>(exponent, 1, std::numeric_limits<size_t>::digits - 1);
     size = size_t(1) << exponent;
     auto spectrum = generateSawSpectrum<Sample>(size);
 
     basenote = frequencyToMidinote(this->sampleRate / Sample(size));
 
-    if (exponent <= 2) exponent = 3;
-    table.resize(size_t(exponent) - 2);
+    table.resize(size_t(exponent));
     std::vector<std::complex<Sample>> spec;
     for (size_t idx = 0; idx < table.size(); ++idx) {
-      auto cutoff = size / (size_t(1) << (idx + 2)) + 1;
+      auto cutoff = size / (size_t(1) << (idx + 1)) + 1;
 
       spec.resize(cutoff, std::complex<Sample>(0, 0));
       for (size_t j = 0; j < spec.size(); ++j)
-        spec[j] = spectrum[j] / Sample(size_t(1) << (idx + 1));
+        spec[j] = spectrum[j] / Sample(size_t(1) << idx);
 
-      table[idx].resize(2 * spec.size() - 1);
+      table[idx].resize(2 * spec.size() - 2);
 
       pocketfft::shape_t shape{table[idx].size() - 1};
       fft.setShape(shape);
@@ -527,7 +532,7 @@ public:
   void debugRenderTable()
   {
     for (size_t idx = 0; idx < table.size(); ++idx) {
-      std::string name = "snd/mipmap" + std::to_string(idx) + ".wav";
+      std::string name = "snd/MipmapOsc" + std::to_string(idx) + ".wav";
       writeWave(name, table[idx], size_t(sampleRate));
     }
   }
@@ -542,8 +547,10 @@ public:
     auto idx = size_t(pos);
     auto frac = pos - Sample(idx);
 
+    auto next = idx + 1;
+    if (next >= table[octave].size()) next -= table[octave].size();
     auto x0 = table[octave][idx];
-    auto x1 = table[octave][idx + 1];
+    auto x1 = table[octave][next];
     return x0 + frac * (x1 - x0);
   }
 
@@ -555,13 +562,114 @@ public:
   }
 };
 
+// Linear interpolated mipmap.
+template<typename Sample, typename InterpFir> class MipmapOscDeSoras {
+public:
+  Sample sampleRate = Sample(44100);
+  Sample phase = Sample(0);
+  Sample basenote = Sample(0);
+  size_t size = 0;
+  SosFilter<Sample, SosEllipticDecimation2<float>, 2> lowpass;
+  std::vector<std::vector<Sample>> table;
+  PocketFFT<Sample> fft;
+
+  MipmapOscDeSoras(Sample sampleRate)
+  {
+    this->sampleRate = Sample(2) * sampleRate;
+
+    auto exponent = size_t(std::floor(std::log2(this->sampleRate / Sample(1))));
+    exponent = std::clamp<size_t>(exponent, 1, std::numeric_limits<size_t>::digits - 1);
+    size = size_t(1) << exponent;
+    auto spectrum = generateSawSpectrum<Sample>(size);
+
+    basenote = frequencyToMidinote(this->sampleRate / Sample(size));
+
+    table.resize(size_t(exponent));
+    std::vector<std::complex<Sample>> spec;
+    for (size_t idx = 0; idx < table.size(); ++idx) {
+      auto cutoff = size / (size_t(1) << (idx + 1)) + 1;
+
+      spec.resize(cutoff, std::complex<Sample>(0, 0));
+      for (size_t j = 0; j < spec.size(); ++j)
+        spec[j] = spectrum[j] / Sample(size_t(1) << idx);
+
+      table[idx].resize(2 * spec.size() - 2);
+
+      pocketfft::shape_t shape{table[idx].size() - 1};
+      fft.setShape(shape);
+      fft.c2r(spec.data(), table[idx].data());
+    }
+  }
+
+  void reset()
+  {
+    phase = Sample(0);
+    lowpass.reset();
+  }
+
+  void debugRenderTable()
+  {
+    for (size_t idx = 0; idx < table.size(); ++idx) {
+      std::string name = "snd/MipmapOsc" + std::to_string(idx) + ".wav";
+      writeWave(name, table[idx], size_t(sampleRate));
+    }
+  }
+
+  Sample processTable(const Sample phase, const size_t octave)
+  {
+    if (octave >= table.size()) return Sample(0);
+    const auto &tbl = table[octave];
+
+    auto tblPos = Sample(tbl.size()) * phase;
+    auto tblIdx = size_t(tblPos);
+    auto tblFrac = tblPos - Sample(tblIdx);
+
+    auto firPos = Sample(InterpFir::nPhase) * tblFrac;
+    auto firIdx = size_t(firPos);
+    auto firFrac = firPos - Sample(firIdx);
+
+    // `tbl.size()` is always 2^n. So `tbl.size() - 1` is always `0b0...01...`.
+    auto bitmask = tbl.size() - 1;
+
+    auto sum = Sample(0);
+    for (size_t j = 0; j < InterpFir::bufferSize; ++j) {
+      sum += tbl[(tblIdx + j) & bitmask]
+        * (InterpFir::coefficient[firIdx][j] + firFrac * InterpFir::diff[firIdx][j]);
+    }
+    return sum;
+  }
+
+  Sample processSample(Sample note)
+  {
+    phase += std::clamp(midinoteToFrequency(note) / sampleRate, Sample(0), Sample(0.5));
+    phase -= std::floor(phase);
+
+    auto octFloat
+      = std::clamp((note - basenote) / Sample(12), Sample(0), Sample(table.size() - 1));
+    auto iTbl = size_t(octFloat);
+    auto yFrac = octFloat - Sample(iTbl);
+
+    auto y0 = processTable(phase, iTbl);
+    auto y1 = processTable(phase, iTbl + 1);
+    return y0 + yFrac * (y1 - y0);
+  }
+
+  Sample process(Sample note)
+  {
+    std::array<Sample, 2> sample;
+    for (auto &value : sample) value = processSample(note);
+    return lowpass.process(sample);
+  }
+};
+
+// Wavetable oscillator without oversampling.
 template<typename Sample> class LpsOsc {
 public:
   Sample sampleRate = Sample(44100);
   Sample phase = Sample(0);
   Sample basenote = Sample(0);
   Sample tableSize = Sample(0);
-  size_t maxNote = 0;
+  size_t sizeInt = 0;
   std::vector<std::vector<Sample>> table;
   PocketFFT<Sample> fft;
 
@@ -569,31 +677,31 @@ public:
   {
     this->sampleRate = sampleRate;
 
-    auto minFreq = midinoteToFrequency<Sample>(0);
-    auto expFloat = std::log2(this->sampleRate / std::floor(minFreq));
+    auto expFloat
+      = std::log2(this->sampleRate / std::floor(midinoteToFrequency<Sample>(0)));
     auto exponent = size_t(std::ceil(expFloat));
-    if (exponent >= std::numeric_limits<size_t>::digits)
-      exponent = std::numeric_limits<size_t>::digits - 1;
-    auto sizeInt = size_t(1) << exponent;
+    exponent = std::min(exponent, size_t(std::numeric_limits<size_t>::digits - 1));
+    sizeInt = size_t(1) << exponent;
     tableSize = Sample(sizeInt);
+    auto minFreq = this->sampleRate / tableSize;
     auto spectrum = generateSawSpectrum<Sample>(sizeInt);
 
     pocketfft::shape_t shape{sizeInt};
     fft.setShape(shape);
 
-    maxNote = size_t(std::ceil(frequencyToMidinote<Sample>(20000)));
+    auto maxNote = size_t(std::ceil(frequencyToMidinote<Sample>(20000)));
     table.resize(maxNote + 1);
     std::vector<std::complex<Sample>> spec(spectrum.size());
-    for (size_t idx = 0; idx < table.size(); ++idx) {
+    for (size_t idx = 0; idx < table.size() - 1; ++idx) {
       auto freq = midinoteToFrequency(Sample(idx));
-      auto cutoff = size_t(sizeInt / 2 * minFreq / freq);
+      auto cutoff = size_t(sizeInt / 2 * minFreq / freq) + 1;
       std::copy(spectrum.begin(), spectrum.begin() + cutoff, spec.begin());
       std::fill(spec.begin() + cutoff, spec.end(), std::complex<Sample>(0, 0));
 
-      table[idx].resize(sizeInt + 1);
+      table[idx].resize(sizeInt);
       fft.c2r(spec.data(), table[idx].data());
-      table[idx].back() = table[idx][0];
     }
+    table.back().resize(sizeInt);
     std::fill(table.back().begin(), table.back().end(), Sample(0));
   }
 
@@ -602,43 +710,31 @@ public:
   void debugRenderTable()
   {
     for (size_t idx = 0; idx < table.size(); ++idx) {
-      std::string name = "snd/lpsosc" + std::to_string(idx) + ".wav";
+      std::string name = "snd/LpsOsc" + std::to_string(idx) + ".wav";
       writeWave(name, table[idx], size_t(sampleRate));
     }
   }
 
   inline void processPhase(Sample note)
   {
-    auto tick = midinoteToFrequency(note) * tableSize / sampleRate;
-    if (tick >= tableSize || tick < 0) tick = 0;
-
-    phase += tick;
-    if (phase >= tableSize) phase -= tableSize;
+    phase += std::clamp(midinoteToFrequency(note) / sampleRate, Sample(0), Sample(0.5));
+    phase -= std::floor(phase);
   }
 
-  Sample processLow(Sample note)
-  {
-    auto idx = size_t(phase);
-    const auto &a0 = table[0][idx];
-    const auto &a1 = table[0][idx + 1];
-    auto fracX = phase - Sample(size_t(phase));
-    return a0 + fracX * (a1 - a0);
-  }
-
-  Sample processFull(Sample note)
+  Sample process(Sample note)
   {
     processPhase(note);
 
-    if (note < 0) return processLow(note);
-
+    note = std::clamp(note, Sample(0), Sample(table.size() - 2));
     auto nn = size_t(note);
-    if (nn > maxNote) nn = maxNote - 1;
 
-    auto idx = size_t(phase);
+    auto idx = size_t(tableSize * phase);
+    auto next = idx + 1;
+    if (next >= sizeInt) next -= sizeInt;
     const auto &a0 = table[nn][idx];
-    const auto &a1 = table[nn][idx + 1];
+    const auto &a1 = table[nn][next];
     const auto &b0 = table[nn + 1][idx];
-    const auto &b1 = table[nn + 1][idx + 1];
+    const auto &b1 = table[nn + 1][next];
 
     auto fracX = phase - Sample(size_t(phase));
     auto x0 = a0 + fracX * (a1 - a0);
@@ -646,21 +742,9 @@ public:
 
     return x0 + (note - Sample(nn)) * (x1 - x0);
   }
-
-  Sample process(Sample note)
-  {
-    processPhase(note);
-
-    auto nn = std::clamp<size_t>(size_t(note), 0, maxNote);
-
-    auto idx = size_t(phase);
-    const auto &a0 = table[nn][idx];
-    const auto &a1 = table[nn][idx + 1];
-    auto fracX = phase - Sample(size_t(phase));
-    return a0 + fracX * (a1 - a0);
-  }
 };
 
+// CubicPadSynth oscillator. This implementation contains some mistake.
 template<typename Sample> class CpsOsc {
 public:
   Sample sampleRate = Sample(44100);
@@ -675,7 +759,7 @@ public:
   {
     this->sampleRate = sampleRate;
 
-    auto minFreq = midinoteToFrequency<Sample>(0);
+    auto minFreq = midinoteToFrequency<Sample>(0); // This value is incorrect. See LpsOsc.
     auto expFloat = std::log2(this->sampleRate / std::floor(minFreq));
     auto exponent = size_t(std::ceil(expFloat));
     if (exponent >= std::numeric_limits<size_t>::digits)
@@ -695,7 +779,7 @@ public:
     size_t back3 = sizeInt;
     for (size_t idx = 0; idx < table.size(); ++idx) {
       auto freq = midinoteToFrequency(Sample(idx));
-      auto cutoff = size_t(sizeInt / 2 * minFreq / freq);
+      auto cutoff = size_t(sizeInt / 2 * minFreq / freq); // Forgetting +1 for DC.
       std::copy(spectrum.begin(), spectrum.begin() + cutoff, spec.begin());
       std::fill(spec.begin() + cutoff, spec.end(), std::complex<Sample>(0, 0));
 
@@ -716,7 +800,7 @@ public:
   void debugRenderTable()
   {
     for (size_t idx = 0; idx < table.size(); ++idx) {
-      std::string name = "snd/cpsosc" + std::to_string(idx) + ".wav";
+      std::string name = "snd/CpsOsc" + std::to_string(idx) + ".wav";
       writeWave(name, table[idx], size_t(sampleRate));
     }
   }
@@ -757,7 +841,8 @@ template<typename Osc> void bench(std::string name)
   for (size_t loop = 0; loop < nLoop; ++loop) {
     osc.reset();
     for (size_t i = 0; i < wav.size(); ++i) {
-      auto note = 128.0f * i / float(wav.size());
+      auto note = 256.0f * i / float(wav.size());
+      if (note > 128.0f) note = 256.0f - note;
 
       auto start = std::chrono::steady_clock::now();
 
@@ -798,21 +883,23 @@ template<typename Osc> void testOutOfRangePitch(std::string name)
 int main()
 {
   std::cout << "--- Warm up\n";
-  bench<TableOsc<float>>("Simple");
+  bench<TableOsc<float>>("Basic");
 
   std::cout << "\n--- Benchmark\n";
-  bench<TableOsc<float>>("Simple");
+  bench<TableOsc<float>>("Basic");
   bench<ArrayOsc<float>>("Array");
   bench<TableOscAltInterval<float>>("AltInterval");
-  bench<MipmapOsc<float>>("Mipmap");
+  bench<MipmapOscLinear<float>>("MipmapLinear");
+  bench<MipmapOscDeSoras<float, TableInterpFir<float>>>("MipmapDeSoras");
   bench<LpsOsc<float>>("Lpsosc");
   bench<CpsOsc<float>>("Cpsosc");
 
   std::cout << "\n--- Test out of range pitch\n";
-  testOutOfRangePitch<TableOsc<float>>("Simple");
+  testOutOfRangePitch<TableOsc<float>>("Basic");
   testOutOfRangePitch<ArrayOsc<float>>("Array");
   testOutOfRangePitch<TableOscAltInterval<float>>("AltInterval");
-  testOutOfRangePitch<MipmapOsc<float>>("Mipmap");
+  testOutOfRangePitch<MipmapOscLinear<float>>("MipmapLinear");
+  testOutOfRangePitch<MipmapOscDeSoras<float, TableInterpFir<float>>>("MipmapDeSoras");
   testOutOfRangePitch<LpsOsc<float>>("Lpsosc");
   testOutOfRangePitch<CpsOsc<float>>("Cpsosc");
 
