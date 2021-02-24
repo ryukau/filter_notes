@@ -1,21 +1,12 @@
 # ウェーブテーブルのピッチベンド
-[Yoshimi](http://yoshimi.sourceforge.net/) の ADDSynth ではユーザが生成した波形を FFT して得られた周波数成分を内部的に保持しています。そして、この周波数成分をノートオンごとに帯域制限して IFFT することでエイリアシングを低減しています。 ADDSynth の方法はノートの音程が一定ならエイリアシングノイズを消せますが、ピッチベンドがかかると高次の倍音の欠落あるいはエイリアシングノイズが出ます。ここではピッチベンドをかけても倍音の欠落やエイリアシングノイズが出ない方法を調べます。
+ピッチベンドをかけても倍音の欠落やエイリアシングノイズが出ないウェーブテーブルを実装します。
 
 ここで紹介するテクニックは Laurent de Soras さんによる [The Quest For The Perfect Resampler](http://ldesoras.free.fr/doc/articles/resampler-en.pdf) の内容を基にしています。
 
 文中のコードは Python3 です。実行には [SciPy](https://www.scipy.org/), [NumPy](https://numpy.org/) が必要です。
 
-## ウェーブテーブルの帯域制限
-帯域制限の方法の要旨を再掲します。詳細は「[ウェーブテーブルのエイリアシングの低減](../wavetable/wavetable.html)」 にまとめています。
-
-まず、波形の周波数成分を用意します。ユーザに直接入力させる方法と、ユーザが指定した波形を FFT する方法があります。
-
-サンプリング周波数を $f_s$​ 、合成する音の周波数 (基本周波数) を $f_0$ とすると、ナイキスト周波数を超えない最大の倍音の次数は $\displaystyle N_h = \left\lfloor \frac{f_s}{2 f_0} \right\rfloor$ です。よって $N_h + 1$ より高い周波数成分の値を 0 にしてから IFFT によってウェーブテーブルを生成することで帯域制限できます。
-
-逆に言えば、周波数成分を帯域制限せずに生成したウェーブテーブルの長さが $N$ のとき、再生時の周波数が $f_0 = \dfrac{f_s}{2N}$ までならエイリアシングが起こりません。 $N_h$ は 0 以上の整数なので計算に床関数が必要ですが、 $f_0$ は実数なので床関数がなくなっています。
-
-## ピッチベンド
-例を作ってピッチベンドの挙動を見ていきます。サンプリング周波数 $f_s = 48000\,\text{[Hz]}$ 、基本周波数 $f_0 = 880\,\text{[Hz]}$ として帯域制限したウェーブテーブルを生成します。
+## エイリアシング低減の仕組み
+ウェーブテーブルのピッチベンドの挙動を見ていきます。例としてサンプリング周波数 $f_s = 48000\,\text{[Hz]}$ 、基本周波数 $f_0 = 880\,\text{[Hz]}$ として帯域制限したウェーブテーブルを生成します。帯域制限の方法については[ウェーブテーブルのエイリアシングの低減](../wavetable/wavetable.html)を参照してください。
 
 <figure>
 <img src="img/table.svg" alt="Plot of wavetable and its spectrum." style="padding-bottom: 12px;"/>
@@ -29,13 +20,13 @@
 <img src="img/ConstantPitch.png" alt="Plot of a spectrogram of wavetable oscillator with constant pitch." style="padding-bottom: 12px;"/>
 </figure>
 
-以下は基本周波数より高くなるようにウェーブテーブルオシレータを $f_0$ から $2 f_0$ までピッチベンドしたときのスペクトログラムです。明るい線が上端で跳ね返っているように見えるのがエイリアシングノイズです。
+以下は基本周波数より高くなるようにウェーブテーブルを $f_0$ から $2 f_0$ までピッチベンドしたときのスペクトログラムです。明るい線が上端で跳ね返っているように見えるのがエイリアシングノイズです。
 
 <figure>
 <img src="img/RisingPitch.png" alt="Plot of a spectrogram of wavetable oscillator with rising pitch." style="padding-bottom: 12px;"/>
 </figure>
 
-以下は基本周波数より低くなるようにウェーブテーブルオシレータを $f_0$ から $0.5f_0$ までピッチベンドしたときのスペクトログラムです。高次の倍音が欠けています。
+以下は基本周波数より低くなるようにウェーブテーブルを $f_0$ から $0.5f_0$ までピッチベンドしたときのスペクトログラムです。高次の倍音が欠けています。
 
 <figure>
 <img src="img/FallingPitch.png" alt="Plot of a spectrogram of wavetable oscillator with falling pitch." style="padding-bottom: 12px;"/>
@@ -47,7 +38,7 @@
 <img src="img/table2x.svg" alt="Plot of 2 times oversampled wavetable and its spectrum." style="padding-bottom: 12px;"/>
 </figure>
 
-以下は基本周波数より高くなるようにウェーブテーブルオシレータを $f_0$ から $2 f_0$ までピッチベンドしたときのスペクトログラムです。オーバーサンプリングによってできたマージンがあるのでエイリアシングが出ていません。
+以下は基本周波数より高くなるようにウェーブテーブルを $f_0$ から $2 f_0$ までピッチベンドしたときのスペクトログラムです。オーバーサンプリングによってできたマージンがあるのでエイリアシングが出ていません。図の左の周波数軸の値が 2 倍になっている点に注意してください。
 
 <figure>
 <img src="img/RisingPitch2x.png" alt="Plot of a spectrogram of 2 times oversampled wavetable oscillator with rising pitch." style="padding-bottom: 12px;"/>
@@ -65,83 +56,9 @@
 <img src="img/FilteredRisingPitch2xDecimated.png" alt="Plot of a spectrogram of down-sampled wavetable oscillator output." style="padding-bottom: 12px;"/>
 </figure>
 
-アップサンプリングの倍率を $L$ とするとエイリアシングノイズが出ないピッチベンドの範囲は $[f_0, L f_0)$ です。ダウンサンプリングに使うローパスフィルタが理想的な特性ならピッチベンドの範囲の上限を $\dfrac{3}{2} L f_0$ まで広くできます。あとは必要な範囲に応じて複数のウェーブテーブルを用意して、入力されたピッチによって再生するウェーブテーブルを切り替えることで、ピッチベンドしてもエイリアシングノイズが出ないオシレータが作れます。
+アップサンプリングの倍率を $L$ とするとエイリアシングノイズが出ないピッチベンドの範囲は $[1, 2L - 1)$ です。あとは出力したい周波数の範囲に応じて複数のウェーブテーブルを用意して、入力されたピッチによって再生するウェーブテーブルを切り替えることで、ピッチベンドしてもエイリアシングノイズが出ないオシレータが作れます。
 
-基本周波数より低くなるようにピッチベンドするとオーバーサンプリングの有無にかかわらず倍音の欠落が防げません。よって切り替えを行うときには、基本周波数が入力された周波数 $f$ 以下のウェーブテーブルの中から、基本周波数が $f$ に最も近いものを選びます。
-
-### コード
-ここまで掲載した図の作成に使ったウェーブテーブルの生成とピッチベンドのテストコードです。 `table` がウェーブテーブルです。プロットの部分は省略しています。
-
-```python
-import numpy as np
-import scipy.signal as signal
-
-def saw_spectrum(size):
-    spec = [0] + [(-1)**k / k for k in range(1, int(size / 2 + 1))]
-    spec = -1j * size / np.pi * np.array(spec)
-    return spec
-
-def renderTable(table, freqStart, freqEnd, fs):
-    phase = np.linspace(freqStart / fs, freqEnd / fs, fs).cumsum() % 1.0
-    x = np.linspace(0, 1, len(table))
-    return np.interp(phase, x, table, period=1)
-
-def testNaiveTable(fs=48000, f0=880, size=8192):
-    """オーバーサンプリングなし。"""
-    source = saw_spectrum(size)  # のこぎり波の周波数成分を生成。
-
-    spectrum = source.copy()
-    cutoff = int(fs / (2 * f0))  # 数式の N_h に対応。
-    spectrum[cutoff:] = 0
-    table = np.fft.irfft(spectrum)
-
-    sigF0 = renderTable(table, f0, f0, fs)          # ピッチ一定
-    sigUp = renderTable(table, f0, 2 * f0, fs)      # ピッチ上昇
-    sigDown = renderTable(table, f0, 0.5 * f0, fs)  # ピッチ下降
-
-    # プロットは省略
-
-def test2xTable(fs=48000, f0=880, size=8192):
-    """2倍のオーバーサンプリング。"""
-    oversample = 2  # 数式の L に対応。
-    upRate = oversample * fs
-
-    source = saw_spectrum(size)
-
-    spectrum = source.copy()
-    cutoff = int(upRate / (2 * oversample * f0))  # 数式の N_h に対応。
-    spectrum[cutoff:] = 0
-    table = np.fft.irfft(spectrum)
-
-    lowpass = signal.ellip(12, 0.01, 100, 0.4, "low", output="sos", fs=2)
-
-    sigUp = renderTable(table, f0, 2 * f0, upRate)
-    sigFiltered = signal.sosfilt(lowpass, sigUp)
-    sigDecimated = sigFiltered[::2]
-
-    # プロットは省略
-
-testNaiveTable()
-test2xTable()
-```
-
-## 設計のポイント
-以下はウェーブテーブルオシレータの仕様を決める変数の一覧です。
-
-- オーバーサンプリングの倍率
-- 1 つのウェーブテーブルのピッチベンドの範囲
-- ウェーブテーブルの長さ
-- 倍音が欠落しない最低周波数
-
-まずオーバーサンプリングの倍率を決めます。すると 1 つのウェーブテーブルのピッチベンドの範囲も決まります。 FM などのモジュレーションのかかり方を細かくチューニングしたいときはオーバーサンプリングの倍率と 1 つのウェーブテーブルのピッチベンドの範囲を分けて決めることも考えられます。
-
-次にウェーブテーブルの長さ $N$ を決めます。するとオシレータ全体で倍音の欠落が起こらない最低周波数は $f_s / N$ となります。逆に最低周波数 $f_L$ から $N$ を決めたいときは以下の式が使えます。
-
-$$
-N = \frac{f_s}{f_L}
-$$
-
-最低周波数 $f_L$ は、ナイキスト周波数 $f_s / 2$ から 1 つのウェーブテーブルのピッチベンドの範囲を減算していくように決めると帯域制限の計算が簡単になります。例えば 1 つのウェーブテーブルのピッチベンドの範囲が 1 オクターブのときは、 $N$ を 2 のべき乗にして、波形の周波数成分の高いほうから全体の $\dfrac{N}{2}, \dfrac{N}{4}, \dfrac{N}{8}, \dots$ 個の要素を 0 埋めすることで帯域制限できます。
+基本周波数 $f_0$ より低くなるようにピッチベンドするとオーバーサンプリングの有無にかかわらず倍音の欠落が防げません。よって切り替えを行うときには、入力された周波数 $f$ 以下のウェーブテーブルの中から、基本周波数 $f_0$ が $f$ に最も近いものを選びます。
 
 以下は 1 オクターブ間隔で生成したウェーブテーブルと基本周波数、インデックスの対応表です。インデックスがそのまま基本周波数のオクターブ差になっています。表の半音 (semitone) は $f_L$ を 0 とした相対的な値です。
 
@@ -149,340 +66,442 @@ $$
 <img src="img/multi_wavetable.svg" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
 
-## オーバーサンプリングを行う実装
+以下のリンクは、ここまで掲載した図の作成に使ったウェーブテーブルの生成とピッチベンドのテストコードです。 Python 3 です。
+
+- [1 つのウェーブテーブルのピッチベンドのテストコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/demo.py)
+
+## 設計
+ここでは以下のパラメータから他の必要な値を決めます。
+
+- 周波数が $f_L$ 以下になると倍音が欠落する。
+- 1 つのウェーブテーブルを $B$ 倍までピッチベンドする。
+- 1 つのウェーブテーブルはナイキスト周波数の $H$ 倍までの周波数成分を含む。
+- $L$ 倍のオーバーサンプリング。
+
+このとき以下の不等式を満たせばエイリアシングは起こりません。
+
+$$
+BH \leq 2L - 1
+$$
+
+ピッチを上げる方向に向かってだけピッチベンドするので $B \geq 1$ 、倍音の欠落が起こらないようにするので $H \geq 1$ です。
+
+$2L - 1$ はオーバーサンプリングによってできる周波数方向のマージンを表しています。 $B, H, L$ はすべて比率なのでサンプリング周波数は式に入っていません。
+
+$B$ と $H$ の決め方は実装の節で実験しながら見ていきます。
+
+### ウェーブテーブルの作成
+まずは倍音が欠けない最低の周波数 $f_L$ を決めます。そして $f_L$ を使ってウェーブテーブルの長さ $N$ を求めます。インデックスの巻き戻しでビットマスクを使うために、ウェーブテーブルの長さは $2^n$ に揃えます。
+
+$$
+N = 2^n, \quad n = \left\lfloor \log_2 \frac{f_s}{f_L} \right\rfloor
+$$
+
+次にウェーブテーブルの数 $M$ を求めます。 1 つのウェーブテーブルのピッチベンドの倍率を $B$ とすると以下の式が立ちます。
+
+$$
+B^M = \frac{N}{2}
+$$
+
+$\dfrac{N}{2}$ は 1 つのウェーブテーブルが含むことのできる最大の倍音の数です。上の式は最低周波数から $B$ 倍のピッチベンドを $M$ 回繰り返したときにナイキスト周波数以下の倍音が 1 つだけになることを表しています。
+
+$M$ について解きます。 $M$ を整数にしたいので床関数を加えています。
+
+$$
+M = \left\lfloor \log_B \frac{N}{2} \right\rfloor
+$$
+
+最後にウェーブテーブルを作ります。ウェーブテーブルの作成は入力された波形を離散フーリエ変換で周波数領域に変換します。そしてエイリアシングが出ないように周波数成分を切り落としたあとに逆離散フーリエ変換で時間領域に戻すことで計算できます。ここではインデックス 0 のウェーブテーブルが最低周波数を再生するようにします。インデックスを $i$ としたときに切り落とす倍音の次数 $C$ は以下の式で計算できます。
+
+$$
+c = \left\lfloor \frac{N}{2} H^{-i} \right\rfloor + 1
+$$
+
+最後の $+1$ は直流成分を表しています。インデックスが $c$ 以上の周波数成分は 0 にします。
+
+以下はウェーブテーブル作成の大まかな C++ のコードです。
+
+```c++
+/*
+table は 2 次元配列。最後のテーブルは 0 で埋める。
+
+sampleRate は出力のサンプリング周波数。
+f_s はオーバーサンプリング中のサンプリング周波数。
+
+waveform は元になる波形データ。
+*/
+
+float f_s = L * sampleRate;
+
+size_t N = size_t(1) << size_t(std::log2(f_s / float(10))); // 2^n.
+std::vector<std::complex<float>> spc = getSpectrum<float>(waveform);
+
+size_t M = size_t(std::log(float(N / 2)) / std::log(B));
+table.resize(M + 1); // 0 埋めテーブルを追加するので +1 。
+
+std::vector<std::complex<float>> tmp(spc.size()); // 一時変数。
+for (size_t idx = 0; idx < table.size() - 1; ++idx) {
+  size_t cutoff = size_t(N / 2 * std::pow(B, -float(idx))) + 1; // c の式。
+
+  std::fill(tmp.begin(), tmp.end(), std::complex<float>(0, 0));
+  std::copy(spc.begin(), spc.begin() + cutoff, tmp.begin());
+
+  table[idx].resize(N);
+  fft.complex2real(tmp.data(), table[idx].data()); // numpy.fft.irfft と同じ計算。
+}
+table.back().resize(N);
+std::fill(table.back().begin(), table.back().end(), float(0));
+```
+
+### ウェーブテーブルの切り替え
+前提としてオシレータのピッチが浮動小数点数の MIDI ノート番号で入力されることにします。
+
+事前に最低周波数 $f_L$ を最低 MIDI ノート番号 $\mathtt{basenote}$ に変換しておきます。
+
+$$
+\mathtt{basenote} = 12 \log_2 \left( \frac{f_L}{440} \right) - 69
+$$
+
+ピッチベンドの倍率 $B$ も半音 $\mathtt{interval}$ に変換しておきます。
+
+$$
+\mathtt{interval} = 12 \log_2 B
+$$
+
+すると MIDI ノート番号 $\nu$ が入力されたときに再生するウェーブテーブルのインデックス $i$ を以下の式で計算できます。
+
+$$
+i = \left\lfloor \frac{\nu - \mathtt{basenote}}{\mathtt{interval}} \right\rfloor
+$$
+
+C++ では以下のように書けます。配列の範囲外へのアクセスを防ぐために念のため `std::clamp` を追加しています。
+
+```c++
+class Osc {
+public:
+  float basenote;
+  float interval;
+
+  // 他のメンバは省略。
+
+  // 事前計算。
+  void setup(/* ... */) {
+    // ...
+
+    float f_L = f_s / float(N);
+    basenote = float(12) * std::log2(f_L / float(440)) - float(69);
+    interval = float(12) * std::log2(bendRange);
+
+    // ...
+  }
+
+  // 毎サンプルの計算。
+  float process(/* ... */) {
+    // ...
+
+    size_t index = std::clamp(size_t((note - basenote) / interval), 0, N - 1);
+
+    // ...
+  }
+};
+```
+
+## 実装
+ここでは以下の 3 つ実装を試しています。
+
+- オーバーサンプリングありの実装
+- オーバーサンプリングなしの実装
+- ミップマップを使う実装
+
+### オーバーサンプリングありの実装
 オーバーサンプリングを行うウェーブテーブルオシレータのブロック線図です。
 
 <figure>
 <img src="img/simple_wavetable_block_diagram.svg" alt="Block diagram of simple wavetable oscillator." style="padding-bottom: 12px;"/>
 </figure>
 
-ピッチベンドの範囲は $[f_0, 2 f_0)$ とします。こうすると事前に用意するウェーブテーブルが 1 オクターブ間隔になります。
+#### インデックス方向の補間なし
+まずは De Soras さんの資料に基づいて 1 オクターブ間隔で倍音を削ったウェーブテーブルを試します。 1 つのウェーブテーブルのピッチベンドの範囲は $[1, 2)$ です。
 
-### コード
-以下は 2 倍のオーバーサンプリングを行うウェーブテーブルオシレータのコードです。波形はのこぎり波で固定しています。
+以下はコードへのリンクです。
 
-```python
-import numpy as np
-import scipy.signal as signal
+- [Python 3 によるオーバーサンプリングあり、インデックス方向の補間なしの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L42)
+- [C++ によるオーバーサンプリングあり、インデックス方向の補間なしの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L236)
 
-def frequencyToMidinote(freq):
-    return 12 * np.log2(freq / 440) + 69
-
-def midinoteToFrequency(note):
-    return 440 * np.exp2((note - 69) / 12)
-
-def saw_spectrum(size):
-    spec = [0] + [(-1)**k / k for k in range(1, int(size / 2 + 1))]
-    spec = -1j * size / np.pi * np.array(spec)
-    return spec
-
-class TableOsc:
-    def __init__(self, samplerate, oversample=2):
-        self.fs = oversample * samplerate
-        self.phase = 0
-
-        exponent = int(np.log2(self.fs / 10))  # 倍音が欠けない最低の周波数は 10 Hz.
-        size = 2**exponent
-        spectrum = saw_spectrum(size)
-
-        self.basefreq = self.fs / size
-        self.basenote = frequencyToMidinote(self.basefreq)
-
-        self.table = []
-        for idx in range(2, exponent + 1):
-            spec = np.zeros_like(spectrum)
-            cutoff = int(size / 2**(idx))
-            spec[:cutoff] = spectrum[:cutoff]
-            tbl = np.fft.irfft(spec)
-            tbl = np.hstack((tbl, tbl[0]))
-            self.table.append(tbl)
-
-    def process(self, note):
-        """
-        note は MIDI ノート番号。
-        """
-        self.phase += midinoteToFrequency(note) / self.fs
-        self.phase -= np.floor(self.phase)
-
-        octave = int(np.clip((note - self.basenote) / 12, 0, len(self.table) - 1))
-        pos = (len(self.table[0]) - 1) * self.phase
-        idx = int(pos)
-        frac = pos - idx
-
-        x0 = self.table[octave][idx]
-        x1 = self.table[octave][idx + 1]
-        return x0 + frac * (x1 - x0)
-
-gain = 0.25
-samplerate = 48000
-lowpass = signal.ellip(12, 0.01, 100, 0.4, "low", output="sos", fs=2)
-
-osc = TableOsc(samplerate)
-
-sig = np.empty(16 * samplerate)
-note = np.linspace(0, 128, len(sig) // 2)
-note = np.hstack((note, np.flip(note)))
-for i in range(len(sig)):
-    sig[i] = osc.process(note[i])
-sig = gain * signal.sosfilt(lowpass, sig)[::2]
-```
-
-`sig` がレンダリング結果です。
-
-`frequencyToMidinote` と `midinoteToFrequency` は MIDI ノート番号と周波数を変換する関数です。以下のページに計算式が載っています。
-
-- [Note names, MIDI numbers and frequencies](http://newt.phys.unsw.edu.au/jw/notes.html)
-
-`saw_spectrum` はのこぎり波のスペクトラムを生成する関数です。以下のリンク先の式を参考に、位相を 180° ずらしています。
-
-- [Fourier Series--Sawtooth Wave -- from Wolfram MathWorld](https://mathworld.wolfram.com/FourierSeriesSawtoothWave.html)
-
-`__init__` ではウェーブテーブルの長さが $2^k$ になるようにしています。 $k$ はコードの `exponent` と対応しています。
-
-ウェーブテーブルの補間には線形補間を使っています。インデックスの余り演算を避けるために `self.table` の先頭の値を最後尾に追加して、長さを $2^k + 1$ にしています。例えばウェーブテーブルの値が `[0, 1, 2]` のときは `[0, 1, 2, 0]` に変換されます。
-
-C++ による実装は別ページに掲載しています。
-
-- [TableOsc の C++ 実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/cpp/bench/bench.cpp#L232)
-
-### 出力の癖
-以下の図は `TableOsc` の出力のスペクトログラムです。MIDI ノート番号で 0, 128, 0 とピッチベンドしています。
+以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングは抑えられていますが、垂直な縦線が見えるのでポップノイズが出ています。
 
 <figure>
 <img src="img/TableOsc.png" alt="Spectrogram of an output of 2 times oversampled wavetable oscillator." style="padding-bottom: 12px;"/>
 </figure>
 
-エイリアシングは抑えられていますが、垂直な縦線が見えるのでポップノイズが出ています。このポップノイズはウェーブテーブルの切り替えによって発生しています。
+ポップノイズはウェーブテーブルの切り替えによって発生しています。以下のリンクから確認のために書いたコードを読むことができます。 Python 3 です。
 
-ポップノイズの低減方法としては以下の 2 つのアプローチがあります。
+- [ウェーブテーブルの切り替えがポップノイズの原因になっていることを確認するコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/switching.py)
 
-- オーバーサンプリングの倍率を上げる。
-- ウェーブテーブルを周波数軸に沿った方向でも補間する。
+#### インデックス方向を線形補間
+ウェーブテーブルをインデックス方向で補間することでポップノイズの低減方法を図ります。コードにインデックス方向の線形補間を加えます。
 
-オーバーサンプリングを 8 倍まで上げるとポップノイズが聞こえなくなりました。
+以下はコードへのリンクです。
 
-ウェーブテーブルを周波数軸に沿った方向でも線形補間すると、 2 倍のオーバーサンプリングでもポップノイズが聞こえなくなります。この補間は位相と周波数の軸に沿った[バイリニア補間](https://en.wikipedia.org/wiki/Bilinear_interpolation)です。ただし、周波数方向の補間によって、高次の倍音が弱まる区間が現れる欠点があります。以下は 2 倍のオーバーサンプリングで周波数方向の補間を追加したときのスペクトログラムです。図の上側の周期的に暗くなっているところで倍音が弱まっています。
+- [Python 3 によるオーバーサンプリングあり、インデックス方向の補間ありの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L80)
+
+以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。ポップノイズは消えましたが、図の上部で波打つように暗くなっている箇所で高次の倍音が弱くなっています。
 
 <figure>
 <img src="img/TableOscBilinear.png" alt="Spectrogram of an output of bilinear interpolated wavetable oscillator." style="padding-bottom: 12px;"/>
 </figure>
 
-倍音の弱まりを抑えるには、結局のところオーバーサンプリングの倍率を上げて対処することになります。ただし、周波数方向の補間なしのときと比べると、低めの倍率が使えるかもしれません。
+#### 最適な設計
+インデックス方向を線形補間したときの高次の倍音の弱まりは、ウェーブテーブルを用意するときの倍音の削り方を工夫することで防ぐことができます。
 
-- [バイリニア補間を使った Python3 の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/pitchbend.py#L78)
+最適な設計に関するパラメータを再掲します。最低周波数 $f_L$ はここでは使いません。
 
-## オーバーサンプリングを行わない実装
-ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は [CubicPadSynth](https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html) で使いました。
+- ウェーブテーブルを $B$ 倍までピッチベンドする。
+- ウェーブテーブルはナイキスト周波数の $H$ 倍までの周波数成分を含む。
+- $L$ 倍のオーバーサンプリング。
 
-### コード
-以下はオーバーサンプリングを行わないウェーブテーブルオシレータのコードです。 1 半音ごとに、合計 137 のウェーブテーブルを用意しています。波形はのこぎり波で固定しています。
+このとき以下の不等式を満たせばエイリアシングは起こりません。
 
-```python
-class LpsOsc:
-    def __init__(self, samplerate):
-        self.fs = samplerate
-        self.phase = 0
+$$
+BH \leq 2L - 1, \quad B \geq 1, \quad H \geq 1.
+$$
 
-        minFreq = midinoteToFrequency(0)
-        expFloat = np.log2(self.fs / np.floor(minFreq))
-        exponent = int(np.ceil(expFloat))
-        self.size = 2**exponent
-        spectrum = saw_spectrum(self.size)
+$B > H$ としてピッチベンドの幅を広げると倍音の欠落が起こります。逆に $H > B$ として倍音の余剰を増やすとピッチベンドの幅が狭くなり、テーブルの数が増えます。倍音の欠落を防ぎつつ、テーブルの数が最小となるようにするには $H = B$ として上の不等式の上限の値と等しくなるように設計すればよさそうです。つまり $B$ と $H$ の値は以下の式で求められます。
 
-        self.table = []
-        self.maxNote = np.ceil(frequencyToMidinote(20000))
-        spec = np.zeros_like(spectrum)
-        for idx in range(int(self.maxNote)):
-            freq = midinoteToFrequency(idx)
-            cutoff = int(len(spectrum) * minFreq / freq)
+$$
+B = H = \sqrt{2L - 1}
+$$
 
-            spec[:cutoff] = spectrum[:cutoff]
-            spec[cutoff:] = 0
+$L = 2$ のとき $B = H = \sqrt{3}$ です。
 
-            tbl = np.fft.irfft(spec)
-            tbl = np.hstack((tbl, tbl[0]))
-            self.table.append(tbl)
-        self.table.append(np.zeros_like(self.table[0]))
+以下はコードへのリンクです。
 
-    def processPhase(self, note):
-        tick = midinoteToFrequency(note) * self.size / self.fs
-        if tick >= self.size or tick < 0:
-            tick = 0
+- [Python 3 によるオーバーサンプリングあり、最適な設計の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L127)
+- [C++ によるオーバーサンプリングあり、最適な設計の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L391)
 
-        self.phase += tick
-        if self.phase >= self.size:
-            self.phase -= self.size
+以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。テーブルの数は増えましたが、エイリアシングも倍音の弱まりもなくなっています。
 
-    def processLow(self, note):
-        """
-        note が 0 以下のときは self.table[0] だけでレンダリング。
-        """
-        idx = int(self.phase)
-        a0 = self.table[0][idx]
-        a1 = self.table[0][idx + 1]
-        fracX = self.phase - np.floor(self.phase)
-        return a0 + fracX * (a1 - a0)
+<figure>
+<img src="img/TableOscAltInterval.png" alt="Spectrogram of an output of bilinear interpolated wavetable oscillator." style="padding-bottom: 12px;"/>
+</figure>
 
-    def process(self, note):
-        """
-        note は MIDI ノート番号。
-        """
-        self.processPhase(note)
+ここまでやってしまえば、あとはダウンサンプリングのローパスフィルタの設計くらいでしか品質は変わりません。
 
-        if note < 0:
-            return processLow(note)
+### オーバーサンプリングなしの実装
+ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は [CubicPadSynth](https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html) で使いました。ただし CubicPadSynth は倍音のカットオフの計算を間違えているので、正しい実装は下のリンク先のコードを参照してください。
 
-        nn = int(note)
-        if nn >= self.maxNote:
-            nn = self.maxNote - 1
+以下はコードへのリンクです。
 
-        idx = int(self.phase)
-        a0 = self.table[nn][idx]
-        a1 = self.table[nn][idx + 1]
-        b0 = self.table[nn + 1][idx]
-        b1 = self.table[nn + 1][idx + 1]
+- [Python 3 によるオーバーサンプリングなしの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L257)
+- [C++ によるオーバーサンプリングなしの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L666)
 
-        fracX = self.phase - np.floor(self.phase)
-        x0 = a0 + fracX * (a1 - a0)
-        x1 = b0 + fracX * (b1 - b0)
-
-        fracY = note - nn
-        return x0 + fracY * (x1 - x0)
-
-gain = 0.25
-samplerate = 48000
-
-osc = LpsOsc(samplerate)
-
-sig = np.empty(8 * samplerate)
-note = np.linspace(0, 128, len(sig) // 2)
-note = np.hstack((note, np.flip(note)))
-for i in range(len(sig)):
-    sig[i] = osc.process(note[i])
-sig = gain * sig
-```
-
-補間にはバイリニア補間を使っています。
-
-`self.table` のインデックスは MIDI ノート番号と対応しています。 `process` に入力された `note` が 0 より小さいときは、 `processLow` に飛んでインデックス 0 のウェーブテーブルだけを使って出力を計算しています。
-
-C++ による実装は別ページに掲載しています。
-
-- [LpsOsc の C++ 実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/cpp/bench/bench.cpp#L460)
-
-### 出力の癖
-以下の図は `LpsOsc` の出力のスペクトログラムです。MIDI ノート番号で 0, 128, 0 とピッチベンドしています。
+以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。オーバーサンプリングしていないのでエイリアシングも倍音の弱まりも起こっているはずですが、図を見る限りではどちらも確認できません。
 
 <figure>
 <img src="img/LpsOsc.png" alt="Spectrogram of an output of wavetable oscillator without oversampling." style="padding-bottom: 12px;"/>
 </figure>
 
-図の上側を見ると少しだけエイリアシングノイズが出ていることが確認できます。原因はわからなかったのですが、以下の変更では解決しませんでした。
-
-- `process` 内の `self.table` の一つ目のインデックスの変更。
-- `cutoff` の変更。
-- バイリニア補間から位相方向のみの線形補間に変更。
-
-全体としてはエイリアシングノイズが低減できているので使える場面はありそうです。速度はオーバーサンプリングがない分だけ速いです。ただし、ウェーブテーブルが長くなると遅くなる可能性があります。
+オーバーサンプリングがない分だけ速いので使える場面はありそうです。ただし、メモリを大量に使うのでウェーブテーブルがあまりにも長くなるとパフォーマンスが落ちます。
 
 ### ミップマップを使う実装
-The Quest For The Perfect Resampler で紹介されていた方法です。
+The Quest For The Perfect Resampler で紹介されているミップマップを使う方法も実装して試しました。
 
-[ミップマップ](https://en.wikipedia.org/wiki/Mipmap)は3DCG のテクスチャで使われる手法です。事前にテクスチャの画素数を $1/4^n$ に減らしたデータを用意しておいて、カメラからの距離に応じて十分に解像度の低いデータを選ぶことで計算量を減らすことができます。
-
-音のデータは 1 次元なので 1 オクターブごとにウェーブテーブルの長さを半分にしていきます。言い換えると 1 オクターブ上がるごとにサンプリング周波数を半分にしていきます。
-
-ミップマップを使ったウェーブテーブルの利点は、メモリが節約できる点です。ウェーブテーブルの数を $M$ 、最も倍音を多く含むウェーブテーブルの長さを $N$ とすると、必要なメモリの量はミップマップありのときで $2N$ 、 ミップマップなしのときで $NM$ です。
-
-ミップマップの欠点は補間の計算量です。入力されたピッチに応じてフィルタ係数を計算しなおしつつアップサンプリングする必要があるので、線形補間と比べるとかなり重たそうです。補間以外の部分を実装して速度を比較してみたのですが、オーバーサンプリングありの実装とほぼ同じだったのでテスト対象から外しました。
-
-以下は線形補間を使ったミップマップオシレータのスペクトログラムです。補間の質が悪いので、全体に薄くノイズが乗っていることが見て取れます。
+メモリを節約したいときはミップマップを使うことができます。以下はウェーブテーブルのミップマップを表した図です。
 
 <figure>
-<img src="img/MipmapOsc.png" alt="Spectrogram of an output of mipmap wavetable oscillator with linear interpolation." style="padding-bottom: 12px;"/>
+<img src="img/mipmap_table.svg" alt="Image of mipmap tables." style="padding-bottom: 12px;"/>
 </figure>
 
-以下は C++ と Python3 による実装へのリンクです。
 
-- [MipmapOsc の C++ 実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/cpp/bench/bench.cpp#L381)
-- [MipmapOsc の Python3 実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f466fff89bb16ce29d9a2e0cbf7d538e0a8be7f8/wavetable_pitchbend/pitchbend.py#L124)
+ミップマップを使うとウェーブテーブルの間隔が 1 オクターブに固定されるので、インデックス方向の補間による倍音の弱まりが避けられない点に注意してください。
+
+ミップマップを使うときは質のいいアップサンプラを使わないと耳で聴きとれるノイズがでます。以下は形補間を使ったときに MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。全体に薄くノイズが乗っていることが見て取れます。
+
+<figure>
+<img src="img/MipmapOsc.png" alt="Spectrogram of mipmap oscillator using linear interpolation on phase direction." style="padding-bottom: 12px;"/>
+</figure>
+
+以下のリンク先でミップマップと線形補間を使ったオシレータのコードが読めます。
+
+- [Python 3 によるミップマップと線形補間を使ったオシレータの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L257)
+- [C++ によるミップマップと線形補間を使ったオシレータの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L178)
+
+#### アップサンプラのフィルタ設計
+以下のパラメータを決めます。
+
+- $f_p$: パスバンドの上限の周波数。
+- $f_s$: ストップバンドの下限の周波数。
+- $N_{\mathrm{fir}}$: ポリフェイズ 1 つあたりのタップ数。
+- $M_{\mathrm{fir}}$: アップサンプリングの倍率。
+
+フィルタ設計中のサンプリング周波数を $M$ にします。
+
+$f_p$ と $f_s$ の値は適当に決めています。ここでは出力のナイキスト周波数は 0.5 です。またローパスなので $f_p < f_s$ を満たす必要があります。 $f_s$ が 0.5 より大きいとエイリアシングが出ます。しかし $f_p$ が 0.5 より小さいと高次の倍音が弱くなります。
+
+$N$ と $M$ は増やすほどフィルタの質が良くなります。 De Soras さんの資料では $N = 12, M = 64$ としていますが、ここでは $N = 32, M = 64$ としました。
+
+Python3 と SciPy を使ってフィルタを設計します。
+
+```python
+import numpy as np
+import scipy.signal as signal
+
+f_p = 0.4
+f_s = 0.5
+N_fir = 32
+M_fir = 64
+
+bands = np.hstack((
+    [0, f_p],
+    [f_s, M_fir / 2],
+))
+desired = (1, 0)
+weight = (1, 100)
+fir = signal.remez(N_fir * M_fir - 1, bands, desired, weight, fs=M_fir, maxiter=1024)
+```
+
+設計したフィルタをポリフェイズ分解します。各フェイズの出力振幅を 1 に正規化したいので `splitPolyPhase` の呼び出しで `M * fir` としています。
+
+```python
+import json
+
+def splitPolyPhase(fir, nPhase):
+    padding = nPhase - len(fir) % nPhase
+    fir = np.hstack((fir, np.zeros(padding)))
+    polyphase = []
+    for phase in range(nPhase):
+        part = fir[phase::nPhase]
+        polyphase.append(part.tolist())
+    return polyphase
+
+fir = splitPolyPhase(M * fir, M)[::-1]
+```
+
+得られた `fir` は以下のような 2 次元配列になっています。
+
+```
+[
+  [/* ポリフェイズ 0 の FIR 係数 */],
+  [/* ポリフェイズ 1 の FIR 係数 */],
+  [/* ポリフェイズ 2 の FIR 係数 */],
+  // ...
+]
+```
+
+ミップマップを `fir` で補間するには以下のように計算します。
+
+```c++
+// phase は [0.0, 1.0) の範囲で正規化された現在の位相。
+// octave は入力されたピッチから決めたウェーブテーブルのインデックス。
+Sample processTable(const Sample phase, const size_t octave)
+{
+  if (octave >= table.size()) return Sample(0);
+  const auto &tbl = table[octave]; // table はミップマップの 2 次元配列。
+
+  auto tblPos = Sample(tbl.size()) * phase;
+  auto tblIdx = size_t(tblPos);
+  auto tblFrac = tblPos - Sample(tblIdx);
+
+  auto firPos = Sample(InterpFir::nPhase) * tblFrac;
+  auto firIdx = size_t(firPos);
+  auto firFrac = firPos - Sample(firIdx);
+
+  // `tbl.size()` は常に 2^n 。よって `tbl.size() - 1` は常に `0b0..1..` 。
+  auto bitmask = tbl.size() - 1;
+
+  auto sum = Sample(0);
+  for (size_t j = 0; j < InterpFir::bufferSize; ++j) {
+    sum += tbl[(tblIdx + j) & bitmask] // ビットマスクでインデックスの巻き戻し。
+      * (InterpFir::coefficient[firIdx][j] + firFrac * InterpFir::diff[firIdx][j]);
+  }
+  return sum;
+}
+```
+
+De Soras さんの資料では `fir[firIdx][j + 1] - fir[firIdx][j]` を事前に計算して別の配列にしておくことで計算量を減らす方法が紹介されています。
+
+以下のリンク先でミップマップとアップサンプラを使ったオシレータのコードが読めます。
+
+- [C++ によるミップマップとアップサンプラを使ったオシレータの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L566)
+
+以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングはウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、インデックス方向の補間によって高次の倍音が弱くなっているからです。
+
+<figure>
+<img src="img/chirp_MipmapDeSoras.png" alt="Spectrogram of mipmap oscillator using upsampler." style="padding-bottom: 12px;"/>
+</figure>
+
+ミップマップを使う方法はアップサンプラのフィルタの質で大きく音が変わります。 $f_p$ を 0.5 以下にすると今回のように倍音の弱まりが出ます。かと言って $f_p$ を 0.5 にすると $f_s$ を 0.5 より大きい値にする必要が出てくるので、今度はエイリアシングノイズが出ます。 $N_{\mathrm{fir}}$ の値を大きくすることで倍音の弱まりとエイリアシングの両方を改善できますが、今度は計算が重たくなります。
+
+インデックス方向の線形補間を行うときは 1 サンプルあたりで 2 回の畳み込みが必要になります。簡単なベンチマークを取ったところ、今回実装した $N_{\mathrm{fir}} = 32$ でインデックス方向の線形補間ありのミップマップは、オーバーサンプリングありの実装と比べて約 1.5 倍ほどの計算時間がかかりました。
+
+他の実装にない特徴として、アップサンプラのフィルタをローパス以外の特性に変えてエフェクトをかけることができそうです。
 
 ## 音のサンプル
 各実装でのこぎり波をレンダリングした結果です。
 
 <figure>
-  <figcaption>オーバーサンプリングを行う実装、2 倍のオーバーサンプリング</figcaption>
+  <figcaption>オーバーサンプリングを行う実装 - インデックス方向の補間なし</figcaption>
   <audio controls>
-    <source src="snd/simple.wav" type="audio/wav">
+    <source src="snd/chirp_TableOsc.wav" type="audio/wav">
+  </audio>
+</figure>
+
+<figure>
+  <figcaption>オーバーサンプリングを行う実装 - インデックス方向を線形補間</figcaption>
+  <audio controls>
+    <source src="snd/chirp_TableOscBilinear.wav" type="audio/wav">
+  </audio>
+</figure>
+
+<figure>
+  <figcaption>オーバーサンプリングを行う実装 - 最適な設計</figcaption>
+  <audio controls>
+    <source src="snd/chirp_TableOscAltInterval.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
   <figcaption>オーバーサンプリングを行わない実装</figcaption>
   <audio controls>
-    <source src="snd/lpsosc.wav" type="audio/wav">
+    <source src="snd/chirp_LpsOsc.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
-  <figcaption>ミップマップを使う実装、線形補間</figcaption>
+  <figcaption>ミップマップ - 線形補間</figcaption>
   <audio controls>
-    <source src="snd/mipmap.wav" type="audio/wav">
-  </audio>
-</figure>
-
-オーバーサンプリングを行う実装は、音が高くなったときにウェーブテーブルの切り替えによるポップノイズが聞こえます。ミップマップを使う実装では音が高くなったときに線形補間によるノイズが聞こえます。
-
-### オーバーサンプリングを行う実装のポップノイズ
-以下はオーバーサンプリングを行う実装で、オーバーサンプリングの倍率と、周波数方向の補間の有無を変えて、のこぎり波をレンダリングした結果です。
-
-<figure>
-  <figcaption>2 倍のオーバーサンプリング、位相方向のみ線形補間</figcaption>
-  <audio controls>
-    <source src="snd/TableOsc_x2_switch.wav" type="audio/wav">
+    <source src="snd/chirp_MipmapLinear.wav" type="audio/wav">
   </audio>
 </figure>
 
 <figure>
-  <figcaption>4 倍のオーバーサンプリング、位相方向のみ線形補間</figcaption>
+  <figcaption>ミップマップ - アップサンプラ</figcaption>
   <audio controls>
-    <source src="snd/TableOsc_x4_switch.wav" type="audio/wav">
+    <source src="snd/chirp_MipmapDeSoras.wav" type="audio/wav">
   </audio>
 </figure>
 
-<figure>
-  <figcaption>8 倍のオーバーサンプリング、位相方向のみ線形補間</figcaption>
-  <audio controls>
-    <source src="snd/TableOsc_x8_switch.wav" type="audio/wav">
-  </audio>
-</figure>
+「オーバーサンプリングを行う実装 - 最適な設計」と「オーバーサンプリングを行わない実装」はエイリアシングも倍音の弱まりもないので理想的な音です。オーバーサンプリングを行う実装はダウンサンプリングのローパスに楕円フィルタを使っているので高域の位相特性があまりよくないのですが、耳で聴きとることは困難です。
 
-<figure>
-  <figcaption>2 倍のオーバーサンプリング、位相方向と周波数方向でバイリニア補間</figcaption>
-  <audio controls>
-    <source src="snd/TableOscBilinear_x2_switch.wav" type="audio/wav">
-  </audio>
-</figure>
+「オーバーサンプリングを行う実装 - インデックス方向の補間なし」は音量を上げるとテーブルの切り替え時のポップノイズが聞こえます。
 
-<figure>
-  <figcaption>4 倍のオーバーサンプリング、位相方向と周波数方向でバイリニア補間</figcaption>
-  <audio controls>
-    <source src="snd/TableOscBilinear_x4_switch.wav" type="audio/wav">
-  </audio>
-</figure>
+「オーバーサンプリングを行う実装 - インデックス方向を線形補間」と「ミップマップ - アップサンプラ」は高次の倍音が弱まっています。「ミップマップ - アップサンプラ」では倍音の弱まりが聞き取れます。
 
-<figure>
-  <figcaption>8 倍のオーバーサンプリング、位相方向と周波数方向でバイリニア補間</figcaption>
-  <audio controls>
-    <source src="snd/TableOscBilinear_x8_switch.wav" type="audio/wav">
-  </audio>
-</figure>
+「ミップマップ - 線形補間」はエイリアシングが大量に出ているので明らかに音が違います。
 
-4 倍のオーバーサンプリング、位相方向のみ線形補間では、音量を上げるとポップノイズを聞き取ることができます。
+## その他
+ウェーブテーブルの標準的な長さは Serum で使われている 2048 サンプルのようです。サンプリング周波数が 48000 Hz のとき `48000 / 2048 = 23.4375` Hz までなら高次の倍音が欠けません。
 
-2 倍のオーバーサンプリング、位相方向と周波数方向でバイリニア補間での、高次倍音の周期的な弱まりは聞き取れなかったです。波形によって変わるかもしれません。
+- [Wavetable file format? - DSP and Plug-in Development Forum - KVR Audio](https://www.kvraudio.com/forum/viewtopic.php?t=517146)
 
 ## 参考文献
 - [The Quest For The Perfect Resampler - resampler-en.pdf](http://ldesoras.free.fr/doc/articles/resampler-en.pdf)
 - [Note names, MIDI numbers and frequencies](http://newt.phys.unsw.edu.au/jw/notes.html)
 - [Fourier Series--Sawtooth Wave -- from Wolfram MathWorld](https://mathworld.wolfram.com/FourierSeriesSawtoothWave.html)
+
+## 変更点
+- 2021/02/24
+  - 構成の変更。
+  - 最適な設計のウェーブテーブルを追加。
+  - De Soras のミップマップウェーブテーブルを追加。
+  - オーバーサンプリングを行わない実装のバグ修正。倍音のカットオフの計算に間違いがあった。
