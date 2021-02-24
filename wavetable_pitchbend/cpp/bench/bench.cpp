@@ -532,7 +532,7 @@ public:
   void debugRenderTable()
   {
     for (size_t idx = 0; idx < table.size(); ++idx) {
-      std::string name = "snd/MipmapOsc" + std::to_string(idx) + ".wav";
+      std::string name = "snd/MipmapOscLinear" + std::to_string(idx) + ".wav";
       writeWave(name, table[idx], size_t(sampleRate));
     }
   }
@@ -610,7 +610,7 @@ public:
   void debugRenderTable()
   {
     for (size_t idx = 0; idx < table.size(); ++idx) {
-      std::string name = "snd/MipmapOsc" + std::to_string(idx) + ".wav";
+      std::string name = "snd/MipmapOscDeSoras" + std::to_string(idx) + ".wav";
       writeWave(name, table[idx], size_t(sampleRate));
     }
   }
