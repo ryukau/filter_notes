@@ -273,7 +273,7 @@ class LpsOsc:
         spec = np.zeros_like(spectrum)
         for idx in range(int(self.maxNote)):
             freq = midinoteToFrequency(idx)
-            cutoff = int((len(spectrum) - 1) * minFreq / freq) + 1
+            cutoff = int(self.size / 2 * minFreq / freq) + 1
 
             spec[:cutoff] = spectrum[:cutoff]
             spec[cutoff:] = 0
@@ -283,42 +283,24 @@ class LpsOsc:
             self.table.append(tbl)
         self.table.append(np.zeros_like(self.table[0]))
 
-    def processPhase(self, note):
-        tick = midinoteToFrequency(note) * self.size / self.fs
-        if tick >= self.size or tick < 0:
-            tick = 0
-
-        self.phase += tick
-        if self.phase >= self.size:
-            self.phase -= self.size
-
-    def processLow(self, note):
-        idx = int(self.phase)
-        a0 = self.table[0][idx]
-        a1 = self.table[0][idx + 1]
-        fracX = self.phase - np.floor(self.phase)
-        return a0 + fracX * (a1 - a0)
-
     def process(self, note):
         """
         note is midinote number.
         """
-        self.processPhase(note)
+        self.phase += midinoteToFrequency(note) / self.fs
+        self.phase -= np.floor(self.phase)
 
-        if note < 0:
-            return processLow(note)
-
+        note = np.clip(note, 0, self.size - 2)
         nn = int(note)
-        if nn >= self.maxNote:
-            nn = self.maxNote - 1
 
-        idx = int(self.phase)
+        phs = self.size * self.phase
+        idx = int(phs)
         a0 = self.table[nn][idx]
         a1 = self.table[nn][idx + 1]
         b0 = self.table[nn + 1][idx]
         b1 = self.table[nn + 1][idx + 1]
 
-        fracX = self.phase - np.floor(self.phase)
+        fracX = phs - idx
         x0 = a0 + fracX * (a1 - a0)
         x1 = b0 + fracX * (b1 - b0)
 
@@ -425,17 +407,19 @@ def testOsc(Osc, oversample, duration=8):
 
     if oversample >= 2:
         lowpass = signal.ellip(12, 0.01, 100, 0.48, "low", output="sos", fs=oversample)
-        sig = gain * signal.sosfilt(lowpass, sig)[::oversample]
+        sig = signal.sosfilt(lowpass, sig)[::oversample]
+
+    sig *= gain
 
     Path("snd").mkdir(parents=True, exist_ok=True)
     soundfile.write(f"snd/chirp_{Osc.__name__}.wav", sig, samplerate, subtype="FLOAT")
 
     plotSpectrogram(sig, samplerate, Osc.__name__)
 
-# testOsc(LpsOsc, 1)
-# testOsc(CpsOsc, 1)
-# testOsc(TableOsc, 2)
-# testOsc(TableOscBilinear, 2)
-# testOsc(TableOscAltInterval, 2)
-# testOsc(MipmapOsc, 2)
-# testOsc(MipmapOscCubic, 2)
+testOsc(LpsOsc, 1)
+testOsc(CpsOsc, 1)
+testOsc(TableOsc, 2)
+testOsc(TableOscBilinear, 2)
+testOsc(TableOscAltInterval, 2)
+testOsc(MipmapOsc, 2)
+testOsc(MipmapOscCubic, 2)

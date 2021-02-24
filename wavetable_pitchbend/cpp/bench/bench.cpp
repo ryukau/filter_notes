@@ -715,20 +715,16 @@ public:
     }
   }
 
-  inline void processPhase(Sample note)
+  Sample process(Sample note)
   {
     phase += std::clamp(midinoteToFrequency(note) / sampleRate, Sample(0), Sample(0.5));
     phase -= std::floor(phase);
-  }
-
-  Sample process(Sample note)
-  {
-    processPhase(note);
 
     note = std::clamp(note, Sample(0), Sample(table.size() - 2));
     auto nn = size_t(note);
 
-    auto idx = size_t(tableSize * phase);
+    auto phs = tableSize * phase;
+    auto idx = size_t(phs);
     auto next = idx + 1;
     if (next >= sizeInt) next -= sizeInt;
     const auto &a0 = table[nn][idx];
@@ -736,7 +732,7 @@ public:
     const auto &b0 = table[nn + 1][idx];
     const auto &b1 = table[nn + 1][next];
 
-    auto fracX = phase - Sample(size_t(phase));
+    auto fracX = phs - Sample(idx);
     auto x0 = a0 + fracX * (a1 - a0);
     auto x1 = b0 + fracX * (b1 - b0);
 
