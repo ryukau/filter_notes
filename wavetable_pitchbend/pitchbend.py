@@ -5,10 +5,6 @@ import scipy.signal as signal
 import soundfile
 from pathlib import Path
 
-def toDecibel(data):
-    absed = np.abs(data)
-    return 20 * np.log10(absed / np.max(absed))
-
 def frequencyToMidinote(freq):
     return 12 * np.log2(freq / 440) + 69
 
@@ -42,13 +38,6 @@ def cubicInterp(y0, y1, y2, y3, t):
     c2 = c0 + c1
     c3 = c0 + c2 + (y3 - y1) / 2
     return c3 * t * t2 - (c2 + c3) * t2 + c1 * t + y1
-
-def plotSos(sos):
-    w, h = signal.sosfreqz(sos)
-    amp = toDecibel(np.abs(h))
-    plt.plot(w, amp)
-    plt.grid()
-    plt.show()
 
 class TableOsc:
     def __init__(self, samplerate, oversample=2):
@@ -144,7 +133,7 @@ class TableOscAltInterval:
         specSize = size / 2
         spectrum = saw_spectrum(size)
 
-        bendRange = 1.5
+        bendRange = np.sqrt(3)
         nTable = int(-np.log(1 / specSize) / np.log(bendRange))
 
         self.basefreq = self.fs / size
@@ -160,7 +149,6 @@ class TableOscAltInterval:
             tbl = np.hstack((tbl, tbl[0]))
             self.table.append(tbl)
         self.table.append(np.zeros_like(self.table[0]))
-        exit()
 
     def process(self, note):
         """
@@ -199,11 +187,11 @@ class MipmapOsc:
         self.basefreq = self.fs / size
         self.basenote = frequencyToMidinote(self.basefreq)
 
-        nOctave = exponent - 2
+        nOctave = exponent
         self.table = []
         for idx in range(nOctave):
-            cutoff = int(size / 2**(idx + 2)) + 1
-            spec = spectrum[:cutoff] / 2**(idx + 1)
+            cutoff = int(size / 2**(idx + 1)) + 1
+            spec = spectrum[:cutoff] / 2**idx
             tbl = np.fft.irfft(spec)
             tbl = np.hstack((tbl, tbl[0]))
             self.table.append(tbl)
@@ -236,11 +224,11 @@ class MipmapOscCubic:
         self.basefreq = self.fs / size
         self.basenote = frequencyToMidinote(self.basefreq)
 
-        nOctave = exponent - 2
+        nOctave = exponent
         self.table = []
         for idx in range(nOctave):
-            cutoff = int(size / 2**(idx + 2)) + 1
-            spec = spectrum[:cutoff] / 2**(idx + 1)
+            cutoff = int(size / 2**(idx + 1)) + 1
+            spec = spectrum[:cutoff] / 2**idx
             tbl = np.fft.irfft(spec)
             tbl = np.hstack((tbl[-1], tbl, tbl[0], tbl[1]))
             self.table.append(tbl)
@@ -274,10 +262,10 @@ class LpsOsc:
         self.fs = samplerate
         self.phase = 0
 
-        minFreq = midinoteToFrequency(0)
-        expFloat = np.log2(self.fs / np.floor(minFreq))
+        expFloat = np.log2(self.fs / np.floor(midinoteToFrequency(0)))
         exponent = int(np.ceil(expFloat))
         self.size = 2**exponent
+        minFreq = self.fs / self.size
         spectrum = saw_spectrum(self.size)
 
         self.table = []
@@ -285,7 +273,7 @@ class LpsOsc:
         spec = np.zeros_like(spectrum)
         for idx in range(int(self.maxNote)):
             freq = midinoteToFrequency(idx)
-            cutoff = int(len(spectrum) * minFreq / freq)
+            cutoff = int((len(spectrum) - 1) * minFreq / freq) + 1
 
             spec[:cutoff] = spectrum[:cutoff]
             spec[cutoff:] = 0
@@ -345,10 +333,10 @@ class CpsOsc:
         self.fs = samplerate
         self.phase = 0
 
-        minFreq = midinoteToFrequency(0)
-        expFloat = np.log2(self.fs / np.floor(minFreq))
+        expFloat = np.log2(self.fs / np.floor(midinoteToFrequency(0)))
         exponent = int(np.ceil(expFloat))
         self.size = 2**exponent
+        minFreq = self.fs / self.size
         spectrum = saw_spectrum(self.size)
 
         self.table = []
@@ -356,7 +344,7 @@ class CpsOsc:
         spec = np.zeros_like(spectrum)
         for idx in range(int(self.maxNote)):
             freq = midinoteToFrequency(idx)
-            cutoff = int(len(spectrum) * minFreq / freq)
+            cutoff = int((len(spectrum) - 1) * minFreq / freq) + 1
 
             spec[:cutoff] = spectrum[:cutoff]
             spec[cutoff:] = 0
@@ -396,14 +384,6 @@ class CpsOsc:
             self.phase - np.floor(self.phase),
         )
 
-def plotSpectrum(sig):
-    spec = toDecibel(np.abs(np.fft.rfft(sig)))
-    plt.plot(spec, label="True", alpha=0.75, lw=2, color="blue")
-    plt.grid()
-    plt.legend()
-    plt.ylim((-100, 10))
-    plt.show()
-
 def plotSpectrogram(sig, samplerate, name):
     freq, time, spectre = signal.spectrogram(
         sig,
@@ -429,151 +409,33 @@ def plotSpectrogram(sig, samplerate, name):
 
     gc.collect()  # Maybe out of memory on 32bit CPython.
 
-def testTableOsc():
+def testOsc(Osc, oversample, duration=8):
+    print(f"Processing {Osc.__name__}")
+
     gain = 0.25
     samplerate = 48000
-    lowpass = signal.ellip(12, 0.01, 100, 0.4, "low", output="sos", fs=2)
-    # plotSos(lowpass)
 
-    osc = TableOsc(samplerate)
+    osc = Osc(samplerate)
 
-    sig = np.empty(16 * samplerate)
+    sig = np.empty(oversample * duration * samplerate)
     note = np.linspace(0, 128, len(sig) // 2)
     note = np.hstack((note, np.flip(note)))
     for i in range(len(sig)):
         sig[i] = osc.process(note[i])
-    sig = gain * signal.sosfilt(lowpass, sig)[::2]
+
+    if oversample >= 2:
+        lowpass = signal.ellip(12, 0.01, 100, 0.48, "low", output="sos", fs=oversample)
+        sig = gain * signal.sosfilt(lowpass, sig)[::oversample]
 
     Path("snd").mkdir(parents=True, exist_ok=True)
-    soundfile.write("snd/simple.wav", sig, samplerate, subtype="FLOAT")
+    soundfile.write(f"snd/chirp_{Osc.__name__}.wav", sig, samplerate, subtype="FLOAT")
 
-    # plotSpectrum(sig)
-    plotSpectrogram(sig, samplerate, "TableOsc")
+    plotSpectrogram(sig, samplerate, Osc.__name__)
 
-def testTableOscBilinear():
-    gain = 0.25
-    samplerate = 48000
-    lowpass = signal.ellip(12, 0.01, 100, 0.4, "low", output="sos", fs=2)
-    # plotSos(lowpass)
-
-    osc = TableOscBilinear(samplerate)
-
-    sig = np.empty(16 * samplerate)
-    note = np.linspace(0, 128, len(sig) // 2)
-    note = np.hstack((note, np.flip(note)))
-    for i in range(len(sig)):
-        sig[i] = osc.process(note[i])
-    sig = gain * signal.sosfilt(lowpass, sig)[::2]
-
-    Path("snd").mkdir(parents=True, exist_ok=True)
-    soundfile.write("snd/bilinear.wav", sig, samplerate, subtype="FLOAT")
-
-    # plotSpectrum(sig)
-    plotSpectrogram(sig, samplerate, "TableOscBilinear")
-
-def testTableOscAltInterval():
-    gain = 0.25
-    samplerate = 48000
-    lowpass = signal.ellip(12, 0.01, 100, 0.48, "low", output="sos", fs=2)
-    # plotSos(lowpass)
-
-    osc = TableOscAltInterval(samplerate)
-
-    sig = np.empty(16 * samplerate)
-    note = np.linspace(0, 128, len(sig) // 2)
-    note = np.hstack((note, np.flip(note)))
-    for i in range(len(sig)):
-        sig[i] = osc.process(note[i])
-    sig = gain * signal.sosfilt(lowpass, sig)[::2]
-
-    Path("snd").mkdir(parents=True, exist_ok=True)
-    soundfile.write("snd/altInterval.wav", sig, samplerate, subtype="FLOAT")
-
-    # plotSpectrum(sig)
-    plotSpectrogram(sig, samplerate, "TableOscAltInterval")
-
-def testMipmapOsc():
-    gain = 0.25
-    samplerate = 48000
-    lowpass = signal.ellip(12, 0.01, 100, 0.4, "low", output="sos", fs=2)
-
-    osc = MipmapOsc(samplerate)
-
-    sig = np.empty(16 * samplerate)
-    note = np.linspace(0, 128, len(sig) // 2)
-    note = np.hstack((note, np.flip(note)))
-    for i in range(len(sig)):
-        sig[i] = osc.process(note[i])
-    sig = gain * signal.sosfilt(lowpass, sig)[::2]
-
-    Path("snd").mkdir(parents=True, exist_ok=True)
-    soundfile.write("snd/mipmap.wav", sig, samplerate, subtype="FLOAT")
-
-    # plotSpectrum(sig)
-    plotSpectrogram(sig, samplerate, "MipmapOsc")
-
-def testMipmapOscCubic():
-    gain = 0.25
-    samplerate = 48000
-    lowpass = signal.ellip(12, 0.01, 100, 0.4, "low", output="sos", fs=2)
-
-    osc = MipmapOscCubic(samplerate)
-
-    sig = np.empty(16 * samplerate)
-    note = np.linspace(0, 128, len(sig) // 2)
-    note = np.hstack((note, np.flip(note)))
-    for i in range(len(sig)):
-        sig[i] = osc.process(note[i])
-    sig = gain * signal.sosfilt(lowpass, sig)[::2]
-
-    Path("snd").mkdir(parents=True, exist_ok=True)
-    soundfile.write("snd/mipmapcubic.wav", sig, samplerate, subtype="FLOAT")
-
-    # plotSpectrum(sig)
-    plotSpectrogram(sig, samplerate, "MipmapOscCubic")
-
-def testLpsOsc():
-    gain = 0.25
-    samplerate = 48000
-
-    osc = LpsOsc(samplerate)
-
-    sig = np.empty(8 * samplerate)
-    note = np.linspace(0, 128, len(sig) // 2)
-    note = np.hstack((note, np.flip(note)))
-    for i in range(len(sig)):
-        sig[i] = osc.process(note[i])
-    sig = gain * sig
-
-    Path("snd").mkdir(parents=True, exist_ok=True)
-    soundfile.write("snd/lpsosc.wav", sig, samplerate, subtype="FLOAT")
-
-    # plotSpectrum(sig)
-    plotSpectrogram(sig, samplerate, "LpsOsc")
-
-def testCpsOsc():
-    gain = 0.25
-    samplerate = 48000
-
-    osc = CpsOsc(samplerate)
-
-    sig = np.empty(8 * samplerate)
-    note = np.linspace(0, 128, len(sig) // 2)
-    note = np.hstack((note, np.flip(note)))
-    for i in range(len(sig)):
-        sig[i] = osc.process(note[i])
-    sig = gain * sig
-
-    Path("snd").mkdir(parents=True, exist_ok=True)
-    soundfile.write("snd/cpsosc.wav", sig, samplerate, subtype="FLOAT")
-
-    # plotSpectrum(sig)
-    plotSpectrogram(sig, samplerate, "CpsOsc")
-
-testTableOsc()
-testTableOscBilinear()
-testTableOscAltInterval()
-testMipmapOsc()
-testMipmapOscCubic()
-testLpsOsc()
-testCpsOsc()
+# testOsc(LpsOsc, 1)
+# testOsc(CpsOsc, 1)
+# testOsc(TableOsc, 2)
+# testOsc(TableOscBilinear, 2)
+# testOsc(TableOscAltInterval, 2)
+# testOsc(MipmapOsc, 2)
+# testOsc(MipmapOscCubic, 2)
