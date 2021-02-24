@@ -372,7 +372,6 @@ Update: 2021-02-24
 <h1 id="ウェーブテーブルのピッチベンド">ウェーブテーブルのピッチベンド</h1>
 <p>ピッチベンドをかけても倍音の欠落やエイリアシングノイズが出ないウェーブテーブルを実装します。</p>
 <p>ここで紹介するテクニックは Laurent de Soras さんによる <a href="http://ldesoras.free.fr/doc/articles/resampler-en.pdf">The Quest For The Perfect Resampler</a> の内容を基にしています。</p>
-<p>文中のコードは Python3 です。実行には <a href="https://www.scipy.org/">SciPy</a>, <a href="https://numpy.org/">NumPy</a> が必要です。</p>
 <h2 id="エイリアシング低減の仕組み">エイリアシング低減の仕組み</h2>
 <p>ウェーブテーブルのピッチベンドの挙動を見ていきます。例としてサンプリング周波数 <span class="math inline">\(f_s = 48000\,\text{[Hz]}\)</span> 、基本周波数 <span class="math inline">\(f_0 = 880\,\text{[Hz]}\)</span> として帯域制限したウェーブテーブルを生成します。帯域制限の方法については<a href="../wavetable/wavetable.html">ウェーブテーブルのエイリアシングの低減</a>を参照してください。</p>
 <figure>

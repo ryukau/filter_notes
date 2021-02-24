@@ -3,8 +3,6 @@
 
 ここで紹介するテクニックは Laurent de Soras さんによる [The Quest For The Perfect Resampler](http://ldesoras.free.fr/doc/articles/resampler-en.pdf) の内容を基にしています。
 
-文中のコードは Python3 です。実行には [SciPy](https://www.scipy.org/), [NumPy](https://numpy.org/) が必要です。
-
 ## エイリアシング低減の仕組み
 ウェーブテーブルのピッチベンドの挙動を見ていきます。例としてサンプリング周波数 $f_s = 48000\,\text{[Hz]}$ 、基本周波数 $f_0 = 880\,\text{[Hz]}$ として帯域制限したウェーブテーブルを生成します。帯域制限の方法については[ウェーブテーブルのエイリアシングの低減](../wavetable/wavetable.html)を参照してください。
 
