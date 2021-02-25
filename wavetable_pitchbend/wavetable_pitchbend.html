@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2021-02-24" />
+<meta name="dcterms.date" content="2021-02-25" />
 <title>wavetable_pitchbend</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2021-02-24
+Update: 2021-02-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -373,7 +373,7 @@ Update: 2021-02-24
 <p>ピッチベンドをかけても倍音の欠落やエイリアシングノイズが出ないウェーブテーブルを実装します。</p>
 <p>ここで紹介するテクニックは Laurent de Soras さんによる <a href="http://ldesoras.free.fr/doc/articles/resampler-en.pdf">The Quest For The Perfect Resampler</a> の内容を基にしています。</p>
 <h2 id="エイリアシング低減の仕組み">エイリアシング低減の仕組み</h2>
-<p>ウェーブテーブルのピッチベンドの挙動を見ていきます。例としてサンプリング周波数 <span class="math inline">\(f_s = 48000\,\text{[Hz]}\)</span> 、基本周波数 <span class="math inline">\(f_0 = 880\,\text{[Hz]}\)</span> として帯域制限したウェーブテーブルを生成します。帯域制限の方法については<a href="../wavetable/wavetable.html">ウェーブテーブルのエイリアシングの低減</a>を参照してください。</p>
+<p>ウェーブテーブルのピッチベンドの挙動を見ていきます。例としてサンプリング周波数 <span class="math inline">\(f_s = 48000\,\text{[Hz]}\)</span> 、基本周波数 <span class="math inline">\(f_0 = 880\,\text{[Hz]}\)</span> として帯域制限したウェーブテーブルを生成します。帯域制限の方法については<a href="../wavetable/wavetable.html">ウェーブテーブルの帯域制限と位相方向の補間</a>を参照してください。</p>
 <figure>
 <img src="img/table.svg" alt="Plot of wavetable and its spectrum." style="padding-bottom: 12px;"/>
 </figure>
@@ -652,7 +652,7 @@ B = H = \sqrt{2L - 1}
 </ul>
 <p>フィルタ設計中のサンプリング周波数を <span class="math inline">\(M\)</span> にします。</p>
 <p><span class="math inline">\(f_p\)</span> と <span class="math inline">\(f_s\)</span> の値は適当に決めています。ここでは出力のナイキスト周波数は 0.5 です。またローパスなので <span class="math inline">\(f_p &lt; f_s\)</span> を満たす必要があります。 <span class="math inline">\(f_s\)</span> が 0.5 より大きいとエイリアシングが出ます。しかし <span class="math inline">\(f_p\)</span> が 0.5 より小さいと高次の倍音が弱くなります。</p>
-<p><span class="math inline">\(N\)</span> と <span class="math inline">\(M\)</span> は増やすほどフィルタの質が良くなります。 De Soras さんの資料では <span class="math inline">\(N = 12, M = 64\)</span> としていますが、ここでは <span class="math inline">\(N = 32, M = 64\)</span> としました。</p>
+<p><span class="math inline">\(N_{\mathrm{fir}}\)</span> と <span class="math inline">\(M_{\mathrm{fir}}\)</span> は増やすほどフィルタの質が良くなります。 De Soras さんの資料では <span class="math inline">\(N_{\mathrm{fir}} = 12, M_{\mathrm{fir}} = 64\)</span> としていますが、ここでは <span class="math inline">\(N_{\mathrm{fir}} = 32, M_{\mathrm{fir}} = 64\)</span> としました。</p>
 <p>Python3 と SciPy を使ってフィルタを設計します。</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb4-2"><a href="#cb4-2"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
@@ -669,7 +669,7 @@ B = H = \sqrt{2L - 1}
 <span id="cb4-13"><a href="#cb4-13"></a>desired <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">0</span>)</span>
 <span id="cb4-14"><a href="#cb4-14"></a>weight <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">100</span>)</span>
 <span id="cb4-15"><a href="#cb4-15"></a>fir <span class="op">=</span> signal.remez(N_fir <span class="op">*</span> M_fir <span class="op">-</span> <span class="dv">1</span>, bands, desired, weight, fs<span class="op">=</span>M_fir, maxiter<span class="op">=</span><span class="dv">1024</span>)</span></code></pre></div>
-<p>設計したフィルタをポリフェイズ分解します。各フェイズの出力振幅を 1 に正規化したいので <code>splitPolyPhase</code> の呼び出しで <code>M * fir</code> としています。</p>
+<p>設計したフィルタをポリフェイズ分解します。各フェイズの出力振幅を 1 に正規化したいので <code>splitPolyPhase</code> の呼び出しで <code>M_fir * fir</code> としています。</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">import</span> json</span>
 <span id="cb5-2"><a href="#cb5-2"></a></span>
 <span id="cb5-3"><a href="#cb5-3"></a><span class="kw">def</span> splitPolyPhase(fir, nPhase):</span>
@@ -804,6 +804,11 @@ B = H = \sqrt{2L - 1}
 <li>最適な設計のウェーブテーブルを追加。</li>
 <li>De Soras のミップマップウェーブテーブルを追加。</li>
 <li>オーバーサンプリングを行わない実装のバグ修正。倍音のカットオフの計算に間違いがあった。</li>
+</ul></li>
+<li>2021/02/25
+<ul>
+<li><span class="math inline">\(N_{\mathrm{fir}}\)</span> と <span class="math inline">\(M_{\mathrm{fir}}\)</span> が <span class="math inline">\(N\)</span> と <span class="math inline">\(M\)</span> になっていた箇所の修正。</li>
+<li>以前のウェーブテーブルの記事名を更新。</li>
 </ul></li>
 </ul>
 <footer>
