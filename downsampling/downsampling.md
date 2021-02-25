@@ -321,7 +321,7 @@ bf.back() = input[ph];
 
 私の環境では事前に回しておく実装のほうが速かったです。以下のリンクから実装が読めます。
 
-- [事前に FIR フィルタ係数を回しておく実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/cd136c353f1181612cb24cb43a9a9f5fe6961f21/downsampling/code/cpp/decimation/decimation.cpp#L775)
+- [事前に FIR フィルタ係数を回しておく実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L863)
 
 ## IIR フィルタの設計と実装
 まず以下の仕様を決めます。
@@ -436,31 +436,33 @@ template<typename Sample, typename IIR, size_t oversample = 8> class SosFilter {
 public:
   void reset()
   {
-    x0.fill(0);
     x1.fill(0);
     x2.fill(0);
-    y0.fill(0);
     y1.fill(0);
     y2.fill(0);
   }
 
   void push(Sample input)
   {
-    x0[0] = input;
-    for (size_t i = 1; i < IIR::nSection; ++i) x0[i] = y0[i - 1];
-
     for (size_t i = 0; i < IIR::nSection; ++i) {
-      y0[i] = +IIR::co[i][0] * x0[i] + IIR::co[i][1] * x1[i] + IIR::co[i][2] * x2[i]
-        - IIR::co[i][3] * y1[i] - IIR::co[i][4] * y2[i];
-    }
+      // clang-format off
+      auto y0 =
+        + IIR::co[i][0] * input
+        + IIR::co[i][1] * x1[i]
+        + IIR::co[i][2] * x2[i]
+        - IIR::co[i][3] * y1[i]
+        - IIR::co[i][4] * y2[i];
+      // clang-format on
 
-    x2 = x1;
-    x1 = x0;
-    y2 = y1;
-    y1 = y0;
+      x2[i] = x1[i];
+      x1[i] = input;
+      y2[i] = y1[i];
+      y1[i] = y0;
+      input = y0;
+    }
   }
 
-  inline Sample output() { return y0[IIR::nSection - 1]; }
+  inline Sample output() { return y1[IIR::nSection - 1]; }
 
   Sample process(const std::array<Sample, oversample> &input)
   {
@@ -468,10 +470,8 @@ public:
     return output();
   }
 
-  std::array<Sample, IIR::nSection> x0{};
   std::array<Sample, IIR::nSection> x1{};
   std::array<Sample, IIR::nSection> x2{};
-  std::array<Sample, IIR::nSection> y0{};
   std::array<Sample, IIR::nSection> y1{};
   std::array<Sample, IIR::nSection> y2{};
 };
@@ -520,7 +520,7 @@ $$
 
 `SOSFilter` は [direct form I](https://ccrma.stanford.edu/~jos/fp/Direct_Form_I.html) の実装です。 Direct form II も試したのですが、今回の実装では direct form I よりも少し遅かったです。
 
-- [Direct form II の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/cd136c353f1181612cb24cb43a9a9f5fe6961f21/downsampling/code/cpp/decimation/decimation.cpp#L220)
+- [Direct form II の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L269)
 
 ## その他
 ### マルチステージ
@@ -529,3 +529,7 @@ $$
 - "Optimizing Multistage Decimation and Interpolation Processing", Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 10, NO. 4, APRIL 2003, pp. 107-110.
 - "Optimizing Multistage Decimation and Interpolation Processing—Part II", Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 14, NO. 1, JANUARY 2007, pp. 24-26.
 - [Multi-Decimation Stage Filtering for Sigma Delta ADCs: Design and Optimization - AHMED SHAHEIN](https://www.dsprelated.com/showarticle/1037.php)
+
+## 変更点
+- 2021/02/25
+  - `SosFilter` に遅延が追加されていた間違いを修正。
