@@ -1,7 +1,9 @@
-# ウェーブテーブルのエイリアシングの低減
-ウェーブテーブルのエイリアシングを減らす方法を調べます。
+# ウェーブテーブルの帯域制限と位相方向の補間
+ウェーブテーブルの帯域制限と位相方向の補間について調べます。
 
 コードは Python3 です。上から順にインタプリタにコピペしていけばコードが実行できるようになっています。実行には [NumPy, SciPy](https://docs.scipy.org/doc/numpy/index.html), [matplotlib](https://matplotlib.org/) が必要です。
+
+より完全なウェーブテーブルの実装を[ウェーブテーブルのピッチベンド](../wavetable_pitchbend/wavetable_pitchbend.html)に掲載しています。
 
 ## 素朴な実装
 ```python
@@ -563,3 +565,7 @@ def cinterp(y0, y1, y2, y3, t):
     c3 = c0 + c2 + (y3 - y1) / 2
     return c3 * t * t2 - (c2 + c3) * t2 + c1 * t + y1
 ```
+
+## 変更点
+- 2021/02/25
+  - 記事名を変更。
