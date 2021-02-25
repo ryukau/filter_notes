@@ -615,11 +615,12 @@ B = H = \sqrt{2L - 1}
 </figure>
 <p>ここまでやってしまえば、あとはダウンサンプリングのローパスフィルタの設計くらいでしか品質は変わりません。</p>
 <h3 id="オーバーサンプリングなしの実装">オーバーサンプリングなしの実装</h3>
-<p>ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は <a href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a> で使いました。ただし CubicPadSynth は倍音のカットオフの計算を間違えているので、正しい実装は以下のリンク先のコードを参照してください。</p>
+<p>ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は <a href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a> で使いました。ただし CubicPadSynth は倍音のカットオフの計算が異なっているので、正しい実装は以下のリンク先のコードを参照してください。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L257">Python 3 によるオーバーサンプリングなしの実装を読む (github.com)</a></li>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L666">C++ によるオーバーサンプリングなしの実装を読む (github.com)</a></li>
 </ul>
+<p>ここでの実装は MIDI ノート番号 0 から 136 まで、 1 半音ごとに 137 個のウェーブテーブルを作っています。 MIDI ノート番号 136 は周波数に直すと約 21100 Hz です。 MIDI ノート番号 137 の周波数は 22050 Hz よりも高いので、サンプリング周波数が 44100 Hz のときにエイリアシングが起こります。</p>
 <p>以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。オーバーサンプリングしていないのでエイリアシングも倍音の弱まりも起こっているはずですが、図を見る限りではどちらも確認できません。</p>
 <figure>
 <img src="img/LpsOsc.png" alt="Spectrogram of an output of wavetable oscillator without oversampling." style="padding-bottom: 12px;"/>
@@ -809,6 +810,7 @@ B = H = \sqrt{2L - 1}
 <ul>
 <li><span class="math inline">\(N_{\mathrm{fir}}\)</span> と <span class="math inline">\(M_{\mathrm{fir}}\)</span> が <span class="math inline">\(N\)</span> と <span class="math inline">\(M\)</span> になっていた箇所の修正。</li>
 <li>以前のウェーブテーブルの記事名を更新。</li>
+<li>オーバーサンプリングなしの実装の説明を追加。</li>
 </ul></li>
 </ul>
 <footer>
