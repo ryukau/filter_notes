@@ -171,6 +171,54 @@ template<typename Sample, typename IIR> class SosFilter {
 public:
   void reset()
   {
+    x1.fill(0);
+    x2.fill(0);
+    y1.fill(0);
+    y2.fill(0);
+  }
+
+  void push(Sample input)
+  {
+    for (size_t i = 0; i < IIR::nSection; ++i) {
+      // clang-format off
+      auto y0 =
+        + IIR::co[i][0] * input
+        + IIR::co[i][1] * x1[i]
+        + IIR::co[i][2] * x2[i]
+        - IIR::co[i][3] * y1[i]
+        - IIR::co[i][4] * y2[i];
+      // clang-format on
+
+      x2[i] = x1[i];
+      x1[i] = input;
+      y2[i] = y1[i];
+      y1[i] = y0;
+      input = y0;
+    }
+  }
+
+  inline Sample output() { return y1[IIR::nSection - 1]; }
+
+  Sample process(const std::array<Sample, IIR::oversample> &input)
+  {
+    for (const auto &value : input) push(value);
+    return output();
+  }
+
+  std::array<Sample, IIR::nSection> x1{};
+  std::array<Sample, IIR::nSection> x2{};
+  std::array<Sample, IIR::nSection> y1{};
+  std::array<Sample, IIR::nSection> y2{};
+};
+
+// SOS: Second order sections.
+// This implementation adds 1 sample delay for each section, but sounds almost as same as
+// correct implementation (SosFilter). The length of latency caused by added delay is
+// `nSection` samples. Slightly faster than no latency implementation.
+template<typename Sample, typename IIR> class SosFilterLatency {
+public:
+  void reset()
+  {
     x0.fill(0);
     x1.fill(0);
     x2.fill(0);
@@ -219,6 +267,46 @@ public:
 
 // Direct form II.
 template<typename Sample, typename IIR> class SosFilterDF2 {
+public:
+  void reset()
+  {
+    sig = 0;
+    v0.fill(0);
+    v1.fill(0);
+    v2.fill(0);
+  }
+
+  void push(Sample input)
+  {
+    sig = input;
+    for (size_t i = 0; i < IIR::nSection; ++i) {
+      v0[i] = sig - IIR::co[i][3] * v1[i] - IIR::co[i][4] * v2[i];
+      sig = IIR::co[i][0] * v0[i] + IIR::co[i][1] * v1[i] + IIR::co[i][2] * v2[i];
+    }
+
+    v2 = v1;
+    v1 = v0;
+  }
+
+  inline Sample output() { return sig; }
+
+  Sample process(const std::array<Sample, IIR::oversample> &input)
+  {
+    for (const auto &value : input) push(value);
+    return output();
+  }
+
+  Sample sig = 0;
+  std::array<Sample, IIR::nSection> v0{};
+  std::array<Sample, IIR::nSection> v1{};
+  std::array<Sample, IIR::nSection> v2{};
+};
+
+// Direct form II.
+// This implementation adds 1 sample delay for each section, but sounds almost as same as
+// correct implementation (SosFilterDF2). The length of latency caused by added delay is
+// `nSection` samples. Slightly faster than no latency implementation.
+template<typename Sample, typename IIR> class SosFilterDF2Latency {
 public:
   void reset()
   {
@@ -936,19 +1024,23 @@ int main()
 
   std::cout << "\nBenchmark ----------------\n\n";
 
-  bench<8, SosFilter<float, SosButterDecimation8<float>>>("Butter8");
-  bench<8, SosFilter<float, SosEllipticDecimation8<float>>>("Elliptic8");
-  bench<8, SosFilterDF2<float, SosButterDecimation8<float>>>("Butter8_DF2");
-  bench<8, SosFilterDF2<float, SosEllipticDecimation8<float>>>("Elliptic8_DF2");
-  bench<8, FirFilter<float, FirRemez128Decimation8<float>>>("Remez128_8");
-  bench<8, FirFilter<float, FirRemez192Decimation8<float>>>("Remez192_8");
-  bench<8, FirFilter<float, FirRemez256SteepDecimation8<float>>>("Remez256Steep_8");
-  bench<8, FirFilter<float, FirRemez256GentleDecimation8<float>>>("Remez256Gentle_8");
-  bench<8, FirFilterRot<float, FirRemez128Decimation8<float>>>("RotRemez128_8");
-  bench<8, FirFilterRot<float, FirRemez192Decimation8<float>>>("RotRemez192_8");
-  bench<8, FirFilterRot<float, FirRemez256GentleDecimation8<float>>>(
-    "RotRemez256Gentle_8");
+  // bench<8, SosFilter<float, SosButterDecimation8<float>>>("Butter8");
+  // bench<8, SosFilter<float, SosEllipticDecimation8<float>>>("Elliptic8");
+  // bench<8, SosFilterDF2<float, SosButterDecimation8<float>>>("Butter8_DF2");
+  // bench<8, SosFilterDF2<float, SosEllipticDecimation8<float>>>("Elliptic8_DF2");
+  // bench<8, FirFilter<float, FirRemez128Decimation8<float>>>("Remez128_8");
+  // bench<8, FirFilter<float, FirRemez192Decimation8<float>>>("Remez192_8");
+  // bench<8, FirFilter<float, FirRemez256SteepDecimation8<float>>>("Remez256Steep_8");
+  // bench<8, FirFilter<float, FirRemez256GentleDecimation8<float>>>("Remez256Gentle_8");
+  // bench<8, FirFilterRot<float, FirRemez128Decimation8<float>>>("RotRemez128_8");
+  // bench<8, FirFilterRot<float, FirRemez192Decimation8<float>>>("RotRemez192_8");
+  // bench<8, FirFilterRot<float, FirRemez256GentleDecimation8<float>>>(
+  //   "RotRemez256Gentle_8");
   bench<16, SosFilter<float, SosEllipticDecimation16<float>>>("Elliptic16");
+  bench<16, SosFilterLatency<float, SosEllipticDecimation16<float>>>(
+    "Elliptic16_Latency");
   bench<16, SosFilterDF2<float, SosEllipticDecimation16<float>>>("Elliptic16_DF2");
+  bench<16, SosFilterDF2Latency<float, SosEllipticDecimation16<float>>>(
+    "Elliptic16_DF2_Latency");
   return 0;
 }

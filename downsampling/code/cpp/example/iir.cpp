@@ -35,31 +35,33 @@ template<typename Sample, typename IIR, size_t oversample = 8> class SosFilter {
 public:
   void reset()
   {
-    x0.fill(0);
     x1.fill(0);
     x2.fill(0);
-    y0.fill(0);
     y1.fill(0);
     y2.fill(0);
   }
 
   void push(Sample input)
   {
-    x0[0] = input;
-    for (size_t i = 1; i < IIR::nSection; ++i) x0[i] = y0[i - 1];
-
     for (size_t i = 0; i < IIR::nSection; ++i) {
-      y0[i] = +IIR::co[i][0] * x0[i] + IIR::co[i][1] * x1[i] + IIR::co[i][2] * x2[i]
-        - IIR::co[i][3] * y1[i] - IIR::co[i][4] * y2[i];
-    }
+      // clang-format off
+      auto y0 =
+        + IIR::co[i][0] * input
+        + IIR::co[i][1] * x1[i]
+        + IIR::co[i][2] * x2[i]
+        - IIR::co[i][3] * y1[i]
+        - IIR::co[i][4] * y2[i];
+      // clang-format on
 
-    x2 = x1;
-    x1 = x0;
-    y2 = y1;
-    y1 = y0;
+      x2[i] = x1[i];
+      x1[i] = input;
+      y2[i] = y1[i];
+      y1[i] = y0;
+      input = y0;
+    }
   }
 
-  inline Sample output() { return y0[IIR::nSection - 1]; }
+  inline Sample output() { return y1[IIR::nSection - 1]; }
 
   Sample process(const std::array<Sample, oversample> &input)
   {
@@ -67,10 +69,8 @@ public:
     return output();
   }
 
-  std::array<Sample, IIR::nSection> x0{};
   std::array<Sample, IIR::nSection> x1{};
   std::array<Sample, IIR::nSection> x2{};
-  std::array<Sample, IIR::nSection> y0{};
   std::array<Sample, IIR::nSection> y1{};
   std::array<Sample, IIR::nSection> y2{};
 };
