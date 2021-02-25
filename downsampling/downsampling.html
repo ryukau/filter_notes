@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2021-01-06" />
+<meta name="dcterms.date" content="2021-02-25" />
 <title>downsampling</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2021-01-06
+Update: 2021-02-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -358,6 +358,7 @@ Update: 2021-01-06
 <li><a href="#その他">その他</a><ul>
 <li><a href="#マルチステージ">マルチステージ</a></li>
 </ul></li>
+<li><a href="#変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -677,7 +678,7 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <p>畳み込む方向によっては内側の配列の前後が <code>[3, 2, 1, 0], [0, 3, 2, 1], ...</code> のように反転します。</p>
 <p>私の環境では事前に回しておく実装のほうが速かったです。以下のリンクから実装が読めます。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/cd136c353f1181612cb24cb43a9a9f5fe6961f21/downsampling/code/cpp/decimation/decimation.cpp#L775">事前に FIR フィルタ係数を回しておく実装を読む (github.com)</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L863">事前に FIR フィルタ係数を回しておく実装を読む (github.com)</a></li>
 </ul>
 <h2 id="iir-フィルタの設計と実装">IIR フィルタの設計と実装</h2>
 <p>まず以下の仕様を決めます。</p>
@@ -848,42 +849,42 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <span id="cb10-35"><a href="#cb10-35"></a><span class="kw">public</span>:</span>
 <span id="cb10-36"><a href="#cb10-36"></a>  <span class="dt">void</span> reset()</span>
 <span id="cb10-37"><a href="#cb10-37"></a>  {</span>
-<span id="cb10-38"><a href="#cb10-38"></a>    x0.fill(<span class="dv">0</span>);</span>
-<span id="cb10-39"><a href="#cb10-39"></a>    x1.fill(<span class="dv">0</span>);</span>
-<span id="cb10-40"><a href="#cb10-40"></a>    x2.fill(<span class="dv">0</span>);</span>
-<span id="cb10-41"><a href="#cb10-41"></a>    y0.fill(<span class="dv">0</span>);</span>
-<span id="cb10-42"><a href="#cb10-42"></a>    y1.fill(<span class="dv">0</span>);</span>
-<span id="cb10-43"><a href="#cb10-43"></a>    y2.fill(<span class="dv">0</span>);</span>
-<span id="cb10-44"><a href="#cb10-44"></a>  }</span>
-<span id="cb10-45"><a href="#cb10-45"></a></span>
-<span id="cb10-46"><a href="#cb10-46"></a>  <span class="dt">void</span> push(Sample input)</span>
-<span id="cb10-47"><a href="#cb10-47"></a>  {</span>
-<span id="cb10-48"><a href="#cb10-48"></a>    x0[<span class="dv">0</span>] = input;</span>
-<span id="cb10-49"><a href="#cb10-49"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">1</span>; i &lt; IIR::nSection; ++i) x0[i] = y0[i - <span class="dv">1</span>];</span>
-<span id="cb10-50"><a href="#cb10-50"></a></span>
-<span id="cb10-51"><a href="#cb10-51"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; IIR::nSection; ++i) {</span>
-<span id="cb10-52"><a href="#cb10-52"></a>      y0[i] = +IIR::co[i][<span class="dv">0</span>] * x0[i] + IIR::co[i][<span class="dv">1</span>] * x1[i] + IIR::co[i][<span class="dv">2</span>] * x2[i]</span>
-<span id="cb10-53"><a href="#cb10-53"></a>        - IIR::co[i][<span class="dv">3</span>] * y1[i] - IIR::co[i][<span class="dv">4</span>] * y2[i];</span>
-<span id="cb10-54"><a href="#cb10-54"></a>    }</span>
+<span id="cb10-38"><a href="#cb10-38"></a>    x1.fill(<span class="dv">0</span>);</span>
+<span id="cb10-39"><a href="#cb10-39"></a>    x2.fill(<span class="dv">0</span>);</span>
+<span id="cb10-40"><a href="#cb10-40"></a>    y1.fill(<span class="dv">0</span>);</span>
+<span id="cb10-41"><a href="#cb10-41"></a>    y2.fill(<span class="dv">0</span>);</span>
+<span id="cb10-42"><a href="#cb10-42"></a>  }</span>
+<span id="cb10-43"><a href="#cb10-43"></a></span>
+<span id="cb10-44"><a href="#cb10-44"></a>  <span class="dt">void</span> push(Sample input)</span>
+<span id="cb10-45"><a href="#cb10-45"></a>  {</span>
+<span id="cb10-46"><a href="#cb10-46"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; IIR::nSection; ++i) {</span>
+<span id="cb10-47"><a href="#cb10-47"></a>      <span class="co">// clang-format off</span></span>
+<span id="cb10-48"><a href="#cb10-48"></a>      <span class="kw">auto</span> y0 =</span>
+<span id="cb10-49"><a href="#cb10-49"></a>        + IIR::co[i][<span class="dv">0</span>] * input</span>
+<span id="cb10-50"><a href="#cb10-50"></a>        + IIR::co[i][<span class="dv">1</span>] * x1[i]</span>
+<span id="cb10-51"><a href="#cb10-51"></a>        + IIR::co[i][<span class="dv">2</span>] * x2[i]</span>
+<span id="cb10-52"><a href="#cb10-52"></a>        - IIR::co[i][<span class="dv">3</span>] * y1[i]</span>
+<span id="cb10-53"><a href="#cb10-53"></a>        - IIR::co[i][<span class="dv">4</span>] * y2[i];</span>
+<span id="cb10-54"><a href="#cb10-54"></a>      <span class="co">// clang-format on</span></span>
 <span id="cb10-55"><a href="#cb10-55"></a></span>
-<span id="cb10-56"><a href="#cb10-56"></a>    x2 = x1;</span>
-<span id="cb10-57"><a href="#cb10-57"></a>    x1 = x0;</span>
-<span id="cb10-58"><a href="#cb10-58"></a>    y2 = y1;</span>
-<span id="cb10-59"><a href="#cb10-59"></a>    y1 = y0;</span>
-<span id="cb10-60"><a href="#cb10-60"></a>  }</span>
-<span id="cb10-61"><a href="#cb10-61"></a></span>
-<span id="cb10-62"><a href="#cb10-62"></a>  <span class="kw">inline</span> Sample output() { <span class="cf">return</span> y0[IIR::nSection - <span class="dv">1</span>]; }</span>
+<span id="cb10-56"><a href="#cb10-56"></a>      x2[i] = x1[i];</span>
+<span id="cb10-57"><a href="#cb10-57"></a>      x1[i] = input;</span>
+<span id="cb10-58"><a href="#cb10-58"></a>      y2[i] = y1[i];</span>
+<span id="cb10-59"><a href="#cb10-59"></a>      y1[i] = y0;</span>
+<span id="cb10-60"><a href="#cb10-60"></a>      input = y0;</span>
+<span id="cb10-61"><a href="#cb10-61"></a>    }</span>
+<span id="cb10-62"><a href="#cb10-62"></a>  }</span>
 <span id="cb10-63"><a href="#cb10-63"></a></span>
-<span id="cb10-64"><a href="#cb10-64"></a>  Sample process(<span class="at">const</span> <span class="bu">std::</span>array&lt;Sample, oversample&gt; &amp;input)</span>
-<span id="cb10-65"><a href="#cb10-65"></a>  {</span>
-<span id="cb10-66"><a href="#cb10-66"></a>    <span class="cf">for</span> (<span class="at">const</span> <span class="kw">auto</span> &amp;value : input) push(value);</span>
-<span id="cb10-67"><a href="#cb10-67"></a>    <span class="cf">return</span> output();</span>
-<span id="cb10-68"><a href="#cb10-68"></a>  }</span>
-<span id="cb10-69"><a href="#cb10-69"></a></span>
-<span id="cb10-70"><a href="#cb10-70"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; x0{};</span>
-<span id="cb10-71"><a href="#cb10-71"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; x1{};</span>
-<span id="cb10-72"><a href="#cb10-72"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; x2{};</span>
-<span id="cb10-73"><a href="#cb10-73"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; y0{};</span>
+<span id="cb10-64"><a href="#cb10-64"></a>  <span class="kw">inline</span> Sample output() { <span class="cf">return</span> y1[IIR::nSection - <span class="dv">1</span>]; }</span>
+<span id="cb10-65"><a href="#cb10-65"></a></span>
+<span id="cb10-66"><a href="#cb10-66"></a>  Sample process(<span class="at">const</span> <span class="bu">std::</span>array&lt;Sample, oversample&gt; &amp;input)</span>
+<span id="cb10-67"><a href="#cb10-67"></a>  {</span>
+<span id="cb10-68"><a href="#cb10-68"></a>    <span class="cf">for</span> (<span class="at">const</span> <span class="kw">auto</span> &amp;value : input) push(value);</span>
+<span id="cb10-69"><a href="#cb10-69"></a>    <span class="cf">return</span> output();</span>
+<span id="cb10-70"><a href="#cb10-70"></a>  }</span>
+<span id="cb10-71"><a href="#cb10-71"></a></span>
+<span id="cb10-72"><a href="#cb10-72"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; x1{};</span>
+<span id="cb10-73"><a href="#cb10-73"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; x2{};</span>
 <span id="cb10-74"><a href="#cb10-74"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; y1{};</span>
 <span id="cb10-75"><a href="#cb10-75"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; y2{};</span>
 <span id="cb10-76"><a href="#cb10-76"></a>};</span>
@@ -924,7 +925,7 @@ H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 \]</span></p>
 <p><code>SOSFilter</code> は <a href="https://ccrma.stanford.edu/~jos/fp/Direct_Form_I.html">direct form I</a> の実装です。 Direct form II も試したのですが、今回の実装では direct form I よりも少し遅かったです。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/cd136c353f1181612cb24cb43a9a9f5fe6961f21/downsampling/code/cpp/decimation/decimation.cpp#L220">Direct form II の実装を読む (github.com)</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L269">Direct form II の実装を読む (github.com)</a></li>
 </ul>
 <h2 id="その他">その他</h2>
 <h3 id="マルチステージ">マルチステージ</h3>
@@ -933,6 +934,13 @@ H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 <li>“Optimizing Multistage Decimation and Interpolation Processing”, Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 10, NO. 4, APRIL 2003, pp. 107-110.</li>
 <li>“Optimizing Multistage Decimation and Interpolation Processing—Part II”, Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 14, NO. 1, JANUARY 2007, pp. 24-26.</li>
 <li><a href="https://www.dsprelated.com/showarticle/1037.php">Multi-Decimation Stage Filtering for Sigma Delta ADCs: Design and Optimization - AHMED SHAHEIN</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2021/02/25
+<ul>
+<li><code>SosFilter</code> に遅延が追加されていた間違いを修正。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
