@@ -317,10 +317,12 @@ $L = 2$ のとき $B = H = \sqrt{3}$ です。
 ここまでやってしまえば、あとはダウンサンプリングのローパスフィルタの設計くらいでしか品質は変わりません。
 
 ### オーバーサンプリングなしの実装
-ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は [CubicPadSynth](https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html) で使いました。ただし CubicPadSynth は倍音のカットオフの計算を間違えているので、正しい実装は以下のリンク先のコードを参照してください。
+ウェーブテーブルの数を増やして周波数方向の間隔を狭くすることで、オーバーサンプリング無しでもエイリアシングを低減できます。この方法は [CubicPadSynth](https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html) で使いました。ただし CubicPadSynth は倍音のカットオフの計算が異なっているので、正しい実装は以下のリンク先のコードを参照してください。
 
 - [Python 3 によるオーバーサンプリングなしの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/pitchbend.py#L257)
 - [C++ によるオーバーサンプリングなしの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L666)
+
+ここでの実装は MIDI ノート番号 0 から 136 まで、 1 半音ごとに 137 個のウェーブテーブルを作っています。 MIDI ノート番号 136 は周波数に直すと約 21100 Hz です。 MIDI ノート番号 137 の周波数は 22050 Hz よりも高いので、サンプリング周波数が 44100 Hz のときにエイリアシングが起こります。
 
 以下は MIDI ノート番号で 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。オーバーサンプリングしていないのでエイリアシングも倍音の弱まりも起こっているはずですが、図を見る限りではどちらも確認できません。
 
@@ -541,3 +543,4 @@ $N_{\mathrm{fir}}$ の値を大きくすることで倍音の弱まりとエイ�
 - 2021/02/25
   - $N_{\mathrm{fir}}$ と $M_{\mathrm{fir}}$ が $N$ と $M$ になっていた箇所の修正。
   - 以前のウェーブテーブルの記事名を更新。
+  - オーバーサンプリングなしの実装の説明を追加。
