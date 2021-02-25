@@ -4,7 +4,7 @@
 ここで紹介するテクニックは Laurent de Soras さんによる [The Quest For The Perfect Resampler](http://ldesoras.free.fr/doc/articles/resampler-en.pdf) の内容を基にしています。
 
 ## エイリアシング低減の仕組み
-ウェーブテーブルのピッチベンドの挙動を見ていきます。例としてサンプリング周波数 $f_s = 48000\,\text{[Hz]}$ 、基本周波数 $f_0 = 880\,\text{[Hz]}$ として帯域制限したウェーブテーブルを生成します。帯域制限の方法については[ウェーブテーブルのエイリアシングの低減](../wavetable/wavetable.html)を参照してください。
+ウェーブテーブルのピッチベンドの挙動を見ていきます。例としてサンプリング周波数 $f_s = 48000\,\text{[Hz]}$ 、基本周波数 $f_0 = 880\,\text{[Hz]}$ として帯域制限したウェーブテーブルを生成します。帯域制限の方法については[ウェーブテーブルの帯域制限と位相方向の補間](../wavetable/wavetable.html)を参照してください。
 
 <figure>
 <img src="img/table.svg" alt="Plot of wavetable and its spectrum." style="padding-bottom: 12px;"/>
@@ -367,7 +367,7 @@ The Quest For The Perfect Resampler で紹介されているミップマップ�
 
 $f_p$ と $f_s$ の値は適当に決めています。ここでは出力のナイキスト周波数は 0.5 です。またローパスなので $f_p < f_s$ を満たす必要があります。 $f_s$ が 0.5 より大きいとエイリアシングが出ます。しかし $f_p$ が 0.5 より小さいと高次の倍音が弱くなります。
 
-$N$ と $M$ は増やすほどフィルタの質が良くなります。 De Soras さんの資料では $N = 12, M = 64$ としていますが、ここでは $N = 32, M = 64$ としました。
+$N_{\mathrm{fir}}$ と $M_{\mathrm{fir}}$ は増やすほどフィルタの質が良くなります。 De Soras さんの資料では $N_{\mathrm{fir}} = 12, M_{\mathrm{fir}} = 64$ としていますが、ここでは $N_{\mathrm{fir}} = 32, M_{\mathrm{fir}} = 64$ としました。
 
 Python3 と SciPy を使ってフィルタを設計します。
 
@@ -389,7 +389,7 @@ weight = (1, 100)
 fir = signal.remez(N_fir * M_fir - 1, bands, desired, weight, fs=M_fir, maxiter=1024)
 ```
 
-設計したフィルタをポリフェイズ分解します。各フェイズの出力振幅を 1 に正規化したいので `splitPolyPhase` の呼び出しで `M * fir` としています。
+設計したフィルタをポリフェイズ分解します。各フェイズの出力振幅を 1 に正規化したいので `splitPolyPhase` の呼び出しで `M_fir * fir` としています。
 
 ```python
 import json
@@ -538,3 +538,6 @@ $N_{\mathrm{fir}}$ の値を大きくすることで倍音の弱まりとエイ�
   - 最適な設計のウェーブテーブルを追加。
   - De Soras のミップマップウェーブテーブルを追加。
   - オーバーサンプリングを行わない実装のバグ修正。倍音のカットオフの計算に間違いがあった。
+- 2021/02/25
+  - $N_{\mathrm{fir}}$ と $M_{\mathrm{fir}}$ が $N$ と $M$ になっていた箇所の修正。
+  - 以前のウェーブテーブルの記事名を更新。
