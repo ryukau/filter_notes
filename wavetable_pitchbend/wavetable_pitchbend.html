@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2021-02-25" />
+<meta name="dcterms.date" content="2021-03-10" />
 <title>wavetable_pitchbend</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2021-02-25
+Update: 2021-03-10
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -445,14 +445,14 @@ B^M = \frac{N}{2}
 <p><span class="math display">\[
 M = \left\lfloor \log_B \frac{N}{2} \right\rfloor
 \]</span></p>
-<p>最後にウェーブテーブルを作ります。ウェーブテーブルの作成は入力された波形を離散フーリエ変換で周波数領域に変換します。そしてエイリアシングが出ないように周波数成分を切り落としたあとに逆離散フーリエ変換で時間領域に戻すことで計算できます。ここではインデックス 0 のウェーブテーブルが最低周波数を再生するようにします。インデックスを <span class="math inline">\(i\)</span> としたときに切り落とす倍音の次数 <span class="math inline">\(C\)</span> は以下の式で計算できます。</p>
+<p>最後にウェーブテーブルを作ります。ウェーブテーブルの作成は入力された波形を離散フーリエ変換で周波数領域に変換します。そしてエイリアシングが出ないように周波数成分を切り落としたあとに逆離散フーリエ変換で時間領域に戻すことで計算できます。ここではインデックス 0 のウェーブテーブルが最低周波数を再生するようにします。ウェーブテーブルのインデックスを <span class="math inline">\(i\)</span> としたときに切り落とす倍音の次数 <span class="math inline">\(c\)</span> は以下の式で計算できます。</p>
 <p><span class="math display">\[
 c = \left\lfloor \frac{N}{2} H^{-i} \right\rfloor + 1
 \]</span></p>
 <p>最後の <span class="math inline">\(+1\)</span> は直流成分を表しています。インデックスが <span class="math inline">\(c\)</span> 以上の周波数成分は 0 にします。</p>
 <p>以下はウェーブテーブル作成の大まかな C++ のコードです。</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">/*</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="co">table は 2 次元配列。最後のテーブルは 0 で埋める。</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">table は 2 次元配列。</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">sampleRate は出力のサンプリング周波数。</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">f_s はオーバーサンプリング中のサンプリング周波数。</span></span>
@@ -466,7 +466,7 @@ c = \left\lfloor \frac{N}{2} H^{-i} \right\rfloor + 1
 <span id="cb1-13"><a href="#cb1-13"></a><span class="bu">std::</span>vector&lt;<span class="bu">std::</span>complex&lt;<span class="dt">float</span>&gt;&gt; spc = getSpectrum&lt;<span class="dt">float</span>&gt;(waveform);</span>
 <span id="cb1-14"><a href="#cb1-14"></a></span>
 <span id="cb1-15"><a href="#cb1-15"></a><span class="dt">size_t</span> M = <span class="dt">size_t</span>(<span class="bu">std::</span>log(<span class="dt">float</span>(N / <span class="dv">2</span>)) / <span class="bu">std::</span>log(B));</span>
-<span id="cb1-16"><a href="#cb1-16"></a>table.resize(M + <span class="dv">1</span>); <span class="co">// 0 埋めテーブルを追加するので +1 。</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a>table.resize(M + <span class="dv">1</span>); <span class="co">// 倍音を一つも含まない最後尾のウェーブテーブルを追加。</span></span>
 <span id="cb1-17"><a href="#cb1-17"></a></span>
 <span id="cb1-18"><a href="#cb1-18"></a><span class="bu">std::</span>vector&lt;<span class="bu">std::</span>complex&lt;<span class="dt">float</span>&gt;&gt; tmp(spc.size()); <span class="co">// 一時変数。</span></span>
 <span id="cb1-19"><a href="#cb1-19"></a><span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; table.size() - <span class="dv">1</span>; ++idx) {</span>
@@ -478,8 +478,10 @@ c = \left\lfloor \frac{N}{2} H^{-i} \right\rfloor + 1
 <span id="cb1-25"><a href="#cb1-25"></a>  table[idx].resize(N);</span>
 <span id="cb1-26"><a href="#cb1-26"></a>  fft.complex2real(tmp.data(), table[idx].data()); <span class="co">// numpy.fft.irfft と同じ計算。</span></span>
 <span id="cb1-27"><a href="#cb1-27"></a>}</span>
-<span id="cb1-28"><a href="#cb1-28"></a>table.back().resize(N);</span>
-<span id="cb1-29"><a href="#cb1-29"></a><span class="bu">std::</span>fill(table.back().begin(), table.back().end(), <span class="dt">float</span>(<span class="dv">0</span>));</span></code></pre></div>
+<span id="cb1-28"><a href="#cb1-28"></a></span>
+<span id="cb1-29"><a href="#cb1-29"></a><span class="co">// 最後尾のウェーブテーブルは 0 で埋める。</span></span>
+<span id="cb1-30"><a href="#cb1-30"></a>table.back().resize(N);</span>
+<span id="cb1-31"><a href="#cb1-31"></a><span class="bu">std::</span>fill(table.back().begin(), table.back().end(), <span class="dt">float</span>(<span class="dv">0</span>));</span></code></pre></div>
 <h3 id="ウェーブテーブルの切り替え">ウェーブテーブルの切り替え</h3>
 <p>前提としてオシレータのピッチが浮動小数点数の MIDI ノート番号で入力されることにします。</p>
 <p>事前に最低周波数 <span class="math inline">\(f_L\)</span> を最低 MIDI ノート番号 <span class="math inline">\(\mathtt{basenote}\)</span> に変換しておきます。</p>
@@ -529,6 +531,7 @@ i = \left\lfloor \frac{\nu - \mathtt{basenote}}{\mathtt{interval}} \right\rfloor
 <li>オーバーサンプリングなしの実装</li>
 <li>ミップマップを使う実装</li>
 </ul>
+<p>以降ではウェーブテーブルの波形にのこぎり波を使っています。音のサンプルはこの記事の最後に掲載しています。</p>
 <h3 id="オーバーサンプリングありの実装">オーバーサンプリングありの実装</h3>
 <p>オーバーサンプリングを行うウェーブテーブルオシレータのブロック線図です。</p>
 <figure>
@@ -716,7 +719,7 @@ B = H = \sqrt{2L - 1}
 <span id="cb7-23"><a href="#cb7-23"></a>  }</span>
 <span id="cb7-24"><a href="#cb7-24"></a>  <span class="cf">return</span> sum;</span>
 <span id="cb7-25"><a href="#cb7-25"></a>}</span></code></pre></div>
-<p>De Soras さんの資料では <code>fir[firIdx][j + 1] - fir[firIdx][j]</code> を事前に計算して別の配列にしておくことで計算量を減らす方法が紹介されています。</p>
+<p><code>InterpFir::diff</code> は事前に計算しておいたフィルタの差分です。 <code>diff[firIdx][j] = fir[firIdx][j + 1] - fir[firIdx][j]</code> となっています。この方法は De Soras さんの資料で紹介されていました。</p>
 <p>以下のリンク先にミップマップとアップサンプラを使ったオシレータのコードを掲載しています。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/f6c0a8b81bee51235b542e498d67c9caf9a65120/wavetable_pitchbend/cpp/bench/bench.cpp#L566">C++ によるミップマップとアップサンプラを使ったオシレータの実装を読む (github.com)</a></li>
@@ -725,12 +728,12 @@ B = H = \sqrt{2L - 1}
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/cpp/bench/fir.py">アップサンプラのフィルタを設計するコードを読む (github.com)</a></li>
 </ul>
-<p>以下は位相方向の補間にアップサンプラを使ったミップマップオシレータで、 MIDI ノート番号 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングがウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、インデックス方向の補間によって高次の倍音が弱くなっているからです。</p>
+<p>以下は位相方向の補間にアップサンプラを使ったミップマップオシレータで、 MIDI ノート番号 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングがウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、アップサンプラのローパスフィルタのパスバンドリップルと、ウェーブテーブルのインデックス方向の補間の組み合わせによるものです。</p>
 <figure>
 <img src="img/chirp_MipmapDeSoras.png" alt="Spectrogram of mipmap oscillator using upsampler." style="padding-bottom: 12px;"/>
 </figure>
 <p>ミップマップを使う方法はアップサンプラのフィルタの質で大きく音が変わります。 <span class="math inline">\(f_p\)</span> を 0.5 以下にすると今回のように倍音の弱まりが出ます。かと言って <span class="math inline">\(f_p\)</span> を 0.5 にすると <span class="math inline">\(f_s\)</span> を 0.5 より大きい値にする必要が出てくるので、今度はエイリアシングノイズが出ます。</p>
-<p><span class="math inline">\(N_{\mathrm{fir}}\)</span> の値を大きくすることで倍音の弱まりとエイリアシングの両方を改善できますが、今度は計算が重たくなります。さらにインデックス方向の線形補間を行うときは 1 サンプルあたりの計算量が約 2 倍になります。簡単なベンチマークを取ったところ、今回実装した <span class="math inline">\(N_{\mathrm{fir}} = 32\)</span> でインデックス方向の線形補間ありのミップマップは、オーバーサンプリングありの実装と比べて約 1.5 倍ほどの計算時間がかかりました。</p>
+<p>ポリフェイズの 1 分岐あたりの FIR の長さ <span class="math inline">\(N_{\mathrm{fir}}\)</span> の値を大きくすることで倍音の弱まりとエイリアシングの両方を改善できますが、今度は計算が重たくなります。さらにインデックス方向の線形補間を行うときは 1 サンプルあたりの計算量が約 2 倍になります。簡単なベンチマークを取ったところ、今回実装した <span class="math inline">\(N_{\mathrm{fir}} = 32\)</span> でインデックス方向の線形補間ありのミップマップは、オーバーサンプリングありの実装と比べて約 1.5 倍ほどの計算時間がかかりました。</p>
 <p>ミップマップを使う方法は計算量から見るとあまり魅力的ではないですが、アップサンプラのフィルタをローパス以外の特性に変えてエフェクトをかけられるという他の実装にない特長があります。</p>
 <h2 id="音のサンプル">音のサンプル</h2>
 <p>各実装でのこぎり波をレンダリングした結果です。</p>
@@ -811,6 +814,12 @@ B = H = \sqrt{2L - 1}
 <li><span class="math inline">\(N_{\mathrm{fir}}\)</span> と <span class="math inline">\(M_{\mathrm{fir}}\)</span> が <span class="math inline">\(N\)</span> と <span class="math inline">\(M\)</span> になっていた箇所の修正。</li>
 <li>以前のウェーブテーブルの記事名を更新。</li>
 <li>オーバーサンプリングなしの実装の説明を追加。</li>
+</ul></li>
+<li>2021/03/10
+<ul>
+<li>ミップマップ実装の倍音の弱まりの説明を変更。</li>
+<li><code>InterpFir::diff</code> の説明を追加。</li>
+<li>文章の整理。</li>
 </ul></li>
 </ul>
 <footer>
