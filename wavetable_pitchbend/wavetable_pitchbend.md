@@ -463,7 +463,7 @@ Sample processTable(const Sample phase, const size_t octave)
 
 - [アップサンプラのフィルタを設計するコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/cpp/bench/fir.py)
 
-以下は位相方向の補間にアップサンプラを使ったミップマップオシレータで、 MIDI ノート番号 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングがウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、アップサンプラのローパスフィルタのパスバンドリップルと、ウェーブテーブルのインデックス方向の補間の組み合わせによるものです。
+以下は位相方向の補間にアップサンプラを使ったミップマップオシレータで、 MIDI ノート番号 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングがウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、アップサンプラのローパスフィルタのストップバンドリップルと、ウェーブテーブルのインデックス方向の補間の組み合わせによるものです。
 
 <figure>
 <img src="img/chirp_MipmapDeSoras.png" alt="Spectrogram of mipmap oscillator using upsampler." style="padding-bottom: 12px;"/>
@@ -552,3 +552,5 @@ Sample processTable(const Sample phase, const size_t octave)
   - ミップマップ実装の倍音の弱まりの説明を変更。
   - `InterpFir::diff` の説明を追加。
   - 文章の整理。
+- 2021/04/03
+  - ミップマップ実装の説明でストップバンドリップルをパスバンドリップルに間違えていた箇所を修正。
