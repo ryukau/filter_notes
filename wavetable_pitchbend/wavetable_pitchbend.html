@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2021-03-10" />
+<meta name="dcterms.date" content="2021-04-03" />
 <title>wavetable_pitchbend</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2021-03-10
+Update: 2021-04-03
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -728,7 +728,7 @@ B = H = \sqrt{2L - 1}
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/master/wavetable_pitchbend/cpp/bench/fir.py">アップサンプラのフィルタを設計するコードを読む (github.com)</a></li>
 </ul>
-<p>以下は位相方向の補間にアップサンプラを使ったミップマップオシレータで、 MIDI ノート番号 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングがウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、アップサンプラのローパスフィルタのパスバンドリップルと、ウェーブテーブルのインデックス方向の補間の組み合わせによるものです。</p>
+<p>以下は位相方向の補間にアップサンプラを使ったミップマップオシレータで、 MIDI ノート番号 0, 128, 0 とピッチベンドしたテスト出力のスペクトログラムです。エイリアシングがウェーブテーブルの切り替え時に少し出ていますが、悪くない品質です。図の上部が波打つように暗くなっているのは、アップサンプラのローパスフィルタのストップバンドリップルと、ウェーブテーブルのインデックス方向の補間の組み合わせによるものです。</p>
 <figure>
 <img src="img/chirp_MipmapDeSoras.png" alt="Spectrogram of mipmap oscillator using upsampler." style="padding-bottom: 12px;"/>
 </figure>
@@ -820,6 +820,10 @@ B = H = \sqrt{2L - 1}
 <li>ミップマップ実装の倍音の弱まりの説明を変更。</li>
 <li><code>InterpFir::diff</code> の説明を追加。</li>
 <li>文章の整理。</li>
+</ul></li>
+<li>2021/04/03
+<ul>
+<li>ミップマップ実装の説明でストップバンドリップルをパスバンドリップルに間違えていた箇所を修正。</li>
 </ul></li>
 </ul>
 <footer>
