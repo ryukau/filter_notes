@@ -114,6 +114,13 @@ public:
     p1 -= std::floor(p1);
 
     if (lastTempo != tempo || lastSync != sync) {
+      v2 = lastTempo / (Sample(60) * sampleRate * lastSync);
+
+      if (state == State::steady) {
+        p2 = beatsElapsed / lastSync;
+        p2 -= std::floor(p2);
+      }
+
       state = State::decelerating;
 
       midTime = Sample(0.5) / v1;
@@ -122,15 +129,6 @@ public:
       midVelocity = (distance + k) / midTime - (v1 + v2) * Sample(0.5);
 
       counter = 0;
-    }
-  }
-
-  // Must call this method at the end of each DSP processing cycle.
-  void postProcess(Sample tempo, Sample sync)
-  {
-    if (state == State::steady) {
-      p2 = p1;
-      v2 = v1;
     }
     lastTempo = tempo;
     lastSync = sync;
@@ -268,10 +266,12 @@ template<typename Synchronizer> void bench(std::string name)
 
   constexpr float lineInterval = 1.0f;
 
-  std::vector<float> tempoValues = {40.0f, 120.0f, 120.0f};
+  std::vector<float> tempoValues
+    = {120.0f, 120.0f, 120.0f, 120.0f, 120.0f, 120.0f, 120.0f, 120.0f, 120.0f};
   StepGenerator<float> tempoGen(sampleRate, lineInterval, tempoValues);
 
-  std::vector<float> syncValues = {1.0f, 1.0f, 1.0f};
+  std::vector<float> syncValues
+    = {0.25f, 0.25f, 8.0f, 8.0f, 8.0f, 1.0f, 1.0f, 1.0f, 1.0f};
   StepGenerator<float> syncGen(sampleRate, lineInterval, syncValues);
 
   if (tempoValues.size() != syncValues.size()) {
@@ -332,7 +332,6 @@ template<typename Synchronizer> void bench(std::string name)
 
         ++frame;
       }
-      syncer.postProcess(tempo, sync);
       beatsElapsed += tempo * bufferSize / (60.0 * sampleRate);
     }
   }

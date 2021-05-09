@@ -5,4 +5,4 @@ if (!(test-path build)) {
 }
 
 cmake --build build --config release
-# ./build/Release/test.exe
+./build/Release/test.exe
