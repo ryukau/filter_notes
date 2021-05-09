@@ -478,19 +478,24 @@ v_1 &amp;= \frac{T_1}{60 f_s S_1}\\
 <figure>
 <img src="img/PhaseWrapAround.svg" alt="Abstract plot of phase and its wrap around images." style="padding-bottom: 12px;"/>
 </figure>
-<p>ここで <span class="math inline">\(p_0\)</span> から <span class="math inline">\(p_1\)</span> に滑らかに遷移するときの速度を <span class="math inline">\(v_2\)</span> とします。以下は <span class="math inline">\(v_2\)</span> に求められる性質を示した図です。 <span class="math inline">\(v_2\)</span> の初期値は <span class="math inline">\(v_0\)</span> で、任意の時間 <span class="math inline">\(t_L\)</span> が経過すると <span class="math inline">\(v_1\)</span> に到達します。そして、遷移開始時点から <span class="math inline">\(t_L\)</span> まで <span class="math inline">\(v_2\)</span> を積分したときの値が <span class="math inline">\(d = p_1 - p_0\)</span> となるようにします。言い換えると、図のオレンジで塗りつぶした領域の面積 <span class="math inline">\(d\)</span> が <span class="math inline">\(p_1 - p_0\)</span> と等しくなるようにします。</p>
+<p>ここで <span class="math inline">\(p_0\)</span> から <span class="math inline">\(p_1\)</span> に滑らかに遷移するときの速度を <span class="math inline">\(v_2\)</span> とします。以下は <span class="math inline">\(v_2\)</span> に求められる性質を示した図です。</p>
 <figure>
-<img src="img/VelocityAreaConcept.svg" alt="Plot of the concept of v2." style="padding-bottom: 12px;"/>
+<img src="img/VelocityAreaConcept.svg" alt="Plot of the relation between v2 curve and distance d of p0 and p1." style="padding-bottom: 12px;"/>
 </figure>
 <p><span class="math inline">\(v_0\)</span> から <span class="math inline">\(v_1\)</span> をつなぐ曲線 <span class="math inline">\(v_2\)</span> は、以下の条件を満たせば自由に定義できます。</p>
 <p><span class="math display">\[
 \int_{0}^{t_L} v_2(t)\ dt = d
 \]</span></p>
-<h3 id="設計">設計</h3>
-<p><span class="math inline">\(t_L\)</span> の値としてパラメータ変更後の LFO の 1 周期にかかるサンプル数 <span class="math inline">\(n_L\)</span> を使うことにします。以下は <span class="math inline">\(n_L\)</span> の計算式です。</p>
+<p><span class="math inline">\(v_2\)</span> の初期値は <span class="math inline">\(v_0\)</span> で、任意の時間 <span class="math inline">\(t_L\)</span> が経過すると <span class="math inline">\(v_1\)</span> に到達します。そして、遷移開始時点から <span class="math inline">\(t_L\)</span> まで <span class="math inline">\(v_2\)</span> を積分したときの値 <span class="math inline">\(d\)</span> がパラメータ変更前後での位相差 <span class="math inline">\(d\)</span> と等しくなるようにします。以下は <span class="math inline">\(d\)</span> の式です。</p>
 <p><span class="math display">\[
-n_L = \frac{1}{v_1}
+d = \mathrm{fmod}(p_1 + v_1 t_L f_s,\,1.0) - p_0
 \]</span></p>
+<p>言い換えると、上の図のオレンジで塗りつぶした領域の面積 <span class="math inline">\(d\)</span> が <span class="math inline">\(\mathrm{fmod}(p_1 + v_1 t_L f_s,\,1.0) - p_0\)</span> と等しくなるようにします。</p>
+<p>以降では式の簡略化のために、遷移にかかる秒数 <span class="math inline">\(t_L\)</span> をサンプル数 <span class="math inline">\(n_L\)</span> に変換して使います。</p>
+<p><span class="math display">\[
+n_L = t_L f_s
+\]</span></p>
+<h3 id="設計">設計</h3>
 <p><span class="math inline">\(v_2\)</span> は時点 <span class="math inline">\(\dfrac{n_L}{2}\)</span> に速度 <span class="math inline">\(h\)</span> の中間点を置いて、 <span class="math inline">\(v_0, h, v_1\)</span> を順につないだ直線を使います。以下は中間点を使う <span class="math inline">\(v_2\)</span> の図です。</p>
 <figure>
 <img src="img/VelocityAreaImplementationsvg.svg" alt="Plot of v2 function which is implemented later in this document." style="padding-bottom: 12px;"/>
@@ -533,19 +538,19 @@ h = \frac{d}{m} - \frac{v_0 + v_1}{2}
 <span id="cb1-12"><a href="#cb1-12"></a>p0 <span class="op">=</span> <span class="fl">0.5</span></span>
 <span id="cb1-13"><a href="#cb1-13"></a>p1 <span class="op">=</span> <span class="fl">0.0</span></span>
 <span id="cb1-14"><a href="#cb1-14"></a></span>
-<span id="cb1-15"><a href="#cb1-15"></a>nLfo <span class="op">=</span> fs <span class="op">*</span> sync1 <span class="op">*</span> <span class="dv">60</span> <span class="op">/</span> tempo <span class="co"># 式中の n_L 。</span></span>
-<span id="cb1-16"><a href="#cb1-16"></a>mid <span class="op">=</span> nLfo <span class="op">/</span> <span class="dv">2</span>                 <span class="co"># 式中の m 。</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>nLfo <span class="op">=</span> <span class="fl">0.1</span> <span class="op">*</span> fs <span class="co"># 式中の n_L 。</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a>mid <span class="op">=</span> nLfo <span class="op">/</span> <span class="dv">2</span>  <span class="co"># 式中の m 。</span></span>
 <span id="cb1-17"><a href="#cb1-17"></a></span>
-<span id="cb1-18"><a href="#cb1-18"></a>v1 <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> nLfo</span>
-<span id="cb1-19"><a href="#cb1-19"></a>v0 <span class="op">=</span> tempo <span class="op">/</span> (fs <span class="op">*</span> sync0 <span class="op">*</span> <span class="dv">60</span>)</span>
+<span id="cb1-18"><a href="#cb1-18"></a>v0 <span class="op">=</span> tempo <span class="op">/</span> (fs <span class="op">*</span> sync0 <span class="op">*</span> <span class="dv">60</span>)</span>
+<span id="cb1-19"><a href="#cb1-19"></a>v1 <span class="op">=</span> tempo <span class="op">/</span> (fs <span class="op">*</span> sync1 <span class="op">*</span> <span class="dv">60</span>)</span>
 <span id="cb1-20"><a href="#cb1-20"></a></span>
-<span id="cb1-21"><a href="#cb1-21"></a>distance <span class="op">=</span> p1 <span class="op">-</span> p0                      <span class="co"># 式中の d 。</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a>distance <span class="op">=</span> p1 <span class="op">+</span> v1 <span class="op">*</span> nLfo <span class="op">-</span> p0          <span class="co"># 式中の d 。</span></span>
 <span id="cb1-22"><a href="#cb1-22"></a>height <span class="op">=</span> distance <span class="op">/</span> mid <span class="op">-</span> (v0 <span class="op">+</span> v1) <span class="op">/</span> <span class="dv">2</span> <span class="co"># 式中の h 。</span></span>
 <span id="cb1-23"><a href="#cb1-23"></a></span>
 <span id="cb1-24"><a href="#cb1-24"></a>velocity <span class="op">=</span> np.interp(np.arange(nFrame), [<span class="dv">0</span>, mid, nLfo, nFrame], [v0, height, v1, v1])</span>
 <span id="cb1-25"><a href="#cb1-25"></a></span>
 <span id="cb1-26"><a href="#cb1-26"></a>phase1 <span class="op">=</span> np.linspace(p1, p1 <span class="op">+</span> v1 <span class="op">*</span> nFrame, nFrame) <span class="op">%</span> <span class="dv">1</span> <span class="co"># 素朴なテンポシンクの位相。</span></span>
-<span id="cb1-27"><a href="#cb1-27"></a>phase2 <span class="op">=</span> (p0 <span class="op">+</span> velocity.cumsum()) <span class="op">%</span> <span class="dv">1</span> <span class="co"># 滑らかにした位相。</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a>phase2 <span class="op">=</span> (p0 <span class="op">+</span> velocity.cumsum()) <span class="op">%</span> <span class="dv">1</span>                  <span class="co"># 滑らかにした位相。</span></span>
 <span id="cb1-28"><a href="#cb1-28"></a></span>
 <span id="cb1-29"><a href="#cb1-29"></a><span class="co"># プロットは省略。</span></span></code></pre></div>
 <p>プロットを含むテストコードは以下のリンク先で読めます。 <code>sync0, sync1, p0, p1</code> の値を変えることで動作を確認できます。</p>
@@ -564,7 +569,7 @@ h = \frac{d}{m} - \frac{v_0 + v_1}{2}
 <p>逆走を防ぐには <span class="math inline">\(d\)</span> の値を調節することが考えられます。 <span class="math inline">\(d\)</span> と <span class="math inline">\(h\)</span> の式を再掲します。</p>
 <p><span class="math display">\[
 \begin{aligned}
-d &amp;= p_1 - p_0\\
+d &amp;= \mathrm{fmod}(p_1 + v_1 t_L,\,1.0) - p_0\\
 h &amp;= \frac{d}{m} - \frac{v_0 + v_1}{2}\\
 \end{aligned}
 \]</span></p>
@@ -610,7 +615,12 @@ k = \left\lceil \frac{v_0 + v_1}{2}m - d \right\rceil
 <ul>
 <li>初期状態は非同期状態。</li>
 <li>ホストの再生開始で定常状態に移行。</li>
-<li>非同期状態でないときにテンポか同期間隔が変更されたら、減速状態に移行。</li>
+<li>非同期状態でないときに以下の条件が満たされれば、減速状態に移行。
+<ul>
+<li>現サイクルと 1 サイクル前のテンポが等しくない。</li>
+<li>現サイクルと 1 サイクル前の同期間隔が等しくない。</li>
+<li>現サイクルよりも 1 サイクル前の経過拍数のほうが大きい。</li>
+</ul></li>
 <li>減速開始から <span class="math inline">\(m\)</span> サンプル経過したら、加速状態に移行。</li>
 <li>加速開始から <span class="math inline">\(m\)</span> サンプル経過したら、定常状態に移行。</li>
 <li>ホストの停止で非同期状態に移行。</li>
@@ -636,20 +646,23 @@ v_0 &amp;= \frac{T_0}{60 f_s S_0}, &amp;&amp; v_1 = \frac{T_1}{60 f_s S_1}.\\
 \end{aligned}
 \]</span></p>
 <ul>
-<li><span class="math inline">\(n_L\)</span>: LFO の 1 周期にかかるサンプル数 (遷移時間)</li>
-<li><span class="math inline">\(m\)</span>: 中間点の時刻</li>
+<li><span class="math inline">\(t_L\)</span>: 遷移にかかる秒数</li>
+<li><span class="math inline">\(n_L\)</span>: 遷移にかかるサンプル数</li>
+<li><span class="math inline">\(m\)</span>: 遷移開始から中間点に到達するまでのサンプル数</li>
 </ul>
 <p><span class="math display">\[
 \begin{aligned}
-n_L = \frac{1}{v_1}, &amp;&amp; m = \frac{n_L}{2}.\\
+n_L = t_L f_s, &amp;&amp; m = \frac{n_L}{2}.\\
 \end{aligned}
 \]</span></p>
 <ul>
+<li><span class="math inline">\(d\)</span>: パラメータ変更前後での位相差</li>
 <li><span class="math inline">\(k\)</span>: 逆走を補正する巻き戻しの回数</li>
 <li><span class="math inline">\(h\)</span>: 中間点での位相の速度</li>
 </ul>
 <p><span class="math display">\[
 \begin{aligned}
+d &amp;= \mathrm{fmod}(p_1 + v_1 n_L,\,1.0) - p_0\\
 k &amp;= \left\lceil \frac{v_0 + v_1}{2}m - d \right\rceil\\
 h &amp;= \frac{d + k}{m} - \frac{v_0 + v_1}{2}\\
 \end{aligned}
@@ -681,154 +694,151 @@ v_2(n) &amp;= \begin{cases}
 <span id="cb3-11"><a href="#cb3-11"></a>  Sample p2 = <span class="dv">0</span>;</span>
 <span id="cb3-12"><a href="#cb3-12"></a>  Sample lastTempo = <span class="dv">0</span>;</span>
 <span id="cb3-13"><a href="#cb3-13"></a>  Sample lastSync = <span class="dv">0</span>;</span>
-<span id="cb3-14"><a href="#cb3-14"></a></span>
-<span id="cb3-15"><a href="#cb3-15"></a>  Sample midTime = <span class="dv">0</span>; <span class="co">// In samples.</span></span>
-<span id="cb3-16"><a href="#cb3-16"></a>  Sample midVelocity = <span class="dv">0</span>;</span>
-<span id="cb3-17"><a href="#cb3-17"></a>  Sample counter = <span class="dv">0</span>;</span>
-<span id="cb3-18"><a href="#cb3-18"></a></span>
-<span id="cb3-19"><a href="#cb3-19"></a><span class="kw">public</span>:</span>
-<span id="cb3-20"><a href="#cb3-20"></a>  <span class="co">// Only use this when DAW is not playing and the synth resets LFO for each note-on.</span></span>
-<span id="cb3-21"><a href="#cb3-21"></a>  <span class="dt">void</span> reset()</span>
-<span id="cb3-22"><a href="#cb3-22"></a>  {</span>
-<span id="cb3-23"><a href="#cb3-23"></a>    p1 = <span class="dv">0</span>;</span>
-<span id="cb3-24"><a href="#cb3-24"></a>    p2 = <span class="dv">0</span>;</span>
+<span id="cb3-14"><a href="#cb3-14"></a>  Sample lastElapsedBeats = <span class="dv">0</span>;</span>
+<span id="cb3-15"><a href="#cb3-15"></a></span>
+<span id="cb3-16"><a href="#cb3-16"></a>  Sample midTime = <span class="dv">0</span>; <span class="co">// In samples.</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a>  Sample midVelocity = <span class="dv">0</span>;</span>
+<span id="cb3-18"><a href="#cb3-18"></a>  Sample counter = <span class="dv">0</span>;</span>
+<span id="cb3-19"><a href="#cb3-19"></a></span>
+<span id="cb3-20"><a href="#cb3-20"></a>  <span class="kw">inline</span> <span class="dt">void</span> setLastValues(Sample tempo, Sample sync, Sample elapsedBeats)</span>
+<span id="cb3-21"><a href="#cb3-21"></a>  {</span>
+<span id="cb3-22"><a href="#cb3-22"></a>    lastTempo = tempo;</span>
+<span id="cb3-23"><a href="#cb3-23"></a>    lastSync = sync;</span>
+<span id="cb3-24"><a href="#cb3-24"></a>    lastElapsedBeats = elapsedBeats;</span>
 <span id="cb3-25"><a href="#cb3-25"></a>  }</span>
 <span id="cb3-26"><a href="#cb3-26"></a></span>
-<span id="cb3-27"><a href="#cb3-27"></a>  <span class="dt">void</span> reset(Sample sampleRate, Sample tempo, Sample sync)</span>
-<span id="cb3-28"><a href="#cb3-28"></a>  {</span>
-<span id="cb3-29"><a href="#cb3-29"></a>    v1 = <span class="bu">std::</span>fabs(sync) &lt;= <span class="bu">std::</span>numeric_limits&lt;Sample&gt;::min()</span>
-<span id="cb3-30"><a href="#cb3-30"></a>      ? <span class="dv">0</span></span>
-<span id="cb3-31"><a href="#cb3-31"></a>      : tempo / (Sample(<span class="dv">60</span>) * sampleRate * sync);</span>
-<span id="cb3-32"><a href="#cb3-32"></a>    p1 = <span class="dv">0</span>;</span>
-<span id="cb3-33"><a href="#cb3-33"></a>    v2 = v1;</span>
+<span id="cb3-27"><a href="#cb3-27"></a>  <span class="kw">inline</span> Sample wrap(Sample value) { <span class="cf">return</span> value - <span class="bu">std::</span>floor(value); }</span>
+<span id="cb3-28"><a href="#cb3-28"></a></span>
+<span id="cb3-29"><a href="#cb3-29"></a><span class="kw">public</span>:</span>
+<span id="cb3-30"><a href="#cb3-30"></a>  <span class="co">// DAW が停止中かつシンセの LFO がノートオンごとにリセットされるときだけ使用する。</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a>  <span class="dt">void</span> reset()</span>
+<span id="cb3-32"><a href="#cb3-32"></a>  {</span>
+<span id="cb3-33"><a href="#cb3-33"></a>    p1 = <span class="dv">0</span>;</span>
 <span id="cb3-34"><a href="#cb3-34"></a>    p2 = <span class="dv">0</span>;</span>
-<span id="cb3-35"><a href="#cb3-35"></a>    lastTempo = tempo;</span>
-<span id="cb3-36"><a href="#cb3-36"></a>    lastSync = sync;</span>
-<span id="cb3-37"><a href="#cb3-37"></a>  }</span>
-<span id="cb3-38"><a href="#cb3-38"></a></span>
-<span id="cb3-39"><a href="#cb3-39"></a>  <span class="co">// Must call this method at the start of each DSP processing cycle.</span></span>
-<span id="cb3-40"><a href="#cb3-40"></a>  <span class="dt">void</span></span>
-<span id="cb3-41"><a href="#cb3-41"></a>  prepare(Sample sampleRate, Sample tempo, Sample sync, Sample beatsElapsed, <span class="dt">bool</span> isFree)</span>
-<span id="cb3-42"><a href="#cb3-42"></a>  {</span>
-<span id="cb3-43"><a href="#cb3-43"></a>    <span class="cf">if</span> (<span class="bu">std::</span>fabs(sync) &lt;= <span class="bu">std::</span>numeric_limits&lt;Sample&gt;::min()) {</span>
-<span id="cb3-44"><a href="#cb3-44"></a>      v1 = <span class="dv">0</span>;</span>
-<span id="cb3-45"><a href="#cb3-45"></a>      lastTempo = tempo;</span>
-<span id="cb3-46"><a href="#cb3-46"></a>      lastSync = sync;</span>
-<span id="cb3-47"><a href="#cb3-47"></a>      <span class="cf">return</span>;</span>
-<span id="cb3-48"><a href="#cb3-48"></a>    }</span>
-<span id="cb3-49"><a href="#cb3-49"></a></span>
-<span id="cb3-50"><a href="#cb3-50"></a>    v1 = tempo / (Sample(<span class="dv">60</span>) * sampleRate * sync);</span>
-<span id="cb3-51"><a href="#cb3-51"></a></span>
-<span id="cb3-52"><a href="#cb3-52"></a>    <span class="cf">if</span> (isFree) state = State::free;</span>
-<span id="cb3-53"><a href="#cb3-53"></a>    <span class="cf">if</span> (state == State::free) {</span>
-<span id="cb3-54"><a href="#cb3-54"></a>      <span class="cf">if</span> (!isFree) state = State::steady;</span>
-<span id="cb3-55"><a href="#cb3-55"></a>      lastTempo = tempo;</span>
-<span id="cb3-56"><a href="#cb3-56"></a>      lastSync = sync;</span>
-<span id="cb3-57"><a href="#cb3-57"></a>      <span class="cf">return</span>;</span>
-<span id="cb3-58"><a href="#cb3-58"></a>    }</span>
-<span id="cb3-59"><a href="#cb3-59"></a></span>
-<span id="cb3-60"><a href="#cb3-60"></a>    p1 = beatsElapsed / sync;</span>
-<span id="cb3-61"><a href="#cb3-61"></a>    p1 -= <span class="bu">std::</span>floor(p1);</span>
-<span id="cb3-62"><a href="#cb3-62"></a></span>
-<span id="cb3-63"><a href="#cb3-63"></a>    <span class="cf">if</span> (lastTempo != tempo || lastSync != sync) {</span>
-<span id="cb3-64"><a href="#cb3-64"></a>      <span class="cf">if</span> (<span class="bu">std::</span>fabs(lastSync) &lt;= <span class="bu">std::</span>numeric_limits&lt;Sample&gt;::min()) {</span>
-<span id="cb3-65"><a href="#cb3-65"></a>        v2 = <span class="dv">0</span>;</span>
-<span id="cb3-66"><a href="#cb3-66"></a>        p2 = p1;</span>
-<span id="cb3-67"><a href="#cb3-67"></a>      } <span class="cf">else</span> {</span>
-<span id="cb3-68"><a href="#cb3-68"></a>        v2 = lastTempo / (Sample(<span class="dv">60</span>) * sampleRate * lastSync);</span>
-<span id="cb3-69"><a href="#cb3-69"></a>        <span class="cf">if</span> (state == State::steady) {</span>
-<span id="cb3-70"><a href="#cb3-70"></a>          p2 = beatsElapsed / lastSync;</span>
-<span id="cb3-71"><a href="#cb3-71"></a>          p2 -= <span class="bu">std::</span>floor(p2);</span>
-<span id="cb3-72"><a href="#cb3-72"></a>        }</span>
-<span id="cb3-73"><a href="#cb3-73"></a>      }</span>
-<span id="cb3-74"><a href="#cb3-74"></a></span>
-<span id="cb3-75"><a href="#cb3-75"></a>      state = State::decelerating;</span>
-<span id="cb3-76"><a href="#cb3-76"></a></span>
-<span id="cb3-77"><a href="#cb3-77"></a>      midTime = Sample(<span class="fl">0.5</span>) / v1;</span>
-<span id="cb3-78"><a href="#cb3-78"></a>      <span class="kw">auto</span> distance = p1 - p2;</span>
-<span id="cb3-79"><a href="#cb3-79"></a>      <span class="kw">auto</span> k = <span class="bu">std::</span>ceil((v1 + v2) * Sample(<span class="fl">0.5</span>) * midTime - distance);</span>
-<span id="cb3-80"><a href="#cb3-80"></a>      midVelocity = (distance + k) / midTime - (v1 + v2) * Sample(<span class="fl">0.5</span>);</span>
-<span id="cb3-81"><a href="#cb3-81"></a></span>
-<span id="cb3-82"><a href="#cb3-82"></a>      counter = <span class="dv">0</span>;</span>
-<span id="cb3-83"><a href="#cb3-83"></a>    }</span>
+<span id="cb3-35"><a href="#cb3-35"></a>  }</span>
+<span id="cb3-36"><a href="#cb3-36"></a></span>
+<span id="cb3-37"><a href="#cb3-37"></a>  <span class="dt">void</span> reset(Sample sampleRate, Sample tempo, Sample sync)</span>
+<span id="cb3-38"><a href="#cb3-38"></a>  {</span>
+<span id="cb3-39"><a href="#cb3-39"></a>    v1 = <span class="bu">std::</span>fabs(sync) &lt;= <span class="bu">std::</span>numeric_limits&lt;Sample&gt;::min()</span>
+<span id="cb3-40"><a href="#cb3-40"></a>      ? <span class="dv">0</span></span>
+<span id="cb3-41"><a href="#cb3-41"></a>      : tempo / (Sample(<span class="dv">60</span>) * sampleRate * sync);</span>
+<span id="cb3-42"><a href="#cb3-42"></a>    p1 = <span class="dv">0</span>;</span>
+<span id="cb3-43"><a href="#cb3-43"></a>    v2 = v1;</span>
+<span id="cb3-44"><a href="#cb3-44"></a>    p2 = <span class="dv">0</span>;</span>
+<span id="cb3-45"><a href="#cb3-45"></a>    lastTempo = tempo;</span>
+<span id="cb3-46"><a href="#cb3-46"></a>    lastSync = sync;</span>
+<span id="cb3-47"><a href="#cb3-47"></a>  }</span>
+<span id="cb3-48"><a href="#cb3-48"></a></span>
+<span id="cb3-49"><a href="#cb3-49"></a>  <span class="co">// 各 DSP サイクルの開始時に必ず呼び出すこと。</span></span>
+<span id="cb3-50"><a href="#cb3-50"></a>  <span class="dt">void</span></span>
+<span id="cb3-51"><a href="#cb3-51"></a>  prepare(Sample sampleRate, Sample tempo, Sample sync, Sample elapsedBeats, <span class="dt">bool</span> isFree)</span>
+<span id="cb3-52"><a href="#cb3-52"></a>  {</span>
+<span id="cb3-53"><a href="#cb3-53"></a>    <span class="cf">if</span> (<span class="bu">std::</span>fabs(sync) &lt;= <span class="bu">std::</span>numeric_limits&lt;Sample&gt;::min()) {</span>
+<span id="cb3-54"><a href="#cb3-54"></a>      v1 = <span class="dv">0</span>;</span>
+<span id="cb3-55"><a href="#cb3-55"></a>      setLastValues(tempo, sync, elapsedBeats);</span>
+<span id="cb3-56"><a href="#cb3-56"></a>      <span class="cf">return</span>;</span>
+<span id="cb3-57"><a href="#cb3-57"></a>    }</span>
+<span id="cb3-58"><a href="#cb3-58"></a></span>
+<span id="cb3-59"><a href="#cb3-59"></a>    v1 = tempo / (Sample(<span class="dv">60</span>) * sampleRate * sync);</span>
+<span id="cb3-60"><a href="#cb3-60"></a></span>
+<span id="cb3-61"><a href="#cb3-61"></a>    <span class="cf">if</span> (isFree) state = State::free;</span>
+<span id="cb3-62"><a href="#cb3-62"></a>    <span class="cf">if</span> (state == State::free) {</span>
+<span id="cb3-63"><a href="#cb3-63"></a>      <span class="cf">if</span> (!isFree) state = State::steady;</span>
+<span id="cb3-64"><a href="#cb3-64"></a>      setLastValues(tempo, sync, elapsedBeats);</span>
+<span id="cb3-65"><a href="#cb3-65"></a>      <span class="cf">return</span>;</span>
+<span id="cb3-66"><a href="#cb3-66"></a>    }</span>
+<span id="cb3-67"><a href="#cb3-67"></a></span>
+<span id="cb3-68"><a href="#cb3-68"></a>    <span class="kw">auto</span> p0 = p1;</span>
+<span id="cb3-69"><a href="#cb3-69"></a>    p1 = wrap(elapsedBeats / sync);</span>
+<span id="cb3-70"><a href="#cb3-70"></a></span>
+<span id="cb3-71"><a href="#cb3-71"></a>    <span class="cf">if</span> (lastTempo != tempo || lastSync != sync || lastElapsedBeats &gt; elapsedBeats) {</span>
+<span id="cb3-72"><a href="#cb3-72"></a>      <span class="cf">if</span> (<span class="bu">std::</span>fabs(lastSync) &lt;= <span class="bu">std::</span>numeric_limits&lt;Sample&gt;::min()) {</span>
+<span id="cb3-73"><a href="#cb3-73"></a>        v2 = <span class="dv">0</span>;</span>
+<span id="cb3-74"><a href="#cb3-74"></a>        p2 = p1;</span>
+<span id="cb3-75"><a href="#cb3-75"></a>      } <span class="cf">else</span> <span class="cf">if</span> (lastElapsedBeats &gt; elapsedBeats) {</span>
+<span id="cb3-76"><a href="#cb3-76"></a>        v2 = lastTempo / (Sample(<span class="dv">60</span>) * sampleRate * lastSync);</span>
+<span id="cb3-77"><a href="#cb3-77"></a>        p2 = p0;</span>
+<span id="cb3-78"><a href="#cb3-78"></a>      } <span class="cf">else</span> {</span>
+<span id="cb3-79"><a href="#cb3-79"></a>        v2 = lastTempo / (Sample(<span class="dv">60</span>) * sampleRate * lastSync);</span>
+<span id="cb3-80"><a href="#cb3-80"></a>        <span class="cf">if</span> (state == State::steady) p2 = wrap(elapsedBeats / lastSync);</span>
+<span id="cb3-81"><a href="#cb3-81"></a>      }</span>
+<span id="cb3-82"><a href="#cb3-82"></a></span>
+<span id="cb3-83"><a href="#cb3-83"></a>      state = State::decelerating;</span>
 <span id="cb3-84"><a href="#cb3-84"></a></span>
-<span id="cb3-85"><a href="#cb3-85"></a>    lastTempo = tempo;</span>
-<span id="cb3-86"><a href="#cb3-86"></a>    lastSync = sync;</span>
-<span id="cb3-87"><a href="#cb3-87"></a>  }</span>
-<span id="cb3-88"><a href="#cb3-88"></a></span>
-<span id="cb3-89"><a href="#cb3-89"></a>  Sample process()</span>
-<span id="cb3-90"><a href="#cb3-90"></a>  {</span>
-<span id="cb3-91"><a href="#cb3-91"></a>    Sample outPhase;</span>
-<span id="cb3-92"><a href="#cb3-92"></a>    <span class="cf">switch</span> (state) {</span>
-<span id="cb3-93"><a href="#cb3-93"></a>      <span class="cf">default</span>:</span>
-<span id="cb3-94"><a href="#cb3-94"></a>      <span class="cf">case</span> State::free:</span>
-<span id="cb3-95"><a href="#cb3-95"></a>      <span class="cf">case</span> State::steady: {</span>
-<span id="cb3-96"><a href="#cb3-96"></a>        outPhase = p1;</span>
-<span id="cb3-97"><a href="#cb3-97"></a></span>
-<span id="cb3-98"><a href="#cb3-98"></a>        p1 += v1;</span>
-<span id="cb3-99"><a href="#cb3-99"></a>        p1 -= <span class="bu">std::</span>floor(p1);</span>
-<span id="cb3-100"><a href="#cb3-100"></a>      } <span class="cf">break</span>;</span>
-<span id="cb3-101"><a href="#cb3-101"></a></span>
-<span id="cb3-102"><a href="#cb3-102"></a>      <span class="cf">case</span> State::decelerating: {</span>
-<span id="cb3-103"><a href="#cb3-103"></a>        outPhase = p2;</span>
-<span id="cb3-104"><a href="#cb3-104"></a></span>
-<span id="cb3-105"><a href="#cb3-105"></a>        p2 += v2 + (midVelocity - v2) * counter / midTime;</span>
-<span id="cb3-106"><a href="#cb3-106"></a>        p2 -= <span class="bu">std::</span>floor(p2);</span>
-<span id="cb3-107"><a href="#cb3-107"></a></span>
-<span id="cb3-108"><a href="#cb3-108"></a>        <span class="cf">if</span> (++counter &gt;= midTime) {</span>
-<span id="cb3-109"><a href="#cb3-109"></a>          state = State::accelerating;</span>
-<span id="cb3-110"><a href="#cb3-110"></a>          counter = <span class="dv">0</span>;</span>
-<span id="cb3-111"><a href="#cb3-111"></a>        }</span>
-<span id="cb3-112"><a href="#cb3-112"></a>      } <span class="cf">break</span>;</span>
-<span id="cb3-113"><a href="#cb3-113"></a></span>
-<span id="cb3-114"><a href="#cb3-114"></a>      <span class="cf">case</span> State::accelerating: {</span>
-<span id="cb3-115"><a href="#cb3-115"></a>        outPhase = p2;</span>
-<span id="cb3-116"><a href="#cb3-116"></a></span>
-<span id="cb3-117"><a href="#cb3-117"></a>        p2 += midVelocity + (v1 - midVelocity) * counter / midTime;</span>
-<span id="cb3-118"><a href="#cb3-118"></a>        p2 -= <span class="bu">std::</span>floor(p2);</span>
-<span id="cb3-119"><a href="#cb3-119"></a></span>
-<span id="cb3-120"><a href="#cb3-120"></a>        <span class="cf">if</span> (++counter &gt;= midTime) {</span>
-<span id="cb3-121"><a href="#cb3-121"></a>          state = State::steady;</span>
-<span id="cb3-122"><a href="#cb3-122"></a>          p1 = p2;</span>
-<span id="cb3-123"><a href="#cb3-123"></a>        }</span>
-<span id="cb3-124"><a href="#cb3-124"></a>      } <span class="cf">break</span>;</span>
-<span id="cb3-125"><a href="#cb3-125"></a>    }</span>
-<span id="cb3-126"><a href="#cb3-126"></a>    <span class="cf">return</span> outPhase;</span>
-<span id="cb3-127"><a href="#cb3-127"></a>  }</span>
-<span id="cb3-128"><a href="#cb3-128"></a>};</span>
-<span id="cb3-129"><a href="#cb3-129"></a></span>
-<span id="cb3-130"><a href="#cb3-130"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
-<span id="cb3-131"><a href="#cb3-131"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
-<span id="cb3-132"><a href="#cb3-132"></a></span>
-<span id="cb3-133"><a href="#cb3-133"></a><span class="dt">int</span> main()</span>
-<span id="cb3-134"><a href="#cb3-134"></a>{</span>
-<span id="cb3-135"><a href="#cb3-135"></a>  <span class="dt">float</span> sampleRate = <span class="fl">48000.0</span><span class="bu">f</span>;</span>
-<span id="cb3-136"><a href="#cb3-136"></a>  <span class="dt">float</span> tempo = <span class="fl">120.0</span><span class="bu">f</span>;</span>
-<span id="cb3-137"><a href="#cb3-137"></a>  <span class="dt">float</span> sync = <span class="fl">0.25</span><span class="bu">f</span>;</span>
-<span id="cb3-138"><a href="#cb3-138"></a>  <span class="dt">float</span> beatsElapsed = <span class="fl">0.0</span><span class="bu">f</span>;</span>
-<span id="cb3-139"><a href="#cb3-139"></a></span>
-<span id="cb3-140"><a href="#cb3-140"></a>  <span class="bu">std::</span>array&lt;<span class="dt">float</span>, <span class="dv">2048</span>&gt; buffer{};</span>
-<span id="cb3-141"><a href="#cb3-141"></a></span>
-<span id="cb3-142"><a href="#cb3-142"></a>  <span class="co">// Example usage of TempoSynchronizer.</span></span>
-<span id="cb3-143"><a href="#cb3-143"></a>  TempoSynchronizer&lt;<span class="dt">float</span>&gt; lfo;</span>
-<span id="cb3-144"><a href="#cb3-144"></a></span>
-<span id="cb3-145"><a href="#cb3-145"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size();) {</span>
-<span id="cb3-146"><a href="#cb3-146"></a>    lfo.prepare(sampleRate, tempo, sync, beatsElapsed, <span class="kw">false</span>);</span>
-<span id="cb3-147"><a href="#cb3-147"></a></span>
-<span id="cb3-148"><a href="#cb3-148"></a>    <span class="kw">auto</span> beatsDelta = tempo / (<span class="fl">60.0</span><span class="bu">f</span> * sampleRate);</span>
-<span id="cb3-149"><a href="#cb3-149"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> j = <span class="dv">0</span>; j &lt; <span class="dv">512</span>; ++j) {</span>
-<span id="cb3-150"><a href="#cb3-150"></a>      <span class="cf">if</span> (idx &gt;= buffer.size()) <span class="cf">break</span>;</span>
-<span id="cb3-151"><a href="#cb3-151"></a>      buffer[idx++] = lfo.process();</span>
-<span id="cb3-152"><a href="#cb3-152"></a>      beatsElapsed += beatsDelta;</span>
-<span id="cb3-153"><a href="#cb3-153"></a></span>
-<span id="cb3-154"><a href="#cb3-154"></a>      <span class="bu">std::</span>cout &lt;&lt; idx - <span class="dv">1</span> &lt;&lt; <span class="st">&quot;: &quot;</span> &lt;&lt; buffer[idx - <span class="dv">1</span>] &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
-<span id="cb3-155"><a href="#cb3-155"></a>    }</span>
-<span id="cb3-156"><a href="#cb3-156"></a>  }</span>
-<span id="cb3-157"><a href="#cb3-157"></a></span>
-<span id="cb3-158"><a href="#cb3-158"></a>  <span class="co">// for (const auto &amp;value : buffer) std::cout &lt;&lt; value &lt;&lt; &quot;\n&quot;;</span></span>
-<span id="cb3-159"><a href="#cb3-159"></a></span>
-<span id="cb3-160"><a href="#cb3-160"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb3-161"><a href="#cb3-161"></a>}</span></code></pre></div>
+<span id="cb3-85"><a href="#cb3-85"></a>      midTime = Sample(<span class="fl">0.05</span>) * sampleRate; <span class="co">// 遷移時間 0.1 秒。中間点は遷移時間の半分。</span></span>
+<span id="cb3-86"><a href="#cb3-86"></a>      <span class="kw">auto</span> distance = wrap(p1 + Sample(<span class="dv">2</span>) * v1 * midTime - p2);</span>
+<span id="cb3-87"><a href="#cb3-87"></a>      <span class="kw">auto</span> k = <span class="bu">std::</span>ceil((v1 + v2) * Sample(<span class="fl">0.5</span>) * midTime - distance);</span>
+<span id="cb3-88"><a href="#cb3-88"></a>      midVelocity = (distance + k) / midTime - (v1 + v2) * Sample(<span class="fl">0.5</span>);</span>
+<span id="cb3-89"><a href="#cb3-89"></a></span>
+<span id="cb3-90"><a href="#cb3-90"></a>      counter = <span class="dv">0</span>;</span>
+<span id="cb3-91"><a href="#cb3-91"></a>    }</span>
+<span id="cb3-92"><a href="#cb3-92"></a></span>
+<span id="cb3-93"><a href="#cb3-93"></a>    setLastValues(tempo, sync, elapsedBeats);</span>
+<span id="cb3-94"><a href="#cb3-94"></a>  }</span>
+<span id="cb3-95"><a href="#cb3-95"></a></span>
+<span id="cb3-96"><a href="#cb3-96"></a>  Sample process()</span>
+<span id="cb3-97"><a href="#cb3-97"></a>  {</span>
+<span id="cb3-98"><a href="#cb3-98"></a>    Sample outPhase;</span>
+<span id="cb3-99"><a href="#cb3-99"></a>    <span class="cf">switch</span> (state) {</span>
+<span id="cb3-100"><a href="#cb3-100"></a>      <span class="cf">default</span>:</span>
+<span id="cb3-101"><a href="#cb3-101"></a>      <span class="cf">case</span> State::free:</span>
+<span id="cb3-102"><a href="#cb3-102"></a>      <span class="cf">case</span> State::steady: {</span>
+<span id="cb3-103"><a href="#cb3-103"></a>        outPhase = p1;</span>
+<span id="cb3-104"><a href="#cb3-104"></a>        p1 = wrap(p1 + v1);</span>
+<span id="cb3-105"><a href="#cb3-105"></a>      } <span class="cf">break</span>;</span>
+<span id="cb3-106"><a href="#cb3-106"></a></span>
+<span id="cb3-107"><a href="#cb3-107"></a>      <span class="cf">case</span> State::decelerating: {</span>
+<span id="cb3-108"><a href="#cb3-108"></a>        outPhase = p2;</span>
+<span id="cb3-109"><a href="#cb3-109"></a>        p2 = wrap(p2 + v2 + (midVelocity - v2) * counter / midTime);</span>
+<span id="cb3-110"><a href="#cb3-110"></a>        <span class="cf">if</span> (++counter &gt;= midTime) {</span>
+<span id="cb3-111"><a href="#cb3-111"></a>          state = State::accelerating;</span>
+<span id="cb3-112"><a href="#cb3-112"></a>          counter = <span class="dv">0</span>;</span>
+<span id="cb3-113"><a href="#cb3-113"></a>        }</span>
+<span id="cb3-114"><a href="#cb3-114"></a>      } <span class="cf">break</span>;</span>
+<span id="cb3-115"><a href="#cb3-115"></a></span>
+<span id="cb3-116"><a href="#cb3-116"></a>      <span class="cf">case</span> State::accelerating: {</span>
+<span id="cb3-117"><a href="#cb3-117"></a>        outPhase = p2;</span>
+<span id="cb3-118"><a href="#cb3-118"></a>        p2 = wrap(p2 + midVelocity + (v1 - midVelocity) * counter / midTime);</span>
+<span id="cb3-119"><a href="#cb3-119"></a>        <span class="cf">if</span> (++counter &gt;= midTime) {</span>
+<span id="cb3-120"><a href="#cb3-120"></a>          state = State::steady;</span>
+<span id="cb3-121"><a href="#cb3-121"></a>          p1 = p2;</span>
+<span id="cb3-122"><a href="#cb3-122"></a>        }</span>
+<span id="cb3-123"><a href="#cb3-123"></a>      } <span class="cf">break</span>;</span>
+<span id="cb3-124"><a href="#cb3-124"></a>    }</span>
+<span id="cb3-125"><a href="#cb3-125"></a>    <span class="cf">return</span> outPhase;</span>
+<span id="cb3-126"><a href="#cb3-126"></a>  }</span>
+<span id="cb3-127"><a href="#cb3-127"></a>};</span>
+<span id="cb3-128"><a href="#cb3-128"></a></span>
+<span id="cb3-129"><a href="#cb3-129"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb3-130"><a href="#cb3-130"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb3-131"><a href="#cb3-131"></a></span>
+<span id="cb3-132"><a href="#cb3-132"></a><span class="dt">int</span> main()</span>
+<span id="cb3-133"><a href="#cb3-133"></a>{</span>
+<span id="cb3-134"><a href="#cb3-134"></a>  <span class="dt">float</span> sampleRate = <span class="fl">48000.0</span><span class="bu">f</span>;</span>
+<span id="cb3-135"><a href="#cb3-135"></a>  <span class="dt">float</span> tempo = <span class="fl">120.0</span><span class="bu">f</span>;</span>
+<span id="cb3-136"><a href="#cb3-136"></a>  <span class="dt">float</span> sync = <span class="fl">0.25</span><span class="bu">f</span>;</span>
+<span id="cb3-137"><a href="#cb3-137"></a>  <span class="dt">float</span> elapsedBeats = <span class="fl">0.0</span><span class="bu">f</span>;</span>
+<span id="cb3-138"><a href="#cb3-138"></a></span>
+<span id="cb3-139"><a href="#cb3-139"></a>  <span class="bu">std::</span>array&lt;<span class="dt">float</span>, <span class="dv">2048</span>&gt; buffer{};</span>
+<span id="cb3-140"><a href="#cb3-140"></a></span>
+<span id="cb3-141"><a href="#cb3-141"></a>  <span class="co">// TempoSynchronizer の使用例。</span></span>
+<span id="cb3-142"><a href="#cb3-142"></a>  TempoSynchronizer&lt;<span class="dt">float</span>&gt; lfo;</span>
+<span id="cb3-143"><a href="#cb3-143"></a></span>
+<span id="cb3-144"><a href="#cb3-144"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size();) {</span>
+<span id="cb3-145"><a href="#cb3-145"></a>    lfo.prepare(sampleRate, tempo, sync, elapsedBeats, <span class="kw">false</span>);</span>
+<span id="cb3-146"><a href="#cb3-146"></a></span>
+<span id="cb3-147"><a href="#cb3-147"></a>    <span class="kw">auto</span> beatsDelta = tempo / (<span class="fl">60.0</span><span class="bu">f</span> * sampleRate);</span>
+<span id="cb3-148"><a href="#cb3-148"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> j = <span class="dv">0</span>; j &lt; <span class="dv">512</span>; ++j) {</span>
+<span id="cb3-149"><a href="#cb3-149"></a>      <span class="cf">if</span> (idx &gt;= buffer.size()) <span class="cf">break</span>;</span>
+<span id="cb3-150"><a href="#cb3-150"></a>      buffer[idx++] = lfo.process();</span>
+<span id="cb3-151"><a href="#cb3-151"></a>      elapsedBeats += beatsDelta;</span>
+<span id="cb3-152"><a href="#cb3-152"></a></span>
+<span id="cb3-153"><a href="#cb3-153"></a>      <span class="bu">std::</span>cout &lt;&lt; idx - <span class="dv">1</span> &lt;&lt; <span class="st">&quot;: &quot;</span> &lt;&lt; buffer[idx - <span class="dv">1</span>] &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
+<span id="cb3-154"><a href="#cb3-154"></a>    }</span>
+<span id="cb3-155"><a href="#cb3-155"></a>  }</span>
+<span id="cb3-156"><a href="#cb3-156"></a></span>
+<span id="cb3-157"><a href="#cb3-157"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb3-158"><a href="#cb3-158"></a>}</span></code></pre></div>
 <p>以下のリンク先により詳細なテストを掲載しています。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/master/lfo_temposync/cpp/bench/bench.cpp">C++ 実装の詳細なテストコードを読む (github.com)</a></li>
@@ -892,6 +902,8 @@ p = \frac{B}{S} - \left\lfloor \frac{B}{S} \right\rfloor
 <li>2021/05/09
 <ul>
 <li>C++ の実装で、減速中あるいは加速中にパラメータの変更によって減速状態に戻ったときにポップノイズが出る問題を修正。</li>
+<li>遷移にかかる時間を任意に変更できるように <span class="math inline">\(d\)</span> を変更。</li>
+<li>経過拍数の巻き戻しに関する状態遷移を追加。</li>
 <li>図と文章の整理と追加。</li>
 </ul></li>
 </ul>
