@@ -12,19 +12,19 @@ nFrame = int(fs * duration)
 p0 = 0.5
 p1 = 0.0
 
-nLfo = fs * sync1 * 60 / tempo
+nLfo = 0.1 * fs
 mid = nLfo / 2
 
-v1 = 1 / nLfo
 v0 = tempo / (fs * sync0 * 60)
+v1 = tempo / (fs * sync1 * 60)
 
-distance = p1 - p0
+distance = p1 + v1 * nLfo - p0
 k = np.ceil((v0 + v1) / 2 * mid - distance)
 height = (distance + k) / mid - (v0 + v1) / 2
 
-phase1 = np.linspace(p1, p1 + v1 * nFrame, nFrame) % 1
-
 velocity = np.interp(np.arange(nFrame), [0, mid, nLfo, nFrame], [v0, height, v1, v1])
+
+phase1 = np.linspace(p1, p1 + v1 * nFrame, nFrame) % 1
 phase2 = (p0 + velocity.cumsum()) % 1
 
 time = np.linspace(0, duration, nFrame)
@@ -36,5 +36,5 @@ plt.ylabel("Phase")
 plt.title("Comparison of Target Phase and Smoothed Phase")
 plt.grid()
 plt.legend(loc=4)
-# plt.show()
-plt.savefig("img/PythonImplementationFixed.svg")
+plt.show()
+# plt.savefig("img/PythonImplementationFixed.svg")
