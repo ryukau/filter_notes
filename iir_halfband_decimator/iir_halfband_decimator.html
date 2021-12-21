@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2021-12-21" />
+<title>iir_halfband_decimator</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
+crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+onload="renderMathInElement(document.body);"></script>
+
+<style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+font-family: inherit;
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 4px;
+margin: 2px;
+line-height: calc(1em + 16px);
+}
+
+a {
+text-decoration: none;
+}
+
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
+padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
+}
+
+tr:nth-child(odd) {
+background: #eeeeee;
+}
+
+tr:nth-child(even) {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+td {
+height: 1.5em;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
+}
+
+li {
+margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2021-12-21
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#ハーフバンド楕円フィルタの実装">ハーフバンド楕円フィルタの実装</a><ul>
+<li><a href="#フィルタ係数の取得">フィルタ係数の取得</a><ul>
+<li><a href="#パラメータの設定">パラメータの設定</a></li>
+</ul></li>
+<li><a href="#c-で実装">C++ で実装</a><ul>
+<li><a href="#伝達関数">伝達関数</a></li>
+<li><a href="#次オールパスセクション">1 次オールパスセクション</a></li>
+<li><a href="#iir-ポリフェイズフィルタ">IIR ポリフェイズフィルタ</a></li>
+<li><a href="#テスト">テスト</a></li>
+</ul></li>
+<li><a href="#参考サイト">参考サイト</a><ul>
+<li><a href="#robwasab-による-halfband">robwasab による HalfBand</a><ul>
+<li><a href="#改変版のフィルタ係数のフォーマット">改変版のフィルタ係数のフォーマット</a></li>
+</ul></li>
+<li><a href="#paulfd-による-hiir-designer">paulfd による hiir-designer</a><ul>
+<li><a href="#パッチ">パッチ</a></li>
+<li><a href="#フィルタ係数のフォーマット">フィルタ係数のフォーマット</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+</details>
+</header>
+<h1 id="ハーフバンド楕円フィルタの実装">ハーフバンド楕円フィルタの実装</h1>
+<p>ハーフバンド楕円フィルタは IIR ポリフェイズフィルタの一種です。 2 倍のアップサンプラあるいは 1/2 倍のダウンサンプラに応用できます。</p>
+<p>IIR のポリフェイズフィルタについて調べていたところ robwasab さんによるハーフバンド楕円フィルタの設計コード <a href="https://github.com/robwasab/HalfBand"><code>half_band.py</code></a> を見つけました。ここでは robwasab さんによる <code>half_band.py</code> を改変したコードから得られた係数を使って、ハーフバンド楕円フィルタを C++ で実装します。</p>
+<ul>
+<li><a href="https://gist.github.com/ryukau/07af221fe64465febbaa8ef69e19d845">half_band.py を改変したコード (github.com)</a></li>
+</ul>
+<p>他にも paulfd さんによる <a href="https://github.com/paulfd/hiir-designer">hiir-designer</a> という設計コードを見つけました。似たようなパラメータを入力してフィルタを設計したところ、ほぼ同じ係数が得られたので、こちらを利用してもよさそうです。</p>
+<h2 id="フィルタ係数の取得">フィルタ係数の取得</h2>
+<h3 id="パラメータの設定">パラメータの設定</h3>
+<p><code>half_band.py</code> の冒頭にある以下の部分がパラメータです。コメントは日本語に変えています。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># INPUTS:</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">#    fp = パスバンド周波数。 0 &lt; fp &lt; 0.4999 i.e 0.44</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#    dp = パスバンドリップル。 i.e. 0.0001</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">#    ds = ストップバンドリップル。 i.e. 0.1</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
+<span id="cb1-6"><a href="#cb1-6"></a>fp <span class="op">=</span> <span class="fl">0.495</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>dp <span class="op">=</span> <span class="fl">0.0000002</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>ds <span class="op">=</span> <span class="fl">0.0000002</span></span></code></pre></div>
+<p>以下は <code>fp = 0.495, dp = 0.0000002, ds = 0.0000002</code> で <code>half_band.py</code> を実行して得られたハーフバンド楕円フィルタのフィルタ係数です。パラメータはストップバンドの低減が -140 dB になるように調整しています。</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="dt">&quot;h0&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="fl">0.0765690656031399</span><span class="ot">,</span> <span class="fl">0.264282270318935</span><span class="ot">,</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="fl">0.47939467893641907</span><span class="ot">,</span> <span class="fl">0.661681722389424</span><span class="ot">,</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="fl">0.7924031566294969</span><span class="ot">,</span> <span class="fl">0.8776927911111817</span><span class="ot">,</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="fl">0.9308500986629166</span><span class="ot">,</span> <span class="fl">0.9640156636878193</span><span class="ot">,</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>    <span class="fl">0.9862978287283355</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="dt">&quot;h1&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>    <span class="fl">0.019911761024506557</span><span class="ot">,</span> <span class="fl">0.16170648261075027</span><span class="ot">,</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>    <span class="fl">0.37320978687920564</span><span class="ot">,</span> <span class="fl">0.5766558985008232</span><span class="ot">,</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a>    <span class="fl">0.7334355636406803</span><span class="ot">,</span> <span class="fl">0.8399227128761151</span><span class="ot">,</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>    <span class="fl">0.9074601780285125</span><span class="ot">,</span> <span class="fl">0.9492937701934973</span><span class="ot">,</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a>    <span class="fl">0.9760539731706528</span><span class="ot">,</span> <span class="fl">0.9955323321150525</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a>  <span class="ot">]</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="fu">}</span></span></code></pre></div>
+<h2 id="c-で実装">C++ で実装</h2>
+<h3 id="伝達関数">伝達関数</h3>
+<p>記号を定義します。 <span class="math inline">\(N_0\)</span> と <span class="math inline">\(N_1\)</span> は異なる値になることがあるので分けています。</p>
+<ul>
+<li><span class="math inline">\(H_0, H_1\)</span>: ポリフェイズに分割したハーフバンド楕円フィルタ。</li>
+<li><span class="math inline">\(a_{0,i}\)</span>: <span class="math inline">\(H_0\)</span> のフィルタ係数。配列。 <span class="math inline">\(i\)</span> はインデックス。</li>
+<li><span class="math inline">\(a_{1,i}\)</span>: <span class="math inline">\(H_1\)</span> のフィルタ係数。配列。 <span class="math inline">\(i\)</span> はインデックス。</li>
+<li><span class="math inline">\(N_0\)</span>: <span class="math inline">\(a_0\)</span> の要素数。</li>
+<li><span class="math inline">\(N_1\)</span>: <span class="math inline">\(a_1\)</span> の要素数。</li>
+</ul>
+<p>以下はハーフバンド楕円フィルタの伝達関数 <span class="math inline">\(H\)</span> です。 <span class="math inline">\(H_0\)</span> と <span class="math inline">\(H_1\)</span> はオールパスフィルタの直列接続です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+H(z) &amp;= H_0(z) z^{-1} + H_1(z)\\
+H_0(z) &amp;= \prod_{i=0}^{N_0 - 1} \frac{a_{0,i} + z^{-2}}{1 + a_{0,i} z^{-2}} \\
+H_1(z) &amp;= \prod_{i=0}^{N_1 - 1} \frac{a_{1,i} + z^{-2}}{1 + a_{1,i} z^{-2}} \\
+\end{aligned}
+\]</span></p>
+<h3 id="次オールパスセクション">1 次オールパスセクション</h3>
+<p>ポリフェイズフィルタとして使うときは <a href="https://ccrma.stanford.edu/~jos/sasp/Multirate_Noble_Identities.html">noble identities</a> によって <span class="math inline">\(z^{-2}\)</span> が <span class="math inline">\(z^{-1}\)</span> に変わります。以下は <span class="math inline">\(z^{-2}\)</span> を <span class="math inline">\(z^{-1}\)</span> に変えたときの 1 次オールパスセクションの伝達関数です。</p>
+<p><span class="math display">\[
+H_{\mathrm{AP}}(z, a) = \frac{a + z^{-1}}{1 + a z^{-1}}
+\]</span></p>
+<p>出力 <span class="math inline">\(y_0\)</span> を計算する式に変形します。 <span class="math inline">\(x\)</span> は入力、 <span class="math inline">\(y\)</span> は出力を表しています。 <span class="math inline">\(x\)</span> と <span class="math inline">\(y\)</span> の下付き文字の数値は遅延のサンプル数を表しています。例えば <span class="math inline">\(x_0\)</span> は現在の入力、 <span class="math inline">\(x_1\)</span> は 1 サンプル前の入力です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+Y(z) &amp;= H_{\mathrm{AP}}(z, a) X(z)\\
+Y(z) &amp;= \frac{a + z^{-1}}{1 + a z^{-1}} X(z)\\
+Y(z) (1 + a z^{-1}) &amp;= X(z) (a + z^{-1})\\
+y_0 + a y_1 &amp;= a x_0 + x_1\\
+y_0 &amp;= a (x_0 - y_1) + x_1\\
+\end{aligned}
+\]</span></p>
+<p>コードにします。以下はポリフェイズフィルタとして実装するときの、 1 次オールパスセクションの実装です。</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> FirstOrderAllpass {</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">private</span>:</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  Sample x1 = <span class="dv">0</span>;</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  Sample y1 = <span class="dv">0</span>;</span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="kw">public</span>:</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  <span class="dt">void</span> reset()</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  {</span>
+<span id="cb3-9"><a href="#cb3-9"></a>    x1 = <span class="dv">0</span>;</span>
+<span id="cb3-10"><a href="#cb3-10"></a>    y1 = <span class="dv">0</span>;</span>
+<span id="cb3-11"><a href="#cb3-11"></a>  }</span>
+<span id="cb3-12"><a href="#cb3-12"></a></span>
+<span id="cb3-13"><a href="#cb3-13"></a>  Sample process(Sample x0, Sample a)</span>
+<span id="cb3-14"><a href="#cb3-14"></a>  {</span>
+<span id="cb3-15"><a href="#cb3-15"></a>    y1 = a * (x0 - y1) + x1;</span>
+<span id="cb3-16"><a href="#cb3-16"></a>    x1 = x0;</span>
+<span id="cb3-17"><a href="#cb3-17"></a>    <span class="cf">return</span> y1;</span>
+<span id="cb3-18"><a href="#cb3-18"></a>  }</span>
+<span id="cb3-19"><a href="#cb3-19"></a>};</span></code></pre></div>
+<h3 id="iir-ポリフェイズフィルタ">IIR ポリフェイズフィルタ</h3>
+<p>フィルタ全体の伝達関数 <span class="math inline">\(H\)</span> を再掲します。</p>
+<p><span class="math display">\[
+H(z) = H_0(z) z^{-1} + H_1(z)
+\]</span></p>
+<p><span class="math inline">\(z^{-1}\)</span> が <span class="math inline">\(H_0(z)\)</span> に掛けられているので、入力は <span class="math inline">\(H_0, H_1, H_0, H_1, \dots\)</span> と順に交代しながら 2 つの伝達関数に送られます。</p>
+<p>例をあげて見ていきます。以下の入力信号があるとします。</p>
+<pre><code>s = [s0, s1, s2, s3, ...]</code></pre>
+<p>このとき以下の計算を行うとハーフバンド楕円フィルタをかけながら 1/2 倍にダウンサンプリングできます。</p>
+<pre><code>out0 = 0.5 * (H0.process(s0) + H1.process(s1))
+out1 = 0.5 * (H0.process(s2) + H1.process(s3))
+out2 = 0.5 * (H0.process(s4) + H1.process(s5))
+...</code></pre>
+<p>0.5 をかけて入力と出力の振幅が一致するようにしています。 <span class="math inline">\(H_0\)</span> と <span class="math inline">\(H_1\)</span> はオールパスなので、足し合わせると位相特性が一致している周波数の出力振幅が入力の 2 倍になります。</p>
+<p>コードにします。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> T&gt; <span class="kw">struct</span> HalfBandCoefficient {</span>
+<span id="cb6-4"><a href="#cb6-4"></a>  <span class="at">static</span> <span class="kw">constexpr</span> <span class="bu">std::</span>array&lt;T, <span class="dv">9</span>&gt; h0_a{</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    T(<span class="fl">0.0765690656031399</span>), T(<span class="fl">0.264282270318935</span>),  T(<span class="fl">0.47939467893641907</span>),</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    T(<span class="fl">0.661681722389424</span>),  T(<span class="fl">0.7924031566294969</span>), T(<span class="fl">0.8776927911111817</span>),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    T(<span class="fl">0.9308500986629166</span>), T(<span class="fl">0.9640156636878193</span>), T(<span class="fl">0.9862978287283355</span>),</span>
+<span id="cb6-8"><a href="#cb6-8"></a>  };</span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="at">static</span> <span class="kw">constexpr</span> <span class="bu">std::</span>array&lt;T, <span class="dv">10</span>&gt; h1_a{</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    T(<span class="fl">0.019911761024506557</span>), T(<span class="fl">0.16170648261075027</span>), T(<span class="fl">0.37320978687920564</span>),</span>
+<span id="cb6-11"><a href="#cb6-11"></a>    T(<span class="fl">0.5766558985008232</span>),   T(<span class="fl">0.7334355636406803</span>),  T(<span class="fl">0.8399227128761151</span>),</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    T(<span class="fl">0.9074601780285125</span>),   T(<span class="fl">0.9492937701934973</span>),  T(<span class="fl">0.9760539731706528</span>),</span>
+<span id="cb6-13"><a href="#cb6-13"></a>    T(<span class="fl">0.9955323321150525</span>),</span>
+<span id="cb6-14"><a href="#cb6-14"></a>  };</span>
+<span id="cb6-15"><a href="#cb6-15"></a>};</span>
+<span id="cb6-16"><a href="#cb6-16"></a></span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample, <span class="kw">typename</span> Coefficient&gt; <span class="kw">class</span> HalfBandIIR {</span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="kw">private</span>:</span>
+<span id="cb6-19"><a href="#cb6-19"></a>  <span class="bu">std::</span>array&lt;FirstOrderAllpass&lt;Sample&gt;, Coefficient::h0_a.size()&gt; ap0;</span>
+<span id="cb6-20"><a href="#cb6-20"></a>  <span class="bu">std::</span>array&lt;FirstOrderAllpass&lt;Sample&gt;, Coefficient::h1_a.size()&gt; ap1;</span>
+<span id="cb6-21"><a href="#cb6-21"></a></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="kw">public</span>:</span>
+<span id="cb6-23"><a href="#cb6-23"></a>  <span class="dt">void</span> reset()</span>
+<span id="cb6-24"><a href="#cb6-24"></a>  {</span>
+<span id="cb6-25"><a href="#cb6-25"></a>    <span class="cf">for</span> (<span class="kw">auto</span> &amp;ap : ap0) ap.reset();</span>
+<span id="cb6-26"><a href="#cb6-26"></a>    <span class="cf">for</span> (<span class="kw">auto</span> &amp;ap : ap1) ap.reset();</span>
+<span id="cb6-27"><a href="#cb6-27"></a>  }</span>
+<span id="cb6-28"><a href="#cb6-28"></a></span>
+<span id="cb6-29"><a href="#cb6-29"></a>  <span class="co">// input[0] は input[1] よりも 1 サンプル前の値。</span></span>
+<span id="cb6-30"><a href="#cb6-30"></a>  Sample process(<span class="bu">std::</span>array&lt;Sample, <span class="dv">2</span>&gt; &amp;input)</span>
+<span id="cb6-31"><a href="#cb6-31"></a>  {</span>
+<span id="cb6-32"><a href="#cb6-32"></a>    <span class="kw">auto</span> s0 = input[<span class="dv">0</span>];</span>
+<span id="cb6-33"><a href="#cb6-33"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; ap0.size(); ++i) s0 = ap0[i].process(s0, Coefficient::h0_a[i]);</span>
+<span id="cb6-34"><a href="#cb6-34"></a>    <span class="kw">auto</span> s1 = input[<span class="dv">1</span>];</span>
+<span id="cb6-35"><a href="#cb6-35"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; ap1.size(); ++i) s1 = ap1[i].process(s1, Coefficient::h1_a[i]);</span>
+<span id="cb6-36"><a href="#cb6-36"></a>    <span class="cf">return</span> Sample(<span class="fl">0.5</span>) * (s0 + s1);</span>
+<span id="cb6-37"><a href="#cb6-37"></a>  }</span>
+<span id="cb6-38"><a href="#cb6-38"></a>};</span></code></pre></div>
+<h3 id="テスト">テスト</h3>
+<p><span class="math inline">\(0\)</span> から <span class="math inline">\(f_s\)</span> までピッチベンドするサイン波を入力してテストしました。上の図は入力信号のスペクトログラム、下の図はハーフバンド楕円フィルタを通して 1/2 倍にダウンサンプリングした出力信号のスペクトログラムです。ダウンサンプリング前なので、入力信号のサンプリング周波数は <span class="math inline">\(2f_s\)</span> です。出力信号のスペクトログラムにエイリアシングが出ていないので成功しています。</p>
+<figure>
+<img src="img/halfband_test.png" alt="Image of a test result of 2-fold downsampling using half-band eliptic filter." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下はテストコードへのリンクです。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/iir_halfband_decimator/cpp/halfband.cpp">C++ のテストコードを読む (github.com)</a></li>
+</ul>
+<h2 id="参考サイト">参考サイト</h2>
+<h3 id="robwasab-による-halfband">robwasab による HalfBand</h3>
+<p>以下は robwasab さんによるハーフバンド楕円フィルタの係数を計算する Python2 のコードへのリンクです。</p>
+<ul>
+<li><a href="https://github.com/robwasab/HalfBand">GitHub - robwasab/HalfBand: HalfBand IIR Filter</a></li>
+</ul>
+<p>以下はスクリプト中に記載されていた設計方法の論文です。</p>
+<ul>
+<li>R. Ansari, <a href="https://ieeexplore.ieee.org/abstract/document/1164709">“Elliptic filter design for a class of generalized halfband filters,”</a> in IEEE Transactions on Acoustics, Speech, and Signal Processing, vol. 33, no. 5, pp. 1146-1150, Oct 1985.</li>
+</ul>
+<p>以下は <code>half_band.py</code> を Python 3 に翻訳した改変版です。</p>
+<ul>
+<li><a href="https://gist.github.com/ryukau/07af221fe64465febbaa8ef69e19d845">Python 3 translation of half_band.py: https://github.com/robwasab/HalfBand · GitHub</a></li>
+</ul>
+<h4 id="改変版のフィルタ係数のフォーマット">改変版のフィルタ係数のフォーマット</h4>
+<p>オリジナルの <code>half_band.py</code> では、以下のように <code>H0(z)</code> と <code>H1(z)</code> の伝達関数の分子と分母が互い違いになっています。</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>h0s <span class="op">=</span> [(z_2 <span class="op">+</span> ai) <span class="op">/</span> (ai <span class="op">*</span> z_2 <span class="op">+</span> <span class="fl">1.0</span>) <span class="cf">for</span> ai <span class="kw">in</span> h0_ai]</span>
+<span id="cb7-2"><a href="#cb7-2"></a>h1s <span class="op">=</span> [(ai <span class="op">*</span> z_2 <span class="op">+</span> <span class="fl">1.0</span>) <span class="op">/</span> (z_2 <span class="op">+</span> ai) <span class="cf">for</span> ai <span class="kw">in</span> h1_ai]</span></code></pre></div>
+<p>改変版では C++ の実装でコードを減らすために <code>H0(z)</code> の値を逆数にしています。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>h0_ai <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> h0_ai  <span class="co"># 追加。</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a>h0s <span class="op">=</span> [(ai <span class="op">*</span> z_2 <span class="op">+</span> <span class="fl">1.0</span>) <span class="op">/</span> (z_2 <span class="op">+</span> ai) <span class="cf">for</span> ai <span class="kw">in</span> h0_ai]</span>
+<span id="cb8-4"><a href="#cb8-4"></a>h1s <span class="op">=</span> [(ai <span class="op">*</span> z_2 <span class="op">+</span> <span class="fl">1.0</span>) <span class="op">/</span> (z_2 <span class="op">+</span> ai) <span class="cf">for</span> ai <span class="kw">in</span> h1_ai]</span></code></pre></div>
+<h3 id="paulfd-による-hiir-designer">paulfd による hiir-designer</h3>
+<p>以下は paulfd さんによるハーフバンド楕円フィルタの係数を計算する hiir-designer のコードへのリンクです。 C++ です。</p>
+<ul>
+<li><a href="https://github.com/paulfd/hiir-designer">GitHub - paulfd/hiir-designer: Designs oversampling stages adapted to HIIR from Laurent de Soras</a></li>
+</ul>
+<p>hiir-designer は Laurent de Soras さんによる HIIR というハーフバンドフィルタのライブラリから、フィルタ係数を計算する部分だけを抜き出したものです。以下は Laurent de Soras さんによる HIIR へのリンクです。</p>
+<ul>
+<li><a href="http://ldesoras.free.fr/prod.html#src_audio">Laurent de Soras - Productions</a></li>
+</ul>
+<p>以下は HIIR の <code>PolyphaseIir2Designer.h</code> に記載されていた参考文献です。</p>
+<ul>
+<li>Artur Krukowski - <a href="http://www.cmsa.wmin.ac.uk/~artur/Poly.html">Polyphase Two-Path Filter Designer in Java</a></li>
+<li>R.A. Valenzuela, A.G. Constantinides, “Digital Signal Processing Schemes for Efficient Interpolation and Decimation,” IEEE Proceedings, Dec 1983</li>
+<li>Scott Wardle, <a href="http://www.iua.upf.es/dafx98/papers/WAR19.PS">“A Hilbert-Transformer Frequency Shifter for Audio,”</a> International Conference on Digital Audio Effects (DAFx) 1998</li>
+</ul>
+<h4 id="パッチ">パッチ</h4>
+<p>hiir-designer が 1 ステージのみでも係数を出力するようには、 <code>hiir-designer.cpp</code> を以下のように変更します。コミット <code>8a33c0f</code> の時点では 37 行目です。</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1"></a><span class="cf">if</span> (n_stages &lt; <span class="dv">1</span>) { <span class="co">// 変更点。元の条件は n_stages &lt; 2</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>    <span class="bu">std::</span>cerr &lt;&lt; <span class="st">&quot;The number of stages should be greater than 2 (&quot;</span> &lt;&lt; n_stages &lt;&lt; <span class="st">&quot;)&quot;</span> &lt;&lt; <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span>;</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="cf">return</span> -<span class="dv">1</span>;</span>
+<span id="cb9-4"><a href="#cb9-4"></a>}</span></code></pre></div>
+<h4 id="フィルタ係数のフォーマット">フィルタ係数のフォーマット</h4>
+<p>出力されたフィルタ係数は <span class="math inline">\(H_1\)</span> と <span class="math inline">\(H_0\)</span> の係数が互い違いになっています。</p>
+<pre><code>{a1_0, a0_0, a1_1, a0_1, a1_2, a0_2, ...}</code></pre>
+<p>ここで紹介した実装で使うには以下のように並べ替えます。</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> T&gt; <span class="kw">struct</span> HalfBandCoefficient {</span>
+<span id="cb11-2"><a href="#cb11-2"></a>  <span class="at">static</span> <span class="kw">constexpr</span> <span class="bu">std::</span>array&lt;T, <span class="dv">9</span>&gt; h0_a{</span>
+<span id="cb11-3"><a href="#cb11-3"></a>    T(a0_0), T(a0_1),  T(a0_2), <span class="co">// ...</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>  };</span>
+<span id="cb11-5"><a href="#cb11-5"></a>  <span class="at">static</span> <span class="kw">constexpr</span> <span class="bu">std::</span>array&lt;T, <span class="dv">10</span>&gt; h1_a{</span>
+<span id="cb11-6"><a href="#cb11-6"></a>    T(a1_0), T(a1_1), T(a1_2), <span class="co">// ...</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>  };</span>
+<span id="cb11-8"><a href="#cb11-8"></a>};</span></code></pre></div>
+<p><code>PolyphaseIir2Designer.h</code> のコメントでも <span class="math inline">\(H_0, H_1\)</span> の表記が使われていますが、 <code>half_band.py</code> の表記とは 0 と 1 が入れ替わっているので注意してください。ここではすべて <code>half_band.py</code> の表記に合わせています。</p>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
