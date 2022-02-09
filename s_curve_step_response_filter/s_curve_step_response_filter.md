@@ -392,6 +392,8 @@ C++17 のフラグを立ててコンパイルしています。
 #include <complex>
 
 template<typename Sample> struct Bessel4 {
+  // float はディレイ時間が短いときだけ使える (delayInSamples <~ 1000) 。
+  // それ以外のときは double を使うこと。
   constexpr static uint8_t halfDegree = 2; // 4 の半分。
 
   // 複素共役の極は無くても計算できる。
@@ -406,7 +408,7 @@ template<typename Sample> struct Bessel4 {
   std::array<Sample, 2> y0{};
   std::array<Sample, 2> y1{};
   std::array<Sample, 2> y2{};
-  std::array<std::array<Sample, 2>, halfDegree> co; // フィルタ係数 a1 と a2 。
+  std::array<std::array<Sample, 2>, halfDegree> co; // フィルタ係数。
   Sample gain = 1;
 
   Bessel4()
@@ -426,7 +428,7 @@ template<typename Sample> struct Bessel4 {
 
   void setDelay(Sample delayInSamples)
   {
-    auto wo = Sample(0.5) / delayInSamples; // 遅延サンプル数を周波数に変換。
+    auto wo = Sample(2) / delayInSamples; // 遅延サンプル数を周波数に変換。
 
     gain = Sample(1);
     for (uint8_t i = 0; i < co.size(); ++i) {
@@ -441,13 +443,12 @@ template<typename Sample> struct Bessel4 {
   Sample process(Sample input)
   {
     x0[0] = input;
-    for (uint8_t i = 1; i < halfDegree; ++i) x0[i] = y0[i - 1];
 
     for (uint8_t i = 0; i < halfDegree; ++i) {
-      y0[0]
-        = Sample(1) * x0[i]
+      y0[i]
+        = x0[i]
         + Sample(2) * x1[i]
-        + Sample(1) * x2[i]
+        + x2[i]
         - co[i][0] * y1[i]
         - co[i][1] * y2[i];
 
@@ -455,6 +456,8 @@ template<typename Sample> struct Bessel4 {
       x1[i] = x0[i];
       y2[i] = y1[i];
       y1[i] = y0[i];
+
+      if (i + 1 < halfDegree) x0[i + 1] = y0[i];
     }
 
     return gain * y0[1];
@@ -585,3 +588,5 @@ Thiran ローパスフィルタはバイリニア変換した Bessel フィル�
 - 2020/10/17
   - 文章の整理。
   - SciPy の関数にリファレンスへのリンクを追加。
+- 2022/02/09
+  - Bessel4 の実装の間違いを修正。
