@@ -340,7 +340,12 @@ template<typename T> struct RingQueue {
 
   void resize(size_t size) { buf.resize(size); }
 
-  void reset(T value = 0) { std::fill(buf.begin(), buf.end(), value); }
+  void reset(T value = 0)
+  {
+    std::fill(buf.begin(), buf.end(), value);
+    wptr = 0;
+    rptr = 0;
+  }
 
   inline size_t size()
   {
@@ -416,21 +421,13 @@ template<typename Sample> struct PeakHold {
 
   Sample process(Sample x0)
   {
-    if (!hold.empty()) {
-      for (size_t idx = hold.size(); idx > 0; --idx) {
-        if (hold.back() < x0)
-          hold.pop_back();
-        else
-          break;
-      }
+    while (!queue.empty()) {
+      if (queue.back() >= x0) break;
+      queue.pop_back();
     }
-
-    hold.push_back(x0);
-
-    auto delayOut = delay.process(x0);
-    if (!hold.empty() && delayOut == hold.front()) hold.pop_front();
-
-    return !hold.empty() ? hold.front() : neutral;
+    queue.push_back(x0);
+    if (delay.process(x0) == queue.front()) queue.pop_front();
+    return queue.front();
   }
 };
 
@@ -505,5 +502,9 @@ def peakHoldBackward(sig, holdtime, reset=0):
 - a > b かつ c > b 。
 
 ## 変更点
+- 2022/05/07
+  - C++ の実装を変更。
+    - `PeakHold::process()` をより効率よく実装。
+    - `RingQueue::reset()` の不完全なリセットを修正。
 - 2021/01/09
   - 文章の整理。
