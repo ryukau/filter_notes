@@ -608,13 +608,13 @@ Update: 2022-05-07
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 整数サンプルのディレイ。</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> Delay <span class="op">{</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> IntDelay <span class="op">{</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> buf<span class="op">;</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  Delay<span class="op">(</span><span class="dt">size_t</span> size <span class="op">=</span> <span class="dv">65536</span><span class="op">)</span> <span class="op">:</span> buf<span class="op">(</span>size<span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  IntDelay<span class="op">(</span><span class="dt">size_t</span> size <span class="op">=</span> <span class="dv">65536</span><span class="op">)</span> <span class="op">:</span> buf<span class="op">(</span>size<span class="op">)</span> <span class="op">{}</span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> resize<span class="op">(</span><span class="dt">size_t</span> size<span class="op">)</span></span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
@@ -707,7 +707,7 @@ Update: 2022-05-07
 <span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a><span class="co">*/</span></span>
 <span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> PeakHold <span class="op">{</span></span>
 <span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>  Sample neutral <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>  Delay<span class="op">&lt;</span>Sample<span class="op">&gt;</span> delay<span class="op">;</span></span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>  IntDelay<span class="op">&lt;</span>Sample<span class="op">&gt;</span> delay<span class="op">;</span></span>
 <span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>  RingQueue<span class="op">&lt;</span>Sample<span class="op">&gt;</span> hold<span class="op">;</span></span>
 <span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>  PeakHold<span class="op">(</span><span class="dt">size_t</span> size <span class="op">=</span> <span class="dv">65536</span><span class="op">)</span> <span class="op">{</span></span>
@@ -804,6 +804,7 @@ H_I(x) = \max(H_F(x), H_B(x) z^{-d})
 <ul>
 <li><code>PeakHold::process()</code> をより効率よく実装。</li>
 <li><code>RingQueue::reset()</code> の不完全なリセットを修正。</li>
+<li><code>Delay</code> の名前を <code>IntDelay</code> に変更。</li>
 </ul></li>
 </ul></li>
 <li>2021/01/09
