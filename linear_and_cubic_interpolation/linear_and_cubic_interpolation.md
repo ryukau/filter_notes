@@ -18,11 +18,11 @@
 
 以下のリンク先に Python3 の実装を掲載しています。
 
-- TODO リンク
+- [Python3 による 3 次補間の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/linear_and_cubic_interpolation/plot.py)
 
 以下のリンク先に C++ の実装を掲載しています。
 
-- TODO リンク
+- [C++ による 3 次補間の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/linear_and_cubic_interpolation/interp.cpp)
 
 ### 線形補間
 `t` は範囲が `[0.0, 1.0]` の補間係数です。 C++20 では [`std::lerp`](https://en.cppreference.com/w/cpp/numeric/lerp) が使えるようになります。
@@ -178,7 +178,7 @@ def centripetalCatmullRom(y0, y1, y2, y3, t, alpha=0.5):
 - [Centripetal Catmull–Rom spline - Wikipedia](https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline)
 
 ## 評価
-振幅、位相、群遅延特性をプロットして比較します。以下は周波数特性を計算するコード例です。
+振幅、位相、群遅延特性をプロットして比較します。以下は周波数特性を計算するコード例です。実際にプロットに使ったコードは実装の節の Python3 の実装を参照してください。
 
 ```python
 import numpy as np
