@@ -298,13 +298,13 @@ if __name__ == "__main__":
 #include <vector>
 
 // 整数サンプルのディレイ。
-template<typename Sample> class Delay {
+template<typename Sample> class IntDelay {
 public:
   std::vector<Sample> buf;
   size_t wptr = 0;
   size_t rptr = 0;
 
-  Delay(size_t size = 65536) : buf(size) {}
+  IntDelay(size_t size = 65536) : buf(size) {}
 
   void resize(size_t size)
   {
@@ -397,7 +397,7 @@ template<typename T> struct RingQueue {
 */
 template<typename Sample> struct PeakHold {
   Sample neutral = 0;
-  Delay<Sample> delay;
+  IntDelay<Sample> delay;
   RingQueue<Sample> hold;
 
   PeakHold(size_t size = 65536) {
@@ -506,5 +506,6 @@ def peakHoldBackward(sig, holdtime, reset=0):
   - C++ の実装を変更。
     - `PeakHold::process()` をより効率よく実装。
     - `RingQueue::reset()` の不完全なリセットを修正。
+    - `Delay` の名前を `IntDelay` に変更。
 - 2021/01/09
   - 文章の整理。
