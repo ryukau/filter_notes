@@ -360,6 +360,7 @@ Update: 2022-05-07
 </ul></li>
 <li><a href="#その他">その他</a></li>
 <li><a href="#参考サイト">参考サイト</a></li>
+<li><a href="#変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -540,15 +541,18 @@ v = y[0] - u * s(0)</code></pre>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    _, delay <span class="op">=</span> signal.group_delay((fir, <span class="dv">1</span>), fs<span class="op">=</span>sampleRate)</span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># プロットは省略。</span></span></code></pre></div>
-<p>線形補間の特性です。図の左上が振幅特性、左下が位相特性、右上が群遅延特性、右下がインパルス応答です。以下のような典型的な分数ディレイフィルタの特性がみられます。</p>
+<p>以下では図の左上が振幅特性、左下が位相特性、右上が群遅延特性、右下がインパルス応答です。青くなるほど <code>t = 0</code> 、黄色くなるほど <code>t = 1</code> に近くなります。振幅特性は <code>t = 0.5</code> を中心として対称性があるので重なっている曲線があります。</p>
+<p>線形補間の特性です。以下のような典型的な分数ディレイフィルタの特性がみられます。</p>
 <ul>
 <li><code>0 &lt; t &lt; 1</code> のときの振幅特性はローパス。</li>
 <li>群遅延特性が低域でフラット。</li>
+<li><code>t = 0.5</code> のとき最もローパスが強くかかるが、群遅延はフラット。</li>
+<li>インパルス応答と振幅特性は <code>t = 0.5</code> を中心に対称。</li>
 </ul>
 <figure>
 <img src="img/linear.svg" alt="Image of frequency response of linear interpolation." style="padding-bottom: 12px;"/>
 </figure>
-<p>キュービック補間の特性です。線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性のフォールオフが半分ほどになるはずです。</p>
+<p>キュービック補間の特性です。線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性の<a href="https://en.wikipedia.org/wiki/Roll-off">ロールオフ</a>が半分ほどになるはずです。</p>
 <figure>
 <img src="img/cubic.svg" alt="Image of frequency response of cubic interpolation." style="padding-bottom: 12px;"/>
 </figure>
@@ -607,6 +611,14 @@ v = y[0] - u * s(0)</code></pre>
 <li><a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Centripetal Catmull–Rom spline - Wikipedia</a></li>
 <li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html">scipy.signal.resample — SciPy v1.8.0 Manual</a></li>
 <li><a href="https://en.wikipedia.org/wiki/Ringing_artifacts">Ringing artifacts - Wikipedia</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2022/05/07
+<ul>
+<li>ロールオフをフォールオフに間違えていた点を修正。</li>
+<li>図の説明を追加。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
