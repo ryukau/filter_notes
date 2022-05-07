@@ -99,50 +99,59 @@ $N$ サンプルの遅延を加えるディレイを用意します。 $N$ は�
 #include <algorithm>
 #include <vector>
 
-template<typename Sample> class Delay {
+template<typename Sample> class IntDelay {
+private:
+  std::vector<Sample> buf;
+  size_t wptr = 0;
+  size_t rptr = 0;
+
 public:
-  std::vector<Sample> buffer;
-  int32_t wptr = 0;
-  int32_t rptr = 0;
+  IntDelay(size_t size = 65536) : buf(size) {}
 
-  Delay(Sample size = 65536) : buffer(size) {}
-
-  void resize(uint32_t size)
+  void resize(size_t size)
   {
-    buffer.resize(size);
+    buf.resize(size);
     wptr = 0;
     rptr = 0;
   }
 
-  void reset() { std::fill(buffer.begin(), buffer.end(), Sample(0)); }
+  void reset() { std::fill(buf.begin(), buf.end(), Sample(0)); }
 
-  void setFrames(uint32_t delayFrames)
+  void setFrames(size_t delayFrames)
   {
-    if (delayFrames >= buffer.size()) delayFrames = buffer.size();
-    rptr = wptr - int32_t(delayFrames);
-    if (rptr < 0) rptr += int32_t(buffer.size());
+    if (delayFrames >= buf.size()) delayFrames = buf.size();
+    rptr = wptr - delayFrames;
+    if (rptr >= buf.size()) rptr += buf.size(); // Unsigned overflow case.
   }
 
   Sample process(Sample input)
   {
-    wptr = (wptr + 1) % int32_t(buffer.size());
-    buffer[wptr] = input;
+    if (++wptr >= buf.size()) wptr -= buf.size();
+    buf[wptr] = input;
 
-    rptr = (rptr + 1) % int32_t(buffer.size());
-    return buffer[rptr];
+    if (++rptr >= buf.size()) rptr -= buf.size();
+    return buf[rptr];
   }
 };
 ```
 
-状態変数 `sum` を用意して、各サンプルでディレイへの入力を加算、ディレイからの出力を減算します。 `sum` をフィルタのタップ数で割った値がフィルタの出力です。
+以下の `MovingAverageFilter` の実装では、状態変数 `sum` を用意して、各サンプルでディレイへの入力を加算、ディレイからの出力を減算します。 `sum` をフィルタのタップ数で割った値がフィルタの出力です。
 
 ```c++
 // C++
-template<typename Sample> class MovingAverage {
-public:
+#include <limits>
+
+template<typename Sample> class MovingAverageFilter {
+private:
+  Sample denom = Sample(1);
   Sample sum = 0;
-  uint32_t size = 0; // フィルタのタップ数。
-  Delay<Sample> delay;
+  IntDelay<Sample> delay;
+
+public:
+  void resize(size_t size)
+  {
+    delay.resize(size);
+  }
 
   void reset()
   {
@@ -150,19 +159,62 @@ public:
     delay.reset();
   }
 
-  void setSize(uint32_t size)
+  void setFrames(size_t frames)
   {
-    delay.setFrames(size);
-    this->size = size;
+    denom = Sample(1) / Sample(frames);
+    delay.setFrames(frames);
   }
 
-  void process(Sample input)
+  // 浮動小数点数の丸めが -inf に向かうように変更した加算。
+  inline Sample add(Sample lhs, Sample rhs)
   {
-    sum += input - delay.process(input);
-    return sum / size;
+    if (lhs < rhs) std::swap(lhs, rhs);
+    int expL;
+    std::frexp(lhs, &expL);
+    auto &&cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits);
+    auto &&rounded = rhs - std::fmod(rhs, cut);
+    return lhs + rounded;
+  }
+
+  // 素朴な実装。
+  Sample processNaive(Sample input)
+  {
+    input *= denom;
+    sum = (sum + input) - delay.process(input);
+    return sum;
+  }
+
+  // リミッタ向けの実装。 `input` の範囲が [0, 1] であることを仮定。
+  Sample process(Sample input)
+  {
+    input *= denom;
+
+    sum = add(sum, input);
+    Sample d1 = delay.process(input);
+    sum = std::max(Sample(0), sum - d1);
+
+    return sum;
   }
 };
 ```
+
+素朴な実装とリミッタ向けの実装をまとめて掲載しています。
+
+素朴な実装では、浮動小数点数の丸めモードが最も近い偶数への丸めになるときに、誤差によってオーバーシュートが起こります。 C++ では `std::numeric_limits<float>::round_style == std::round_to_nearest` が true のときに最も近い偶数への丸めが行われます。
+
+リミッタ向けの実装では `add` メソッドで無理やり -inf にむかって丸めることでオーバーシュートを防いでいます。 `add` メソッドでは、加算時に 2 つの値の小さいほうについて仮数部に乗り切らない部分を切り捨てることで -inf に向かう丸めを実装しています。
+
+丸めについての例として、以下のような 4 ビットの浮動小数点数 `1000` と `11.11` の加算を挙げておきます。数字は 2 進数です。
+
+```
+  1000
++ 0011.11 // 0.11 が 4 ビットに乗り切らないので丸められる。
+---------
+  1???
+```
+
+- 最も近い偶数への丸めが行われるとき、 `11.11` に最も近い偶数は `100` なので、加算の結果は `1100` 。
+- -inf に向かう丸めが行われるときは、 `0.11` が切り捨てられるので、加算の結果は `1011` 。
 
 #### 補足
 Musicdsp.org のページでは、以下のコードのように入力で `1.0 - input` 、出力で `1.0 - output` を計算することで浮動小数点数による計算誤差を減らす手順があります。はっきりとは書いていませんが `input` の範囲は `[0.0, 1.0]` のようです。
@@ -181,7 +233,7 @@ public:
 };
 ```
 
-次のようなコードを書いて試してみました。
+次のようなコードを書いて素朴な実装と比べました。
 
 - [テストコードへのリンク (github.com)](https://github.com/ryukau/filter_notes/blob/master/s_curve_step_response_filter/cpp/roundingerror.cpp)
 
@@ -566,7 +618,7 @@ Bessel フィルタと Thiran ローパスフィルタのステップ応答は�
 Thiran ローパスフィルタはバイリニア変換した Bessel フィルタとほとんど同じですが、 2 次セクションに分割できないので使いどころはなさそうです。
 
 ## その他
-オーバーシュートせずにステップ応答が S 字を描くフィルタとしては[ガウシアンフィルタ](https://en.wikipedia.org/wiki/Gaussian_filter)や適当な[窓関数](https://en.wikipedia.org/wiki/Window_function)をフィルタ係数にした FIR フィルタも使えます。ただし、遷移時間の長さと同じタップ数が必要になるのでリアルタイム処理では重たくて使いづらいです。
+オーバーシュートせずにステップ応答が S 字を描くフィルタとしては、適当な[窓関数](https://en.wikipedia.org/wiki/Window_function)をフィルタ係数にした FIR フィルタも使えます。ただし、遷移時間が長くなると FIR フィルタのタップ数が増える分だけ計算が重たくなります。
 
 ## 参考文献
 - [Lookahead Limiter — Musicdsp.org documentation](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html)
@@ -578,6 +630,8 @@ Thiran ローパスフィルタはバイリニア変換した Bessel フィル�
 - [Amplitude Response](https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html)
 
 ## 変更点
+- 2022/05/07
+  - 移動平均フィルタにリミッタ向けの実装を追加。
 - 2020/10/16
   - ローパスの場合の Maximally flat の定義を追加。
   - 2 次セクションのゲインの導出を変更。
