@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2021-01-06" />
+<meta name="dcterms.date" content="2022-05-07" />
 <title>peak_hold_envelope</title>
 
 <!-- KaTeX -->
@@ -19,19 +19,19 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +52,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -326,7 +326,7 @@ border: 2px solid #aaccff;
 }
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,23 +337,27 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2021-01-06
+Update: 2022-05-07
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#ピークホールドによるエンベロープ">ピークホールドによるエンベロープ</a><ul>
+<li><a href="#ピークホールドによるエンベロープ">ピークホールドによるエンベロープ</a>
+<ul>
 <li><a href="#前向きホールド">前向きホールド</a></li>
 <li><a href="#スムーシング">スムーシング</a></li>
-<li><a href="#理想的なホールド">理想的なホールド</a><ul>
-<li><a href="#realtime-implementation">リアルタイムで使えるアルゴリズム</a><ul>
+<li><a href="#理想的なホールド">理想的なホールド</a>
+<ul>
+<li><a href="#realtime-implementation">リアルタイムで使えるアルゴリズム</a>
+<ul>
 <li><a href="#レシピ">レシピ</a></li>
 </ul></li>
 <li><a href="#テスト">テスト</a></li>
 <li><a href="#c-による実装">C++ による実装</a></li>
 </ul></li>
-<li><a href="#その他">その他</a><ul>
+<li><a href="#その他">その他</a>
+<ul>
 <li><a href="#後ろ向きホールド">後ろ向きホールド</a></li>
 </ul></li>
 <li><a href="#変更点">変更点</a></li>
@@ -383,49 +387,49 @@ Update: 2021-01-06
 <img src="img/forward_peak_hold_of_decaying_signal.svg" alt="Plot of forward peak hold." style="padding-bottom: 12px;"/>
 </figure>
 <p>Python 3 で実装します。この文章の Python 3 のコードは上から順にテキストファイルにコピペすると動きます。実行には <a href="https://www.scipy.org/">SciPy</a> 、 <a href="https://numpy.org/">NumPy</a> 、 <a href="https://matplotlib.org/">matplotlib</a> が必要です。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3"></a></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">def</span> peakHoldForward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
-<span id="cb1-5"><a href="#cb1-5"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">    holdtime の単位はサンプル数。</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">    最後に最大値が更新されてから holdtime サンプル後に hold の値をリセットする。</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
-<span id="cb1-10"><a href="#cb1-10"></a>    hold <span class="op">=</span> reset</span>
-<span id="cb1-11"><a href="#cb1-11"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sig)):</span>
-<span id="cb1-13"><a href="#cb1-13"></a>        <span class="cf">if</span> counter <span class="op">&gt;</span> <span class="dv">0</span>:  <span class="co"># 注意: 比較に &gt;= を使うとホールド時間が 1 サンプル延びる。</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a>            counter <span class="op">-=</span> <span class="dv">1</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a>        <span class="cf">else</span>:</span>
-<span id="cb1-16"><a href="#cb1-16"></a>            hold <span class="op">=</span> reset</span>
-<span id="cb1-17"><a href="#cb1-17"></a>        <span class="cf">if</span> hold <span class="op">&lt;=</span> sig[i]:  <span class="co"># 注意: カウンタをリセットしたいので &lt;= で比較。</span></span>
-<span id="cb1-18"><a href="#cb1-18"></a>            hold <span class="op">=</span> sig[i]</span>
-<span id="cb1-19"><a href="#cb1-19"></a>            counter <span class="op">=</span> holdtime</span>
-<span id="cb1-20"><a href="#cb1-20"></a>        out[i] <span class="op">=</span> hold</span>
-<span id="cb1-21"><a href="#cb1-21"></a>    <span class="cf">return</span> out</span>
-<span id="cb1-22"><a href="#cb1-22"></a></span>
-<span id="cb1-23"><a href="#cb1-23"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
-<span id="cb1-24"><a href="#cb1-24"></a></span>
-<span id="cb1-25"><a href="#cb1-25"></a>sig <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">256</span>)</span>
-<span id="cb1-26"><a href="#cb1-26"></a>absed <span class="op">=</span> np.<span class="bu">abs</span>(sig)</span>
-<span id="cb1-27"><a href="#cb1-27"></a>holdF <span class="op">=</span> peakHoldForward(absed, <span class="dv">32</span>, <span class="dv">0</span>)</span>
-<span id="cb1-28"><a href="#cb1-28"></a></span>
-<span id="cb1-29"><a href="#cb1-29"></a>plt.plot(sig, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
-<span id="cb1-30"><a href="#cb1-30"></a>plt.plot(absed, label<span class="op">=</span><span class="st">&quot;Absed&quot;</span>)</span>
-<span id="cb1-31"><a href="#cb1-31"></a>plt.plot(holdF, label<span class="op">=</span><span class="st">&quot;Forward Hold&quot;</span>)</span>
-<span id="cb1-32"><a href="#cb1-32"></a>plt.show()</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> peakHoldForward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    holdtime の単位はサンプル数。</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    最後に最大値が更新されてから holdtime サンプル後に hold の値をリセットする。</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    hold <span class="op">=</span> reset</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sig)):</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">&gt;</span> <span class="dv">0</span>:  <span class="co"># 注意: 比較に &gt;= を使うとホールド時間が 1 サンプル延びる。</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            counter <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            hold <span class="op">=</span> reset</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> hold <span class="op">&lt;=</span> sig[i]:  <span class="co"># 注意: カウンタをリセットしたいので &lt;= で比較。</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            hold <span class="op">=</span> sig[i]</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>            counter <span class="op">=</span> holdtime</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> hold</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">0</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">256</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>absed <span class="op">=</span> np.<span class="bu">abs</span>(sig)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>holdF <span class="op">=</span> peakHoldForward(absed, <span class="dv">32</span>, <span class="dv">0</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>plt.plot(sig, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>plt.plot(absed, label<span class="op">=</span><span class="st">&quot;Absed&quot;</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>plt.plot(holdF, label<span class="op">=</span><span class="st">&quot;Forward Hold&quot;</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
 <h2 id="スムーシング">スムーシング</h2>
 <p>前向きホールドによるエンベロープをそのまま使うとホールド値を忘れるときにポップノイズが出てしまうので、フィルタを使ってスムーシングします。ここで使うフィルタは一定時間同じ値が入力されると、その値に到達することが保証されているものとします。移動平均フィルタの重ね掛けや、 Bessel フィルタはこのような設計ができます。リミッタ向きのフィルタについては<a href="../s_curve_step_response_filter/s_curve_step_response_filter.html">「ステップ応答が S 字を描くフィルタ」</a>にまとめています。</p>
 <p>以降では以下のコードで設計した三角窓の FIR フィルタを使います。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> makeTriangleFir(delay):</span>
-<span id="cb2-2"><a href="#cb2-2"></a>    <span class="co">&quot;&quot;&quot;delay は 2 より大きい整数。&quot;&quot;&quot;</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>    fir <span class="op">=</span> np.interp(</span>
-<span id="cb2-4"><a href="#cb2-4"></a>        np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, delay <span class="op">+</span> <span class="dv">1</span>),</span>
-<span id="cb2-5"><a href="#cb2-5"></a>        [<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dv">1</span>],</span>
-<span id="cb2-6"><a href="#cb2-6"></a>        [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>],</span>
-<span id="cb2-7"><a href="#cb2-7"></a>    )</span>
-<span id="cb2-8"><a href="#cb2-8"></a>    <span class="cf">return</span> fir <span class="op">/</span> np.<span class="bu">sum</span>(fir)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> makeTriangleFir(delay):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;delay は 2 より大きい整数。&quot;&quot;&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> np.interp(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, delay <span class="op">+</span> <span class="dv">1</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        [<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dv">1</span>],</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>],</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir <span class="op">/</span> np.<span class="bu">sum</span>(fir)</span></code></pre></div>
 <p>前向きホールドによるエンベロープにフィルタをかけると立ち上がりと立ち下りが鈍るので、入力信号との間でピークの位置がずれます。</p>
 <figure>
 <img src="img/smoothed_hold.svg" alt="Plot of smoothed hold." style="padding-bottom: 12px;"/>
@@ -445,17 +449,17 @@ Update: 2021-01-06
 </figure>
 <h2 id="理想的なホールド">理想的なホールド</h2>
 <p>ホールド値より小さいピークを見逃さないためには、ホールド時間と同じ長さのバッファを用意して入力を覚えておく方法があります。出力にはバッファ内の最大値を使います。以下はこのアルゴリズムのコード例です。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
-<span id="cb3-2"><a href="#cb3-2"></a></span>
-<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">def</span> idealPeakHoldNaive(sig, holdtime: <span class="bu">int</span>):</span>
-<span id="cb3-4"><a href="#cb3-4"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
-<span id="cb3-5"><a href="#cb3-5"></a>    <span class="bu">buffer</span> <span class="op">=</span> deque([<span class="dv">0</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(holdtime)])</span>
-<span id="cb3-6"><a href="#cb3-6"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sig)):</span>
-<span id="cb3-8"><a href="#cb3-8"></a>        <span class="bu">buffer</span>.append(<span class="bu">abs</span>(sig[i]))</span>
-<span id="cb3-9"><a href="#cb3-9"></a>        <span class="bu">buffer</span>.popleft()</span>
-<span id="cb3-10"><a href="#cb3-10"></a>        out[i] <span class="op">=</span> <span class="bu">max</span>(<span class="bu">buffer</span>)</span>
-<span id="cb3-11"><a href="#cb3-11"></a>    <span class="cf">return</span> out</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> idealPeakHoldNaive(sig, holdtime: <span class="bu">int</span>):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">buffer</span> <span class="op">=</span> deque([<span class="dv">0</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(holdtime)])</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sig)):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">buffer</span>.append(<span class="bu">abs</span>(sig[i]))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">buffer</span>.popleft()</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> <span class="bu">max</span>(<span class="bu">buffer</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
 <p>ここでは上のコードのアルゴリズムのことを理想的なホールドの素朴な実装と呼びます。素朴な実装の問題点は計算量です。上のコードの <code>out[i] = max(buffer)</code> は Python では 1 行で書けますが、計算量はバッファの長さに比例します。したがってホールド時間を長くすると計算が重たくなります。</p>
 <h3 id="realtime-implementation">リアルタイムで使えるアルゴリズム</h3>
 <p>計算量の問題を解決するために試行錯誤したところ、局所最大値をキューに保存することで高速に計算するアルゴリズムを思いつきました。</p>
@@ -486,39 +490,39 @@ Update: 2021-01-06
 <li>キューに一つでも値が残っていれば、キューの先頭を出力。そうでなければ 0 を出力。</li>
 </ol>
 <p>上のレシピに沿った Python 3 による実装です。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
-<span id="cb4-2"><a href="#cb4-2"></a></span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="kw">def</span> idealPeakHoldFast(sig, holdTime):</span>
-<span id="cb4-4"><a href="#cb4-4"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="co">    sig: 入力信号。</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="co">    holdTime: ホールド時間。単位はサンプル数。</span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))                     <span class="co"># 出力信号。</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a>    <span class="bu">buffer</span> <span class="op">=</span> deque([<span class="dv">0</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(holdTime)]) <span class="co"># ディレイのバッファ。</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a>    hold <span class="op">=</span> deque([])                             <span class="co"># ホールド値のキュー。</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sig)):</span>
-<span id="cb4-12"><a href="#cb4-12"></a>        x0 <span class="op">=</span> sig[i]</span>
-<span id="cb4-13"><a href="#cb4-13"></a></span>
-<span id="cb4-14"><a href="#cb4-14"></a>        <span class="cf">if</span> <span class="bu">len</span>(hold) <span class="op">&gt;</span> <span class="dv">0</span>: <span class="co"># 手順 1</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a>            idx <span class="op">=</span> <span class="bu">len</span>(hold) <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>            <span class="cf">while</span> idx <span class="op">&gt;=</span> <span class="dv">0</span>:</span>
-<span id="cb4-17"><a href="#cb4-17"></a>                <span class="cf">if</span> hold[idx] <span class="op">&lt;</span> x0:</span>
-<span id="cb4-18"><a href="#cb4-18"></a>                    hold.pop()</span>
-<span id="cb4-19"><a href="#cb4-19"></a>                <span class="cf">else</span>:</span>
-<span id="cb4-20"><a href="#cb4-20"></a>                    <span class="cf">break</span></span>
-<span id="cb4-21"><a href="#cb4-21"></a>                idx <span class="op">-=</span> <span class="dv">1</span></span>
-<span id="cb4-22"><a href="#cb4-22"></a></span>
-<span id="cb4-23"><a href="#cb4-23"></a>        hold.append(x0)   <span class="co"># 手順 2</span></span>
-<span id="cb4-24"><a href="#cb4-24"></a></span>
-<span id="cb4-25"><a href="#cb4-25"></a>        <span class="bu">buffer</span>.append(x0) <span class="co"># 手順 3</span></span>
-<span id="cb4-26"><a href="#cb4-26"></a>        delayOut <span class="op">=</span> <span class="bu">buffer</span>.popleft()</span>
-<span id="cb4-27"><a href="#cb4-27"></a></span>
-<span id="cb4-28"><a href="#cb4-28"></a>        <span class="cf">if</span> <span class="bu">len</span>(hold) <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> delayOut <span class="op">==</span> hold[<span class="dv">0</span>]: <span class="co"># 手順 4</span></span>
-<span id="cb4-29"><a href="#cb4-29"></a>            hold.popleft()</span>
-<span id="cb4-30"><a href="#cb4-30"></a></span>
-<span id="cb4-31"><a href="#cb4-31"></a>        out[i] <span class="op">=</span> hold[<span class="dv">0</span>] <span class="cf">if</span> <span class="bu">len</span>(hold) <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span> <span class="co"># 手順 5</span></span>
-<span id="cb4-32"><a href="#cb4-32"></a></span>
-<span id="cb4-33"><a href="#cb4-33"></a>    <span class="cf">return</span> out</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> idealPeakHoldFast(sig, holdTime):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">    sig: 入力信号。</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">    holdTime: ホールド時間。単位はサンプル数。</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))                     <span class="co"># 出力信号。</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">buffer</span> <span class="op">=</span> deque([<span class="dv">0</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(holdTime)]) <span class="co"># ディレイのバッファ。</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    hold <span class="op">=</span> deque([])                             <span class="co"># ホールド値のキュー。</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sig)):</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        x0 <span class="op">=</span> sig[i]</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(hold) <span class="op">&gt;</span> <span class="dv">0</span>: <span class="co"># 手順 1</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            idx <span class="op">=</span> <span class="bu">len</span>(hold) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">while</span> idx <span class="op">&gt;=</span> <span class="dv">0</span>:</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> hold[idx] <span class="op">&lt;</span> x0:</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                    hold.pop()</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>:</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">break</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                idx <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        hold.append(x0)   <span class="co"># 手順 2</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="bu">buffer</span>.append(x0) <span class="co"># 手順 3</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        delayOut <span class="op">=</span> <span class="bu">buffer</span>.popleft()</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(hold) <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> delayOut <span class="op">==</span> hold[<span class="dv">0</span>]: <span class="co"># 手順 4</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>            hold.popleft()</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> hold[<span class="dv">0</span>] <span class="cf">if</span> <span class="bu">len</span>(hold) <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span> <span class="co"># 手順 5</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
 <p>以下は理想的なホールドの出力です。高速な実装と素朴な実装の出力が一致しています。</p>
 <figure>
 <img src="img/ideal_hold.svg" alt="Plot of ideal hold envelope." style="padding-bottom: 12px;"/>
@@ -530,233 +534,230 @@ Update: 2021-01-06
 <h3 id="テスト">テスト</h3>
 <p>理想的なホールドを使えばはみ出しが起こらないことをテストします。</p>
 <p>テスト用の入力として、ランダムにインパルスが散らばったノイズを作ります。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">def</span> nextTime(rng, rate):</span>
-<span id="cb5-2"><a href="#cb5-2"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="co">    ポアソン過程。</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a><span class="co">    もし単位時間当たり N 回のイベントが起こるなら `rate` を `1/N` に設定する。</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a>    <span class="cf">return</span> <span class="op">-</span>np.log(<span class="fl">1.0</span> <span class="op">-</span> rng.uniform(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">/</span> rate</span>
-<span id="cb5-7"><a href="#cb5-7"></a></span>
-<span id="cb5-8"><a href="#cb5-8"></a><span class="kw">def</span> pulseNoise(rng, rate, length):</span>
-<span id="cb5-9"><a href="#cb5-9"></a>    out <span class="op">=</span> np.zeros(length)</span>
-<span id="cb5-10"><a href="#cb5-10"></a>    time <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb5-11"><a href="#cb5-11"></a>    <span class="cf">while</span> time <span class="op">&lt;</span> length:</span>
-<span id="cb5-12"><a href="#cb5-12"></a>        time <span class="op">+=</span> nextTime(rng, rate)</span>
-<span id="cb5-13"><a href="#cb5-13"></a></span>
-<span id="cb5-14"><a href="#cb5-14"></a>        t1 <span class="op">=</span> <span class="bu">int</span>(time)</span>
-<span id="cb5-15"><a href="#cb5-15"></a>        t2 <span class="op">=</span> t1 <span class="op">+</span> <span class="dv">1</span></span>
-<span id="cb5-16"><a href="#cb5-16"></a>        amp <span class="op">=</span> rng.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
-<span id="cb5-17"><a href="#cb5-17"></a>        <span class="cf">if</span> t1 <span class="op">&lt;</span> length:</span>
-<span id="cb5-18"><a href="#cb5-18"></a>            out[t1] <span class="op">=</span> amp <span class="op">*</span> (t2 <span class="op">-</span> time)</span>
-<span id="cb5-19"><a href="#cb5-19"></a>        <span class="cf">if</span> t2 <span class="op">&lt;</span> length:</span>
-<span id="cb5-20"><a href="#cb5-20"></a>            out[t2] <span class="op">=</span> amp <span class="op">*</span> (time <span class="op">-</span> t1)</span>
-<span id="cb5-21"><a href="#cb5-21"></a>    <span class="cf">return</span> out</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> nextTime(rng, rate):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    ポアソン過程。</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">    もし単位時間当たり N 回のイベントが起こるなら `rate` を `1/N` に設定する。</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>np.log(<span class="fl">1.0</span> <span class="op">-</span> rng.uniform(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">/</span> rate</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pulseNoise(rng, rate, length):</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.zeros(length)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    time <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> time <span class="op">&lt;</span> length:</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        time <span class="op">+=</span> nextTime(rng, rate)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        t1 <span class="op">=</span> <span class="bu">int</span>(time)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        t2 <span class="op">=</span> t1 <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        amp <span class="op">=</span> rng.uniform(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> t1 <span class="op">&lt;</span> length:</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>            out[t1] <span class="op">=</span> amp <span class="op">*</span> (t2 <span class="op">-</span> time)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> t2 <span class="op">&lt;</span> length:</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>            out[t2] <span class="op">=</span> amp <span class="op">*</span> (time <span class="op">-</span> t1)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
 <p>ポアソン過程の実装は Jeff Preshing さんによる以下の記事を参考にしました。</p>
 <ul>
 <li><a href="https://preshing.com/20111007/how-to-generate-random-timings-for-a-poisson-process/">How to Generate Random Timings for a Poisson Process</a></li>
 </ul>
 <p>以下はテストコードです。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">from</span> multiprocessing <span class="im">import</span> Pool</span>
-<span id="cb6-2"><a href="#cb6-2"></a></span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">def</span> verifyHoldEnvelope(sig, env, name):</span>
-<span id="cb6-4"><a href="#cb6-4"></a>    condition <span class="op">=</span> (sig <span class="op">-</span> env) <span class="op">&gt;</span> <span class="dv">8</span> <span class="op">*</span> np.finfo(np.float64).eps</span>
-<span id="cb6-5"><a href="#cb6-5"></a>    <span class="cf">if</span> np.<span class="bu">any</span>(condition):</span>
-<span id="cb6-6"><a href="#cb6-6"></a>        idx <span class="op">=</span> np.where(condition)</span>
-<span id="cb6-7"><a href="#cb6-7"></a>        diff <span class="op">=</span> np.take(sig, idx) <span class="op">-</span> np.take(env, idx)</span>
-<span id="cb6-8"><a href="#cb6-8"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Test failed: </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">&quot;</span>, diff, sep<span class="op">=</span><span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb6-9"><a href="#cb6-9"></a></span>
-<span id="cb6-10"><a href="#cb6-10"></a><span class="kw">def</span> jobTestIdealHoldRandom(seed):</span>
-<span id="cb6-11"><a href="#cb6-11"></a>    hold <span class="op">=</span> <span class="dv">32</span>   <span class="co"># ホールド時間 (サンプル数)</span></span>
-<span id="cb6-12"><a href="#cb6-12"></a>    delay <span class="op">=</span> <span class="dv">32</span>  <span class="co"># フィルタの遅延 (サンプル数)</span></span>
-<span id="cb6-13"><a href="#cb6-13"></a>    triangleFir <span class="op">=</span> makeTriangleFir(delay)</span>
-<span id="cb6-14"><a href="#cb6-14"></a></span>
-<span id="cb6-15"><a href="#cb6-15"></a>    rng <span class="op">=</span> np.random.default_rng(seed)</span>
-<span id="cb6-16"><a href="#cb6-16"></a>    sig <span class="op">=</span> pulseNoise(rng, <span class="dv">1</span> <span class="op">/</span> <span class="dv">8</span>, <span class="dv">48000</span>)</span>
-<span id="cb6-17"><a href="#cb6-17"></a></span>
-<span id="cb6-18"><a href="#cb6-18"></a>    naive <span class="op">=</span> idealPeakHoldNaive(sig, hold)</span>
-<span id="cb6-19"><a href="#cb6-19"></a>    fast <span class="op">=</span> idealPeakHoldFast(sig, hold)</span>
-<span id="cb6-20"><a href="#cb6-20"></a></span>
-<span id="cb6-21"><a href="#cb6-21"></a>    smoothedNaive <span class="op">=</span> signal.lfilter(triangleFir, <span class="dv">1</span>, naive)</span>
-<span id="cb6-22"><a href="#cb6-22"></a>    smoothedFast <span class="op">=</span> signal.lfilter(triangleFir, <span class="dv">1</span>, fast)</span>
-<span id="cb6-23"><a href="#cb6-23"></a></span>
-<span id="cb6-24"><a href="#cb6-24"></a>    delayed <span class="op">=</span> np.hstack((np.zeros(hold), sig[:<span class="op">-</span>hold]))</span>
-<span id="cb6-25"><a href="#cb6-25"></a></span>
-<span id="cb6-26"><a href="#cb6-26"></a>    verifyHoldEnvelope(delayed, smoothedNaive, <span class="ss">f&quot;Naive, </span><span class="sc">{</span>seed<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>delay<span class="sc">}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-27"><a href="#cb6-27"></a>    verifyHoldEnvelope(delayed, smoothedFast, <span class="ss">f&quot;Fast, </span><span class="sc">{</span>seed<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>delay<span class="sc">}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-28"><a href="#cb6-28"></a></span>
-<span id="cb6-29"><a href="#cb6-29"></a><span class="kw">def</span> testIdealHoldRandom(nTest<span class="op">=</span><span class="dv">1024</span>):</span>
-<span id="cb6-30"><a href="#cb6-30"></a>    <span class="cf">with</span> Pool() <span class="im">as</span> pool:</span>
-<span id="cb6-31"><a href="#cb6-31"></a>        seeds <span class="op">=</span> [i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(nTest)]</span>
-<span id="cb6-32"><a href="#cb6-32"></a>        idx <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb6-33"><a href="#cb6-33"></a>        <span class="cf">for</span> result <span class="kw">in</span> pool.imap_unordered(jobTestIdealHoldRandom, seeds):</span>
-<span id="cb6-34"><a href="#cb6-34"></a>            <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\r</span><span class="sc">{</span>idx<span class="sc">}</span><span class="ss">&quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>)  <span class="co"># 処理が終わったシード値を表示。</span></span>
-<span id="cb6-35"><a href="#cb6-35"></a>            idx <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb6-36"><a href="#cb6-36"></a></span>
-<span id="cb6-37"><a href="#cb6-37"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
-<span id="cb6-38"><a href="#cb6-38"></a>    testIdealHoldRandom()</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> multiprocessing <span class="im">import</span> Pool</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> verifyHoldEnvelope(sig, env, name):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    condition <span class="op">=</span> (sig <span class="op">-</span> env) <span class="op">&gt;</span> <span class="dv">8</span> <span class="op">*</span> np.finfo(np.float64).eps</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.<span class="bu">any</span>(condition):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> np.where(condition)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        diff <span class="op">=</span> np.take(sig, idx) <span class="op">-</span> np.take(env, idx)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Test failed: </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">&quot;</span>, diff, sep<span class="op">=</span><span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> jobTestIdealHoldRandom(seed):</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    hold <span class="op">=</span> <span class="dv">32</span>   <span class="co"># ホールド時間 (サンプル数)</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    delay <span class="op">=</span> <span class="dv">32</span>  <span class="co"># フィルタの遅延 (サンプル数)</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    triangleFir <span class="op">=</span> makeTriangleFir(delay)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    rng <span class="op">=</span> np.random.default_rng(seed)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    sig <span class="op">=</span> pulseNoise(rng, <span class="dv">1</span> <span class="op">/</span> <span class="dv">8</span>, <span class="dv">48000</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    naive <span class="op">=</span> idealPeakHoldNaive(sig, hold)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    fast <span class="op">=</span> idealPeakHoldFast(sig, hold)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    smoothedNaive <span class="op">=</span> signal.lfilter(triangleFir, <span class="dv">1</span>, naive)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    smoothedFast <span class="op">=</span> signal.lfilter(triangleFir, <span class="dv">1</span>, fast)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    delayed <span class="op">=</span> np.hstack((np.zeros(hold), sig[:<span class="op">-</span>hold]))</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    verifyHoldEnvelope(delayed, smoothedNaive, <span class="ss">f&quot;Naive, </span><span class="sc">{</span>seed<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>delay<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    verifyHoldEnvelope(delayed, smoothedFast, <span class="ss">f&quot;Fast, </span><span class="sc">{</span>seed<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>delay<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> testIdealHoldRandom(nTest<span class="op">=</span><span class="dv">1024</span>):</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> Pool() <span class="im">as</span> pool:</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        seeds <span class="op">=</span> [i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(nTest)]</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> result <span class="kw">in</span> pool.imap_unordered(jobTestIdealHoldRandom, seeds):</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\r</span><span class="sc">{</span>idx<span class="sc">}</span><span class="ss">&quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>)  <span class="co"># 処理が終わったシード値を表示。</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>            idx <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    testIdealHoldRandom()</span></code></pre></div>
 <p>フィルタの遅延はホールド時間以下の任意のサンプル数に設定できますが、値によっては誤差が増えます。上のコードでは誤差の上限を適当に <code>8 * np.finfo(np.float64).eps</code> としています。</p>
 <p>はみ出しを検知したときは <code>Test failed: ...</code> を出力します。シード値 0 から 1023 まで理想的なホールドをテストしたところ、はみ出しは検知されませんでした。</p>
 <h3 id="c-による実装">C++ による実装</h3>
 <p>以下のコードの <code>PeakHold</code> が理想的なホールドです。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="pp">#include </span><span class="im">&lt;random&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a></span>
-<span id="cb7-6"><a href="#cb7-6"></a><span class="co">// 整数サンプルのディレイ。</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> Delay {</span>
-<span id="cb7-8"><a href="#cb7-8"></a><span class="kw">public</span>:</span>
-<span id="cb7-9"><a href="#cb7-9"></a>  <span class="bu">std::</span>vector&lt;Sample&gt; buf;</span>
-<span id="cb7-10"><a href="#cb7-10"></a>  <span class="dt">size_t</span> wptr = <span class="dv">0</span>;</span>
-<span id="cb7-11"><a href="#cb7-11"></a>  <span class="dt">size_t</span> rptr = <span class="dv">0</span>;</span>
-<span id="cb7-12"><a href="#cb7-12"></a></span>
-<span id="cb7-13"><a href="#cb7-13"></a>  Delay(<span class="dt">size_t</span> size = <span class="dv">65536</span>) : buf(size) {}</span>
-<span id="cb7-14"><a href="#cb7-14"></a></span>
-<span id="cb7-15"><a href="#cb7-15"></a>  <span class="dt">void</span> resize(<span class="dt">size_t</span> size)</span>
-<span id="cb7-16"><a href="#cb7-16"></a>  {</span>
-<span id="cb7-17"><a href="#cb7-17"></a>    buf.resize(size);</span>
-<span id="cb7-18"><a href="#cb7-18"></a>    wptr = <span class="dv">0</span>;</span>
-<span id="cb7-19"><a href="#cb7-19"></a>    rptr = <span class="dv">0</span>;</span>
-<span id="cb7-20"><a href="#cb7-20"></a>  }</span>
-<span id="cb7-21"><a href="#cb7-21"></a></span>
-<span id="cb7-22"><a href="#cb7-22"></a>  <span class="dt">void</span> reset() { <span class="bu">std::</span>fill(buf.begin(), buf.end(), Sample(<span class="dv">0</span>)); }</span>
-<span id="cb7-23"><a href="#cb7-23"></a></span>
-<span id="cb7-24"><a href="#cb7-24"></a>  <span class="dt">void</span> setFrames(<span class="dt">size_t</span> delayFrames)</span>
-<span id="cb7-25"><a href="#cb7-25"></a>  {</span>
-<span id="cb7-26"><a href="#cb7-26"></a>    <span class="cf">if</span> (delayFrames &gt;= buf.size()) delayFrames = buf.size();</span>
-<span id="cb7-27"><a href="#cb7-27"></a>    rptr = wptr - delayFrames;</span>
-<span id="cb7-28"><a href="#cb7-28"></a>    <span class="cf">if</span> (rptr &gt;= buf.size()) rptr += buf.size(); <span class="co">// Unsigned overflow case.</span></span>
-<span id="cb7-29"><a href="#cb7-29"></a>  }</span>
-<span id="cb7-30"><a href="#cb7-30"></a></span>
-<span id="cb7-31"><a href="#cb7-31"></a>  Sample process(Sample input)</span>
-<span id="cb7-32"><a href="#cb7-32"></a>  {</span>
-<span id="cb7-33"><a href="#cb7-33"></a>    <span class="cf">if</span> (++wptr &gt;= buf.size()) wptr -= buf.size();</span>
-<span id="cb7-34"><a href="#cb7-34"></a>    buf[wptr] = input;</span>
-<span id="cb7-35"><a href="#cb7-35"></a></span>
-<span id="cb7-36"><a href="#cb7-36"></a>    <span class="cf">if</span> (++rptr &gt;= buf.size()) rptr -= buf.size();</span>
-<span id="cb7-37"><a href="#cb7-37"></a>    <span class="cf">return</span> buf[rptr];</span>
-<span id="cb7-38"><a href="#cb7-38"></a>  }</span>
-<span id="cb7-39"><a href="#cb7-39"></a>};</span>
-<span id="cb7-40"><a href="#cb7-40"></a></span>
-<span id="cb7-41"><a href="#cb7-41"></a><span class="co">// メモリの確保と解放を減らした std::deque の代用データ構造。</span></span>
-<span id="cb7-42"><a href="#cb7-42"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> T&gt; <span class="kw">struct</span> RingQueue {</span>
-<span id="cb7-43"><a href="#cb7-43"></a>  <span class="bu">std::</span>vector&lt;T&gt; buf;</span>
-<span id="cb7-44"><a href="#cb7-44"></a>  <span class="dt">size_t</span> wptr = <span class="dv">0</span>;</span>
-<span id="cb7-45"><a href="#cb7-45"></a>  <span class="dt">size_t</span> rptr = <span class="dv">0</span>;</span>
-<span id="cb7-46"><a href="#cb7-46"></a></span>
-<span id="cb7-47"><a href="#cb7-47"></a>  <span class="dt">void</span> resize(<span class="dt">size_t</span> size) { buf.resize(size); }</span>
-<span id="cb7-48"><a href="#cb7-48"></a></span>
-<span id="cb7-49"><a href="#cb7-49"></a>  <span class="dt">void</span> reset(T value = <span class="dv">0</span>) { <span class="bu">std::</span>fill(buf.begin(), buf.end(), value); }</span>
-<span id="cb7-50"><a href="#cb7-50"></a></span>
-<span id="cb7-51"><a href="#cb7-51"></a>  <span class="kw">inline</span> <span class="dt">size_t</span> size()</span>
-<span id="cb7-52"><a href="#cb7-52"></a>  {</span>
-<span id="cb7-53"><a href="#cb7-53"></a>    <span class="kw">auto</span> sz = wptr - rptr;</span>
-<span id="cb7-54"><a href="#cb7-54"></a>    <span class="cf">if</span> (sz &gt;= buf.size()) sz += buf.size(); <span class="co">// Unsigned overflow case.</span></span>
-<span id="cb7-55"><a href="#cb7-55"></a>    <span class="cf">return</span> sz;</span>
-<span id="cb7-56"><a href="#cb7-56"></a>  }</span>
-<span id="cb7-57"><a href="#cb7-57"></a></span>
-<span id="cb7-58"><a href="#cb7-58"></a>  <span class="kw">inline</span> <span class="dt">bool</span> empty() { <span class="cf">return</span> wptr == rptr; }</span>
-<span id="cb7-59"><a href="#cb7-59"></a></span>
-<span id="cb7-60"><a href="#cb7-60"></a>  T &amp;front() { <span class="cf">return</span> buf[increment(rptr)]; }</span>
-<span id="cb7-61"><a href="#cb7-61"></a>  T &amp;back() { <span class="cf">return</span> buf[wptr]; }</span>
-<span id="cb7-62"><a href="#cb7-62"></a></span>
-<span id="cb7-63"><a href="#cb7-63"></a>  <span class="kw">inline</span> <span class="dt">size_t</span> increment(<span class="dt">size_t</span> idx)</span>
-<span id="cb7-64"><a href="#cb7-64"></a>  {</span>
-<span id="cb7-65"><a href="#cb7-65"></a>    <span class="cf">if</span> (++idx &gt;= buf.size()) idx -= buf.size();</span>
-<span id="cb7-66"><a href="#cb7-66"></a>    <span class="cf">return</span> idx;</span>
-<span id="cb7-67"><a href="#cb7-67"></a>  }</span>
-<span id="cb7-68"><a href="#cb7-68"></a></span>
-<span id="cb7-69"><a href="#cb7-69"></a>  <span class="kw">inline</span> <span class="dt">size_t</span> decrement(<span class="dt">size_t</span> idx)</span>
-<span id="cb7-70"><a href="#cb7-70"></a>  {</span>
-<span id="cb7-71"><a href="#cb7-71"></a>    <span class="cf">if</span> (--idx &gt;= buf.size()) idx += buf.size(); <span class="co">// Unsigned overflow case.</span></span>
-<span id="cb7-72"><a href="#cb7-72"></a>    <span class="cf">return</span> idx;</span>
-<span id="cb7-73"><a href="#cb7-73"></a>  }</span>
-<span id="cb7-74"><a href="#cb7-74"></a></span>
-<span id="cb7-75"><a href="#cb7-75"></a>  <span class="dt">void</span> push_back(T value)</span>
-<span id="cb7-76"><a href="#cb7-76"></a>  {</span>
-<span id="cb7-77"><a href="#cb7-77"></a>    wptr = increment(wptr);</span>
-<span id="cb7-78"><a href="#cb7-78"></a>    buf[wptr] = value;</span>
-<span id="cb7-79"><a href="#cb7-79"></a>  }</span>
-<span id="cb7-80"><a href="#cb7-80"></a></span>
-<span id="cb7-81"><a href="#cb7-81"></a>  T pop_front()</span>
-<span id="cb7-82"><a href="#cb7-82"></a>  {</span>
-<span id="cb7-83"><a href="#cb7-83"></a>    rptr = increment(rptr);</span>
-<span id="cb7-84"><a href="#cb7-84"></a>    <span class="cf">return</span> buf[rptr];</span>
-<span id="cb7-85"><a href="#cb7-85"></a>  }</span>
-<span id="cb7-86"><a href="#cb7-86"></a></span>
-<span id="cb7-87"><a href="#cb7-87"></a>  T pop_back()</span>
-<span id="cb7-88"><a href="#cb7-88"></a>  {</span>
-<span id="cb7-89"><a href="#cb7-89"></a>    wptr = decrement(wptr);</span>
-<span id="cb7-90"><a href="#cb7-90"></a>    <span class="cf">return</span> buf[wptr];</span>
-<span id="cb7-91"><a href="#cb7-91"></a>  }</span>
-<span id="cb7-92"><a href="#cb7-92"></a>};</span>
-<span id="cb7-93"><a href="#cb7-93"></a></span>
-<span id="cb7-94"><a href="#cb7-94"></a><span class="co">/*</span></span>
-<span id="cb7-95"><a href="#cb7-95"></a><span class="co">理想的なホールドの実装。</span></span>
-<span id="cb7-96"><a href="#cb7-96"></a><span class="co">- `setFrames(0)` のとき出力はすべて 0 。</span></span>
-<span id="cb7-97"><a href="#cb7-97"></a><span class="co">- `setFrames(1)` のとき入力をバイパス。</span></span>
-<span id="cb7-98"><a href="#cb7-98"></a><span class="co">*/</span></span>
-<span id="cb7-99"><a href="#cb7-99"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> PeakHold {</span>
-<span id="cb7-100"><a href="#cb7-100"></a>  Sample neutral = <span class="dv">0</span>;</span>
-<span id="cb7-101"><a href="#cb7-101"></a>  Delay&lt;Sample&gt; delay;</span>
-<span id="cb7-102"><a href="#cb7-102"></a>  RingQueue&lt;Sample&gt; hold;</span>
-<span id="cb7-103"><a href="#cb7-103"></a></span>
-<span id="cb7-104"><a href="#cb7-104"></a>  PeakHold(<span class="dt">size_t</span> size = <span class="dv">65536</span>) {</span>
-<span id="cb7-105"><a href="#cb7-105"></a>    resize(size);</span>
-<span id="cb7-106"><a href="#cb7-106"></a>    setFrames(<span class="dv">1</span>);</span>
-<span id="cb7-107"><a href="#cb7-107"></a>  }</span>
-<span id="cb7-108"><a href="#cb7-108"></a></span>
-<span id="cb7-109"><a href="#cb7-109"></a>  <span class="dt">void</span> resize(<span class="dt">size_t</span> size)</span>
-<span id="cb7-110"><a href="#cb7-110"></a>  {</span>
-<span id="cb7-111"><a href="#cb7-111"></a>    delay.resize(size);</span>
-<span id="cb7-112"><a href="#cb7-112"></a>    hold.resize(size);</span>
-<span id="cb7-113"><a href="#cb7-113"></a>  }</span>
-<span id="cb7-114"><a href="#cb7-114"></a></span>
-<span id="cb7-115"><a href="#cb7-115"></a>  <span class="dt">void</span> reset()</span>
-<span id="cb7-116"><a href="#cb7-116"></a>  {</span>
-<span id="cb7-117"><a href="#cb7-117"></a>    delay.reset();</span>
-<span id="cb7-118"><a href="#cb7-118"></a>    hold.reset(neutral);</span>
-<span id="cb7-119"><a href="#cb7-119"></a>  }</span>
-<span id="cb7-120"><a href="#cb7-120"></a></span>
-<span id="cb7-121"><a href="#cb7-121"></a>  <span class="dt">void</span> setFrames(<span class="dt">size_t</span> frames) { delay.setFrames(frames); }</span>
-<span id="cb7-122"><a href="#cb7-122"></a></span>
-<span id="cb7-123"><a href="#cb7-123"></a>  Sample process(Sample x0)</span>
-<span id="cb7-124"><a href="#cb7-124"></a>  {</span>
-<span id="cb7-125"><a href="#cb7-125"></a>    <span class="cf">if</span> (!hold.empty()) {</span>
-<span id="cb7-126"><a href="#cb7-126"></a>      <span class="cf">for</span> (<span class="dt">size_t</span> idx = hold.size(); idx &gt; <span class="dv">0</span>; --idx) {</span>
-<span id="cb7-127"><a href="#cb7-127"></a>        <span class="cf">if</span> (hold.back() &lt; x0)</span>
-<span id="cb7-128"><a href="#cb7-128"></a>          hold.pop_back();</span>
-<span id="cb7-129"><a href="#cb7-129"></a>        <span class="cf">else</span></span>
-<span id="cb7-130"><a href="#cb7-130"></a>          <span class="cf">break</span>;</span>
-<span id="cb7-131"><a href="#cb7-131"></a>      }</span>
-<span id="cb7-132"><a href="#cb7-132"></a>    }</span>
-<span id="cb7-133"><a href="#cb7-133"></a></span>
-<span id="cb7-134"><a href="#cb7-134"></a>    hold.push_back(x0);</span>
-<span id="cb7-135"><a href="#cb7-135"></a></span>
-<span id="cb7-136"><a href="#cb7-136"></a>    <span class="kw">auto</span> delayOut = delay.process(x0);</span>
-<span id="cb7-137"><a href="#cb7-137"></a>    <span class="cf">if</span> (!hold.empty() &amp;&amp; delayOut == hold.front()) hold.pop_front();</span>
-<span id="cb7-138"><a href="#cb7-138"></a></span>
-<span id="cb7-139"><a href="#cb7-139"></a>    <span class="cf">return</span> !hold.empty() ? hold.front() : neutral;</span>
-<span id="cb7-140"><a href="#cb7-140"></a>  }</span>
-<span id="cb7-141"><a href="#cb7-141"></a>};</span>
-<span id="cb7-142"><a href="#cb7-142"></a></span>
-<span id="cb7-143"><a href="#cb7-143"></a><span class="dt">int</span> main()</span>
-<span id="cb7-144"><a href="#cb7-144"></a>{</span>
-<span id="cb7-145"><a href="#cb7-145"></a>  <span class="co">// PeakHold の使用例。</span></span>
-<span id="cb7-146"><a href="#cb7-146"></a>  <span class="kw">constexpr</span> <span class="dt">size_t</span> length = <span class="dv">64</span>;</span>
-<span id="cb7-147"><a href="#cb7-147"></a></span>
-<span id="cb7-148"><a href="#cb7-148"></a>  PeakHold&lt;<span class="dt">float</span>&gt; hold;</span>
-<span id="cb7-149"><a href="#cb7-149"></a>  hold.setFrames(<span class="dv">4</span>);</span>
-<span id="cb7-150"><a href="#cb7-150"></a></span>
-<span id="cb7-151"><a href="#cb7-151"></a>  <span class="bu">std::</span>minstd_rand rng(<span class="dv">0</span>);</span>
-<span id="cb7-152"><a href="#cb7-152"></a>  <span class="bu">std::</span>uniform_real_distribution&lt;<span class="dt">float</span>&gt; dist(<span class="fl">0.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>);</span>
-<span id="cb7-153"><a href="#cb7-153"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; length; ++idx) {</span>
-<span id="cb7-154"><a href="#cb7-154"></a>    <span class="kw">auto</span> input = dist(rng);</span>
-<span id="cb7-155"><a href="#cb7-155"></a>    <span class="bu">std::</span>cout &lt;&lt; input &lt;&lt; <span class="st">&quot;, &quot;</span> &lt;&lt; hold.process(input) &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
-<span id="cb7-156"><a href="#cb7-156"></a>  }</span>
-<span id="cb7-157"><a href="#cb7-157"></a></span>
-<span id="cb7-158"><a href="#cb7-158"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb7-159"><a href="#cb7-159"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;random&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 整数サンプルのディレイ。</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> Delay <span class="op">{</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> buf<span class="op">;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  Delay<span class="op">(</span><span class="dt">size_t</span> size <span class="op">=</span> <span class="dv">65536</span><span class="op">)</span> <span class="op">:</span> buf<span class="op">(</span>size<span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> resize<span class="op">(</span><span class="dt">size_t</span> size<span class="op">)</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">.</span>resize<span class="op">(</span>size<span class="op">);</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span> <span class="op">{</span> <span class="bu">std::</span>fill<span class="op">(</span>buf<span class="op">.</span>begin<span class="op">(),</span> buf<span class="op">.</span>end<span class="op">(),</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">));</span> <span class="op">}</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setFrames<span class="op">(</span><span class="dt">size_t</span> delayFrames<span class="op">)</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>delayFrames <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> delayFrames <span class="op">=</span> buf<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> wptr <span class="op">-</span> delayFrames<span class="op">;</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>rptr <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> rptr <span class="op">+=</span> buf<span class="op">.</span>size<span class="op">();</span> <span class="co">// Unsigned overflow case.</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(++</span>wptr <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> wptr <span class="op">-=</span> buf<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span>wptr<span class="op">]</span> <span class="op">=</span> input<span class="op">;</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(++</span>rptr <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> rptr <span class="op">-=</span> buf<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> buf<span class="op">[</span>rptr<span class="op">];</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="co">// メモリの確保と解放を減らした std::deque の代用データ構造。</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> T<span class="op">&gt;</span> <span class="kw">struct</span> RingQueue <span class="op">{</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>T<span class="op">&gt;</span> buf<span class="op">;</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> resize<span class="op">(</span><span class="dt">size_t</span> size<span class="op">)</span> <span class="op">{</span> buf<span class="op">.</span>resize<span class="op">(</span>size<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span>T value <span class="op">=</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>fill<span class="op">(</span>buf<span class="op">.</span>begin<span class="op">(),</span> buf<span class="op">.</span>end<span class="op">(),</span> value<span class="op">);</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>    wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> <span class="dt">size_t</span> size<span class="op">()</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> sz <span class="op">=</span> wptr <span class="op">-</span> rptr<span class="op">;</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>sz <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> sz <span class="op">+=</span> buf<span class="op">.</span>size<span class="op">();</span> <span class="co">// Unsigned overflow case.</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sz<span class="op">;</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> <span class="dt">bool</span> empty<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> wptr <span class="op">==</span> rptr<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>  T <span class="op">&amp;</span>front<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> buf<span class="op">[</span>increment<span class="op">(</span>rptr<span class="op">)];</span> <span class="op">}</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>  T <span class="op">&amp;</span>back<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> buf<span class="op">[</span>wptr<span class="op">];</span> <span class="op">}</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> <span class="dt">size_t</span> increment<span class="op">(</span><span class="dt">size_t</span> idx<span class="op">)</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(++</span>idx <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> idx <span class="op">-=</span> buf<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> idx<span class="op">;</span></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> <span class="dt">size_t</span> decrement<span class="op">(</span><span class="dt">size_t</span> idx<span class="op">)</span></span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(--</span>idx <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> idx <span class="op">+=</span> buf<span class="op">.</span>size<span class="op">();</span> <span class="co">// Unsigned overflow case.</span></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> idx<span class="op">;</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> push_back<span class="op">(</span>T value<span class="op">)</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>    wptr <span class="op">=</span> increment<span class="op">(</span>wptr<span class="op">);</span></span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span>wptr<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>  T pop_front<span class="op">()</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> increment<span class="op">(</span>rptr<span class="op">);</span></span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> buf<span class="op">[</span>rptr<span class="op">];</span></span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>  T pop_back<span class="op">()</span></span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>    wptr <span class="op">=</span> decrement<span class="op">(</span>wptr<span class="op">);</span></span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> buf<span class="op">[</span>wptr<span class="op">];</span></span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a><span class="co">理想的なホールドの実装。</span></span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a><span class="co">- `setFrames(0)` のとき出力はすべて 0 。</span></span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a><span class="co">- `setFrames(1)` のとき入力をバイパス。</span></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a><span class="co">*/</span></span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> PeakHold <span class="op">{</span></span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>  Sample neutral <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>  Delay<span class="op">&lt;</span>Sample<span class="op">&gt;</span> delay<span class="op">;</span></span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>  RingQueue<span class="op">&lt;</span>Sample<span class="op">&gt;</span> hold<span class="op">;</span></span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>  PeakHold<span class="op">(</span><span class="dt">size_t</span> size <span class="op">=</span> <span class="dv">65536</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>    resize<span class="op">(</span>size<span class="op">);</span></span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a>    setFrames<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> resize<span class="op">(</span><span class="dt">size_t</span> size<span class="op">)</span></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">.</span>resize<span class="op">(</span>size<span class="op">);</span></span>
+<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>    hold<span class="op">.</span>resize<span class="op">(</span>size<span class="op">);</span></span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">.</span>reset<span class="op">();</span></span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>    hold<span class="op">.</span>reset<span class="op">(</span>neutral<span class="op">);</span></span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setFrames<span class="op">(</span><span class="dt">size_t</span> frames<span class="op">)</span> <span class="op">{</span> delay<span class="op">.</span>setFrames<span class="op">(</span>frames<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample x0<span class="op">)</span></span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(!</span>queue<span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>queue<span class="op">.</span>back<span class="op">()</span> <span class="op">&gt;=</span> x0<span class="op">)</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a>      queue<span class="op">.</span>pop_back<span class="op">();</span></span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>    queue<span class="op">.</span>push_back<span class="op">(</span>x0<span class="op">);</span></span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>delay<span class="op">.</span>process<span class="op">(</span>x0<span class="op">)</span> <span class="op">==</span> queue<span class="op">.</span>front<span class="op">())</span> queue<span class="op">.</span>pop_front<span class="op">();</span></span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> queue<span class="op">.</span>front<span class="op">();</span></span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span></span>
+<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>  <span class="co">// PeakHold の使用例。</span></span>
+<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="dt">size_t</span> length <span class="op">=</span> <span class="dv">64</span><span class="op">;</span></span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>  PeakHold<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> hold<span class="op">;</span></span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>  hold<span class="op">.</span>setFrames<span class="op">(</span><span class="dv">4</span><span class="op">);</span></span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>minstd_rand<span class="op"> </span>rng<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> dist<span class="op">(</span><span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> idx <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> idx <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> input <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> input <span class="op">&lt;&lt;</span> <span class="st">&quot;, &quot;</span> <span class="op">&lt;&lt;</span> hold<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p><code>PeakHold</code> ではニュートラル値 <code>neutral</code> を変更できるようにしています。</p>
 <p><code>RingQueue</code> は <code>push_back</code> や <code>pop_front</code> でメモリの確保や解放が行われないようにした <code>std::deque</code> の代替です。速度はほとんど同じです。</p>
 <h2 id="その他">その他</h2>
@@ -771,20 +772,20 @@ H_I(x) = \max(H_F(x), H_B(x) z^{-d})
 \]</span></p>
 <p><span class="math inline">\(z^{-d}\)</span> は <span class="math inline">\(d\)</span> サンプルの遅延を表しています。</p>
 <p>後ろ向きホールドの実装です。インデックスの並びが逆転している以外は、前向きホールドと同じです。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">def</span> peakHoldBackward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
-<span id="cb8-2"><a href="#cb8-2"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
-<span id="cb8-3"><a href="#cb8-3"></a>    hold <span class="op">=</span> reset</span>
-<span id="cb8-4"><a href="#cb8-4"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">reversed</span>(<span class="bu">range</span>(<span class="bu">len</span>(sig))): <span class="co"># ここだけ変更。</span></span>
-<span id="cb8-6"><a href="#cb8-6"></a>        <span class="cf">if</span> counter <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb8-7"><a href="#cb8-7"></a>            counter <span class="op">-=</span> <span class="dv">1</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a>        <span class="cf">else</span>:</span>
-<span id="cb8-9"><a href="#cb8-9"></a>            hold <span class="op">=</span> reset</span>
-<span id="cb8-10"><a href="#cb8-10"></a>        <span class="cf">if</span> hold <span class="op">&lt;=</span> sig[i]:</span>
-<span id="cb8-11"><a href="#cb8-11"></a>            hold <span class="op">=</span> sig[i]</span>
-<span id="cb8-12"><a href="#cb8-12"></a>            counter <span class="op">=</span> holdtime</span>
-<span id="cb8-13"><a href="#cb8-13"></a>        out[i] <span class="op">=</span> hold</span>
-<span id="cb8-14"><a href="#cb8-14"></a>    <span class="cf">return</span> out</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> peakHoldBackward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    hold <span class="op">=</span> reset</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">reversed</span>(<span class="bu">range</span>(<span class="bu">len</span>(sig))): <span class="co"># ここだけ変更。</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            counter <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>            hold <span class="op">=</span> reset</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> hold <span class="op">&lt;=</span> sig[i]:</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            hold <span class="op">=</span> sig[i]</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            counter <span class="op">=</span> holdtime</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> hold</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
 <p>以下は前向きと後ろ向きホールドを組み合わせても理想的なホールドの生成に失敗するケースです。黒い縦線が入力、青い縦の点線がディレイをかけた入力です。赤の実線が前向きホールドの出力、緑の実線が後ろ向きホールドの出力です。</p>
 <figure>
 <img src="img/backward_hold_fail.svg" alt="Example plots of a case that backward hold fails to make correct envelope." style="padding-bottom: 12px;"/>
@@ -797,6 +798,14 @@ H_I(x) = \max(H_F(x), H_B(x) z^{-d})
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2022/05/07
+<ul>
+<li>C++ の実装を変更。
+<ul>
+<li><code>PeakHold::process()</code> をより効率よく実装。</li>
+<li><code>RingQueue::reset()</code> の不完全なリセットを修正。</li>
+</ul></li>
+</ul></li>
 <li>2021/01/09
 <ul>
 <li>文章の整理。</li>
