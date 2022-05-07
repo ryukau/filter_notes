@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-02-09" />
+<meta name="dcterms.date" content="2022-05-07" />
 <title>s_curve_step_response_filter</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-02-09
+Update: 2022-05-07
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -462,100 +462,146 @@ s[n] = s[n - 1] + \frac{x[n] - x[n - N]}{N}
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> Delay <span class="op">{</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> buffer<span class="op">;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int32_t</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int32_t</span> rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> IntDelay <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> buf<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  Delay<span class="op">(</span>Sample size <span class="op">=</span> <span class="dv">65536</span><span class="op">)</span> <span class="op">:</span> buffer<span class="op">(</span>size<span class="op">)</span> <span class="op">{}</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> resize<span class="op">(</span><span class="dt">uint32_t</span> size<span class="op">)</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    buffer<span class="op">.</span>resize<span class="op">(</span>size<span class="op">);</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span> <span class="op">{</span> <span class="bu">std::</span>fill<span class="op">(</span>buffer<span class="op">.</span>begin<span class="op">(),</span> buffer<span class="op">.</span>end<span class="op">(),</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">));</span> <span class="op">}</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setFrames<span class="op">(</span><span class="dt">uint32_t</span> delayFrames<span class="op">)</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>delayFrames <span class="op">&gt;=</span> buffer<span class="op">.</span>size<span class="op">())</span> delayFrames <span class="op">=</span> buffer<span class="op">.</span>size<span class="op">();</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> wptr <span class="op">-</span> <span class="dt">int32_t</span><span class="op">(</span>delayFrames<span class="op">);</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>rptr <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> rptr <span class="op">+=</span> <span class="dt">int32_t</span><span class="op">(</span>buffer<span class="op">.</span>size<span class="op">());</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    wptr <span class="op">=</span> <span class="op">(</span>wptr <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dt">int32_t</span><span class="op">(</span>buffer<span class="op">.</span>size<span class="op">());</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    buffer<span class="op">[</span>wptr<span class="op">]</span> <span class="op">=</span> input<span class="op">;</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> <span class="op">(</span>rptr <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dt">int32_t</span><span class="op">(</span>buffer<span class="op">.</span>size<span class="op">());</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> buffer<span class="op">[</span>rptr<span class="op">];</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<p>状態変数 <code>sum</code> を用意して、各サンプルでディレイへの入力を加算、ディレイからの出力を減算します。 <code>sum</code> をフィルタのタップ数で割った値がフィルタの出力です。</p>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  IntDelay<span class="op">(</span><span class="dt">size_t</span> size <span class="op">=</span> <span class="dv">65536</span><span class="op">)</span> <span class="op">:</span> buf<span class="op">(</span>size<span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> resize<span class="op">(</span><span class="dt">size_t</span> size<span class="op">)</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">.</span>resize<span class="op">(</span>size<span class="op">);</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span> <span class="op">{</span> <span class="bu">std::</span>fill<span class="op">(</span>buf<span class="op">.</span>begin<span class="op">(),</span> buf<span class="op">.</span>end<span class="op">(),</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">));</span> <span class="op">}</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setFrames<span class="op">(</span><span class="dt">size_t</span> delayFrames<span class="op">)</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>delayFrames <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> delayFrames <span class="op">=</span> buf<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    rptr <span class="op">=</span> wptr <span class="op">-</span> delayFrames<span class="op">;</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>rptr <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> rptr <span class="op">+=</span> buf<span class="op">.</span>size<span class="op">();</span> <span class="co">// Unsigned overflow case.</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(++</span>wptr <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> wptr <span class="op">-=</span> buf<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span>wptr<span class="op">]</span> <span class="op">=</span> input<span class="op">;</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(++</span>rptr <span class="op">&gt;=</span> buf<span class="op">.</span>size<span class="op">())</span> rptr <span class="op">-=</span> buf<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> buf<span class="op">[</span>rptr<span class="op">];</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>以下の <code>MovingAverageFilter</code> の実装では、状態変数 <code>sum</code> を用意して、各サンプルでディレイへの入力を加算、ディレイからの出力を減算します。 <code>sum</code> をフィルタのタップ数で割った値がフィルタの出力です。</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> MovingAverage <span class="op">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  Sample sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint32_t</span> size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> <span class="co">// フィルタのタップ数。</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  Delay<span class="op">&lt;</span>Sample<span class="op">&gt;</span> delay<span class="op">;</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">.</span>reset<span class="op">();</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setSize<span class="op">(</span><span class="dt">uint32_t</span> size<span class="op">)</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">.</span>setFrames<span class="op">(</span>size<span class="op">);</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">-&gt;</span>size <span class="op">=</span> size<span class="op">;</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> process<span class="op">(</span>Sample input<span class="op">)</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">+=</span> input <span class="op">-</span> delay<span class="op">.</span>process<span class="op">(</span>input<span class="op">);</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum <span class="op">/</span> size<span class="op">;</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> MovingAverageFilter <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  Sample denom <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  Sample sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  IntDelay<span class="op">&lt;</span>Sample<span class="op">&gt;</span> delay<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> resize<span class="op">(</span><span class="dt">size_t</span> size<span class="op">)</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">.</span>resize<span class="op">(</span>size<span class="op">);</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">.</span>reset<span class="op">();</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setFrames<span class="op">(</span><span class="dt">size_t</span> frames<span class="op">)</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    denom <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> Sample<span class="op">(</span>frames<span class="op">);</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">.</span>setFrames<span class="op">(</span>frames<span class="op">);</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 浮動小数点数の丸めが -inf に向かうように変更した加算。</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> Sample add<span class="op">(</span>Sample lhs<span class="op">,</span> Sample rhs<span class="op">)</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lhs <span class="op">&lt;</span> rhs<span class="op">)</span> <span class="bu">std::</span>swap<span class="op">(</span>lhs<span class="op">,</span> rhs<span class="op">);</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> expL<span class="op">;</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>frexp<span class="op">(</span>lhs<span class="op">,</span> <span class="op">&amp;</span>expL<span class="op">);</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> <span class="op">&amp;&amp;</span>cut <span class="op">=</span> <span class="bu">std::</span>ldexp<span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">),</span> expL <span class="op">-</span> <span class="bu">std::</span>numeric_limits<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>digits<span class="op">);</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> <span class="op">&amp;&amp;</span>rounded <span class="op">=</span> rhs <span class="op">-</span> <span class="bu">std::</span>fmod<span class="op">(</span>rhs<span class="op">,</span> cut<span class="op">);</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lhs <span class="op">+</span> rounded<span class="op">;</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 素朴な実装。</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  Sample processNaive<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    input <span class="op">*=</span> denom<span class="op">;</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">=</span> <span class="op">(</span>sum <span class="op">+</span> input<span class="op">)</span> <span class="op">-</span> delay<span class="op">.</span>process<span class="op">(</span>input<span class="op">);</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum<span class="op">;</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  <span class="co">// リミッタ向けの実装。 `input` の範囲が [0, 1] であることを仮定。</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    input <span class="op">*=</span> denom<span class="op">;</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">=</span> add<span class="op">(</span>sum<span class="op">,</span> input<span class="op">);</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    Sample d1 <span class="op">=</span> delay<span class="op">.</span>process<span class="op">(</span>input<span class="op">);</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">=</span> <span class="bu">std::</span>max<span class="op">(</span>Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> sum <span class="op">-</span> d1<span class="op">);</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum<span class="op">;</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>素朴な実装とリミッタ向けの実装をまとめて掲載しています。</p>
+<p>素朴な実装では、浮動小数点数の丸めモードが最も近い偶数への丸めになるときに、誤差によってオーバーシュートが起こります。 C++ では <code>std::numeric_limits&lt;float&gt;::round_style == std::round_to_nearest</code> が true のときに最も近い偶数への丸めが行われます。</p>
+<p>リミッタ向けの実装では <code>add</code> メソッドで無理やり -inf にむかって丸めることでオーバーシュートを防いでいます。 <code>add</code> メソッドでは、加算時に 2 つの値の小さいほうについて仮数部に乗り切らない部分を切り捨てることで -inf に向かう丸めを実装しています。</p>
+<p>丸めについての例として、以下のような 4 ビットの浮動小数点数 <code>1000</code> と <code>11.11</code> の加算を挙げておきます。数字は 2 進数です。</p>
+<pre><code>  1000
++ 0011.11 // 0.11 が 4 ビットに乗り切らないので丸められる。
+---------
+  1???</code></pre>
+<ul>
+<li>最も近い偶数への丸めが行われるとき、 <code>11.11</code> に最も近い偶数は <code>100</code> なので、加算の結果は <code>1100</code> 。</li>
+<li>-inf に向かう丸めが行われるときは、 <code>0.11</code> が切り捨てられるので、加算の結果は <code>1011</code> 。</li>
+</ul>
 <h4 id="補足">補足</h4>
 <p>Musicdsp.org のページでは、以下のコードのように入力で <code>1.0 - input</code> 、出力で <code>1.0 - output</code> を計算することで浮動小数点数による計算誤差を減らす手順があります。はっきりとは書いていませんが <code>input</code> の範囲は <code>[0.0, 1.0]</code> のようです。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> MovingAverage <span class="op">{</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    input <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> input<span class="op">;</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">+=</span> input <span class="op">-</span> delay<span class="op">.</span>process<span class="op">(</span>input<span class="op">);</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> sum <span class="op">/</span> delay<span class="op">.</span>buffer<span class="op">.</span>size<span class="op">();</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<p>次のようなコードを書いて試してみました。</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> MovingAverage <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    input <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> input<span class="op">;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">+=</span> input <span class="op">-</span> delay<span class="op">.</span>process<span class="op">(</span>input<span class="op">);</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> sum <span class="op">/</span> delay<span class="op">.</span>buffer<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>次のようなコードを書いて素朴な実装と比べました。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/master/s_curve_step_response_filter/cpp/roundingerror.cpp">テストコードへのリンク (github.com)</a></li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">size_t</span> nLoop <span class="op">=</span> <span class="dv">300</span><span class="op">;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">uint32_t</span> size <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>MovingAverage<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> av1<span class="op">;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>av1<span class="op">.</span>setSize<span class="op">(</span>size<span class="op">);</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>MovingAverage<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> av2<span class="op">;</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>av2<span class="op">.</span>setSize<span class="op">(</span>size<span class="op">);</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> big <span class="op">=</span> <span class="fl">0.1</span><span class="bu">f</span><span class="op">;</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> small <span class="op">=</span> big<span class="op">;</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">23</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> small <span class="op">/=</span> <span class="dv">2</span><span class="op">;</span> <span class="co">// small = big / 2^23.</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> nLoop<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> input <span class="op">=</span> <span class="op">(</span>i <span class="op">/</span> size<span class="op">)</span> <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">?</span> big <span class="op">:</span> small<span class="op">;</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  av1<span class="op">.</span>process1<span class="op">(</span>input<span class="op">);</span> <span class="co">// 1 から引く手順なし。</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  av2<span class="op">.</span>process2<span class="op">(</span>input<span class="op">);</span> <span class="co">// 1 から引く手順あり。</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">size_t</span> nLoop <span class="op">=</span> <span class="dv">300</span><span class="op">;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">uint32_t</span> size <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>MovingAverage<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> av1<span class="op">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>av1<span class="op">.</span>setSize<span class="op">(</span>size<span class="op">);</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>MovingAverage<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> av2<span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>av2<span class="op">.</span>setSize<span class="op">(</span>size<span class="op">);</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> big <span class="op">=</span> <span class="fl">0.1</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> small <span class="op">=</span> big<span class="op">;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">23</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> small <span class="op">/=</span> <span class="dv">2</span><span class="op">;</span> <span class="co">// small = big / 2^23.</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> nLoop<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> input <span class="op">=</span> <span class="op">(</span>i <span class="op">/</span> size<span class="op">)</span> <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">?</span> big <span class="op">:</span> small<span class="op">;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  av1<span class="op">.</span>process1<span class="op">(</span>input<span class="op">);</span> <span class="co">// 1 から引く手順なし。</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  av2<span class="op">.</span>process2<span class="op">(</span>input<span class="op">);</span> <span class="co">// 1 から引く手順あり。</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>テスト時のコンパイラは Microsoft の cl.exe (Version 19.27.29111 for x86) を使いました。 <code>/fp:precise</code> と <code>fp:fast</code> を試しましたが、どちらも同じ値が出ました。</p>
 <p>テストでは <code>big</code> と <code>small</code> が 100 サンプルごとに切り替わる信号を移動平均フィルタに入力しています。</p>
 <p>テストによって分かった 1 から引く手順ありのときの問題点です。</p>
@@ -579,25 +625,25 @@ s[n] = s[n - 1] + \frac{x[n] - x[n - N]}{N}
 </ol>
 <h3 id="ステップ応答-1">ステップ応答</h3>
 <p>SciPy の <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.bessel.html"><code>signal.bessel()</code></a> を試します。 SciPy 1.5.2 では <code>signal.bessel()</code> はバイリニア変換を使っています。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>delay <span class="op">=</span> <span class="dv">512</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> signal.bessel(order, <span class="dv">2</span> <span class="op">/</span> (np.pi <span class="op">*</span> delay), norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> np.hstack((np.zeros(delay), np.ones(delay <span class="op">*</span> <span class="dv">2</span>)))</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> signal.sosfilt(sos, sig)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>plt.axvline(<span class="dv">2</span> <span class="op">*</span> delay, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">&quot;--&quot;</span>)</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>plt.plot(sig, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>plt.plot(out, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;Bessel&quot;</span>)</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>delay <span class="op">=</span> <span class="dv">512</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> signal.bessel(order, <span class="dv">2</span> <span class="op">/</span> (np.pi <span class="op">*</span> delay), norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> np.hstack((np.zeros(delay), np.ones(delay <span class="op">*</span> <span class="dv">2</span>)))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> signal.sosfilt(sos, sig)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>plt.axvline(<span class="dv">2</span> <span class="op">*</span> delay, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">&quot;--&quot;</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>plt.plot(sig, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>plt.plot(out, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;Bessel&quot;</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
 <p>出力です。ステップ応答は S 字になりますがオーバーシュートが出ます。</p>
 <figure>
 <img src="img/BesselStepResponse.png" alt="Bessel filter step response." /><figcaption aria-hidden="true">Bessel filter step response.</figcaption>
@@ -605,24 +651,24 @@ s[n] = s[n - 1] + \frac{x[n] - x[n - N]}{N}
 <h3 id="次セクションへの分割">2 次セクションへの分割</h3>
 <p>次数の高い伝達関数をそのまま計算すると浮動小数点数による誤差で発散することがあります。そこで 2 次セクション (second order sections, sos) に分割して C++ に移植します。</p>
 <p>カットオフ周波数を自由に変更するために、以下の Python3 のコードと、 Neil Robertson さんによる <a href="https://www.dsprelated.com/showarticle/1137.php">Design IIR Filters Using Cascaded Biquads</a> で紹介されていた手法を組み合わせています。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bessel(order, delay):</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    z, p, k <span class="op">=</span> signal.besselap(order, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    z, p, k <span class="op">=</span> signal.lp2lp_zpk(z, p, k, delay)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    z, p, k, _ <span class="op">=</span> signal.cont2discrete([z, p, k], <span class="dv">1</span>, method<span class="op">=</span><span class="st">&quot;bilinear&quot;</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.zpk2sos(z, p, k)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bessel(order, delay):</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    z, p, k <span class="op">=</span> signal.besselap(order, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    z, p, k <span class="op">=</span> signal.lp2lp_zpk(z, p, k, delay)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    z, p, k, _ <span class="op">=</span> signal.cont2discrete([z, p, k], <span class="dv">1</span>, method<span class="op">=</span><span class="st">&quot;bilinear&quot;</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.zpk2sos(z, p, k)</span></code></pre></div>
 <p>コードの <code>z, p, k</code> は <code>zero, pole, gain</code> の略です。</p>
 <h4 id="アナログプロトタイプ">アナログプロトタイプ</h4>
 <p>Bessel フィルタは極だけでゼロは一つもありません。このようなフィルタは全極フィルタ (all-pole filter) と呼ばれています。極は伝達関数の分母の多項式の根を求めることで計算できます。</p>
 <p>今回は root-finding アルゴリズムを評価、実装する手間を省きたかったので <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.besselap.html#scipy.signal.besselap"><code>signal.besselap()</code></a> から得られた極をそのまま定数として使うことにしました。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>z, p, k <span class="op">=</span> signal.besselap(<span class="dv">4</span>, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>) <span class="co"># 4 次。</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(p.tolist())</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>z, p, k <span class="op">=</span> signal.besselap(<span class="dv">4</span>, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>) <span class="co"># 4 次。</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(p.tolist())</span></code></pre></div>
 <p>整形した出力です。</p>
 <pre><code>[
   (-2.1037893971796273+2.6574180418567526j), # p1
@@ -632,13 +678,13 @@ s[n] = s[n - 1] + \frac{x[n] - x[n - N]}{N}
 ]</code></pre>
 <h4 id="カットオフ周波数の設定">カットオフ周波数の設定</h4>
 <p><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lp2lp_zpk.html#scipy.signal.lp2lp_zpk"><code>signal.lp2lp_zpk()</code></a> はローパスのアナログプロトタイプのカットオフ周波数を設定する関数です。以下はエラー処理などを簡略化した SciPy 1.5.2 での実装の写しです。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lp2lp_zpk(z, p, k, wo<span class="op">=</span><span class="fl">1.0</span>):</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    degree <span class="op">=</span> <span class="bu">len</span>(p) <span class="op">-</span> <span class="bu">len</span>(z)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    z_lp <span class="op">=</span> wo <span class="op">*</span> z</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    p_lp <span class="op">=</span> wo <span class="op">*</span> p</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    k_lp <span class="op">=</span> k <span class="op">*</span> wo<span class="op">**</span>degree</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> z_lp, p_lp, k_lp</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lp2lp_zpk(z, p, k, wo<span class="op">=</span><span class="fl">1.0</span>):</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    degree <span class="op">=</span> <span class="bu">len</span>(p) <span class="op">-</span> <span class="bu">len</span>(z)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    z_lp <span class="op">=</span> wo <span class="op">*</span> z</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    p_lp <span class="op">=</span> wo <span class="op">*</span> p</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    k_lp <span class="op">=</span> k <span class="op">*</span> wo<span class="op">**</span>degree</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> z_lp, p_lp, k_lp</span></code></pre></div>
 <p>Bessel フィルタはゼロが無く、ゲインは別の方法で計算するので <code>z_lp</code> と <code>k_lp</code> は C++ のコードでは計算していません。</p>
 <h4 id="バイリニア変換">バイリニア変換</h4>
 <p>アナログプロトタイプからの離散化にはバイリニア変換を使います。次のバイリニア変換の式の <span class="math inline">\(s\)</span> に連続系の極を代入することで、離散フィルタの極に変換できます。</p>
@@ -687,82 +733,82 @@ K = \prod_{i=1}^N K_i
 \]</span></p>
 <h4 id="c-での実装">C++ での実装</h4>
 <p>C++17 のフラグを立ててコンパイルしています。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;complex&gt;</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> Bessel4 <span class="op">{</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">// float はディレイ時間が短いときだけ使える (delayInSamples &lt;~ 1000) 。</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// それ以外のときは double を使うこと。</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">uint8_t</span> halfDegree <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> <span class="co">// 4 の半分。</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 複素共役の極は無くても計算できる。</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>complex<span class="op">&lt;</span>Sample<span class="op">&gt;,</span> halfDegree<span class="op">&gt;</span> analogPole<span class="op">{{</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(-</span><span class="fl">2.1037893971796273</span><span class="op">),</span> Sample<span class="op">(+</span><span class="fl">2.6574180418567526</span><span class="op">)},</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(-</span><span class="fl">2.8962106028203722</span><span class="op">),</span> Sample<span class="op">(+</span><span class="fl">0.8672341289345038</span><span class="op">)},</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}};</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> x0<span class="op">{};</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> x1<span class="op">{};</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> x2<span class="op">{};</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> y0<span class="op">{};</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> y1<span class="op">{};</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> y2<span class="op">{};</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;,</span> halfDegree<span class="op">&gt;</span> co<span class="op">;</span> <span class="co">// フィルタ係数。</span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  Sample gain <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  Bessel4<span class="op">()</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">&amp;</span>coef <span class="op">:</span> co<span class="op">)</span> coef<span class="op">.</span>fill<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span>Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    x0<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    x1<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    x2<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    y0<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    y1<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    y2<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setDelay<span class="op">(</span>Sample delayInSamples<span class="op">)</span></span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> wo <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> delayInSamples<span class="op">;</span> <span class="co">// 遅延サンプル数を周波数に変換。</span></span>
-<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>    gain <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">uint8_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> co<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>      <span class="bu">std::</span>complex<span class="op">&lt;</span>Sample<span class="op">&gt;</span> pole <span class="op">=</span> wo <span class="op">*</span> analogPole<span class="op">[</span>i<span class="op">];</span> <span class="co">// カットオフ周波数の適用。</span></span>
-<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>      pole <span class="op">=</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">+</span> pole<span class="op">)</span> <span class="op">/</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">-</span> pole<span class="op">);</span> <span class="co">// バイリニア変換。</span></span>
-<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>      co<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> Sample<span class="op">(-</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> pole<span class="op">.</span>real<span class="op">();</span></span>
-<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>      co<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="bu">std::</span>norm<span class="op">(</span>pole<span class="op">);</span></span>
-<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>      gain <span class="op">*=</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> co<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">+</span> co<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">])</span> <span class="op">/</span> Sample<span class="op">(</span><span class="dv">4</span><span class="op">);</span></span>
-<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span></span>
-<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>    x0<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> input<span class="op">;</span></span>
-<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">uint8_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> halfDegree<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>      y0<span class="op">[</span>i<span class="op">]</span></span>
-<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>        <span class="op">=</span> x0<span class="op">[</span>i<span class="op">]</span></span>
-<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> x1<span class="op">[</span>i<span class="op">]</span></span>
-<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> x2<span class="op">[</span>i<span class="op">]</span></span>
-<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> co<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">*</span> y1<span class="op">[</span>i<span class="op">]</span></span>
-<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> co<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">]</span> <span class="op">*</span> y2<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>      x2<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> x1<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>      x1<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> x0<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>      y2<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> y1<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>      y1<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> y0<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>i <span class="op">+</span> <span class="dv">1</span> <span class="op">&lt;</span> halfDegree<span class="op">)</span> x0<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">]</span> <span class="op">=</span> y0<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gain <span class="op">*</span> y0<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
-<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;complex&gt;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> Bessel4 <span class="op">{</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">// float はディレイ時間が短いときだけ使える (delayInSamples &lt;~ 1000) 。</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// それ以外のときは double を使うこと。</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">uint8_t</span> halfDegree <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> <span class="co">// 4 の半分。</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 複素共役の極は無くても計算できる。</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>complex<span class="op">&lt;</span>Sample<span class="op">&gt;,</span> halfDegree<span class="op">&gt;</span> analogPole<span class="op">{{</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(-</span><span class="fl">2.1037893971796273</span><span class="op">),</span> Sample<span class="op">(+</span><span class="fl">2.6574180418567526</span><span class="op">)},</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(-</span><span class="fl">2.8962106028203722</span><span class="op">),</span> Sample<span class="op">(+</span><span class="fl">0.8672341289345038</span><span class="op">)},</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}};</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> x0<span class="op">{};</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> x1<span class="op">{};</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> x2<span class="op">{};</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> y0<span class="op">{};</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> y1<span class="op">{};</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> y2<span class="op">{};</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;,</span> halfDegree<span class="op">&gt;</span> co<span class="op">;</span> <span class="co">// フィルタ係数。</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  Sample gain <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  Bessel4<span class="op">()</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">&amp;</span>coef <span class="op">:</span> co<span class="op">)</span> coef<span class="op">.</span>fill<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span>Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    x0<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    x1<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    x2<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    y0<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    y1<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    y2<span class="op">.</span>fill<span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setDelay<span class="op">(</span>Sample delayInSamples<span class="op">)</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> wo <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> delayInSamples<span class="op">;</span> <span class="co">// 遅延サンプル数を周波数に変換。</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>    gain <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">uint8_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> co<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>      <span class="bu">std::</span>complex<span class="op">&lt;</span>Sample<span class="op">&gt;</span> pole <span class="op">=</span> wo <span class="op">*</span> analogPole<span class="op">[</span>i<span class="op">];</span> <span class="co">// カットオフ周波数の適用。</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>      pole <span class="op">=</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">+</span> pole<span class="op">)</span> <span class="op">/</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">-</span> pole<span class="op">);</span> <span class="co">// バイリニア変換。</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>      co<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> Sample<span class="op">(-</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> pole<span class="op">.</span>real<span class="op">();</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>      co<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="bu">std::</span>norm<span class="op">(</span>pole<span class="op">);</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>      gain <span class="op">*=</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> co<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">+</span> co<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">])</span> <span class="op">/</span> Sample<span class="op">(</span><span class="dv">4</span><span class="op">);</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>    x0<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> input<span class="op">;</span></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">uint8_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> halfDegree<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>      y0<span class="op">[</span>i<span class="op">]</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>        <span class="op">=</span> x0<span class="op">[</span>i<span class="op">]</span></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> x1<span class="op">[</span>i<span class="op">]</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> x2<span class="op">[</span>i<span class="op">]</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> co<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">*</span> y1<span class="op">[</span>i<span class="op">]</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> co<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">]</span> <span class="op">*</span> y2<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a>      x2<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> x1<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>      x1<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> x0<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>      y2<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> y1<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>      y1<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> y0<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>i <span class="op">+</span> <span class="dv">1</span> <span class="op">&lt;</span> halfDegree<span class="op">)</span> x0<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">]</span> <span class="op">=</span> y0<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gain <span class="op">*</span> y0<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <h2 id="thiran-ローパスフィルタ">Thiran ローパスフィルタ</h2>
 <p>Thiran ローパスフィルタは群遅延が maximally flat になるように設計されたフィルタです。</p>
 <p>Thiran ローパスフィルタの伝達関数です。</p>
@@ -784,57 +830,57 @@ H(z) = \frac{2n!}{n!} \,
 <p>分母の因数分解は無理そうなので、 2 次セクションに分割するなら多項式の根を探す (root-finding) アルゴリズムを使って数値的に計算するしかなさそうです。ここでは SciPy の <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tf2sos.html#scipy.signal.tf2sos"><code>signal.tf2sos()</code></a> を使っています。 C++ では <a href="https://www.boost.org/doc/libs/1_74_0/libs/math/doc/html/root_finding.html">Boost の root-finding</a> が使えそうです。</p>
 <h3 id="ステップ応答-2">ステップ応答</h3>
 <p>ステップ応答を確認します。</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.special <span class="im">as</span> special</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> thiranLowpass(n, τ):</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">    n: Order of filter.</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">    τ: Desired delay in samples.</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        i <span class="op">=</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        a[k] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">*</span> special.binom(n, k) <span class="op">*</span> np.prod((<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> i) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> k <span class="op">+</span> i))</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    gain_numer <span class="op">=</span> special.factorial(<span class="dv">2</span> <span class="op">*</span> n, exact<span class="op">=</span><span class="va">True</span>) <span class="op">/</span> special.factorial(n, exact<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    gain_denom <span class="op">=</span> np.prod(<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>, <span class="dv">2</span> <span class="op">*</span> n <span class="op">+</span> <span class="dv">1</span>))</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    b[<span class="dv">0</span>] <span class="op">=</span> gain_numer <span class="op">/</span> gain_denom</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (b, a)</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>delay <span class="op">=</span> <span class="dv">512</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>b, a <span class="op">=</span> thiranLowpass(order, delay <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> signal.tf2sos(b, a)</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> np.hstack((np.zeros(delay), np.ones(delay <span class="op">*</span> <span class="dv">2</span>)))</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> signal.sosfilt(sos, sig)</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>plt.axvline(<span class="dv">2</span> <span class="op">*</span> delay, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">&quot;--&quot;</span>)</span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>plt.plot(sig, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>plt.plot(out, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;Thiran&quot;</span>)</span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.special <span class="im">as</span> special</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> thiranLowpass(n, τ):</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">    n: Order of filter.</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">    τ: Desired delay in samples.</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        i <span class="op">=</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        a[k] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">*</span> special.binom(n, k) <span class="op">*</span> np.prod((<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> i) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> k <span class="op">+</span> i))</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    gain_numer <span class="op">=</span> special.factorial(<span class="dv">2</span> <span class="op">*</span> n, exact<span class="op">=</span><span class="va">True</span>) <span class="op">/</span> special.factorial(n, exact<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    gain_denom <span class="op">=</span> np.prod(<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>, <span class="dv">2</span> <span class="op">*</span> n <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    b[<span class="dv">0</span>] <span class="op">=</span> gain_numer <span class="op">/</span> gain_denom</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (b, a)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>delay <span class="op">=</span> <span class="dv">512</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>b, a <span class="op">=</span> thiranLowpass(order, delay <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> signal.tf2sos(b, a)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> np.hstack((np.zeros(delay), np.ones(delay <span class="op">*</span> <span class="dv">2</span>)))</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> signal.sosfilt(sos, sig)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>plt.axvline(<span class="dv">2</span> <span class="op">*</span> delay, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, ls<span class="op">=</span><span class="st">&quot;--&quot;</span>)</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>plt.plot(sig, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;black&quot;</span>, label<span class="op">=</span><span class="st">&quot;Input&quot;</span>)</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>plt.plot(out, lw<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;Thiran&quot;</span>)</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
 <p>出力です。オーバーシュートが出ています。バイリニア変換した Bessel フィルタと同じに見えます。</p>
 <figure>
 <img src="img/ThiranStepResponse.png" alt="Thiran lowpass filter step response." /><figcaption aria-hidden="true">Thiran lowpass filter step response.</figcaption>
 </figure>
 <p>ゲインの値を定義通りに計算すると <code>delay</code> の値によってはステップ応答が 1 から少しずれた値に収束することがあります。 1 に収束させるときは <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.freqz.html#scipy.signal.freqz"><code>signal.freqz()</code></a> の値からゲインを計算できます。</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> thiranLowpassFixedGain(n, τ):</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        i <span class="op">=</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        a[k] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">*</span> special.binom(n, k) <span class="op">*</span> np.prod((<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> i) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> k <span class="op">+</span> i))</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    freq, resp <span class="op">=</span> signal.freqz(<span class="dv">1</span>, a, worN<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    b[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> resp.real</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (b, a)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> thiranLowpassFixedGain(n, τ):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        i <span class="op">=</span> np.arange(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        a[k] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span>)<span class="op">**</span>k <span class="op">*</span> special.binom(n, k) <span class="op">*</span> np.prod((<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> i) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> τ <span class="op">+</span> k <span class="op">+</span> i))</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    freq, resp <span class="op">=</span> signal.freqz(<span class="dv">1</span>, a, worN<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    b[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> resp.real</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (b, a)</span></code></pre></div>
 <h2 id="比較">比較</h2>
 <p>ここまでに紹介した 3 つのフィルタのステップ応答を比較します。</p>
 <ul>
@@ -850,7 +896,7 @@ H(z) = \frac{2n!}{n!} \,
 <p>バイリニア変換した Bessel フィルタは、オーバーシュートがあり、移動平均の重ね掛けと比べると計算が重いですが、メモリの使用量が少ないという利点があります。移動平均の重ね掛けは遷移時間と同じサンプル数のメモリが必要です。</p>
 <p>Thiran ローパスフィルタはバイリニア変換した Bessel フィルタとほとんど同じですが、 2 次セクションに分割できないので使いどころはなさそうです。</p>
 <h2 id="その他">その他</h2>
-<p>オーバーシュートせずにステップ応答が S 字を描くフィルタとしては<a href="https://en.wikipedia.org/wiki/Gaussian_filter">ガウシアンフィルタ</a>や適当な<a href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>をフィルタ係数にした FIR フィルタも使えます。ただし、遷移時間の長さと同じタップ数が必要になるのでリアルタイム処理では重たくて使いづらいです。</p>
+<p>オーバーシュートせずにステップ応答が S 字を描くフィルタとしては、適当な<a href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>をフィルタ係数にした FIR フィルタも使えます。ただし、遷移時間が長くなると FIR フィルタのタップ数が増える分だけ計算が重たくなります。</p>
 <h2 id="参考文献">参考文献</h2>
 <ul>
 <li><a href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead Limiter — Musicdsp.org documentation</a></li>
@@ -863,6 +909,10 @@ H(z) = \frac{2n!}{n!} \,
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2022/05/07
+<ul>
+<li>移動平均フィルタにリミッタ向けの実装を追加。</li>
+</ul></li>
 <li>2020/10/16
 <ul>
 <li>ローパスの場合の Maximally flat の定義を追加。</li>
