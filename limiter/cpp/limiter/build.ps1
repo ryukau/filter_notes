@@ -15,4 +15,4 @@ if (!(test-path img)) {
 
 cmake --build build --config release
 ./build/Release/limiter.exe
-python testDMA.py
+# python testDAF.py

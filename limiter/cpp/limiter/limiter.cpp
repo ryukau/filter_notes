@@ -8,7 +8,8 @@
 #include <string>
 #include <vector>
 
-void writeWave(std::string filename, std::vector<float> &buffer, const size_t &samplerate)
+void writeWave(
+  std::string &&filename, std::vector<float> &buffer, const size_t &samplerate)
 {
   SF_INFO sfinfo;
   memset(&sfinfo, 0, sizeof(sfinfo));
@@ -162,7 +163,7 @@ Peak hold for limiter.
 template<typename Sample> struct PeakHold {
   Sample neutral = 0;
   Delay<Sample> delay;
-  RingQueue<Sample> hold;
+  RingQueue<Sample> queue;
 
   PeakHold(size_t size = 65536)
   {
@@ -173,48 +174,43 @@ template<typename Sample> struct PeakHold {
   void resize(size_t size)
   {
     delay.resize(size);
-    hold.resize(size);
+    queue.resize(size);
   }
 
   void reset()
   {
     delay.reset();
-    hold.reset(neutral);
+    queue.reset(neutral);
   }
 
-  void setFrames(size_t frames) { delay.setFrames(frames); }
+  void setFrames(size_t frames)
+  {
+    delay.setFrames(std::min(frames, delay.buf.size() - 1));
+  }
 
   Sample process(Sample x0)
   {
-    if (!hold.empty()) {
-      for (size_t idx = hold.size(); idx > 0; --idx) {
-        if (hold.back() < x0)
-          hold.pop_back();
-        else
-          break;
-      }
+    while (!queue.empty()) {
+      if (queue.back() >= x0) break;
+      queue.pop_back();
     }
-
-    hold.push_back(x0);
-
-    auto delayOut = delay.process(x0);
-    if (!hold.empty() && delayOut == hold.front()) hold.pop_front();
-
-    return !hold.empty() ? hold.front() : neutral;
+    queue.push_back(x0);
+    if (delay.process(x0) == queue.front()) queue.pop_front();
+    return queue.front();
   }
 };
 
 template<typename Sample> struct DoubleAverageFilter {
+  Sample denom = Sample(1);
   Sample sum1 = 0;
   Sample sum2 = 0;
   Sample buf = 0;
-  size_t halfDelayFrames = 0;
   Delay<Sample> delay1;
   Delay<Sample> delay2;
 
   void resize(size_t size)
   {
-    delay1.resize(size / 2);
+    delay1.resize(size / 2 + 1);
     delay2.resize(size / 2);
   }
 
@@ -229,21 +225,153 @@ template<typename Sample> struct DoubleAverageFilter {
 
   void setFrames(size_t frames)
   {
-    halfDelayFrames = frames / 2;
-    delay1.setFrames(halfDelayFrames);
-    delay2.setFrames(halfDelayFrames);
+    auto &&half = frames / 2;
+    denom = 1 / Sample((half + 1) * half);
+    delay1.setFrames(half + 1);
+    delay2.setFrames(half);
   }
 
-  Sample process(const Sample input)
+  inline Sample add(Sample lhs, Sample rhs)
   {
-    sum1 += buf - delay1.process(buf);
-    auto out1 = sum1 / halfDelayFrames;
+    bool &&swapped = lhs < rhs;
+    if (swapped) std::swap(lhs, rhs);
+    int expL;
+    std::frexp(lhs, &expL);
+    auto &&cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits);
+    auto &&rounded = rhs - std::fmod(rhs, cut);
+    return lhs + rounded;
+  }
 
-    sum2 += out1 - delay2.process(out1);
-    auto out2 = sum2 / halfDelayFrames;
+  inline Sample sub(Sample lhs, Sample rhs)
+  {
+    bool &&swapped = lhs < rhs;
+    if (swapped) std::swap(lhs, rhs);
+    int expL;
+    std::frexp(lhs, &expL);
+    auto &&cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits + 1);
+    auto &&rounded = rhs - std::fmod(rhs, cut);
+    return swapped ? rounded - lhs : lhs - rounded;
+  }
 
-    buf = input;
-    return out2;
+  // Only tested where `std::numeric_limits<float>::round_style == std::round_to_nearest`.
+  // add() limits output. Useful.
+  // sub() breaks limiting. Useless otherwise adding some strange FX.
+  Sample process(Sample input)
+  {
+    input *= denom;
+
+    sum1 = add(sum1, input);
+    // sum1 += input;
+    Sample d1 = delay1.process(input);
+    // sum1 = sub(sum1, d1);
+    sum1 = std::fmax(Sample(0), sum1 - d1);
+
+    sum2 = add(sum2, sum1);
+    // sum2 += sum1;
+    Sample d2 = delay2.process(sum1);
+    // sum2 = sub(sum2, d2);
+    sum2 = std::fmax(Sample(0), sum2 - d2);
+
+    auto output = buf;
+    buf = sum2;
+    return output;
+  }
+
+  Sample processNaive(Sample input)
+  {
+    input *= denom;
+    sum1 += input - delay1.process(input);
+    sum2 += sum1 - delay2.process(sum1);
+    auto output = buf;
+    buf = sum2;
+    return output;
+  }
+};
+
+template<typename Sample, typename Int> struct DoubleAverageFilterInt {
+  static constexpr Sample scale = Sample(1 << std::numeric_limits<Sample>::digits);
+  // static constexpr Sample scale = Sample(1 << 8); // This somehow works.
+
+  Sample denom = 1;
+  Int sum1 = 0;
+  Int sum2 = 0;
+  Int buf = 0;
+  Delay<Int> delay1;
+  Delay<Int> delay2;
+
+  void resize(size_t size)
+  {
+    delay1.resize(size / 2 + 1);
+    delay2.resize(size / 2);
+  }
+
+  void reset()
+  {
+    sum1 = 0;
+    sum2 = 0;
+    buf = 0;
+    delay1.reset();
+    delay2.reset();
+  }
+
+  void setFrames(size_t frames)
+  {
+    auto &&half = frames / 2;
+    denom = 1 / Sample((half + 1) * half * scale);
+    delay1.setFrames(half + 1);
+    delay2.setFrames(half);
+  }
+
+  inline void add(Int &sum, Int &x)
+  {
+    sum += x;
+    if (sum >= x) return; // No overflow case.
+    x += ~sum;
+    sum = std::numeric_limits<Int>::max();
+  }
+
+  inline void sub(Int &sum, Int x) { sum = sum >= x ? sum - x : 0; }
+
+  // Assuming input is in [0.0, 1.0].
+  Sample process(Sample input)
+  {
+    if (input <= std::numeric_limits<Sample>::epsilon()) input = 0;
+
+    Int sum0 = Int(scale * input);
+
+    // Splitting subtraction to avoid unsigned negative overflow.
+    add(sum1, sum0);
+    auto d1 = delay1.process(sum0);
+    sub(sum1, d1);
+
+    add(sum2, sum1);
+    auto d2 = delay2.process(sum1);
+    sub(sum2, d2);
+
+    auto output = buf == std::numeric_limits<Int>::max()
+      ? Sample(0)
+      : Sample(buf) * denom - std::numeric_limits<Sample>::epsilon();
+    buf = sum2;
+    return std::max(Sample(0), output);
+  }
+
+  // Assuming input is in [0.0, 1.0].
+  Sample processNaive(Sample input)
+  {
+    if (input <= std::numeric_limits<Sample>::epsilon()) input = 0;
+
+    Int sum0 = Int(scale * input);
+
+    // Splitting subtraction to avoid unsigned negative overflow.
+    sum1 += sum0;
+    sum1 -= delay1.process(sum0);
+
+    sum2 += sum1;
+    sum2 -= delay2.process(sum1);
+
+    auto output = Sample(buf) * denom - std::numeric_limits<Sample>::epsilon();
+    buf = sum2;
+    return std::max(Sample(0), output);
   }
 };
 
@@ -251,13 +379,14 @@ template<typename Sample> struct Limiter {
   static constexpr Sample fixedGain = Sample(0.9965520801347684); // -0.03dB.
   static constexpr Sample releaseConstant = Sample(1e-5); // Small number close to 0.
 
-  Sample threshold = Sample(0.1);
+  Sample threshold = Sample(1);
   Sample gain = Sample(1);
   Sample release = 0; // Release increament per frame.
   size_t attackFrames = 0;
 
   PeakHold<Sample> hold;
-  DoubleAverageFilter<Sample> smoother;
+  DoubleAverageFilter<double> smoother;
+  // DoubleAverageFilterInt<float, uint_fast64_t> smoother;
   Delay<Sample> lookaheadDelay;
 
   size_t latency() { return attackFrames; }
@@ -319,16 +448,22 @@ template<typename Sample> struct Limiter {
       threshold + (a2 - absed) * (a2 - absed) * Sample(0.25) / (a1 - threshold), x0);
   }
 
-  Sample process(const Sample input)
+  Sample peak = 0;     // debug
+  Sample smoothed = 0; // debug
+  Sample delayed = 0;  // debug
+
+  Sample process(Sample input)
   {
-    auto holdGain = hold.process(std::fabs(input));
-    auto candidate = applyCharacteristicCurve(holdGain);
+    peak = hold.process(std::fabs(input));
+    auto &&candidate = applyCharacteristicCurve(peak);
+    // gain = candidate;
     gain = std::min(gain * release, candidate);
 
-    auto smoothed = smoother.process(gain);
-    auto delayed = lookaheadDelay.process(input);
+    smoothed = Sample(smoother.process(gain));
+    delayed = lookaheadDelay.process(input);
 
-    return softClip(smoothed * delayed, fixedGain);
+    // return softClip(smoothed * delayed, fixedGain);
+    return smoothed * delayed;
   }
 };
 
@@ -358,19 +493,28 @@ void test(fs::path wavPath, fs::path &outDir)
   Limiter<float> limiter;
   limiter.resize(2 * size_t(sampleRate));
   limiter.reset();
-  limiter.prepare(sampleRate, 0.002f, 0.0f, 0.004f, 1.0f);
+  limiter.prepare(sampleRate, 64.0f / sampleRate, 0.001f, 0.0f, 1.0f);
 
   std::vector<float> wav(sound.frames);
+  std::vector<float> peak(sound.frames);
+  std::vector<float> smoothed(sound.frames);
+  std::vector<float> delayed(sound.frames);
   for (size_t i = 0; i < wav.size(); ++i) {
     wav[i] = limiter.process(sound.data[i]);
+    peak[i] = limiter.peak;
+    smoothed[i] = limiter.smoothed;
+    delayed[i] = limiter.delayed;
   }
   checkThreshold(limiter.threshold, wavPath.stem().string(), wav);
 
-  std::string filename = (outDir / wavPath.stem()).string() + "_out.wav";
-  writeWave(filename, wav, size_t(sampleRate));
+  std::string filename = (outDir / wavPath.stem()).string();
+  writeWave(filename + "_out.wav", wav, size_t(sampleRate));
+  writeWave(filename + "_peak.wav", peak, size_t(sampleRate));
+  writeWave(filename + "_smoothed.wav", smoothed, size_t(sampleRate));
+  writeWave(filename + "_delayed.wav", delayed, size_t(sampleRate));
 }
 
-void testDoubleAverageFilter(fs::path wavPath, fs::path &outDir)
+void testHoldAndSmoother(fs::path wavPath, const fs::path &outDir)
 {
   SoundFile sound(wavPath.string());
 
@@ -380,30 +524,95 @@ void testDoubleAverageFilter(fs::path wavPath, fs::path &outDir)
   hold.setFrames(32);
   filter.setFrames(32);
 
+  std::vector<float> peak(sound.frames);
   std::vector<float> wav(sound.frames);
   for (size_t i = 0; i < wav.size(); ++i) {
-    auto sig = hold.process(sound.data[i]);
-    wav[i] = filter.process(sig);
+    peak[i] = hold.process(sound.data[i]);
+    wav[i] = filter.process(peak[i]);
   }
 
-  std::string filename = (outDir / wavPath.stem()).string() + "_out.wav";
-  writeWave(filename, wav, size_t(sampleRate));
+  writeWave((outDir / wavPath.stem()).string() + "_peak.wav", peak, size_t(sampleRate));
+  writeWave((outDir / wavPath.stem()).string() + "_smooth.wav", wav, size_t(sampleRate));
+}
+
+template<typename Sample> inline Sample testSub(Sample lhs, Sample rhs)
+{
+  bool &&swapped = lhs < rhs;
+  if (swapped) std::swap(lhs, rhs);
+  int expL;
+  std::frexp(lhs, &expL);
+  auto &&cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits + 1);
+  auto &&rem = rhs - std::fmod(rhs, cut);
+  return swapped ? rem - lhs : lhs - rem;
+}
+
+void printSub()
+{
+  auto eps = std::numeric_limits<float>::epsilon();
+  auto f = std::ldexp(float(0x7fffff), -27);
+  auto g = std::ldexp(float(0x7fffff), -23);
+  auto h = g - std::fmod(g, std::ldexp(float(1), -27));
+  auto sub = testSub(f, g);
+  std::cout << std::setprecision(std::numeric_limits<float>::digits10 + 1)
+            << std::hexfloat //
+            << "       f : " << f << "\n"
+            << "   f - g : " << f - g << "\n"
+            << "   f - h : " << f - h << "\n"
+            << "     sub : " << sub << "\n"
+            << "   f - i : " << (f - std::ldexp(float(0xf), -27)) - g << "\n";
+}
+
+template<typename Sample> inline Sample testAdd(Sample lhs, Sample rhs)
+{
+  bool &&swapped = lhs < rhs;
+  if (swapped) std::swap(lhs, rhs);
+  int expL;
+  std::frexp(lhs, &expL);
+  auto &&cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits);
+  auto &&rem = rhs - std::fmod(rhs, cut);
+  return lhs + rem;
+}
+
+void printAdd()
+{
+  auto eps = std::numeric_limits<float>::epsilon();
+  auto f = std::ldexp(float(0x1), 1);
+  auto g = std::ldexp(float(0x7fffff), -27);
+  auto h = g - std::fmod(g, std::ldexp(float(1), -22));
+  auto add = testAdd(g, f);
+  std::cout << std::setprecision(std::numeric_limits<float>::digits10 + 3)
+            << std::hexfloat //
+            << "       f : " << f << "\n"
+            << "       g : " << g << "\n"
+            << "       h : " << h << "\n"
+            << "     eps : " << f * eps << "\n"
+            << "   f + g : " << f + g << "\n"
+            << "   f + h : " << f + h << "\n"
+            << "     add : " << add << "\n"
+            << "   f + i : " << f + std::ldexp(float(0x7fffe0), -27) << "\n";
 }
 
 int main()
 {
+  // printSub();
+  // printAdd();
+  // std::cout << std::numeric_limits<float>::round_style << "\n"
+  //           << std::numeric_limits<double>::round_style << "\n"
+  //           << std::numeric_limits<long double>::round_style << "\n";
+  // return 0;
+
   fs::path outDir("output");
   fs::create_directories(outDir);
 
-  testDoubleAverageFilter("snd/input.wav", outDir);
+  testHoldAndSmoother("snd/input.wav", outDir);
 
-  test("data/sincrack.wav", outDir);
-  test("data/moduloshaper.wav", outDir);
-  test("data/signal.wav", outDir);
-  test("data/oracleengine.wav", outDir);
-  test("data/sustest2.wav", outDir);
-  test("data/pulse.wav", outDir);
-  test("data/pulse2.wav", outDir);
+  // test("data/sincrack.wav", outDir);
+  // test("data/moduloshaper.wav", outDir);
+  // test("data/signal.wav", outDir);
+  // test("data/oracleengine.wav", outDir);
+  // test("data/sustest2.wav", outDir);
+  // test("data/pulse.wav", outDir);
+  // test("data/pulse2.wav", outDir);
 
   return 0;
 }

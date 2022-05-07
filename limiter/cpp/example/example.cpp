@@ -6,13 +6,15 @@
 #include <random>
 #include <vector>
 
-template<typename Sample> class Delay {
-public:
+// Integer sample delay.
+template<typename Sample> class IntDelay {
+private:
   std::vector<Sample> buf;
   size_t wptr = 0;
   size_t rptr = 0;
 
-  Delay(size_t size = 65536) : buf(size) {}
+public:
+  IntDelay(size_t size = 65536) : buf(size) {}
 
   void resize(size_t size)
   {
@@ -40,6 +42,7 @@ public:
   }
 };
 
+// Replacement of std::deque with reduced memory allocation.
 template<typename T> struct RingQueue {
   std::vector<T> buf;
   size_t wptr = 0;
@@ -47,7 +50,12 @@ template<typename T> struct RingQueue {
 
   void resize(size_t size) { buf.resize(size); }
 
-  void reset(T value = 0) { std::fill(buf.begin(), buf.end(), value); }
+  void reset(T value = 0)
+  {
+    std::fill(buf.begin(), buf.end(), value);
+    wptr = 0;
+    rptr = 0;
+  }
 
   inline size_t size()
   {
@@ -92,10 +100,14 @@ template<typename T> struct RingQueue {
   }
 };
 
+/*
+Ideal peak hold.
+- When `setFrames(0)`, all output becomes 0.
+- When `setFrames(1)`, PeakHold will bypass the input.
+*/
 template<typename Sample> struct PeakHold {
-  Sample neutral = 0;
-  Delay<Sample> delay;
-  RingQueue<Sample> hold;
+  IntDelay<Sample> delay;
+  RingQueue<Sample> queue;
 
   PeakHold(size_t size = 65536)
   {
@@ -106,48 +118,62 @@ template<typename Sample> struct PeakHold {
   void resize(size_t size)
   {
     delay.resize(size);
-    hold.resize(size);
+    queue.resize(size);
   }
 
   void reset()
   {
     delay.reset();
-    hold.reset(neutral);
+    queue.reset();
   }
 
   void setFrames(size_t frames) { delay.setFrames(frames); }
 
   Sample process(Sample x0)
   {
-    if (!hold.empty()) {
-      for (size_t idx = hold.size(); idx > 0; --idx) {
-        if (hold.back() < x0)
-          hold.pop_back();
-        else
-          break;
-      }
+    while (!queue.empty()) {
+      if (queue.back() >= x0) break;
+      queue.pop_back();
     }
-
-    hold.push_back(x0);
-
-    auto delayOut = delay.process(x0);
-    if (!hold.empty() && delayOut == hold.front()) hold.pop_front();
-
-    return !hold.empty() ? hold.front() : neutral;
+    queue.push_back(x0);
+    if (delay.process(x0) == queue.front()) queue.pop_front();
+    return queue.front();
   }
 };
 
-template<typename Sample> struct DoubleAverageFilter {
+/**
+Double moving average filter.
+
+Output of `process()` is equivalent to the following Python 3 code. `size` is the value
+passed to `resize()`.
+
+```python
+import scipy.signal as signal
+import numpy as np
+fir = signal.get_window("bartlett", size + 1)
+fir /= np.sum(fir)
+output = signal.convolve(getSomeSignal(), fir)
+```
+
+For limiter, use `double` for accuracy. Using `float` may cause over-limiting.
+Over-limiting here means that if the input amplitude far exceeds threshold, output tends
+to be more quiet. This is caused by the rounding of floating point number. Rounding used
+in `DoubleAverageFilter` makes float sum to be lower than true sum, and this makes output
+gain to be lower than target gain.
+*/
+template<typename Sample> class DoubleAverageFilter {
+private:
+  Sample denom = Sample(1);
   Sample sum1 = 0;
   Sample sum2 = 0;
-  Sample buf = 0; // 出力が 1 サンプル前にずれるのを補正するディレイのバッファ。
-  size_t halfDelayFrames = 0;
-  Delay<Sample> delay1;
-  Delay<Sample> delay2;
+  Sample buf = 0;
+  IntDelay<Sample> delay1;
+  IntDelay<Sample> delay2;
 
+public:
   void resize(size_t size)
   {
-    delay1.resize(size / 2);
+    delay1.resize(size / 2 + 1);
     delay2.resize(size / 2);
   }
 
@@ -162,52 +188,133 @@ template<typename Sample> struct DoubleAverageFilter {
 
   void setFrames(size_t frames)
   {
-    halfDelayFrames = frames / 2;
-    delay1.setFrames(halfDelayFrames);
-    delay2.setFrames(halfDelayFrames);
+    auto &&half = frames / 2;
+    denom = 1 / Sample((half + 1) * half);
+    delay1.setFrames(half + 1);
+    delay2.setFrames(half);
   }
 
-  Sample process(const Sample input)
+  /**
+  Floating point addition with rounding towards 0 for positive number.
+  It must be that `lhs >= 0` and `rhs >= 0`.
+
+  Assuming IEEE 754. It was only tested where
+  `std::numeric_limits<float>::round_style == std::round_to_nearest`. On the platform
+  using other type of floating point rounding or representation, it may not work, or may
+  be unnecessary. Negative number input is not tested.
+
+  Following explanation uses 4 bit significand. Numbers are binary. Consider addition of
+  significand like following:
+
+  ```
+    1000
+  + 0011 11 // last 11 will be rounded.
+  ---------
+    1???
+  ```
+
+  There are 2 possible answer depending on rounding mode: 1100 or 1011.
+
+  This `add()` method outputs 1011 in cases like above, to prevent smoothed output
+  exceeds decimal +1.0.
+
+  If `std::numeric_limits<float>::round_style == std::round_to_nearest`, then the number
+  will be rounded towards nearest even number. In this case, the answer on above case
+  becomes 1100.
+  */
+  inline Sample add(Sample lhs, Sample rhs)
   {
-    sum1 += buf - delay1.process(buf);
-    auto out1 = sum1 / halfDelayFrames;
+    if (lhs < rhs) std::swap(lhs, rhs);
+    int expL;
+    std::frexp(lhs, &expL);
+    auto &&cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits);
+    auto &&rounded = rhs - std::fmod(rhs, cut);
+    return lhs + rounded;
+  }
 
-    sum2 += out1 - delay2.process(out1);
-    auto out2 = sum2 / halfDelayFrames;
+  Sample process(Sample input)
+  {
+    input *= denom;
 
-    buf = input;
-    return out2;
+    sum1 = add(sum1, input);
+    Sample d1 = delay1.process(input);
+    sum1 = std::max(Sample(0), sum1 - d1);
+
+    sum2 = add(sum2, sum1);
+    Sample d2 = delay2.process(sum1);
+    sum2 = std::max(Sample(0), sum2 - d2);
+
+    auto output = buf;
+    buf = sum2;
+    return output;
   }
 };
 
-template<typename Sample> struct Limiter {
-  static constexpr Sample fixedGain = Sample(0.9965520801347684); // -0.03dB.
-  static constexpr Sample releaseConstant = Sample(1e-5); // 適当な小さい値。
+template<typename Sample> class DoubleEMAFilter {
+private:
+  Sample kp = Sample(1);
+  Sample v1 = 0;
+  Sample v2 = 0;
 
-  Sample threshold = Sample(0.1);
-  Sample gain = Sample(1);
-  Sample release = 0; // 指数関数的増加のためのリリース係数。
+public:
+  void reset(Sample value = 0)
+  {
+    v1 = value;
+    v2 = value;
+  }
+
+  void setMin(Sample value)
+  {
+    v1 = std::min(v1, value);
+    v2 = std::min(v2, value);
+  }
+
+  void setCutoff(Sample sampleRate, Sample cutoffHz)
+  {
+    kp = cutoffHz >= sampleRate / Sample(2)
+      ? Sample(1)
+      : Sample(EMAFilter<double>::cutoffToP(sampleRate, cutoffHz));
+  }
+
+  Sample process(Sample input)
+  {
+    auto &&v0 = input;
+    v1 += kp * (v0 - v1);
+    v2 += kp * (v1 - v2);
+    return v2;
+  }
+};
+
+template<typename Sample> class Limiter {
+public:
+  Sample thresholdAmp = Sample(1); // thresholdAmp > 0.
+  Sample gateAmp = 0;              // gateAmp >= 0.
   size_t attackFrames = 0;
 
-  PeakHold<Sample> hold;
-  DoubleAverageFilter<Sample> smoother;
-  Delay<Sample> lookaheadDelay;
+  PeakHold<Sample> peakhold;
+  DoubleAverageFilter<double> smoother;
+  DoubleEMAFilter<Sample> releaseFilter;
+  IntDelay<Sample> lookaheadDelay;
 
-  size_t latency() { return attackFrames; }
+  size_t latency(size_t upfold) { return attackFrames / upfold; }
 
   void resize(size_t size)
   {
     size += size % 2;
-    hold.resize(size);
+
+    // Assuming `maxAttackTime = maxSustainTime`. Otherwise peakhold requires the size
+    // of `maxAttackTime + maxSustainTime`.
+    peakhold.resize(2 * size);
+
     smoother.resize(size);
     lookaheadDelay.resize(size);
   }
 
   void reset()
   {
-    gain = Sample(1);
-    hold.reset();
+    peakhold.reset();
     smoother.reset();
+    releaseFilter.reset();
     lookaheadDelay.reset();
   }
 
@@ -216,51 +323,45 @@ template<typename Sample> struct Limiter {
     Sample attackSeconds,
     Sample sustainSeconds,
     Sample releaseSeconds,
-    Sample threshold)
+    Sample thresholdAmplitude,
+    Sample gateAmplitude)
   {
     auto prevAttack = attackFrames;
     attackFrames = size_t(sampleRate * attackSeconds);
-    attackFrames += attackFrames % 2; // DoubleAverageFilter のために 2 の倍数にする。
+    attackFrames += attackFrames % 2; // DoubleAverageFilter requires multiple of 2.
     if (prevAttack != attackFrames) reset();
 
-    release
-      = std::pow(Sample(1 / releaseConstant), Sample(1 / (releaseSeconds * sampleRate)));
+    releaseFilter.setCutoff(sampleRate, Sample(1) / releaseSeconds);
 
-    this->threshold = threshold;
+    thresholdAmp = thresholdAmplitude;
+    gateAmp = gateAmplitude;
 
-    hold.setFrames(attackFrames + size_t(sampleRate * sustainSeconds));
+    peakhold.setFrames(attackFrames + size_t(sampleRate * sustainSeconds));
     smoother.setFrames(attackFrames);
     lookaheadDelay.setFrames(attackFrames);
   }
 
-  inline Sample applyCharacteristicCurve(Sample x0)
+  inline Sample applyCharacteristicCurve(Sample peakAmp)
   {
-    return x0 > threshold ? threshold / x0 : Sample(1);
+    return peakAmp > thresholdAmp ? thresholdAmp / peakAmp : Sample(1);
   }
 
-  inline Sample softClip(Sample x0, Sample ratio)
+  inline Sample processRelease(Sample gain)
   {
-    const auto absed = std::fabs(x0);
-
-    const auto a1 = threshold * ratio;
-    if (absed <= a1) return x0;
-
-    const auto a2 = 2 * threshold - a1;
-    if (absed >= a2) return threshold;
-
-    return std::copysign(
-      threshold + (a2 - absed) * (a2 - absed) * Sample(0.25) / (a1 - threshold), x0);
+    releaseFilter.setMin(gain);
+    return releaseFilter.process(gain);
   }
 
-  Sample process(const Sample input)
+  Sample process(const Sample input, Sample inAbs)
   {
-    auto holdGain = hold.process(std::fabs(input));
-    auto candidate = applyCharacteristicCurve(holdGain);
-    gain = std::min(gain * release, candidate);
-
-    auto smoothed = smoother.process(gain);
-    auto delayed = lookaheadDelay.process(input);
-    return softClip(smoothed * delayed, fixedGain);
+    auto &&peakAmp = peakhold.process(inAbs);
+    auto &&candidate = applyCharacteristicCurve(peakAmp);
+    auto &&released = processRelease(candidate);
+    auto &&gainAmp = std::min(released, candidate);
+    auto &&targetAmp = peakAmp <= gateAmp ? 0 : gainAmp;
+    auto &&smoothed = smoother.process(targetAmp);
+    auto &&delayed = lookaheadDelay.process(input);
+    return smoothed * delayed;
   }
 };
 
@@ -279,16 +380,18 @@ int main()
   // Limiter の使用例。
   Limiter<float> limiter;
   limiter.resize(65536);
-  limiter.prepare(sampleRate, 0.002f, 0.002f, 0.1f, 0.5f);
+  limiter.prepare(sampleRate, 0.002f, 0.002f, 0.1f, 0.5f, 0.0f);
 
   std::vector<float> output(input.size());
-  for (size_t i = 0; i < input.size(); ++i) output[i] = limiter.process(input[i]);
+  for (size_t i = 0; i < input.size(); ++i) {
+    output[i] = limiter.process(input[i], std::fabs(input[i]));
+  }
 
   // 出力がしきい値以下に制限されているか確認。
   float max = 0;
   for (const auto &value : output) {
     auto absed = std::fabs(value);
-    if (absed > limiter.threshold && absed > max) max = absed;
+    if (absed > limiter.thresholdAmp && absed > max) max = absed;
   }
 
   if (max == 0) {
@@ -296,7 +399,7 @@ int main()
   } else {
     std::cout << "Limiting failed.\n"
               << std::setprecision(std::numeric_limits<float>::digits10 + 1)
-              << "threshold: " << limiter.threshold << "\n"
+              << "threshold: " << limiter.thresholdAmp << "\n"
               << "max      : " << max << "\n";
   }
 }

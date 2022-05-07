@@ -37,11 +37,20 @@ C++17 で実装します。コンパイルして実行できる完全なコー�
 
 - [完全なリミッタの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/limiter/cpp/example/example.cpp)
 
+VST 3 プラグインとしての実装した BasicLimiter のコードも以下から読むことができます。トゥルーピークモードもついています。
+
+- [BasicLimiter の実装を読む (github.com)](https://github.com/ryukau/VSTPlugins/tree/master/BasicLimiter/source/dsp)
+
+アタックとサステインの時間を固定することで `std::array` を使ってメモリ使用量を減らした実装を以下のリンクに掲載しています。この実装はシンセサイザやエフェクタの内部に組み込んで使うことを想定しています。ベンチマークをとってみないとわかりませんが、スムーシング用の FIR フィルタはバッファ長を 64 から 256 サンプル程度で固定した二重移動平均フィルタを使うほうが速いかもしれません。
+
+- [メモリ使用量を減らしたリミッタの実装を読む (github.com)](https://github.com/ryukau/VSTPlugins/blob/master/common/dsp/lightlimiter.hpp)
+
 この記事で掲載しているコードは以下のインクルードを省略しています。
 
 ```c++
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <vector>
 ```
 
@@ -50,20 +59,22 @@ C++17 で実装します。コンパイルして実行できる完全なコー�
 
 以下の実装は単純な畳み込みよりも出力がやや大きくなることがあります。
 
-`Delay` の実装は「[ピークホールドによるエンベロープ](../peak_hold_envelope/peak_hold_envelope.html)」に掲載しています。
+`IntDelay` の実装は「[ピークホールドによるエンベロープ](../peak_hold_envelope/peak_hold_envelope.html)」に掲載しています。
 
 ```c++
-template<typename Sample> struct DoubleAverageFilter {
+template<typename Sample> class DoubleAverageFilter {
+private:
+  Sample denom = Sample(1);
   Sample sum1 = 0;
   Sample sum2 = 0;
   Sample buf = 0; // 出力が 1 サンプル前にずれるのを補正するディレイのバッファ。
-  size_t halfDelayFrames = 0;
-  Delay<Sample> delay1;
-  Delay<Sample> delay2;
+  IntDelay<Sample> delay1;
+  IntDelay<Sample> delay2;
 
+public:
   void resize(size_t size)
   {
-    delay1.resize(size / 2);
+    delay1.resize(size / 2 + 1);
     delay2.resize(size / 2);
   }
 
@@ -78,59 +89,126 @@ template<typename Sample> struct DoubleAverageFilter {
 
   void setFrames(size_t frames)
   {
-    halfDelayFrames = frames / 2;
-    delay1.setFrames(halfDelayFrames);
-    delay2.setFrames(halfDelayFrames);
+    auto &&half = frames / 2;
+    denom = 1 / Sample((half + 1) * half);
+    delay1.setFrames(half + 1);
+    delay2.setFrames(half);
   }
 
-  Sample process(const Sample input)
+  // 浮動小数点数の丸めが -inf に向かうように変更した加算。
+  inline Sample add(Sample lhs, Sample rhs)
   {
-    sum1 += buf - delay1.process(buf);
-    auto out1 = sum1 / halfDelayFrames;
+    if (lhs < rhs) std::swap(lhs, rhs);
+    int expL;
+    std::frexp(lhs, &expL);
+    auto &&cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits);
+    auto &&rounded = rhs - std::fmod(rhs, cut);
+    return lhs + rounded;
+  }
 
-    sum2 += out1 - delay2.process(out1);
-    auto out2 = sum2 / halfDelayFrames;
+  // `input` の範囲は [0, 1] 。
+  Sample process(Sample input)
+  {
+    input *= denom; // 一括して入力の大きさを整えることで誤差が減る。
 
-    buf = input;
-    return out2;
+    sum1 = add(sum1, input);
+    Sample d1 = delay1.process(input);
+    sum1 = std::max(Sample(0), sum1 - d1);
+
+    sum2 = add(sum2, sum1);
+    Sample d2 = delay2.process(sum1);
+    sum2 = std::max(Sample(0), sum2 - d2);
+
+    auto output = buf;
+    buf = sum2;
+    return output;
+  }
+};
+```
+
+### リリース用のフィルタ
+以下はリリース用のフィルタの実装例です。 Exponential moving average (EMA) フィルタを 2 つ直列につないでいます。
+
+```c++
+template<typename Sample> class DoubleEMAFilter {
+private:
+  Sample kp = Sample(1);
+  Sample v1 = 0;
+  Sample v2 = 0;
+
+public:
+  void reset(Sample value = 0)
+  {
+    v1 = value;
+    v2 = value;
+  }
+
+  void setMin(Sample value)
+  {
+    v1 = std::min(v1, value);
+    v2 = std::min(v2, value);
+  }
+
+  void setCutoff(Sample sampleRate, Sample cutoffHz)
+  {
+    if (cutoffHz >= sampleRate / Sample(2)) {
+      kp = Sample(1);
+      return;
+    }
+
+    // 誤差を減らすために double を使用。
+    double omega_c = double(twopi) * cutoffHz / sampleRate;
+    double y = double(1) - std::cos(omega_c);
+    kp = float(-y + std::sqrt((y + Sample(2)) * y));
+  }
+
+  Sample process(Sample input)
+  {
+    auto &&v0 = input;
+    v1 += kp * (v0 - v1);
+    v2 += kp * (v1 - v2);
+    return v2;
   }
 };
 ```
 
 ### リミッタの実装
-リミッタの実装です。アタック、リリース、サステインの時間を設定できます。アタックと呼んでいるのは二重移動平均フィルタによる遅延なので、実際はリリースにも影響します。リリースは指数関数的に増加します。リリース時間はどれだけゲインを下げたかで変わるので、あくまでも目安です。
+リミッタの実装です。アタック、リリース、サステインの時間を設定できます。アタックと呼んでいるのは二重移動平均フィルタによる遅延なので、実際はリリースにも影響します。リリース時間はどれだけゲインを下げたかで変わるので、あくまでも目安です。
 
 `Delay` と `PeakHold` の実装は「[ピークホールドによるエンベロープ](../peak_hold_envelope/peak_hold_envelope.html)」に掲載しています。
 
 ```c++
-template<typename Sample> struct Limiter {
-  static constexpr Sample fixedGain = Sample(0.9965520801347684); // -0.03dB.
-  static constexpr Sample releaseConstant = Sample(1e-5); // 適当な小さい値。
-
-  Sample threshold = Sample(0.1);
-  Sample gain = Sample(1);
-  Sample release = 0; // 指数関数的増加のためのリリース係数。
+template<typename Sample> class Limiter {
+public: // デバッグ用にすべて public 。
   size_t attackFrames = 0;
+  size_t sustainFrames = 0;
+  Sample thresholdAmp = Sample(1); // thresholdAmp > 0.
+  Sample gateAmp = 0;              // gateAmp >= 0.
 
-  PeakHold<Sample> hold;
-  DoubleAverageFilter<Sample> smoother;
-  Delay<Sample> lookaheadDelay;
+  PeakHold<Sample> peakhold;
+  DoubleAverageFilter<double> smoother;
+  DoubleEMAFilter<Sample> releaseFilter;
+  IntDelay<Sample> lookaheadDelay;
 
-  size_t latency() { return attackFrames; }
+  size_t latency(size_t upfold) { return attackFrames / upfold; }
 
   void resize(size_t size)
   {
     size += size % 2;
-    hold.resize(size);
+
+    // アタックの最大値とサステインの最大値がどちらも同じという仕様にして `2 * size` 。
+    // 異なるときは `(アタックの最大値) + (サステインの最大値)` が必要。
+    peakhold.resize(2 * size);
+
     smoother.resize(size);
     lookaheadDelay.resize(size);
   }
 
   void reset()
   {
-    gain = Sample(1);
-    hold.reset();
+    peakhold.reset();
     smoother.reset();
+    releaseFilter.reset();
     lookaheadDelay.reset();
   }
 
@@ -139,57 +217,55 @@ template<typename Sample> struct Limiter {
     Sample attackSeconds,
     Sample sustainSeconds,
     Sample releaseSeconds,
-    Sample threshold)
+    Sample thresholdAmplitude,
+    Sample gateAmplitude)
   {
     auto prevAttack = attackFrames;
     attackFrames = size_t(sampleRate * attackSeconds);
-    attackFrames += attackFrames % 2; // DoubleAverageFilter のために 2 の倍数にする。
-    if (prevAttack != attackFrames) reset();
+    attackFrames += attackFrames % 2; // DoubleAverageFilter は 2 の倍数が必要。
 
-    release
-      = std::pow(Sample(1 / releaseConstant), Sample(1 / (releaseSeconds * sampleRate)));
+    auto prevSustain = sustainFrames;
+    sustainFrames = size_t(sampleRate * sustainSeconds);
 
-    this->threshold = threshold;
+    if (prevAttack != attackFrames || prevSustain != sustainFrames) reset();
 
-    hold.setFrames(attackFrames + size_t(sampleRate * sustainSeconds));
+    releaseFilter.setCutoff(sampleRate, Sample(1) / releaseSeconds);
+
+    thresholdAmp = thresholdAmplitude;
+    gateAmp = gateAmplitude;
+
+    peakhold.setFrames(attackFrames + sustainFrames);
     smoother.setFrames(attackFrames);
     lookaheadDelay.setFrames(attackFrames);
   }
 
-  inline Sample applyCharacteristicCurve(Sample x0)
+  inline Sample applyCharacteristicCurve(Sample peakAmp)
   {
-    return x0 > threshold ? threshold / x0 : Sample(1);
+    return peakAmp > thresholdAmp ? thresholdAmp / peakAmp : Sample(1);
   }
 
-  inline Sample softClip(Sample x0, Sample ratio)
+  inline Sample processRelease(Sample gain)
   {
-    const auto absed = std::fabs(x0);
-
-    const auto a1 = threshold * ratio;
-    if (absed <= a1) return x0;
-
-    const auto a2 = 2 * threshold - a1;
-    if (absed >= a2) return threshold;
-
-    return std::copysign(
-      threshold + (a2 - absed) * (a2 - absed) * Sample(0.25) / (a1 - threshold), x0);
+    releaseFilter.setMin(gain);
+    return releaseFilter.process(gain);
   }
 
-  Sample process(const Sample input)
+  // ステレオリンクを調整できるように入力の絶対値を `inAbs` として分離。
+  Sample process(const Sample input, Sample inAbs)
   {
-    auto holdGain = hold.process(std::fabs(input));
-    auto candidate = applyCharacteristicCurve(holdGain);
-    gain = std::min(gain * release, candidate);
-
-    auto smoothed = smoother.process(gain);
-    auto delayed = lookaheadDelay.process(input);
-    return softClip(smoothed * delayed, fixedGain);
+    auto &&peakAmp = peakhold.process(inAbs);
+    auto &&candidate = applyCharacteristicCurve(peakAmp);
+    auto &&released = processRelease(candidate);
+    auto &&gainAmp = std::min(released, candidate);
+    auto &&targetAmp = peakAmp <= gateAmp ? 0 : gainAmp;
+    auto &&smoothed = smoother.process(targetAmp);
+    auto &&delayed = lookaheadDelay.process(input);
+    return smoothed * delayed;
   }
 };
 
 #include <iomanip>
 #include <iostream>
-#include <limits>
 #include <random>
 
 int main() {
@@ -207,16 +283,18 @@ int main() {
   // Limiter の使用例。
   Limiter<float> limiter;
   limiter.resize(65536);
-  limiter.prepare(sampleRate, 0.002f, 0.002f, 0.1f, 0.5f);
+  limiter.prepare(sampleRate, 0.002f, 0.002f, 0.1f, 0.5f, 0.0f);
 
   std::vector<float> output(input.size());
-  for (size_t i = 0; i < input.size(); ++i) output[i] = limiter.process(input[i]);
+  for (size_t i = 0; i < input.size(); ++i) {
+    output[i] = limiter.process(input[i], std::fabs(input[i]));
+  }
 
   // 出力がしきい値以下に制限されているか確認。
   float max = 0;
   for (const auto &value : output) {
     auto absed = std::fabs(value);
-    if (absed > limiter.threshold && absed > max) max = absed;
+    if (absed > limiter.thresholdAmp && absed > max) max = absed;
   }
 
   if (max == 0) {
@@ -224,7 +302,7 @@ int main() {
   } else {
     std::cout << "Limiting failed.\n"
               << std::setprecision(std::numeric_limits<float>::digits10 + 1)
-              << "threshold: " << limiter.threshold << "\n"
+              << "threshold: " << limiter.thresholdAmp << "\n"
               << "max      : " << max << "\n";
   }
 }
@@ -233,38 +311,20 @@ int main() {
 #### アタック時間の変更
 `prepare` について見ていきます。
 
-今回の実装ではアタック時間を変更すると一時的に振幅の制限が保証されなくなります。これはピークホールドが前から順にすべてのサンプルを入力しないと正しく動作しないことが原因です。そこでアタック時間が変更されたときは、以下のコードのようにディレイのバッファをいったんリセットしています。リセットによってポップノイズが出てしまいますが、フィードバック経路で使うような場面ではリミッタのしきい値を超える振幅が出力されるよりは安全だと判断しています。
+今回の実装では、ピークホールドに前から順にすべてのサンプルを入力しないと、リミッタが正しく動作しません。そこでアタック時間あるいはサステイン時間が変更されたときは、以下のコードのようにバッファをいったんリセットしています。リセットによってポップノイズが出てしまいますが、フィードバック経路で使うような場面ではリミッタのしきい値を超える振幅が出力されるよりは安全だと判断しています。
 
 ```c++
 auto prevAttack = attackFrames;
 attackFrames = size_t(sampleRate * attackSeconds);
 attackFrames += attackFrames % 2;
-if (prevAttack != attackFrames) reset();
+
+auto prevSustain = sustainFrames;
+sustainFrames = size_t(sampleRate * sustainSeconds);
+
+if (prevAttack != attackFrames || prevSustain != sustainFrames) reset();
 ```
 
-#### リリース時間の設定
-以下では `releaseSeconds` 秒後に `releaseConstant` から 1 に到達するような係数を設定しています。
-
-```c++
-release
-  = std::pow(Sample(1 / releaseConstant), Sample(1 / (releaseSeconds * sampleRate)));
-```
-
-今回の実装では `releaseConstant = 1e-5` としています。 `releaseConstant` は 0 に近い任意の小さな値です。値を小さくするほどリリースが長くなります。
-
-`release` を $R$ 、 `releaseConstant` を $C$ 、 `releaseSeconds * sampleRate` を $t$ と置くと以下の関係があります。
-
-$$
-1 = C R^t
-$$
-
-$R$ について解くと上のコードの計算式になります。
-
-$$
-R = \left( \frac{1}{C} \right)^{1/t}
-$$
-
-#### サステイン
+#### サステイン時間の設定
 ホールド時間だけを長くすることでサステインを加えられます。
 
 ```c++
@@ -276,36 +336,57 @@ lookaheadDelay.setFrames(attackFrames);
 #### 特性曲線とゲインの計算
 `process` について見ていきます。
 
-リミッタでは音量を下げたいので、特性曲線を計算するついでに入力の絶対値の逆数 `threshold / x0` を計算してゲインとしています。 `threshold` を 0 より大きい値に制限すれば 0 除算も防げます。 `applyCharacteristicCurve` の出力は必ず `[0, 1]` の範囲に収まります。
+リミッタでは音量を下げたいので、特性曲線を計算するついでに入力の絶対値の逆数 `thresholdAmp / x0` を計算してゲインとしています。 `thresholdAmp` を 0 より大きい値に制限すれば 0 除算も防げます。リミッタでは `applyCharacteristicCurve` の出力は必ず `[0, 1]` の範囲に収まります。
 
 ```c++
-inline Sample applyCharacteristicCurve(Sample x0)
+inline Sample applyCharacteristicCurve(Sample peakAmp)
 {
-  return x0 > threshold ? threshold / x0 : Sample(1);
+  return peakAmp > thresholdAmp ? thresholdAmp / peakAmp : Sample(1);
 }
 
-Sample process(const Sample input)
+Sample process(const Sample input, Sample inAbs)
 {
   // ...
-  auto candidate = applyCharacteristicCurve(holdGain);
+  auto &&candidate = applyCharacteristicCurve(peakAmp);
   // ...
 }
 ```
 
 #### リリースの計算
-リリースの計算は事前に計算した係数 `release` を毎サンプル掛け合わせるだけです。リリース中に大きなピークが入力されたときは `std::min` によってリリースが中断されます。 `gain` と `candidate` は入力が大きいほど 0 に近づきます。
+リリース中に大きなピークが入力されたときはゲインが下がるので `std::min` によってリリースが中断されます。言い換えると `processRelease` の引数 `gain` は入力信号の絶対値が大きいほど 0 に近づきます。
+
+`v1` と `v2` は EMA フィルタの出力値かつ状態変数です。
 
 ```c++
-gain = std::min(gain * release, candidate);
+
+template<typename Sample> class DoubleEMAFilter {
+  // ...
+
+  void setMin(Sample value)
+  {
+    v1 = std::min(v1, value);
+    v2 = std::min(v2, value);
+  }
+
+  // ...
+};
+
+inline Sample processRelease(Sample gain)
+{
+  releaseFilter.setMin(gain);
+  return releaseFilter.process(gain);
+}
 ```
 
 #### ソフトクリップ
-上で紹介した `DoubleAverageFilter` は単純な畳み込みよりも出力が少しだけ大きくなります。この誤差はリミッタがしきい値を超える振幅を出力してしまう問題の原因になります。例えば今回使ったテスト音源だと、しきい値 1 に対して振幅 1.001 が出力されるといった具合でした。この問題の解決法として以下の 2 つの方法が考えられます。
+2022/05/08 にリミッタの実装を改善したのでソフトクリップは使う必要がなくなりましたが、式は使えるので掲載しています。
 
-- `threshold` を指定された値から少し下げる。
+`DoubleAverageFilter` に[ステップ応答が S 字を描くフィルタ](https://ryukau.github.io/filter_notes/s_curve_step_response_filter/s_curve_step_response_filter.html#%E5%AE%9F%E8%A3%85)で紹介している素朴な実装を使うと単純な畳み込みよりも出力が少しだけ大きくなります。この誤差はリミッタがしきい値を超える振幅を出力してしまう問題の原因になります。例えば今回使ったテスト音源だと、しきい値 1 に対して振幅 1.001 が出力されるといった具合でした。この問題の解決法として以下の 2 つの方法が考えられます。
+
+- `thresholdAmp` を指定された値から少し下げる。
 - 出力をクリッピングする。
 
-今回は出力の最大振幅が確実にしきい値と一致するクリッピングを使いました。 `threshold` を下げる方法は、入力信号の振幅や `threshold` の下げ幅によって誤差が変わってしまうので、どれだけ下げればいいのかわからなかったです。
+`thresholdAmp` を下げる方法は、入力信号の振幅や `thresholdAmp` の下げ幅によって誤差が変わってしまうので、どれだけ下げればいいのかを判断することは難しいです。そこで以降では出力をクリッピングするための式を作ります。
 
 今回は以下のソフトクリップ曲線を使いました。
 
@@ -313,7 +394,7 @@ gain = std::min(gain * release, candidate);
 <img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
 </figure>
 
-以下は今回使ったソフトクリップ曲線 $S$ の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。[単調](https://en.wikipedia.org/wiki/Monotonic_function)かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。 $\mathrm{sgn}$ は[符号関数](https://en.wikipedia.org/wiki/Sign_function)です。
+以下はソフトクリップ曲線 $S$ の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。[単調](https://en.wikipedia.org/wiki/Monotonic_function)かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。 $\mathrm{sgn}$ は[符号関数](https://en.wikipedia.org/wiki/Sign_function)です。
 
 $$
 \begin{aligned}
@@ -361,10 +442,10 @@ $-\mathrm{sgn}(x)$ は $x$ の符号が - のときに 1 、 + のときに -1 �
 </figure>
 
 
-以下はリミッタの実装から抜粋したソフトクリッピングのコードです。
+以下はソフトクリッピングのコードです。
 
 ```c++
-inline Sample softClip(Sample x0, Sample ratio)
+template<typename T> inline T softClip(T x0, T ratio)
 {
   const auto absed = std::fabs(x0);
 
@@ -375,21 +456,81 @@ inline Sample softClip(Sample x0, Sample ratio)
   if (absed >= a2) return threshold;
 
   return std::copysign(
-    threshold + (a2 - absed) * (a2 - absed) * Sample(0.25) / (a1 - threshold), x0);
-}
-
-Sample process(const Sample input)
-{
-  // ...
-  return softClip(smoothed * delayed, fixedGain);
+    threshold + (a2 - absed) * (a2 - absed) / T(4) / (a1 - threshold), x0);
 }
 ```
+
+## トゥルーピークモード
+トゥルーピークを考慮したリミッタを作るときは以下のようなマルチレート処理が必要です。 `upfold` はオーバーサンプリングの倍率です。
+
+```c++
+float sig = preLowpass(input); // プリフィルタ。
+std::array<float, upfold> upsampled = upsample(sig);
+for (size_t i = 0; i < upsampled.size(); ++i>) {
+  upsampled[i] = limiter.process(upsampled[i]);
+}
+float output = downsample(upsampled);
+```
+
+ダウンサンプリングには [FIR ポリフェイズフィルタ](https://ryukau.github.io/filter_notes/downsampling/downsampling.html#noble-identities-とポリフェイズフィルタ)を使います。 IIR フィルタを使うと位相が変わるので、フィルタを通った時点でピークが変わってしまいます。トゥルーピークの検出にはアップサンプリングを行うしかないので、ダウンサンプリングの時点で位相が変わると手の施しようがなくなります。
+
+オフライン処理であれば信号が事前にすべてわかっているので、 `scipy.signal.resample` のような離散フーリエ変換を使ったリサンプリングを使うことで正確にトゥルーピークを復元できます。しかしリアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。以下は FIR ポリフェイズフィルタによるアップサンプリングの限界を示した図です。
+
+<figure>
+<img src="img/upsampling_method_comparison.svg" alt="Image of comparison of upsampling method." style="padding-bottom: 12px;"/>
+</figure>
+
+サンプリング周波数は 48000 Hz 、入力信号 `Input` は 23998 Hz のコサイン波です。上のプロットは FFT によるほぼ正確なアップサンプリング、下のプロットはタップ数 64 × 8 フェイズの FIR ポリフェイズフィルタによるアップサンプリングです。 FIR ポリフェイズフィルタによるアップサンプリング結果は入力信号とほぼ重なっています。
+
+FFT アップサンプリングによる波形では立ち上がり (transient) のピークが確認できますが、 FIR ポリフェイズではピークがほとんど復元できていません。また FIR ポリフェイズは 0.2 、 0.5 、 0.8 秒付近にある、入力信号の振幅が下がる部分の復元にも失敗しています。なぜこんなことになるのかというと FIR フィルタのタップ数が足りないからです。厳密にピークを復元するには [sinc 補間](https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#sinc-%E8%A3%9C%E9%96%93)を使う必要があるのですが、 sinc 補間は理論上、無限の長さの畳み込みが必要なので計算できません。
+
+上のコードでプリフィルタをかけているのは、上の図のようなピークの復元が困難な周波数成分を 0 にしてしまうためです。ピークの復元が困難な周波数成分は、サンプリング周波数が十分に高ければ可聴域外になるので 0 にしても聴覚上の影響は少ないと考えられます。
+
+アップサンプラの FIR フィルタの長さを決める目安としては、 D/A コンバータ (DAC) で使われる FIR フィルタのタップ数が使えます。例えば [ES9038Q2M という DAC のデータシート](https://www.esstech.com/wp-content/uploads/2021/03/ES9038Q2M-Datasheet-v1.4.pdf)をみると p.9 にアップサンプリングの倍率は 8 、 2 ステージでタップ数は 128 と 16 ということが書いてあります。素朴に捉えると実質的なタップ数は 128 + 16 = 144 なので、リミッタのアップサンプラで使う FIR フィルタのタップ数を 144 以上にすればよさそうです。可能であればターゲットとする DAC のフィルタ係数を吸いだして直接使うことも考えられます。
+
+ダウンサンプリング後の信号はサンプルピークがしきい値を超えることがあります。この問題を避けることは難しいので、あきらめてユーザにしきい値を下げるように促すか、ダウンサンプル後にさらにリミッタをかけるということが考えられます。
+
+トゥルーピークモードの性能を測るにはすべてのサンプルの値が +1.0 あるいは -1.0 となる信号を作って、 FFT リサンプリングによるピーク値と比較することが考えられます。以下のコードは `processTruePeakLimiter` が定義されていないので、そのままでは動きません。
+
+```python
+# Python3
+import numpy as np
+import scipy.signal as signal
+
+length = 48000
+seed = 204568972046735
+
+rng = np.random.default_rng(seed)
+sig = 2.0 * rng.binomial(1, 0.5, length) - 1  # テスト信号。
+
+limited = processTruePeakLimiter(sig)
+
+upfold = 16
+upSig = signal.resample(ch, upfold * length)
+upLimited = signal.resample(limited, upfold * length)
+print(np.max(np.abs(upSig)), np.max(np.abs(upLimited)))
+```
+
+以下に VST 3 プラグインの実装で使ったトゥルーピークモード関連のコードを掲載しています。 FIR のタップ数はプリフィルタ 64 、アップサンプラとダウンサンプラはどちらも 64 * 8 = 512 です。リンク先のコードの性能としては、上のコードで生成したテスト信号の FFT アップサンプリング後のピークがリミッタなしで +8.9 dB 、 トゥルーピークモードのリミッタありで +0.05 dB という結果になりました。
+
+- [BasicLimiter の FIR ポリフェイズフィルタのコードを読む (github.com)](https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiter/source/dsp/polyphase.hpp)
 
 ## その他
 ### 継時マスキング
 [継時マスキング](https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0) ([temporal masking](https://en.wikipedia.org/wiki/Auditory_masking#Temporal_masking)) は、突然大きな音がしたときは前後にある小さな音が聞こえにくくなるという人間の聴覚の性質です。リミッタはピークの前後をエンベロープで歪ませて振幅を制限します。ピークの前後は継時マスキングによってもともと聞こえていないので、歪ませても違和感が少ないと考えることができます。
 
 継時マスキングは、[突然の大きい音の前では 20 ms 以下、後では 200 ms 以下の長さにわたって起こる](https://ccrma.stanford.edu/~bosse/proj/node21.html)そうです。よってリミッタを耳で評価するときはアタック時間を 20 ms 以下、リリース時間を 200 ms 以下に設定してドラムなどの音を入力したときに違和感を感じないことが一つの目安になります。アタックが遅い音は継時マスキングの条件から外れるので、より長いアタック時間やリリース時間が使えるかもしれません。
+
+### スムーシングフィルタの選定
+ピークホールドのスムーシングを行うときに正面から FIR フィルタを畳み込むのであれば任意のフィルタ係数が使えます。オーバーシュートしない係数として[窓関数]([Window function - Wikipedia](https://en.wikipedia.org/wiki/Window_function))が使えますが、数があるので選定が必要です。
+
+選定の際は、まず Kaiser 窓の `β = 0.5 * π` と `β = 1.5 * π` を比較することをお勧めします。今回使ったテスト信号では `β = 0.5 * π` のほうが低域に入り込むノイズが少ない分だけ違和感が少なく聞こえました。どちらかというと、ストップバンドでの低減率よりも、カットオフ周波数が低めになることのほうが低域に出てくるノイズを抑える点では優れているようです。
+
+低域のノイズの確認に使ったテスト信号は以下のリンク先の `sincrack.wav` です。
+
+- [リミッタのテスト信号を見る (github.com)](https://github.com/ryukau/filter_notes/tree/master/limiter/cpp/limiter/data)
+
+他の選択肢としては DPSS や exponential window が挙げられます。 DPSS は Kaiser 、 exponential は三角窓に近い特性が作れます。
 
 ### MATLAB のリミッタ
 既存のリミッタの実装を探していた時に MATLAB のリミッタを見つけました。下のほうにアルゴリズムが載っています。
@@ -408,6 +549,13 @@ Sample process(const Sample input)
 - [Fruity Limiter - Effect Plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm)
 
 ## 変更点
+- 2022/05/08
+  - リミッタの実装を改善。
+    - リリース方法を指数関数的増加から EMA フィルタに変更。
+    - `DoubleAverageFilter` での丸め誤差によって振幅の制限に失敗する問題を修正。
+    - ソフトクリッピングの廃止。
+  - トゥルーピークモードの節を追加。
+  - スムーシングフィルタの選定の項を追加。
 - 2021/01/09
   - Lookahead Limiter の記事の訳へのリンクを文脈に沿った位置に変更。
   - 文章の整理。
