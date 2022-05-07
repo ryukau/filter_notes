@@ -206,16 +206,20 @@ for fir in impulseResponse:
     # プロットは省略。
 ```
 
-線形補間の特性です。図の左上が振幅特性、左下が位相特性、右上が群遅延特性、右下がインパルス応答です。以下のような典型的な分数ディレイフィルタの特性がみられます。
+以下では図の左上が振幅特性、左下が位相特性、右上が群遅延特性、右下がインパルス応答です。青くなるほど `t = 0` 、黄色くなるほど `t = 1` に近くなります。振幅特性は `t = 0.5` を中心として対称性があるので重なっている曲線があります。
+
+線形補間の特性です。以下のような典型的な分数ディレイフィルタの特性がみられます。
 
 - `0 < t < 1` のときの振幅特性はローパス。
 - 群遅延特性が低域でフラット。
+- `t = 0.5` のとき最もローパスが強くかかるが、群遅延はフラット。
+- インパルス応答と振幅特性は `t = 0.5` を中心に対称。
 
 <figure>
 <img src="img/linear.svg" alt="Image of frequency response of linear interpolation." style="padding-bottom: 12px;"/>
 </figure>
 
-キュービック補間の特性です。線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性のフォールオフが半分ほどになるはずです。
+キュービック補間の特性です。線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性の[ロールオフ](https://en.wikipedia.org/wiki/Roll-off)が半分ほどになるはずです。
 
 <figure>
 <img src="img/cubic.svg" alt="Image of frequency response of cubic interpolation." style="padding-bottom: 12px;"/>
@@ -300,3 +304,8 @@ print(win / win[1])
 - [Centripetal Catmull–Rom spline - Wikipedia](https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline)
 - [scipy.signal.resample — SciPy v1.8.0 Manual](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html)
 - [Ringing artifacts - Wikipedia](https://en.wikipedia.org/wiki/Ringing_artifacts)
+
+## 変更点
+- 2022/05/07
+  - ロールオフをフォールオフに間違えていた点を修正。
+  - 図の説明を追加。
