@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2019-08-06" />
+<meta name="dcterms.date" content="2022-05-08" />
 <title>am_pitchshift</title>
 
 <!-- KaTeX -->
@@ -19,19 +19,19 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +52,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -326,7 +326,7 @@ border: 2px solid #aaccff;
 }
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,15 +337,17 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2019-08-06
+Update: 2022-05-08
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#am変調によるピッチシフト">AM変調によるピッチシフト</a><ul>
+<li><a href="#am変調による周波数シフト">AM変調による周波数シフト</a>
+<ul>
 <li><a href="#analytic-signal-の計算">Analytic Signal の計算</a></li>
-<li><a href="#実装">実装</a><ul>
+<li><a href="#実装">実装</a>
+<ul>
 <li><a href="#ヒルベルト変換">ヒルベルト変換</a></li>
 <li><a href="#オールパスその1">オールパスその1</a></li>
 <li><a href="#オールパスその2">オールパスその2</a></li>
@@ -355,21 +357,23 @@ Update: 2019-08-06
 <li><a href="#オールパスその6">オールパスその6</a></li>
 </ul></li>
 <li><a href="#音のサンプル">音のサンプル</a></li>
-<li><a href="#その他">その他</a><ul>
+<li><a href="#その他">その他</a>
+<ul>
 <li><a href="#周波数特性の位相差">周波数特性の位相差</a></li>
 <li><a href="#scipy.signal-の-sos"><code>scipy.signal</code> の <code>sos</code></a></li>
 <li><a href="#pure-data-の-biquad">Pure Data の <code>biquad~</code></a></li>
+<li><a href="#ピッチシフトと周波数シフト">ピッチシフトと周波数シフト</a></li>
 </ul></li>
-<li><a href="#訂正">訂正</a></li>
+<li><a href="#変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
 </details>
 </header>
-<h1 id="am変調によるピッチシフト">AM変調によるピッチシフト</h1>
+<h1 id="am変調による周波数シフト">AM変調による周波数シフト</h1>
 <p>この文章では虚数を <span class="math inline">\(j\)</span> で表します。</p>
-<p>Scott Wardle さんによる <a href="https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf">A Hilbert-Transformer Frequency Shifter for Audio</a> で紹介されていたAM変調によるピッチシフトで遊びます。</p>
-<p>紹介されていた手法では <a href="https://en.wikipedia.org/wiki/Analytic_signal">analytic signal</a> <span class="math inline">\(s(t)\)</span> に <span class="math inline">\(e^{j \omega_c t}\)</span> を掛け合わせてから実部を取り出すことで <span class="math inline">\(\omega_c\)</span> だけピッチシフトできます。Analytic signal は負の周波数成分が全て0になる信号で、複素数です。</p>
+<p>Scott Wardle さんによる <a href="https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf">A Hilbert-Transformer Frequency Shifter for Audio</a> で紹介されていたAM変調による周波数シフトで遊びます。</p>
+<p>紹介されていた手法では <a href="https://en.wikipedia.org/wiki/Analytic_signal">analytic signal</a> <span class="math inline">\(s(t)\)</span> に <span class="math inline">\(e^{j \omega_c t}\)</span> を掛け合わせてから実部を取り出すことで <span class="math inline">\(\omega_c\)</span> だけ周波数シフトできます。Analytic signal は負の周波数成分が全て0になる信号で、複素数です。</p>
 <p><span class="math display">\[
 \begin{aligned}
 y_{\mathtt{shift}} (t)
@@ -414,17 +418,17 @@ s = \mathtt{ifft}(\mathtt{fft}(x) 2 U) = x + j \mathcal{H}(x)
 </ul>
 <h3 id="ヒルベルト変換">ヒルベルト変換</h3>
 <p><code>scipy.signal.hilbert</code> を使います。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb1-3"><a href="#cb1-3"></a></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">def</span> pitch_shift(samplerate, analytic_signal, shift_hz):</span>
-<span id="cb1-5"><a href="#cb1-5"></a>    norm <span class="op">=</span> numpy.<span class="bu">abs</span>(analytic_signal)</span>
-<span id="cb1-6"><a href="#cb1-6"></a>    theta <span class="op">=</span> numpy.angle(analytic_signal)</span>
-<span id="cb1-7"><a href="#cb1-7"></a>    time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="bu">len</span>(analytic_signal) <span class="op">/</span> samplerate, <span class="bu">len</span>(analytic_signal))</span>
-<span id="cb1-8"><a href="#cb1-8"></a>    <span class="cf">return</span> norm <span class="op">*</span> numpy.cos(theta <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> shift_hz <span class="op">*</span> time)</span>
-<span id="cb1-9"><a href="#cb1-9"></a></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="kw">def</span> naive(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
-<span id="cb1-11"><a href="#cb1-11"></a>    <span class="cf">return</span> pitch_shift(samplerate, signal.hilbert(wav), shift_hz)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pitch_shift(samplerate, analytic_signal, shift_hz):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    norm <span class="op">=</span> numpy.<span class="bu">abs</span>(analytic_signal)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> numpy.angle(analytic_signal)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="bu">len</span>(analytic_signal) <span class="op">/</span> samplerate, <span class="bu">len</span>(analytic_signal))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> norm <span class="op">*</span> numpy.cos(theta <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> shift_hz <span class="op">*</span> time)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> naive(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, signal.hilbert(wav), shift_hz)</span></code></pre></div>
 <h3 id="オールパスその1">オールパスその1</h3>
 <p><a href="http://yehar.com/blog/?p=368">Olli Niemitalo さんによって紹介されていたフィルタ</a>です。</p>
 <p>式の <span class="math inline">\(\times\)</span> は乗算です。横に長くなったので改行時に明示的に演算子を書いています。</p>
@@ -443,32 +447,32 @@ H_{\mathrm{Im}}(z) =&amp;\; H_{sect}(z, 0.6923878)\\
 H_{Hilbert}(z) =&amp; 0.5 ( H_{\mathrm{Re}}(z) + j H_{\mathrm{Im}}(z))
 \end{aligned}
 \]</span></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> add_delay(sos):</span>
-<span id="cb2-2"><a href="#cb2-2"></a>    <span class="cf">return</span> numpy.vstack((sos, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>]))</span>
-<span id="cb2-3"><a href="#cb2-3"></a></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">def</span> olli(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
-<span id="cb2-5"><a href="#cb2-5"></a>    <span class="kw">def</span> section(a):</span>
-<span id="cb2-6"><a href="#cb2-6"></a>        a2 <span class="op">=</span> a <span class="op">*</span> a</span>
-<span id="cb2-7"><a href="#cb2-7"></a>        <span class="cf">return</span> [a2, <span class="dv">0</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="op">-</span>a2]</span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a>    sos_real <span class="op">=</span> numpy.array([</span>
-<span id="cb2-10"><a href="#cb2-10"></a>        section(a) <span class="cf">for</span> a <span class="kw">in</span> [</span>
-<span id="cb2-11"><a href="#cb2-11"></a>            <span class="fl">0.4021921162426</span>, <span class="fl">0.8561710882420</span>,</span>
-<span id="cb2-12"><a href="#cb2-12"></a>            <span class="fl">0.9722909545651</span>, <span class="fl">0.9952884791278</span>,</span>
-<span id="cb2-13"><a href="#cb2-13"></a>        ]</span>
-<span id="cb2-14"><a href="#cb2-14"></a>    ])</span>
-<span id="cb2-15"><a href="#cb2-15"></a>    sos_imag <span class="op">=</span> numpy.array([</span>
-<span id="cb2-16"><a href="#cb2-16"></a>        section(a) <span class="cf">for</span> a <span class="kw">in</span> [</span>
-<span id="cb2-17"><a href="#cb2-17"></a>            <span class="fl">0.6923878000000</span>, <span class="fl">0.9360654322959</span>,</span>
-<span id="cb2-18"><a href="#cb2-18"></a>            <span class="fl">0.9882295226860</span>, <span class="fl">0.9987488452737</span>,</span>
-<span id="cb2-19"><a href="#cb2-19"></a>        ]</span>
-<span id="cb2-20"><a href="#cb2-20"></a>    ])</span>
-<span id="cb2-21"><a href="#cb2-21"></a>    sos_imag <span class="op">=</span> add_delay(sos_imag)</span>
-<span id="cb2-22"><a href="#cb2-22"></a></span>
-<span id="cb2-23"><a href="#cb2-23"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
-<span id="cb2-24"><a href="#cb2-24"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
-<span id="cb2-25"><a href="#cb2-25"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> 1j <span class="op">*</span> imag)</span>
-<span id="cb2-26"><a href="#cb2-26"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_delay(sos):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> numpy.vstack((sos, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>]))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> olli(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> section(a):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        a2 <span class="op">=</span> a <span class="op">*</span> a</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [a2, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="op">-</span>a2]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    sos_real <span class="op">=</span> numpy.array([</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        section(a) <span class="cf">for</span> a <span class="kw">in</span> [</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>            <span class="fl">0.4021921162426</span>, <span class="fl">0.8561710882420</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>            <span class="fl">0.9722909545651</span>, <span class="fl">0.9952884791278</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> numpy.array([</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        section(a) <span class="cf">for</span> a <span class="kw">in</span> [</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="fl">0.6923878000000</span>, <span class="fl">0.9360654322959</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            <span class="fl">0.9882295226860</span>, <span class="fl">0.9987488452737</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> add_delay(sos_imag)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a href="http://yehar.com/blog/?p=368">Hilbert transform « iki.fi/o</a></li>
 </ul>
@@ -482,18 +486,18 @@ H_{\mathrm{Im}}(z) =&amp;\; \frac{0.553100 - z^{-2}}{1 - 0.553100 z^{-2}} \times
 H_{Hilbert}(z) =&amp;\; 0.5 \left( H_{\mathrm{Re}}(z) + j H_{\mathrm{Im}}(z) \right)
 \end{aligned}
 \]</span></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">def</span> wasabi(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
-<span id="cb3-2"><a href="#cb3-2"></a>    sos_real <span class="op">=</span> numpy.array([</span>
-<span id="cb3-3"><a href="#cb3-3"></a>        [<span class="fl">0.190696</span>, <span class="dv">0</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">-0.190696</span>],</span>
-<span id="cb3-4"><a href="#cb3-4"></a>        [<span class="fl">0.860735</span>, <span class="dv">0</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">-0.860735</span>],</span>
-<span id="cb3-5"><a href="#cb3-5"></a>    ])</span>
-<span id="cb3-6"><a href="#cb3-6"></a>    sos_imag <span class="op">=</span> numpy.array([[<span class="fl">0.553100</span>, <span class="dv">0</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">-0.553100</span>]])</span>
-<span id="cb3-7"><a href="#cb3-7"></a>    sos_imag <span class="op">=</span> add_delay(sos_imag)</span>
-<span id="cb3-8"><a href="#cb3-8"></a></span>
-<span id="cb3-9"><a href="#cb3-9"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
-<span id="cb3-10"><a href="#cb3-10"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
-<span id="cb3-11"><a href="#cb3-11"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> 1j <span class="op">*</span> imag)</span>
-<span id="cb3-12"><a href="#cb3-12"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wasabi(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    sos_real <span class="op">=</span> numpy.array([</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        [<span class="fl">0.190696</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="op">-</span><span class="fl">0.190696</span>],</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        [<span class="fl">0.860735</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="op">-</span><span class="fl">0.860735</span>],</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> numpy.array([[<span class="fl">0.553100</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="op">-</span><span class="fl">0.553100</span>]])</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> add_delay(sos_imag)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a href="https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer">transform - IIR Hilbert Transformer - Signal Processing Stack Exchange</a></li>
 </ul>
@@ -513,23 +517,23 @@ H_{Hilbert}(z) =&amp;\;
   H_{\mathrm{Re}}(z) + j H_{\mathrm{Im}}(z)
 \end{aligned}
 \]</span></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">def</span> favreau(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
-<span id="cb4-2"><a href="#cb4-2"></a>    <span class="kw">def</span> biquad(a1, a2):</span>
-<span id="cb4-3"><a href="#cb4-3"></a>        <span class="cf">return</span> [a2, a1, <span class="dv">1</span>, <span class="dv">1</span>, a1, a2]</span>
-<span id="cb4-4"><a href="#cb4-4"></a></span>
-<span id="cb4-5"><a href="#cb4-5"></a>    sos_real <span class="op">=</span> numpy.array([</span>
-<span id="cb4-6"><a href="#cb4-6"></a>        biquad(<span class="fl">0.02569</span>, <span class="fl">-0.260502</span>),</span>
-<span id="cb4-7"><a href="#cb4-7"></a>        biquad(<span class="op">-</span><span class="fl">1.8685</span>, <span class="fl">0.870686</span>),</span>
-<span id="cb4-8"><a href="#cb4-8"></a>    ])</span>
-<span id="cb4-9"><a href="#cb4-9"></a>    sos_imag <span class="op">=</span> numpy.array([</span>
-<span id="cb4-10"><a href="#cb4-10"></a>        biquad(<span class="op">-</span><span class="fl">1.94632</span>, <span class="fl">0.94657</span>),</span>
-<span id="cb4-11"><a href="#cb4-11"></a>        biquad(<span class="op">-</span><span class="fl">0.83774</span>, <span class="fl">0.06338</span>),</span>
-<span id="cb4-12"><a href="#cb4-12"></a>    ])</span>
-<span id="cb4-13"><a href="#cb4-13"></a></span>
-<span id="cb4-14"><a href="#cb4-14"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
-<span id="cb4-15"><a href="#cb4-15"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
-<span id="cb4-16"><a href="#cb4-16"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> 1j <span class="op">*</span> imag)</span>
-<span id="cb4-17"><a href="#cb4-17"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> favreau(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> biquad(a1, a2):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [a2, a1, <span class="dv">1</span>, <span class="dv">1</span>, a1, a2]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    sos_real <span class="op">=</span> numpy.array([</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        biquad(<span class="fl">0.02569</span>, <span class="op">-</span><span class="fl">0.260502</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        biquad(<span class="op">-</span><span class="fl">1.8685</span>, <span class="fl">0.870686</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> numpy.array([</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        biquad(<span class="op">-</span><span class="fl">1.94632</span>, <span class="fl">0.94657</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        biquad(<span class="op">-</span><span class="fl">0.83774</span>, <span class="fl">0.06338</span>),</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    ])</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a href="https://github.com/pure-data/pure-data/blob/master/extra/hilbert%7E.pd">pure-data/hilbert~.pd at master · pure-data/pure-data · GitHub</a></li>
 <li><a href="https://github.com/olilarkin/OL-OWLPatches/blob/master/IIRHilbert.lib">OL-OWLPatches/IIRHilbert.lib at master · olilarkin/OL-OWLPatches · GitHub</a></li>
@@ -566,27 +570,27 @@ B_k &amp;= \mathtt{concat}(-\overrightharpoon{B}_k, \overrightharpoon{B}_k)\\
 <p><span class="math display">\[
 H_{Hilbert}(z) = H_{A_k}(z) + j z^{-1} H_{B_k}(z)
 \]</span></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">def</span> wilkinson(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
-<span id="cb5-2"><a href="#cb5-2"></a>    k <span class="op">=</span> <span class="dv">9</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>    n <span class="op">=</span> numpy.arange((k <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb5-4"><a href="#cb5-4"></a></span>
-<span id="cb5-5"><a href="#cb5-5"></a>    zero_real <span class="op">=</span> numpy.exp(numpy.pi <span class="op">/</span> <span class="dv">2</span><span class="op">**</span>(<span class="dv">2</span> <span class="op">*</span> n))</span>
-<span id="cb5-6"><a href="#cb5-6"></a>    zero_real <span class="op">=</span> numpy.append(zero_real, <span class="op">-</span>zero_real)</span>
-<span id="cb5-7"><a href="#cb5-7"></a></span>
-<span id="cb5-8"><a href="#cb5-8"></a>    zero_imag <span class="op">=</span> numpy.exp(numpy.pi <span class="op">/</span> <span class="dv">2</span><span class="op">**</span>(<span class="dv">2</span> <span class="op">*</span> n <span class="op">+</span> <span class="dv">1</span>))</span>
-<span id="cb5-9"><a href="#cb5-9"></a>    zero_imag <span class="op">=</span> numpy.append(zero_imag, <span class="op">-</span>zero_imag)</span>
-<span id="cb5-10"><a href="#cb5-10"></a></span>
-<span id="cb5-11"><a href="#cb5-11"></a>    sos_real <span class="op">=</span> signal.zpk2sos(zero_real, <span class="dv">1</span> <span class="op">/</span> zero_real, <span class="fl">1e-5</span>)</span>
-<span id="cb5-12"><a href="#cb5-12"></a>    sos_imag <span class="op">=</span> signal.zpk2sos(zero_imag, <span class="dv">1</span> <span class="op">/</span> zero_imag, <span class="fl">1e-5</span>)</span>
-<span id="cb5-13"><a href="#cb5-13"></a>    sos_imag <span class="op">=</span> add_delay(sos_imag)</span>
-<span id="cb5-14"><a href="#cb5-14"></a></span>
-<span id="cb5-15"><a href="#cb5-15"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
-<span id="cb5-16"><a href="#cb5-16"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
-<span id="cb5-17"><a href="#cb5-17"></a>    analytic <span class="op">=</span> real <span class="op">-</span><span class="ot"> 1j</span> <span class="op">*</span> imag</span>
-<span id="cb5-18"><a href="#cb5-18"></a></span>
-<span id="cb5-19"><a href="#cb5-19"></a>    sig <span class="op">=</span> pitch_shift(samplerate, analytic, shift_hz)</span>
-<span id="cb5-20"><a href="#cb5-20"></a>    peak <span class="op">=</span> numpy.<span class="bu">max</span>(numpy.<span class="bu">abs</span>(sig))</span>
-<span id="cb5-21"><a href="#cb5-21"></a>    <span class="cf">return</span> sig <span class="op">/</span> peak <span class="cf">if</span> peak <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> sig</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wilkinson(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="dv">9</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> numpy.arange((k <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    zero_real <span class="op">=</span> numpy.exp(numpy.pi <span class="op">/</span> <span class="dv">2</span><span class="op">**</span>(<span class="dv">2</span> <span class="op">*</span> n))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    zero_real <span class="op">=</span> numpy.append(zero_real, <span class="op">-</span>zero_real)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    zero_imag <span class="op">=</span> numpy.exp(numpy.pi <span class="op">/</span> <span class="dv">2</span><span class="op">**</span>(<span class="dv">2</span> <span class="op">*</span> n <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    zero_imag <span class="op">=</span> numpy.append(zero_imag, <span class="op">-</span>zero_imag)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    sos_real <span class="op">=</span> signal.zpk2sos(zero_real, <span class="dv">1</span> <span class="op">/</span> zero_real, <span class="fl">1e-5</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> signal.zpk2sos(zero_imag, <span class="dv">1</span> <span class="op">/</span> zero_imag, <span class="fl">1e-5</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> add_delay(sos_imag)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> real <span class="op">-</span> <span class="ot">1j</span> <span class="op">*</span> imag</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    sig <span class="op">=</span> pitch_shift(samplerate, analytic, shift_hz)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    peak <span class="op">=</span> numpy.<span class="bu">max</span>(numpy.<span class="bu">abs</span>(sig))</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sig <span class="op">/</span> peak <span class="cf">if</span> peak <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> sig</span></code></pre></div>
 <ul>
 <li><a href="https://dsp.stackexchange.com/questions/8692/hilbert-transform-filter-for-audio-applications-using-iir-half-band-parallel-al">Hilbert transform filter for audio applications: Using IIR half-band parallel all pass structure - Signal Processing Stack Exchange</a></li>
 </ul>
@@ -615,46 +619,46 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 \end{aligned}
 \]</span></p>
 <p><span class="math inline">\(H_{AP}\)</span> は連続系なので <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.cont2discrete.html#scipy.signal.cont2discrete"><code>scipy.signal.cont2discrete</code></a> で離散系に変えます。 <code>cont2discrete</code> の <code>method</code> は zoh よりも gbt にしたほうがノイズが減りました。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">from</span> numpy.polynomial <span class="im">import</span> polynomial</span>
-<span id="cb6-2"><a href="#cb6-2"></a></span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">def</span> allpass(samplerate, rc):</span>
-<span id="cb6-4"><a href="#cb6-4"></a>    rc <span class="op">*=</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi</span>
-<span id="cb6-5"><a href="#cb6-5"></a>    num, den, dt <span class="op">=</span> signal.cont2discrete(</span>
-<span id="cb6-6"><a href="#cb6-6"></a>        ([rc, <span class="dv">-1</span>], [rc, <span class="dv">1</span>]), <span class="dv">1</span> <span class="op">/</span> samplerate, <span class="st">&quot;gbt&quot;</span>, <span class="fl">0.5</span>)</span>
-<span id="cb6-7"><a href="#cb6-7"></a>    <span class="cf">return</span> num[<span class="dv">0</span>], den</span>
-<span id="cb6-8"><a href="#cb6-8"></a></span>
-<span id="cb6-9"><a href="#cb6-9"></a><span class="kw">def</span> mcnulty(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
-<span id="cb6-10"><a href="#cb6-10"></a>    rc_real <span class="op">=</span> [</span>
-<span id="cb6-11"><a href="#cb6-11"></a>        allpass(samplerate, rc) <span class="cf">for</span> rc <span class="kw">in</span> [</span>
-<span id="cb6-12"><a href="#cb6-12"></a>            <span class="fl">9.31e-06</span>, <span class="fl">4.2723e-05</span>, <span class="fl">0.0001836</span>,</span>
-<span id="cb6-13"><a href="#cb6-13"></a>            <span class="fl">0.00078146</span>, <span class="fl">0.003333</span>, <span class="fl">0.026055</span></span>
-<span id="cb6-14"><a href="#cb6-14"></a>        ]</span>
-<span id="cb6-15"><a href="#cb6-15"></a>    ]</span>
-<span id="cb6-16"><a href="#cb6-16"></a>    rc_imag <span class="op">=</span> [</span>
-<span id="cb6-17"><a href="#cb6-17"></a>        allpass(samplerate, rc) <span class="cf">for</span> rc <span class="kw">in</span> [</span>
-<span id="cb6-18"><a href="#cb6-18"></a>            <span class="fl">2.6676e-06</span>, <span class="fl">2.08e-05</span>, <span class="fl">8.87e-05</span>,</span>
-<span id="cb6-19"><a href="#cb6-19"></a>            <span class="fl">0.00038064</span>, <span class="fl">0.0016049999999999999</span>, <span class="fl">0.007412</span>,</span>
-<span id="cb6-20"><a href="#cb6-20"></a>        ]</span>
-<span id="cb6-21"><a href="#cb6-21"></a>    ]</span>
-<span id="cb6-22"><a href="#cb6-22"></a></span>
-<span id="cb6-23"><a href="#cb6-23"></a>    sos_real <span class="op">=</span> [</span>
-<span id="cb6-24"><a href="#cb6-24"></a>        signal.tf2sos(</span>
-<span id="cb6-25"><a href="#cb6-25"></a>            polynomial.polymul(rc1[<span class="dv">0</span>], rc2[<span class="dv">0</span>]),</span>
-<span id="cb6-26"><a href="#cb6-26"></a>            polynomial.polymul(rc1[<span class="dv">1</span>], rc2[<span class="dv">1</span>]),</span>
-<span id="cb6-27"><a href="#cb6-27"></a>        )[<span class="dv">0</span>] <span class="cf">for</span> rc1, rc2 <span class="kw">in</span> <span class="bu">zip</span>(rc_real[::<span class="dv">2</span>], rc_real[<span class="dv">1</span>::<span class="dv">2</span>])</span>
-<span id="cb6-28"><a href="#cb6-28"></a>    ]</span>
-<span id="cb6-29"><a href="#cb6-29"></a>    sos_imag <span class="op">=</span> [</span>
-<span id="cb6-30"><a href="#cb6-30"></a>        signal.tf2sos(</span>
-<span id="cb6-31"><a href="#cb6-31"></a>            polynomial.polymul(rc1[<span class="dv">0</span>], rc2[<span class="dv">0</span>]),</span>
-<span id="cb6-32"><a href="#cb6-32"></a>            polynomial.polymul(rc1[<span class="dv">1</span>], rc2[<span class="dv">1</span>]),</span>
-<span id="cb6-33"><a href="#cb6-33"></a>        )[<span class="dv">0</span>] <span class="cf">for</span> rc1, rc2 <span class="kw">in</span> <span class="bu">zip</span>(rc_imag[::<span class="dv">2</span>], rc_imag[<span class="dv">1</span>::<span class="dv">2</span>])</span>
-<span id="cb6-34"><a href="#cb6-34"></a>    ]</span>
-<span id="cb6-35"><a href="#cb6-35"></a></span>
-<span id="cb6-36"><a href="#cb6-36"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
-<span id="cb6-37"><a href="#cb6-37"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
-<span id="cb6-38"><a href="#cb6-38"></a></span>
-<span id="cb6-39"><a href="#cb6-39"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">-</span> 1j <span class="op">*</span> imag)</span>
-<span id="cb6-40"><a href="#cb6-40"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpy.polynomial <span class="im">import</span> polynomial</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> allpass(samplerate, rc):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    rc <span class="op">*=</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    num, den, dt <span class="op">=</span> signal.cont2discrete(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        ([rc, <span class="op">-</span><span class="dv">1</span>], [rc, <span class="dv">1</span>]), <span class="dv">1</span> <span class="op">/</span> samplerate, <span class="st">&quot;gbt&quot;</span>, <span class="fl">0.5</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> num[<span class="dv">0</span>], den</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mcnulty(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    rc_real <span class="op">=</span> [</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        allpass(samplerate, rc) <span class="cf">for</span> rc <span class="kw">in</span> [</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            <span class="fl">9.31e-06</span>, <span class="fl">4.2723e-05</span>, <span class="fl">0.0001836</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>            <span class="fl">0.00078146</span>, <span class="fl">0.003333</span>, <span class="fl">0.026055</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    rc_imag <span class="op">=</span> [</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        allpass(samplerate, rc) <span class="cf">for</span> rc <span class="kw">in</span> [</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>            <span class="fl">2.6676e-06</span>, <span class="fl">2.08e-05</span>, <span class="fl">8.87e-05</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>            <span class="fl">0.00038064</span>, <span class="fl">0.0016049999999999999</span>, <span class="fl">0.007412</span>,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    sos_real <span class="op">=</span> [</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        signal.tf2sos(</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>            polynomial.polymul(rc1[<span class="dv">0</span>], rc2[<span class="dv">0</span>]),</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>            polynomial.polymul(rc1[<span class="dv">1</span>], rc2[<span class="dv">1</span>]),</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        )[<span class="dv">0</span>] <span class="cf">for</span> rc1, rc2 <span class="kw">in</span> <span class="bu">zip</span>(rc_real[::<span class="dv">2</span>], rc_real[<span class="dv">1</span>::<span class="dv">2</span>])</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> [</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        signal.tf2sos(</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>            polynomial.polymul(rc1[<span class="dv">0</span>], rc2[<span class="dv">0</span>]),</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>            polynomial.polymul(rc1[<span class="dv">1</span>], rc2[<span class="dv">1</span>]),</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        )[<span class="dv">0</span>] <span class="cf">for</span> rc1, rc2 <span class="kw">in</span> <span class="bu">zip</span>(rc_imag[::<span class="dv">2</span>], rc_imag[<span class="dv">1</span>::<span class="dv">2</span>])</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">-</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog Wide Band Audio Phase Shift Networks</a></li>
 <li><a href="https://en.wikipedia.org/wiki/Ohm#Symbol">Ohm - Wikipedia</a></li>
@@ -678,49 +682,49 @@ H_{\mathrm{Im}}(z) =&amp;\;
 H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 \end{aligned}
 \]</span></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">def</span> chuck(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
-<span id="cb7-2"><a href="#cb7-2"></a>    rc_imag <span class="op">=</span> [</span>
-<span id="cb7-3"><a href="#cb7-3"></a>        allpass(samplerate, rc)</span>
-<span id="cb7-4"><a href="#cb7-4"></a>        <span class="cf">for</span> rc <span class="kw">in</span> [<span class="fl">5.49e-06</span>, <span class="fl">4.75e-05</span>, <span class="fl">2.37e-04</span>, <span class="fl">1.27e-03</span>]</span>
-<span id="cb7-5"><a href="#cb7-5"></a>    ]</span>
-<span id="cb7-6"><a href="#cb7-6"></a>    rc_real <span class="op">=</span> [</span>
-<span id="cb7-7"><a href="#cb7-7"></a>        allpass(samplerate, rc)</span>
-<span id="cb7-8"><a href="#cb7-8"></a>        <span class="cf">for</span> rc <span class="kw">in</span> [<span class="fl">2.00e-05</span>, <span class="fl">1.07e-04</span>, <span class="fl">5.36e-04</span>, <span class="fl">4.64e-03</span>]</span>
-<span id="cb7-9"><a href="#cb7-9"></a>    ]</span>
-<span id="cb7-10"><a href="#cb7-10"></a></span>
-<span id="cb7-11"><a href="#cb7-11"></a>    sos_imag <span class="op">=</span> [</span>
-<span id="cb7-12"><a href="#cb7-12"></a>        signal.tf2sos(</span>
-<span id="cb7-13"><a href="#cb7-13"></a>            polynomial.polymul(rc1[<span class="dv">0</span>], rc2[<span class="dv">0</span>]),</span>
-<span id="cb7-14"><a href="#cb7-14"></a>            polynomial.polymul(rc1[<span class="dv">1</span>], rc2[<span class="dv">1</span>]),</span>
-<span id="cb7-15"><a href="#cb7-15"></a>        )[<span class="dv">0</span>] <span class="cf">for</span> rc1, rc2 <span class="kw">in</span> <span class="bu">zip</span>(rc_imag[::<span class="dv">2</span>], rc_imag[<span class="dv">1</span>::<span class="dv">2</span>])</span>
-<span id="cb7-16"><a href="#cb7-16"></a>    ]</span>
-<span id="cb7-17"><a href="#cb7-17"></a></span>
-<span id="cb7-18"><a href="#cb7-18"></a>    sos_real <span class="op">=</span> [</span>
-<span id="cb7-19"><a href="#cb7-19"></a>        signal.tf2sos(</span>
-<span id="cb7-20"><a href="#cb7-20"></a>            polynomial.polymul(rc1[<span class="dv">0</span>], rc2[<span class="dv">0</span>]),</span>
-<span id="cb7-21"><a href="#cb7-21"></a>            polynomial.polymul(rc1[<span class="dv">1</span>], rc2[<span class="dv">1</span>]),</span>
-<span id="cb7-22"><a href="#cb7-22"></a>        )[<span class="dv">0</span>] <span class="cf">for</span> rc1, rc2 <span class="kw">in</span> <span class="bu">zip</span>(rc_real[::<span class="dv">2</span>], rc_real[<span class="dv">1</span>::<span class="dv">2</span>])</span>
-<span id="cb7-23"><a href="#cb7-23"></a>    ]</span>
-<span id="cb7-24"><a href="#cb7-24"></a></span>
-<span id="cb7-25"><a href="#cb7-25"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
-<span id="cb7-26"><a href="#cb7-26"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
-<span id="cb7-27"><a href="#cb7-27"></a></span>
-<span id="cb7-28"><a href="#cb7-28"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">-</span> 1j <span class="op">*</span> imag)</span>
-<span id="cb7-29"><a href="#cb7-29"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chuck(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    rc_imag <span class="op">=</span> [</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        allpass(samplerate, rc)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> rc <span class="kw">in</span> [<span class="fl">5.49e-06</span>, <span class="fl">4.75e-05</span>, <span class="fl">2.37e-04</span>, <span class="fl">1.27e-03</span>]</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    rc_real <span class="op">=</span> [</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        allpass(samplerate, rc)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> rc <span class="kw">in</span> [<span class="fl">2.00e-05</span>, <span class="fl">1.07e-04</span>, <span class="fl">5.36e-04</span>, <span class="fl">4.64e-03</span>]</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    sos_imag <span class="op">=</span> [</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        signal.tf2sos(</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            polynomial.polymul(rc1[<span class="dv">0</span>], rc2[<span class="dv">0</span>]),</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            polynomial.polymul(rc1[<span class="dv">1</span>], rc2[<span class="dv">1</span>]),</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        )[<span class="dv">0</span>] <span class="cf">for</span> rc1, rc2 <span class="kw">in</span> <span class="bu">zip</span>(rc_imag[::<span class="dv">2</span>], rc_imag[<span class="dv">1</span>::<span class="dv">2</span>])</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    sos_real <span class="op">=</span> [</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        signal.tf2sos(</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>            polynomial.polymul(rc1[<span class="dv">0</span>], rc2[<span class="dv">0</span>]),</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            polynomial.polymul(rc1[<span class="dv">1</span>], rc2[<span class="dv">1</span>]),</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        )[<span class="dv">0</span>] <span class="cf">for</span> rc1, rc2 <span class="kw">in</span> <span class="bu">zip</span>(rc_real[::<span class="dv">2</span>], rc_real[<span class="dv">1</span>::<span class="dv">2</span>])</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">-</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog Wide Band Audio Phase Shift Networks</a></li>
 </ul>
 <h2 id="音のサンプル">音のサンプル</h2>
 <p>次のようなコードで音をレンダリングしました。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="im">import</span> soundfile</span>
-<span id="cb8-2"><a href="#cb8-2"></a></span>
-<span id="cb8-3"><a href="#cb8-3"></a>data, samplerate <span class="op">=</span> soundfile.read(<span class="st">&quot;snd/yey.wav&quot;</span>, always_2d<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb8-4"><a href="#cb8-4"></a>wav <span class="op">=</span> data.T[<span class="dv">0</span>]</span>
-<span id="cb8-5"><a href="#cb8-5"></a>shift_hz <span class="op">=</span> <span class="dv">200</span>  <span class="co"># Hz</span></span>
-<span id="cb8-6"><a href="#cb8-6"></a></span>
-<span id="cb8-7"><a href="#cb8-7"></a>out <span class="op">=</span> naive(samplerate, wav, shift_hz)</span>
-<span id="cb8-8"><a href="#cb8-8"></a>soundfile.write(<span class="st">&quot;naive.wav&quot;</span>, out, samplerate)</span></code></pre></div>
-<p><span class="math inline">\(\omega_c = 1000\)</span> としてピッチシフトした音のサンプルです。ソースは freesound.org で見つけた hemogREC さんによる <a href="https://freesound.org/people/hemogREC/sounds/144467/">yey.wav</a> です。</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> soundfile</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>data, samplerate <span class="op">=</span> soundfile.read(<span class="st">&quot;snd/yey.wav&quot;</span>, always_2d<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>wav <span class="op">=</span> data.T[<span class="dv">0</span>]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>shift_hz <span class="op">=</span> <span class="dv">200</span>  <span class="co"># Hz</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> naive(samplerate, wav, shift_hz)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>soundfile.write(<span class="st">&quot;naive.wav&quot;</span>, out, samplerate)</span></code></pre></div>
+<p><span class="math inline">\(\omega_c = 1000\)</span> として周波数シフトした音のサンプルです。ソースは freesound.org で見つけた hemogREC さんによる <a href="https://freesound.org/people/hemogREC/sounds/144467/">yey.wav</a> です。</p>
 <figure>
 <figcaption>
 ソース
@@ -785,7 +789,7 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <audio controls> <source src="snd/chuck.wav" type="audio/wav"> </audio>
 </figure></li>
 </ol>
-<p>Wilkinson のフィルタは特性は問題ないのですが、うまくピッチシフトできていません。<a href="https://ccrma.stanford.edu/~jos/fp/Series_Second_Order_Sections.html">直列2次セクション</a>に変換するときに何か問題があるのかもしれません。 Wasabi のフィルタもノイズがはっきりと聞き取れます。</p>
+<p>Wilkinson のフィルタは特性は問題ないのですが、うまく周波数シフトできていません。<a href="https://ccrma.stanford.edu/~jos/fp/Series_Second_Order_Sections.html">直列2次セクション</a>に変換するときに何か問題があるのかもしれません。 Wasabi のフィルタもノイズがはっきりと聞き取れます。</p>
 <h2 id="その他">その他</h2>
 <h3 id="周波数特性の位相差">周波数特性の位相差</h3>
 <p>伝達関数の周波数特性は複素数で表されているので、位相差の計算 <span class="math inline">\(\angle (H_{\mathrm{Re}} / H_{\mathrm{Im}})\)</span> では除算が出てきます。複素数の除算は次のように書けます。</p>
@@ -797,12 +801,12 @@ z_2 = r_2 e^{j \phi_2}
 <p>よって <span class="math inline">\(\angle (z_1 / z_2)\)</span> は <span class="math inline">\(\phi_1 - \phi_2\)</span> です。</p>
 <h3 id="scipy.signal-の-sos"><code>scipy.signal</code> の <code>sos</code></h3>
 <p><code>scipy.signal</code> で <code>sos</code> と略されている cascaded second-order sections のデータ構造です。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>sos <span class="op">=</span> [</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  [b00, b01, b02, <span class="dv">1</span>, a01, a02],</span>
-<span id="cb9-3"><a href="#cb9-3"></a>  [b10, b11, b12, <span class="dv">1</span>, a11, a12],</span>
-<span id="cb9-4"><a href="#cb9-4"></a>  [b20, b21, b22, <span class="dv">1</span>, a21, a22],</span>
-<span id="cb9-5"><a href="#cb9-5"></a>  ...</span>
-<span id="cb9-6"><a href="#cb9-6"></a>]</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> [</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  [b00, b01, b02, <span class="dv">1</span>, a01, a02],</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  [b10, b11, b12, <span class="dv">1</span>, a11, a12],</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  [b20, b21, b22, <span class="dv">1</span>, a21, a22],</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  ...</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div>
 <p>伝達関数は次のようになります。</p>
 <p><span class="math display">\[
 H(z) =
@@ -834,9 +838,19 @@ output = scipy.signal.sosfilt(sos_biquad, some_signal)</code></pre>
 <ul>
 <li><a href="http://www.pd-tutorial.com/english/ch03s03.html">Programming Electronic Music in Pd - 3.3 Subtractive synthesis</a></li>
 </ul>
-<h2 id="訂正">訂正</h2>
+<h3 id="ピッチシフトと周波数シフト">ピッチシフトと周波数シフト</h3>
+<p><a href="http://music.fullbucket.de/freqshifter.html">full bucket music の Frequency Shifter</a> の説明文によるとピッチシフトと周波数シフトとは別物です。ピッチシフトは倍音構造が保持されますが、周波数シフトは倍音構造が崩れてしまうからです。</p>
+<p>この記事はもともと AM ピッチシフトという呼び方を使っていましたが、今は AM 周波数シフトという呼び方に変更しました。 URL が <code>am_pitchshift.html</code> となっているのはその名残です。</p>
+<h2 id="変更点">変更点</h2>
 <ul>
-<li>2019/08/06: コードの <code>shift_hz</code> が誤って周波数のまま扱われていた部分を角周波数に修正。</li>
+<li>2022/05/08
+<ul>
+<li>手法の呼び方を AM ピッチシフトから AM 周波数シフトに変更。</li>
+</ul></li>
+<li>2019/08/06
+<ul>
+<li>コードの <code>shift_hz</code> が誤って周波数のまま扱われていた部分を角周波数に修正。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
