@@ -1,9 +1,9 @@
-# AM変調によるピッチシフト
+# AM変調による周波数シフト
 この文章では虚数を $j$ で表します。
 
-Scott Wardle さんによる [A Hilbert-Transformer Frequency Shifter for Audio](https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf) で紹介されていたAM変調によるピッチシフトで遊びます。
+Scott Wardle さんによる [A Hilbert-Transformer Frequency Shifter for Audio](https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf) で紹介されていたAM変調による周波数シフトで遊びます。
 
-紹介されていた手法では [analytic signal](https://en.wikipedia.org/wiki/Analytic_signal) $s(t)$ に $e^{j \omega_c t}$ を掛け合わせてから実部を取り出すことで $\omega_c$ だけピッチシフトできます。Analytic signal は負の周波数成分が全て0になる信号で、複素数です。
+紹介されていた手法では [analytic signal](https://en.wikipedia.org/wiki/Analytic_signal) $s(t)$ に $e^{j \omega_c t}$ を掛け合わせてから実部を取り出すことで $\omega_c$ だけ周波数シフトできます。Analytic signal は負の周波数成分が全て0になる信号で、複素数です。
 
 $$
 \begin{aligned}
@@ -401,7 +401,7 @@ out = naive(samplerate, wav, shift_hz)
 soundfile.write("naive.wav", out, samplerate)
 ```
 
-$\omega_c = 1000$ としてピッチシフトした音のサンプルです。ソースは freesound.org で見つけた hemogREC さんによる [yey.wav](https://freesound.org/people/hemogREC/sounds/144467/) です。
+$\omega_c = 1000$ として周波数シフトした音のサンプルです。ソースは freesound.org で見つけた hemogREC さんによる [yey.wav](https://freesound.org/people/hemogREC/sounds/144467/) です。
 
 <figure>
   <figcaption>ソース</figcaption>
@@ -459,7 +459,7 @@ $\omega_c = 1000$ としてピッチシフトした音のサンプルです。�
   </audio>
 </figure>
 
-Wilkinson のフィルタは特性は問題ないのですが、うまくピッチシフトできていません。[直列2次セクション](https://ccrma.stanford.edu/~jos/fp/Series_Second_Order_Sections.html)に変換するときに何か問題があるのかもしれません。 Wasabi のフィルタもノイズがはっきりと聞き取れます。
+Wilkinson のフィルタは特性は問題ないのですが、うまく周波数シフトできていません。[直列2次セクション](https://ccrma.stanford.edu/~jos/fp/Series_Second_Order_Sections.html)に変換するときに何か問題があるのかもしれません。 Wasabi のフィルタもノイズがはっきりと聞き取れます。
 
 ## その他
 ### 周波数特性の位相差
@@ -528,5 +528,13 @@ output = scipy.signal.sosfilt(sos_biquad, some_signal)
 
 - [Programming Electronic Music in Pd - 3.3 Subtractive synthesis](http://www.pd-tutorial.com/english/ch03s03.html)
 
-## 訂正
-- 2019/08/06: コードの `shift_hz` が誤って周波数のまま扱われていた部分を角周波数に修正。
+### ピッチシフトと周波数シフト
+[full bucket music の Frequency Shifter](http://music.fullbucket.de/freqshifter.html) の説明文によるとピッチシフトと周波数シフトとは別物です。ピッチシフトは倍音構造が保持されますが、周波数シフトは倍音構造が崩れてしまうからです。
+
+この記事はもともと AM ピッチシフトという呼び方を使っていましたが、今は AM 周波数シフトという呼び方に変更しました。 URL が `am_pitchshift.html` となっているのはその名残です。
+
+## 変更点
+- 2022/05/08
+  - 手法の呼び方を AM ピッチシフトから AM 周波数シフトに変更。
+- 2019/08/06
+  - コードの `shift_hz` が誤って周波数のまま扱われていた部分を角周波数に修正。
