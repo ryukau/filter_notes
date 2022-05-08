@@ -234,6 +234,79 @@ function overSampling(section, input, K) {
 }
 ```
 
+## レートリミッタ
+ディレイ時間を変更したときのノイズを減らす別の方法としてレートリミッタが使えます。
+
+レートリミッタは 1 フレームあたりでの値の変化量を制限する部品です。例えば現在値が 0 、目標値が 100 、レート制限値が 1 とすると、目標値へ 100 フレームかけて到達するようにします。
+
+以下は C++ によるレートリミッタの実装例です。
+
+```c++
+#include <algorithm>
+
+template<typename Sample> struct RateLimiter {
+  Sample target = 0;
+  Sample value = 0;
+
+  Sample process(Sample target, Sample rate)
+  {
+    rate = std::max(Sample(0), rate);
+
+    auto diff = target - value;
+    if (diff > rate) {
+      value += rate;
+    } else if (diff < -rate) {
+      value -= rate;
+    } else {
+      value = target;
+    }
+    return value;
+  }
+};
+```
+
+以下のようにディレイに組み込んで使えます。
+
+```c++
+template<typename Sample> struct Delay {
+  size_t wptr = 0;
+  std::vector<Sample> buf{48000};
+  RateLimiter<Sample> timeLimiter;
+
+  Sample process(Sample input, Sample timeInSample)
+  {
+    // ディレイ時間のレート制限。制限値は 0.25 で固定。
+    timeInSample = timeLimiter.process(timeInSample, Sample(0.25));
+
+    // ディレイ時間の設定。
+    Sample clamped = std::clamp(timeInSample, Sample(0), Sample(buf.size() - 1));
+    size_t &&timeInt = size_t(clamped);
+    Sample rFraction = clamped - Sample(timeInt);
+
+    // 読み取るインデックスの更新。
+    size_t rptr0 = wptr - timeInt;
+    size_t rptr1 = rptr0 - 1;
+    if (rptr0 >= buf.size()) rptr0 += buf.size(); // Unsigned negative overflow case.
+    if (rptr1 >= buf.size()) rptr1 += buf.size(); // Unsigned negative overflow case.
+
+    // バッファへの書き込み。
+    buf[wptr] = input;
+    if (++wptr >= buf.size()) wptr -= buf.size();
+
+    // バッファからの読み取り。線形補間。
+    return buf[rptr0] + rFraction * (buf[rptr1] - buf[rptr0]);
+  }
+};
+```
+
+上の `Delay` はオーバーサンプリングを行っていませんが、ディレイ時間 `timeInSample` を変更したときもノイズはほぼ聞こえません。ただし、ハイシェルフフィルタなどを使って極端に高域を強調するとノイズが消えているわけではないことが確認できます。徹底的にノイズを減らすのであればオーバーサンプリングとレートリミッタを両方使ったほうがよさそうです。
+
+以下は実際にプラグインで使った実装へのリンクです。 `rate` はすべてのディレイについて一括で変えたかったので static にしています。
+
+- [FDN64Reverb で使った RateLimiter の実装を読む (github.com)](https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5fa82111c7/FDN64Reverb/source/dsp/fdnreverb.hpp#L65)
+
+レートリミッタの代わりに 1 次ローパスフィルタや [EMA フィルタ](https://ryukau.github.io/filter_notes/control_rate_interpolation/control_rate_interpolation.html#p-controller)などのオーバーシュートしないフィルタを使うことも考えられます。レートリミッタのような正確な値の変動の制限は期待できませんが、ディレイ時間に使うとそれなりに味のある音になります。
+
 ## ディレイ時間の補正
 整数ディレイの前後に取り付けられた分数ディレイフィルタの遅延を補正します。次の図はオーバーサンプリングを追加したときのディレイの処理の流れです。
 
@@ -586,3 +659,7 @@ $0 \leq x \leq 1$ で $y_0$ と $y_1$ の間を線形補間する式になって
 
 ## 参考文献
 - [MUS420 Lecture 4A Interpolated Delay Lines, Ideal Bandlimited Interpolation, and Fractional Delay Filter Design](https://ccrma.stanford.edu/~jos/Interpolation/)
+
+## 変更点
+- 2022/05/08
+  - レートリミッタの節を追加。
