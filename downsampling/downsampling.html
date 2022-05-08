@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2021-02-25" />
+<meta name="dcterms.date" content="2022-05-08" />
 <title>downsampling</title>
 
 <!-- KaTeX -->
@@ -19,19 +19,19 @@ integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiV
 onload="renderMathInElement(document.body);"></script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +52,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -326,7 +326,7 @@ border: 2px solid #aaccff;
 }
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,26 +337,32 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2021-02-25
+Update: 2022-05-08
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#ダウンサンプリング">ダウンサンプリング</a><ul>
+<li><a href="#ダウンサンプリング">ダウンサンプリング</a>
+<ul>
 <li><a href="#用語">用語</a></li>
 <li><a href="#noble-identities-とポリフェイズフィルタ">Noble Identities とポリフェイズフィルタ</a></li>
-<li><a href="#使えるローパスフィルタの種類">使えるローパスフィルタの種類</a><ul>
+<li><a href="#使えるローパスフィルタの種類">使えるローパスフィルタの種類</a>
+<ul>
 <li><a href="#オーバーラップ">オーバーラップ</a></li>
 </ul></li>
-<li><a href="#fir-フィルタの設計と実装">FIR フィルタの設計と実装</a><ul>
+<li><a href="#fir-フィルタの設計と実装">FIR フィルタの設計と実装</a>
+<ul>
 <li><a href="#c-による実装">C++ による実装</a></li>
 </ul></li>
-<li><a href="#iir-フィルタの設計と実装">IIR フィルタの設計と実装</a><ul>
+<li><a href="#iir-フィルタの設計と実装">IIR フィルタの設計と実装</a>
+<ul>
 <li><a href="#c-による実装-1">C++ による実装</a></li>
 </ul></li>
-<li><a href="#その他">その他</a><ul>
 <li><a href="#マルチステージ">マルチステージ</a></li>
+<li><a href="#その他">その他</a>
+<ul>
+<li><a href="#適切なマルチステージの分割">適切なマルチステージの分割</a></li>
 </ul></li>
 <li><a href="#変更点">変更点</a></li>
 </ul></li>
@@ -506,22 +512,22 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 </ul>
 <p>ここでは出力信号のサンプリング周波数を 48000 Hz で統一しています。</p>
 <p>以下のコードで <code>scipy.signal.remez</code> を使って設計します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3"></a></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">def</span> decimationFir(length, oversample, cutoff, nyquist<span class="op">=</span><span class="fl">0.5</span>):</span>
-<span id="cb1-5"><a href="#cb1-5"></a>    <span class="co">&quot;&quot;&quot;オーバーラップありのときは nyquist を 0.6 などに設定する。&quot;&quot;&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a>    bands <span class="op">=</span> np.hstack((</span>
-<span id="cb1-7"><a href="#cb1-7"></a>        [<span class="dv">0</span>, cutoff],</span>
-<span id="cb1-8"><a href="#cb1-8"></a>        [nyquist, oversample <span class="op">/</span> <span class="dv">2</span>],</span>
-<span id="cb1-9"><a href="#cb1-9"></a>    ))</span>
-<span id="cb1-10"><a href="#cb1-10"></a>    desired <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb1-11"><a href="#cb1-11"></a>    <span class="cf">return</span> signal.remez(length, bands, desired, fs<span class="op">=</span>oversample)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decimationFir(length, oversample, cutoff, nyquist<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;オーバーラップありのときは nyquist を 0.6 などに設定する。&quot;&quot;&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    bands <span class="op">=</span> np.hstack((</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        [<span class="dv">0</span>, cutoff],</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        [nyquist, oversample <span class="op">/</span> <span class="dv">2</span>],</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    desired <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.remez(length, bands, desired, fs<span class="op">=</span>oversample)</span></code></pre></div>
 <p><code>length</code> はフィルタの長さ (タップ数) です。</p>
 <p><code>oversample</code> はオーバーサンプリングの倍率です。例えば <code>oversample = 2</code> のときは 1/2 倍のダウンサンプリングに使うフィルタを設計します。</p>
 <p><code>cutoff</code> はナイキスト周波数が 0.5 に正規化されているときのカットオフ周波数です。例えばサンプリング周波数 48000 Hz 、カットオフ周波数 20000 Hz のときは <code>cutoff</code> の値を 20000 / 48000 = 0.4 と設定できます。</p>
 <p>オーバーラップありのときは <code>nyquist</code> を 0.5 以上の値にします。以下のコードでオーバーラップあり、ストップバンドの低減が -60 dB のフィルタが設計できます。フィルタの長さが短くできるのがオーバーラップありの利点です。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>fir <span class="op">=</span> decimationFir(<span class="dv">68</span>, <span class="dv">4</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> decimationFir(<span class="dv">68</span>, <span class="dv">4</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>)</span></code></pre></div>
 <p><code>oversample = 2, cutoff = 0.375</code> のときに、ストップバンドの低減が大まかに -60, -80, -100, -120 dB となる値を下の表にまとめました。 <code>oversample = 4</code> のときは下の表のフィルタの長さを 2 倍にすると同じ特性が得られます。同様に <code>oversample = 8</code> のときは 4 倍、 <code>oversample = 16</code> のときは 8 倍にすると同じ特性が得られます。</p>
 <table>
 <thead>
@@ -550,123 +556,123 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 </tbody>
 </table>
 <p>例えば <code>oversample = 4</code> でストップバンドの低減が -60 dB のときは、フィルタの長さを 54 * 2 = 108 にすれば所望の特性が得られます。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>fir <span class="op">=</span> decimationFir(<span class="dv">108</span>, <span class="dv">4</span>, <span class="fl">0.375</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> decimationFir(<span class="dv">108</span>, <span class="dv">4</span>, <span class="fl">0.375</span>)</span></code></pre></div>
 <p>以下は上のコードで設計した FIR フィルタの振幅特性です。</p>
 <figure>
 <img src="img/fir_example.svg" alt="Plot of example fir filter amplitude response." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="c-による実装">C++ による実装</h3>
 <p>ポリフェイズ分解した FIR フィルタを用いた 1/2 倍のダウンサンプリングの実装例です。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a></span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="co">/*</span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="co">2 倍のオーバーサンプリングに特化した FIR フィルタ係数。</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a></span>
-<span id="cb4-9"><a href="#cb4-9"></a><span class="co">パスバンドに ±0.003 dB のリップル。</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a><span class="co">ストップバンドで -69 dB 低減。</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a><span class="co">オーバーラップ無し。</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a></span>
-<span id="cb4-13"><a href="#cb4-13"></a><span class="co">---python</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a><span class="co">import scipy.signal as signal</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a><span class="co">oversample = 2</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a><span class="co">signal.remez(64, [0, 0.375, 0.5, oversample], [1, 0], fs=oversample)</span></span>
-<span id="cb4-17"><a href="#cb4-17"></a><span class="co">---</span></span>
-<span id="cb4-18"><a href="#cb4-18"></a><span class="co">*/</span></span>
-<span id="cb4-19"><a href="#cb4-19"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> FirRemez64Decimation2 {</span>
-<span id="cb4-20"><a href="#cb4-20"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">size_t</span> bufferSize = <span class="dv">32</span>;</span>
-<span id="cb4-21"><a href="#cb4-21"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">size_t</span> nPhase = <span class="dv">2</span>;</span>
-<span id="cb4-22"><a href="#cb4-22"></a></span>
-<span id="cb4-23"><a href="#cb4-23"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array&lt;<span class="bu">std::</span>array&lt;Sample, bufferSize&gt;, nPhase&gt; coefficient{{</span>
-<span id="cb4-24"><a href="#cb4-24"></a>    {Sample(-<span class="fl">0.00012586358900962356</span>), Sample(<span class="fl">0.0001828145651312807</span>),</span>
-<span id="cb4-25"><a href="#cb4-25"></a>     Sample(<span class="fl">8.205416319885108e-05</span>),   Sample(-<span class="fl">0.0007239553549487794</span>),</span>
-<span id="cb4-26"><a href="#cb4-26"></a>     Sample(<span class="fl">0.0018923639640423555</span>),   Sample(-<span class="fl">0.00353192867622875</span>),</span>
-<span id="cb4-27"><a href="#cb4-27"></a>     Sample(<span class="fl">0.005331459582347676</span>),    Sample(-<span class="fl">0.006667992332855854</span>),</span>
-<span id="cb4-28"><a href="#cb4-28"></a>     Sample(<span class="fl">0.006636334343333397</span>),    Sample(-<span class="fl">0.004162169091786725</span>),</span>
-<span id="cb4-29"><a href="#cb4-29"></a>     Sample(-<span class="fl">0.0018313041529962014</span>),  Sample(<span class="fl">0.012291623826628002</span>),</span>
-<span id="cb4-30"><a href="#cb4-30"></a>     Sample(-<span class="fl">0.02812500771752753</span>),    Sample(<span class="fl">0.05102267479538475</span>),</span>
-<span id="cb4-31"><a href="#cb4-31"></a>     Sample(-<span class="fl">0.08758235952225661</span>),    Sample(<span class="fl">0.18605559261058696</span>),</span>
-<span id="cb4-32"><a href="#cb4-32"></a>     Sample(<span class="fl">0.4035431721330982</span>),      Sample(-<span class="fl">0.03627960335535102</span>),</span>
-<span id="cb4-33"><a href="#cb4-33"></a>     Sample(-<span class="fl">0.006631516329342658</span>),   Sample(<span class="fl">0.02064755543805059</span>),</span>
-<span id="cb4-34"><a href="#cb4-34"></a>     Sample(-<span class="fl">0.023817278019366648</span>),   Sample(<span class="fl">0.021451149873294335</span>),</span>
-<span id="cb4-35"><a href="#cb4-35"></a>     Sample(-<span class="fl">0.0164261830615856</span>),     Sample(<span class="fl">0.010706859341764241</span>),</span>
-<span id="cb4-36"><a href="#cb4-36"></a>     Sample(-<span class="fl">0.005602179907252967</span>),   Sample(<span class="fl">0.001817817136086864</span>),</span>
-<span id="cb4-37"><a href="#cb4-37"></a>     Sample(<span class="fl">0.00046580645271121403</span>),  Sample(-<span class="fl">0.0014510531292568874</span>),</span>
-<span id="cb4-38"><a href="#cb4-38"></a>     Sample(<span class="fl">0.0015411334474003102</span>),   Sample(-<span class="fl">0.0011736418939169283</span>),</span>
-<span id="cb4-39"><a href="#cb4-39"></a>     Sample(<span class="fl">0.0006849141024872853</span>),   Sample(-<span class="fl">0.00039292037784520776</span>)},</span>
-<span id="cb4-40"><a href="#cb4-40"></a>    {Sample(-<span class="fl">0.00039292037784520776</span>), Sample(<span class="fl">0.0006849141024872853</span>),</span>
-<span id="cb4-41"><a href="#cb4-41"></a>     Sample(-<span class="fl">0.0011736418939169283</span>),  Sample(<span class="fl">0.0015411334474003102</span>),</span>
-<span id="cb4-42"><a href="#cb4-42"></a>     Sample(-<span class="fl">0.0014510531292568874</span>),  Sample(<span class="fl">0.00046580645271121403</span>),</span>
-<span id="cb4-43"><a href="#cb4-43"></a>     Sample(<span class="fl">0.001817817136086864</span>),    Sample(-<span class="fl">0.005602179907252967</span>),</span>
-<span id="cb4-44"><a href="#cb4-44"></a>     Sample(<span class="fl">0.010706859341764241</span>),    Sample(-<span class="fl">0.0164261830615856</span>),</span>
-<span id="cb4-45"><a href="#cb4-45"></a>     Sample(<span class="fl">0.021451149873294335</span>),    Sample(-<span class="fl">0.023817278019366648</span>),</span>
-<span id="cb4-46"><a href="#cb4-46"></a>     Sample(<span class="fl">0.02064755543805059</span>),     Sample(-<span class="fl">0.006631516329342658</span>),</span>
-<span id="cb4-47"><a href="#cb4-47"></a>     Sample(-<span class="fl">0.03627960335535102</span>),    Sample(<span class="fl">0.4035431721330982</span>),</span>
-<span id="cb4-48"><a href="#cb4-48"></a>     Sample(<span class="fl">0.18605559261058696</span>),     Sample(-<span class="fl">0.08758235952225661</span>),</span>
-<span id="cb4-49"><a href="#cb4-49"></a>     Sample(<span class="fl">0.05102267479538475</span>),     Sample(-<span class="fl">0.02812500771752753</span>),</span>
-<span id="cb4-50"><a href="#cb4-50"></a>     Sample(<span class="fl">0.012291623826628002</span>),    Sample(-<span class="fl">0.0018313041529962014</span>),</span>
-<span id="cb4-51"><a href="#cb4-51"></a>     Sample(-<span class="fl">0.004162169091786725</span>),   Sample(<span class="fl">0.006636334343333397</span>),</span>
-<span id="cb4-52"><a href="#cb4-52"></a>     Sample(-<span class="fl">0.006667992332855854</span>),   Sample(<span class="fl">0.005331459582347676</span>),</span>
-<span id="cb4-53"><a href="#cb4-53"></a>     Sample(-<span class="fl">0.00353192867622875</span>),    Sample(<span class="fl">0.0018923639640423555</span>),</span>
-<span id="cb4-54"><a href="#cb4-54"></a>     Sample(-<span class="fl">0.0007239553549487794</span>),  Sample(<span class="fl">8.205416319885108e-05</span>),</span>
-<span id="cb4-55"><a href="#cb4-55"></a>     Sample(<span class="fl">0.0001828145651312807</span>),   Sample(-<span class="fl">0.00012586358900962356</span>)},</span>
-<span id="cb4-56"><a href="#cb4-56"></a>  }};</span>
-<span id="cb4-57"><a href="#cb4-57"></a>};</span>
-<span id="cb4-58"><a href="#cb4-58"></a></span>
-<span id="cb4-59"><a href="#cb4-59"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample, <span class="kw">typename</span> FIR&gt; <span class="kw">class</span> FirFilter {</span>
-<span id="cb4-60"><a href="#cb4-60"></a>  <span class="bu">std::</span>array&lt;<span class="bu">std::</span>array&lt;Sample, FIR::bufferSize&gt;, FIR::nPhase&gt; buf;</span>
-<span id="cb4-61"><a href="#cb4-61"></a></span>
-<span id="cb4-62"><a href="#cb4-62"></a><span class="kw">public</span>:</span>
-<span id="cb4-63"><a href="#cb4-63"></a>  FirFilter() { reset(); }</span>
-<span id="cb4-64"><a href="#cb4-64"></a></span>
-<span id="cb4-65"><a href="#cb4-65"></a>  <span class="dt">void</span> reset()</span>
-<span id="cb4-66"><a href="#cb4-66"></a>  {</span>
-<span id="cb4-67"><a href="#cb4-67"></a>    <span class="cf">for</span> (<span class="kw">auto</span> &amp;bf : buf) bf.fill(Sample(<span class="dv">0</span>));</span>
-<span id="cb4-68"><a href="#cb4-68"></a>  }</span>
-<span id="cb4-69"><a href="#cb4-69"></a></span>
-<span id="cb4-70"><a href="#cb4-70"></a>  Sample process(<span class="bu">std::</span>array&lt;Sample, FIR::nPhase&gt; &amp;input)</span>
-<span id="cb4-71"><a href="#cb4-71"></a>  {</span>
-<span id="cb4-72"><a href="#cb4-72"></a>    Sample sum = <span class="dv">0</span>;</span>
-<span id="cb4-73"><a href="#cb4-73"></a></span>
-<span id="cb4-74"><a href="#cb4-74"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> ph = <span class="dv">0</span>; ph &lt; FIR::nPhase; ++ph) {</span>
-<span id="cb4-75"><a href="#cb4-75"></a>      <span class="kw">auto</span> &amp;bf = buf[ph];</span>
-<span id="cb4-76"><a href="#cb4-76"></a>      <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; bf.size() - <span class="dv">1</span>; ++i) bf[i] = bf[i + <span class="dv">1</span>];</span>
-<span id="cb4-77"><a href="#cb4-77"></a>      bf.back() = input[ph];</span>
-<span id="cb4-78"><a href="#cb4-78"></a></span>
-<span id="cb4-79"><a href="#cb4-79"></a>      <span class="at">const</span> <span class="kw">auto</span> &amp;fir = FIR::coefficient[ph];</span>
-<span id="cb4-80"><a href="#cb4-80"></a>      <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; fir.size(); ++i) sum += bf[i] * fir[i];</span>
-<span id="cb4-81"><a href="#cb4-81"></a>    }</span>
-<span id="cb4-82"><a href="#cb4-82"></a></span>
-<span id="cb4-83"><a href="#cb4-83"></a>    <span class="cf">return</span> sum;</span>
-<span id="cb4-84"><a href="#cb4-84"></a>  }</span>
-<span id="cb4-85"><a href="#cb4-85"></a>};</span>
-<span id="cb4-86"><a href="#cb4-86"></a></span>
-<span id="cb4-87"><a href="#cb4-87"></a><span class="dt">int</span> main()</span>
-<span id="cb4-88"><a href="#cb4-88"></a>{</span>
-<span id="cb4-89"><a href="#cb4-89"></a>  FirFilter&lt;<span class="dt">float</span>, FirRemez64Decimation2&lt;<span class="dt">float</span>&gt;&gt; filter;</span>
-<span id="cb4-90"><a href="#cb4-90"></a></span>
-<span id="cb4-91"><a href="#cb4-91"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; data(<span class="dv">64</span>);</span>
-<span id="cb4-92"><a href="#cb4-92"></a>  <span class="bu">std::</span>iota(data.begin(), data.end(), <span class="fl">0.0</span><span class="bu">f</span>);</span>
-<span id="cb4-93"><a href="#cb4-93"></a></span>
-<span id="cb4-94"><a href="#cb4-94"></a>  <span class="bu">std::</span>array&lt;<span class="dt">float</span>, <span class="dv">2</span>&gt; input;</span>
-<span id="cb4-95"><a href="#cb4-95"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; data.size(); i += <span class="dv">2</span>) {</span>
-<span id="cb4-96"><a href="#cb4-96"></a>    input[<span class="dv">0</span>] = data[i];</span>
-<span id="cb4-97"><a href="#cb4-97"></a>    input[<span class="dv">1</span>] = data[i + <span class="dv">1</span>];</span>
-<span id="cb4-98"><a href="#cb4-98"></a>    <span class="bu">std::</span>cout &lt;&lt; filter.process(input) &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
-<span id="cb4-99"><a href="#cb4-99"></a>  }</span>
-<span id="cb4-100"><a href="#cb4-100"></a></span>
-<span id="cb4-101"><a href="#cb4-101"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb4-102"><a href="#cb4-102"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">2 倍のオーバーサンプリングに特化した FIR フィルタ係数。</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">パスバンドに ±0.003 dB のリップル。</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">ストップバンドで -69 dB 低減。</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">オーバーラップ無し。</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">---python</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">import scipy.signal as signal</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">oversample = 2</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">signal.remez(64, [0, 0.375, 0.5, oversample], [1, 0], fs=oversample)</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">*/</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> FirRemez64Decimation2 <span class="op">{</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">size_t</span> bufferSize <span class="op">=</span> <span class="dv">32</span><span class="op">;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">size_t</span> nPhase <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> bufferSize<span class="op">&gt;,</span> nPhase<span class="op">&gt;</span> coefficient<span class="op">{{</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(-</span><span class="fl">0.00012586358900962356</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">0.0001828145651312807</span><span class="op">),</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">8.205416319885108e-05</span><span class="op">),</span>   Sample<span class="op">(-</span><span class="fl">0.0007239553549487794</span><span class="op">),</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.0018923639640423555</span><span class="op">),</span>   Sample<span class="op">(-</span><span class="fl">0.00353192867622875</span><span class="op">),</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.005331459582347676</span><span class="op">),</span>    Sample<span class="op">(-</span><span class="fl">0.006667992332855854</span><span class="op">),</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.006636334343333397</span><span class="op">),</span>    Sample<span class="op">(-</span><span class="fl">0.004162169091786725</span><span class="op">),</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.0018313041529962014</span><span class="op">),</span>  Sample<span class="op">(</span><span class="fl">0.012291623826628002</span><span class="op">),</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.02812500771752753</span><span class="op">),</span>    Sample<span class="op">(</span><span class="fl">0.05102267479538475</span><span class="op">),</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.08758235952225661</span><span class="op">),</span>    Sample<span class="op">(</span><span class="fl">0.18605559261058696</span><span class="op">),</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.4035431721330982</span><span class="op">),</span>      Sample<span class="op">(-</span><span class="fl">0.03627960335535102</span><span class="op">),</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.006631516329342658</span><span class="op">),</span>   Sample<span class="op">(</span><span class="fl">0.02064755543805059</span><span class="op">),</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.023817278019366648</span><span class="op">),</span>   Sample<span class="op">(</span><span class="fl">0.021451149873294335</span><span class="op">),</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.0164261830615856</span><span class="op">),</span>     Sample<span class="op">(</span><span class="fl">0.010706859341764241</span><span class="op">),</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.005602179907252967</span><span class="op">),</span>   Sample<span class="op">(</span><span class="fl">0.001817817136086864</span><span class="op">),</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.00046580645271121403</span><span class="op">),</span>  Sample<span class="op">(-</span><span class="fl">0.0014510531292568874</span><span class="op">),</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.0015411334474003102</span><span class="op">),</span>   Sample<span class="op">(-</span><span class="fl">0.0011736418939169283</span><span class="op">),</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.0006849141024872853</span><span class="op">),</span>   Sample<span class="op">(-</span><span class="fl">0.00039292037784520776</span><span class="op">)},</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(-</span><span class="fl">0.00039292037784520776</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">0.0006849141024872853</span><span class="op">),</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.0011736418939169283</span><span class="op">),</span>  Sample<span class="op">(</span><span class="fl">0.0015411334474003102</span><span class="op">),</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.0014510531292568874</span><span class="op">),</span>  Sample<span class="op">(</span><span class="fl">0.00046580645271121403</span><span class="op">),</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.001817817136086864</span><span class="op">),</span>    Sample<span class="op">(-</span><span class="fl">0.005602179907252967</span><span class="op">),</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.010706859341764241</span><span class="op">),</span>    Sample<span class="op">(-</span><span class="fl">0.0164261830615856</span><span class="op">),</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.021451149873294335</span><span class="op">),</span>    Sample<span class="op">(-</span><span class="fl">0.023817278019366648</span><span class="op">),</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.02064755543805059</span><span class="op">),</span>     Sample<span class="op">(-</span><span class="fl">0.006631516329342658</span><span class="op">),</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.03627960335535102</span><span class="op">),</span>    Sample<span class="op">(</span><span class="fl">0.4035431721330982</span><span class="op">),</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.18605559261058696</span><span class="op">),</span>     Sample<span class="op">(-</span><span class="fl">0.08758235952225661</span><span class="op">),</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.05102267479538475</span><span class="op">),</span>     Sample<span class="op">(-</span><span class="fl">0.02812500771752753</span><span class="op">),</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.012291623826628002</span><span class="op">),</span>    Sample<span class="op">(-</span><span class="fl">0.0018313041529962014</span><span class="op">),</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.004162169091786725</span><span class="op">),</span>   Sample<span class="op">(</span><span class="fl">0.006636334343333397</span><span class="op">),</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.006667992332855854</span><span class="op">),</span>   Sample<span class="op">(</span><span class="fl">0.005331459582347676</span><span class="op">),</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.00353192867622875</span><span class="op">),</span>    Sample<span class="op">(</span><span class="fl">0.0018923639640423555</span><span class="op">),</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">0.0007239553549487794</span><span class="op">),</span>  Sample<span class="op">(</span><span class="fl">8.205416319885108e-05</span><span class="op">),</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.0001828145651312807</span><span class="op">),</span>   Sample<span class="op">(-</span><span class="fl">0.00012586358900962356</span><span class="op">)},</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>  <span class="op">}};</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">,</span> <span class="kw">typename</span> FIR<span class="op">&gt;</span> <span class="kw">class</span> FirFilter <span class="op">{</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> FIR<span class="op">::</span>bufferSize<span class="op">&gt;,</span> FIR<span class="op">::</span>nPhase<span class="op">&gt;</span> buf<span class="op">;</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>  FirFilter<span class="op">()</span> <span class="op">{</span> reset<span class="op">();</span> <span class="op">}</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">&amp;</span>bf <span class="op">:</span> buf<span class="op">)</span> bf<span class="op">.</span>fill<span class="op">(</span>Sample<span class="op">(</span><span class="dv">0</span><span class="op">));</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> FIR<span class="op">::</span>nPhase<span class="op">&gt;</span> <span class="op">&amp;</span>input<span class="op">)</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>    Sample sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> ph <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> ph <span class="op">&lt;</span> FIR<span class="op">::</span>nPhase<span class="op">;</span> <span class="op">++</span>ph<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>      <span class="kw">auto</span> <span class="op">&amp;</span>bf <span class="op">=</span> buf<span class="op">[</span>ph<span class="op">];</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> bf<span class="op">.</span>size<span class="op">()</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> bf<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> bf<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">];</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>      bf<span class="op">.</span>back<span class="op">()</span> <span class="op">=</span> input<span class="op">[</span>ph<span class="op">];</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>      <span class="at">const</span> <span class="kw">auto</span> <span class="op">&amp;</span>fir <span class="op">=</span> FIR<span class="op">::</span>coefficient<span class="op">[</span>ph<span class="op">];</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> fir<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> sum <span class="op">+=</span> bf<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> fir<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum<span class="op">;</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>  FirFilter<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> FirRemez64Decimation2<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;&gt;</span> filter<span class="op">;</span></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> data<span class="op">(</span><span class="dv">64</span><span class="op">);</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>iota<span class="op">(</span>data<span class="op">.</span>begin<span class="op">(),</span> data<span class="op">.</span>end<span class="op">(),</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> input<span class="op">;</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> data<span class="op">.</span>size<span class="op">();</span> i <span class="op">+=</span> <span class="dv">2</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>    input<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> data<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>    input<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> data<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">];</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> filter<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>上の実装では <code>FirFilter</code> にリングバッファ <code>buf</code> を持たせて、入力サンプルごとに回しています。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">auto</span> &amp;bf = buf[ph];</span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; bf.size() - <span class="dv">1</span>; ++i) bf[i] = bf[i + <span class="dv">1</span>];</span>
-<span id="cb5-3"><a href="#cb5-3"></a>bf.back() = input[ph];</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> <span class="op">&amp;</span>bf <span class="op">=</span> buf<span class="op">[</span>ph<span class="op">];</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> bf<span class="op">.</span>size<span class="op">()</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> bf<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> bf<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">];</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>bf<span class="op">.</span>back<span class="op">()</span> <span class="op">=</span> input<span class="op">[</span>ph<span class="op">];</span></span></code></pre></div>
 <p>この回転は <code>std::rotate</code> に置き換えられます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">auto</span> &amp;bf = buf[ph];</span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="bu">std::</span>rotate(buf.begin(), buf.begin() + <span class="dv">1</span>, buf.end());</span>
-<span id="cb6-3"><a href="#cb6-3"></a>bf.back() = input[ph];</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> <span class="op">&amp;</span>bf <span class="op">=</span> buf<span class="op">[</span>ph<span class="op">];</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>rotate<span class="op">(</span>buf<span class="op">.</span>begin<span class="op">(),</span> buf<span class="op">.</span>begin<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> buf<span class="op">.</span>end<span class="op">());</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>bf<span class="op">.</span>back<span class="op">()</span> <span class="op">=</span> input<span class="op">[</span>ph<span class="op">];</span></span></code></pre></div>
 <p>簡単なベンチマークを取ったところ、バッファの長さが 16 のときは <code>for</code> で回す実装が速いですが、バッファの長さが 32 を超えると <code>std::rotate</code> のほうが速かったです。この結果は環境によって変わると思われるので参考程度に留めておいてください。</p>
 <p>またリングバッファを回さず、事前に回しておいたフィルタ係数を畳み込む実装も考えられます。例えば <code>[0, 1, 2, 3]</code> というフィルタ係数が与えられたとき、以下のような配列を作ります。</p>
 <pre><code>[
@@ -692,17 +698,17 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 </ul>
 <p>ここでは出力信号のサンプリング周波数を 48000 Hz で統一しています。</p>
 <p>オーバーラップ無しのときは楕円フィルタが適しています。以下のコードで楕円ローパスフィルタを設計できます。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb8-3"><a href="#cb8-3"></a></span>
-<span id="cb8-4"><a href="#cb8-4"></a>order <span class="op">=</span> <span class="dv">12</span>        <span class="co"># フィルタの次数。</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a>ripple <span class="op">=</span> <span class="fl">0.01</span>     <span class="co"># パスバンドのリップルの大きさ。単位は dB 。</span></span>
-<span id="cb8-6"><a href="#cb8-6"></a>attenuation <span class="op">=</span> <span class="dv">100</span> <span class="co"># ストップバンドでの低減。単位は dB 。</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>cutoff <span class="op">=</span> <span class="fl">0.4</span>      <span class="co"># カットオフ周波数。 fs = 1 に正規化された周波数。</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a>oversample <span class="op">=</span> <span class="dv">2</span>    <span class="co"># オーバーサンプリングの倍率。</span></span>
-<span id="cb8-9"><a href="#cb8-9"></a></span>
-<span id="cb8-10"><a href="#cb8-10"></a>sos <span class="op">=</span> signal.ellip(</span>
-<span id="cb8-11"><a href="#cb8-11"></a>    order, ripple, attenuation, cutoff, <span class="st">&quot;low&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>, fs<span class="op">=</span>oversample)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> <span class="dv">12</span>        <span class="co"># フィルタの次数。</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>ripple <span class="op">=</span> <span class="fl">0.01</span>     <span class="co"># パスバンドのリップルの大きさ。単位は dB 。</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>attenuation <span class="op">=</span> <span class="dv">100</span> <span class="co"># ストップバンドでの低減。単位は dB 。</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>cutoff <span class="op">=</span> <span class="fl">0.4</span>      <span class="co"># カットオフ周波数。 fs = 1 に正規化された周波数。</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>oversample <span class="op">=</span> <span class="dv">2</span>    <span class="co"># オーバーサンプリングの倍率。</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> signal.ellip(</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    order, ripple, attenuation, cutoff, <span class="st">&quot;low&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>, fs<span class="op">=</span>oversample)</span></code></pre></div>
 <p>下の表に <code>ripple = 0.01</code> 、 <code>cutoff = 0.4</code> でオーバーサンプリングの倍率とストップバンドでの低減を変えたときにオーバーラップしない最小の次数をまとめています。</p>
 <table>
 <thead>
@@ -797,14 +803,14 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 </table>
 <p><code>ripple = 0.01</code> 、 <code>cutoff = 0.4</code> のとき、次数 12 の楕円フィルタはいろいろなオーバーサンプリングの倍率に対応できて便利そうです。</p>
 <p>オーバーラップありのときは Butterworth フィルタも使えます。以下のコードで Butterworth ローパスフィルタを設計できます。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
-<span id="cb9-2"><a href="#cb9-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb9-3"><a href="#cb9-3"></a></span>
-<span id="cb9-4"><a href="#cb9-4"></a>order <span class="op">=</span> <span class="dv">8</span>        <span class="co"># フィルタの次数。</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a>cutoff <span class="op">=</span> <span class="fl">0.4</span>      <span class="co"># カットオフ周波数。 fs = 1 に正規化された周波数。</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a>oversample <span class="op">=</span> <span class="dv">2</span>    <span class="co"># オーバーサンプリングの倍率。</span></span>
-<span id="cb9-7"><a href="#cb9-7"></a></span>
-<span id="cb9-8"><a href="#cb9-8"></a>sos <span class="op">=</span> signal.butter(order, cutoff, <span class="st">&quot;low&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>, fs<span class="op">=</span>oversample)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> <span class="dv">8</span>        <span class="co"># フィルタの次数。</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>cutoff <span class="op">=</span> <span class="fl">0.4</span>      <span class="co"># カットオフ周波数。 fs = 1 に正規化された周波数。</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>oversample <span class="op">=</span> <span class="dv">2</span>    <span class="co"># オーバーサンプリングの倍率。</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> signal.butter(order, cutoff, <span class="st">&quot;low&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>, fs<span class="op">=</span>oversample)</span></code></pre></div>
 <p>以下は <code>cutoff = 0.4</code> の Butterworth フィルタを使ったときの一回目の折り返しの低減量のプロットです。 4 倍以上のオーバーサンプリングでは、次数が 1 増えるごとに折り返しが -6 dB 低減されます。 2 倍のときはバイリニア変換による周波数の歪みが大きいので、低減量の傾きが急になっています。サンプリング周波数 <span class="math inline">\(f_s\)</span> が 48000 Hz のとき <span class="math inline">\(f_s/4\)</span> は 12000 Hz 、 <span class="math inline">\(f_s/8\)</span> は 6000 Hz です。</p>
 <figure>
 <img src="img/butter_aliasing_attenuation.png" alt="Plot of aliasing attenuation of Butterworth filter." style="padding-bottom: 12px;"/>
@@ -812,113 +818,113 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <p><span class="math inline">\(f_s/8\)</span> で -60 dB の低減が欲しいときは 8 次の Butterworth フィルタで十分そうです。</p>
 <h3 id="c-による実装-1">C++ による実装</h3>
 <p>IIR フィルタを用いた 1/8 倍のダウンサンプリングの実装例です。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a></span>
-<span id="cb10-6"><a href="#cb10-6"></a><span class="co">/*</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a><span class="co">---python</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a><span class="co">import numpy</span></span>
-<span id="cb10-9"><a href="#cb10-9"></a><span class="co">from scipy import signal</span></span>
-<span id="cb10-10"><a href="#cb10-10"></a><span class="co">sos = signal.ellip(12, 0.01, 100, 0.4, &quot;low&quot;, output=&quot;sos&quot;, fs=8)</span></span>
-<span id="cb10-11"><a href="#cb10-11"></a><span class="co">---</span></span>
-<span id="cb10-12"><a href="#cb10-12"></a><span class="co">*/</span></span>
-<span id="cb10-13"><a href="#cb10-13"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">struct</span> SosEllipticDecimation8 {</span>
-<span id="cb10-14"><a href="#cb10-14"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">size_t</span> nSection = <span class="dv">6</span>;</span>
-<span id="cb10-15"><a href="#cb10-15"></a></span>
-<span id="cb10-16"><a href="#cb10-16"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array&lt;<span class="bu">std::</span>array&lt;Sample, <span class="dv">5</span>&gt;, nSection&gt; co{{</span>
-<span id="cb10-17"><a href="#cb10-17"></a>    {Sample(<span class="fl">2.0478175697515062e-05</span>), Sample(<span class="fl">5.313899743869536e-06</span>),</span>
-<span id="cb10-18"><a href="#cb10-18"></a>     Sample(<span class="fl">2.047817569751506e-05</span>), Sample(-<span class="fl">1.7517115385026274</span>),</span>
-<span id="cb10-19"><a href="#cb10-19"></a>     Sample(<span class="fl">0.7700392502488301</span>)},</span>
-<span id="cb10-20"><a href="#cb10-20"></a>    {Sample(<span class="fl">1.0</span>), Sample(-<span class="fl">1.438980096034124</span>), Sample(<span class="fl">1.0</span>), Sample(-<span class="fl">1.774966834164871</span>),</span>
-<span id="cb10-21"><a href="#cb10-21"></a>     Sample(<span class="fl">0.8105614413580351</span>)},</span>
-<span id="cb10-22"><a href="#cb10-22"></a>    {Sample(<span class="fl">1.0</span>), Sample(-<span class="fl">1.7274028784750513</span>), Sample(<span class="fl">1.0</span>), Sample(-<span class="fl">1.808053369266683</span>),</span>
-<span id="cb10-23"><a href="#cb10-23"></a>     Sample(<span class="fl">0.867640704095363</span>)},</span>
-<span id="cb10-24"><a href="#cb10-24"></a>    {Sample(<span class="fl">1.0</span>), Sample(-<span class="fl">1.8120823742998813</span>), Sample(<span class="fl">1.0000000000000004</span>),</span>
-<span id="cb10-25"><a href="#cb10-25"></a>     Sample(-<span class="fl">1.8388054096377313</span>), Sample(<span class="fl">0.9192163691033324</span>)},</span>
-<span id="cb10-26"><a href="#cb10-26"></a>    {Sample(<span class="fl">1.0</span>), Sample(-<span class="fl">1.8441397779182482</span>), Sample(<span class="fl">1.0000000000000002</span>),</span>
-<span id="cb10-27"><a href="#cb10-27"></a>     Sample(-<span class="fl">1.8637392843186766</span>), Sample(<span class="fl">0.9580528037069385</span>)},</span>
-<span id="cb10-28"><a href="#cb10-28"></a>    {Sample(<span class="fl">1.0</span>), Sample(-<span class="fl">1.855844538281174</span>), Sample(<span class="fl">1.0</span>), Sample(-<span class="fl">1.8856454058448944</span>),</span>
-<span id="cb10-29"><a href="#cb10-29"></a>     Sample(<span class="fl">0.9871065355804314</span>)},</span>
-<span id="cb10-30"><a href="#cb10-30"></a>  }};</span>
-<span id="cb10-31"><a href="#cb10-31"></a>};</span>
-<span id="cb10-32"><a href="#cb10-32"></a></span>
-<span id="cb10-33"><a href="#cb10-33"></a><span class="co">// SOS: Second order sections.</span></span>
-<span id="cb10-34"><a href="#cb10-34"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample, <span class="kw">typename</span> IIR, <span class="dt">size_t</span> oversample = <span class="dv">8</span>&gt; <span class="kw">class</span> SosFilter {</span>
-<span id="cb10-35"><a href="#cb10-35"></a><span class="kw">public</span>:</span>
-<span id="cb10-36"><a href="#cb10-36"></a>  <span class="dt">void</span> reset()</span>
-<span id="cb10-37"><a href="#cb10-37"></a>  {</span>
-<span id="cb10-38"><a href="#cb10-38"></a>    x1.fill(<span class="dv">0</span>);</span>
-<span id="cb10-39"><a href="#cb10-39"></a>    x2.fill(<span class="dv">0</span>);</span>
-<span id="cb10-40"><a href="#cb10-40"></a>    y1.fill(<span class="dv">0</span>);</span>
-<span id="cb10-41"><a href="#cb10-41"></a>    y2.fill(<span class="dv">0</span>);</span>
-<span id="cb10-42"><a href="#cb10-42"></a>  }</span>
-<span id="cb10-43"><a href="#cb10-43"></a></span>
-<span id="cb10-44"><a href="#cb10-44"></a>  <span class="dt">void</span> push(Sample input)</span>
-<span id="cb10-45"><a href="#cb10-45"></a>  {</span>
-<span id="cb10-46"><a href="#cb10-46"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; IIR::nSection; ++i) {</span>
-<span id="cb10-47"><a href="#cb10-47"></a>      <span class="co">// clang-format off</span></span>
-<span id="cb10-48"><a href="#cb10-48"></a>      <span class="kw">auto</span> y0 =</span>
-<span id="cb10-49"><a href="#cb10-49"></a>        + IIR::co[i][<span class="dv">0</span>] * input</span>
-<span id="cb10-50"><a href="#cb10-50"></a>        + IIR::co[i][<span class="dv">1</span>] * x1[i]</span>
-<span id="cb10-51"><a href="#cb10-51"></a>        + IIR::co[i][<span class="dv">2</span>] * x2[i]</span>
-<span id="cb10-52"><a href="#cb10-52"></a>        - IIR::co[i][<span class="dv">3</span>] * y1[i]</span>
-<span id="cb10-53"><a href="#cb10-53"></a>        - IIR::co[i][<span class="dv">4</span>] * y2[i];</span>
-<span id="cb10-54"><a href="#cb10-54"></a>      <span class="co">// clang-format on</span></span>
-<span id="cb10-55"><a href="#cb10-55"></a></span>
-<span id="cb10-56"><a href="#cb10-56"></a>      x2[i] = x1[i];</span>
-<span id="cb10-57"><a href="#cb10-57"></a>      x1[i] = input;</span>
-<span id="cb10-58"><a href="#cb10-58"></a>      y2[i] = y1[i];</span>
-<span id="cb10-59"><a href="#cb10-59"></a>      y1[i] = y0;</span>
-<span id="cb10-60"><a href="#cb10-60"></a>      input = y0;</span>
-<span id="cb10-61"><a href="#cb10-61"></a>    }</span>
-<span id="cb10-62"><a href="#cb10-62"></a>  }</span>
-<span id="cb10-63"><a href="#cb10-63"></a></span>
-<span id="cb10-64"><a href="#cb10-64"></a>  <span class="kw">inline</span> Sample output() { <span class="cf">return</span> y1[IIR::nSection - <span class="dv">1</span>]; }</span>
-<span id="cb10-65"><a href="#cb10-65"></a></span>
-<span id="cb10-66"><a href="#cb10-66"></a>  Sample process(<span class="at">const</span> <span class="bu">std::</span>array&lt;Sample, oversample&gt; &amp;input)</span>
-<span id="cb10-67"><a href="#cb10-67"></a>  {</span>
-<span id="cb10-68"><a href="#cb10-68"></a>    <span class="cf">for</span> (<span class="at">const</span> <span class="kw">auto</span> &amp;value : input) push(value);</span>
-<span id="cb10-69"><a href="#cb10-69"></a>    <span class="cf">return</span> output();</span>
-<span id="cb10-70"><a href="#cb10-70"></a>  }</span>
-<span id="cb10-71"><a href="#cb10-71"></a></span>
-<span id="cb10-72"><a href="#cb10-72"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; x1{};</span>
-<span id="cb10-73"><a href="#cb10-73"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; x2{};</span>
-<span id="cb10-74"><a href="#cb10-74"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; y1{};</span>
-<span id="cb10-75"><a href="#cb10-75"></a>  <span class="bu">std::</span>array&lt;Sample, IIR::nSection&gt; y2{};</span>
-<span id="cb10-76"><a href="#cb10-76"></a>};</span>
-<span id="cb10-77"><a href="#cb10-77"></a></span>
-<span id="cb10-78"><a href="#cb10-78"></a><span class="dt">int</span> main()</span>
-<span id="cb10-79"><a href="#cb10-79"></a>{</span>
-<span id="cb10-80"><a href="#cb10-80"></a>  SosFilter&lt;<span class="dt">float</span>, SosEllipticDecimation8&lt;<span class="dt">float</span>&gt;&gt; filter;</span>
-<span id="cb10-81"><a href="#cb10-81"></a></span>
-<span id="cb10-82"><a href="#cb10-82"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; data(<span class="dv">64</span>);</span>
-<span id="cb10-83"><a href="#cb10-83"></a>  <span class="bu">std::</span>iota(data.begin(), data.end(), <span class="fl">0.0</span><span class="bu">f</span>);</span>
-<span id="cb10-84"><a href="#cb10-84"></a></span>
-<span id="cb10-85"><a href="#cb10-85"></a>  <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- Use `process` to process each n samples at once.</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
-<span id="cb10-86"><a href="#cb10-86"></a>  <span class="bu">std::</span>array&lt;<span class="dt">float</span>, <span class="dv">8</span>&gt; input;</span>
-<span id="cb10-87"><a href="#cb10-87"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; data.size(); i += <span class="dv">8</span>) {</span>
-<span id="cb10-88"><a href="#cb10-88"></a>    <span class="cf">for</span> (<span class="dt">size_t</span> j = <span class="dv">0</span>; j &lt; input.size(); ++j) input[j] = data[i + j];</span>
-<span id="cb10-89"><a href="#cb10-89"></a>    <span class="bu">std::</span>cout &lt;&lt; filter.process(input) &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
-<span id="cb10-90"><a href="#cb10-90"></a>  }</span>
-<span id="cb10-91"><a href="#cb10-91"></a></span>
-<span id="cb10-92"><a href="#cb10-92"></a>  <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- Use `push` and `output` to get output for each sample.</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
-<span id="cb10-93"><a href="#cb10-93"></a>  filter.reset();</span>
-<span id="cb10-94"><a href="#cb10-94"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> i = <span class="dv">0</span>; i &lt; data.size(); ++i) {</span>
-<span id="cb10-95"><a href="#cb10-95"></a>    filter.push(data[i]);</span>
-<span id="cb10-96"><a href="#cb10-96"></a>    <span class="cf">if</span> (i % <span class="dv">8</span> == <span class="dv">7</span>) <span class="bu">std::</span>cout &lt;&lt; filter.output() &lt;&lt; <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>;</span>
-<span id="cb10-97"><a href="#cb10-97"></a>  }</span>
-<span id="cb10-98"><a href="#cb10-98"></a></span>
-<span id="cb10-99"><a href="#cb10-99"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb10-100"><a href="#cb10-100"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">---python</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">import numpy</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">from scipy import signal</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">sos = signal.ellip(12, 0.01, 100, 0.4, &quot;low&quot;, output=&quot;sos&quot;, fs=8)</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">*/</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> SosEllipticDecimation8 <span class="op">{</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="dt">size_t</span> nSection <span class="op">=</span> <span class="dv">6</span><span class="op">;</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="at">static</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">5</span><span class="op">&gt;,</span> nSection<span class="op">&gt;</span> co<span class="op">{{</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(</span><span class="fl">2.0478175697515062e-05</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">5.313899743869536e-06</span><span class="op">),</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">2.047817569751506e-05</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.7517115385026274</span><span class="op">),</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.7700392502488301</span><span class="op">)},</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(</span><span class="fl">1.0</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.438980096034124</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">1.0</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.774966834164871</span><span class="op">),</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.8105614413580351</span><span class="op">)},</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(</span><span class="fl">1.0</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.7274028784750513</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">1.0</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.808053369266683</span><span class="op">),</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.867640704095363</span><span class="op">)},</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(</span><span class="fl">1.0</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.8120823742998813</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">1.0000000000000004</span><span class="op">),</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">1.8388054096377313</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">0.9192163691033324</span><span class="op">)},</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(</span><span class="fl">1.0</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.8441397779182482</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">1.0000000000000002</span><span class="op">),</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(-</span><span class="fl">1.8637392843186766</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">0.9580528037069385</span><span class="op">)},</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span>Sample<span class="op">(</span><span class="fl">1.0</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.855844538281174</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">1.0</span><span class="op">),</span> Sample<span class="op">(-</span><span class="fl">1.8856454058448944</span><span class="op">),</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>     Sample<span class="op">(</span><span class="fl">0.9871065355804314</span><span class="op">)},</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">}};</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="co">// SOS: Second order sections.</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">,</span> <span class="kw">typename</span> IIR<span class="op">,</span> <span class="dt">size_t</span> oversample <span class="op">=</span> <span class="dv">8</span><span class="op">&gt;</span> <span class="kw">class</span> SosFilter <span class="op">{</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    x1<span class="op">.</span>fill<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    x2<span class="op">.</span>fill<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    y1<span class="op">.</span>fill<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    y2<span class="op">.</span>fill<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> push<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> IIR<span class="op">::</span>nSection<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>      <span class="co">// clang-format off</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>      <span class="kw">auto</span> y0 <span class="op">=</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> IIR<span class="op">::</span>co<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">*</span> input</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> IIR<span class="op">::</span>co<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">]</span> <span class="op">*</span> x1<span class="op">[</span>i<span class="op">]</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> IIR<span class="op">::</span>co<span class="op">[</span>i<span class="op">][</span><span class="dv">2</span><span class="op">]</span> <span class="op">*</span> x2<span class="op">[</span>i<span class="op">]</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> IIR<span class="op">::</span>co<span class="op">[</span>i<span class="op">][</span><span class="dv">3</span><span class="op">]</span> <span class="op">*</span> y1<span class="op">[</span>i<span class="op">]</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> IIR<span class="op">::</span>co<span class="op">[</span>i<span class="op">][</span><span class="dv">4</span><span class="op">]</span> <span class="op">*</span> y2<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>      <span class="co">// clang-format on</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>      x2<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> x1<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>      x1<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> input<span class="op">;</span></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>      y2<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> y1<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>      y1<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> y0<span class="op">;</span></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>      input <span class="op">=</span> y0<span class="op">;</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> Sample output<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> y1<span class="op">[</span>IIR<span class="op">::</span>nSection <span class="op">-</span> <span class="dv">1</span><span class="op">];</span> <span class="op">}</span></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> oversample<span class="op">&gt;</span> <span class="op">&amp;</span>input<span class="op">)</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span> <span class="op">&amp;</span>value <span class="op">:</span> input<span class="op">)</span> push<span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output<span class="op">();</span></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> IIR<span class="op">::</span>nSection<span class="op">&gt;</span> x1<span class="op">{};</span></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> IIR<span class="op">::</span>nSection<span class="op">&gt;</span> x2<span class="op">{};</span></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> IIR<span class="op">::</span>nSection<span class="op">&gt;</span> y1<span class="op">{};</span></span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> IIR<span class="op">::</span>nSection<span class="op">&gt;</span> y2<span class="op">{};</span></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>  SosFilter<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> SosEllipticDecimation8<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;&gt;</span> filter<span class="op">;</span></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> data<span class="op">(</span><span class="dv">64</span><span class="op">);</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>iota<span class="op">(</span>data<span class="op">.</span>begin<span class="op">(),</span> data<span class="op">.</span>end<span class="op">(),</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- Use `process` to process each n samples at once.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> <span class="dv">8</span><span class="op">&gt;</span> input<span class="op">;</span></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> data<span class="op">.</span>size<span class="op">();</span> i <span class="op">+=</span> <span class="dv">8</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> input<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>j<span class="op">)</span> input<span class="op">[</span>j<span class="op">]</span> <span class="op">=</span> data<span class="op">[</span>i <span class="op">+</span> j<span class="op">];</span></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> filter<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- Use `push` and `output` to get output for each sample.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>  filter<span class="op">.</span>reset<span class="op">();</span></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> data<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>    filter<span class="op">.</span>push<span class="op">(</span>data<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">%</span> <span class="dv">8</span> <span class="op">==</span> <span class="dv">7</span><span class="op">)</span> <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> filter<span class="op">.</span>output<span class="op">()</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p><code>SosEllipticDecimation8::co</code> がフィルタ係数です。フィルタ係数は 2 次セクション (second order sections, sos) 形式で、以下のように並んでいます。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a>{{</span>
-<span id="cb11-2"><a href="#cb11-2"></a>  {b0, b1, b2, a1, a2}, <span class="co">// Section 0</span></span>
-<span id="cb11-3"><a href="#cb11-3"></a>  {<span class="co">/*      ...     */</span>}, <span class="co">// Section 1</span></span>
-<span id="cb11-4"><a href="#cb11-4"></a>  {<span class="co">/*      ...     */</span>}, <span class="co">// Section 2</span></span>
-<span id="cb11-5"><a href="#cb11-5"></a>  <span class="co">// ...</span></span>
-<span id="cb11-6"><a href="#cb11-6"></a>}}</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">{{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>b0<span class="op">,</span> b1<span class="op">,</span> b2<span class="op">,</span> a1<span class="op">,</span> a2<span class="op">},</span> <span class="co">// Section 0</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="co">/*      ...     */</span><span class="op">},</span> <span class="co">// Section 1</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="co">/*      ...     */</span><span class="op">},</span> <span class="co">// Section 2</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="op">}}</span></span></code></pre></div>
 <p><code>b0</code> 、 <code>b1</code> 、 <code>b2</code> は伝達関数の分母の係数、 <code>a1</code> 、 <code>a2</code> は伝達関数の分子の係数です。 <code>a0</code> はすべて 1 に正規化されているので計算を省いています。</p>
 <p><span class="math display">\[
 H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
@@ -927,9 +933,31 @@ H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L269">Direct form II の実装を読む (github.com)</a></li>
 </ul>
+<h2 id="マルチステージ">マルチステージ</h2>
+<p>サンプリング周波数の変換をマルチステージにするという手法があります。例えば 1/8 倍のダウンサンプリングであれば、1/2 倍と 1/4 倍の 2 ステージ、あるいは 1/2 倍を 3 回繰り返す 3 ステージ、などに分割することができます。</p>
+<p>IIR フィルタを用いた音のダウンサンプリングではマルチステージにすることでノイズを減らせます。試行錯誤の結果、 1 ステージ目に Butterworth のような単調減衰フィルタ、 2 ステージ目に<a href="https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html">ハーフバンド楕円フィルタ</a>を使うといいことがわかりました。</p>
+<p>以下はマルチステージ構成のブロック線図です。 <span class="math inline">\(M\)</span> はダウンサンプリングの倍率です。</p>
+<figure>
+<img src="img/iir_multistage_blockdiagram.svg" alt="Image of a block diagram of IIR multi-stage downsampler." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下はローパスフィルタの仕様です。</p>
+<figure>
+<img src="img/iir_multistage_frequency.svg" alt="Image of gain responses of lowpass filters inside of multi-stage donwsampler." style="padding-bottom: 12px;"/>
+</figure>
+<p><span class="math inline">\(f_s\)</span> を入力信号のサンプリング周波数、 <span class="math inline">\(f_1\)</span> を 1 ステージ目のデシメーション後のナイキスト周波数、 <span class="math inline">\(f_2\)</span> を 2 ステージ目のデシメーション後のナイキスト周波数とします。ハーフバンド楕円フィルタは 1/2 倍のダウンサンプリングにしか使えないので <span class="math inline">\(f_1 = 2 f_2\)</span> です。</p>
+<p>1 ステージ目の Butterworth は <span class="math inline">\(3 f_2\)</span> で -140 dB の低減するように設計します。また 2 ステージ目のハーフバンド楕円フィルタもストップバンドで -140 dB 低減するように設計します。</p>
+<p>-140 dB というのは、およそ 24 bit の S/N 比です。より正確な値は <span class="math inline">\(20 \log_{10} 2^{-24} \approx -144.5 \mathrm{[dB]}\)</span> です。 24 bit という数字は IEEE 754 の単精度浮動小数点数の仮数部のビット数から来ています。意外だったのですが、浮動小数点数の値が仮数部のビット数を下回るとノイズが乗ります。原因としてはフィルタの計算での丸め誤差などが考えられます。</p>
+<p>以下のリンク先に 1 ステージ目の Butterworth のフィルタ係数と、設計に使った Python 3 のコードがあります。</p>
+<ul>
+<li><a href="https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5fa82111c7/common/dsp/multiratecoefficient.hpp#L24">1 ステージ目の Butterworth のフィルタ係数を見る (github.com)</a></li>
+</ul>
+<p>ハーフバンド楕円の設計と実装については以下の記事を参照してください。</p>
+<ul>
+<li><a href="https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html">ハーフバンド楕円フィルタの実装</a></li>
+</ul>
 <h2 id="その他">その他</h2>
-<h3 id="マルチステージ">マルチステージ</h3>
-<p>サンプリング周波数の変換をマルチステージにするという手法があります。例えば 1/8 倍のダウンサンプリングを、1/2 倍と 1/4 倍の 2 ステージに分割することができます。場合によってはマルチステージにすることで計算量を減らすことができるそうですが、今回試した限りではシンセサイザへの応用には使えなさそうに感じました。最終的なストップバンドで -100 dB くらい減らしたいのですが、そうすると 1 ステージ目のフィルタの次数があまり減らず、計算量も直接計算するときと大して変わらなくなります。また、適切なマルチステージの分割を求める手法として <a href="https://www.dsprelated.com/showarticle/1037.php">Ahmed Shahein さんによる記事</a>の参考文献に挙げられていた以下の論文があるようです。</p>
+<h3 id="適切なマルチステージの分割">適切なマルチステージの分割</h3>
+<p>適切なマルチステージの分割を求める手法として <a href="https://www.dsprelated.com/showarticle/1037.php">Ahmed Shahein さんによる記事</a>の参考文献に挙げられていた以下の論文があるようです。</p>
 <ul>
 <li>“Optimizing Multistage Decimation and Interpolation Processing”, Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 10, NO. 4, APRIL 2003, pp. 107-110.</li>
 <li>“Optimizing Multistage Decimation and Interpolation Processing—Part II”, Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 14, NO. 1, JANUARY 2007, pp. 24-26.</li>
@@ -937,6 +965,10 @@ H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2022/05/08
+<ul>
+<li>マルチステージの内容を変更。</li>
+</ul></li>
 <li>2021/02/25
 <ul>
 <li><code>SosFilter</code> に遅延が追加されていた間違いを修正。</li>
