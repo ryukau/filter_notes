@@ -522,14 +522,47 @@ $$
 
 - [Direct form II の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L269)
 
+## マルチステージ
+サンプリング周波数の変換をマルチステージにするという手法があります。例えば 1/8 倍のダウンサンプリングであれば、1/2 倍と 1/4 倍の 2 ステージ、あるいは 1/2 倍を 3 回繰り返す 3 ステージ、などに分割することができます。
+
+IIR フィルタを用いた音のダウンサンプリングではマルチステージにすることでノイズを減らせます。試行錯誤の結果、 1 ステージ目に Butterworth のような単調減衰フィルタ、 2 ステージ目に[ハーフバンド楕円フィルタ](https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html)を使うといいことがわかりました。
+
+以下はマルチステージ構成のブロック線図です。 $M$ はダウンサンプリングの倍率です。
+
+<figure>
+<img src="img/iir_multistage_blockdiagram.svg" alt="Image of a block diagram of IIR multi-stage downsampler." style="padding-bottom: 12px;"/>
+</figure>
+
+以下はローパスフィルタの仕様です。
+
+<figure>
+<img src="img/iir_multistage_frequency.svg" alt="Image of gain responses of lowpass filters inside of multi-stage donwsampler." style="padding-bottom: 12px;"/>
+</figure>
+
+$f_s$ を入力信号のサンプリング周波数、 $f_1$ を 1 ステージ目のデシメーション後のナイキスト周波数、 $f_2$ を 2 ステージ目のデシメーション後のナイキスト周波数とします。ハーフバンド楕円フィルタは 1/2 倍のダウンサンプリングにしか使えないので $f_1 = 2 f_2$ です。
+
+1 ステージ目の Butterworth は $3 f_2$ で -140 dB の低減するように設計します。また 2 ステージ目のハーフバンド楕円フィルタもストップバンドで -140 dB 低減するように設計します。
+
+-140 dB というのは、およそ 24 bit の S/N 比です。より正確な値は $20 \log_{10} 2^{-24} \approx -144.5 \mathrm{[dB]}$ です。 24 bit という数字は IEEE 754 の単精度浮動小数点数の仮数部のビット数から来ています。意外だったのですが、浮動小数点数の値が仮数部のビット数を下回るとノイズが乗ります。原因としてはフィルタの計算での丸め誤差などが考えられます。
+
+以下のリンク先に 1 ステージ目の Butterworth のフィルタ係数と、設計に使った Python 3 のコードがあります。
+
+- [1 ステージ目の Butterworth のフィルタ係数を見る (github.com)](https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5fa82111c7/common/dsp/multiratecoefficient.hpp#L24)
+
+ハーフバンド楕円の設計と実装については以下の記事を参照してください。
+
+- [ハーフバンド楕円フィルタの実装](https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html)
+
 ## その他
-### マルチステージ
-サンプリング周波数の変換をマルチステージにするという手法があります。例えば 1/8 倍のダウンサンプリングを、1/2 倍と 1/4 倍の 2 ステージに分割することができます。場合によってはマルチステージにすることで計算量を減らすことができるそうですが、今回試した限りではシンセサイザへの応用には使えなさそうに感じました。最終的なストップバンドで -100 dB くらい減らしたいのですが、そうすると 1 ステージ目のフィルタの次数があまり減らず、計算量も直接計算するときと大して変わらなくなります。また、適切なマルチステージの分割を求める手法として [Ahmed Shahein さんによる記事](https://www.dsprelated.com/showarticle/1037.php)の参考文献に挙げられていた以下の論文があるようです。
+### 適切なマルチステージの分割
+適切なマルチステージの分割を求める手法として [Ahmed Shahein さんによる記事](https://www.dsprelated.com/showarticle/1037.php)の参考文献に挙げられていた以下の論文があるようです。
 
 - "Optimizing Multistage Decimation and Interpolation Processing", Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 10, NO. 4, APRIL 2003, pp. 107-110.
 - "Optimizing Multistage Decimation and Interpolation Processing—Part II", Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 14, NO. 1, JANUARY 2007, pp. 24-26.
 - [Multi-Decimation Stage Filtering for Sigma Delta ADCs: Design and Optimization - AHMED SHAHEIN](https://www.dsprelated.com/showarticle/1037.php)
 
 ## 変更点
+- 2022/05/08
+  - マルチステージの内容を変更。
 - 2021/02/25
   - `SosFilter` に遅延が追加されていた間違いを修正。
