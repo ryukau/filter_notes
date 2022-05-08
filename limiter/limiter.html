@@ -359,7 +359,11 @@ Update: 2022-05-08
 <li><a href="#ソフトクリップ">ソフトクリップ</a></li>
 </ul></li>
 </ul></li>
-<li><a href="#トゥルーピークモード">トゥルーピークモード</a></li>
+<li><a href="#トゥルーピークモード">トゥルーピークモード</a>
+<ul>
+<li><a href="#fir-フィルタによるアップサンプリングの限界">FIR フィルタによるアップサンプリングの限界</a></li>
+<li><a href="#簡易な性能の測定">簡易な性能の測定</a></li>
+</ul></li>
 <li><a href="#その他">その他</a>
 <ul>
 <li><a href="#継時マスキング">継時マスキング</a></li>
@@ -782,17 +786,19 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  upsampled<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> limiter<span class="op">.</span>process<span class="op">(</span>upsampled<span class="op">[</span>i<span class="op">]);</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> output <span class="op">=</span> downsample<span class="op">(</span>upsampled<span class="op">);</span></span></code></pre></div>
+<p>リアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。そこでアップサンプリングの前にプリフィルタを通して、ピークの復元が困難な周波数成分を 0 にしてしまうことが考えられます。ピークの復元が困難な周波数成分は、サンプリング周波数が十分に高ければ可聴域外になるので 0 にしても聴覚上の影響は少ないと考えられます。</p>
 <p>ダウンサンプリングには <a href="https://ryukau.github.io/filter_notes/downsampling/downsampling.html#noble-identities-とポリフェイズフィルタ">FIR ポリフェイズフィルタ</a>を使います。 IIR フィルタを使うと位相が変わるので、フィルタを通った時点でピークが変わってしまいます。トゥルーピークの検出にはアップサンプリングを行うしかないので、ダウンサンプリングの時点で位相が変わると手の施しようがなくなります。</p>
+<p>ダウンサンプリング後の信号はサンプルピークがしきい値を超えることがあります。この問題を避けることは難しいので、あきらめてユーザにしきい値を下げるように促すか、ダウンサンプリング後にさらにリミッタをかけるということが考えられます。</p>
+<h3 id="fir-フィルタによるアップサンプリングの限界">FIR フィルタによるアップサンプリングの限界</h3>
 <p>オフライン処理であれば信号が事前にすべてわかっているので、 <code>scipy.signal.resample</code> のような離散フーリエ変換を使ったリサンプリングを使うことで正確にトゥルーピークを復元できます。しかしリアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。以下は FIR ポリフェイズフィルタによるアップサンプリングの限界を示した図です。</p>
 <figure>
 <img src="img/upsampling_method_comparison.svg" alt="Image of comparison of upsampling method." style="padding-bottom: 12px;"/>
 </figure>
 <p>サンプリング周波数は 48000 Hz 、入力信号 <code>Input</code> は 23998 Hz のコサイン波です。上のプロットは FFT によるほぼ正確なアップサンプリング、下のプロットはタップ数 64 × 8 フェイズの FIR ポリフェイズフィルタによるアップサンプリングです。 FIR ポリフェイズフィルタによるアップサンプリング結果は入力信号とほぼ重なっています。</p>
 <p>FFT アップサンプリングによる波形では立ち上がり (transient) のピークが確認できますが、 FIR ポリフェイズではピークがほとんど復元できていません。また FIR ポリフェイズは 0.2 、 0.5 、 0.8 秒付近にある、入力信号の振幅が下がる部分の復元にも失敗しています。なぜこんなことになるのかというと FIR フィルタのタップ数が足りないからです。厳密にピークを復元するには <a href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#sinc-%E8%A3%9C%E9%96%93">sinc 補間</a>を使う必要があるのですが、 sinc 補間は理論上、無限の長さの畳み込みが必要なので計算できません。</p>
-<p>上のコードでプリフィルタをかけているのは、上の図のようなピークの復元が困難な周波数成分を 0 にしてしまうためです。ピークの復元が困難な周波数成分は、サンプリング周波数が十分に高ければ可聴域外になるので 0 にしても聴覚上の影響は少ないと考えられます。</p>
 <p>アップサンプラの FIR フィルタの長さを決める目安としては、 D/A コンバータ (DAC) で使われる FIR フィルタのタップ数が使えます。例えば <a href="https://www.esstech.com/wp-content/uploads/2021/03/ES9038Q2M-Datasheet-v1.4.pdf">ES9038Q2M という DAC のデータシート</a>をみると p.9 にアップサンプリングの倍率は 8 、 2 ステージでタップ数は 128 と 16 ということが書いてあります。素朴に捉えると実質的なタップ数は 128 + 16 = 144 なので、リミッタのアップサンプラで使う FIR フィルタのタップ数を 144 以上にすればよさそうです。可能であればターゲットとする DAC のフィルタ係数を吸いだして直接使うことも考えられます。</p>
-<p>ダウンサンプリング後の信号はサンプルピークがしきい値を超えることがあります。この問題を避けることは難しいので、あきらめてユーザにしきい値を下げるように促すか、ダウンサンプル後にさらにリミッタをかけるということが考えられます。</p>
-<p>トゥルーピークモードの性能を測るにはすべてのサンプルの値が +1.0 あるいは -1.0 となる信号を作って、 FFT リサンプリングによるピーク値と比較することが考えられます。以下のコードは <code>processTruePeakLimiter</code> が定義されていないので、そのままでは動きません。</p>
+<h3 id="簡易な性能の測定">簡易な性能の測定</h3>
+<p>トゥルーピークモードの性能を測るには、すべてのサンプルの値が +1.0 あるいは -1.0 となる信号を作って FFT リサンプリングによるピーク値と比較することが考えられます。以下のコードは <code>processTruePeakLimiter</code> が定義されていないので、そのままでは動きません。</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
@@ -854,6 +860,7 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 </ul></li>
 <li>トゥルーピークモードの節を追加。</li>
 <li>スムーシングフィルタの選定の項を追加。</li>
+<li>文章の整理。</li>
 </ul></li>
 <li>2021/01/09
 <ul>
