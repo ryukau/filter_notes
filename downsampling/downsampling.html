@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-05-08" />
+<meta name="dcterms.date" content="2022-05-12" />
 <title>downsampling</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-05-08
+Update: 2022-05-12
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -945,8 +945,8 @@ H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 <img src="img/iir_multistage_frequency.svg" alt="Image of gain responses of lowpass filters inside of multi-stage donwsampler." style="padding-bottom: 12px;"/>
 </figure>
 <p><span class="math inline">\(f_s\)</span> を入力信号のサンプリング周波数、 <span class="math inline">\(f_1\)</span> を 1 ステージ目のデシメーション後のナイキスト周波数、 <span class="math inline">\(f_2\)</span> を 2 ステージ目のデシメーション後のナイキスト周波数とします。ハーフバンド楕円フィルタは 1/2 倍のダウンサンプリングにしか使えないので <span class="math inline">\(f_1 = 2 f_2\)</span> です。</p>
-<p>1 ステージ目の Butterworth は <span class="math inline">\(3 f_2\)</span> で -140 dB の低減するように設計します。また 2 ステージ目のハーフバンド楕円フィルタもストップバンドで -140 dB 低減するように設計します。</p>
-<p>-140 dB というのは、およそ 24 bit の S/N 比です。より正確な値は <span class="math inline">\(20 \log_{10} 2^{-24} \approx -144.5 \mathrm{[dB]}\)</span> です。 24 bit という数字は IEEE 754 の単精度浮動小数点数の仮数部のビット数から来ています。意外だったのですが、浮動小数点数の値が仮数部のビット数を下回るとノイズが乗ります。原因としてはフィルタの計算での丸め誤差などが考えられます。</p>
+<p>1 ステージ目の Butterworth は、周波数 <span class="math inline">\(3 f_2\)</span> で -140 dB 低減するように設計します。また 2 ステージ目のハーフバンド楕円フィルタもストップバンドで -140 dB 低減するように設計します。</p>
+<p>-140 dB というのは、およそ 24 bit の S/N 比です。より正確な値は <span class="math inline">\(20 \log_{10} 2^{-24} \approx -144.5 \mathrm{[dB]}\)</span> です。 24 bit という数字は <a href="https://docs.oracle.com/cd/E19957-01/806-3568/ncg_math.html">IEEE 754</a> の単精度浮動小数点数の仮数部のビット数から来ています。意外だったのですが、浮動小数点数の値が仮数部のビット数を下回るとノイズが乗ります。原因としてはフィルタの計算での丸め誤差などが考えられます。</p>
 <p>以下のリンク先に 1 ステージ目の Butterworth のフィルタ係数と、設計に使った Python 3 のコードがあります。</p>
 <ul>
 <li><a href="https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5fa82111c7/common/dsp/multiratecoefficient.hpp#L24">1 ステージ目の Butterworth のフィルタ係数を見る (github.com)</a></li>
@@ -965,6 +965,10 @@ H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2022/05/12
+<ul>
+<li>文章の整理。</li>
+</ul></li>
 <li>2022/05/08
 <ul>
 <li>マルチステージの内容を変更。</li>
