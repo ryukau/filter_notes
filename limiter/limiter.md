@@ -23,14 +23,25 @@ Lookahead Limiter の記事の訳を別ページに掲載しています。
 
 ピークホールド、スムーシングフィルタ、ディレイについては上の一覧のリンク先で実装を紹介しています。
 
-特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を $x$ 、リミッタのしきい値を $h$ とすると以下の式でハードクリップの特性曲線 $C$ を計算できます。
+特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を $x$ 、リミッタのしきい値を $T$ とすると以下の式でハードクリップの特性曲線 $C$ を計算できます。
 
 $$
 C(x) = \begin{cases}
-  x & \text{if}\ |x| < h \\
-  h & \text{otherwise}
+  x & \text{if}\ |x| < T \\
+  T & \text{if}\ |x| \geq T
 \end{cases}
 $$
+
+実装ではゲインへの変換もまとめてしまえるので、以下のように書けます。
+
+$$
+G(x) = \begin{cases}
+  1 & \text{if}\ |x| < T \\
+  T / |x| & \text{if}\ |x| \geq T
+\end{cases}
+$$
+
+振幅の制限だけが目的であれば以下の条件を満たすならどのような $G(x)$ でも使えます。例えば味付けとして、 $|x| < h$ のときに $\dfrac{|x|}{|x|^2}$ として歪みを加えることが考えられます。また $|x| \geq T$ のときに $\dfrac{T + R(|x| - T)}{|x|}$ とすれば、レシオ $R$ のコンプレッサになります。
 
 ## 実装
 C++17 で実装します。コンパイルして実行できる完全なコードを以下のリンクに掲載しています。
@@ -472,6 +483,13 @@ for (size_t i = 0; i < upsampled.size(); ++i>) {
 float output = downsample(upsampled);
 ```
 
+以下は同じ処理のブロック線図です。
+
+<figure>
+<img src="img/truepeak_block_diagram.svg" alt="Image of a block diagram of multirate processing for true-peak." style="padding-bottom: 12px;"/>
+</figure>
+
+
 リアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。そこでアップサンプリングの前にプリフィルタを通して、ピークの復元が困難な周波数成分を 0 にしてしまうことが考えられます。ピークの復元が困難な周波数成分は、サンプリング周波数が十分に高ければ可聴域外になるので 0 にしても聴覚上の影響は少ないと考えられます。
 
 ダウンサンプリングには [FIR ポリフェイズフィルタ](https://ryukau.github.io/filter_notes/downsampling/downsampling.html#noble-identities-とポリフェイズフィルタ)を使います。 IIR フィルタを使うと位相が変わるので、フィルタを通った時点でピークが変わってしまいます。トゥルーピークの検出にはアップサンプリングを行うしかないので、ダウンサンプリングの時点で位相が変わると手の施しようがなくなります。
@@ -492,7 +510,7 @@ FFT アップサンプリングによる波形では立ち上がり (transient) 
 アップサンプラの FIR フィルタの長さを決める目安としては、 D/A コンバータ (DAC) で使われる FIR フィルタのタップ数が使えます。例えば [ES9038Q2M という DAC のデータシート](https://www.esstech.com/wp-content/uploads/2021/03/ES9038Q2M-Datasheet-v1.4.pdf)をみると p.9 にアップサンプリングの倍率は 8 、 2 ステージでタップ数は 128 と 16 ということが書いてあります。素朴に捉えると実質的なタップ数は 128 + 16 = 144 なので、リミッタのアップサンプラで使う FIR フィルタのタップ数を 144 以上にすればよさそうです。可能であればターゲットとする DAC のフィルタ係数を吸いだして直接使うことも考えられます。
 
 ### 簡易な性能の測定
-トゥルーピークモードの性能を測るには、すべてのサンプルの値が +1.0 あるいは -1.0 となる信号を作って FFT リサンプリングによるピーク値と比較することが考えられます。以下のコードは `processTruePeakLimiter` が定義されていないので、そのままでは動きません。
+トゥルーピークモードの性能を測るには、すべてのサンプルの値が +1.0 あるいは -1.0 となる信号を作って FFT リサンプリングによるピーク値と比較することが考えられます。以下は測定コードの例です。 `processTruePeakLimiter` が定義されていないので、そのままでは動きません。
 
 ```python
 # Python3
@@ -513,7 +531,30 @@ upLimited = signal.resample(limited, upfold * length)
 print(np.max(np.abs(upSig)), np.max(np.abs(upLimited)))
 ```
 
-以下に VST 3 プラグインの実装で使ったトゥルーピークモード関連のコードを掲載しています。 FIR のタップ数はプリフィルタ 64 、アップサンプラとダウンサンプラはどちらも 64 * 8 = 512 です。リンク先のコードの性能としては、上のコードで生成したテスト信号の FFT アップサンプリング後のピークがリミッタなしで +8.9 dB 、 トゥルーピークモードのリミッタありで +0.05 dB という結果になりました。
+完全なコードは以下のリンク先を参照してください。
+
+- [測定用の信号を生成するコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/limiter/generatebadsignal.py)
+- [測定結果をプロットするコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/limiter/plottruepeak.py)
+
+以下は VST 3 プラグインとして実装した BasicLimiter のトゥルーピークモードの測定結果です。しきい値は振幅 1.0 に設定しています。図を見ると明らかですが、何もないよりかはましです。
+
+<figure>
+<img src="img/truepeak_limiter_measurement_full.svg" alt="Image of the result of true-peak measurement of BasicLimiter." style="padding-bottom: 12px;"/>
+</figure>
+
+以下は最初の 512 サンプルを拡大した図です。オーバーシュートが確認できます。
+
+<figure>
+<img src="img/truepeak_limiter_measurement_part.svg" alt="Image of the first 512 samples of the result of true-peak measurement." style="padding-bottom: 12px;"/>
+</figure>
+
+以下はオーバーシュートを拡大した図です。
+
+<figure>
+<img src="img/truepeak_limiter_measurement_zoom.png" alt="Image of the zoomed result of true-peak measurement." style="padding-bottom: 12px; height: 224px;"/>
+</figure>
+
+以下に BasicLimiter で使ったトゥルーピークモードに関するコードを掲載しています。 FIR のタップ数はプリフィルタ 64 、アップサンプラとダウンサンプラはどちらも 64 * 8 = 512 です。リンク先のコードの性能としては、上のコードで生成したテスト信号の FFT アップサンプリング後のピークがリミッタなしで +8.9 dB 、 トゥルーピークモードのリミッタありで +0.05 dB という結果になりました。
 
 - [BasicLimiter の FIR ポリフェイズフィルタのコードを読む (github.com)](https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiter/source/dsp/polyphase.hpp)
 
@@ -551,6 +592,10 @@ print(np.max(np.abs(upSig)), np.max(np.abs(upLimited)))
 - [Fruity Limiter - Effect Plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm)
 
 ## 変更点
+- 2022/05/11
+  - 冒頭のリミッタのブロック線図を変更。
+  - 特性曲線の説明を追加。
+  - トゥルーピークモードの測定結果を追加。
 - 2022/05/08
   - リミッタの実装を改善。
     - リリース方法を指数関数的増加から EMA フィルタに変更。
