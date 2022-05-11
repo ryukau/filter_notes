@@ -1,15 +1,15 @@
 # 3 次補間の比較
 3 次補間の特性を比較します。ついでに線形補間も比較します。
 
-## 実装
 ここでは補間したい位置の前後の数サンプルだけがわかっていれば使える方法のみを扱います。線形補間や Catmull-Rom 補間はこの種類の補間です。また等間隔でサンプリングされていることにします。等間隔でサンプリングされているときは補間の計算を簡略化できます。
 
 補間したい曲線に関わるすべてのサンプルが必要になる方法としてはベジエ補間や natural cubic 補間があげられます。ただし音の補間については、すべてのサンプルが事前にわかっているのであればスプライン補間よりも [`scipy.signal.resample`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html) のような離散フーリエ変換によるリサンプリングのほうが適しています。画像では離散フーリエ変換によるリサンプリングをつかうと[リンギング](https://en.wikipedia.org/wiki/Ringing_artifacts)が問題になるので、 PCHIP などの[単調](https://mathworld.wolfram.com/MonotonicFunction.html)な補間のほうがいいかもしれません。
 
-ここでは [`scipy.interpolate`](https://docs.scipy.org/doc/scipy/reference/interpolate.html) などを参考にして、比較のために以下の補間を実装しました。
+## 実装
+[`scipy.interpolate`](https://docs.scipy.org/doc/scipy/reference/interpolate.html) などを参考にして以下の補間を実装しました。
 
 - 線形補間
-- [キュービック補間 (Catmull-Rom)](https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline)
+- [Catmull-Rom 補間](https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline)
 - 3 次[ラグランジュ補間](https://ccrma.stanford.edu/~jos/Interpolation/Lagrange_Interpolation.html)
 - [PCHIP 補間](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html)
 - [Akima 補間](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Akima1DInterpolator.html)
@@ -32,8 +32,8 @@ def linear(y0, y1, t):
     return y0 + t * (y1 - y0)
 ```
 
-### キュービック補間 (Catmull-Rom)
-サンプルが等間隔で並んでいるときは Catmull-Rom と呼ばれる簡略化した形のキュービック補間が使えます。以下の実装は[ウェーブテーブルの帯域制限と位相方向の補間](https://ryukau.github.io/filter_notes/wavetable/wavetable.html#%E3%81%9D%E3%81%AE%E4%BB%96)で紹介したものです。
+### Catmull-Rom 補間
+サンプルが等間隔で並んでいるときは Catmull-Rom 補間が使えます。以下の実装は[ウェーブテーブルの帯域制限と位相方向の補間](https://ryukau.github.io/filter_notes/wavetable/wavetable.html#%E3%81%9D%E3%81%AE%E4%BB%96)で紹介したものです。
 
 ```python
 def cubic(y0, y1, y2, y3, t):
@@ -60,6 +60,8 @@ def lagrange3(y0, y1, y2, y3, t):
 ```
 
 - [Lagrange Interpolation](https://ccrma.stanford.edu/~jos/Interpolation/Lagrange_Interpolation.html)
+
+N 次のラグランジュ補間は以下の `v` の式を展開すれば実装が求められます。 `d` の項の係数は[パスカルの三角形](https://mathworld.wolfram.com/PascalsTriangle.html)と一致しそうです。
 
 ```
 d(0, i) = y[i] - y[i + 1]
@@ -208,42 +210,52 @@ for fir in impulseResponse:
 
 以下では図の左上が振幅特性、左下が位相特性、右上が群遅延特性、右下がインパルス応答です。青くなるほど `t = 0` 、黄色くなるほど `t = 1` に近くなります。振幅特性は `t = 0.5` を中心として対称性があるので重なっている曲線があります。
 
-線形補間の特性です。以下のような典型的な分数ディレイフィルタの特性がみられます。
+#### 線形補間
+典型的な分数ディレイフィルタの特性がみられます。
 
 - `0 < t < 1` のときの振幅特性はローパス。
 - 群遅延特性が低域でフラット。
 - `t = 0.5` のとき最もローパスが強くかかるが、群遅延はフラット。
-- インパルス応答と振幅特性は `t = 0.5` を中心に対称。
+- インパルス応答と振幅特性は `t = 0.5` を中心に ±0.5 の範囲で対称。
 
 <figure>
 <img src="img/linear.svg" alt="Image of frequency response of linear interpolation." style="padding-bottom: 12px;"/>
 </figure>
 
-キュービック補間の特性です。線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性の[ロールオフ](https://en.wikipedia.org/wiki/Roll-off)が半分ほどになるはずです。
+#### Catmull-Rom 補間
+線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性の[ロールオフ](https://en.wikipedia.org/wiki/Roll-off)が半分ほどになるはずです。
 
 <figure>
 <img src="img/cubic.svg" alt="Image of frequency response of cubic interpolation." style="padding-bottom: 12px;"/>
 </figure>
 
-3 次ラグランジュ補間の特性です。キュービック補間とほとんど同じですが、低域でのフラットさが増して、高域での誤差が増えています。
+#### 3 次ラグランジュ補間
+Catmull–Rom 補間とほとんど同じですが、低域でのフラットさが増して、高域での誤差が増えています。
 
 <figure>
 <img src="img/lagrange3.svg" alt="Image of frequency response of 3rd order Lagrange interpolation." style="padding-bottom: 12px;"/>
 </figure>
 
-PCHIP 補間の特性です。 PCHIP 補間は入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。ただし、線形補間、キュービック補間、 3 次ラグランジュ補間に比べると、周波数特性が悪くなるケースがあるということは言えそうです。また、群遅延特性が `t` の値に応じて一様に分布しない点にも注意が必要です。
+Catmull–Rom 補間と 3 次ラグランジュ補間については周波数特性に基づいて選ぶよりも、ベンチマークをとって速いほうを使うことも考えられます。 [godbolt.org](https://godbolt.org/) でアセンブラ出力を見たところ、今回の実装では Catmull–Rom 補間のほうが 3 次ラグランジュ補間よりもコードが短くなる傾向がありました。
+
+- [cubic と lagrange3 の比較 (godbolt.org)](https://godbolt.org/#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXACx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApACYAQuYukl9ZATwDKjdAGFUtAK4sGIM6SuADJ4DJgAcj4ARpjE/gDspAAOqAqETgwe3r7%2ByanpAiFhkSwxcWaJdpgOGUIETMQEWT5%2BAVU1AnUNBEUR0bEJtvWNzTltwz2hfaUDFQCUtqhexMjsHASYLEkGGyYAzG4EAJ5JjKyYANQAKvvY1xfIXlF4yACSgrFJEFcXRxqk9yOXABPyOAUBexBFwIcxMGgAgiZ4lYERd7gQzBd9gARaEXABU0P2KPhaJ%2ByA0WL2uKBFwAtL8zMS4aT7sguFTcRAwfTfho5hcAPTXCBmWF7Elkh6YnEPSnWB5cZmotl7TlyrGWaWaiwXblqhlAgXCq6i8WSi7ETAEZYMB5qwkEAnQzEMiDIGVa5B7AWOz269nOp0KoHKxHxbEsllUWioJhO5ChDbEL4xuNOv4AtPx37Ai7ZjPggu/SH52M5mFY5EstFoq024h2x7PN4fFP7NwF27c/65gFg/ulmFhpGRhEsjZbHaYDvHU7MNjXW73AzAYiGYCYPbvZNfUG90F50Hg0Gln7D8fVlU/Lzq01cAUKghhqXoeXUvm80MSmv3dAc2U315bkOUNMUXz/GUP3/YCQK/MVgJ5Q0fXNX961tT8GVvQkICAhVvggB9eS8Y0RQQnCYPw00EKw0jTR9Z10DFVDLzHREEWLWg9iTT5qHLDNe2LIEs34xkRPTEtxIrWFLwtdDGwuVd1yMLcd0%2BDsuz2bAe37PMB0k6EWPDbEOAWWhOAAVl4PwOC0UhUE4NxrAVBQlhWS5zD2HhSAITRTIWABrEALP%2BcyOEkay/PszheAUEB/l82zTNIOBYCQNAtjoWJyEoDKkiyuJgC4LhIRoWhkziiAoii55mGII5OG8jK2EEAB5BhaAapLSCwFgN3Ebr8CtGoADdMDi7rMFUaovA2RreB4sK7NoPAonXeqPCwKKCGIPAWHmhYYyYYAFAANTwTAAHdWvneaZEEEQxHYKR7vkJQ1Ci3RgQMIwUGcyx9FWuLIAWVAkkcAQJrpVqDSoKgmAUAg6T6ggEHpFgqD62LMHsCG/AgVxRj8YFgimEoyj0FI0jxonKfyPHenJgZgXaPGuhGTwWj0VnagmRn%2BjiFmJlpoXun5mZBYWVzllWPQdswNYeDMyzIu6hyOFUAAOAA2OltckC5gGQZALmKgA6NUICcyxrABXBCBITUvIBDxMvoYgnYfXhEq0OZAuC0LOAi0gbLs9XYviny/L9/RODMVWw5iqOkpjsbiDSZxJCAA%3D%3D%3D)
+
+#### PCHIP 補間
+PCHIP 補間は入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。ただし、線形補間、 Catmull–Rom 補間、 3 次ラグランジュ補間に比べると、周波数特性が悪くなるケースがあるということは言えそうです。また、群遅延特性が `t` の値に応じて一様に分布しない点にも注意が必要です。
 
 <figure>
 <img src="img/pchip.svg" alt="Image of frequency response of PCHIP interpolation." style="padding-bottom: 12px;"/>
 </figure>
 
-Akima 補間の特性です。 PCHIP 補間と同様に入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。
+#### Akima 補間
+PCHIP 補間と同様に入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。
 
 <figure>
 <img src="img/akima.svg" alt="Image of frequency response of Akima interpolation." style="padding-bottom: 12px;"/>
 </figure>
 
-Uniform B-spline 補間の特性です。ローパスが強くかかるので用途は限られそうです。
+#### Uniform B-spline 補間
+ローパスが強くかかるので用途は限られそうです。
 
 <figure>
 <img src="img/uniformBSpline.svg" alt="Image of frequency response of uniform B-spline interpolation." style="padding-bottom: 12px;"/>
@@ -255,19 +267,14 @@ Centripetal Catmull-Rom 補間の特性です。 `alpha = 0.5` としていま�
 <img src="img/centripetalCatmullRom05.svg" alt="Image of frequency response of centripetal Catmull-Rom interpolation. alpha set to 0.5." style="padding-bottom: 12px;"/>
 </figure>
 
-キュービック補間と 3 次ラグランジュ補間については周波数特性に基づいて選ぶよりも、ベンチマークをとって速いほうを使うことも考えられます。 [godbolt.org](https://godbolt.org/) でアセンブラ出力を見たところ、今回の実装ではキュービック補間のほうが 3 次ラグランジュ補間よりもコードが短くなる傾向がありました。
-
-- [cubic と lagrange3 の比較 (godbolt.org)](https://godbolt.org/#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXACx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApACYAQuYukl9ZATwDKjdAGFUtAK4sGIM6SuADJ4DJgAcj4ARpjE/gDspAAOqAqETgwe3r7%2ByanpAiFhkSwxcWaJdpgOGUIETMQEWT5%2BAVU1AnUNBEUR0bEJtvWNzTltwz2hfaUDFQCUtqhexMjsHASYLEkGGyYAzG4EAJ5JjKyYANQAKvvY1xfIXlF4yACSgrFJEFcXRxqk9yOXABPyOAUBexBFwIcxMGgAgiZ4lYERd7gQzBd9gARaEXABU0P2KPhaJ%2ByA0WL2uKBFwAtL8zMS4aT7sguFTcRAwfTfho5hcAPTXCBmWF7Elkh6YnEPSnWB5cZmotl7TlyrGWaWaiwXblqhlAgXCq6i8WSi7ETAEZYMB5qwkEAnQzEMiDIGVa5B7AWOz269nOp0KoHKxHxbEsllUWioJhO5ChDbEL4xuNOv4AtPx37Ai7ZjPggu/SH52M5mFY5EstFoq024h2x7PN4fFP7NwF27c/65gFg/ulmFhpGRhEsjZbHaYDvHU7MNjXW73AzAYiGYCYPbvZNfUG90F50Hg0Gln7D8fVlU/Lzq01cAUKghhqXoeXUvm80MSmv3dAc2U315bkOUNMUXz/GUP3/YCQK/MVgJ5Q0fXNX961tT8GVvQkICAhVvggB9eS8Y0RQQnCYPw00EKw0jTR9Z10DFVDLzHREEWLWg9iTT5qHLDNe2LIEs34xkRPTEtxIrWFLwtdDGwuVd1yMLcd0%2BDsuz2bAe37PMB0k6EWPDbEOAWWhOAAVl4PwOC0UhUE4NxrAVBQlhWS5zD2HhSAITRTIWABrEALP%2BcyOEkay/PszheAUEB/l82zTNIOBYCQNAtjoWJyEoDKkiyuJgC4LhIRoWhkziiAoii55mGII5OG8jK2EEAB5BhaAapLSCwFgN3Ebr8CtGoADdMDi7rMFUaovA2RreB4sK7NoPAonXeqPCwKKCGIPAWHmhYYyYYAFAANTwTAAHdWvneaZEEEQxHYKR7vkJQ1Ci3RgQMIwUGcyx9FWuLIAWVAkkcAQJrpVqDSoKgmAUAg6T6ggEHpFgqD62LMHsCG/AgVxRj8YFgimEoyj0FI0jxonKfyPHenJgZgXaPGuhGTwWj0VnagmRn%2BjiFmJlpoXun5mZBYWVzllWPQdswNYeDMyzIu6hyOFUAAOAA2OltckC5gGQZALmKgA6NUICcyxrABXBCBITUvIBDxMvoYgnYfXhEq0OZAuC0LOAi0gbLs9XYviny/L9/RODMVWw5iqOkpjsbiDSZxJCAA%3D%3D%3D)
-
-
 ### まとめ
 計算の速さが求められるときは線形補間で十分です。
 
-3 次の補間を使うときは Catmull-Rom キュービック補間か 3 次ラグランジュ補間が使えます。キュービック補間は 3 次ラグランジュ補間より高速ですが、低域での特性が悪くなります。
+3 次の補間を使うときは Catmull-Rom 補間か 3 次ラグランジュ補間が使えます。 Catmull–Rom 補間は 3 次ラグランジュ補間より高速ですが、低域での特性が悪くなります。
 
 オーバーシュートが許容できないときは PCHIP 補間が使えます。
 
-Akima 、 uniform B-spline 、 centripetal Catmull-Rom は音の補間には不適です。音に癖をつけたいときはいいかもしれません。
+Akima 補間、 uniform B-spline 補間、 centripetal Catmull-Rom 補間は音の補間には不適です。音に癖をつけたいときはいいかもしれません。
 
 ## その他
 以下のように sinc 関数から直接 FIR フィルタ係数を計算する方法も考えられますが、 補間のたびに `sin()` を FIR のタップ数だけ繰り返し計算するのはリアルタイムの音の処理ではかなり重たいです。
@@ -306,6 +313,8 @@ print(win / win[1])
 - [Ringing artifacts - Wikipedia](https://en.wikipedia.org/wiki/Ringing_artifacts)
 
 ## 変更点
+- 2022/05/11
+  - キュービック補間という呼び方をやめて Catmull-Rom 補間に統一。
 - 2022/05/07
   - ロールオフをフォールオフに間違えていた点を修正。
   - 図の説明を追加。
