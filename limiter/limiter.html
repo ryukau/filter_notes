@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-05-08" />
+<meta name="dcterms.date" content="2022-05-11" />
 <title>limiter</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-05-08
+Update: 2022-05-11
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -398,13 +398,21 @@ Update: 2022-05-08
 <li><a href="../delay/delay.html">ディレイ</a> (Delay)</li>
 </ul>
 <p>ピークホールド、スムーシングフィルタ、ディレイについては上の一覧のリンク先で実装を紹介しています。</p>
-<p>特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を <span class="math inline">\(x\)</span> 、リミッタのしきい値を <span class="math inline">\(h\)</span> とすると以下の式でハードクリップの特性曲線 <span class="math inline">\(C\)</span> を計算できます。</p>
+<p>特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を <span class="math inline">\(x\)</span> 、リミッタのしきい値を <span class="math inline">\(T\)</span> とすると以下の式でハードクリップの特性曲線 <span class="math inline">\(C\)</span> を計算できます。</p>
 <p><span class="math display">\[
 C(x) = \begin{cases}
-  x &amp; \text{if}\ |x| &lt; h \\
-  h &amp; \text{otherwise}
+  x &amp; \text{if}\ |x| &lt; T \\
+  T &amp; \text{if}\ |x| \geq T
 \end{cases}
 \]</span></p>
+<p>実装ではゲインへの変換もまとめてしまえるので、以下のように書けます。</p>
+<p><span class="math display">\[
+G(x) = \begin{cases}
+  1 &amp; \text{if}\ |x| &lt; T \\
+  T / |x| &amp; \text{if}\ |x| \geq T
+\end{cases}
+\]</span></p>
+<p>振幅の制限だけが目的であれば以下の条件を満たすならどのような <span class="math inline">\(G(x)\)</span> でも使えます。例えば味付けとして、 <span class="math inline">\(|x| &lt; h\)</span> のときに <span class="math inline">\(\dfrac{|x|}{|x|^2}\)</span> として歪みを加えることが考えられます。また <span class="math inline">\(|x| \geq T\)</span> のときに <span class="math inline">\(\dfrac{T + R(|x| - T)}{|x|}\)</span> とすれば、レシオ <span class="math inline">\(R\)</span> のコンプレッサになります。</p>
 <h2 id="実装">実装</h2>
 <p>C++17 で実装します。コンパイルして実行できる完全なコードを以下のリンクに掲載しています。</p>
 <ul>
@@ -786,6 +794,10 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  upsampled<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> limiter<span class="op">.</span>process<span class="op">(</span>upsampled<span class="op">[</span>i<span class="op">]);</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> output <span class="op">=</span> downsample<span class="op">(</span>upsampled<span class="op">);</span></span></code></pre></div>
+<p>以下は同じ処理のブロック線図です。</p>
+<figure>
+<img src="img/truepeak_block_diagram.svg" alt="Image of a block diagram of multirate processing for true-peak." style="padding-bottom: 12px;"/>
+</figure>
 <p>リアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。そこでアップサンプリングの前にプリフィルタを通して、ピークの復元が困難な周波数成分を 0 にしてしまうことが考えられます。ピークの復元が困難な周波数成分は、サンプリング周波数が十分に高ければ可聴域外になるので 0 にしても聴覚上の影響は少ないと考えられます。</p>
 <p>ダウンサンプリングには <a href="https://ryukau.github.io/filter_notes/downsampling/downsampling.html#noble-identities-とポリフェイズフィルタ">FIR ポリフェイズフィルタ</a>を使います。 IIR フィルタを使うと位相が変わるので、フィルタを通った時点でピークが変わってしまいます。トゥルーピークの検出にはアップサンプリングを行うしかないので、ダウンサンプリングの時点で位相が変わると手の施しようがなくなります。</p>
 <p>ダウンサンプリング後の信号はサンプルピークがしきい値を超えることがあります。この問題を避けることは難しいので、あきらめてユーザにしきい値を下げるように促すか、ダウンサンプリング後にさらにリミッタをかけるということが考えられます。</p>
@@ -798,7 +810,7 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 <p>FFT アップサンプリングによる波形では立ち上がり (transient) のピークが確認できますが、 FIR ポリフェイズではピークがほとんど復元できていません。また FIR ポリフェイズは 0.2 、 0.5 、 0.8 秒付近にある、入力信号の振幅が下がる部分の復元にも失敗しています。なぜこんなことになるのかというと FIR フィルタのタップ数が足りないからです。厳密にピークを復元するには <a href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#sinc-%E8%A3%9C%E9%96%93">sinc 補間</a>を使う必要があるのですが、 sinc 補間は理論上、無限の長さの畳み込みが必要なので計算できません。</p>
 <p>アップサンプラの FIR フィルタの長さを決める目安としては、 D/A コンバータ (DAC) で使われる FIR フィルタのタップ数が使えます。例えば <a href="https://www.esstech.com/wp-content/uploads/2021/03/ES9038Q2M-Datasheet-v1.4.pdf">ES9038Q2M という DAC のデータシート</a>をみると p.9 にアップサンプリングの倍率は 8 、 2 ステージでタップ数は 128 と 16 ということが書いてあります。素朴に捉えると実質的なタップ数は 128 + 16 = 144 なので、リミッタのアップサンプラで使う FIR フィルタのタップ数を 144 以上にすればよさそうです。可能であればターゲットとする DAC のフィルタ係数を吸いだして直接使うことも考えられます。</p>
 <h3 id="簡易な性能の測定">簡易な性能の測定</h3>
-<p>トゥルーピークモードの性能を測るには、すべてのサンプルの値が +1.0 あるいは -1.0 となる信号を作って FFT リサンプリングによるピーク値と比較することが考えられます。以下のコードは <code>processTruePeakLimiter</code> が定義されていないので、そのままでは動きません。</p>
+<p>トゥルーピークモードの性能を測るには、すべてのサンプルの値が +1.0 あるいは -1.0 となる信号を作って FFT リサンプリングによるピーク値と比較することが考えられます。以下は測定コードの例です。 <code>processTruePeakLimiter</code> が定義されていないので、そのままでは動きません。</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
@@ -815,7 +827,24 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>upSig <span class="op">=</span> signal.resample(ch, upfold <span class="op">*</span> length)</span>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>upLimited <span class="op">=</span> signal.resample(limited, upfold <span class="op">*</span> length)</span>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(upSig)), np.<span class="bu">max</span>(np.<span class="bu">abs</span>(upLimited)))</span></code></pre></div>
-<p>以下に VST 3 プラグインの実装で使ったトゥルーピークモード関連のコードを掲載しています。 FIR のタップ数はプリフィルタ 64 、アップサンプラとダウンサンプラはどちらも 64 * 8 = 512 です。リンク先のコードの性能としては、上のコードで生成したテスト信号の FFT アップサンプリング後のピークがリミッタなしで +8.9 dB 、 トゥルーピークモードのリミッタありで +0.05 dB という結果になりました。</p>
+<p>完全なコードは以下のリンク先を参照してください。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/limiter/generatebadsignal.py">測定用の信号を生成するコードを読む (github.com)</a></li>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/limiter/plottruepeak.py">測定結果をプロットするコードを読む (github.com)</a></li>
+</ul>
+<p>以下は VST 3 プラグインとして実装した BasicLimiter のトゥルーピークモードの測定結果です。しきい値は振幅 1.0 に設定しています。図を見ると明らかですが、何もないよりかはましです。</p>
+<figure>
+<img src="img/truepeak_limiter_measurement_full.svg" alt="Image of the result of true-peak measurement of BasicLimiter." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下は最初の 512 サンプルを拡大した図です。オーバーシュートが確認できます。</p>
+<figure>
+<img src="img/truepeak_limiter_measurement_part.svg" alt="Image of the first 512 samples of the result of true-peak measurement." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下はオーバーシュートを拡大した図です。</p>
+<figure>
+<img src="img/truepeak_limiter_measurement_zoom.png" alt="Image of the zoomed result of true-peak measurement." style="padding-bottom: 12px; height: 224px;"/>
+</figure>
+<p>以下に BasicLimiter で使ったトゥルーピークモードに関するコードを掲載しています。 FIR のタップ数はプリフィルタ 64 、アップサンプラとダウンサンプラはどちらも 64 * 8 = 512 です。リンク先のコードの性能としては、上のコードで生成したテスト信号の FFT アップサンプリング後のピークがリミッタなしで +8.9 dB 、 トゥルーピークモードのリミッタありで +0.05 dB という結果になりました。</p>
 <ul>
 <li><a href="https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiter/source/dsp/polyphase.hpp">BasicLimiter の FIR ポリフェイズフィルタのコードを読む (github.com)</a></li>
 </ul>
@@ -850,6 +879,12 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2022/05/11
+<ul>
+<li>冒頭のリミッタのブロック線図を変更。</li>
+<li>特性曲線の説明を追加。</li>
+<li>トゥルーピークモードの測定結果を追加。</li>
+</ul></li>
 <li>2022/05/08
 <ul>
 <li>リミッタの実装を改善。
