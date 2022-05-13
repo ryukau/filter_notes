@@ -365,6 +365,7 @@ Update: 2022-05-13
 <ul>
 <li><a href="#単位行列に近いランダムな直交行列の生成">単位行列に近いランダムな直交行列の生成</a></li>
 <li><a href="#ランダムな直交行列のソート">ランダムな直交行列のソート</a></li>
+<li><a href="#weighing-行列">Weighing 行列</a></li>
 </ul></li>
 <li><a href="#参考文献">参考文献</a></li>
 </ul></li>
@@ -973,6 +974,8 @@ M_n = R M_{n-1}
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> special_ortho_group.rvs(<span class="dv">4</span>)</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>sorted_indices <span class="op">=</span> np.argmax(np.<span class="bu">abs</span>(source), axis<span class="op">=</span>axis)</span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>mat <span class="op">=</span> np.take(source, sorted_indices, axis)  <span class="co"># ソートしても直交行列。</span></span></code></pre></div>
+<h3 id="weighing-行列">Weighing 行列</h3>
+<p><a href="https://en.wikipedia.org/wiki/Weighing_matrix">Weighing 行列</a>を使うと異なる形の conference 行列が作れるそうです。構築法がよくわからなかったので実装はあきらめました。</p>
 <h2 id="参考文献">参考文献</h2>
 <ul>
 <li><a href="https://arxiv.org/pdf/1606.07729">Schlecht, Sebastian J., and Emanuel AP Habets. “On lossless feedback delay networks.” IEEE Transactions on Signal Processing 65.6 (2016): 1554-1564.</a></li>
