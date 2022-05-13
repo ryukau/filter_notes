@@ -721,6 +721,9 @@ sorted_indices = np.argmax(np.abs(source), axis=axis)
 mat = np.take(source, sorted_indices, axis)  # ソートしても直交行列。
 ```
 
+### Weighing 行列
+[Weighing 行列](https://en.wikipedia.org/wiki/Weighing_matrix)を使うと異なる形の conference 行列が作れるそうです。構築法がよくわからなかったので実装はあきらめました。
+
 ## 参考文献
 - [Schlecht, Sebastian J., and Emanuel AP Habets. "On lossless feedback delay networks." IEEE Transactions on Signal Processing 65.6 (2016): 1554-1564.](https://arxiv.org/pdf/1606.07729)
 - [Rocchesso, Davide, and Julius O. Smith. "Circulant and elliptic feedback delay networks for artificial reverberation." IEEE Transactions on Speech and Audio Processing 5.1 (1997): 51-63.](https://www.di.univr.it/documenti/ArticoloRivista/allegato/allegato574545.pdf)
