@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-05-13" />
+<meta name="dcterms.date" content="2022-05-16" />
 <title>feedback_delay_network</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-05-13
+Update: 2022-05-16
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -368,6 +368,7 @@ Update: 2022-05-13
 <li><a href="#weighing-行列">Weighing 行列</a></li>
 </ul></li>
 <li><a href="#参考文献">参考文献</a></li>
+<li><a href="#変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -945,7 +946,7 @@ G_6 &amp;= 1 - g_5^2.\\
 <span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 id="音についての所感">音についての所感</h2>
-<p>ここまでで紹介したすべての行列は VST 3 プラグインの <a href="https://github.com/ryukau/VSTPlugins/tree/master/FDN64Reverb">FDN64Reverb</a> に実装したので、興味のある方は試してみてください。 <strong>TODO 2022/05/13:</strong> まだ FDN64Reverb の配布準備ができていないのでコードへリンクしています。</p>
+<p>ここまでで紹介したすべての行列は VST 3 プラグインの <a href="https://ryukau.github.io/VSTPlugins/index.html#fdn64reverb">FDN64Reverb</a> に実装したので、興味のある方は試してみてください。 macOS ビルドは今のところない 😢 ので注意してください。</p>
 <p>三角行列と Schroeder リバーブ行列はショートディレイが目立つ金属的な音になることがほとんどです。リバーブとしてはいまいちですが、変調をかけると逆に味が出ます。どちらも FDN を使わないほうが効率よく実装できるので、特殊化したプラグインを作ったほうが CPU 消費の点から使いやすくなりそうです。</p>
 <p>直交行列、特殊直交行列、吸収オールパス行列、アダマール行列はショートディレイが目立つことが比較的少ないです。直交行列と特殊直交行列の違いは聞き取れませんでした。吸収オールパス行列については FDN を使わないほうが効率よく実装できます。アダマール行列はランダムな直交行列と似たような音です。</p>
 <p>巡回行列は細長い管を伝わってきたような音に聞こえることが多いです。上にあげた 2 つのグループの中間といったところです。</p>
@@ -1000,6 +1001,13 @@ M_n = R M_{n-1}
 <li><a href="https://trace.tennessee.edu/cgi/viewcontent.cgi?article=3302&amp;context=utk_chanhonoproj">Constructions of Hadamard Matrices - Constructions of Hadamard Matrices.pdf</a></li>
 <li><a href="https://www.mit.edu/~shint/handouts/QuadraticResidues.pdf">Quadratic Residues</a></li>
 <li><a href="https://oeis.org/A000952">A000952 - OEIS</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2022/05/
+<ul>
+<li>FDN64Reverb へのリンクを更新。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>

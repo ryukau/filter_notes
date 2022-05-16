@@ -669,7 +669,7 @@ void constructConference(std::array<std::array<Sample, dim>, dim> &mat)
 ```
 
 ## 音についての所感
-ここまでで紹介したすべての行列は VST 3 プラグインの [FDN64Reverb](https://github.com/ryukau/VSTPlugins/tree/master/FDN64Reverb) に実装したので、興味のある方は試してみてください。 **TODO 2022/05/13:**  まだ FDN64Reverb の配布準備ができていないのでコードへリンクしています。
+ここまでで紹介したすべての行列は VST 3 プラグインの [FDN64Reverb](https://ryukau.github.io/VSTPlugins/index.html#fdn64reverb) に実装したので、興味のある方は試してみてください。 macOS ビルドは今のところない 😢 ので注意してください。
 
 三角行列と Schroeder リバーブ行列はショートディレイが目立つ金属的な音になることがほとんどです。リバーブとしてはいまいちですが、変調をかけると逆に味が出ます。どちらも FDN を使わないほうが効率よく実装できるので、特殊化したプラグインを作ったほうが CPU 消費の点から使いやすくなりそうです。
 
@@ -749,3 +749,7 @@ http://ccrma.stanford.edu/~jos/pasp/, online book,
 - [Constructions of Hadamard Matrices - Constructions of Hadamard Matrices.pdf](https://trace.tennessee.edu/cgi/viewcontent.cgi?article=3302&context=utk_chanhonoproj)
 - [Quadratic Residues](https://www.mit.edu/~shint/handouts/QuadraticResidues.pdf)
 - [A000952 - OEIS](https://oeis.org/A000952)
+
+## 変更点
+- 2022/05/
+  - FDN64Reverb へのリンクを更新。
