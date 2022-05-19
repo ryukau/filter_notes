@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-05-11" />
+<meta name="dcterms.date" content="2022-05-20" />
 <title>limiter</title>
 
 <!-- KaTeX -->
@@ -337,7 +337,7 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-05-11
+Update: 2022-05-20
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -363,6 +363,7 @@ Update: 2022-05-11
 <ul>
 <li><a href="#fir-フィルタによるアップサンプリングの限界">FIR フィルタによるアップサンプリングの限界</a></li>
 <li><a href="#簡易な性能の測定">簡易な性能の測定</a></li>
+<li><a href="#軽量なトゥルーピークモード">軽量なトゥルーピークモード</a></li>
 </ul></li>
 <li><a href="#その他">その他</a>
 <ul>
@@ -848,6 +849,20 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 <ul>
 <li><a href="https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiter/source/dsp/polyphase.hpp">BasicLimiter の FIR ポリフェイズフィルタのコードを読む (github.com)</a></li>
 </ul>
+<h3 id="軽量なトゥルーピークモード">軽量なトゥルーピークモード</h3>
+<p>リミッタによるエイリアシングノイズを低減しないなら、以下のブロック線図の構成でもトゥルーピークを抑えられます。</p>
+<figure>
+<img src="img/truepeak_light_block_diagram.svg" alt="Image of a block diagram of true-peak limiter without multirate processing." style="padding-bottom: 12px;"/>
+</figure>
+<p>上のブロック線図はリミッタをオーバーサンプリングしないので軽量です。トゥルーピークメーターの計算量はアップサンプラとほとんど同じです。</p>
+<p>トゥルーピーク・メーターの実装は以下のリンク先に掲載しています。</p>
+<ul>
+<li><a href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#c-%E3%81%A7%E3%81%AE%E5%AE%9F%E8%A3%85">トゥルーピークの計算 - 評価 - C++ での実装 (github.io)</a></li>
+</ul>
+<p>以下に Python 3 で動作を検証したコードがあります。</p>
+<ul>
+<li><a href="https://github.com/ryukau/filter_notes/blob/master/limiter/lighttruepeaklimiter.py">軽量なトゥルーピークモードのコードを読む (github.com)</a></li>
+</ul>
 <h2 id="その他">その他</h2>
 <h3 id="継時マスキング">継時マスキング</h3>
 <p><a href="https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0">継時マスキング</a> (<a href="https://en.wikipedia.org/wiki/Auditory_masking#Temporal_masking">temporal masking</a>) は、突然大きな音がしたときは前後にある小さな音が聞こえにくくなるという人間の聴覚の性質です。リミッタはピークの前後をエンベロープで歪ませて振幅を制限します。ピークの前後は継時マスキングによってもともと聞こえていないので、歪ませても違和感が少ないと考えることができます。</p>
@@ -879,6 +894,10 @@ S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2022/05/20
+<ul>
+<li>軽量なトゥルーピークモードの項を追加。</li>
+</ul></li>
 <li>2022/05/11
 <ul>
 <li>冒頭のリミッタのブロック線図を変更。</li>
