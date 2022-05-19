@@ -489,7 +489,6 @@ float output = downsample(upsampled);
 <img src="img/truepeak_block_diagram.svg" alt="Image of a block diagram of multirate processing for true-peak." style="padding-bottom: 12px;"/>
 </figure>
 
-
 リアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。そこでアップサンプリングの前にプリフィルタを通して、ピークの復元が困難な周波数成分を 0 にしてしまうことが考えられます。ピークの復元が困難な周波数成分は、サンプリング周波数が十分に高ければ可聴域外になるので 0 にしても聴覚上の影響は少ないと考えられます。
 
 ダウンサンプリングには [FIR ポリフェイズフィルタ](https://ryukau.github.io/filter_notes/downsampling/downsampling.html#noble-identities-とポリフェイズフィルタ)を使います。 IIR フィルタを使うと位相が変わるので、フィルタを通った時点でピークが変わってしまいます。トゥルーピークの検出にはアップサンプリングを行うしかないので、ダウンサンプリングの時点で位相が変わると手の施しようがなくなります。
@@ -558,6 +557,23 @@ print(np.max(np.abs(upSig)), np.max(np.abs(upLimited)))
 
 - [BasicLimiter の FIR ポリフェイズフィルタのコードを読む (github.com)](https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiter/source/dsp/polyphase.hpp)
 
+### 軽量なトゥルーピークモード
+リミッタによるエイリアシングノイズを低減しないなら、以下のブロック線図の構成でもトゥルーピークを抑えられます。
+
+<figure>
+<img src="img/truepeak_light_block_diagram.svg" alt="Image of a block diagram of true-peak limiter without multirate processing." style="padding-bottom: 12px;"/>
+</figure>
+
+上のブロック線図はリミッタをオーバーサンプリングしないので軽量です。トゥルーピークメーターの計算量はアップサンプラとほとんど同じです。
+
+トゥルーピーク・メーターの実装は以下のリンク先に掲載しています。
+
+- [トゥルーピークの計算 - 評価 - C++ での実装 (github.io)](https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#c-%E3%81%A7%E3%81%AE%E5%AE%9F%E8%A3%85)
+
+以下に Python 3 で動作を検証したコードがあります。
+
+- [軽量なトゥルーピークモードのコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/limiter/lighttruepeaklimiter.py)
+
 ## その他
 ### 継時マスキング
 [継時マスキング](https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0) ([temporal masking](https://en.wikipedia.org/wiki/Auditory_masking#Temporal_masking)) は、突然大きな音がしたときは前後にある小さな音が聞こえにくくなるという人間の聴覚の性質です。リミッタはピークの前後をエンベロープで歪ませて振幅を制限します。ピークの前後は継時マスキングによってもともと聞こえていないので、歪ませても違和感が少ないと考えることができます。
@@ -592,6 +608,8 @@ print(np.max(np.abs(upSig)), np.max(np.abs(upLimited)))
 - [Fruity Limiter - Effect Plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm)
 
 ## 変更点
+- 2022/05/20
+  - 軽量なトゥルーピークモードの項を追加。
 - 2022/05/11
   - 冒頭のリミッタのブロック線図を変更。
   - 特性曲線の説明を追加。
