@@ -223,7 +223,7 @@ for fir in impulseResponse:
 </figure>
 
 #### Catmull-Rom 補間
-線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性の[ロールオフ](https://en.wikipedia.org/wiki/Roll-off)が半分ほどになるはずです。
+線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性の[ロールオフ](https://en.wikipedia.org/wiki/Roll-off)が 2 倍ほど急峻になるはずです。
 
 <figure>
 <img src="img/cubic.svg" alt="Image of frequency response of cubic interpolation." style="padding-bottom: 12px;"/>
@@ -261,7 +261,8 @@ PCHIP 補間と同様に入力信号によって補間の特性が変わるの�
 <img src="img/uniformBSpline.svg" alt="Image of frequency response of uniform B-spline interpolation." style="padding-bottom: 12px;"/>
 </figure>
 
-Centripetal Catmull-Rom 補間の特性です。 `alpha = 0.5` としていますが、入力信号がインパルスのときは 0 除算を避けるコードパスを通るので、 `alpha` の値を変えても同じ特性となります。音のデータは等間隔でサンプリングされていることが普通なので centripetal Catmull-Rom 補間のようにサンプリング間隔を変えて補間の特性を変える手法は音の補間に適していません。エフェクタに歪みを加えるときにはいいかもしれません。
+#### Centripetal Catmull-Rom 補間
+`alpha = 0.5` としていますが、入力信号がインパルスのときは 0 除算を避けるコードパスを通るので、 `alpha` の値を変えても同じ特性となります。音のデータは等間隔でサンプリングされていることが普通なので centripetal Catmull-Rom 補間のようにサンプリング間隔を変えて補間の特性を変える手法は音の補間に適していないようです。エフェクタに歪みを加えるときにはいいかもしれません。
 
 <figure>
 <img src="img/centripetalCatmullRom05.svg" alt="Image of frequency response of centripetal Catmull-Rom interpolation. alpha set to 0.5." style="padding-bottom: 12px;"/>
@@ -296,7 +297,7 @@ win = scipy.signal.get_window(("kaiser", 2 * np.pi), 6, fftbins=False)[1:-1]
 print(win / win[1])
 ```
 
-特性は窓関数によって変わりますが、上の `sinc4` は 3 次ラグランジュ補間とほぼ一致します。
+特性は窓関数によって変わりますが、上のコードの `sinc4` は 3 次ラグランジュ補間とほぼ一致します。
 
 <figure>
 <img src="img/sinc4.svg" alt="Image of frequency response of 4-point windowed sinc interpolation. Using Kaiser window where beta equals to 2 pi." style="padding-bottom: 12px;"/>
@@ -313,6 +314,8 @@ print(win / win[1])
 - [Ringing artifacts - Wikipedia](https://en.wikipedia.org/wiki/Ringing_artifacts)
 
 ## 変更点
+- 2022/07/27
+  - 文章の整理。
 - 2022/05/11
   - キュービック補間という呼び方をやめて Catmull-Rom 補間に統一。
 - 2022/05/07

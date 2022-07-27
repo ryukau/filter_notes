@@ -342,31 +342,42 @@ Update: 2022-05-12
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#次補間の比較">3 次補間の比較</a>
+<li><a href="#次補間の比較" id="toc-次補間の比較">3 次補間の比較</a>
 <ul>
-<li><a href="#実装">実装</a>
+<li><a href="#実装" id="toc-実装">実装</a>
 <ul>
-<li><a href="#線形補間">線形補間</a></li>
-<li><a href="#catmull-rom-補間">Catmull-Rom 補間</a></li>
-<li><a href="#次ラグランジュ補間">3 次ラグランジュ補間</a></li>
-<li><a href="#pchip-補間">PCHIP 補間</a></li>
-<li><a href="#akima-補間">Akima 補間</a></li>
-<li><a href="#uniform-b-spline-補間">Uniform B-spline 補間</a></li>
-<li><a href="#centripetal-catmull-rom-補間">Centripetal Catmull-Rom 補間</a></li>
+<li><a href="#線形補間" id="toc-線形補間">線形補間</a></li>
+<li><a href="#catmull-rom-補間" id="toc-catmull-rom-補間">Catmull-Rom
+補間</a></li>
+<li><a href="#次ラグランジュ補間" id="toc-次ラグランジュ補間">3
+次ラグランジュ補間</a></li>
+<li><a href="#pchip-補間" id="toc-pchip-補間">PCHIP 補間</a></li>
+<li><a href="#akima-補間" id="toc-akima-補間">Akima 補間</a></li>
+<li><a href="#uniform-b-spline-補間"
+id="toc-uniform-b-spline-補間">Uniform B-spline 補間</a></li>
+<li><a href="#centripetal-catmull-rom-補間"
+id="toc-centripetal-catmull-rom-補間">Centripetal Catmull-Rom
+補間</a></li>
 </ul></li>
-<li><a href="#評価">評価</a>
+<li><a href="#評価" id="toc-評価">評価</a>
 <ul>
-<li><a href="#線形補間-1">線形補間</a></li>
-<li><a href="#catmull-rom-補間-1">Catmull-Rom 補間</a></li>
-<li><a href="#次ラグランジュ補間-1">3 次ラグランジュ補間</a></li>
-<li><a href="#pchip-補間-1">PCHIP 補間</a></li>
-<li><a href="#akima-補間-1">Akima 補間</a></li>
-<li><a href="#uniform-b-spline-補間-1">Uniform B-spline 補間</a></li>
-<li><a href="#まとめ">まとめ</a></li>
+<li><a href="#線形補間-1" id="toc-線形補間-1">線形補間</a></li>
+<li><a href="#catmull-rom-補間-1"
+id="toc-catmull-rom-補間-1">Catmull-Rom 補間</a></li>
+<li><a href="#次ラグランジュ補間-1" id="toc-次ラグランジュ補間-1">3
+次ラグランジュ補間</a></li>
+<li><a href="#pchip-補間-1" id="toc-pchip-補間-1">PCHIP 補間</a></li>
+<li><a href="#akima-補間-1" id="toc-akima-補間-1">Akima 補間</a></li>
+<li><a href="#uniform-b-spline-補間-1"
+id="toc-uniform-b-spline-補間-1">Uniform B-spline 補間</a></li>
+<li><a href="#centripetal-catmull-rom-補間-1"
+id="toc-centripetal-catmull-rom-補間-1">Centripetal Catmull-Rom
+補間</a></li>
+<li><a href="#まとめ" id="toc-まとめ">まとめ</a></li>
 </ul></li>
-<li><a href="#その他">その他</a></li>
-<li><a href="#参考サイト">参考サイト</a></li>
-<li><a href="#変更点">変更点</a></li>
+<li><a href="#その他" id="toc-その他">その他</a></li>
+<li><a href="#参考サイト" id="toc-参考サイト">参考サイト</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -374,34 +385,68 @@ Update: 2022-05-12
 </header>
 <h1 id="次補間の比較">3 次補間の比較</h1>
 <p>3 次補間の特性を比較します。ついでに線形補間も比較します。</p>
-<p>ここでは補間したい位置の前後の数サンプルだけがわかっていれば使える方法のみを扱います。線形補間や Catmull-Rom 補間はこの種類の補間です。また等間隔でサンプリングされていることにします。等間隔でサンプリングされているときは補間の計算を簡略化できます。</p>
-<p>補間したい曲線に関わるすべてのサンプルが必要になる方法としてはベジエ補間や natural cubic 補間があげられます。ただし音の補間については、すべてのサンプルが事前にわかっているのであればスプライン補間よりも <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html"><code>scipy.signal.resample</code></a> のような離散フーリエ変換によるリサンプリングのほうが適しています。画像では離散フーリエ変換によるリサンプリングをつかうと<a href="https://en.wikipedia.org/wiki/Ringing_artifacts">リンギング</a>が問題になるので、 PCHIP などの<a href="https://mathworld.wolfram.com/MonotonicFunction.html">単調</a>な補間のほうがいいかもしれません。</p>
+<p>ここでは補間したい位置の前後の数サンプルだけがわかっていれば使える方法のみを扱います。線形補間や
+Catmull-Rom
+補間はこの種類の補間です。また等間隔でサンプリングされていることにします。等間隔でサンプリングされているときは補間の計算を簡略化できます。</p>
+<p>補間したい曲線に関わるすべてのサンプルが必要になる方法としてはベジエ補間や
+natural cubic
+補間があげられます。ただし音の補間については、すべてのサンプルが事前にわかっているのであればスプライン補間よりも
+<a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html"><code>scipy.signal.resample</code></a>
+のような離散フーリエ変換によるリサンプリングのほうが適しています。画像では離散フーリエ変換によるリサンプリングをつかうと<a
+href="https://en.wikipedia.org/wiki/Ringing_artifacts">リンギング</a>が問題になるので、
+PCHIP などの<a
+href="https://mathworld.wolfram.com/MonotonicFunction.html">単調</a>な補間のほうがいいかもしれません。</p>
 <h2 id="実装">実装</h2>
-<p><a href="https://docs.scipy.org/doc/scipy/reference/interpolate.html"><code>scipy.interpolate</code></a> などを参考にして以下の補間を実装しました。</p>
+<p><a
+href="https://docs.scipy.org/doc/scipy/reference/interpolate.html"><code>scipy.interpolate</code></a>
+などを参考にして以下の補間を実装しました。</p>
 <ul>
 <li>線形補間</li>
-<li><a href="https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline">Catmull-Rom 補間</a></li>
-<li>3 次<a href="https://ccrma.stanford.edu/~jos/Interpolation/Lagrange_Interpolation.html">ラグランジュ補間</a></li>
-<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html">PCHIP 補間</a></li>
-<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Akima1DInterpolator.html">Akima 補間</a></li>
-<li><a href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform B-spline 補間</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Centripetal Catmull-Rom 補間</a></li>
+<li><a
+href="https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Catmull%E2%80%93Rom_spline">Catmull-Rom
+補間</a></li>
+<li>3 次<a
+href="https://ccrma.stanford.edu/~jos/Interpolation/Lagrange_Interpolation.html">ラグランジュ補間</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html">PCHIP
+補間</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Akima1DInterpolator.html">Akima
+補間</a></li>
+<li><a
+href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform
+B-spline 補間</a></li>
+<li><a
+href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Centripetal
+Catmull-Rom 補間</a></li>
 </ul>
 <p>以下のリンク先に Python3 の実装を掲載しています。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/master/linear_and_cubic_interpolation/plot.py">Python3 による 3 次補間の実装を読む (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/linear_and_cubic_interpolation/plot.py">Python3
+による 3 次補間の実装を読む (github.com)</a></li>
 </ul>
 <p>以下のリンク先に C++ の実装を掲載しています。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/master/linear_and_cubic_interpolation/interp.cpp">C++ による 3 次補間の実装を読む (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/linear_and_cubic_interpolation/interp.cpp">C++
+による 3 次補間の実装を読む (github.com)</a></li>
 </ul>
 <h3 id="線形補間">線形補間</h3>
-<p><code>t</code> は範囲が <code>[0.0, 1.0]</code> の補間係数です。 C++20 では <a href="https://en.cppreference.com/w/cpp/numeric/lerp"><code>std::lerp</code></a> が使えるようになります。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> linear(y0, y1, t):</span>
+<p><code>t</code> は範囲が <code>[0.0, 1.0]</code> の補間係数です。
+C++20 では <a
+href="https://en.cppreference.com/w/cpp/numeric/lerp"><code>std::lerp</code></a>
+が使えるようになります。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> linear(y0, y1, t):</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y0 <span class="op">+</span> t <span class="op">*</span> (y1 <span class="op">-</span> y0)</span></code></pre></div>
 <h3 id="catmull-rom-補間">Catmull-Rom 補間</h3>
-<p>サンプルが等間隔で並んでいるときは Catmull-Rom 補間が使えます。以下の実装は<a href="https://ryukau.github.io/filter_notes/wavetable/wavetable.html#%E3%81%9D%E3%81%AE%E4%BB%96">ウェーブテーブルの帯域制限と位相方向の補間</a>で紹介したものです。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cubic(y0, y1, y2, y3, t):</span>
+<p>サンプルが等間隔で並んでいるときは Catmull-Rom
+補間が使えます。以下の実装は<a
+href="https://ryukau.github.io/filter_notes/wavetable/wavetable.html#%E3%81%9D%E3%81%AE%E4%BB%96">ウェーブテーブルの帯域制限と位相方向の補間</a>で紹介したものです。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cubic(y0, y1, y2, y3, t):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    t2 <span class="op">=</span> t <span class="op">*</span> t</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    c0 <span class="op">=</span> y1 <span class="op">-</span> y2</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    c1 <span class="op">=</span> (y2 <span class="op">-</span> y0) <span class="op">*</span> <span class="fl">0.5</span></span>
@@ -409,20 +454,27 @@ Update: 2022-05-12
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    c3 <span class="op">=</span> c0 <span class="op">+</span> c2 <span class="op">+</span> (y3 <span class="op">-</span> y1) <span class="op">*</span> <span class="fl">0.5</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> c3 <span class="op">*</span> t <span class="op">*</span> t2 <span class="op">-</span> (c2 <span class="op">+</span> c3) <span class="op">*</span> t2 <span class="op">+</span> c1 <span class="op">*</span> t <span class="op">+</span> y1</span></code></pre></div>
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/Cubic_Hermite_spline">Cubic Hermite spline - Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Cubic_Hermite_spline">Cubic
+Hermite spline - Wikipedia</a></li>
 </ul>
 <h3 id="次ラグランジュ補間">3 次ラグランジュ補間</h3>
-<p><a href="https://ryukau.github.io/filter_notes/delay/delay.html#%E5%88%86%E6%95%B0%E3%83%87%E3%82%A3%E3%83%AC%E3%82%A4%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF">ディレイの実装</a>で紹介したラグランジュ補間の実装をさらに整理しました。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lagrange3(y0, y1, y2, y3, t):</span>
+<p><a
+href="https://ryukau.github.io/filter_notes/delay/delay.html#%E5%88%86%E6%95%B0%E3%83%87%E3%82%A3%E3%83%AC%E3%82%A4%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF">ディレイの実装</a>で紹介したラグランジュ補間の実装をさらに整理しました。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lagrange3(y0, y1, y2, y3, t):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> t</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    d0 <span class="op">=</span> y0 <span class="op">-</span> y1</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    d1 <span class="op">=</span> d0 <span class="op">-</span> (y1 <span class="op">-</span> y2)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    d2 <span class="op">=</span> d1 <span class="op">-</span> ((y1 <span class="op">-</span> y2) <span class="op">-</span> (y2 <span class="op">-</span> y3))</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y0 <span class="op">-</span> u <span class="op">*</span> (d0 <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> u) <span class="op">/</span> <span class="dv">2</span> <span class="op">*</span> (d1 <span class="op">+</span> (<span class="dv">2</span> <span class="op">-</span> u) <span class="op">/</span> <span class="dv">3</span> <span class="op">*</span> d2))</span></code></pre></div>
 <ul>
-<li><a href="https://ccrma.stanford.edu/~jos/Interpolation/Lagrange_Interpolation.html">Lagrange Interpolation</a></li>
+<li><a
+href="https://ccrma.stanford.edu/~jos/Interpolation/Lagrange_Interpolation.html">Lagrange
+Interpolation</a></li>
 </ul>
-<p>N 次のラグランジュ補間は以下の <code>v</code> の式を展開すれば実装が求められます。 <code>d</code> の項の係数は<a href="https://mathworld.wolfram.com/PascalsTriangle.html">パスカルの三角形</a>と一致しそうです。</p>
+<p>N 次のラグランジュ補間は以下の <code>v</code>
+の式を展開すれば実装が求められます。 <code>d</code> の項の係数は<a
+href="https://mathworld.wolfram.com/PascalsTriangle.html">パスカルの三角形</a>と一致しそうです。</p>
 <pre><code>d(0, i) = y[i] - y[i + 1]
 d(n, i) = d(n - 1, i) - d(n - 1, i + 1)
 
@@ -432,8 +484,10 @@ s(n)     = d(n, n) + (n + 1 - u) / (n + 2) * s(n + 1)
 s(N - 1) = d(N - 1, N - 1)
 v = y[0] - u * s(0)</code></pre>
 <h3 id="pchip-補間">PCHIP 補間</h3>
-<p>Catmull-Rom との違いはオーバーシュートしないことです。 LFO の補間にはいいかもしれません。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pchip(y0, y1, y2, y3, t):</span>
+<p>Catmull-Rom との違いはオーバーシュートしないことです。 LFO
+の補間にはいいかもしれません。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pchip(y0, y1, y2, y3, t):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    m0 <span class="op">=</span> y1 <span class="op">-</span> y0</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    m1 <span class="op">=</span> y2 <span class="op">-</span> y1</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    m2 <span class="op">=</span> y3 <span class="op">-</span> y2</span>
@@ -448,11 +502,15 @@ v = y[0] - u * s(0)</code></pre>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    c3 <span class="op">=</span> c0 <span class="op">+</span> c2 <span class="op">+</span> dk1</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> c3 <span class="op">*</span> t <span class="op">*</span> t2 <span class="op">-</span> (c2 <span class="op">+</span> c3) <span class="op">*</span> t2 <span class="op">+</span> c1 <span class="op">*</span> t <span class="op">+</span> y1</span></code></pre></div>
 <ul>
-<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.pchip_interpolate.html">scipy.interpolate.pchip_interpolate — SciPy v1.8.0 Manual</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.pchip_interpolate.html">scipy.interpolate.pchip_interpolate
+— SciPy v1.8.0 Manual</a></li>
 </ul>
 <h3 id="akima-補間">Akima 補間</h3>
-<p>Akima 補間の特長は、 1 階微分しても滑らかでありながら、補間したい位置の前後の数サンプルだけがわかっていれば計算できることです。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> akima(y0, y1, y2, y3, y4, y5, t):</span>
+<p>Akima 補間の特長は、 1
+階微分しても滑らかでありながら、補間したい位置の前後の数サンプルだけがわかっていれば計算できることです。</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> akima(y0, y1, y2, y3, y4, y5, t):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    m0 <span class="op">=</span> y1 <span class="op">-</span> y0</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    m1 <span class="op">=</span> y2 <span class="op">-</span> y1</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    m2 <span class="op">=</span> y3 <span class="op">-</span> y2</span>
@@ -473,11 +531,15 @@ v = y[0] - u * s(0)</code></pre>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ((d2 <span class="op">*</span> t <span class="op">+</span> c2) <span class="op">*</span> t <span class="op">+</span> b2) <span class="op">*</span> t <span class="op">+</span> y2</span></code></pre></div>
 <ul>
-<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.pchip_interpolate.html">scipy.interpolate.pchip_interpolate — SciPy v1.8.0 Manual</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.pchip_interpolate.html">scipy.interpolate.pchip_interpolate
+— SciPy v1.8.0 Manual</a></li>
 </ul>
 <h3 id="uniform-b-spline-補間">Uniform B-spline 補間</h3>
-<p>Uniform B-spline はコントロールポイントを通りません。音にかけるとローパスフィルタのようになります。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> uniformBSpline(y0, y1, y2, y3, t):</span>
+<p>Uniform B-spline
+はコントロールポイントを通りません。音にかけるとローパスフィルタのようになります。</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> uniformBSpline(y0, y1, y2, y3, t):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    t2 <span class="op">=</span> t <span class="op">*</span> t</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    t3 <span class="op">=</span> t2 <span class="op">*</span> t</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -487,12 +549,20 @@ v = y[0] - u * s(0)</code></pre>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    b3 <span class="op">=</span> t3 <span class="op">/</span> <span class="dv">6</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> b0 <span class="op">*</span> y0 <span class="op">+</span> b1 <span class="op">*</span> y1 <span class="op">+</span> b2 <span class="op">*</span> y2 <span class="op">+</span> b3 <span class="op">*</span> y3</span></code></pre></div>
 <ul>
-<li><a href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform Cubic B-Spline Curves</a></li>
+<li><a
+href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform
+Cubic B-Spline Curves</a></li>
 </ul>
 <h3 id="centripetal-catmull-rom-補間">Centripetal Catmull-Rom 補間</h3>
-<p>Centripetal Catmull-Rom は Catmull-Rom のサンプリング間隔を <code>alpha</code> で変えられるようにした補間方法です。 2 次元以上の曲線の描画でコントロールポイントの間隔が近いときに <code>alpha</code> を調整してループやふくらみなどの問題を回避することができます。</p>
-<p>以下の実装は Wikipedia の記事に掲載されているコードをもとにして、 0 除算を避けるように改変しています。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> centripetalCatmullRom(y0, y1, y2, y3, t, alpha<span class="op">=</span><span class="fl">0.5</span>):</span>
+<p>Centripetal Catmull-Rom は Catmull-Rom のサンプリング間隔を
+<code>alpha</code> で変えられるようにした補間方法です。 2
+次元以上の曲線の描画でコントロールポイントの間隔が近いときに
+<code>alpha</code>
+を調整してループやふくらみなどの問題を回避することができます。</p>
+<p>以下の実装は Wikipedia の記事に掲載されているコードをもとにして、 0
+除算を避けるように改変しています。</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> centripetalCatmullRom(y0, y1, y2, y3, t, alpha<span class="op">=</span><span class="fl">0.5</span>):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 0 =&lt; alpha =&lt; 1.</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> t <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> y1</span>
@@ -521,11 +591,15 @@ v = y[0] - u * s(0)</code></pre>
 <span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    B2 <span class="op">=</span> (t3 <span class="op">-</span> t) <span class="op">/</span> (t3 <span class="op">-</span> t1) <span class="op">*</span> A2 <span class="op">+</span> (t <span class="op">-</span> t1) <span class="op">/</span> (t3 <span class="op">-</span> t1) <span class="op">*</span> A3</span>
 <span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (t2 <span class="op">-</span> t) <span class="op">/</span> (t2 <span class="op">-</span> t1) <span class="op">*</span> B1 <span class="op">+</span> (t <span class="op">-</span> t1) <span class="op">/</span> (t2 <span class="op">-</span> t1) <span class="op">*</span> B2</span></code></pre></div>
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Centripetal Catmull–Rom spline - Wikipedia</a></li>
+<li><a
+href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Centripetal
+Catmull–Rom spline - Wikipedia</a></li>
 </ul>
 <h2 id="評価">評価</h2>
-<p>振幅、位相、群遅延特性をプロットして比較します。以下は周波数特性を計算するコード例です。実際にプロットに使ったコードは実装の節の Python3 の実装を参照してください。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<p>振幅、位相、群遅延特性をプロットして比較します。以下は周波数特性を計算するコード例です。実際にプロットに使ったコードは実装の節の
+Python3 の実装を参照してください。</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lagrange3(y0, y1, y2, y3, t):</span>
@@ -548,39 +622,59 @@ v = y[0] - u * s(0)</code></pre>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    _, delay <span class="op">=</span> signal.group_delay((fir, <span class="dv">1</span>), fs<span class="op">=</span>sampleRate)</span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># プロットは省略。</span></span></code></pre></div>
-<p>以下では図の左上が振幅特性、左下が位相特性、右上が群遅延特性、右下がインパルス応答です。青くなるほど <code>t = 0</code> 、黄色くなるほど <code>t = 1</code> に近くなります。振幅特性は <code>t = 0.5</code> を中心として対称性があるので重なっている曲線があります。</p>
+<p>以下では図の左上が振幅特性、左下が位相特性、右上が群遅延特性、右下がインパルス応答です。青くなるほど
+<code>t = 0</code> 、黄色くなるほど <code>t = 1</code>
+に近くなります。振幅特性は <code>t = 0.5</code>
+を中心として対称性があるので重なっている曲線があります。</p>
 <h4 id="線形補間-1">線形補間</h4>
 <p>典型的な分数ディレイフィルタの特性がみられます。</p>
 <ul>
 <li><code>0 &lt; t &lt; 1</code> のときの振幅特性はローパス。</li>
 <li>群遅延特性が低域でフラット。</li>
-<li><code>t = 0.5</code> のとき最もローパスが強くかかるが、群遅延はフラット。</li>
-<li>インパルス応答と振幅特性は <code>t = 0.5</code> を中心に ±0.5 の範囲で対称。</li>
+<li><code>t = 0.5</code>
+のとき最もローパスが強くかかるが、群遅延はフラット。</li>
+<li>インパルス応答と振幅特性は <code>t = 0.5</code> を中心に ±0.5
+の範囲で対称。</li>
 </ul>
 <figure>
 <img src="img/linear.svg" alt="Image of frequency response of linear interpolation." style="padding-bottom: 12px;"/>
 </figure>
 <h4 id="catmull-rom-補間-1">Catmull-Rom 補間</h4>
-<p>線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR フィルタ係数が 2 倍長いので、振幅特性の<a href="https://en.wikipedia.org/wiki/Roll-off">ロールオフ</a>が半分ほどになるはずです。</p>
+<p>線形補間よりは低域でフラットな領域が増えています。単純に考えると FIR
+フィルタ係数が 2 倍長いので、振幅特性の<a
+href="https://en.wikipedia.org/wiki/Roll-off">ロールオフ</a>が 2
+倍ほど急峻になるはずです。</p>
 <figure>
 <img src="img/cubic.svg" alt="Image of frequency response of cubic interpolation." style="padding-bottom: 12px;"/>
 </figure>
 <h4 id="次ラグランジュ補間-1">3 次ラグランジュ補間</h4>
-<p>Catmull–Rom 補間とほとんど同じですが、低域でのフラットさが増して、高域での誤差が増えています。</p>
+<p>Catmull–Rom
+補間とほとんど同じですが、低域でのフラットさが増して、高域での誤差が増えています。</p>
 <figure>
 <img src="img/lagrange3.svg" alt="Image of frequency response of 3rd order Lagrange interpolation." style="padding-bottom: 12px;"/>
 </figure>
-<p>Catmull–Rom 補間と 3 次ラグランジュ補間については周波数特性に基づいて選ぶよりも、ベンチマークをとって速いほうを使うことも考えられます。 <a href="https://godbolt.org/">godbolt.org</a> でアセンブラ出力を見たところ、今回の実装では Catmull–Rom 補間のほうが 3 次ラグランジュ補間よりもコードが短くなる傾向がありました。</p>
+<p>Catmull–Rom 補間と 3
+次ラグランジュ補間については周波数特性に基づいて選ぶよりも、ベンチマークをとって速いほうを使うことも考えられます。
+<a href="https://godbolt.org/">godbolt.org</a>
+でアセンブラ出力を見たところ、今回の実装では Catmull–Rom 補間のほうが 3
+次ラグランジュ補間よりもコードが短くなる傾向がありました。</p>
 <ul>
-<li><a href="https://godbolt.org/#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXACx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApACYAQuYukl9ZATwDKjdAGFUtAK4sGIM6SuADJ4DJgAcj4ARpjE/gDspAAOqAqETgwe3r7%2ByanpAiFhkSwxcWaJdpgOGUIETMQEWT5%2BAVU1AnUNBEUR0bEJtvWNzTltwz2hfaUDFQCUtqhexMjsHASYLEkGGyYAzG4EAJ5JjKyYANQAKvvY1xfIXlF4yACSgrFJEFcXRxqk9yOXABPyOAUBexBFwIcxMGgAgiZ4lYERd7gQzBd9gARaEXABU0P2KPhaJ%2ByA0WL2uKBFwAtL8zMS4aT7sguFTcRAwfTfho5hcAPTXCBmWF7Elkh6YnEPSnWB5cZmotl7TlyrGWaWaiwXblqhlAgXCq6i8WSi7ETAEZYMB5qwkEAnQzEMiDIGVa5B7AWOz269nOp0KoHKxHxbEsllUWioJhO5ChDbEL4xuNOv4AtPx37Ai7ZjPggu/SH52M5mFY5EstFoq024h2x7PN4fFP7NwF27c/65gFg/ulmFhpGRhEsjZbHaYDvHU7MNjXW73AzAYiGYCYPbvZNfUG90F50Hg0Gln7D8fVlU/Lzq01cAUKghhqXoeXUvm80MSmv3dAc2U315bkOUNMUXz/GUP3/YCQK/MVgJ5Q0fXNX961tT8GVvQkICAhVvggB9eS8Y0RQQnCYPw00EKw0jTR9Z10DFVDLzHREEWLWg9iTT5qHLDNe2LIEs34xkRPTEtxIrWFLwtdDGwuVd1yMLcd0%2BDsuz2bAe37PMB0k6EWPDbEOAWWhOAAVl4PwOC0UhUE4NxrAVBQlhWS5zD2HhSAITRTIWABrEALP%2BcyOEkay/PszheAUEB/l82zTNIOBYCQNAtjoWJyEoDKkiyuJgC4LhIRoWhkziiAoii55mGII5OG8jK2EEAB5BhaAapLSCwFgN3Ebr8CtGoADdMDi7rMFUaovA2RreB4sK7NoPAonXeqPCwKKCGIPAWHmhYYyYYAFAANTwTAAHdWvneaZEEEQxHYKR7vkJQ1Ci3RgQMIwUGcyx9FWuLIAWVAkkcAQJrpVqDSoKgmAUAg6T6ggEHpFgqD62LMHsCG/AgVxRj8YFgimEoyj0FI0jxonKfyPHenJgZgXaPGuhGTwWj0VnagmRn%2BjiFmJlpoXun5mZBYWVzllWPQdswNYeDMyzIu6hyOFUAAOAA2OltckC5gGQZALmKgA6NUICcyxrABXBCBITUvIBDxMvoYgnYfXhEq0OZAuC0LOAi0gbLs9XYviny/L9/RODMVWw5iqOkpjsbiDSZxJCAA%3D%3D%3D">cubic と lagrange3 の比較 (godbolt.org)</a></li>
+<li><a
+href="https://godbolt.org/#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXACx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApACYAQuYukl9ZATwDKjdAGFUtAK4sGIM6SuADJ4DJgAcj4ARpjE/gDspAAOqAqETgwe3r7%2ByanpAiFhkSwxcWaJdpgOGUIETMQEWT5%2BAVU1AnUNBEUR0bEJtvWNzTltwz2hfaUDFQCUtqhexMjsHASYLEkGGyYAzG4EAJ5JjKyYANQAKvvY1xfIXlF4yACSgrFJEFcXRxqk9yOXABPyOAUBexBFwIcxMGgAgiZ4lYERd7gQzBd9gARaEXABU0P2KPhaJ%2ByA0WL2uKBFwAtL8zMS4aT7sguFTcRAwfTfho5hcAPTXCBmWF7Elkh6YnEPSnWB5cZmotl7TlyrGWaWaiwXblqhlAgXCq6i8WSi7ETAEZYMB5qwkEAnQzEMiDIGVa5B7AWOz269nOp0KoHKxHxbEsllUWioJhO5ChDbEL4xuNOv4AtPx37Ai7ZjPggu/SH52M5mFY5EstFoq024h2x7PN4fFP7NwF27c/65gFg/ulmFhpGRhEsjZbHaYDvHU7MNjXW73AzAYiGYCYPbvZNfUG90F50Hg0Gln7D8fVlU/Lzq01cAUKghhqXoeXUvm80MSmv3dAc2U315bkOUNMUXz/GUP3/YCQK/MVgJ5Q0fXNX961tT8GVvQkICAhVvggB9eS8Y0RQQnCYPw00EKw0jTR9Z10DFVDLzHREEWLWg9iTT5qHLDNe2LIEs34xkRPTEtxIrWFLwtdDGwuVd1yMLcd0%2BDsuz2bAe37PMB0k6EWPDbEOAWWhOAAVl4PwOC0UhUE4NxrAVBQlhWS5zD2HhSAITRTIWABrEALP%2BcyOEkay/PszheAUEB/l82zTNIOBYCQNAtjoWJyEoDKkiyuJgC4LhIRoWhkziiAoii55mGII5OG8jK2EEAB5BhaAapLSCwFgN3Ebr8CtGoADdMDi7rMFUaovA2RreB4sK7NoPAonXeqPCwKKCGIPAWHmhYYyYYAFAANTwTAAHdWvneaZEEEQxHYKR7vkJQ1Ci3RgQMIwUGcyx9FWuLIAWVAkkcAQJrpVqDSoKgmAUAg6T6ggEHpFgqD62LMHsCG/AgVxRj8YFgimEoyj0FI0jxonKfyPHenJgZgXaPGuhGTwWj0VnagmRn%2BjiFmJlpoXun5mZBYWVzllWPQdswNYeDMyzIu6hyOFUAAOAA2OltckC5gGQZALmKgA6NUICcyxrABXBCBITUvIBDxMvoYgnYfXhEq0OZAuC0LOAi0gbLs9XYviny/L9/RODMVWw5iqOkpjsbiDSZxJCAA%3D%3D%3D">cubic
+と lagrange3 の比較 (godbolt.org)</a></li>
 </ul>
 <h4 id="pchip-補間-1">PCHIP 補間</h4>
-<p>PCHIP 補間は入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。ただし、線形補間、 Catmull–Rom 補間、 3 次ラグランジュ補間に比べると、周波数特性が悪くなるケースがあるということは言えそうです。また、群遅延特性が <code>t</code> の値に応じて一様に分布しない点にも注意が必要です。</p>
+<p>PCHIP
+補間は入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。ただし、線形補間、
+Catmull–Rom 補間、 3
+次ラグランジュ補間に比べると、周波数特性が悪くなるケースがあるということは言えそうです。また、群遅延特性が
+<code>t</code> の値に応じて一様に分布しない点にも注意が必要です。</p>
 <figure>
 <img src="img/pchip.svg" alt="Image of frequency response of PCHIP interpolation." style="padding-bottom: 12px;"/>
 </figure>
 <h4 id="akima-補間-1">Akima 補間</h4>
-<p>PCHIP 補間と同様に入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。</p>
+<p>PCHIP
+補間と同様に入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。</p>
 <figure>
 <img src="img/akima.svg" alt="Image of frequency response of Akima interpolation." style="padding-bottom: 12px;"/>
 </figure>
@@ -589,44 +683,79 @@ v = y[0] - u * s(0)</code></pre>
 <figure>
 <img src="img/uniformBSpline.svg" alt="Image of frequency response of uniform B-spline interpolation." style="padding-bottom: 12px;"/>
 </figure>
-<p>Centripetal Catmull-Rom 補間の特性です。 <code>alpha = 0.5</code> としていますが、入力信号がインパルスのときは 0 除算を避けるコードパスを通るので、 <code>alpha</code> の値を変えても同じ特性となります。音のデータは等間隔でサンプリングされていることが普通なので centripetal Catmull-Rom 補間のようにサンプリング間隔を変えて補間の特性を変える手法は音の補間に適していません。エフェクタに歪みを加えるときにはいいかもしれません。</p>
+<h4 id="centripetal-catmull-rom-補間-1">Centripetal Catmull-Rom
+補間</h4>
+<p><code>alpha = 0.5</code> としていますが、入力信号がインパルスのときは
+0 除算を避けるコードパスを通るので、 <code>alpha</code>
+の値を変えても同じ特性となります。音のデータは等間隔でサンプリングされていることが普通なので
+centripetal Catmull-Rom
+補間のようにサンプリング間隔を変えて補間の特性を変える手法は音の補間に適していないようです。エフェクタに歪みを加えるときにはいいかもしれません。</p>
 <figure>
 <img src="img/centripetalCatmullRom05.svg" alt="Image of frequency response of centripetal Catmull-Rom interpolation. alpha set to 0.5." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="まとめ">まとめ</h3>
 <p>計算の速さが求められるときは線形補間で十分です。</p>
-<p>3 次の補間を使うときは Catmull-Rom 補間か 3 次ラグランジュ補間が使えます。 Catmull–Rom 補間は 3 次ラグランジュ補間より高速ですが、低域での特性が悪くなります。</p>
+<p>3 次の補間を使うときは Catmull-Rom 補間か 3
+次ラグランジュ補間が使えます。 Catmull–Rom 補間は 3
+次ラグランジュ補間より高速ですが、低域での特性が悪くなります。</p>
 <p>オーバーシュートが許容できないときは PCHIP 補間が使えます。</p>
-<p>Akima 補間、 uniform B-spline 補間、 centripetal Catmull-Rom 補間は音の補間には不適です。音に癖をつけたいときはいいかもしれません。</p>
+<p>Akima 補間、 uniform B-spline 補間、 centripetal Catmull-Rom
+補間は音の補間には不適です。音に癖をつけたいときはいいかもしれません。</p>
 <h2 id="その他">その他</h2>
-<p>以下のように sinc 関数から直接 FIR フィルタ係数を計算する方法も考えられますが、 補間のたびに <code>sin()</code> を FIR のタップ数だけ繰り返し計算するのはリアルタイムの音の処理ではかなり重たいです。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sinc4(y0, y1, y2, y3, t):</span>
+<p>以下のように sinc 関数から直接 FIR
+フィルタ係数を計算する方法も考えられますが、 補間のたびに
+<code>sin()</code> を FIR
+のタップ数だけ繰り返し計算するのはリアルタイムの音の処理ではかなり重たいです。</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sinc4(y0, y1, y2, y3, t):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    s0 <span class="op">=</span> np.sinc(t <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> np.e</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    s1 <span class="op">=</span> np.sinc(t)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    s2 <span class="op">=</span> np.sinc(t <span class="op">-</span> <span class="dv">1</span>)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    s3 <span class="op">=</span> np.sinc(t <span class="op">-</span> <span class="dv">2</span>) <span class="op">/</span> np.e</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    denom <span class="op">=</span> s0 <span class="op">+</span> s1 <span class="op">+</span> s2 <span class="op">+</span> s3</span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (y0 <span class="op">*</span> s0 <span class="op">+</span> y1 <span class="op">*</span> s1 <span class="op">+</span> y2 <span class="op">*</span> s2 <span class="op">+</span> y3 <span class="op">*</span> s3) <span class="op">/</span> denom</span></code></pre></div>
-<p><code>np.e</code> で値を割っているのは窓関数の計算です。以下のコードから出力されるインデックス 0 とインデックス 3 の値とほぼ一致します。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>win <span class="op">=</span> scipy.signal.get_window((<span class="st">&quot;kaiser&quot;</span>, <span class="dv">2</span> <span class="op">*</span> np.pi), <span class="dv">6</span>, fftbins<span class="op">=</span><span class="va">False</span>)[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>]</span>
+<p><code>np.e</code>
+で値を割っているのは窓関数の計算です。以下のコードから出力されるインデックス
+0 とインデックス 3 の値とほぼ一致します。</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>win <span class="op">=</span> scipy.signal.get_window((<span class="st">&quot;kaiser&quot;</span>, <span class="dv">2</span> <span class="op">*</span> np.pi), <span class="dv">6</span>, fftbins<span class="op">=</span><span class="va">False</span>)[<span class="dv">1</span>:<span class="op">-</span><span class="dv">1</span>]</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(win <span class="op">/</span> win[<span class="dv">1</span>])</span></code></pre></div>
-<p>特性は窓関数によって変わりますが、上の <code>sinc4</code> は 3 次ラグランジュ補間とほぼ一致します。</p>
+<p>特性は窓関数によって変わりますが、上のコードの <code>sinc4</code> は
+3 次ラグランジュ補間とほぼ一致します。</p>
 <figure>
 <img src="img/sinc4.svg" alt="Image of frequency response of 4-point windowed sinc interpolation. Using Kaiser window where beta equals to 2 pi." style="padding-bottom: 12px;"/>
 </figure>
 <h2 id="参考サイト">参考サイト</h2>
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/Cubic_Hermite_spline">Cubic Hermite spline - Wikipedia</a></li>
-<li><a href="https://ccrma.stanford.edu/~jos/Interpolation/Lagrange_Interpolation.html">Lagrange Interpolation</a></li>
-<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html">scipy.interpolate.PchipInterpolator — SciPy v1.8.0 Manual</a></li>
-<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Akima1DInterpolator.html">scipy.interpolate.Akima1DInterpolator — SciPy v1.8.0 Manual</a></li>
-<li><a href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform Cubic B-Spline Curves</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Centripetal Catmull–Rom spline - Wikipedia</a></li>
-<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html">scipy.signal.resample — SciPy v1.8.0 Manual</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Ringing_artifacts">Ringing artifacts - Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Cubic_Hermite_spline">Cubic
+Hermite spline - Wikipedia</a></li>
+<li><a
+href="https://ccrma.stanford.edu/~jos/Interpolation/Lagrange_Interpolation.html">Lagrange
+Interpolation</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.PchipInterpolator.html">scipy.interpolate.PchipInterpolator
+— SciPy v1.8.0 Manual</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.Akima1DInterpolator.html">scipy.interpolate.Akima1DInterpolator
+— SciPy v1.8.0 Manual</a></li>
+<li><a
+href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform
+Cubic B-Spline Curves</a></li>
+<li><a
+href="https://en.wikipedia.org/wiki/Centripetal_Catmull%E2%80%93Rom_spline">Centripetal
+Catmull–Rom spline - Wikipedia</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.resample.html">scipy.signal.resample
+— SciPy v1.8.0 Manual</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Ringing_artifacts">Ringing
+artifacts - Wikipedia</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2022/07/27
+<ul>
+<li>文章の整理。</li>
+</ul></li>
 <li>2022/05/11
 <ul>
 <li>キュービック補間という呼び方をやめて Catmull-Rom 補間に統一。</li>
