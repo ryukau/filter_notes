@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2022-08-28" />
+<title>double_ema_filter</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
+crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+onload="renderMathInElement(document.body);"></script>
+
+<style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+font-family: inherit;
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 4px;
+margin: 2px;
+line-height: calc(1em + 16px);
+}
+
+a {
+text-decoration: none;
+}
+
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
+padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
+}
+
+tr:nth-child(odd) {
+background: #eeeeee;
+}
+
+tr:nth-child(even) {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+td {
+height: 1.5em;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
+}
+
+li {
+margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+</style>
+
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2022-08-28
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#二重-ema-フィルタによる-ad-エンベロープ"
+id="toc-二重-ema-フィルタによる-ad-エンベロープ">二重 EMA フィルタによる
+AD エンベロープ</a>
+<ul>
+<li><a href="#二重-ema-フィルタ" id="toc-二重-ema-フィルタ">二重 EMA
+フィルタ</a>
+<ul>
+<li><a href="#伝達関数" id="toc-伝達関数">伝達関数</a></li>
+<li><a href="#インパルス応答"
+id="toc-インパルス応答">インパルス応答</a></li>
+<li><a href="#ゲート信号への応答"
+id="toc-ゲート信号への応答">ゲート信号への応答</a></li>
+</ul></li>
+<li><a href="#ad-エンベロープ" id="toc-ad-エンベロープ">AD
+エンベロープ</a>
+<ul>
+<li><a href="#ピークの探索" id="toc-ピークの探索">ピークの探索</a></li>
+<li><a href="#正規化の誤差" id="toc-正規化の誤差">正規化の誤差</a></li>
+</ul></li>
+<li><a href="#その他" id="toc-その他">その他</a>
+<ul>
+<li><a href="#再帰のない-ema-フィルタの計算式"
+id="toc-再帰のない-ema-フィルタの計算式">再帰のない EMA
+フィルタの計算式</a></li>
+<li><a href="#二重-ema-フィルタの微分"
+id="toc-二重-ema-フィルタの微分">二重 EMA フィルタの微分</a></li>
+<li><a href="#ad-エンベロープの式の微分"
+id="toc-ad-エンベロープの式の微分">AD エンベロープの式の微分</a></li>
+</ul></li>
+<li><a href="#参考サイト" id="toc-参考サイト">参考サイト</a></li>
+</ul></li>
+</ul>
+</nav>
+</details>
+</header>
+<h1 id="二重-ema-フィルタによる-ad-エンベロープ">二重 EMA フィルタによる
+AD エンベロープ</h1>
+<p>Exponential moving average (EMA) フィルタを 2
+つ直列につないだフィルタを使って AD エンベロープを作ります。</p>
+<p>以下に完全なテストコードと、プロットに使ったコードを掲載しています。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/double_ema_filter/test.py">Python3
+によるテストコード (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/double_ema_filter/img/plot.py">Python3
+によるプロットに使ったコード (github.com)</a></li>
+</ul>
+<p>以下は ClangSynth で使った C++ による二重 EMA フィルタによる AD
+エンベロープの実装です。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/VSTPlugins/blob/master/ClangSynth/source/dsp/envelope.hpp">C++
+による二重 EMA フィルタを使った AD エンベロープの実装
+(github.com)</a></li>
+</ul>
+<h2 id="二重-ema-フィルタ">二重 EMA フィルタ</h2>
+<h3 id="伝達関数">伝達関数</h3>
+<p>以下は EMA フィルタの伝達関数です。 <span
+class="math inline">\(k\)</span> は範囲 <span class="math inline">\([0,
+1]\)</span> のフィルタ係数です。</p>
+<p><span class="math display">\[
+H(z) = \frac{k}{1 + (k - 1)z^{-1}}
+\]</span></p>
+<p>以下は EMA フィルタを 2 つ直列につないだときの伝達関数です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+H(z)
+&amp;= \frac{k}{1 + (k - 1)z^{-1}} \times \frac{k}{1 + (k - 1)z^{-1}} \\
+&amp;= \frac{k^2}{1 + 2(k - 1) z^{-1} + (k - 1)^2 z^{-2}}
+\end{aligned}
+\]</span></p>
+<p>この文章では、上の伝達関数を持つフィルタのことを二重 EMA
+フィルタと呼ぶことにします。二重 EMA フィルタは、 EMA
+フィルタと同様にステップ応答がオーバーシュートしないのでエンベロープへの応用に適しています。</p>
+<p>以下は Python3 による二重 EMA フィルタの実装です。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DoubleEMA:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, k<span class="op">=</span><span class="dv">1</span>, value<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.k <span class="op">=</span> k</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v0 <span class="op">=</span> value</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v1 <span class="op">=</span> value</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset(<span class="va">self</span>, value<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v0 <span class="op">=</span> value</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v1 <span class="op">=</span> value</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> process(<span class="va">self</span>, x0):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v0 <span class="op">+=</span> <span class="va">self</span>.k <span class="op">*</span> (x0 <span class="op">-</span> <span class="va">self</span>.v0)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v1 <span class="op">+=</span> <span class="va">self</span>.k <span class="op">*</span> (<span class="va">self</span>.v0 <span class="op">-</span> <span class="va">self</span>.v1)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.v1</span></code></pre></div>
+<h3 id="インパルス応答">インパルス応答</h3>
+<p>Wolfram Alpha を使って二重 EMA フィルタの伝達関数を逆 Z
+変換したところ、以下の式が得られました。逆 Z
+変換によって得られた式はインパルス応答を表しています。</p>
+<p><span class="math display">\[
+x[n] = k^2 (n + 1)(1 - k)^n \\
+\]</span></p>
+<ul>
+<li><a
+href="https://www.wolframalpha.com/input?i=inverse+Z+transform+calculator&amp;assumption=%7B%22F%22%2C+%22InverseZTransformCalculator%22%2C+%22transformfunction%22%7D+-%3E%22k%5E2%2F%281%2B2*%28k-1%29*z%5E-1+%2B+%28k-1%29%5E2*z%5E-2%29%22&amp;assumption=%7B%22F%22%2C+%22InverseZTransformCalculator%22%2C+%22variable1%22%7D+-%3E%22z%22&amp;assumption=%7B%22F%22%2C+%22InverseZTransformCalculator%22%2C+%22variable2%22%7D+-%3E%22n%22">Wolfram
+Alpha での結果へのリンク</a></li>
+</ul>
+<h3 id="ゲート信号への応答">ゲート信号への応答</h3>
+<p>ここでの目的はエンベロープへの応用なのでゲート信号への応答の形に式を変形します。ここではゲート信号を、時間が
+0 サンプルから n サンプルの区間で振幅 1 、それ以外では振幅 0
+となる信号と定義しています。以下はゲート信号の図です。</p>
+<figure>
+<img src="img/gate_signal.svg" alt="Image of gate signal." style="padding-bottom: 12px;"/>
+</figure>
+<p>試行錯誤したところ Python3
+で実装した以下の関数が、伝達関数の形で実装した二重 EMA
+フィルタの出力と一致しました。アイデアとしては、インパルスの現れる時間をずらした複数のインパルス応答の総和を取っています。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> doubleEmaClosed(n, k, init<span class="op">=</span><span class="dv">0</span>, gain<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, n <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        value <span class="op">+=</span> k <span class="op">*</span> k <span class="op">*</span> (i <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> k)<span class="op">**</span>i</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> init <span class="op">+</span> gain <span class="op">*</span> value</span></code></pre></div>
+<p><code>n</code>
+はゲートが開く時間の長さです。今回の応用ではノートオンからノートオフまでの間隔を表しています。また
+<code>n</code> が無限大のときにステップ応答となります。</p>
+<p>数式にします。 <span class="math inline">\(V\)</span> は初期値、
+<span class="math inline">\(G\)</span>
+はゲインです。総和を取り除いた形は Wolfram Alpha から取得しました。</p>
+<p><span class="math display">\[
+\begin{aligned}
+x(k, V, G)[n]
+  &amp;= V + G \sum_{i=0}^{n} k^2 (i + 1) (1 - k)^i \\
+  &amp;= V + G \Big( k^2 (n + 1) (1 - k)^n - k n (1 - k)^n - (1 - k)^n +
+1 \Big) \\
+  &amp;= V + G \Big( 1 + (1 - k)^n (k^2 (n + 1) - k n - 1) \Big) \\
+  &amp;= V + G \Big( 1 - (1 - k)^{n + 1} (k n + k + 1) \Big)
+\end{aligned}
+\]</span></p>
+<h2 id="ad-エンベロープ">AD エンベロープ</h2>
+<p>2 つの二重 EMA フィルタを乗算して、ターゲットとなる AD エンベロープ
+<span class="math inline">\(E\)</span> の式を作ります。 <span
+class="math inline">\(k_A\)</span> はアタック、 <span
+class="math inline">\(k_D\)</span> はディケイのフィルタ係数です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+E[n] &amp;= x(k_A, 0, 1)[n] \times x(k_D, 1, -1)[n]
+\\
+&amp;=
+  \Big( 1 - (1 - k_A)^{n + 1} (k_A n + k_A + 1) \Big)
+  \Bigg( 1 - \Big( 1 - (1 - k_D)^{n + 1} (k_D n + k_D + 1) \Big) \Bigg)
+\\
+&amp;=
+  \Big( 1 - (1 - k_A)^{n + 1} (k_A n + k_A + 1) \Big)
+  (1 - k_D)^{n + 1} (k_D n + k_D + 1)
+\end{aligned}
+\]</span></p>
+<p>Python 3 に翻訳します。 <code>samplesToKp</code> の導出については <a
+href="https://dsp.stackexchange.com/a/54088">Matt L. さんによる Signal
+Processing Stack Exchange での回答</a> を参照してください。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> doubleEmaEnvelopeD0(n, k_A, k_D):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> k_A)<span class="op">**</span>(n <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> (k_A <span class="op">*</span> n <span class="op">+</span> k_A <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> k_D)<span class="op">**</span>(n <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> (k_D <span class="op">*</span> n <span class="op">+</span> k_D <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">-</span> A) <span class="op">*</span> D</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> samplesToKp(timeInSamples):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">/</span> timeInSamples)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>y <span class="op">+</span> np.sqrt(y <span class="op">*</span> (y <span class="op">+</span> <span class="dv">2</span>))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> np.arange(<span class="dv">10000</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>k_A <span class="op">=</span> samplesToKp(<span class="dv">1000</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>k_D <span class="op">=</span> samplesToKp(<span class="dv">20000</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>envelope <span class="op">=</span> doubleEmaEnvelopeD0(n, k_A, k_D)</span></code></pre></div>
+<p>以下は <span class="math inline">\(k_A\)</span> と <span
+class="math inline">\(k_D\)</span>
+を適当に変えたときのエンベロープの出力とコードです。縦軸は振幅、横軸はサンプル数であらわされた時間です。</p>
+<figure>
+<img src="img/ad_varying_k_a.svg" alt="Plot of AD envelope using double EMA filter with varying k_A." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/ad_varying_k_d.svg" alt="Plot of AD envelope using double EMA filter with varying k_D." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="ピークの探索">ピークの探索</h3>
+<p>エンベロープとして使いたいので <span
+class="math inline">\(k_A\)</span> と <span
+class="math inline">\(k_D\)</span> の値によらず、ピークの値が 1
+となるように正規化します。ここでは数値計算によって <span
+class="math inline">\(E\)</span>
+の最大値を求め、逆数にして乗算することで正規化を行います。 <span
+class="math inline">\(E\)</span>
+を微分した式を使うことも試みたのですが、得られた式が煩雑な形になったので諦めました。</p>
+<p>以下は Python3
+によるピークを正規化したエンベロープの計算を行うコードです。変数が 1
+つだけの任意の関数の最小値を求めるときは <a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize_scalar.html#scipy.optimize.minimize_scalar"><code>scipy.optimize.minimize_scalar</code></a>
+が使えます。求まる値はあくまでも最小値なので
+<code>doubleEmaEnvelopeD0</code> の正負の符号を逆転した
+<code>doubleEmaEnvelopeD0Negative</code> を使っています。あとは得られた
+<code>peakValue</code> の逆数を AD
+エンベロープの出力に乗算すればピークの値が 1
+に正規化された出力が得られます。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># `samplesToKp` と `doubleEmaEnvelopeD0` については一つ前のコードスニペットを参照。</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.optimize <span class="im">as</span> optimize</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> doubleEmaEnvelopeD0Negative(n, k_A, k_D):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> k_A)<span class="op">**</span>(n <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> (k_A <span class="op">*</span> n <span class="op">+</span> k_A <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> k_D)<span class="op">**</span>(n <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> (k_D <span class="op">*</span> n <span class="op">+</span> k_D <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (A <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> D</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>k_A <span class="op">=</span> samplesToKp(<span class="dv">1000</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>k_D <span class="op">=</span> samplesToKp(<span class="dv">20000</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> optimize.minimize_scalar(</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    doubleEmaEnvelopeD0Negative,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>(k_A, k_D),</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>peakTime <span class="op">=</span> result.x</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>peakValue <span class="op">=</span> <span class="op">-</span>result.fun</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> np.arange(<span class="dv">10000</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>envelope <span class="op">=</span> doubleEmaEnvelopeD0(n, k_A, k_D)</span></code></pre></div>
+<p>以下はピークを正規化したエンベロープの <span
+class="math inline">\(k_A\)</span> と <span
+class="math inline">\(k_D\)</span>
+を適当に変えたときの出力です。縦軸は振幅、横軸はサンプル数であらわされた時間です。</p>
+<figure>
+<img src="img/normalized_ad_varying_k_a.svg" alt="Plot of normalized AD envelope using double EMA filter with varying k_A." style="padding-bottom: 12px;"/>
+</figure>
+<figure>
+<img src="img/normalized_ad_varying_k_d.svg" alt="Plot of normalized AD envelope using double EMA filter with varying k_D." style="padding-bottom: 12px;"/>
+</figure>
+<h3 id="正規化の誤差">正規化の誤差</h3>
+<p>エンベロープの出力は <span class="math inline">\([0, 1]\)</span>
+の範囲内であることが望ましいです。また、伝達関数が表す差分方程式による計算と、
+<code>doubleEmaEnvelopeD0</code> が表す閉じた形の解 (closed-form
+solution)
+による計算では浮動小数点数の挙動によって計算結果がずれることが考えられます。そこで気になってくるのが正規化したピークが
+1 を超えないかどうかです。</p>
+<p>以下のリンク先のコードによって調べました。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/3032c174aaa8d5b1fb7b9e0089da898fd9ba0221/double_ema_filter/img/plot.py#L97">Python3
+による正規化の誤差を調べるコード (github.com)</a></li>
+</ul>
+<p>以下は適当に <span class="math inline">\(k_A\)</span> と <span
+class="math inline">\(k_D\)</span>
+を変えたときの正規化したピーク値のプロットです。縦軸は正規化したピーク値、横軸は
+<span class="math inline">\(k_D\)</span> の値です。縦軸のスケールは
+<code>1e-8</code> 、オフセットは <code>+9.9999999e-1</code>
+です。つまり左上の <code>1.00</code>
+を超えていなければ正規化したピークは 1
+以内に収まっているということです。</p>
+<figure>
+<img src="img/normalized_peak_error.svg" alt="Plot of error of normalized peak." style="padding-bottom: 12px;"/>
+</figure>
+<p>傾向としては <span class="math inline">\(k_A\)</span> と <span
+class="math inline">\(k_D\)</span>
+が小さいときは、正規化したピークも小さくなるようです。また、調べた範囲では正規化したピークが
+1 を超えるケースは見つかりませんでした。</p>
+<h2 id="その他">その他</h2>
+<h3 id="再帰のない-ema-フィルタの計算式">再帰のない EMA
+フィルタの計算式</h3>
+<p>EMA フィルタの伝達関数を再掲します。</p>
+<p><span class="math display">\[
+H(z) = \frac{k}{1 + (k - 1)z^{-1}}
+\]</span></p>
+<p>Wolfram Alpha で EMA フィルタの伝達関数を逆 Z
+変換したところ、以下の式が得られました。</p>
+<p><span class="math display">\[
+x[n] = k(1-k)^n
+\]</span></p>
+<h3 id="二重-ema-フィルタの微分">二重 EMA フィルタの微分</h3>
+<p><span class="math inline">\(x(k, V, G)[n]\)</span>
+の微分です。とりあえず微分したものの、用途が見当たりませんでした。</p>
+<pre><code>diff(V + G * ((k^2*(n+1) - k*n - 1)*(1-k)^n + 1), n);  // maxima
+diff V + G * ((k^2*(n+1) - k*n - 1)*(1-k)^n + 1) for n // wolfram alpha</code></pre>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{dx[n]}{dn}
+&amp;= G (\log(1-k) (1-k)^n (k^2 (n+1)-k n-1)+(1-k)^n (k^2-k)) \\
+&amp;= G (k - 1) (1-k)^n ((k n + k + 1) \log(1-k) + k) \\
+&amp;= -G (1 - k)^{n + 1} ((k n + k + 1) \log(1-k) + k) \\
+\end{aligned}
+\]</span></p>
+<h3 id="ad-エンベロープの式の微分">AD エンベロープの式の微分</h3>
+<p>AD
+エンベロープのピークの値を取得するために使えるかと思ったのですが、式の整理が困難だったので、このアプローチは諦めました。</p>
+<p>Wolfram Alpha で微分します。</p>
+<pre><code>diff (1 - (1 - k_A)^{n + 1} * (k_A * n + k_A + 1)) * (1 - k_D)^{n + 1} * (k_D * n + k_D + 1) for n</code></pre>
+<p>以下は得られた出力です。</p>
+<pre><code>d/dn((1 - (1 - k_A)^(n + 1) (k_A n + k_A + 1)) (1 - k_D)^(n + 1) (k_D n + k_D + 1))
+=
+k_D (1 - (1 - k_A)^(n + 1) (k_A n + k_A + 1)) (1 - k_D)^(n + 1) + (1 - (1 - k_A)^(n + 1) (k_A n + k_A + 1)) (k_D n + k_D + 1) (1 - k_D)^(n + 1) log(1 - k_D) + (k_D n + k_D + 1) (1 - k_D)^(n + 1) (-k_A (1 - k_A)^(n + 1) - (k_A n + k_A + 1) (1 - k_A)^(n + 1) log(1 - k_A))
+
+
+k_D * (1 - (1 - k_A)^(n + 1) * (k_A * n + k_A + 1)) * (1 - k_D)^(n + 1) + (1 - (1 - k_A)^(n + 1) * (k_A * n + k_A + 1)) * (k_D * n + k_D + 1) * (1 - k_D)^(n + 1) * log(1 - k_D) + (k_D * n + k_D + 1) * (1 - k_D)^(n + 1) * (-k_A (1 - k_A)^(n + 1) - (k_A * n + k_A + 1) * (1 - k_A)^(n + 1) * log(1 - k_A))</code></pre>
+<p>数式に変換して整理します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;
+\frac{d}{dn} \Bigg(
+  \Big( 1 - (1 - k_A)^{n + 1} (k_A n + k_A + 1) \Big)
+  (1 - k_D)^{n + 1} (k_D n + k_D + 1)
+\Bigg)
+\\ &amp; \quad
+=
+k_D (1 - (1 - k_A)^{n + 1} (k_A n + k_A + 1)) (1 - k_D)^{n + 1}
+\\ &amp; \qquad
++ (1 - (1 - k_A)^{n + 1} (k_A n + k_A + 1)) (k_D n + k_D + 1) (1 -
+k_D)^{n + 1} \log(1 - k_D)
+\\ &amp; \qquad
++ (k_D n + k_D + 1) (1 - k_D)^{n + 1} (-k_A (1 - k_A)^{n + 1} - (k_A n +
+k_A + 1) (1 - k_A)^{n + 1} \log(1 - k_A))
+\\ &amp; \quad
+=
++ D_0 (1 - A_0 A_1) k_D
+\\ &amp; \qquad
++ D_0 D_1 (1 - A_0 A_1) D_2
+\\ &amp; \qquad
+- D_0 D_1 A_0 k_A
+\\ &amp; \qquad
+- D_0 D_1 A_0 A_1 A_2
+\\ &amp; \quad
+=
+D_0 \Bigg(
+  (k_D + D_1 D_2) (1 - A_0 A_1)
+- D_1 A_0 (k_A + A_1 A_2)
+\Bigg)
+\end{aligned}
+\]</span></p>
+<p>導入した記号は以下の通りです。</p>
+<p><span class="math display">\[
+\begin{array}{llll}
+&amp; D_0 = (1 - k_D)^{n + 1} &amp;&amp; A_0 = (1 - k_A)^{n + 1} \\
+&amp; D_1 = k_D n + k_D + 1   &amp;&amp; A_1 = k_A n + k_A + 1 \\
+&amp; D_2 = \log(1 - k_D)     &amp;&amp; A_2 = \log(1 - k_A) \\
+\end{array}
+\]</span></p>
+<p>上の式の <span class="math inline">\(n\)</span> を 0 について解けば
+AD エンベロープのピークの時点が得られるはずです。 Wolfram Alpha と
+Maxima
+で試したのですが、式の形がとても煩雑になるので整理は困難です。</p>
+<p>以下は Python3 による実装です。</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> doubleEmaEnvelopeD1(n, k_A, k_D):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    D_0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> k_D)<span class="op">**</span>(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    A_0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> k_A)<span class="op">**</span>(n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    D_1 <span class="op">=</span> k_D <span class="op">*</span> n <span class="op">+</span> k_D <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    A_1 <span class="op">=</span> k_A <span class="op">*</span> n <span class="op">+</span> k_A <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    D_2 <span class="op">=</span> np.log(<span class="dv">1</span> <span class="op">-</span> k_D)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    A_2 <span class="op">=</span> np.log(<span class="dv">1</span> <span class="op">-</span> k_A)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> D_0 <span class="op">*</span> ((k_D <span class="op">+</span> D_1 <span class="op">*</span> D_2) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> A_0 <span class="op">*</span> A_1) <span class="op">-</span> D_1 <span class="op">*</span> A_0 <span class="op">*</span> (k_A <span class="op">+</span> A_1 <span class="op">*</span> A_2))</span></code></pre></div>
+<h2 id="参考サイト">参考サイト</h2>
+<ul>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize_scalar.html#scipy.optimize.minimize_scalar">scipy.optimize.minimize_scalar
+— SciPy v1.9.1 Manual</a></li>
+<li><a
+href="https://markusthill.github.io/deriving-a-closed-form-solution-of-the-fibonacci-sequence/">Deriving
+a Closed-Form Solution of the Fibonacci Sequence using the Z-Transform –
+ML &amp; Stats</a></li>
+<li><a
+href="https://math.stackexchange.com/questions/167957/closed-form-solution-of-fibonacci-like-sequence">Closed
+form solution of Fibonacci-like sequence - Mathematics Stack
+Exchange</a></li>
+<li><a
+href="https://dsp.stackexchange.com/questions/54086/single-pole-iir-low-pass-filter-which-is-the-correct-formula-for-the-decay-coe">Single-pole
+IIR low-pass filter - which is the correct formula for the decay
+coefficient? - Signal Processing Stack Exchange</a></li>
+</ul>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
