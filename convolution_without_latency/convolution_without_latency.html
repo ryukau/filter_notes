@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-08-31" />
+<meta name="dcterms.date" content="2022-09-02" />
 <title>convolution_without_latency</title>
 
 <!-- KaTeX -->
@@ -339,7 +339,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-08-31
+Update: 2022-09-02
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -375,7 +375,6 @@ id="toc-レイテンシのない畳み込み---改変した一定計算コスト
 <li><a href="#実装-3" id="toc-実装-3">実装</a></li>
 <li><a href="#パフォーマンスの検討"
 id="toc-パフォーマンスの検討">パフォーマンスの検討</a></li>
-<li><a href="#問題点" id="toc-問題点">問題点</a></li>
 </ul></li>
 <li><a href="#その他" id="toc-その他">その他</a>
 <ul>
@@ -383,6 +382,7 @@ id="toc-パフォーマンスの検討">パフォーマンスの検討</a></li>
 id="toc-overrun-underrun-xrun">Overrun, Underrun, Xrun</a></li>
 </ul></li>
 <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -445,7 +445,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 が遅いので、書いてあるコードをそのまま使うことはお勧めしません。オフラインなら
 <code>scipy.signal.convolve</code> 、リアルタイムなら CPython
 ではない実装あるいは別の言語を使うことをお勧めします。</p>
-<p>素朴な畳み込みは遅いので、特殊な場合を除いては使うことはありません。以降で紹介しますが、リアルタイムかつレイテンシが許容できないときは
+<p>素朴な畳み込みは遅いですが、 FIR が短いときは FFT
+を使う畳み込みよりも速くなることがあります。以降で紹介しますが、リアルタイムかつレイテンシが許容できないときは
 FIR の畳み込みの一部を素朴に計算する必要があります。</p>
 <p>以下は C++ による実装の一例へのリンクです。</p>
 <ul>
@@ -594,7 +595,9 @@ href="https://github.com/ryukau/filter_notes/blob/master/convolution_without_lat
 <p>どちらも単精度の浮動小数点数で実装したのですが、倍精度の
 <code>scipy.signal.convolve</code> と差を取って比較すると overlap-save
 のほうが overlap-add よりもわずかに誤差が少なかったです。</p>
-<p>音のプラグインであれば無視できる差なので、そこまで手間をかけなくてもいいかもしれません。速さにこだわるのであれば環境や実装ごとにベンチマークを取って確認したほうがよさそうです。</p>
+<p>音のプラグインであれば無視できる差なので、 overlap-add と
+overlap-save
+を両方実装して比較する、というところまで手間をかけなくてもいいかもしれません。速さにこだわるのであれば環境や実装ごとにベンチマークを取って確認したほうがよさそうです。</p>
 <h2
 id="レイテンシのない畳み込み---最小計算コスト法">レイテンシのない畳み込み
 - 最小計算コスト法</h2>
@@ -603,8 +606,7 @@ id="レイテンシのない畳み込み---最小計算コスト法">レイテ�
 William G. Gardner さんによる “Efficient Convolution Without Latency”
 では、この問題の解決法が紹介されています。まずは実装が簡単な最小計算コスト法
 (minimum computation cost solution) を紹介します。</p>
-<p>レイテンシのない畳み込みのアイデアの根底にあるのは FIR
-フィルタの分割です。まずはここまでに出てきた畳み込みの方法を整理します。</p>
+<p>以降で部品として使うので、ここまでに出てきた畳み込みの方法を整理します。</p>
 <ul>
 <li>素朴な畳み込み: 計算が遅いが、レイテンシは生じない。</li>
 <li>Overlap-add: 計算が速いが、レイテンシが生じる。</li>
@@ -615,7 +617,8 @@ overlap-add と同じ。</li>
 <p>ここではレイテンシを最小にしたいので overlap-add と overlap-save
 の間にほとんど差はありません。以降では 2 つをまとめて overlap
 法と呼ぶことにします。</p>
-<p>最も単純な最小計算コスト法の実装は FIR を 2
+<p>レイテンシのない畳み込みのアイデアの根底にあるのは FIR
+フィルタの分割です。最も単純な最小計算コスト法の実装は FIR を 2
 つに分割することで実現できます。以下は計算手順です。入力信号を <span
 class="math inline">\(x\)</span> 、 FIR フィルタ係数を <span
 class="math inline">\(h\)</span> としています。</p>
@@ -635,8 +638,10 @@ class="math inline">\(h_1\)</span> とする。</li>
 </figure>
 <p><span class="math inline">\(h\)</span> が長いときは <span
 class="math inline">\(h_0\)</span>
-の計算が追いつかなくなるので、さらに分割する必要があります。このときに分割は、前半分をさらに半分に分割する、ということを素朴な畳み込みを行う部分が十分に短くなるまで繰り返します。以下は分割を
-3 回行ったときの畳み込みのずれを示した図です。</p>
+の計算が追いつかなくなるので、さらに分割する必要があります。このときの分割は、前半分をさらに半分に分割することを素朴な畳み込みを行う部分
+(下図の <span class="math inline">\(h_0\)</span>)
+が十分に短くなるまで繰り返します。以下は分割を 3
+回行ったときの畳み込みのずれを示した図です。</p>
 <figure>
 <img src="img/minimum_cost_full_implementation.svg" alt="Image of FIR splitting on minimum computation cost solution." style="padding-bottom: 12px;"/>
 </figure>
@@ -656,10 +661,19 @@ id="レイテンシのない畳み込み---改変した一定計算コスト法"
 おそれがあります。そこで計算量を時間軸に沿って、できる限り均一に分散する必要があります。</p>
 <p>“Efficient Convolution Without Latency”
 で紹介されているオリジナルの一定計算コスト法は FIR
-フィルタ係数を分割する長さが 2 倍づつ増えていくので、 FIR
-が長くなると結局のところ計算量の集中が現れてしまいます。そこで、最小計算コスト法によるレイテンシのない畳み込み、
+フィルタ係数を分割する長さが 2
+倍づつ増えていきます。そのままだと最小計算コスト法と同様に計算量の集中が現れてしまいますが、
+FFT の計算を分解して分散することで問題を避けています。つまり FFT
+の部分をライブラリに頼らず、自前で実装する必要があります。ただし、資料の方法では
+radix-2 Cooley–Tukey を基にしているので、 <a
+href="https://github.com/mborgerding/kissfft">Kiss FFT</a>
+より低いパフォーマンスとなることが予想されます。</p>
+<p>今回は FFT
+を自前で実装することを避けたかったので、最小計算コスト法によるレイテンシのない畳み込み、
 overlap
-法による畳み込み、整数ディレイを部品として使うことで、より均一に計算量を分散する方法をここでは紹介します。</p>
+法による畳み込み、整数ディレイを部品として使うことで、それなりに計算量を分散することにしました。この文章では、
+FFT
+の計算の分散までは行わない方法を、改変した一定計算コスト法と呼んでいます。</p>
 <p>記号を定義します。</p>
 <ul>
 <li><span class="math inline">\(N\)</span> : FIR
@@ -686,16 +700,10 @@ overlap
 <img src="img/constant_cost_implementation.svg" alt="Image of latency diagram of modified constant demand solution." style="padding-bottom: 12px;"/>
 </figure>
 <p>Overlap
-法による畳み込み器はインデックスに応じて書き込みの開始位置をずらしておきます。このずれによって計算量が分散されます。ずれの量は以下の要件を満たすことが求められます。</p>
-<ul>
-<li>インデックス 0 の畳み込み器のずれは 0
-サンプル。計算が間に合わないため。</li>
-<li></li>
-</ul>
-<p>以下は、書き込みの開始位置のずれと、ディレイ時間の設定を示したコードの例です。</p>
+法による畳み込み器はインデックスに応じて書き込みの開始位置を均等にずらしておきます。このずれによって計算量が分散されます。以下は、書き込みの開始位置のずれと、ディレイ時間の設定を示したコードの例です。</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> overlap<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> offset <span class="op">=</span> i <span class="op">*</span> M <span class="op">/</span> K<span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> offset <span class="op">=</span> <span class="op">(</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">*</span> M <span class="op">/</span> K<span class="op">;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  overlap<span class="op">[</span>i<span class="op">].</span>setOffset<span class="op">(</span>offset<span class="op">);</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  delay<span class="op">[</span>i<span class="op">].</span>resize<span class="op">(</span>i <span class="op">*</span> M<span class="op">);</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
@@ -729,6 +737,10 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 href="https://github.com/ryukau/filter_notes/blob/master/convolution_without_latency/cpp/test.cpp#L682-L748">C++
 による改変した一定計算コスト法による畳み込みの実装 (github.com)</a></li>
 </ul>
+<p>実装では一つ目の overlap
+法による畳み込み器はディレイが不要なので省略しています。また、
+overlap-save による畳み込み器の出力が 1
+サンプル早いので、その分だけディレイ時間を調整しています。</p>
 <h3 id="パフォーマンスの検討">パフォーマンスの検討</h3>
 <p>以下は各サンプルにおける計算時間の比較です。上の図が最小計算コスト法、下の図が改変した一定計算コスト法による結果です。</p>
 <figure>
@@ -740,14 +752,6 @@ distributed load
 <p>原則としてはベンチマークを取って決めるしかありません。私の環境では
 FIR の長さが <code>2^15 = 32768</code> のときに、 FFT の長さを 2048
 とするとバランスがいいパフォーマンスとなりました。</p>
-<h3 id="問題点">問題点</h3>
-<p>改変した一定計算コスト法は、最小計算コスト法による畳み込み器と、インデックス
-0 のオーバーラップ法による畳み込み器の FFT
-の計算の位置が重なるという問題点があります。以下の図のような FIR
-フィルタ係数の分割を考えてみたのですが、最小計算コスト法による畳み込み器の内部でオーバーラップ法による畳み込み器が使われているので、上で紹介した方法よりも改善することはなさそうです。</p>
-<figure>
-<img src="img/constant_cost_implementation_different_representation.svg" alt="Image of splitting of FIR for different representation of modified constant demand solution." style="padding-bottom: 12px;"/>
-</figure>
 <h2 id="その他">その他</h2>
 <h3 id="overrun-underrun-xrun">Overrun, Underrun, Xrun</h3>
 <p>Overrun 、 underrun 、 xrun
@@ -781,6 +785,15 @@ Lecture Overheads, Music 421).
 <li><a href="https://ccrma.stanford.edu/~jos/OLA/OLA.html">HTML</a></li>
 <li><a
 href="https://ccrma.stanford.edu/~jos/OLA/OLA_4up.pdf">PDF</a></li>
+</ul></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2022/09/02
+<ul>
+<li>改変した一定計算コスト法の問題点が解決できたので消去。</li>
+<li>オリジナルの一定計算コスト法の説明を追加。</li>
+<li>文章の整理。</li>
 </ul></li>
 </ul>
 <footer>

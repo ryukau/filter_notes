@@ -48,7 +48,7 @@ for i in range(len(convoluted)):
 
 CPython は `for` が遅いので、書いてあるコードをそのまま使うことはお勧めしません。オフラインなら `scipy.signal.convolve` 、リアルタイムなら CPython ではない実装あるいは別の言語を使うことをお勧めします。
 
-素朴な畳み込みは遅いので、特殊な場合を除いては使うことはありません。以降で紹介しますが、リアルタイムかつレイテンシが許容できないときは FIR の畳み込みの一部を素朴に計算する必要があります。
+素朴な畳み込みは遅いですが、 FIR が短いときは FFT を使う畳み込みよりも速くなることがあります。以降で紹介しますが、リアルタイムかつレイテンシが許容できないときは FIR の畳み込みの一部を素朴に計算する必要があります。
 
 以下は C++ による実装の一例へのリンクです。
 
@@ -177,12 +177,12 @@ Overlap-save は overlap-add と比べるとブロックの長さを FIR の長�
 
 どちらも単精度の浮動小数点数で実装したのですが、倍精度の `scipy.signal.convolve` と差を取って比較すると overlap-save のほうが overlap-add よりもわずかに誤差が少なかったです。
 
-音のプラグインであれば無視できる差なので、そこまで手間をかけなくてもいいかもしれません。速さにこだわるのであれば環境や実装ごとにベンチマークを取って確認したほうがよさそうです。
+音のプラグインであれば無視できる差なので、 overlap-add と overlap-save を両方実装して比較する、というところまで手間をかけなくてもいいかもしれません。速さにこだわるのであれば環境や実装ごとにベンチマークを取って確認したほうがよさそうです。
 
 ## レイテンシのない畳み込み - 最小計算コスト法
 Overlap-add と overlap-save は、 FIR のレイテンシとは別に、ブロック長のレイテンシが導入されてしまうという問題点がありました。 William G. Gardner さんによる "Efficient Convolution Without Latency" では、この問題の解決法が紹介されています。まずは実装が簡単な最小計算コスト法 (minimum computation cost solution) を紹介します。
 
-レイテンシのない畳み込みのアイデアの根底にあるのは FIR フィルタの分割です。まずはここまでに出てきた畳み込みの方法を整理します。
+以降で部品として使うので、ここまでに出てきた畳み込みの方法を整理します。
 
 - 素朴な畳み込み: 計算が遅いが、レイテンシは生じない。
 - Overlap-add: 計算が速いが、レイテンシが生じる。
@@ -190,7 +190,7 @@ Overlap-add と overlap-save は、 FIR のレイテンシとは別に、ブロ�
 
 ここではレイテンシを最小にしたいので overlap-add と overlap-save の間にほとんど差はありません。以降では 2 つをまとめて overlap 法と呼ぶことにします。
 
-最も単純な最小計算コスト法の実装は FIR を 2 つに分割することで実現できます。以下は計算手順です。入力信号を $x$ 、 FIR フィルタ係数を $h$ としています。
+レイテンシのない畳み込みのアイデアの根底にあるのは FIR フィルタの分割です。最も単純な最小計算コスト法の実装は FIR を 2 つに分割することで実現できます。以下は計算手順です。入力信号を $x$ 、 FIR フィルタ係数を $h$ としています。
 
 1. $h$ を半分に分割。前を $h_0$ 、後ろを $h_1$ とする。
 2. $h_0 * x$ 素朴な畳み込みで計算。
@@ -203,7 +203,7 @@ Overlap-add と overlap-save は、 FIR のレイテンシとは別に、ブロ�
 <img src="img/minimum_cost_simple_implementation.svg" alt="Image of simple implementation of minimum computation cost solution. FIR is splitted to two from the center." style="padding-bottom: 12px;"/>
 </figure>
 
-$h$ が長いときは $h_0$ の計算が追いつかなくなるので、さらに分割する必要があります。このときに分割は、前半分をさらに半分に分割する、ということを素朴な畳み込みを行う部分が十分に短くなるまで繰り返します。以下は分割を 3 回行ったときの畳み込みのずれを示した図です。
+$h$ が長いときは $h_0$ の計算が追いつかなくなるので、さらに分割する必要があります。このときの分割は、前半分をさらに半分に分割することを素朴な畳み込みを行う部分 (下図の $h_0$) が十分に短くなるまで繰り返します。以下は分割を 3 回行ったときの畳み込みのずれを示した図です。
 
 <figure>
 <img src="img/minimum_cost_full_implementation.svg" alt="Image of FIR splitting on minimum computation cost solution." style="padding-bottom: 12px;"/>
@@ -217,7 +217,9 @@ $h$ が長いときは $h_0$ の計算が追いつかなくなるので、さら
 ## レイテンシのない畳み込み - 改変した一定計算コスト法
 最小計算コスト法は FFT を計算する時点に計算量が集中するので、オーディオバッファの長さが短いときは計算が間に合わずに音が止まる (underrun) おそれがあります。そこで計算量を時間軸に沿って、できる限り均一に分散する必要があります。
 
-"Efficient Convolution Without Latency" で紹介されているオリジナルの一定計算コスト法は FIR フィルタ係数を分割する長さが 2 倍づつ増えていくので、 FIR が長くなると結局のところ計算量の集中が現れてしまいます。そこで、最小計算コスト法によるレイテンシのない畳み込み、 overlap 法による畳み込み、整数ディレイを部品として使うことで、より均一に計算量を分散する方法をここでは紹介します。
+"Efficient Convolution Without Latency" で紹介されているオリジナルの一定計算コスト法は FIR フィルタ係数を分割する長さが 2 倍づつ増えていきます。そのままだと最小計算コスト法と同様に計算量の集中が現れてしまいますが、 FFT の計算を分解して分散することで問題を避けています。つまり FFT の部分をライブラリに頼らず、自前で実装する必要があります。ただし、資料の方法では radix-2 Cooley–Tukey を基にしているので、 [Kiss FFT](https://github.com/mborgerding/kissfft) より低いパフォーマンスとなることが予想されます。
+
+今回は FFT を自前で実装することを避けたかったので、最小計算コスト法によるレイテンシのない畳み込み、 overlap 法による畳み込み、整数ディレイを部品として使うことで、それなりに計算量を分散することにしました。この文章では、 FFT の計算の分散までは行わない方法を、改変した一定計算コスト法と呼んでいます。
 
 記号を定義します。
 
@@ -239,16 +241,11 @@ $h$ が長いときは $h_0$ の計算が追いつかなくなるので、さら
 <img src="img/constant_cost_implementation.svg" alt="Image of latency diagram of modified constant demand solution." style="padding-bottom: 12px;"/>
 </figure>
 
-Overlap 法による畳み込み器はインデックスに応じて書き込みの開始位置をずらしておきます。このずれによって計算量が分散されます。ずれの量は以下の要件を満たすことが求められます。
-
-- インデックス 0 の畳み込み器のずれは 0 サンプル。計算が間に合わないため。
--
-
-以下は、書き込みの開始位置のずれと、ディレイ時間の設定を示したコードの例です。
+Overlap 法による畳み込み器はインデックスに応じて書き込みの開始位置を均等にずらしておきます。このずれによって計算量が分散されます。以下は、書き込みの開始位置のずれと、ディレイ時間の設定を示したコードの例です。
 
 ```c++
 for (size_t i = 0; i < overlap.size(); ++i) {
-  size_t offset = i * M / K;
+  size_t offset = (i + 1) * M / K;
   overlap[i].setOffset(offset);
   delay[i].resize(i * M);
 }
@@ -288,6 +285,8 @@ float process(float input)
 
 - [C++ による改変した一定計算コスト法による畳み込みの実装 (github.com)](https://github.com/ryukau/filter_notes/blob/master/convolution_without_latency/cpp/test.cpp#L682-L748)
 
+実装では一つ目の overlap 法による畳み込み器はディレイが不要なので省略しています。また、 overlap-save による畳み込み器の出力が 1 サンプル早いので、その分だけディレイ時間を調整しています。
+
 ### パフォーマンスの検討
 以下は各サンプルにおける計算時間の比較です。上の図が最小計算コスト法、下の図が改変した一定計算コスト法による結果です。
 
@@ -298,13 +297,6 @@ float process(float input)
 改変した一定計算コスト法では、ブロック長とブロック数の比率をどう決めるかという問題があります。ブロック長を短くすると平均負荷が上がりますが、計算量がより分散されます。このとき、ブロック数は増え、上の distributed load の図に近くなります。逆にブロック長を長くすると平均負荷は下がりますが、計算量の集中が問題となってきます。
 
 原則としてはベンチマークを取って決めるしかありません。私の環境では FIR の長さが `2^15 = 32768` のときに、 FFT の長さを 2048 とするとバランスがいいパフォーマンスとなりました。
-
-### 問題点
-改変した一定計算コスト法は、最小計算コスト法による畳み込み器と、インデックス 0 のオーバーラップ法による畳み込み器の FFT の計算の位置が重なるという問題点があります。以下の図のような FIR フィルタ係数の分割を考えてみたのですが、最小計算コスト法による畳み込み器の内部でオーバーラップ法による畳み込み器が使われているので、上で紹介した方法よりも改善することはなさそうです。
-
-<figure>
-<img src="img/constant_cost_implementation_different_representation.svg" alt="Image of splitting of FIR for different representation of modified constant demand solution." style="padding-bottom: 12px;"/>
-</figure>
 
 ## その他
 ### Overrun, Underrun, Xrun
@@ -324,3 +316,9 @@ Overrun 、 underrun 、 xrun はアプリケーションのオーディオ処�
 - "FFT Signal Processing: The Overlap-Add (OLA) Method for Fourier Analysis, Modification, and Resynthesis", by Julius O. Smith III, (From Lecture Overheads, Music 421).
   - [HTML](https://ccrma.stanford.edu/~jos/OLA/OLA.html)
   - [PDF](https://ccrma.stanford.edu/~jos/OLA/OLA_4up.pdf)
+
+## 変更点
+- 2022/09/02
+  - 改変した一定計算コスト法の問題点が解決できたので消去。
+  - オリジナルの一定計算コスト法の説明を追加。
+  - 文章の整理。
