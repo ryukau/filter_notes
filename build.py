@@ -13,18 +13,6 @@ import yaml
 
 from pathlib import Path
 
-def get_match(md_info, md_name):
-    for info in md_info:
-        if info["name"] == md_name:
-            return info
-    return None
-
-def read_build_info(rebuild=False):
-    if not rebuild and Path("build_info").exists():
-        with open("build_info", "r") as build_info:
-            return json.load(build_info)
-    return []
-
 def gather_markdown():
     mds = []
     for path in Path(".").glob("*"):
@@ -33,37 +21,23 @@ def gather_markdown():
                 mds.append(md)
     return mds
 
-def get_last_modified(md):
-    result = subprocess.run(
-        ["git", "log", "-1", '--format="%ai"', "--", md],
-        stdout=subprocess.PIPE,
-        encoding="utf-8",
-    )
-    if len(result.stdout) > 0:
-        return result.stdout[1:-1]  # remove double quotation (").
+def is_source_modified(md, html):
+    if not html.exists():
+        return True
+    return os.path.getmtime(md) > os.path.getmtime(html)
 
-    # if there are no commits yet, get it from system.
-    epoch = Path(md).stat().st_mtime
-    return time.strftime("%Y-%m-%d %H:%M:%S %z", time.localtime(epoch))
-
-def pandoc_md_to_html5(md, md_info, template_path):
+def pandoc_md_to_html5(md, template_path, rebuild=False):
     if md.suffix != ".md":
         return
 
     if str(md).lower() == "readme.md":
         return
 
-    md_name = str(md)
-    mtime = os.path.getmtime(md)
-    info = get_match(md_info, md_name)
-    if info is None:
-        md_info.append({"name": md_name, "mtime": mtime})
-    elif info["mtime"] == mtime:
+    html = md.parent / Path(md.stem + ".html")
+    if not is_source_modified(md, html) and not rebuild:
         return
-    else:
-        info["mtime"] = mtime
 
-    print("Processing " + md_name)
+    print("Processing " + str(md))
 
     result = subprocess.run(
         [
@@ -74,7 +48,7 @@ def pandoc_md_to_html5(md, md_info, template_path):
             "--metadata",
             f"title={md.stem}",
             "--metadata",
-            f"date={get_last_modified(md).split(' ')[0]}",
+            f"date={time.strftime('%F')}",
             "--metadata",
             "lang=ja",
             "--highlight-style",
@@ -102,10 +76,6 @@ if __name__ == "__main__":
 
     dump_config_yml()
 
-    md_info = read_build_info(args.rebuild)
     mds = gather_markdown()
     for md in mds:
-        pandoc_md_to_html5(md, md_info, "template.html")
-
-    with open("build_info", "w") as build_info:
-        json.dump(md_info, build_info)
+        pandoc_md_to_html5(md, "template.html", args.rebuild)
