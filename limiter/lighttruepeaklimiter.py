@@ -54,7 +54,7 @@ def applyLimiter(sig, absed, holdTime):
     smoothed = np.convolve(gain, fir)[holdTime - 1:]
     return sig * smoothed
 
-def generateSignal(upRate, seed=None):
+def generateSignal(upRate, length, seed=None):
     rng = np.random.default_rng(seed)
     sig = 2.0 * rng.binomial(1, 0.5, length) - 1
     up = signal.resample(sig, upRate * len(sig))
@@ -64,7 +64,7 @@ def generateSignal(upRate, seed=None):
 def testGenerateSignal():
     length = 16
     seed = 6871867313
-    sig, up, downAbs = generateSignal(seed)
+    sig, up, downAbs = generateSignal(16, length, seed)
 
     plt.plot(np.abs(up))
     plt.plot(np.repeat(downAbs, 16))
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     seed = 6415456
     fix = 10**(-0.2 / 20)  # Safe guard gain. Not used for demonstration.
 
-    sig, up, downAbs = generateSignal(upRate, seed)
+    sig, up, downAbs = generateSignal(upRate, length, seed)
 
     # This implementation skips pre-lowpass which applies to `sig` to reduce overshoots.
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     plt.plot(up, lw=1, color="red", alpha=0.5, label="16x Source")
     plt.plot(upLimited, lw=1, color="black", label="16x Limited")
     plt.scatter(peakIndex, upLimited[peakIndex], marker="s", zorder=10, label="Overshoot")
-    plt.legend(loc="center right")
+    plt.legend(loc="lower right")
     plt.grid(color="#f0f0f0")
     plt.tight_layout()
     plt.show()
