@@ -361,6 +361,8 @@ id="toc-レゾナンスの最大値の探索">レゾナンスの最大値の探�
 <ul>
 <li><a href="#伝達関数" id="toc-伝達関数">伝達関数</a></li>
 <li><a href="#数値計算" id="toc-数値計算">数値計算</a></li>
+<li><a href="#安定条件の解き方の見直し"
+id="toc-安定条件の解き方の見直し">安定条件の解き方の見直し</a></li>
 </ul></li>
 <li><a href="#音のデモ" id="toc-音のデモ">音のデモ</a></li>
 <li><a href="#その他" id="toc-その他">その他</a>
@@ -369,6 +371,7 @@ id="toc-レゾナンスの最大値の探索">レゾナンスの最大値の探�
 id="toc-一次ローパスと一次オールパスの伝達関数">一次ローパスと一次オールパスの伝達関数</a></li>
 </ul></li>
 <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -438,7 +441,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#c
 <h3 id="レゾナントフィルタ">レゾナントフィルタ</h3>
 <p>一次ローパスと一次オールパスを組み合わせて以下のように実装しました。</p>
 <div class="sourceCode" id="cb3"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> FeedbackEMALowpass <span class="op">{</span></span>
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> ResonantEmaLowpass <span class="op">{</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  Sample u1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  Sample v1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -547,6 +550,8 @@ c_2 &amp;= \frac{t - 1}{t + 1} ,  &amp;&amp; \text{where} \quad t =
 href="https://web.mit.edu/2.14/www/Handouts/PoleZero.pdf">極</a>が単位円以内であれば安定です。つまり以下の条件を満たせばフィルタは発散しません。不等式の右辺は二次方程式の解の公式です。
 <span class="math inline">\(a = 1\)</span> なので、 <span
 class="math inline">\(a\)</span> は省略しています。</p>
+<p><strong>注意</strong>: 以下の解き方は中途半端です。<a
+href="#安定条件の解き方の見直し">安定条件の解き方の見直し</a>で使える解が得られています。</p>
 <p><span class="math display">\[
 \begin{aligned}
 1 &amp;&gt; \left| \frac{-b \pm \sqrt{b^2 - 4c}}{2} \right| \\
@@ -684,6 +689,128 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#
 <span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> qTableLog<span class="op">[</span>i<span class="op">]</span> <span class="op">+</span> <span class="op">(</span>pos <span class="op">-</span> T<span class="op">(</span>i<span class="op">))</span> <span class="op">*</span> <span class="op">(</span>qTableLog<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">]</span> <span class="op">-</span> qTableLog<span class="op">[</span>i<span class="op">]);</span></span>
 <span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="安定条件の解き方の見直し">安定条件の解き方の見直し</h3>
+<p>この記事の初版を見直していたところ、伝達関数の安定条件を場合分けすれば
+Maxima の <code>solve</code>
+で解ける形にできることに気が付きました。</p>
+<p>以下は安定条件の再掲です。得られる解の数が変わったので、先に掲載した式とは
+<span class="math inline">\(a\)</span> と <span
+class="math inline">\(c\)</span> が入れ替わっています。</p>
+<p><span class="math display">\[
+\begin{aligned}
+1 &amp;&gt; \left| \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} \right| \\
+a &amp;= - (c_2 - c_1 c_2 - q) \\
+b &amp;= - (1 - c_1 - c_2 - q c_2) \\
+c &amp;= 1 \\
+\end{aligned}
+\]</span></p>
+<p>Maxima で解きます。</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cn">a</span>: - (<span class="cn">c_2</span> - <span class="cn">c_1</span>*<span class="cn">c_2</span> - <span class="cn">q</span>);</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cn">b</span>: - (<span class="dv">1</span> - <span class="cn">c_1</span> - <span class="cn">c_2</span> - <span class="cn">q</span>*<span class="cn">c_2</span>);</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="cn">case1</span>: (<span class="dv">2</span>*<span class="cn">a</span> + <span class="cn">b</span>)^<span class="dv">2</span> = +<span class="cn">b</span>^<span class="dv">2</span> - <span class="dv">4</span>*<span class="cn">a</span>;</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cn">case2</span>: (<span class="dv">2</span>*<span class="cn">a</span> + <span class="cn">b</span>)^<span class="dv">2</span> = -<span class="cn">b</span>^<span class="dv">2</span> + <span class="dv">4</span>*<span class="cn">a</span>;</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cn">case3</span>: (<span class="dv">2</span>*<span class="cn">a</span> - <span class="cn">b</span>)^<span class="dv">2</span> = -<span class="cn">b</span>^<span class="dv">2</span> + <span class="dv">4</span>*<span class="cn">a</span>;</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="cn">case4</span>: (<span class="dv">2</span>*<span class="cn">a</span> - <span class="cn">b</span>)^<span class="dv">2</span> = +<span class="cn">b</span>^<span class="dv">2</span> - <span class="dv">4</span>*<span class="cn">a</span>;</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">case1</span>, <span class="cn">q</span>);</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">case2</span>, <span class="cn">q</span>);</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">case3</span>, <span class="cn">q</span>);</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">case4</span>, <span class="cn">q</span>);</span></code></pre></div>
+<p>以下は <code>case1</code> の解です。</p>
+<pre><code>[
+  q = c_2 - c_1*c_2,
+  q = -c_1
+]</code></pre>
+<p>新しく出てきた解 <span class="math inline">\(q = c_2 - c_1
+c_2\)</span> を数値計算で得られた <span class="math inline">\(q\)</span>
+の値と比べたところ以下の図が得られました。図の Analytical
+が新しく出てきた解、 Numerical が数値計算で得られた値です。</p>
+<figure>
+<img src="img/solution_comparison_1.svg"
+alt="Comparison of numerical and analytical solution. 2 lines look parallel." />
+<figcaption aria-hidden="true">Comparison of numerical and analytical
+solution. 2 lines look parallel.</figcaption>
+</figure>
+<p>切片がずれているだけのように見えるので Analytical に 1
+を足します。</p>
+<figure>
+<img src="img/solution_comparison_2.svg"
+alt="Comparison of numerical and adjusted analytical solution. 2 lines look identical." />
+<figcaption aria-hidden="true">Comparison of numerical and adjusted
+analytical solution. 2 lines look identical.</figcaption>
+</figure>
+<p>曲線が一致しました。つまり、レゾナンスの最大値の曲線は以下の式で表されます。</p>
+<p><span class="math display">\[
+q = c_2 - c_1 c_2 + 1.
+\]</span></p>
+<p>以下はレゾナンスの最大値の曲線の式を使った完全な
+<code>ResonantEmaLowpass</code> の実装例です。 C++ 20 です。</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numbers&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> ResonantEmaLowpass <span class="op">{</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  Sample u1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  Sample v1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  Sample u2 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  Sample c1Value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  Sample c2Value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  Sample qValue <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  Sample c1Target <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  Sample c2Target <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  Sample qTarget <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    u1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    v1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    u2 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    c1Value <span class="op">=</span> c1Target <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    c2Value <span class="op">=</span> c2Target <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    qValue <span class="op">=</span> qTarget <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  <span class="co">//  resonance の範囲は [0.0, 1.0] 。 cutoffHz &lt; sampleRate / 2 。</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 計算が重いのでコントロールレートで呼び出す。</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> prepare<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">,</span> Sample resonance<span class="op">)</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> Sample pi <span class="op">=</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> freq <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>cutoffHz <span class="op">/</span> sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="fl">0.4999</span><span class="op">));</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> s <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> <span class="bu">std::</span>cos<span class="op">(</span>Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> pi <span class="op">*</span> freq<span class="op">);</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>    c1Target <span class="op">=</span> <span class="bu">std::</span>sqrt<span class="op">((</span>s <span class="op">+</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">))</span> <span class="op">*</span> s<span class="op">)</span> <span class="op">-</span> s<span class="op">;</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> t <span class="op">=</span> <span class="bu">std::</span>tan<span class="op">(</span>pi <span class="op">*</span> freq<span class="op">);</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    c2Target <span class="op">=</span> <span class="op">(</span>t <span class="op">-</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="op">/</span> <span class="op">(</span>t <span class="op">+</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> maxQ <span class="op">=</span> c2Target <span class="op">-</span> c1Target <span class="op">*</span> c2Target <span class="op">+</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>    qTarget <span class="op">=</span> maxQ <span class="op">*</span> resonance<span class="op">;</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 一次ローパスによる状態変数の補間。</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>    c1Value <span class="op">+=</span> rate <span class="op">*</span> <span class="op">(</span>c1Target <span class="op">-</span> c1Value<span class="op">);</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>    c2Value <span class="op">+=</span> rate <span class="op">*</span> <span class="op">(</span>c2Target <span class="op">-</span> c2Value<span class="op">);</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>    qValue <span class="op">+=</span> rate <span class="op">*</span> <span class="op">(</span>qTarget <span class="op">-</span> qValue<span class="op">);</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>    <span class="co">// フィルタ本体の計算。</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>    v1 <span class="op">=</span> c2Value <span class="op">*</span> <span class="op">(</span>u1 <span class="op">-</span> v1<span class="op">)</span> <span class="op">+</span> u2<span class="op">;</span></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>    u2 <span class="op">=</span> u1<span class="op">;</span></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> u1 <span class="op">+=</span> c1Value <span class="op">*</span> <span class="op">(</span>input <span class="op">-</span> u1<span class="op">)</span> <span class="op">-</span> qValue <span class="op">*</span> v1<span class="op">;</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>実装時の注意点として、カットオフ周波数がナイキスト周波数ぴったりになるとフィルタが発散します。したがって
+<code>std::clamp(cutoff, 0.0, 0.4999)</code>
+などとしてナイキスト周波数を少しだけ下回るようにしておくと安全です。</p>
 <h2 id="音のデモ">音のデモ</h2>
 <p>以下はカットオフ周波数を等間隔で区切ったテーブルを使ったフィルタのデモです。入力はのこぎり波です。
 <code>q=0.99</code> としているのは発振を避けるためです。
@@ -750,6 +877,13 @@ href="https://maxima.sourceforge.io/docs/manual/maxima_346.html">Maxima
 <li><a
 href="https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html">Cookbook
 formulae for audio EQ biquad filter coefficients</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2023/06/13
+<ul>
+<li>「安定条件の解き方の見直し」の節を追加。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>

@@ -20,17 +20,26 @@ def plot(data):
     c1 = lpCut(freq)
     c2 = apCut(freq)
 
-    # prod = 0.5 * np.max(reso) * ((1 - c1) * c2 + c1 + 1)
+    tf = c2 - c1 * c2
 
-    plt.plot(freq, reso, label="Actual")
-    # plt.plot(freq, prod, label="prod")
+    plt.plot(freq, reso, label="Numerical", color="red", alpha=0.5)
+    plt.plot(freq, tf, label="Analytical", color="blue", alpha=0.5)
 
-    # plt.plot(np.diff(reso, 2), label="Actual")
-    # plt.plot(np.diff(prod, 2), label="prod")
+    # plt.plot(np.diff(reso, 2), label="Numerical")
+    # plt.plot(np.diff(tf, 2), label="Analytical")
 
+    plt.title("Comparison of Numerical and Analytical Solution")
+    plt.xlabel("Cutoff Frequency [rad/2π]")
+    plt.ylabel("Max. Resonance")
     plt.legend()
     plt.grid()
     plt.show()
+
+
+def plotResult(filename):
+    with open(filename, "r", encoding="utf-8") as fi:
+        data = json.load(fi)
+    plot(data)
 
 
 def reduce(data):
@@ -123,5 +132,6 @@ def compareResults():
 
 
 if __name__ == "__main__":
-    processResult()
+    plotResult("table_linear.json")
+    # processResult()
     # compareResults()

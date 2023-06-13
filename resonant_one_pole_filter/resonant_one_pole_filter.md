@@ -58,7 +58,7 @@ template<typename Sample> struct AP1 {
 一次ローパスと一次オールパスを組み合わせて以下のように実装しました。
 
 ```c++
-template<typename Sample> struct FeedbackEMALowpass {
+template<typename Sample> struct ResonantEmaLowpass {
 private:
   Sample u1 = 0;
   Sample v1 = 0;
@@ -169,6 +169,8 @@ c_2 &= \frac{t - 1}{t + 1} ,  && \text{where} \quad t = \tan(\pi f_c / f_s). \\
 $$
 
 $H(z)$ は離散系の伝達関数なので、[極](https://web.mit.edu/2.14/www/Handouts/PoleZero.pdf)が単位円以内であれば安定です。つまり以下の条件を満たせばフィルタは発散しません。不等式の右辺は二次方程式の解の公式です。 $a = 1$ なので、 $a$ は省略しています。
+
+**注意**: 以下の解き方は中途半端です。[安定条件の解き方の見直し](#安定条件の解き方の見直し)で使える解が得られています。
 
 $$
 \begin{aligned}
@@ -283,6 +285,127 @@ template<typename T> struct ResonanceTable {
 };
 ```
 
+### 安定条件の解き方の見直し
+この記事の初版を見直していたところ、伝達関数の安定条件を場合分けすれば Maxima の `solve` で解ける形にできることに気が付きました。
+
+以下は安定条件の再掲です。得られる解の数が変わったので、先に掲載した式とは $a$ と $c$ が入れ替わっています。
+
+$$
+\begin{aligned}
+1 &> \left| \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} \right| \\
+a &= - (c_2 - c_1 c_2 - q) \\
+b &= - (1 - c_1 - c_2 - q c_2) \\
+c &= 1 \\
+\end{aligned}
+$$
+
+Maxima で解きます。
+
+```maxima
+a: - (c_2 - c_1*c_2 - q);
+b: - (1 - c_1 - c_2 - q*c_2);
+
+case1: (2*a + b)^2 = +b^2 - 4*a;
+case2: (2*a + b)^2 = -b^2 + 4*a;
+case3: (2*a - b)^2 = -b^2 + 4*a;
+case4: (2*a - b)^2 = +b^2 - 4*a;
+
+solve(case1, q);
+solve(case2, q);
+solve(case3, q);
+solve(case4, q);
+```
+
+以下は `case1` の解です。
+
+```
+[
+  q = c_2 - c_1*c_2,
+  q = -c_1
+]
+```
+
+新しく出てきた解 $q = c_2 - c_1 c_2$ を数値計算で得られた $q$ の値と比べたところ以下の図が得られました。図の Analytical が新しく出てきた解、 Numerical が数値計算で得られた値です。
+
+![Comparison of numerical and analytical solution. 2 lines look parallel.](img/solution_comparison_1.svg)
+
+切片がずれているだけのように見えるので Analytical に 1 を足します。
+
+![Comparison of numerical and adjusted analytical solution. 2 lines look identical.](img/solution_comparison_2.svg)
+
+曲線が一致しました。つまり、レゾナンスの最大値の曲線は以下の式で表されます。
+
+$$
+q = c_2 - c_1 c_2 + 1.
+$$
+
+以下はレゾナンスの最大値の曲線の式を使った完全な `ResonantEmaLowpass` の実装例です。 C++ 20 です。
+
+```c++
+#include <cmath>
+#include <numbers>
+
+template<typename Sample> struct ResonantEmaLowpass {
+private:
+  Sample u1 = 0;
+  Sample v1 = 0;
+  Sample u2 = 0;
+
+  Sample c1Value = Sample(1);
+  Sample c2Value = Sample(1);
+  Sample qValue = 0;
+
+  Sample c1Target = Sample(1);
+  Sample c2Target = Sample(1);
+  Sample qTarget = 0;
+
+public:
+  void reset()
+  {
+    u1 = 0;
+    v1 = 0;
+    u2 = 0;
+
+    c1Value = c1Target = Sample(1);
+    c2Value = c2Target = Sample(1);
+    qValue = qTarget = 0;
+  }
+
+  //  resonance の範囲は [0.0, 1.0] 。 cutoffHz < sampleRate / 2 。
+  // 計算が重いのでコントロールレートで呼び出す。
+  void prepare(Sample sampleRate, Sample cutoffHz, Sample resonance)
+  {
+    constexpr Sample pi = std::numbers::pi_v<Sample>;
+
+    auto freq = std::clamp(cutoffHz / sampleRate, Sample(0), Sample(0.4999));
+
+    auto s = Sample(1) - std::cos(Sample(2) * pi * freq);
+    c1Target = std::sqrt((s + Sample(2)) * s) - s;
+
+    auto t = std::tan(pi * freq);
+    c2Target = (t - Sample(1)) / (t + Sample(1));
+
+    auto maxQ = c2Target - c1Target * c2Target + Sample(1);
+    qTarget = maxQ * resonance;
+  }
+
+  Sample process(Sample input)
+  {
+    // 一次ローパスによる状態変数の補間。
+    c1Value += rate * (c1Target - c1Value);
+    c2Value += rate * (c2Target - c2Value);
+    qValue += rate * (qTarget - qValue);
+
+    // フィルタ本体の計算。
+    v1 = c2Value * (u1 - v1) + u2;
+    u2 = u1;
+    return u1 += c1Value * (input - u1) - qValue * v1;
+  }
+};
+```
+
+実装時の注意点として、カットオフ周波数がナイキスト周波数ぴったりになるとフィルタが発散します。したがって `std::clamp(cutoff, 0.0, 0.4999)` などとしてナイキスト周波数を少しだけ下回るようにしておくと安全です。
+
 ## 音のデモ
 以下はカットオフ周波数を等間隔で区切ったテーブルを使ったフィルタのデモです。入力はのこぎり波です。 `q=0.99` としているのは発振を避けるためです。 `q=1.0` とするとちょうど発振します。
 
@@ -333,3 +456,7 @@ $$
 - [Maxima does not solve the system sqrt(x)=1, y=1 with the solve function - Stack Overflow](https://stackoverflow.com/questions/46907829/maxima-does-not-solve-the-system-sqrtx-1-y-1-with-the-solve-function)
 - [Maxima 5.46.0 Manual: Functions and Variables for to_poly_solve](https://maxima.sourceforge.io/docs/manual/maxima_346.html)
 - [Cookbook formulae for audio EQ biquad filter coefficients](https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html)
+
+## 変更点
+- 2023/06/13
+  - 「安定条件の解き方の見直し」の節を追加。
