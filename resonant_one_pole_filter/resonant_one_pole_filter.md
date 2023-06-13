@@ -327,11 +327,11 @@ solve(case4, q);
 
 新しく出てきた解 $q = c_2 - c_1 c_2$ を数値計算で得られた $q$ の値と比べたところ以下の図が得られました。図の Analytical が新しく出てきた解、 Numerical が数値計算で得られた値です。
 
-![Comparison of numerical and analytical solution. 2 lines look parallel.](img/solution_comparison_1.svg)
+![Comparison of numerical and analytical solution. 2 lines look parallel.](img/solution_comparison_1.svg)\
 
 切片がずれているだけのように見えるので Analytical に 1 を足します。
 
-![Comparison of numerical and adjusted analytical solution. 2 lines look identical.](img/solution_comparison_2.svg)
+![Comparison of numerical and adjusted analytical solution. 2 lines look identical.](img/solution_comparison_2.svg)\
 
 曲線が一致しました。つまり、レゾナンスの最大値の曲線は以下の式で表されます。
 
