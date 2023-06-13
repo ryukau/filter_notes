@@ -34,8 +34,8 @@ def plot(data):
 
 
 def reduce(data):
-    freq = np.array([0] + data["normalizedFreq"])
-    reso = np.array([0] + data["resonance"])
+    freq = np.array(data["normalizedFreq"])
+    reso = np.array(data["resonance"])
 
     nReduced = 255
     step = int(np.ceil(len(freq) / nReduced))
@@ -67,31 +67,31 @@ def reduce(data):
 def writeTable(resonance):
     text = ""
 
-    #     text += f"""// This file is generated.
-    # #pragma once
-    # #include <array>
-    #
-    # namespace ResonantEmaUtil {{
-    # template<typename T> struct ResonanceTable {{
-    #   static constexpr std::array<T, {len(resonance)}> qTable{{"""
+    text += f"""// This file is generated.
+#pragma once
+#include <array>
+
+namespace ResonantEmaUtil {{
+template<typename T> struct ResonanceTable {{
+    static constexpr std::array<T, {len(resonance)}> qTable{{"""
 
     for value in resonance:
         text += f"T({value}),"
 
-    #     text += f"""}};
-    # }};
-    # }} // namespace ResonantEmaUtil
-    # """
+    text += f"""}};
+}};
+}} // namespace ResonantEmaUtil
+"""
     with open("qtable.hpp", "w", encoding="utf-8") as fi:
         fi.write(text)
 
 
 def processResult():
-    with open("table.json", "r", encoding="utf-8") as fi:
+    with open("table_linear.json", "r", encoding="utf-8") as fi:
         data = json.load(fi)
 
     # plot(data)
-    writeTable([0] + data["resonance"])
+    writeTable(data["resonance"])
 
 
 def compareResults():
