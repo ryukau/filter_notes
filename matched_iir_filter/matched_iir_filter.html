@@ -475,7 +475,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> (G1 <span class="op">-</span> G0 <span class="op">*</span> W_2) <span class="op">/</span> a0</span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> (G1 <span class="op">+</span> G0 <span class="op">*</span> W_2 <span class="op">-</span> B) <span class="op">/</span> a0</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># scipy.signal の sos 形式。</span></span></code></pre></div>
 <p><img src="img/orfanidisPeaking.svg"
 alt="Orfanidis peaking filter frequency response." /><br />
 </p>
@@ -536,7 +536,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> α<span class="dv">1</span> <span class="op">/</span> γ</span>
 <span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    a2 <span class="op">=</span> α<span class="dv">2</span> <span class="op">/</span> γ</span>
 <span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># scipy.signal の sos 形式。</span></span></code></pre></div>
 <p><img src="img/massbergLowpass.svg"
 alt="Massberg lowpass filter frequency response." /><br />
 </p>
@@ -590,7 +590,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (sqrt_B0 <span class="op">+</span> np.sqrt(B1))</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> sqrt_B0 <span class="op">-</span> b0</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, <span class="dv">0</span>, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, <span class="dv">0</span>, <span class="dv">1</span>, a1, a2]]  <span class="co"># scipy.signal の sos 形式。</span></span></code></pre></div>
 <p><img src="img/matchedLowpass.svg"
 alt="Matched lowpass filter frequency response." /><br />
 </p>
@@ -606,7 +606,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> b0</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> b0</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># scipy.signal の sos 形式。</span></span></code></pre></div>
 <p><img src="img/matchedHighpass.svg"
 alt="Matched highpass filter frequency response." /><br />
 </p>
@@ -629,7 +629,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (np.sqrt(B2 <span class="op">+</span> b1 <span class="op">*</span> b1) <span class="op">-</span> b1)</span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> <span class="op">-</span>b0 <span class="op">-</span> b1</span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># scipy.signal の sos 形式。</span></span></code></pre></div>
 <p><img src="img/matchedBandpass.svg"
 alt="Matched bandpass filter frequency response." /><br />
 </p>
@@ -659,7 +659,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (sqrt_B0 <span class="op">-</span> sqrt_B1)</span>
 <span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> <span class="op">-</span>B2 <span class="op">/</span> (<span class="dv">4</span> <span class="op">*</span> b0)</span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># scipy.signal の sos 形式。</span></span></code></pre></div>
 <p><img src="img/matchedPeaking.svg"
 alt="Matched peaking filter frequency response." /><br />
 </p>
@@ -726,7 +726,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> r1</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> <span class="op">-</span>b0 <span class="op">-</span> b1</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># scipy.signal の sos 形式。</span></span></code></pre></div>
 <p><img src="img/simpleMatchedBandpass.svg"
 alt="Simple matched bandpass filter frequency response." /><br />
 </p>
@@ -762,7 +762,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">+</span> a1) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> b)</span>
 <span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> b <span class="op">*</span> b0</span>
 <span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, <span class="dv">0</span>, <span class="dv">1</span>, a1, <span class="dv">0</span>]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, <span class="dv">0</span>, <span class="dv">1</span>, a1, <span class="dv">0</span>]]  <span class="co"># scipy.signal の sos 形式。</span></span></code></pre></div>
 <p><img src="img/matchedShelvingOnePole.svg"
 alt="Matched one-pole shelving filter frequency response." /><br />
 </p>

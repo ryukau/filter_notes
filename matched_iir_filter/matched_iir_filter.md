@@ -62,7 +62,7 @@ def orfanidisPeaking(cutoffRadian, Q, G):
     b1 = -2 * (G1 - G0 * W_2) / a0
     b2 = (G1 + G0 * W_2 - B) / a0
 
-    return [[b0, b1, b2, 1, a1, a2]]  # NumPy の sos 形式。
+    return [[b0, b1, b2, 1, a1, a2]]  # scipy.signal の sos 形式。
 ```
 
 ![Orfanidis peaking filter frequency response.](img/orfanidisPeaking.svg)\
@@ -122,7 +122,7 @@ def massbergLowpass(cutoffRadian, Q):
     a1 = α1 / γ
     a2 = α2 / γ
 
-    return [[b0, b1, b2, 1, a1, a2]]  # NumPy の sos 形式。
+    return [[b0, b1, b2, 1, a1, a2]]  # scipy.signal の sos 形式。
 ```
 
 ![Massberg lowpass filter frequency response.](img/massbergLowpass.svg)\
@@ -176,7 +176,7 @@ def matchedLowpass(cutoffRadian, Q):
     b0 = 0.5 * (sqrt_B0 + np.sqrt(B1))
     b1 = sqrt_B0 - b0
 
-    return [[b0, b1, 0, 1, a1, a2]]  # NumPy の sos 形式。
+    return [[b0, b1, 0, 1, a1, a2]]  # scipy.signal の sos 形式。
 ```
 
 ![Matched lowpass filter frequency response.](img/matchedLowpass.svg)\
@@ -194,7 +194,7 @@ def matchedHighpass(cutoffRadian, Q):
     b1 = -2 * b0
     b2 = b0
 
-    return [[b0, b1, b2, 1, a1, a2]]  # NumPy の sos 形式。
+    return [[b0, b1, b2, 1, a1, a2]]  # scipy.signal の sos 形式。
 ```
 
 ![Matched highpass filter frequency response.](img/matchedHighpass.svg)\
@@ -218,7 +218,7 @@ def matchedBandpass(cutoffRadian, Q):
     b0 = 0.5 * (np.sqrt(B2 + b1 * b1) - b1)
     b2 = -b0 - b1
 
-    return [[b0, b1, b2, 1, a1, a2]]  # NumPy の sos 形式。
+    return [[b0, b1, b2, 1, a1, a2]]  # scipy.signal の sos 形式。
 ```
 
 ![Matched bandpass filter frequency response.](img/matchedBandpass.svg)\
@@ -248,7 +248,7 @@ def matchedPeaking(cutoffRadian, Q, gain):
     b1 = 0.5 * (sqrt_B0 - sqrt_B1)
     b2 = -B2 / (4 * b0)
 
-    return [[b0, b1, b2, 1, a1, a2]]  # NumPy の sos 形式。
+    return [[b0, b1, b2, 1, a1, a2]]  # scipy.signal の sos 形式。
 ```
 
 ![Matched peaking filter frequency response.](img/matchedPeaking.svg)\
@@ -317,7 +317,7 @@ def simpleMatchedBandpass(cutoffRadian, Q):
     b1 = -0.5 * r1
     b2 = -b0 - b1
 
-    return [[b0, b1, b2, 1, a1, a2]]  # NumPy の sos 形式。
+    return [[b0, b1, b2, 1, a1, a2]]  # scipy.signal の sos 形式。
 ```
 
 ![Simple matched bandpass filter frequency response.](img/simpleMatchedBandpass.svg)\
@@ -348,7 +348,7 @@ def matchedShelvingOnePole(cutoffRadian, gain):
     b0 = (1 + a1) / (1 + b)
     b1 = b * b0
 
-    return [[b0, b1, 0, 1, a1, 0]]  # NumPy の sos 形式。
+    return [[b0, b1, 0, 1, a1, 0]]  # scipy.signal の sos 形式。
 ```
 
 ![Matched one-pole shelving filter frequency response.](img/matchedShelvingOnePole.svg)\
