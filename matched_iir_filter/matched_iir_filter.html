@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2023-06-16" />
+<title>matched_iir_filter</title>
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
+integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
+integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
+crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
+integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+onload="renderMathInElement(document.body);"></script>
+
+<style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+font-family: inherit;
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 4px;
+margin: 2px;
+line-height: calc(1em + 16px);
+}
+
+a {
+text-decoration: none;
+}
+
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
+padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
+}
+
+tr:nth-child(odd) {
+background: #eeeeee;
+}
+
+tr:nth-child(even) {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+td {
+height: 1.5em;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
+}
+
+li {
+margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+</style>
+
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2023-06-16
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a
+href="#アナログの周波数特性に一致する二次のデジタルフィルタの実装"
+id="toc-アナログの周波数特性に一致する二次のデジタルフィルタの実装">アナログの周波数特性に一致する二次のデジタルフィルタの実装</a>
+<ul>
+<li><a href="#実装" id="toc-実装">実装</a>
+<ul>
+<li><a href="#orfanidis-のピーキングフィルタ"
+id="toc-orfanidis-のピーキングフィルタ">Orfanidis
+のピーキングフィルタ</a></li>
+<li><a href="#massberg-の整合ローパスフィルタ"
+id="toc-massberg-の整合ローパスフィルタ">Massberg
+の整合ローパスフィルタ</a></li>
+<li><a href="#vicanek-の整合フィルタ"
+id="toc-vicanek-の整合フィルタ">Vicanek の整合フィルタ</a>
+<ul>
+<li><a href="#ローパス" id="toc-ローパス">ローパス</a></li>
+<li><a href="#ハイパス" id="toc-ハイパス">ハイパス</a></li>
+<li><a href="#バンドパス" id="toc-バンドパス">バンドパス</a></li>
+<li><a href="#ピーキング" id="toc-ピーキング">ピーキング</a></li>
+</ul></li>
+<li><a href="#簡略な整合フィルタ"
+id="toc-簡略な整合フィルタ">簡略な整合フィルタ</a>
+<ul>
+<li><a href="#ローパス-1" id="toc-ローパス-1">ローパス</a></li>
+<li><a href="#ハイパス-1" id="toc-ハイパス-1">ハイパス</a></li>
+<li><a href="#バンドパス-1" id="toc-バンドパス-1">バンドパス</a></li>
+</ul></li>
+<li><a href="#整合一次ハイシェルビングフィルタ"
+id="toc-整合一次ハイシェルビングフィルタ">整合一次ハイシェルビングフィルタ</a></li>
+</ul></li>
+<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+</ul></li>
+</ul>
+</nav>
+</details>
+</header>
+<h1
+id="アナログの周波数特性に一致する二次のデジタルフィルタの実装">アナログの周波数特性に一致する二次のデジタルフィルタの実装</h1>
+<p>Martin Vicanek さんによる <a
+href="https://vicanek.de/articles/BiquadFits.pdf">Matched Second Order
+Digital Filters</a> と <a
+href="https://vicanek.de/articles/ShelvingFits.pdf">Matched One-Pole
+Digital Shelving Filters</a> で紹介されていた整合フィルタ (matched
+filter)
+を実装します。整合フィルタとはアナログの周波数特性に一致する離散フィルタのことです。</p>
+<p><a href="https://www.w3.org/TR/audio-eq-cookbook/">Audio EQ
+Cookbook</a>
+などで紹介されている二次フィルタはバイリニア変換を使っています。バイリニア変換は
+<span class="math inline">\(tan\)</span>
+によって周波数を歪ませてマッピングしているので、アナログ特性とデジタル特性の間に差が生じます。整合フィルタの特長は、このような周波数の歪みを避けるように設計されていることです。</p>
+<h2 id="実装">実装</h2>
+<p>Python 3 でフィルタ係数 <span class="math inline">\(b_0, b_1, b_2,
+a_1, a_2\)</span>
+を計算する関数を実装します。フィルタ係数は以下の離散系の伝達関数と対応します。</p>
+<p><span class="math display">\[
+\begin{equation}
+H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-1}}
+\end{equation}
+\]</span></p>
+<p>ユーザから入力されるパラメータの一覧です。</p>
+<ul>
+<li><span class="math inline">\(\omega_0\)</span>,
+<code>cutoffRadian</code>: カットオフ周波数。単位はラジアン (rad)
+。</li>
+<li><span class="math inline">\(Q\)</span>, <code>Q</code>: Q 値
+(quality factor) 。レゾナンス。</li>
+<li><span class="math inline">\(G\)</span>, <code>G</code>:
+ピークゲイン。例えばゲインが 10 倍なら
+<code>G=10</code>。ピーキングとシェルビングフィルタのみで利用。</li>
+</ul>
+<p>各フィルタの実装の後に掲載しているプロットは <span
+class="math inline">\(\omega_0=2\pi\dfrac{1000}{48000},Q=\dfrac{1}{\sqrt{2}},G=10\)</span>
+としたときの周波数特性です。 <span
+class="math inline">\(\omega_0\)</span> はサンプリング周波数が 48000 Hz
+のときにカットオフ周波数が 1000 Hz となるようにしています。以下は
+プロットに使った Python 3 のコードです。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/matched_iir_filter/demo/matchediir.py">filter_notes/matched_iir_filter/demo/matchediir.py
+at master · ryukau/filter_notes · GitHub</a></li>
+</ul>
+<p>以下は C++ による実装です。 <code>MatchedBiquad</code>
+がフィルタのクラスです。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/matched_iir_filter/demo/test.cpp">filter_notes/matched_iir_filter/demo/test.cpp
+at master · ryukau/filter_notes · GitHub</a></li>
+</ul>
+<h3 id="orfanidis-のピーキングフィルタ">Orfanidis
+のピーキングフィルタ</h3>
+<p>“Matched Second Order Digital Filters” の式 13 から式 16
+に掲載されている、 <a
+href="https://www.ece.rutgers.edu/~orfanidi/ece348/peq.pdf">Orfanidis
+によるピーキングフィルタ</a> のフィルタ係数の計算式を実装します。 <span
+class="math inline">\(G_0, \Delta\omega, G_B\)</span> の設定は論文の式
+18 に基づいています。 <span class="math inline">\(G_1\)</span>
+は適当に設定しています。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> orfanidisPeaking(cutoffRadian, Q, G):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    G0 <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    G1 <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    Δω <span class="op">=</span> ω<span class="dv">0</span> <span class="op">/</span> Q</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    GB <span class="op">=</span> np.sqrt(G)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    Ω<span class="dv">0</span> <span class="op">=</span> np.tan(<span class="fl">0.5</span> <span class="op">*</span> ω<span class="dv">0</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    G_2 <span class="op">=</span> G <span class="op">*</span> G</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    GB_2 <span class="op">=</span> GB <span class="op">*</span> GB</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    G0_2 <span class="op">=</span> G0 <span class="op">*</span> G0</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    G1_2 <span class="op">=</span> G1 <span class="op">*</span> G1</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    W_2 <span class="op">=</span> np.sqrt((G_2 <span class="op">-</span> G1_2) <span class="op">/</span> (G_2 <span class="op">-</span> G0_2)) <span class="op">*</span> Ω<span class="dv">0</span> <span class="op">*</span> Ω<span class="dv">0</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    ΔΩ <span class="op">=</span> (<span class="dv">1</span> <span class="op">+</span> np.sqrt((GB_2 <span class="op">-</span> G0_2) <span class="op">/</span> (GB_2 <span class="op">-</span> G1_2)) <span class="op">*</span> W_2) <span class="op">*</span> np.tan(<span class="fl">0.5</span> <span class="op">*</span> Δω)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    C <span class="op">=</span> (ΔΩ <span class="op">*</span> ΔΩ) <span class="op">*</span> np.<span class="bu">abs</span>(GB_2 <span class="op">-</span> G1_2) <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> W_2 <span class="op">*</span> (</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        np.<span class="bu">abs</span>(GB_2 <span class="op">-</span> G0 <span class="op">*</span> G1) <span class="op">-</span> np.sqrt((GB_2 <span class="op">-</span> G0_2) <span class="op">*</span> (GB_2 <span class="op">-</span> G1_2))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> W_2 <span class="op">*</span> (np.<span class="bu">abs</span>(G_2 <span class="op">-</span> G0 <span class="op">*</span> G1) <span class="op">-</span> np.sqrt((G_2 <span class="op">-</span> G0_2) <span class="op">*</span> (G_2 <span class="op">-</span> G1_2)))</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> np.sqrt((C <span class="op">+</span> D) <span class="op">/</span> np.<span class="bu">abs</span>(G_2 <span class="op">-</span> GB_2))</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    B <span class="op">=</span> np.sqrt((G_2 <span class="op">*</span> C <span class="op">+</span> GB_2 <span class="op">*</span> D) <span class="op">/</span> np.<span class="bu">abs</span>(G_2 <span class="op">-</span> GB_2))</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    a0 <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> W_2 <span class="op">+</span> A</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> W_2) <span class="op">/</span> a0</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    a2 <span class="op">=</span> (<span class="dv">1</span> <span class="op">+</span> W_2 <span class="op">-</span> A) <span class="op">/</span> a0</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> (G1 <span class="op">+</span> G0 <span class="op">*</span> W_2 <span class="op">+</span> B) <span class="op">/</span> a0</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> (G1 <span class="op">-</span> G0 <span class="op">*</span> W_2) <span class="op">/</span> a0</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> (G1 <span class="op">+</span> G0 <span class="op">*</span> W_2 <span class="op">-</span> B) <span class="op">/</span> a0</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<p><img src="img/orfanidisPeaking.svg"
+alt="Orfanidis peaking filter frequency response." /><br />
+</p>
+<h3 id="massberg-の整合ローパスフィルタ">Massberg
+の整合ローパスフィルタ</h3>
+<p>“Matched Second Order Digital Filters” の式 20 から式 23
+に掲載されている、 Massberg
+による二次整合ローパスフィルタのフィルタ係数の計算式を実装します。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> massbergLowpass(cutoffRadian, Q):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    Q2 <span class="op">=</span> Q <span class="op">*</span> Q</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    t1 <span class="op">=</span> np.pi <span class="op">*</span> np.pi <span class="op">/</span> (ω<span class="dv">0</span> <span class="op">*</span> ω<span class="dv">0</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    t2 <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> t1</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    t3 <span class="op">=</span> t1 <span class="op">/</span> Q2</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    g1 <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (np.sqrt(t2 <span class="op">*</span> t2 <span class="op">+</span> t3 <span class="op">*</span> t3))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    Ωs <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Q <span class="op">&gt;</span> np.sqrt(<span class="fl">0.5</span>):</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        gr <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> Q2 <span class="op">/</span> np.sqrt(<span class="dv">4</span> <span class="op">*</span> Q2 <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        ωr <span class="op">=</span> ω<span class="dv">0</span> <span class="op">*</span> np.sqrt(<span class="dv">1</span> <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> Q2))</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        Ωs <span class="op">=</span> np.tan(ωr <span class="op">/</span> <span class="dv">2</span>) <span class="op">*</span> np.power((gr <span class="op">*</span> gr <span class="op">-</span> g1 <span class="op">*</span> g1) <span class="op">/</span> (gr <span class="op">*</span> gr <span class="op">-</span> <span class="dv">1</span>), <span class="dv">1</span> <span class="op">/</span> <span class="dv">4</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        ωm <span class="op">=</span> ω<span class="dv">0</span> <span class="op">*</span> np.sqrt(</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="dv">1</span> <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> Q2 <span class="op">+</span> np.sqrt((<span class="dv">1</span> <span class="op">-</span> <span class="dv">4</span> <span class="op">*</span> Q2) <span class="op">/</span> (<span class="dv">4</span> <span class="op">*</span> Q2 <span class="op">*</span> Q2) <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> g1)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        Ωs <span class="op">=</span> <span class="bu">min</span>(<span class="fl">0.5</span> <span class="op">*</span> ω<span class="dv">0</span> <span class="op">*</span> np.power(<span class="dv">1</span> <span class="op">-</span> g1 <span class="op">*</span> g1, <span class="dv">1</span> <span class="op">/</span> <span class="dv">4</span>), np.tan(ωm <span class="op">/</span> <span class="dv">2</span>))</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    ωz <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.arctan(Ωs <span class="op">/</span> np.sqrt(g1))</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    z_tmp1 <span class="op">=</span> ωz <span class="op">*</span> ωz <span class="op">/</span> (ω<span class="dv">0</span> <span class="op">*</span> ω<span class="dv">0</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    z_tmp2 <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> z_tmp1</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    gz <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (z_tmp2 <span class="op">*</span> z_tmp2 <span class="op">+</span> z_tmp1 <span class="op">/</span> Q2)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    ωp <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.arctan(Ωs)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    p_tmp1 <span class="op">=</span> ωp <span class="op">*</span> ωp <span class="op">/</span> (ω<span class="dv">0</span> <span class="op">*</span> ω<span class="dv">0</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    p_tmp2 <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> p_tmp1</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    gp <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (p_tmp2 <span class="op">*</span> p_tmp2 <span class="op">+</span> p_tmp1 <span class="op">/</span> Q2)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    gz_2 <span class="op">=</span> gz <span class="op">*</span> gz</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    gp_2 <span class="op">=</span> gp <span class="op">*</span> gp</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    β <span class="op">=</span> g1 <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    Qz <span class="op">=</span> np.sqrt(g1 <span class="op">*</span> g1 <span class="op">*</span> (gp_2 <span class="op">-</span> gz_2) <span class="op">/</span> (gz_2 <span class="op">*</span> (g1 <span class="op">+</span> gp_2) <span class="op">*</span> β <span class="op">*</span> β))</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    Qp <span class="op">=</span> np.sqrt(g1 <span class="op">*</span> (gp_2 <span class="op">-</span> gz_2) <span class="op">/</span> ((g1 <span class="op">+</span> gz_2) <span class="op">*</span> β <span class="op">*</span> β))</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    Ωs_2 <span class="op">=</span> Ωs <span class="op">*</span> Ωs</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    sqrt_g1 <span class="op">=</span> np.sqrt(g1)</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    β<span class="dv">0</span> <span class="op">=</span> Ωs_2 <span class="op">+</span> sqrt_g1 <span class="op">*</span> Ωs <span class="op">/</span> Qz <span class="op">+</span> g1</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    β<span class="dv">1</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (Ωs_2 <span class="op">-</span> g1)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    β<span class="dv">2</span> <span class="op">=</span> Ωs_2 <span class="op">-</span> sqrt_g1 <span class="op">*</span> Ωs <span class="op">/</span> Qz <span class="op">+</span> g1</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    γ <span class="op">=</span> Ωs_2 <span class="op">+</span> Ωs <span class="op">/</span> Qp <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    α<span class="dv">1</span> <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> (Ωs_2 <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    α<span class="dv">2</span> <span class="op">=</span> Ωs_2 <span class="op">-</span> Ωs <span class="op">/</span> Qp <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> β<span class="dv">0</span> <span class="op">/</span> γ</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> β<span class="dv">1</span> <span class="op">/</span> γ</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> β<span class="dv">2</span> <span class="op">/</span> γ</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> α<span class="dv">1</span> <span class="op">/</span> γ</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    a2 <span class="op">=</span> α<span class="dv">2</span> <span class="op">/</span> γ</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<p><img src="img/massbergLowpass.svg"
+alt="Massberg lowpass filter frequency response." /><br />
+</p>
+<h3 id="vicanek-の整合フィルタ">Vicanek の整合フィルタ</h3>
+<p>Vicanek
+の整合フィルタは伝達関数の分母に関する計算が共通しています。以下は関連する
+“Matched Second Order Digital Filters” の式の一覧です。</p>
+<ul>
+<li>式 12 に <span class="math inline">\(a_1, a_2\)</span> 。</li>
+<li>式 26 に <span class="math inline">\(\phi_0, \phi_1, \phi_2\)</span>
+。</li>
+<li>式 27 に <span class="math inline">\(A_0, A_1, A_2\)</span> 。</li>
+</ul>
+<p>以下は共通部の実装です。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solveDenominator(ω<span class="dv">0</span>, Q):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> <span class="fl">0.5</span> <span class="op">/</span> Q</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.exp(<span class="op">-</span>q <span class="op">*</span> ω<span class="dv">0</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> q <span class="op">&lt;=</span> <span class="dv">1</span>:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        a1 <span class="op">*=</span> np.cos(np.sqrt(<span class="dv">1</span> <span class="op">-</span> q <span class="op">*</span> q) <span class="op">*</span> ω<span class="dv">0</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        a1 <span class="op">*=</span> np.cosh(np.sqrt(q <span class="op">*</span> q <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> ω<span class="dv">0</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    a2 <span class="op">=</span> np.exp(<span class="op">-</span><span class="dv">2</span> <span class="op">*</span> q <span class="op">*</span> ω<span class="dv">0</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    sn <span class="op">=</span> np.sin(ω<span class="dv">0</span> <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    φ<span class="dv">0</span> <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> sn <span class="op">*</span> sn</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    φ<span class="dv">1</span> <span class="op">=</span> sn <span class="op">*</span> sn</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    φ<span class="dv">2</span> <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> φ<span class="dv">0</span> <span class="op">*</span> φ<span class="dv">1</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    A0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">+</span> a1 <span class="op">+</span> a2) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    A1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> a1 <span class="op">+</span> a2) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    A2 <span class="op">=</span> <span class="op">-</span><span class="dv">4</span> <span class="op">*</span> a2</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (a1, a2, φ<span class="dv">0</span>, φ<span class="dv">1</span>, φ<span class="dv">2</span>, A0, A1, A2)</span></code></pre></div>
+<h4 id="ローパス">ローパス</h4>
+<p>“Matched Second Order Digital Filters” の式 31 から式 34
+の実装です。式 30 に続く文で <span class="math inline">\(b_2 =
+0\)</span> が指定されています。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> matchedLowpass(cutoffRadian, Q):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    a1, a2, φ<span class="dv">0</span>, φ<span class="dv">1</span>, φ<span class="dv">2</span>, A0, A1, A2 <span class="op">=</span> solveDenominator(ω<span class="dv">0</span>, Q)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    sqrt_B0 <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> a1 <span class="op">+</span> a2</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    B0 <span class="op">=</span> A0</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    R1 <span class="op">=</span> Q <span class="op">*</span> Q <span class="op">*</span> (A0 <span class="op">*</span> φ<span class="dv">0</span> <span class="op">+</span> A1 <span class="op">*</span> φ<span class="dv">1</span> <span class="op">+</span> A2 <span class="op">*</span> φ<span class="dv">2</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    B1 <span class="op">=</span> (R1 <span class="op">-</span> B0 <span class="op">*</span> φ<span class="dv">0</span>) <span class="op">/</span> φ<span class="dv">1</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (sqrt_B0 <span class="op">+</span> np.sqrt(B1))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> sqrt_B0 <span class="op">-</span> b0</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, <span class="dv">0</span>, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<p><img src="img/matchedLowpass.svg"
+alt="Matched lowpass filter frequency response." /><br />
+</p>
+<h4 id="ハイパス">ハイパス</h4>
+<p>“Matched Second Order Digital Filters” の式 36 の実装です。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> matchedHighpass(cutoffRadian, Q):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    a1, a2, φ<span class="dv">0</span>, φ<span class="dv">1</span>, φ<span class="dv">2</span>, A0, A1, A2 <span class="op">=</span> solveDenominator(ω<span class="dv">0</span>, Q)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> Q <span class="op">*</span> np.sqrt(A0 <span class="op">*</span> φ<span class="dv">0</span> <span class="op">+</span> A1 <span class="op">*</span> φ<span class="dv">1</span> <span class="op">+</span> A2 <span class="op">*</span> φ<span class="dv">2</span>) <span class="op">/</span> (<span class="dv">4</span> <span class="op">*</span> φ<span class="dv">1</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> b0</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> b0</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<p><img src="img/matchedHighpass.svg"
+alt="Matched highpass filter frequency response." /><br />
+</p>
+<h4 id="バンドパス">バンドパス</h4>
+<p>“Matched Second Order Digital Filters” の式 37 から式 41
+の実装です。</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> matchedBandpass(cutoffRadian, Q):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    a1, a2, φ<span class="dv">0</span>, φ<span class="dv">1</span>, φ<span class="dv">2</span>, A0, A1, A2 <span class="op">=</span> solveDenominator(ω<span class="dv">0</span>, Q)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    R1 <span class="op">=</span> A0 <span class="op">*</span> φ<span class="dv">0</span> <span class="op">+</span> A1 <span class="op">*</span> φ<span class="dv">1</span> <span class="op">+</span> A2 <span class="op">*</span> φ<span class="dv">2</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    R2 <span class="op">=</span> <span class="op">-</span>A0 <span class="op">+</span> A1 <span class="op">+</span> <span class="dv">4</span> <span class="op">*</span> (φ<span class="dv">0</span> <span class="op">-</span> φ<span class="dv">1</span>) <span class="op">*</span> A2</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    B2 <span class="op">=</span> (R1 <span class="op">-</span> R2 <span class="op">*</span> φ<span class="dv">1</span>) <span class="op">/</span> (<span class="dv">4</span> <span class="op">*</span> φ<span class="dv">1</span> <span class="op">*</span> φ<span class="dv">1</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    B1 <span class="op">=</span> R2 <span class="op">-</span> <span class="dv">4</span> <span class="op">*</span> (φ<span class="dv">0</span> <span class="op">-</span> φ<span class="dv">1</span>) <span class="op">*</span> B2</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> np.sqrt(B1)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (np.sqrt(B2 <span class="op">+</span> b1 <span class="op">*</span> b1) <span class="op">-</span> b1)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> <span class="op">-</span>b0 <span class="op">-</span> b1</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<p><img src="img/matchedBandpass.svg"
+alt="Matched bandpass filter frequency response." /><br />
+</p>
+<h4 id="ピーキング">ピーキング</h4>
+<p>“Matched Second Order Digital Filters” の式 44 から式 45 の実装です。
+<span class="math inline">\(b_0, b_1, b_2\)</span> は式 29
+に掲載されています。</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> matchedPeaking(cutoffRadian, Q, gain):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    G <span class="op">=</span> gain</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    a1, a2, φ<span class="dv">0</span>, φ<span class="dv">1</span>, φ<span class="dv">2</span>, A0, A1, A2 <span class="op">=</span> solveDenominator(ω<span class="dv">0</span>, Q)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    R1 <span class="op">=</span> G <span class="op">*</span> G <span class="op">*</span> (A0 <span class="op">*</span> φ<span class="dv">0</span> <span class="op">+</span> A1 <span class="op">*</span> φ<span class="dv">1</span> <span class="op">+</span> A2 <span class="op">*</span> φ<span class="dv">2</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    R2 <span class="op">=</span> G <span class="op">*</span> G <span class="op">*</span> (<span class="op">-</span>A0 <span class="op">+</span> A1 <span class="op">+</span> <span class="dv">4</span> <span class="op">*</span> (φ<span class="dv">0</span> <span class="op">-</span> φ<span class="dv">1</span>) <span class="op">*</span> A2)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    B0 <span class="op">=</span> A0</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    B2 <span class="op">=</span> (R1 <span class="op">-</span> R2 <span class="op">*</span> φ<span class="dv">1</span> <span class="op">-</span> B0) <span class="op">/</span> (<span class="dv">4</span> <span class="op">*</span> φ<span class="dv">1</span> <span class="op">*</span> φ<span class="dv">1</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    B1 <span class="op">=</span> R2 <span class="op">+</span> B0 <span class="op">-</span> <span class="dv">4</span> <span class="op">*</span> (φ<span class="dv">0</span> <span class="op">-</span> φ<span class="dv">1</span>) <span class="op">*</span> B2</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    sqrt_B0 <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> a1 <span class="op">+</span> a2</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    sqrt_B1 <span class="op">=</span> np.sqrt(B1)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    W <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (sqrt_B0 <span class="op">+</span> sqrt_B1)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (W <span class="op">+</span> np.sqrt(W <span class="op">*</span> W <span class="op">+</span> B2))</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (sqrt_B0 <span class="op">-</span> sqrt_B1)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> <span class="op">-</span>B2 <span class="op">/</span> (<span class="dv">4</span> <span class="op">*</span> b0)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<p><img src="img/matchedPeaking.svg"
+alt="Matched peaking filter frequency response." /><br />
+</p>
+<h3 id="簡略な整合フィルタ">簡略な整合フィルタ</h3>
+<p>Vicanek
+による、フィルタ係数の計算を簡略化した整合フィルタを実装します。このフィルタは計算が軽いだけでなく、より安定しているので、オーディオレートでフィルタのパラメータを変調するときに適しているそうです。アナログ特性との整合性はバイリニア変換よりはいいですが、前節の整合フィルタに比べるとやや劣ります。</p>
+<p><code>solveDenominator()</code> を使いまわしています。
+<code>a1, a2</code>
+だけを使うので本格的な実装では計算を簡略化できます。</p>
+<h4 id="ローパス-1">ローパス</h4>
+<p>“Matched Second Order Digital Filters” の式 46 から式 47
+の実装です。</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simpleMatchedLowpass(cutoffRadian, Q):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span><span class="er">_2</span> <span class="op">=</span> ω<span class="dv">0</span> <span class="op">*</span> ω<span class="dv">0</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    a1, a2, _, _, _, _, _, _ <span class="op">=</span> solveDenominator(ω<span class="dv">0</span>, Q)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    r0 <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> a1 <span class="op">+</span> a2</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    r1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> a1 <span class="op">+</span> a2) <span class="op">*</span> ω<span class="dv">0</span><span class="er">_2</span> <span class="op">/</span> np.sqrt((<span class="dv">1</span> <span class="op">-</span> ω<span class="dv">0</span><span class="er">_2</span>) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> ω<span class="dv">0</span><span class="er">_2</span> <span class="op">/</span> Q <span class="op">/</span> Q)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (r0 <span class="op">+</span> r1)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> r0 <span class="op">-</span> b0</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, <span class="dv">0</span>, <span class="dv">1</span>, a1, a2]]</span></code></pre></div>
+<p><img src="img/simpleMatchedLowpass.svg"
+alt="Simple matched lowpass filter frequency response." /><br />
+</p>
+<h4 id="ハイパス-1">ハイパス</h4>
+<p>“Matched Second Order Digital Filters” の式 48 から式 49
+の実装です。</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simpleMatchedHighpass(cutoffRadian, Q):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span><span class="er">_2</span> <span class="op">=</span> ω<span class="dv">0</span> <span class="op">*</span> ω<span class="dv">0</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    a1, a2, _, _, _, _, _, _ <span class="op">=</span> solveDenominator(ω<span class="dv">0</span>, Q)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    r1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> a1 <span class="op">+</span> a2) <span class="op">/</span> np.sqrt((<span class="dv">1</span> <span class="op">-</span> ω<span class="dv">0</span><span class="er">_2</span>) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> ω<span class="dv">0</span><span class="er">_2</span> <span class="op">/</span> Q <span class="op">/</span> Q)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> <span class="fl">0.25</span> <span class="op">*</span> r1</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> b0</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> b0</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]</span></code></pre></div>
+<p><img src="img/simpleMatchedHighpass.svg"
+alt="Simple matched highpass filter frequency response." /><br />
+</p>
+<h4 id="バンドパス-1">バンドパス</h4>
+<p>“Matched Second Order Digital Filters” の式 50 から式 51
+の実装です。</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simpleMatchedBandpass(cutoffRadian, Q):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span> <span class="op">=</span> cutoffRadian</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    ω<span class="dv">0</span><span class="er">_2</span> <span class="op">=</span> ω<span class="dv">0</span> <span class="op">*</span> ω<span class="dv">0</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    a1, a2, _, _, _, _, _, _ <span class="op">=</span> solveDenominator(ω<span class="dv">0</span>, Q)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    r0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">+</span> a1 <span class="op">+</span> a2) <span class="op">/</span> (ω<span class="dv">0</span> <span class="op">*</span> Q)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    r1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> a1 <span class="op">+</span> a2) <span class="op">*</span> ω<span class="dv">0</span> <span class="op">/</span> Q <span class="op">/</span> np.sqrt((<span class="dv">1</span> <span class="op">-</span> ω<span class="dv">0</span><span class="er">_2</span>) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> ω<span class="dv">0</span><span class="er">_2</span> <span class="op">/</span> Q <span class="op">/</span> Q)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> r0 <span class="op">+</span> <span class="fl">0.25</span> <span class="op">*</span> r1</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> r1</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    b2 <span class="op">=</span> <span class="op">-</span>b0 <span class="op">-</span> b1</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, b2, <span class="dv">1</span>, a1, a2]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<p><img src="img/simpleMatchedBandpass.svg"
+alt="Simple matched bandpass filter frequency response." /><br />
+</p>
+<h3
+id="整合一次ハイシェルビングフィルタ">整合一次ハイシェルビングフィルタ</h3>
+<p>“Matched One-Pole Digital Shelving Filters”
+で紹介されていた整合一次ハイシェルビングフィルタのフィルタ係数の計算を実装します。対応する式は
+4, 5, 10, 11, 12 です。</p>
+<p>一次なのでレゾナンス <span class="math inline">\(Q\)</span>
+はありません。</p>
+<p>ローシェルビングフィルタはハイシェルビングの出力にゲインの逆数を乗算すれば作ることができます。ローシェルビング出力を
+<span class="math inline">\(H_{\mathrm{LS1}}\)</span>
+、ハイシェルビング出力を <span
+class="math inline">\(H_{\mathrm{HS1}}\)</span> 、とすると <span
+class="math inline">\(H_{\mathrm{LS1}} =
+\dfrac{H_{\mathrm{HS1}}}{G}\)</span> です。</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> matchedShelvingOnePole(cutoffRadian, gain):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    fc <span class="op">=</span> cutoffRadian <span class="op">/</span> np.pi</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    G <span class="op">=</span> gain</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    fm <span class="op">=</span> <span class="fl">0.9</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    φm <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.cos(np.pi <span class="op">*</span> fm)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> alphabeta(V):</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">2</span> <span class="op">/</span> (np.pi <span class="op">*</span> np.pi) <span class="op">*</span> (<span class="dv">1</span> <span class="op">/</span> (fm <span class="op">*</span> fm) <span class="op">+</span> V) <span class="op">-</span> <span class="dv">1</span> <span class="op">/</span> φm</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    α <span class="op">=</span> alphabeta(<span class="dv">1</span> <span class="op">/</span> (G <span class="op">*</span> fc <span class="op">*</span> fc))</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    β <span class="op">=</span> alphabeta(G <span class="op">/</span> (fc <span class="op">*</span> fc))</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> <span class="op">-</span>α <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> α <span class="op">+</span> np.sqrt(<span class="dv">1</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> α))</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> <span class="op">-</span>β <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> β <span class="op">+</span> np.sqrt(<span class="dv">1</span> <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> β))</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">+</span> a1) <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> b)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    b1 <span class="op">=</span> b <span class="op">*</span> b0</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[b0, b1, <span class="dv">0</span>, <span class="dv">1</span>, a1, <span class="dv">0</span>]]  <span class="co"># NumPy の sos 形式。</span></span></code></pre></div>
+<p><img src="img/matchedShelvingOnePole.svg"
+alt="Matched one-pole shelving filter frequency response." /><br />
+</p>
+<h2 id="参考文献">参考文献</h2>
+<ul>
+<li><a href="https://vicanek.de/articles.htm">MV’s Plugins
+Articles</a></li>
+<li><a href="https://vicanek.de/articles/BiquadFits.pdf">BiquadFits.pdf
+(14. February 2016)</a></li>
+<li><a
+href="https://vicanek.de/articles/ShelvingFits.pdf">ShelvingFits.pdf (7.
+September 2019, revised 24. September 2019)</a></li>
+</ul>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
