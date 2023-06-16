@@ -355,5 +355,5 @@ def matchedShelvingOnePole(cutoffRadian, gain):
 
 ## 参考文献
 - [MV's Plugins Articles](https://vicanek.de/articles.htm)
-- [BiquadFits.pdf (14. February 2016)](https://vicanek.de/articles/BiquadFits.pdf)
-- [ShelvingFits.pdf (7. September 2019, revised 24. September 2019)](https://vicanek.de/articles/ShelvingFits.pdf)
+- Martin Vicanek, ["Matched Second Order Digital Filters"](https://vicanek.de/articles/BiquadFits.pdf), 2016-02-14.
+- Martin Vicanek, ["Matched One-Pole Digital Shelving Filters"](https://vicanek.de/articles/ShelvingFits.pdf), revised 2019-09-24.
