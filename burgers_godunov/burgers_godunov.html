@@ -5,33 +5,34 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2019-01-09" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>burgers_godunov</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +53,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,38 +344,50 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2019-01-09
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#inviscid-な-burgers-方程式">Inviscid な Burgers 方程式</a><ul>
-<li><a href="#コードについて">コードについて</a></li>
-<li><a href="#シミュレーション">シミュレーション</a></li>
-<li><a href="#デモ">デモ</a></li>
-<li><a href="#音を入力する">音を入力する</a></li>
-<li><a href="#音のサンプル">音のサンプル</a></li>
+<li><a href="#inviscid-な-burgers-方程式"
+id="toc-inviscid-な-burgers-方程式">Inviscid な Burgers 方程式</a>
+<ul>
+<li><a href="#コードについて"
+id="toc-コードについて">コードについて</a></li>
+<li><a href="#シミュレーション"
+id="toc-シミュレーション">シミュレーション</a></li>
+<li><a href="#デモ" id="toc-デモ">デモ</a></li>
+<li><a href="#音を入力する" id="toc-音を入力する">音を入力する</a></li>
+<li><a href="#音のサンプル" id="toc-音のサンプル">音のサンプル</a></li>
 </ul></li>
 </ul>
 </nav>
 </details>
 </header>
 <h1 id="inviscid-な-burgers-方程式">Inviscid な Burgers 方程式</h1>
-<p><a href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Landajuela さんの BURGERS EUQATION</a> で紹介されていた Godunov’s method で変形した Burgers 方程式を実装して音を入力します。</p>
+<p><a
+href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Landajuela
+さんの BURGERS EUQATION</a> で紹介されていた Godunov’s method で変形した
+Burgers 方程式を実装して音を入力します。</p>
 <ul>
-<li><a href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Burgers_Equation_M_Landajuela.pdf</a></li>
+<li><a
+href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Burgers_Equation_M_Landajuela.pdf</a></li>
 </ul>
 <h2 id="コードについて">コードについて</h2>
 <p>次のリンクからコードをまとめて読むことができます。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/tree/master/burgers_godunov/demo/python3">コードを読む (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/tree/master/burgers_godunov/demo/python3">コードを読む
+(github.com)</a></li>
 </ul>
-<p>リンク先の <code>propagation.py</code> は <a href="http://sox.sourceforge.net/">SoX</a> を使っています。</p>
+<p>リンク先の <code>propagation.py</code> は <a
+href="http://sox.sourceforge.net/">SoX</a> を使っています。</p>
 <p>今回使った Python3 のライブラリです。</p>
 <ul>
 <li><a href="https://matplotlib.org/">matplotlib</a></li>
-<li><a href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a></li>
+<li><a
+href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a></li>
 <li><a href="https://www.scipy.org/">SciPy, NumPy</a></li>
 </ul>
 <h2 id="シミュレーション">シミュレーション</h2>
@@ -376,14 +395,19 @@ Update: 2019-01-09
 <p><span class="math display">\[
 u_t + u u_x = 0
 \]</span></p>
-<p><span class="math inline">\(u_t, u_x\)</span> は<a href="https://en.wikipedia.org/wiki/Notation_for_differentiation#Partial_derivatives">偏微分の表記</a>です。</p>
-<p><a href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Landajuela さんの BURGERS EUQATION</a> で紹介されていた Godunov’s method で変形した Burgers 方程式です。</p>
+<p><span class="math inline">\(u_t, u_x\)</span> は<a
+href="https://en.wikipedia.org/wiki/Notation_for_differentiation#Partial_derivatives">偏微分の表記</a>です。</p>
+<p><a
+href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Landajuela
+さんの BURGERS EUQATION</a> で紹介されていた Godunov’s method で変形した
+Burgers 方程式です。</p>
 <p><span class="math display">\[
 U_j^{n+1} = U_j^n - \frac{k}{h} \left(
   F(U_j^n, U_{j+1}^n) - F(U_{j-1}^n, U_j^n)
 \right)
 \]</span></p>
-<p><span class="math inline">\(F(U, V)\)</span> は次のように定義されています。</p>
+<p><span class="math inline">\(F(U, V)\)</span>
+は次のように定義されています。</p>
 <p><span class="math display">\[
 \begin{aligned}
 F(U, V) &amp;= \frac{(u^*)^2}{2}\\
@@ -402,76 +426,79 @@ u^* &amp;= \begin{cases}
 \]</span></p>
 <ul>
 <li><span class="math inline">\(U\)</span> は格子内の値。</li>
-<li><span class="math inline">\(k\)</span> は1ステップあたりに進む時間。 <span class="math inline">\(\partial t\)</span> 。</li>
-<li><span class="math inline">\(h\)</span> は格子一つの長さ。 <span class="math inline">\(\partial x\)</span> 。</li>
+<li><span class="math inline">\(k\)</span> は1ステップあたりに進む時間。
+<span class="math inline">\(\partial t\)</span> 。</li>
+<li><span class="math inline">\(h\)</span> は格子一つの長さ。 <span
+class="math inline">\(\partial x\)</span> 。</li>
 <li><span class="math inline">\(n\)</span> は時間のインデックス。</li>
 <li><span class="math inline">\(j\)</span> は空間のインデックス。</li>
 </ul>
 <p>実装します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy</span>
-<span id="cb1-3"><a href="#cb1-3"></a></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">class</span> Burgers1D:</span>
-<span id="cb1-5"><a href="#cb1-5"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">    dx = 1, dt = 1 で固定した inviscid Burgers&#39; equation 。</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a></span>
-<span id="cb1-9"><a href="#cb1-9"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, length):</span>
-<span id="cb1-10"><a href="#cb1-10"></a>        <span class="co">&quot;&quot;&quot;length はシミュレーションする波の配列の長さ。&quot;&quot;&quot;</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a>        <span class="va">self</span>.wave <span class="op">=</span> numpy.zeros((<span class="dv">2</span>, length))</span>
-<span id="cb1-12"><a href="#cb1-12"></a>        <span class="va">self</span>.reset()</span>
-<span id="cb1-13"><a href="#cb1-13"></a></span>
-<span id="cb1-14"><a href="#cb1-14"></a>    <span class="kw">def</span> u_star(<span class="va">self</span>, u, v):</span>
-<span id="cb1-15"><a href="#cb1-15"></a>        <span class="cf">return</span> numpy.where(</span>
-<span id="cb1-16"><a href="#cb1-16"></a>            u <span class="op">&gt;=</span> v,</span>
-<span id="cb1-17"><a href="#cb1-17"></a>            numpy.where((u <span class="op">+</span> v) <span class="op">/</span> <span class="dv">2</span> <span class="op">&gt;</span> <span class="dv">0</span>, u, v),</span>
-<span id="cb1-18"><a href="#cb1-18"></a>            numpy.where(u <span class="op">&gt;</span> <span class="dv">0</span>, u, numpy.where(v <span class="op">&lt;</span> <span class="dv">0</span>, v, <span class="dv">0</span>)),</span>
-<span id="cb1-19"><a href="#cb1-19"></a>        )</span>
-<span id="cb1-20"><a href="#cb1-20"></a></span>
-<span id="cb1-21"><a href="#cb1-21"></a>    <span class="kw">def</span> step(<span class="va">self</span>):</span>
-<span id="cb1-22"><a href="#cb1-22"></a>        <span class="va">self</span>.wave <span class="op">=</span> numpy.roll(<span class="va">self</span>.wave, <span class="dv">1</span>, axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb1-23"><a href="#cb1-23"></a></span>
-<span id="cb1-24"><a href="#cb1-24"></a>        last <span class="op">=</span> <span class="va">self</span>.wave.shape[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb1-25"><a href="#cb1-25"></a></span>
-<span id="cb1-26"><a href="#cb1-26"></a>        wave_l <span class="op">=</span> numpy.roll(<span class="va">self</span>.wave[<span class="dv">1</span>], <span class="dv">1</span>)</span>
-<span id="cb1-27"><a href="#cb1-27"></a>        wave_r <span class="op">=</span> numpy.roll(<span class="va">self</span>.wave[<span class="dv">1</span>], <span class="dv">-1</span>)</span>
-<span id="cb1-28"><a href="#cb1-28"></a>        u_star_l <span class="op">=</span> <span class="va">self</span>.u_star(<span class="va">self</span>.wave[<span class="dv">1</span>], wave_r)</span>
-<span id="cb1-29"><a href="#cb1-29"></a>        u_star_r <span class="op">=</span> <span class="va">self</span>.u_star(wave_l, <span class="va">self</span>.wave[<span class="dv">1</span>])</span>
-<span id="cb1-30"><a href="#cb1-30"></a>        <span class="va">self</span>.wave[<span class="dv">0</span>] <span class="op">=</span> <span class="va">self</span>.wave[<span class="dv">1</span>] <span class="op">-</span> (u_star_l <span class="op">*</span> u_star_l <span class="op">-</span> u_star_r <span class="op">*</span> u_star_r) <span class="op">/</span> <span class="dv">2</span></span>
-<span id="cb1-31"><a href="#cb1-31"></a></span>
-<span id="cb1-32"><a href="#cb1-32"></a>        <span class="va">self</span>.wave[<span class="dv">0</span>][<span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-33"><a href="#cb1-33"></a>        <span class="va">self</span>.wave[<span class="dv">0</span>][last] <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-34"><a href="#cb1-34"></a></span>
-<span id="cb1-35"><a href="#cb1-35"></a>        <span class="cf">if</span> <span class="va">self</span>.pick_y <span class="op">!=</span> <span class="dv">0</span>:</span>
-<span id="cb1-36"><a href="#cb1-36"></a>            <span class="va">self</span>.wave[<span class="dv">0</span>][<span class="va">self</span>.pick_x] <span class="op">=</span> <span class="va">self</span>.pick_y</span>
-<span id="cb1-37"><a href="#cb1-37"></a></span>
-<span id="cb1-38"><a href="#cb1-38"></a>    <span class="kw">def</span> reset(<span class="va">self</span>):</span>
-<span id="cb1-39"><a href="#cb1-39"></a>        <span class="va">self</span>.wave.fill(<span class="dv">0</span>)</span>
-<span id="cb1-40"><a href="#cb1-40"></a></span>
-<span id="cb1-41"><a href="#cb1-41"></a>    <span class="kw">def</span> pick(<span class="va">self</span>, x, y):</span>
-<span id="cb1-42"><a href="#cb1-42"></a>        <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb1-43"><a href="#cb1-43"></a><span class="co">        x の範囲は [0, 1] 。</span></span>
-<span id="cb1-44"><a href="#cb1-44"></a><span class="co">        y の範囲は [-1, 1] 。 |y| &gt; 1 で発散する。</span></span>
-<span id="cb1-45"><a href="#cb1-45"></a><span class="co">        &quot;&quot;&quot;</span></span>
-<span id="cb1-46"><a href="#cb1-46"></a>        x <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(x, <span class="dv">1</span>))</span>
-<span id="cb1-47"><a href="#cb1-47"></a>        <span class="va">self</span>.pick_x <span class="op">=</span> numpy.int32(x <span class="op">*</span> <span class="va">self</span>.wave.shape[<span class="dv">1</span>])</span>
-<span id="cb1-48"><a href="#cb1-48"></a>        <span class="va">self</span>.pick_y <span class="op">=</span> y</span>
-<span id="cb1-49"><a href="#cb1-49"></a></span>
-<span id="cb1-50"><a href="#cb1-50"></a>    <span class="kw">def</span> state(<span class="va">self</span>):</span>
-<span id="cb1-51"><a href="#cb1-51"></a>        <span class="cf">return</span> <span class="va">self</span>.wave[<span class="dv">0</span>]</span>
-<span id="cb1-52"><a href="#cb1-52"></a></span>
-<span id="cb1-53"><a href="#cb1-53"></a>length <span class="op">=</span> <span class="dv">512</span></span>
-<span id="cb1-54"><a href="#cb1-54"></a>burgers <span class="op">=</span> Burgers1D(length)</span>
-<span id="cb1-55"><a href="#cb1-55"></a></span>
-<span id="cb1-56"><a href="#cb1-56"></a>signal <span class="op">=</span> numpy.sin(numpy.linspace(<span class="dv">0</span>, <span class="dv">8</span> <span class="op">*</span> numpy.pi, length))</span>
-<span id="cb1-57"><a href="#cb1-57"></a></span>
-<span id="cb1-58"><a href="#cb1-58"></a><span class="cf">for</span> i, pick_y <span class="kw">in</span> <span class="bu">enumerate</span>(signal):</span>
-<span id="cb1-59"><a href="#cb1-59"></a>    burgers.pick(<span class="dv">0</span>, pick_y)</span>
-<span id="cb1-60"><a href="#cb1-60"></a>    burgers.step()</span>
-<span id="cb1-61"><a href="#cb1-61"></a></span>
-<span id="cb1-62"><a href="#cb1-62"></a>pyplot.grid()</span>
-<span id="cb1-63"><a href="#cb1-63"></a>pyplot.plot(burgers.state())</span>
-<span id="cb1-64"><a href="#cb1-64"></a>pyplot.show()</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Burgers1D:</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    dx = 1, dt = 1 で固定した inviscid Burgers&#39; equation 。</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, length):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;length はシミュレーションする波の配列の長さ。&quot;&quot;&quot;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wave <span class="op">=</span> numpy.zeros((<span class="dv">2</span>, length))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.reset()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> u_star(<span class="va">self</span>, u, v):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> numpy.where(</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            u <span class="op">&gt;=</span> v,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            numpy.where((u <span class="op">+</span> v) <span class="op">/</span> <span class="dv">2</span> <span class="op">&gt;</span> <span class="dv">0</span>, u, v),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            numpy.where(u <span class="op">&gt;</span> <span class="dv">0</span>, u, numpy.where(v <span class="op">&lt;</span> <span class="dv">0</span>, v, <span class="dv">0</span>)),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(<span class="va">self</span>):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wave <span class="op">=</span> numpy.roll(<span class="va">self</span>.wave, <span class="dv">1</span>, axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        last <span class="op">=</span> <span class="va">self</span>.wave.shape[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        wave_l <span class="op">=</span> numpy.roll(<span class="va">self</span>.wave[<span class="dv">1</span>], <span class="dv">1</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        wave_r <span class="op">=</span> numpy.roll(<span class="va">self</span>.wave[<span class="dv">1</span>], <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        u_star_l <span class="op">=</span> <span class="va">self</span>.u_star(<span class="va">self</span>.wave[<span class="dv">1</span>], wave_r)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        u_star_r <span class="op">=</span> <span class="va">self</span>.u_star(wave_l, <span class="va">self</span>.wave[<span class="dv">1</span>])</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wave[<span class="dv">0</span>] <span class="op">=</span> <span class="va">self</span>.wave[<span class="dv">1</span>] <span class="op">-</span> (u_star_l <span class="op">*</span> u_star_l <span class="op">-</span> u_star_r <span class="op">*</span> u_star_r) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wave[<span class="dv">0</span>][<span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wave[<span class="dv">0</span>][last] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.pick_y <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.wave[<span class="dv">0</span>][<span class="va">self</span>.pick_x] <span class="op">=</span> <span class="va">self</span>.pick_y</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset(<span class="va">self</span>):</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wave.fill(<span class="dv">0</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> pick(<span class="va">self</span>, x, y):</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co">        x の範囲は [0, 1] 。</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co">        y の範囲は [-1, 1] 。 |y| &gt; 1 で発散する。</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="bu">max</span>(<span class="dv">0</span>, <span class="bu">min</span>(x, <span class="dv">1</span>))</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pick_x <span class="op">=</span> numpy.int32(x <span class="op">*</span> <span class="va">self</span>.wave.shape[<span class="dv">1</span>])</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pick_y <span class="op">=</span> y</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> state(<span class="va">self</span>):</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.wave[<span class="dv">0</span>]</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>length <span class="op">=</span> <span class="dv">512</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>burgers <span class="op">=</span> Burgers1D(length)</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>signal <span class="op">=</span> numpy.sin(numpy.linspace(<span class="dv">0</span>, <span class="dv">8</span> <span class="op">*</span> numpy.pi, length))</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, pick_y <span class="kw">in</span> <span class="bu">enumerate</span>(signal):</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    burgers.pick(<span class="dv">0</span>, pick_y)</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    burgers.step()</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>pyplot.grid()</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>pyplot.plot(burgers.state())</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>pyplot.show()</span></code></pre></div>
 <p>コードを実行すると次のようなプロットが出力されます。</p>
 <figure>
 <img src="img/inviscid_burgers_result.png" alt="Image of a result of simulation of inviscid Burgers' equation." style="width: 480px;padding-bottom: 12px;"/>
@@ -481,92 +508,148 @@ u^* &amp;= \begin{cases}
 <script src="demo/js/canvas.js"></script>
 <script src="demo/js/vec2.js"></script>
 <script src="demo/js/wave1d.js"></script>
-<p>中央の黒い線は <span class="math inline">\(U = 0\)</span> を表しています。上半分は <span class="math inline">\(U &gt; 0\)</span> 、下半分は <span class="math inline">\(U &lt; 0\)</span> となります。</p>
+<p>中央の黒い線は <span class="math inline">\(U = 0\)</span>
+を表しています。上半分は <span class="math inline">\(U &gt; 0\)</span>
+、下半分は <span class="math inline">\(U &lt; 0\)</span>
+となります。</p>
 <p>今回のシミュレーションでは入力の符号によって波が進む方向が決まるようです。</p>
 <h2 id="音を入力する">音を入力する</h2>
-<p>波の進む方向が一方向に固定されるので、入力信号がすべて正の値になるように整形します。またシミュレーションが発散しないように入力信号の最大値が 1 以下となるようにします。</p>
-<p>次の図は <code>dc = 0.6</code> 、 <code>amp = 0.8</code> として整形した入力信号の例です。</p>
+<p>波の進む方向が一方向に固定されるので、入力信号がすべて正の値になるように整形します。またシミュレーションが発散しないように入力信号の最大値が
+1 以下となるようにします。</p>
+<p>次の図は <code>dc = 0.6</code> 、 <code>amp = 0.8</code>
+として整形した入力信号の例です。</p>
 <figure>
 <img src="img/input_signal.png" alt="Image of input signal." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
-<p>上の図の入力信号から得られた inviscid な Burgers 方程式のシミュレーション結果です。</p>
+<p>上の図の入力信号から得られた inviscid な Burgers
+方程式のシミュレーション結果です。</p>
 <figure>
 <img src="img/raw_output_signal.png" alt="Image of raw output signal." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
-<p>シミュレーションから得られた信号を wav ファイルとして保存するときに直流を切りたいのですが、このままハイパスフィルタをかけると音の始まりに大きなポップノイズが乗ってしまいます。今回は信号の <code>numpy.median</code> の値をしきい値として、信号の開始からしきい値を超えるまでの区間を <code>numpy.median</code> の値に置き換えることでポップノイズを抑えました。</p>
+<p>シミュレーションから得られた信号を wav
+ファイルとして保存するときに直流を切りたいのですが、このままハイパスフィルタをかけると音の始まりに大きなポップノイズが乗ってしまいます。今回は信号の
+<code>numpy.median</code>
+の値をしきい値として、信号の開始からしきい値を超えるまでの区間を
+<code>numpy.median</code>
+の値に置き換えることでポップノイズを抑えました。</p>
 <p>実装は次のようになります。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> numpy</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="im">import</span> scipy.signal</span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="im">import</span> soundfile</span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="im">from</span> burgers <span class="im">import</span> Burgers1D</span>
-<span id="cb2-5"><a href="#cb2-5"></a></span>
-<span id="cb2-6"><a href="#cb2-6"></a>samplerate <span class="op">=</span> <span class="dv">44100</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a>duration <span class="op">=</span> <span class="fl">0.4</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a>frequency <span class="op">=</span> <span class="dv">60</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a>amp <span class="op">=</span> <span class="fl">0.8</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a>dc <span class="op">=</span> <span class="fl">0.6</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a></span>
-<span id="cb2-12"><a href="#cb2-12"></a>phase <span class="op">=</span> numpy.linspace(</span>
-<span id="cb2-13"><a href="#cb2-13"></a>    <span class="dv">0</span>,</span>
-<span id="cb2-14"><a href="#cb2-14"></a>    <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> duration,</span>
-<span id="cb2-15"><a href="#cb2-15"></a>    <span class="bu">int</span>(samplerate <span class="op">*</span> duration),</span>
-<span id="cb2-16"><a href="#cb2-16"></a>)</span>
-<span id="cb2-17"><a href="#cb2-17"></a>input_signal <span class="op">=</span> numpy.sin(phase)</span>
-<span id="cb2-18"><a href="#cb2-18"></a></span>
-<span id="cb2-19"><a href="#cb2-19"></a><span class="co"># 入力信号を整形。</span></span>
-<span id="cb2-20"><a href="#cb2-20"></a>amp <span class="op">=</span> dc <span class="op">*</span> amp <span class="cf">if</span> dc <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="cf">else</span> (<span class="dv">1</span> <span class="op">-</span> dc) <span class="op">*</span> amp</span>
-<span id="cb2-21"><a href="#cb2-21"></a>signal <span class="op">=</span> (dc <span class="op">-</span> amp) <span class="op">+</span> amp <span class="op">*</span> (input_signal <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb2-22"><a href="#cb2-22"></a></span>
-<span id="cb2-23"><a href="#cb2-23"></a>input_signal <span class="op">=</span> numpy.copy(signal)</span>
-<span id="cb2-24"><a href="#cb2-24"></a></span>
-<span id="cb2-25"><a href="#cb2-25"></a><span class="co"># シミュレーション。</span></span>
-<span id="cb2-26"><a href="#cb2-26"></a>burgers <span class="op">=</span> Burgers1D(<span class="dv">257</span>)</span>
-<span id="cb2-27"><a href="#cb2-27"></a>read_index <span class="op">=</span> burgers.wave.shape[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">2</span></span>
-<span id="cb2-28"><a href="#cb2-28"></a><span class="cf">for</span> i, y <span class="kw">in</span> <span class="bu">enumerate</span>(signal):</span>
-<span id="cb2-29"><a href="#cb2-29"></a>    burgers.pick(<span class="dv">0</span>, y)</span>
-<span id="cb2-30"><a href="#cb2-30"></a>    burgers.step()</span>
-<span id="cb2-31"><a href="#cb2-31"></a>    signal[i] <span class="op">=</span> burgers.state()[read_index]</span>
-<span id="cb2-32"><a href="#cb2-32"></a></span>
-<span id="cb2-33"><a href="#cb2-33"></a>raw_signal <span class="op">=</span> numpy.copy(signal)</span>
-<span id="cb2-34"><a href="#cb2-34"></a></span>
-<span id="cb2-35"><a href="#cb2-35"></a><span class="co"># ポップノイズを防ぐために信号の開始からしきい値を超えるまでの値を置き換え。</span></span>
-<span id="cb2-36"><a href="#cb2-36"></a>threshold <span class="op">=</span> numpy.median(signal)</span>
-<span id="cb2-37"><a href="#cb2-37"></a>i <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb2-38"><a href="#cb2-38"></a><span class="cf">while</span> signal[i] <span class="op">&lt;</span> threshold:</span>
-<span id="cb2-39"><a href="#cb2-39"></a>    i <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb2-40"><a href="#cb2-40"></a>signal[:i] <span class="op">=</span> threshold</span>
-<span id="cb2-41"><a href="#cb2-41"></a>signal <span class="op">-=</span> threshold</span>
-<span id="cb2-42"><a href="#cb2-42"></a></span>
-<span id="cb2-43"><a href="#cb2-43"></a><span class="co"># 直流の除去。</span></span>
-<span id="cb2-44"><a href="#cb2-44"></a>hp_sos <span class="op">=</span> scipy.signal.butter(<span class="dv">4</span>, <span class="dv">2</span> <span class="op">*</span> <span class="dv">20</span> <span class="op">/</span> samplerate, btype<span class="op">=</span><span class="st">&quot;highpass&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>)</span>
-<span id="cb2-45"><a href="#cb2-45"></a>signal <span class="op">=</span> scipy.signal.sosfilt(hp_sos, signal)</span>
-<span id="cb2-46"><a href="#cb2-46"></a></span>
-<span id="cb2-47"><a href="#cb2-47"></a>soundfile.write(<span class="st">&quot;output.wav&quot;</span>, signal, samplerate)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> soundfile</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> burgers <span class="im">import</span> Burgers1D</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>samplerate <span class="op">=</span> <span class="dv">44100</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>duration <span class="op">=</span> <span class="fl">0.4</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>frequency <span class="op">=</span> <span class="dv">60</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>amp <span class="op">=</span> <span class="fl">0.8</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>dc <span class="op">=</span> <span class="fl">0.6</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>phase <span class="op">=</span> numpy.linspace(</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> duration,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">int</span>(samplerate <span class="op">*</span> duration),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>input_signal <span class="op">=</span> numpy.sin(phase)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 入力信号を整形。</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>amp <span class="op">=</span> dc <span class="op">*</span> amp <span class="cf">if</span> dc <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="cf">else</span> (<span class="dv">1</span> <span class="op">-</span> dc) <span class="op">*</span> amp</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>signal <span class="op">=</span> (dc <span class="op">-</span> amp) <span class="op">+</span> amp <span class="op">*</span> (input_signal <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>input_signal <span class="op">=</span> numpy.copy(signal)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># シミュレーション。</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>burgers <span class="op">=</span> Burgers1D(<span class="dv">257</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>read_index <span class="op">=</span> burgers.wave.shape[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">2</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, y <span class="kw">in</span> <span class="bu">enumerate</span>(signal):</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    burgers.pick(<span class="dv">0</span>, y)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    burgers.step()</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    signal[i] <span class="op">=</span> burgers.state()[read_index]</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>raw_signal <span class="op">=</span> numpy.copy(signal)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ポップノイズを防ぐために信号の開始からしきい値を超えるまでの値を置き換え。</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>threshold <span class="op">=</span> numpy.median(signal)</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> signal[i] <span class="op">&lt;</span> threshold:</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>signal[:i] <span class="op">=</span> threshold</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>signal <span class="op">-=</span> threshold</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co"># 直流の除去。</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>hp_sos <span class="op">=</span> scipy.signal.butter(<span class="dv">4</span>, <span class="dv">2</span> <span class="op">*</span> <span class="dv">20</span> <span class="op">/</span> samplerate, btype<span class="op">=</span><span class="st">&quot;highpass&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>signal <span class="op">=</span> scipy.signal.sosfilt(hp_sos, signal)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>soundfile.write(<span class="st">&quot;output.wav&quot;</span>, signal, samplerate)</span></code></pre></div>
 <p>直流を除去した出力信号です。</p>
 <figure>
 <img src="img/processed_output_signal.png" alt="Image of processed output signal." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <h2 id="音のサンプル">音のサンプル</h2>
-<p>ここまでのコードを <code>propagation.py</code> にまとめてコマンドラインから使えるようにしました。声のサンプルのラベルに書いている <code>-d</code> や <code>-l</code> は <code>propagation.py</code> のオプションです。 <code>-d</code> は DC オフセット、 <code>-l</code> は <code>Burgers1D</code> のインスタンスを生成するときに渡す <code>length</code> です。</p>
-<p>1000Hz のサイン波の入力信号と <code>Burgers1D</code> に通した結果です。</p>
-<p><label>Sin Input</label> <audio controls> <source src="demo/python3/snd/sin.wav" type="audio/wav"> </audio></p>
-<p><label>Sin Output</label> <audio controls> <source src="demo/python3/snd/burgers_sin.wav" type="audio/wav"> </audio></p>
-<p>ブラウンノイズの入力信号と <code>Burgers1D</code> に通した結果です。</p>
-<p><label>Noise Input</label> <audio controls> <source src="demo/python3/snd/noise.wav" type="audio/wav"> </audio></p>
-<p><label>Noise Output</label> <audio controls> <source src="demo/python3/snd/burgers_noise.wav" type="audio/wav"> </audio></p>
-<p>サイン波とブラウンノイズは <a href="http://sox.sourceforge.net/">SoX</a> で生成しました。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">sox</span> -n sin.wav synth 1.0 sine 1000.0</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="fu">sox</span> -n noise.wav synth 0.5 brownnoise</span></code></pre></div>
-<p><a href="https://freesound.org/">Freesound</a> で見つけた <a href="https://freesound.org/people/AlineAudio/sounds/416537/">AlienAudio さんによる人の声のサンプル</a>を <code>Burgers1D</code> に通しました。</p>
-<p><label>Voice Input</label> <audio controls> <source src="demo/python3/snd/416537__alineaudio__male-scream-11.wav" type="audio/wav"> </audio></p>
-<p><label>Voice Output <code>-d 0.2 -l 128</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.2_l128.wav" type="audio/wav"> </audio></p>
-<p><label>Voice Output <code>-d 0.4 -l 128</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.4_l128.wav" type="audio/wav"> </audio></p>
-<p><label>Voice Output <code>-d 0.6 -l 128</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.6_l128.wav" type="audio/wav"> </audio></p>
-<p><label>Voice Output <code>-d 0.8 -l 128</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l128.wav" type="audio/wav"> </audio></p>
-<p><label>Voice Output <code>-d 0.8 -l 256</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l256.wav" type="audio/wav"> </audio></p>
-<p><label>Voice Output <code>-d 0.8 -l 512</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l512.wav" type="audio/wav"> </audio></p>
-<p><label>Voice Output <code>-d 0.8 -l 1024</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l1024.wav" type="audio/wav"> </audio></p>
-<p><label>Voice Output <code>-d 0.8 -l 2048</code></label> <audio controls> <source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l2048.wav" type="audio/wav"> </audio></p>
+<p>ここまでのコードを <code>propagation.py</code>
+にまとめてコマンドラインから使えるようにしました。声のサンプルのラベルに書いている
+<code>-d</code> や <code>-l</code> は <code>propagation.py</code>
+のオプションです。 <code>-d</code> は DC オフセット、 <code>-l</code> は
+<code>Burgers1D</code> のインスタンスを生成するときに渡す
+<code>length</code> です。</p>
+<p>1000Hz のサイン波の入力信号と <code>Burgers1D</code>
+に通した結果です。</p>
+<p><label>Sin Input</label> <audio controls>
+<source src="demo/python3/snd/sin.wav" type="audio/wav"> </audio></p>
+<p><label>Sin Output</label> <audio controls>
+<source src="demo/python3/snd/burgers_sin.wav" type="audio/wav">
+</audio></p>
+<p>ブラウンノイズの入力信号と <code>Burgers1D</code>
+に通した結果です。</p>
+<p><label>Noise Input</label> <audio controls>
+<source src="demo/python3/snd/noise.wav" type="audio/wav"> </audio></p>
+<p><label>Noise Output</label> <audio controls>
+<source src="demo/python3/snd/burgers_noise.wav" type="audio/wav">
+</audio></p>
+<p>サイン波とブラウンノイズは <a
+href="http://sox.sourceforge.net/">SoX</a> で生成しました。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sox</span> <span class="at">-n</span> sin.wav synth 1.0 sine 1000.0</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sox</span> <span class="at">-n</span> noise.wav synth 0.5 brownnoise</span></code></pre></div>
+<p><a href="https://freesound.org/">Freesound</a> で見つけた <a
+href="https://freesound.org/people/AlineAudio/sounds/416537/">AlienAudio
+さんによる人の声のサンプル</a>を <code>Burgers1D</code>
+に通しました。</p>
+<p><label>Voice Input</label> <audio controls>
+<source src="demo/python3/snd/416537__alineaudio__male-scream-11.wav" type="audio/wav">
+</audio></p>
+<p><label>Voice Output <code>-d 0.2 -l 128</code></label>
+<audio controls>
+<source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.2_l128.wav" type="audio/wav">
+</audio></p>
+<p><label>Voice Output <code>-d 0.4 -l 128</code></label>
+<audio controls>
+<source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.4_l128.wav" type="audio/wav">
+</audio></p>
+<p><label>Voice Output <code>-d 0.6 -l 128</code></label>
+<audio controls>
+<source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.6_l128.wav" type="audio/wav">
+</audio></p>
+<p><label>Voice Output <code>-d 0.8 -l 128</code></label>
+<audio controls>
+<source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l128.wav" type="audio/wav">
+</audio></p>
+<p><label>Voice Output <code>-d 0.8 -l 256</code></label>
+<audio controls>
+<source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l256.wav" type="audio/wav">
+</audio></p>
+<p><label>Voice Output <code>-d 0.8 -l 512</code></label>
+<audio controls>
+<source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l512.wav" type="audio/wav">
+</audio></p>
+<p><label>Voice Output <code>-d 0.8 -l 1024</code></label>
+<audio controls>
+<source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l1024.wav" type="audio/wav">
+</audio></p>
+<p><label>Voice Output <code>-d 0.8 -l 2048</code></label>
+<audio controls>
+<source src="demo/python3/snd/burgers_416537__alineaudio__male-scream-11_d0.8_l2048.wav" type="audio/wav">
+</audio></p>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
 </footer>

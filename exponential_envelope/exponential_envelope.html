@@ -5,33 +5,34 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2020-03-27" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>exponential_envelope</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +53,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,24 +344,36 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2020-03-27
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#指数曲線のエンベロープ">指数曲線のエンベロープ</a><ul>
-<li><a href="#減衰する指数曲線">減衰する指数曲線</a></li>
-<li><a href="#増加する指数曲線">増加する指数曲線</a></li>
-<li><a href="#減衰する指数曲線の反転">減衰する指数曲線の反転</a></li>
-<li><a href="#指数曲線を使った-adsr-エンベロープ">指数曲線を使った ADSR エンベロープ</a><ul>
-<li><a href="#デクリック-declick">デクリック (declick)</a></li>
+<li><a href="#指数曲線のエンベロープ"
+id="toc-指数曲線のエンベロープ">指数曲線のエンベロープ</a>
+<ul>
+<li><a href="#減衰する指数曲線"
+id="toc-減衰する指数曲線">減衰する指数曲線</a></li>
+<li><a href="#増加する指数曲線"
+id="toc-増加する指数曲線">増加する指数曲線</a></li>
+<li><a href="#減衰する指数曲線の反転"
+id="toc-減衰する指数曲線の反転">減衰する指数曲線の反転</a></li>
+<li><a href="#指数曲線を使った-adsr-エンベロープ"
+id="toc-指数曲線を使った-adsr-エンベロープ">指数曲線を使った ADSR
+エンベロープ</a>
+<ul>
+<li><a href="#デクリック-declick" id="toc-デクリック-declick">デクリック
+(declick)</a></li>
 </ul></li>
-<li><a href="#p-controller-による実装">P Controller による実装</a></li>
-<li><a href="#減衰する指数曲線とその反転の乗算">減衰する指数曲線とその反転の乗算</a><ul>
-<li><a href="#別解">別解</a></li>
+<li><a href="#p-controller-による実装"
+id="toc-p-controller-による実装">P Controller による実装</a></li>
+<li><a href="#減衰する指数曲線とその反転の乗算"
+id="toc-減衰する指数曲線とその反転の乗算">減衰する指数曲線とその反転の乗算</a>
+<ul>
+<li><a href="#別解" id="toc-別解">別解</a></li>
 </ul></li>
-<li><a href="#変更点">変更点</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -363,291 +382,338 @@ Update: 2020-03-27
 <h1 id="指数曲線のエンベロープ">指数曲線のエンベロープ</h1>
 <p>指数曲線 (Exponential Curve) を使ったエンベロープを作ります。</p>
 <h2 id="減衰する指数曲線">減衰する指数曲線</h2>
-<p>値が 1 から 0 に向かって減衰する指数曲線 <span class="math inline">\(E_d(t)\)</span> の式です。</p>
+<p>値が 1 から 0 に向かって減衰する指数曲線 <span
+class="math inline">\(E_d(t)\)</span> の式です。</p>
 <p><span class="math display">\[
 E_d(t) = \alpha^t, \quad 0 \leq \alpha \leq 1
 \]</span></p>
-<p><span class="math inline">\(\alpha\)</span> は減衰の速さを決める任意の値、 <span class="math inline">\(t\)</span> は単位が秒数の時間です。</p>
-<p>ユーザから指定された減衰時間 <span class="math inline">\(\tau\)</span> から <span class="math inline">\(\alpha\)</span> を決めます。 <span class="math inline">\(E_d\)</span> は <span class="math inline">\(0 &lt; \alpha\)</span> のとき <span class="math inline">\(t = +\infty\)</span> でようやく 0 になります。言い換えると <span class="math inline">\(E_d\)</span> はいつまで経っても 0 になりません。そこで 0 の代わりに十分に小さな値 <span class="math inline">\(\epsilon\)</span> に到達する時間を求めます。</p>
+<p><span class="math inline">\(\alpha\)</span>
+は減衰の速さを決める任意の値、 <span class="math inline">\(t\)</span>
+は単位が秒数の時間です。</p>
+<p>ユーザから指定された減衰時間 <span
+class="math inline">\(\tau\)</span> から <span
+class="math inline">\(\alpha\)</span> を決めます。 <span
+class="math inline">\(E_d\)</span> は <span class="math inline">\(0 &lt;
+\alpha\)</span> のとき <span class="math inline">\(t = +\infty\)</span>
+でようやく 0 になります。言い換えると <span
+class="math inline">\(E_d\)</span> はいつまで経っても 0
+になりません。そこで 0 の代わりに十分に小さな値 <span
+class="math inline">\(\epsilon\)</span> に到達する時間を求めます。</p>
 <p><span class="math display">\[
 E_d(\tau) = \alpha^\tau = \epsilon
 \]</span></p>
-<p>時間の単位を秒数 <span class="math inline">\(\tau\)</span> からサンプル数 <span class="math inline">\(n_\tau\)</span> に置き換えます。</p>
+<p>時間の単位を秒数 <span class="math inline">\(\tau\)</span>
+からサンプル数 <span class="math inline">\(n_\tau\)</span>
+に置き換えます。</p>
 <p><span class="math display">\[
 n_\tau = \tau f_s
 \]</span></p>
-<p><span class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
-<p><span class="math inline">\(\tau\)</span> と <span class="math inline">\(\epsilon\)</span> が与えられたとき <span class="math inline">\(\alpha^\tau = \epsilon\)</span> の関係と <span class="math inline">\(n_\tau\)</span> の式より <span class="math inline">\(\alpha\)</span> が求められます。</p>
+<p><span class="math inline">\(f_s\)</span>
+はサンプリング周波数です。</p>
+<p><span class="math inline">\(\tau\)</span> と <span
+class="math inline">\(\epsilon\)</span> が与えられたとき <span
+class="math inline">\(\alpha^\tau = \epsilon\)</span> の関係と <span
+class="math inline">\(n_\tau\)</span> の式より <span
+class="math inline">\(\alpha\)</span> が求められます。</p>
 <p><span class="math display">\[
 \alpha = \epsilon^\Tau, \quad \Tau = \frac{1}{\tau f_s}.
 \]</span></p>
-<p><span class="math inline">\(\epsilon\)</span> の値は任意です。この文章では <code>1e-5</code> を使っています。値を決めるときの参考までに、 10 進数では <code>float</code> は約 7 桁、 <code>double</code> は約 16 桁の精度があります。</p>
+<p><span class="math inline">\(\epsilon\)</span>
+の値は任意です。この文章では <code>1e-5</code>
+を使っています。値を決めるときの参考までに、 10 進数では
+<code>float</code> は約 7 桁、 <code>double</code> は約 16
+桁の精度があります。</p>
 <ul>
-<li><a href="https://stackoverflow.com/questions/13542944/how-many-significant-digits-do-floats-and-doubles-have-in-java">floating point - How many significant digits do floats and doubles have in java? - Stack Overflow</a></li>
+<li><a
+href="https://stackoverflow.com/questions/13542944/how-many-significant-digits-do-floats-and-doubles-have-in-java">floating
+point - How many significant digits do floats and doubles have in java?
+- Stack Overflow</a></li>
 </ul>
 <p>実装します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> ExpDecayCurve {</span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">public</span>:</span>
-<span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">void</span> reset(Sample sampleRate, Sample seconds)</span>
-<span id="cb1-6"><a href="#cb1-6"></a>  {</span>
-<span id="cb1-7"><a href="#cb1-7"></a>    value = Sample(<span class="dv">1</span>);</span>
-<span id="cb1-8"><a href="#cb1-8"></a>    set(sampleRate, seconds);</span>
-<span id="cb1-9"><a href="#cb1-9"></a>  }</span>
-<span id="cb1-10"><a href="#cb1-10"></a></span>
-<span id="cb1-11"><a href="#cb1-11"></a>  <span class="dt">void</span> set(Sample sampleRate, Sample seconds)</span>
-<span id="cb1-12"><a href="#cb1-12"></a>  {</span>
-<span id="cb1-13"><a href="#cb1-13"></a>    alpha = pow(threshold, Sample(<span class="dv">1</span>) / (seconds * sampleRate));</span>
-<span id="cb1-14"><a href="#cb1-14"></a>  }</span>
-<span id="cb1-15"><a href="#cb1-15"></a></span>
-<span id="cb1-16"><a href="#cb1-16"></a>  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> value &lt;= threshold; }</span>
-<span id="cb1-17"><a href="#cb1-17"></a></span>
-<span id="cb1-18"><a href="#cb1-18"></a>  Sample process()</span>
-<span id="cb1-19"><a href="#cb1-19"></a>  {</span>
-<span id="cb1-20"><a href="#cb1-20"></a>    <span class="cf">if</span> (value &lt;= threshold) <span class="cf">return</span> Sample(<span class="dv">0</span>);</span>
-<span id="cb1-21"><a href="#cb1-21"></a>    value *= alpha;</span>
-<span id="cb1-22"><a href="#cb1-22"></a>    <span class="cf">return</span> value - threshold;</span>
-<span id="cb1-23"><a href="#cb1-23"></a>  }</span>
-<span id="cb1-24"><a href="#cb1-24"></a></span>
-<span id="cb1-25"><a href="#cb1-25"></a><span class="kw">protected</span>:</span>
-<span id="cb1-26"><a href="#cb1-26"></a>  <span class="at">const</span> Sample threshold = <span class="fl">1e-5</span>;</span>
-<span id="cb1-27"><a href="#cb1-27"></a>  Sample value = <span class="dv">0</span>;</span>
-<span id="cb1-28"><a href="#cb1-28"></a>  Sample alpha = <span class="dv">0</span>;</span>
-<span id="cb1-29"><a href="#cb1-29"></a>};</span></code></pre></div>
-<p><code>reset()</code> は再トリガ時、 <code>set()</code> はコントロールレートで呼び出されます。</p>
-<p><code>isTerminated()</code> は複数の曲線を組み合わせて ADSR エンベロープなどを作るとき、状態遷移を行うために使います。</p>
-<p><code>process()</code> の最後で <code>threshold</code> を引いているのは、エンベロープの終端の不連続点を小さくするためです。この処理によって出力の範囲は <code>[0, 1 - threshold]</code> になります。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> ExpDecayCurve <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample seconds<span class="op">)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    set<span class="op">(</span>sampleRate<span class="op">,</span> seconds<span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> set<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample seconds<span class="op">)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> pow<span class="op">(</span>threshold<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>seconds <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isTerminated<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> value <span class="op">&lt;=</span> threshold<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">()</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>value <span class="op">&lt;=</span> threshold<span class="op">)</span> <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    value <span class="op">*=</span> alpha<span class="op">;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> value <span class="op">-</span> threshold<span class="op">;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> Sample threshold <span class="op">=</span> <span class="fl">1e-5</span><span class="op">;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  Sample alpha <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><code>reset()</code> は再トリガ時、 <code>set()</code>
+はコントロールレートで呼び出されます。</p>
+<p><code>isTerminated()</code> は複数の曲線を組み合わせて ADSR
+エンベロープなどを作るとき、状態遷移を行うために使います。</p>
+<p><code>process()</code> の最後で <code>threshold</code>
+を引いているのは、エンベロープの終端の不連続点を小さくするためです。この処理によって出力の範囲は
+<code>[0, 1 - threshold]</code> になります。</p>
 <figure>
 <img src="img/discontinuity_at_termination.svg" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
-<p>値の範囲が <code>[0, 1]</code> かつ終端に崖を作りたくないときはルックアップテーブルが使えます。ただし、滑らかさは劣ります。</p>
+<p>値の範囲が <code>[0, 1]</code>
+かつ終端に崖を作りたくないときはルックアップテーブルが使えます。ただし、滑らかさは劣ります。</p>
 <h2 id="増加する指数曲線">増加する指数曲線</h2>
-<p>増加する指数曲線 <span class="math inline">\(E_a(t)\)</span> の式です。</p>
+<p>増加する指数曲線 <span class="math inline">\(E_a(t)\)</span>
+の式です。</p>
 <p><span class="math display">\[
 E_d(\tau) = \epsilon \alpha^\tau = 1
 \]</span></p>
 <p><span class="math inline">\(\alpha\)</span> について解きます。</p>
 <p><span class="math display">\[
-\alpha = \left( \frac{1}{\epsilon} \right)^\Tau, \quad \Tau = \frac{1}{\tau f_s}.
+\alpha = \left( \frac{1}{\epsilon} \right)^\Tau, \quad \Tau =
+\frac{1}{\tau f_s}.
 \]</span></p>
 <p>実装します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> ExpAttackCurve {</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">public</span>:</span>
-<span id="cb2-3"><a href="#cb2-3"></a>  <span class="dt">void</span> reset(Sample sampleRate, Sample seconds)</span>
-<span id="cb2-4"><a href="#cb2-4"></a>  {</span>
-<span id="cb2-5"><a href="#cb2-5"></a>    value = threshold;</span>
-<span id="cb2-6"><a href="#cb2-6"></a>    set(sampleRate, seconds);</span>
-<span id="cb2-7"><a href="#cb2-7"></a>  }</span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a>  <span class="dt">void</span> set(Sample sampleRate, Sample seconds)</span>
-<span id="cb2-10"><a href="#cb2-10"></a>  {</span>
-<span id="cb2-11"><a href="#cb2-11"></a>    alpha</span>
-<span id="cb2-12"><a href="#cb2-12"></a>      = pow(Sample(<span class="dv">1</span>) / threshold, Sample(<span class="dv">1</span>) / (seconds * sampleRate));</span>
-<span id="cb2-13"><a href="#cb2-13"></a>  }</span>
-<span id="cb2-14"><a href="#cb2-14"></a></span>
-<span id="cb2-15"><a href="#cb2-15"></a>  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> value &gt;= Sample(<span class="dv">1</span>); }</span>
-<span id="cb2-16"><a href="#cb2-16"></a></span>
-<span id="cb2-17"><a href="#cb2-17"></a>  Sample process()</span>
-<span id="cb2-18"><a href="#cb2-18"></a>  {</span>
-<span id="cb2-19"><a href="#cb2-19"></a>    value *= alpha;</span>
-<span id="cb2-20"><a href="#cb2-20"></a>    <span class="cf">if</span> (value &gt;= Sample(<span class="dv">1</span>)) <span class="cf">return</span> Sample(<span class="dv">1</span> - threshold);</span>
-<span id="cb2-21"><a href="#cb2-21"></a>    <span class="cf">return</span> value - threshold;</span>
-<span id="cb2-22"><a href="#cb2-22"></a>  }</span>
-<span id="cb2-23"><a href="#cb2-23"></a></span>
-<span id="cb2-24"><a href="#cb2-24"></a><span class="kw">protected</span>:</span>
-<span id="cb2-25"><a href="#cb2-25"></a>  <span class="at">const</span> Sample threshold = <span class="fl">1e-5</span>;</span>
-<span id="cb2-26"><a href="#cb2-26"></a>  Sample value = <span class="dv">0</span>;</span>
-<span id="cb2-27"><a href="#cb2-27"></a>  Sample alpha = <span class="dv">0</span>;</span>
-<span id="cb2-28"><a href="#cb2-28"></a>};</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> ExpAttackCurve <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample seconds<span class="op">)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> threshold<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    set<span class="op">(</span>sampleRate<span class="op">,</span> seconds<span class="op">);</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> set<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample seconds<span class="op">)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    alpha</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">=</span> pow<span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> threshold<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>seconds <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isTerminated<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> value <span class="op">&gt;=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">()</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    value <span class="op">*=</span> alpha<span class="op">;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>value <span class="op">&gt;=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">1</span> <span class="op">-</span> threshold<span class="op">);</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> value <span class="op">-</span> threshold<span class="op">;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> Sample threshold <span class="op">=</span> <span class="fl">1e-5</span><span class="op">;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  Sample alpha <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <h2 id="減衰する指数曲線の反転">減衰する指数曲線の反転</h2>
-<p><span class="math inline">\(1 - E_d(t)\)</span> として減衰する指数曲線を上下反転して使う方法があります。</p>
+<p><span class="math inline">\(1 - E_d(t)\)</span>
+として減衰する指数曲線を上下反転して使う方法があります。</p>
 <p>実装です。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">// 1 - ExpDecayCurve.process();</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> NegativeExpAttackCurve {</span>
-<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">public</span>:</span>
-<span id="cb3-4"><a href="#cb3-4"></a>  <span class="dt">void</span> reset(Sample sampleRate, Sample seconds)</span>
-<span id="cb3-5"><a href="#cb3-5"></a>  {</span>
-<span id="cb3-6"><a href="#cb3-6"></a>    value = Sample(<span class="dv">1</span>);</span>
-<span id="cb3-7"><a href="#cb3-7"></a>    set(sampleRate, seconds);</span>
-<span id="cb3-8"><a href="#cb3-8"></a>  }</span>
-<span id="cb3-9"><a href="#cb3-9"></a></span>
-<span id="cb3-10"><a href="#cb3-10"></a>  <span class="dt">void</span> set(Sample sampleRate, Sample seconds)</span>
-<span id="cb3-11"><a href="#cb3-11"></a>  {</span>
-<span id="cb3-12"><a href="#cb3-12"></a>    alpha = pow(threshold, Sample(<span class="dv">1</span>) / (seconds * sampleRate));</span>
-<span id="cb3-13"><a href="#cb3-13"></a>  }</span>
-<span id="cb3-14"><a href="#cb3-14"></a></span>
-<span id="cb3-15"><a href="#cb3-15"></a>  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> value &lt;= threshold; }</span>
-<span id="cb3-16"><a href="#cb3-16"></a></span>
-<span id="cb3-17"><a href="#cb3-17"></a>  Sample process()</span>
-<span id="cb3-18"><a href="#cb3-18"></a>  {</span>
-<span id="cb3-19"><a href="#cb3-19"></a>    <span class="cf">if</span> (value &lt;= threshold) <span class="cf">return</span> Sample(<span class="dv">1</span> - threshold);</span>
-<span id="cb3-20"><a href="#cb3-20"></a>    value *= alpha;</span>
-<span id="cb3-21"><a href="#cb3-21"></a>    <span class="cf">return</span> Sample(<span class="dv">1</span> - threshold) - value;</span>
-<span id="cb3-22"><a href="#cb3-22"></a>  }</span>
-<span id="cb3-23"><a href="#cb3-23"></a></span>
-<span id="cb3-24"><a href="#cb3-24"></a><span class="kw">protected</span>:</span>
-<span id="cb3-25"><a href="#cb3-25"></a>  <span class="at">const</span> Sample threshold = <span class="fl">1e-5</span>;</span>
-<span id="cb3-26"><a href="#cb3-26"></a>  Sample value = <span class="dv">0</span>;</span>
-<span id="cb3-27"><a href="#cb3-27"></a>  Sample alpha = <span class="dv">0</span>;</span>
-<span id="cb3-28"><a href="#cb3-28"></a>};</span></code></pre></div>
-<h2 id="指数曲線を使った-adsr-エンベロープ">指数曲線を使った ADSR エンベロープ</h2>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1 - ExpDecayCurve.process();</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> NegativeExpAttackCurve <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample seconds<span class="op">)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    set<span class="op">(</span>sampleRate<span class="op">,</span> seconds<span class="op">);</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> set<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample seconds<span class="op">)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> pow<span class="op">(</span>threshold<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>seconds <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isTerminated<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> value <span class="op">&lt;=</span> threshold<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">()</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>value <span class="op">&lt;=</span> threshold<span class="op">)</span> <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">1</span> <span class="op">-</span> threshold<span class="op">);</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    value <span class="op">*=</span> alpha<span class="op">;</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">1</span> <span class="op">-</span> threshold<span class="op">)</span> <span class="op">-</span> value<span class="op">;</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> Sample threshold <span class="op">=</span> <span class="fl">1e-5</span><span class="op">;</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  Sample alpha <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h2 id="指数曲線を使った-adsr-エンベロープ">指数曲線を使った ADSR
+エンベロープ</h2>
 <p>C++ での実装例です。</p>
-<p>このエンベロープは <a href="https://ryukau.github.io/VSTPlugins/manual/IterativeSinCluster/IterativeSinCluster_ja.html">IterativeSinCluster</a> で使われています。この文章に掲載している実装では <code>sustain</code> をバッファ内で補間していないので、サステイン中にサステイン音量を変更するとノイズが乗ります。また、エンベロープが終了していない状態で再トリガすると、デクリックの副エンベロープが掛け合わされることによってノイズが乗ります。</p>
-<p><code>reset()</code> の <code>curve</code> の値で <code>ExpAttackCurve</code> と <code>NegativeExpAttackCurve</code> を入れ替えられるようにしています。 <code>curve</code> の値はトリガ時に渡された値をエンベロープの終了までに使い続けることを想定しています。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="co">// t in [0, 1].</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">inline</span> Sample cosinterp(Sample t)</span>
-<span id="cb4-6"><a href="#cb4-6"></a>{</span>
-<span id="cb4-7"><a href="#cb4-7"></a>  <span class="cf">return</span> <span class="fl">0.5</span> * (<span class="fl">1.0</span> - cos(pi * t));</span>
-<span id="cb4-8"><a href="#cb4-8"></a>}</span>
-<span id="cb4-9"><a href="#cb4-9"></a></span>
-<span id="cb4-10"><a href="#cb4-10"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> ExpADSREnvelope {</span>
-<span id="cb4-11"><a href="#cb4-11"></a><span class="kw">public</span>:</span>
-<span id="cb4-12"><a href="#cb4-12"></a>  <span class="dt">void</span> setup(Sample sampleRate)</span>
-<span id="cb4-13"><a href="#cb4-13"></a>  {</span>
-<span id="cb4-14"><a href="#cb4-14"></a>    <span class="kw">this</span>-&gt;sampleRate = sampleRate;</span>
-<span id="cb4-15"><a href="#cb4-15"></a>    declickLength = <span class="dt">int32_t</span>(<span class="fl">0.001</span> * sampleRate);</span>
-<span id="cb4-16"><a href="#cb4-16"></a>  }</span>
-<span id="cb4-17"><a href="#cb4-17"></a></span>
-<span id="cb4-18"><a href="#cb4-18"></a>  Sample adaptTime(Sample seconds, Sample noteFreq)</span>
-<span id="cb4-19"><a href="#cb4-19"></a>  {</span>
-<span id="cb4-20"><a href="#cb4-20"></a>    <span class="at">const</span> Sample cycle = Sample(<span class="dv">1</span>) / noteFreq;</span>
-<span id="cb4-21"><a href="#cb4-21"></a>    <span class="cf">return</span> seconds &lt; cycle ? cycle : seconds;</span>
-<span id="cb4-22"><a href="#cb4-22"></a>  }</span>
-<span id="cb4-23"><a href="#cb4-23"></a></span>
-<span id="cb4-24"><a href="#cb4-24"></a>  <span class="dt">void</span> reset(</span>
-<span id="cb4-25"><a href="#cb4-25"></a>    Sample attackTime,</span>
-<span id="cb4-26"><a href="#cb4-26"></a>    Sample decayTime,</span>
-<span id="cb4-27"><a href="#cb4-27"></a>    Sample sustainLevel,</span>
-<span id="cb4-28"><a href="#cb4-28"></a>    Sample releaseTime,</span>
-<span id="cb4-29"><a href="#cb4-29"></a>    Sample noteFreq,</span>
-<span id="cb4-30"><a href="#cb4-30"></a>    Sample curve)</span>
-<span id="cb4-31"><a href="#cb4-31"></a>  {</span>
-<span id="cb4-32"><a href="#cb4-32"></a>    <span class="cf">if</span> (declickCounter &gt;= declickLength || state == State::terminated) declickCounter = <span class="dv">0</span>;</span>
-<span id="cb4-33"><a href="#cb4-33"></a>    state = State::attack;</span>
-<span id="cb4-34"><a href="#cb4-34"></a></span>
-<span id="cb4-35"><a href="#cb4-35"></a>    sustain = <span class="bu">std::</span>clamp&lt;Sample&gt;(sustainLevel, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</span>
-<span id="cb4-36"><a href="#cb4-36"></a></span>
-<span id="cb4-37"><a href="#cb4-37"></a>    offset = value;</span>
-<span id="cb4-38"><a href="#cb4-38"></a>    range = Sample(<span class="dv">1</span>) - value;</span>
-<span id="cb4-39"><a href="#cb4-39"></a></span>
-<span id="cb4-40"><a href="#cb4-40"></a>    <span class="kw">this</span>-&gt;curve = <span class="bu">std::</span>clamp&lt;Sample&gt;(curve, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</span>
-<span id="cb4-41"><a href="#cb4-41"></a></span>
-<span id="cb4-42"><a href="#cb4-42"></a>    attackTime = adaptTime(attackTime, noteFreq);</span>
-<span id="cb4-43"><a href="#cb4-43"></a>    atk.reset(sampleRate, attackTime);</span>
-<span id="cb4-44"><a href="#cb4-44"></a>    atkNeg.reset(sampleRate, attackTime);</span>
-<span id="cb4-45"><a href="#cb4-45"></a>    dec.reset(sampleRate, decayTime);</span>
-<span id="cb4-46"><a href="#cb4-46"></a>    rel.reset(sampleRate, adaptTime(releaseTime, noteFreq));</span>
-<span id="cb4-47"><a href="#cb4-47"></a>  }</span>
-<span id="cb4-48"><a href="#cb4-48"></a></span>
-<span id="cb4-49"><a href="#cb4-49"></a>  <span class="dt">void</span> set(</span>
-<span id="cb4-50"><a href="#cb4-50"></a>    Sample attackTime,</span>
-<span id="cb4-51"><a href="#cb4-51"></a>    Sample decayTime,</span>
-<span id="cb4-52"><a href="#cb4-52"></a>    Sample sustainLevel,</span>
-<span id="cb4-53"><a href="#cb4-53"></a>    Sample releaseTime,</span>
-<span id="cb4-54"><a href="#cb4-54"></a>    Sample noteFreq)</span>
-<span id="cb4-55"><a href="#cb4-55"></a>  {</span>
-<span id="cb4-56"><a href="#cb4-56"></a>    <span class="cf">switch</span> (state) {</span>
-<span id="cb4-57"><a href="#cb4-57"></a>      <span class="cf">case</span> State::attack:</span>
-<span id="cb4-58"><a href="#cb4-58"></a>        attackTime = adaptTime(attackTime, noteFreq);</span>
-<span id="cb4-59"><a href="#cb4-59"></a>        atk.set(sampleRate, attackTime);</span>
-<span id="cb4-60"><a href="#cb4-60"></a>        atkNeg.set(sampleRate, attackTime);</span>
-<span id="cb4-61"><a href="#cb4-61"></a>        <span class="co">// Fall through.</span></span>
-<span id="cb4-62"><a href="#cb4-62"></a></span>
-<span id="cb4-63"><a href="#cb4-63"></a>      <span class="cf">case</span> State::decay:</span>
-<span id="cb4-64"><a href="#cb4-64"></a>        dec.set(sampleRate, decayTime);</span>
-<span id="cb4-65"><a href="#cb4-65"></a>        <span class="co">// Fall through.</span></span>
-<span id="cb4-66"><a href="#cb4-66"></a></span>
-<span id="cb4-67"><a href="#cb4-67"></a>      <span class="cf">case</span> State::sustain:</span>
-<span id="cb4-68"><a href="#cb4-68"></a>        sustain = <span class="bu">std::</span>clamp&lt;Sample&gt;(sustainLevel, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</span>
-<span id="cb4-69"><a href="#cb4-69"></a>        <span class="co">// Fall through.</span></span>
-<span id="cb4-70"><a href="#cb4-70"></a></span>
-<span id="cb4-71"><a href="#cb4-71"></a>      <span class="cf">case</span> State::release:</span>
-<span id="cb4-72"><a href="#cb4-72"></a>        rel.set(sampleRate, adaptTime(releaseTime, noteFreq));</span>
-<span id="cb4-73"><a href="#cb4-73"></a>        <span class="co">// Fall through.</span></span>
-<span id="cb4-74"><a href="#cb4-74"></a></span>
-<span id="cb4-75"><a href="#cb4-75"></a>      <span class="cf">default</span>:</span>
-<span id="cb4-76"><a href="#cb4-76"></a>        <span class="cf">break</span>;</span>
-<span id="cb4-77"><a href="#cb4-77"></a>    }</span>
-<span id="cb4-78"><a href="#cb4-78"></a>  }</span>
-<span id="cb4-79"><a href="#cb4-79"></a></span>
-<span id="cb4-80"><a href="#cb4-80"></a>  <span class="dt">void</span> release()</span>
-<span id="cb4-81"><a href="#cb4-81"></a>  {</span>
-<span id="cb4-82"><a href="#cb4-82"></a>    range = value;</span>
-<span id="cb4-83"><a href="#cb4-83"></a>    state = State::release;</span>
-<span id="cb4-84"><a href="#cb4-84"></a>  }</span>
-<span id="cb4-85"><a href="#cb4-85"></a></span>
-<span id="cb4-86"><a href="#cb4-86"></a>  <span class="dt">bool</span> isAttacking() { <span class="cf">return</span> state == State::attack; }</span>
-<span id="cb4-87"><a href="#cb4-87"></a>  <span class="dt">bool</span> isReleasing() { <span class="cf">return</span> state == State::release; }</span>
-<span id="cb4-88"><a href="#cb4-88"></a>  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> state == State::terminated; }</span>
-<span id="cb4-89"><a href="#cb4-89"></a></span>
-<span id="cb4-90"><a href="#cb4-90"></a>  <span class="kw">inline</span> Sample declickIn(Sample input)</span>
-<span id="cb4-91"><a href="#cb4-91"></a>  {</span>
-<span id="cb4-92"><a href="#cb4-92"></a>    <span class="cf">if</span> (declickCounter &gt;= declickLength) <span class="cf">return</span> input;</span>
-<span id="cb4-93"><a href="#cb4-93"></a>    declickCounter += <span class="dv">1</span>;</span>
-<span id="cb4-94"><a href="#cb4-94"></a>    <span class="cf">return</span> input * cosinterp&lt;Sample&gt;(declickCounter / Sample(declickLength));</span>
-<span id="cb4-95"><a href="#cb4-95"></a>  }</span>
-<span id="cb4-96"><a href="#cb4-96"></a></span>
-<span id="cb4-97"><a href="#cb4-97"></a>  Sample process()</span>
-<span id="cb4-98"><a href="#cb4-98"></a>  {</span>
-<span id="cb4-99"><a href="#cb4-99"></a>    <span class="cf">switch</span> (state) {</span>
-<span id="cb4-100"><a href="#cb4-100"></a>      <span class="cf">case</span> State::attack: {</span>
-<span id="cb4-101"><a href="#cb4-101"></a>        <span class="at">const</span> <span class="kw">auto</span> atkPos = atk.process();</span>
-<span id="cb4-102"><a href="#cb4-102"></a>        <span class="at">const</span> <span class="kw">auto</span> atkMix = atkPos + curve * (atkNeg.process() - atkPos);</span>
-<span id="cb4-103"><a href="#cb4-103"></a>        value = range * declickIn(atkMix) + offset;</span>
-<span id="cb4-104"><a href="#cb4-104"></a>        <span class="cf">if</span> (atk.isTerminated()) {</span>
-<span id="cb4-105"><a href="#cb4-105"></a>          state = State::decay;</span>
-<span id="cb4-106"><a href="#cb4-106"></a>          range = Sample(<span class="dv">1</span>) - sustain;</span>
-<span id="cb4-107"><a href="#cb4-107"></a>        }</span>
-<span id="cb4-108"><a href="#cb4-108"></a>      } <span class="cf">break</span>;</span>
-<span id="cb4-109"><a href="#cb4-109"></a></span>
-<span id="cb4-110"><a href="#cb4-110"></a>      <span class="cf">case</span> State::decay:</span>
-<span id="cb4-111"><a href="#cb4-111"></a>        value = range * declickIn(dec.process()) + sustain;</span>
-<span id="cb4-112"><a href="#cb4-112"></a>        <span class="cf">if</span> (value &lt;= sustain) state = State::sustain;</span>
-<span id="cb4-113"><a href="#cb4-113"></a>        <span class="cf">break</span>;</span>
-<span id="cb4-114"><a href="#cb4-114"></a></span>
-<span id="cb4-115"><a href="#cb4-115"></a>      <span class="cf">case</span> State::sustain:</span>
-<span id="cb4-116"><a href="#cb4-116"></a>        value = declickIn(sustain);</span>
-<span id="cb4-117"><a href="#cb4-117"></a>        <span class="cf">break</span>;</span>
-<span id="cb4-118"><a href="#cb4-118"></a></span>
-<span id="cb4-119"><a href="#cb4-119"></a>      <span class="cf">case</span> State::release:</span>
-<span id="cb4-120"><a href="#cb4-120"></a>        value = range * declickIn(rel.process());</span>
-<span id="cb4-121"><a href="#cb4-121"></a>        <span class="cf">if</span> (rel.isTerminated()) state = State::terminated;</span>
-<span id="cb4-122"><a href="#cb4-122"></a>        <span class="cf">break</span>;</span>
-<span id="cb4-123"><a href="#cb4-123"></a></span>
-<span id="cb4-124"><a href="#cb4-124"></a>      <span class="cf">default</span>:</span>
-<span id="cb4-125"><a href="#cb4-125"></a>        <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb4-126"><a href="#cb4-126"></a>    }</span>
-<span id="cb4-127"><a href="#cb4-127"></a>    <span class="cf">return</span> value;</span>
-<span id="cb4-128"><a href="#cb4-128"></a>  }</span>
-<span id="cb4-129"><a href="#cb4-129"></a></span>
-<span id="cb4-130"><a href="#cb4-130"></a><span class="kw">protected</span>:</span>
-<span id="cb4-131"><a href="#cb4-131"></a>  <span class="kw">enum</span> <span class="kw">class</span> State : <span class="dt">int32_t</span> { attack, decay, sustain, release, terminated };</span>
-<span id="cb4-132"><a href="#cb4-132"></a></span>
-<span id="cb4-133"><a href="#cb4-133"></a>  <span class="dt">int32_t</span> declickLength;</span>
-<span id="cb4-134"><a href="#cb4-134"></a>  <span class="dt">int32_t</span> declickCounter = <span class="dv">0</span>;</span>
-<span id="cb4-135"><a href="#cb4-135"></a></span>
-<span id="cb4-136"><a href="#cb4-136"></a>  ExpAttackCurve&lt;Sample&gt; atk{};</span>
-<span id="cb4-137"><a href="#cb4-137"></a>  NegativeExpAttackCurve&lt;Sample&gt; atkNeg{};</span>
-<span id="cb4-138"><a href="#cb4-138"></a>  ExpDecayCurve&lt;Sample&gt; dec{};</span>
-<span id="cb4-139"><a href="#cb4-139"></a>  ExpDecayCurve&lt;Sample&gt; rel{};</span>
-<span id="cb4-140"><a href="#cb4-140"></a></span>
-<span id="cb4-141"><a href="#cb4-141"></a>  State state = State::terminated;</span>
-<span id="cb4-142"><a href="#cb4-142"></a>  Sample value = <span class="dv">0</span>;</span>
-<span id="cb4-143"><a href="#cb4-143"></a>  Sample curve = <span class="dv">0</span>;</span>
-<span id="cb4-144"><a href="#cb4-144"></a>  Sample sampleRate = <span class="dv">44100</span>;</span>
-<span id="cb4-145"><a href="#cb4-145"></a>  Sample offset = <span class="dv">0</span>;</span>
-<span id="cb4-146"><a href="#cb4-146"></a>  Sample range = <span class="dv">1</span>;</span>
-<span id="cb4-147"><a href="#cb4-147"></a>  Sample sustain = <span class="dv">1</span>;</span>
-<span id="cb4-148"><a href="#cb4-148"></a>};</span></code></pre></div>
+<p>このエンベロープは <a
+href="https://ryukau.github.io/VSTPlugins/manual/IterativeSinCluster/IterativeSinCluster_ja.html">IterativeSinCluster</a>
+で使われています。この文章に掲載している実装では <code>sustain</code>
+をバッファ内で補間していないので、サステイン中にサステイン音量を変更するとノイズが乗ります。また、エンベロープが終了していない状態で再トリガすると、デクリックの副エンベロープが掛け合わされることによってノイズが乗ります。</p>
+<p><code>reset()</code> の <code>curve</code> の値で
+<code>ExpAttackCurve</code> と <code>NegativeExpAttackCurve</code>
+を入れ替えられるようにしています。 <code>curve</code>
+の値はトリガ時に渡された値をエンベロープの終了までに使い続けることを想定しています。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">// t in [0, 1].</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">inline</span> Sample cosinterp<span class="op">(</span>Sample t<span class="op">)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1.0</span> <span class="op">-</span> cos<span class="op">(</span>pi <span class="op">*</span> t<span class="op">));</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> ExpADSREnvelope <span class="op">{</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setup<span class="op">(</span>Sample sampleRate<span class="op">)</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">-&gt;</span>sampleRate <span class="op">=</span> sampleRate<span class="op">;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    declickLength <span class="op">=</span> <span class="dt">int32_t</span><span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> sampleRate<span class="op">);</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  Sample adaptTime<span class="op">(</span>Sample seconds<span class="op">,</span> Sample noteFreq<span class="op">)</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample cycle <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> noteFreq<span class="op">;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> seconds <span class="op">&lt;</span> cycle <span class="op">?</span> cycle <span class="op">:</span> seconds<span class="op">;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    Sample attackTime<span class="op">,</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    Sample decayTime<span class="op">,</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    Sample sustainLevel<span class="op">,</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    Sample releaseTime<span class="op">,</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    Sample noteFreq<span class="op">,</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    Sample curve<span class="op">)</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>declickCounter <span class="op">&gt;=</span> declickLength <span class="op">||</span> state <span class="op">==</span> State<span class="op">::</span>terminated<span class="op">)</span> declickCounter <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> State<span class="op">::</span>attack<span class="op">;</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    sustain <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>sustainLevel<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    offset <span class="op">=</span> value<span class="op">;</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    range <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> value<span class="op">;</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">-&gt;</span>curve <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>curve<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    attackTime <span class="op">=</span> adaptTime<span class="op">(</span>attackTime<span class="op">,</span> noteFreq<span class="op">);</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    atk<span class="op">.</span>reset<span class="op">(</span>sampleRate<span class="op">,</span> attackTime<span class="op">);</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    atkNeg<span class="op">.</span>reset<span class="op">(</span>sampleRate<span class="op">,</span> attackTime<span class="op">);</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    dec<span class="op">.</span>reset<span class="op">(</span>sampleRate<span class="op">,</span> decayTime<span class="op">);</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    rel<span class="op">.</span>reset<span class="op">(</span>sampleRate<span class="op">,</span> adaptTime<span class="op">(</span>releaseTime<span class="op">,</span> noteFreq<span class="op">));</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> set<span class="op">(</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    Sample attackTime<span class="op">,</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    Sample decayTime<span class="op">,</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    Sample sustainLevel<span class="op">,</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    Sample releaseTime<span class="op">,</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    Sample noteFreq<span class="op">)</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">switch</span> <span class="op">(</span>state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>attack<span class="op">:</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>        attackTime <span class="op">=</span> adaptTime<span class="op">(</span>attackTime<span class="op">,</span> noteFreq<span class="op">);</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>        atk<span class="op">.</span>set<span class="op">(</span>sampleRate<span class="op">,</span> attackTime<span class="op">);</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>        atkNeg<span class="op">.</span>set<span class="op">(</span>sampleRate<span class="op">,</span> attackTime<span class="op">);</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Fall through.</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>decay<span class="op">:</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>        dec<span class="op">.</span>set<span class="op">(</span>sampleRate<span class="op">,</span> decayTime<span class="op">);</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Fall through.</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>sustain<span class="op">:</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>        sustain <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>sustainLevel<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Fall through.</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>release<span class="op">:</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>        rel<span class="op">.</span>set<span class="op">(</span>sampleRate<span class="op">,</span> adaptTime<span class="op">(</span>releaseTime<span class="op">,</span> noteFreq<span class="op">));</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Fall through.</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>      <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> release<span class="op">()</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>    range <span class="op">=</span> value<span class="op">;</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> State<span class="op">::</span>release<span class="op">;</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isAttacking<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> state <span class="op">==</span> State<span class="op">::</span>attack<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isReleasing<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> state <span class="op">==</span> State<span class="op">::</span>release<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isTerminated<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> state <span class="op">==</span> State<span class="op">::</span>terminated<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> Sample declickIn<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>declickCounter <span class="op">&gt;=</span> declickLength<span class="op">)</span> <span class="cf">return</span> input<span class="op">;</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>    declickCounter <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> input <span class="op">*</span> cosinterp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>declickCounter <span class="op">/</span> Sample<span class="op">(</span>declickLength<span class="op">));</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">()</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>    <span class="cf">switch</span> <span class="op">(</span>state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>attack<span class="op">:</span> <span class="op">{</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="kw">auto</span> atkPos <span class="op">=</span> atk<span class="op">.</span>process<span class="op">();</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="kw">auto</span> atkMix <span class="op">=</span> atkPos <span class="op">+</span> curve <span class="op">*</span> <span class="op">(</span>atkNeg<span class="op">.</span>process<span class="op">()</span> <span class="op">-</span> atkPos<span class="op">);</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> range <span class="op">*</span> declickIn<span class="op">(</span>atkMix<span class="op">)</span> <span class="op">+</span> offset<span class="op">;</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>atk<span class="op">.</span>isTerminated<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>          state <span class="op">=</span> State<span class="op">::</span>decay<span class="op">;</span></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>          range <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> sustain<span class="op">;</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>decay<span class="op">:</span></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> range <span class="op">*</span> declickIn<span class="op">(</span>dec<span class="op">.</span>process<span class="op">())</span> <span class="op">+</span> sustain<span class="op">;</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>value <span class="op">&lt;=</span> sustain<span class="op">)</span> state <span class="op">=</span> State<span class="op">::</span>sustain<span class="op">;</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>sustain<span class="op">:</span></span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> declickIn<span class="op">(</span>sustain<span class="op">);</span></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>release<span class="op">:</span></span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> range <span class="op">*</span> declickIn<span class="op">(</span>rel<span class="op">.</span>process<span class="op">());</span></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>rel<span class="op">.</span>isTerminated<span class="op">())</span> state <span class="op">=</span> State<span class="op">::</span>terminated<span class="op">;</span></span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>      <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> value<span class="op">;</span></span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>  <span class="kw">enum</span> <span class="kw">class</span> State <span class="op">:</span> <span class="dt">int32_t</span> <span class="op">{</span> attack<span class="op">,</span> decay<span class="op">,</span> sustain<span class="op">,</span> release<span class="op">,</span> terminated <span class="op">};</span></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int32_t</span> declickLength<span class="op">;</span></span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int32_t</span> declickCounter <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a>  ExpAttackCurve<span class="op">&lt;</span>Sample<span class="op">&gt;</span> atk<span class="op">{};</span></span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>  NegativeExpAttackCurve<span class="op">&lt;</span>Sample<span class="op">&gt;</span> atkNeg<span class="op">{};</span></span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>  ExpDecayCurve<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dec<span class="op">{};</span></span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a>  ExpDecayCurve<span class="op">&lt;</span>Sample<span class="op">&gt;</span> rel<span class="op">{};</span></span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>  State state <span class="op">=</span> State<span class="op">::</span>terminated<span class="op">;</span></span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a>  Sample curve <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>  Sample sampleRate <span class="op">=</span> <span class="dv">44100</span><span class="op">;</span></span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>  Sample offset <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a>  Sample range <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a>  Sample sustain <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p>テストに使ったコードへのリンクです。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/test.cpp">filter_notes/test.cpp at master · ryukau/filter_notes · GitHub</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/test.cpp">filter_notes/test.cpp
+at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
-<p>テスト結果です。図の縦軸は振幅、横軸は秒数です。音のサンプルはエンベロープを 100 Hz のサイン波の音量に適用しています。</p>
+<p>テスト結果です。図の縦軸は振幅、横軸は秒数です。音のサンプルはエンベロープを
+100 Hz のサイン波の音量に適用しています。</p>
 <figure>
 <img src="img/testADSR.png" alt="Image of test result of exponential ADSR envelope." style="padding-bottom: 12px;"/>
 </figure>
@@ -704,14 +770,30 @@ ChangeSustain
 </audio>
 </figure>
 <h3 id="デクリック-declick">デクリック (declick)</h3>
-<p>エンベロープのアタック時間やディケイ時間などがとても短いときにでるプチノイズを低減することをデクリック (declick) と呼びます。 Image-Line の <a href="https://www.image-line.com/plugins/Synths/Sytrus/">Sytrus</a> というシンセサイザでの用例にならっています。</p>
-<p>ここでは 1 ミリ秒の短いアタックを持つ副エンベロープを用意して指数曲線を使った主エンベロープに掛け合わせています。また、<a href="https://ryukau.github.io/filter_notes/linear_envelope/linear_envelope.html">直線の ADSR エンベロープ</a>で紹介した <code>adaptTime()</code> も組み合わせて使っています。</p>
-<p>モノフォニックのときに副エンベロープを使うと再トリガの処理が複雑になるのでお勧めしません。出力を slew limiter に通すほうが楽に実装できます。<a href="../control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの UI から入力された値の補間</a>も参考にしてみてください。</p>
-<p>図は副エンベロープによるデクリックを行ったエンベロープ出力の例です。副エンベロープのアタックカーブは <span class="math inline">\(0.5 + 0.5 \cos(n)\)</span> で、 <span class="math inline">\(n\)</span> は <span class="math inline">\(-\pi\)</span> から <span class="math inline">\(0\)</span> に向かって増加しています。</p>
+<p>エンベロープのアタック時間やディケイ時間などがとても短いときにでるプチノイズを低減することをデクリック
+(declick) と呼びます。 Image-Line の <a
+href="https://www.image-line.com/plugins/Synths/Sytrus/">Sytrus</a>
+というシンセサイザでの用例にならっています。</p>
+<p>ここでは 1
+ミリ秒の短いアタックを持つ副エンベロープを用意して指数曲線を使った主エンベロープに掛け合わせています。また、<a
+href="https://ryukau.github.io/filter_notes/linear_envelope/linear_envelope.html">直線の
+ADSR エンベロープ</a>で紹介した <code>adaptTime()</code>
+も組み合わせて使っています。</p>
+<p>モノフォニックのときに副エンベロープを使うと再トリガの処理が複雑になるのでお勧めしません。出力を
+slew limiter に通すほうが楽に実装できます。<a
+href="../control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの
+UI から入力された値の補間</a>も参考にしてみてください。</p>
+<p>図は副エンベロープによるデクリックを行ったエンベロープ出力の例です。副エンベロープのアタックカーブは
+<span class="math inline">\(0.5 + 0.5 \cos(n)\)</span> で、 <span
+class="math inline">\(n\)</span> は <span
+class="math inline">\(-\pi\)</span> から <span
+class="math inline">\(0\)</span> に向かって増加しています。</p>
 <figure>
 <img src="img/declick.png" alt="Image of comparison of raw attack and declicked attack." style="padding-bottom: 12px;"/>
 </figure>
-<p>1000 Hz のサイン波の音量に適用した音のサンプルです。プチノイズが聞き取りやすいようにサイン波の初期位相を <span class="math inline">\(\dfrac{\pi}{2}\)</span> にしています。</p>
+<p>1000 Hz
+のサイン波の音量に適用した音のサンプルです。プチノイズが聞き取りやすいようにサイン波の初期位相を
+<span class="math inline">\(\dfrac{\pi}{2}\)</span> にしています。</p>
 <figure>
 <figcaption>
 declick_on
@@ -729,158 +811,170 @@ declick_off
 </audio>
 </figure>
 <h2 id="p-controller-による実装">P Controller による実装</h2>
-<p>P controller については<a href="../control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの UI から入力された値の補間</a>を参照してください。</p>
-<p>ステップ状の不連続点を始点として指数曲線を描く出力が得られる P controller の特性を利用してエンベロープを実装します。</p>
-<p>ユーザから指定された時間 <span class="math inline">\(T\)</span> の逆数をカットオフ周波数 <span class="math inline">\(f_c\)</span> に使っています。</p>
+<p>P controller については<a
+href="../control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの
+UI から入力された値の補間</a>を参照してください。</p>
+<p>ステップ状の不連続点を始点として指数曲線を描く出力が得られる P
+controller の特性を利用してエンベロープを実装します。</p>
+<p>ユーザから指定された時間 <span class="math inline">\(T\)</span>
+の逆数をカットオフ周波数 <span class="math inline">\(f_c\)</span>
+に使っています。</p>
 <p><span class="math display">\[
 f_c = \frac{1}{T}
 \]</span></p>
 <p>アタックはカウンタを使って時間経過で次の状態に進みます。</p>
-<p>リリースは出力がしきい値 <code>threshold</code> 以下になったときに次の状態に進みます。</p>
-<p>状態 <code>State::tail</code> では出力が <code>threshold</code> から 0 に到達するように直線を描きます。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a></span>
-<span id="cb5-4"><a href="#cb5-4"></a><span class="kw">constexpr</span> <span class="dt">double</span> twopi = <span class="fl">6.283185307179586</span>;</span>
-<span id="cb5-5"><a href="#cb5-5"></a></span>
-<span id="cb5-6"><a href="#cb5-6"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> PController {</span>
-<span id="cb5-7"><a href="#cb5-7"></a><span class="kw">public</span>:</span>
-<span id="cb5-8"><a href="#cb5-8"></a>  <span class="co">// float 型での cutoffHz の下限は 3~4 Hz 程度。</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  <span class="at">static</span> Sample cutoffToP(Sample sampleRate, Sample cutoffHz)</span>
-<span id="cb5-10"><a href="#cb5-10"></a>  {</span>
-<span id="cb5-11"><a href="#cb5-11"></a>    <span class="kw">auto</span> omega_c = Sample(twopi) * cutoffHz / sampleRate;</span>
-<span id="cb5-12"><a href="#cb5-12"></a>    <span class="kw">auto</span> y = Sample(<span class="dv">1</span>) - cos(omega_c);</span>
-<span id="cb5-13"><a href="#cb5-13"></a>    <span class="cf">return</span> -y + sqrt((y + Sample(<span class="dv">2</span>)) * y);</span>
-<span id="cb5-14"><a href="#cb5-14"></a>  }</span>
-<span id="cb5-15"><a href="#cb5-15"></a></span>
-<span id="cb5-16"><a href="#cb5-16"></a>  <span class="dt">void</span> setP(Sample p) { kp = <span class="bu">std::</span>clamp&lt;Sample&gt;(p, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>)); }</span>
-<span id="cb5-17"><a href="#cb5-17"></a>  <span class="dt">void</span> reset(Sample value = <span class="dv">0</span>) { <span class="kw">this</span>-&gt;value = value; }</span>
-<span id="cb5-18"><a href="#cb5-18"></a>  Sample process(Sample input) { <span class="cf">return</span> value += kp * (input - value); }</span>
-<span id="cb5-19"><a href="#cb5-19"></a></span>
-<span id="cb5-20"><a href="#cb5-20"></a>  Sample kp = <span class="dv">1</span>; <span class="co">// Range in [0, 1].</span></span>
-<span id="cb5-21"><a href="#cb5-21"></a>  Sample value = <span class="dv">0</span>;</span>
-<span id="cb5-22"><a href="#cb5-22"></a>};</span>
-<span id="cb5-23"><a href="#cb5-23"></a></span>
-<span id="cb5-24"><a href="#cb5-24"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> ExpADSREnvelopeP {</span>
-<span id="cb5-25"><a href="#cb5-25"></a><span class="kw">public</span>:</span>
-<span id="cb5-26"><a href="#cb5-26"></a>  <span class="dt">void</span> setup(Sample sampleRate)</span>
-<span id="cb5-27"><a href="#cb5-27"></a>  {</span>
-<span id="cb5-28"><a href="#cb5-28"></a>    <span class="kw">this</span>-&gt;sampleRate = sampleRate;</span>
-<span id="cb5-29"><a href="#cb5-29"></a>    tailLength = <span class="dt">uint32_t</span>(<span class="fl">0.01</span> * sampleRate);</span>
-<span id="cb5-30"><a href="#cb5-30"></a>  }</span>
-<span id="cb5-31"><a href="#cb5-31"></a></span>
-<span id="cb5-32"><a href="#cb5-32"></a>  <span class="dt">void</span> reset(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)</span>
-<span id="cb5-33"><a href="#cb5-33"></a>  {</span>
-<span id="cb5-34"><a href="#cb5-34"></a>    state = State::attack;</span>
-<span id="cb5-35"><a href="#cb5-35"></a>    sustain = <span class="bu">std::</span>clamp&lt;Sample&gt;(sustainLevel, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</span>
-<span id="cb5-36"><a href="#cb5-36"></a>    atk = <span class="dt">int32_t</span>(sampleRate * attackTime);</span>
-<span id="cb5-37"><a href="#cb5-37"></a>    decTime = decayTime;</span>
-<span id="cb5-38"><a href="#cb5-38"></a>    relTime = releaseTime;</span>
-<span id="cb5-39"><a href="#cb5-39"></a>    pController.setP(PController&lt;Sample&gt;::cutoffToP(sampleRate, Sample(<span class="dv">1</span>) / attackTime));</span>
-<span id="cb5-40"><a href="#cb5-40"></a>  }</span>
-<span id="cb5-41"><a href="#cb5-41"></a></span>
-<span id="cb5-42"><a href="#cb5-42"></a>  <span class="dt">void</span> set(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)</span>
-<span id="cb5-43"><a href="#cb5-43"></a>  {</span>
-<span id="cb5-44"><a href="#cb5-44"></a>    <span class="cf">switch</span> (state) {</span>
-<span id="cb5-45"><a href="#cb5-45"></a>      <span class="cf">case</span> State::attack:</span>
-<span id="cb5-46"><a href="#cb5-46"></a>        atk = <span class="dt">int32_t</span>(sampleRate * attackTime);</span>
-<span id="cb5-47"><a href="#cb5-47"></a>        <span class="co">// Fall through.</span></span>
-<span id="cb5-48"><a href="#cb5-48"></a></span>
-<span id="cb5-49"><a href="#cb5-49"></a>      <span class="cf">case</span> State::decay:</span>
-<span id="cb5-50"><a href="#cb5-50"></a>        decTime = decayTime;</span>
-<span id="cb5-51"><a href="#cb5-51"></a>        sustain = <span class="bu">std::</span>clamp&lt;Sample&gt;(sustainLevel, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</span>
-<span id="cb5-52"><a href="#cb5-52"></a>        <span class="co">// Fall through.</span></span>
-<span id="cb5-53"><a href="#cb5-53"></a></span>
-<span id="cb5-54"><a href="#cb5-54"></a>      <span class="cf">case</span> State::release:</span>
-<span id="cb5-55"><a href="#cb5-55"></a>        relTime = releaseTime;</span>
-<span id="cb5-56"><a href="#cb5-56"></a></span>
-<span id="cb5-57"><a href="#cb5-57"></a>      <span class="cf">default</span>:</span>
-<span id="cb5-58"><a href="#cb5-58"></a>        <span class="cf">break</span>;</span>
-<span id="cb5-59"><a href="#cb5-59"></a>    }</span>
-<span id="cb5-60"><a href="#cb5-60"></a></span>
-<span id="cb5-61"><a href="#cb5-61"></a>    <span class="cf">if</span> (state == State::attack)</span>
-<span id="cb5-62"><a href="#cb5-62"></a>      pController.setP(</span>
-<span id="cb5-63"><a href="#cb5-63"></a>        PController&lt;Sample&gt;::cutoffToP(sampleRate, Sample(<span class="dv">1</span>) / attackTime));</span>
-<span id="cb5-64"><a href="#cb5-64"></a>    <span class="cf">else</span> <span class="cf">if</span> (state == State::decay)</span>
-<span id="cb5-65"><a href="#cb5-65"></a>      pController.setP(PController&lt;Sample&gt;::cutoffToP(sampleRate, Sample(<span class="dv">1</span>) / decayTime));</span>
-<span id="cb5-66"><a href="#cb5-66"></a>    <span class="cf">else</span> <span class="cf">if</span> (state == State::release)</span>
-<span id="cb5-67"><a href="#cb5-67"></a>      pController.setP(</span>
-<span id="cb5-68"><a href="#cb5-68"></a>        PController&lt;Sample&gt;::cutoffToP(sampleRate, Sample(<span class="dv">1</span>) / releaseTime));</span>
-<span id="cb5-69"><a href="#cb5-69"></a>  }</span>
-<span id="cb5-70"><a href="#cb5-70"></a></span>
-<span id="cb5-71"><a href="#cb5-71"></a>  <span class="dt">void</span> release()</span>
-<span id="cb5-72"><a href="#cb5-72"></a>  {</span>
-<span id="cb5-73"><a href="#cb5-73"></a>    state = State::release;</span>
-<span id="cb5-74"><a href="#cb5-74"></a>    pController.setP(PController&lt;Sample&gt;::cutoffToP(sampleRate, Sample(<span class="dv">1</span>) / relTime));</span>
-<span id="cb5-75"><a href="#cb5-75"></a>  }</span>
-<span id="cb5-76"><a href="#cb5-76"></a></span>
-<span id="cb5-77"><a href="#cb5-77"></a>  <span class="dt">bool</span> isAttacking() { <span class="cf">return</span> state == State::attack; }</span>
-<span id="cb5-78"><a href="#cb5-78"></a>  <span class="dt">bool</span> isReleasing() { <span class="cf">return</span> state == State::release; }</span>
-<span id="cb5-79"><a href="#cb5-79"></a>  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> state == State::terminated; }</span>
-<span id="cb5-80"><a href="#cb5-80"></a></span>
-<span id="cb5-81"><a href="#cb5-81"></a>  Sample process()</span>
-<span id="cb5-82"><a href="#cb5-82"></a>  {</span>
-<span id="cb5-83"><a href="#cb5-83"></a>    <span class="cf">switch</span> (state) {</span>
-<span id="cb5-84"><a href="#cb5-84"></a>      <span class="cf">case</span> State::attack: {</span>
-<span id="cb5-85"><a href="#cb5-85"></a>        value = pController.process(Sample(<span class="dv">1</span>));</span>
-<span id="cb5-86"><a href="#cb5-86"></a>        --atk;</span>
-<span id="cb5-87"><a href="#cb5-87"></a>        <span class="cf">if</span> (atk == <span class="dv">0</span>) {</span>
-<span id="cb5-88"><a href="#cb5-88"></a>          state = State::decay;</span>
-<span id="cb5-89"><a href="#cb5-89"></a>          pController.setP(</span>
-<span id="cb5-90"><a href="#cb5-90"></a>            PController&lt;Sample&gt;::cutoffToP(sampleRate, Sample(<span class="dv">1</span>) / decTime));</span>
-<span id="cb5-91"><a href="#cb5-91"></a>        }</span>
-<span id="cb5-92"><a href="#cb5-92"></a>      } <span class="cf">break</span>;</span>
-<span id="cb5-93"><a href="#cb5-93"></a></span>
-<span id="cb5-94"><a href="#cb5-94"></a>      <span class="cf">case</span> State::decay:</span>
-<span id="cb5-95"><a href="#cb5-95"></a>        value = pController.process(sustain);</span>
-<span id="cb5-96"><a href="#cb5-96"></a>        <span class="cf">break</span>;</span>
-<span id="cb5-97"><a href="#cb5-97"></a></span>
-<span id="cb5-98"><a href="#cb5-98"></a>      <span class="cf">case</span> State::release:</span>
-<span id="cb5-99"><a href="#cb5-99"></a>        value = pController.process(<span class="dv">0</span>);</span>
-<span id="cb5-100"><a href="#cb5-100"></a>        <span class="cf">if</span> (value &lt; threshold) {</span>
-<span id="cb5-101"><a href="#cb5-101"></a>          value = threshold;</span>
-<span id="cb5-102"><a href="#cb5-102"></a>          state = State::tail;</span>
-<span id="cb5-103"><a href="#cb5-103"></a>          tailCounter = tailLength;</span>
-<span id="cb5-104"><a href="#cb5-104"></a>        }</span>
-<span id="cb5-105"><a href="#cb5-105"></a>        <span class="cf">break</span>;</span>
-<span id="cb5-106"><a href="#cb5-106"></a></span>
-<span id="cb5-107"><a href="#cb5-107"></a>      <span class="cf">case</span> State::tail:</span>
-<span id="cb5-108"><a href="#cb5-108"></a>        --tailCounter;</span>
-<span id="cb5-109"><a href="#cb5-109"></a>        value = threshold * tailCounter / <span class="dt">float</span>(tailLength);</span>
-<span id="cb5-110"><a href="#cb5-110"></a>        <span class="cf">if</span> (tailCounter == <span class="dv">0</span>) {</span>
-<span id="cb5-111"><a href="#cb5-111"></a>          state = State::terminated;</span>
-<span id="cb5-112"><a href="#cb5-112"></a>          pController.reset(<span class="dv">0</span>);</span>
-<span id="cb5-113"><a href="#cb5-113"></a>        } <span class="cf">else</span> {</span>
-<span id="cb5-114"><a href="#cb5-114"></a>          pController.reset(value);</span>
-<span id="cb5-115"><a href="#cb5-115"></a>        }</span>
-<span id="cb5-116"><a href="#cb5-116"></a>        <span class="cf">break</span>;</span>
-<span id="cb5-117"><a href="#cb5-117"></a></span>
-<span id="cb5-118"><a href="#cb5-118"></a>      <span class="cf">default</span>:</span>
-<span id="cb5-119"><a href="#cb5-119"></a>        <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb5-120"><a href="#cb5-120"></a>    }</span>
-<span id="cb5-121"><a href="#cb5-121"></a>    <span class="cf">return</span> value;</span>
-<span id="cb5-122"><a href="#cb5-122"></a>  }</span>
-<span id="cb5-123"><a href="#cb5-123"></a></span>
-<span id="cb5-124"><a href="#cb5-124"></a><span class="kw">private</span>:</span>
-<span id="cb5-125"><a href="#cb5-125"></a>  <span class="kw">enum</span> <span class="kw">class</span> State : <span class="dt">int32_t</span> { attack, decay, release, tail, terminated };</span>
-<span id="cb5-126"><a href="#cb5-126"></a>  <span class="at">const</span> Sample threshold = <span class="fl">1e-5</span>;</span>
-<span id="cb5-127"><a href="#cb5-127"></a></span>
-<span id="cb5-128"><a href="#cb5-128"></a>  <span class="dt">uint32_t</span> tailLength = <span class="dv">32</span>;</span>
-<span id="cb5-129"><a href="#cb5-129"></a>  <span class="dt">uint32_t</span> tailCounter = tailLength;</span>
-<span id="cb5-130"><a href="#cb5-130"></a></span>
-<span id="cb5-131"><a href="#cb5-131"></a>  PController&lt;Sample&gt; pController;</span>
-<span id="cb5-132"><a href="#cb5-132"></a>  State state = State::terminated;</span>
-<span id="cb5-133"><a href="#cb5-133"></a>  <span class="dt">uint32_t</span> atk = <span class="dv">0</span>;</span>
-<span id="cb5-134"><a href="#cb5-134"></a>  Sample decTime = <span class="dv">0</span>;</span>
-<span id="cb5-135"><a href="#cb5-135"></a>  Sample relTime = <span class="dv">0</span>;</span>
-<span id="cb5-136"><a href="#cb5-136"></a>  Sample sampleRate = <span class="dv">44100</span>;</span>
-<span id="cb5-137"><a href="#cb5-137"></a>  Sample sustain = <span class="dv">1</span>;</span>
-<span id="cb5-138"><a href="#cb5-138"></a>  Sample value = <span class="dv">0</span>;</span>
-<span id="cb5-139"><a href="#cb5-139"></a>};</span></code></pre></div>
+<p>リリースは出力がしきい値 <code>threshold</code>
+以下になったときに次の状態に進みます。</p>
+<p>状態 <code>State::tail</code> では出力が <code>threshold</code> から
+0 に到達するように直線を描きます。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">double</span> twopi <span class="op">=</span> <span class="fl">6.283185307179586</span><span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> PController <span class="op">{</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">// float 型での cutoffHz の下限は 3~4 Hz 程度。</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> Sample cutoffToP<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> omega_c <span class="op">=</span> Sample<span class="op">(</span>twopi<span class="op">)</span> <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> y <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> cos<span class="op">(</span>omega_c<span class="op">);</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>y <span class="op">+</span> sqrt<span class="op">((</span>y <span class="op">+</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">))</span> <span class="op">*</span> y<span class="op">);</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setP<span class="op">(</span>Sample p<span class="op">)</span> <span class="op">{</span> kp <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>p<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span> <span class="op">}</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span>Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">-&gt;</span>value <span class="op">=</span> value<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> value <span class="op">+=</span> kp <span class="op">*</span> <span class="op">(</span>input <span class="op">-</span> value<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  Sample kp <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> <span class="co">// Range in [0, 1].</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> ExpADSREnvelopeP <span class="op">{</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setup<span class="op">(</span>Sample sampleRate<span class="op">)</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">-&gt;</span>sampleRate <span class="op">=</span> sampleRate<span class="op">;</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    tailLength <span class="op">=</span> <span class="dt">uint32_t</span><span class="op">(</span><span class="fl">0.01</span> <span class="op">*</span> sampleRate<span class="op">);</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span>Sample attackTime<span class="op">,</span> Sample decayTime<span class="op">,</span> Sample sustainLevel<span class="op">,</span> Sample releaseTime<span class="op">)</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> State<span class="op">::</span>attack<span class="op">;</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    sustain <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>sustainLevel<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    atk <span class="op">=</span> <span class="dt">int32_t</span><span class="op">(</span>sampleRate <span class="op">*</span> attackTime<span class="op">);</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    decTime <span class="op">=</span> decayTime<span class="op">;</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    relTime <span class="op">=</span> releaseTime<span class="op">;</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    pController<span class="op">.</span>setP<span class="op">(</span>PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> attackTime<span class="op">));</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> set<span class="op">(</span>Sample attackTime<span class="op">,</span> Sample decayTime<span class="op">,</span> Sample sustainLevel<span class="op">,</span> Sample releaseTime<span class="op">)</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">switch</span> <span class="op">(</span>state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>attack<span class="op">:</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>        atk <span class="op">=</span> <span class="dt">int32_t</span><span class="op">(</span>sampleRate <span class="op">*</span> attackTime<span class="op">);</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Fall through.</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>decay<span class="op">:</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>        decTime <span class="op">=</span> decayTime<span class="op">;</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>        sustain <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>sustainLevel<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Fall through.</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>release<span class="op">:</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>        relTime <span class="op">=</span> releaseTime<span class="op">;</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>      <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>state <span class="op">==</span> State<span class="op">::</span>attack<span class="op">)</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>      pController<span class="op">.</span>setP<span class="op">(</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>        PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> attackTime<span class="op">));</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>state <span class="op">==</span> State<span class="op">::</span>decay<span class="op">)</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>      pController<span class="op">.</span>setP<span class="op">(</span>PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> decayTime<span class="op">));</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>state <span class="op">==</span> State<span class="op">::</span>release<span class="op">)</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>      pController<span class="op">.</span>setP<span class="op">(</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>        PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> releaseTime<span class="op">));</span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> release<span class="op">()</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> State<span class="op">::</span>release<span class="op">;</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>    pController<span class="op">.</span>setP<span class="op">(</span>PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> relTime<span class="op">));</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isAttacking<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> state <span class="op">==</span> State<span class="op">::</span>attack<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isReleasing<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> state <span class="op">==</span> State<span class="op">::</span>release<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isTerminated<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> state <span class="op">==</span> State<span class="op">::</span>terminated<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">()</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">switch</span> <span class="op">(</span>state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>attack<span class="op">:</span> <span class="op">{</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> pController<span class="op">.</span>process<span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>        <span class="op">--</span>atk<span class="op">;</span></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>atk <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>          state <span class="op">=</span> State<span class="op">::</span>decay<span class="op">;</span></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>          pController<span class="op">.</span>setP<span class="op">(</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>            PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> decTime<span class="op">));</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>decay<span class="op">:</span></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> pController<span class="op">.</span>process<span class="op">(</span>sustain<span class="op">);</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>release<span class="op">:</span></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> pController<span class="op">.</span>process<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>value <span class="op">&lt;</span> threshold<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>          value <span class="op">=</span> threshold<span class="op">;</span></span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>          state <span class="op">=</span> State<span class="op">::</span>tail<span class="op">;</span></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>          tailCounter <span class="op">=</span> tailLength<span class="op">;</span></span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> State<span class="op">::</span>tail<span class="op">:</span></span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>        <span class="op">--</span>tailCounter<span class="op">;</span></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>        value <span class="op">=</span> threshold <span class="op">*</span> tailCounter <span class="op">/</span> <span class="dt">float</span><span class="op">(</span>tailLength<span class="op">);</span></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>tailCounter <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>          state <span class="op">=</span> State<span class="op">::</span>terminated<span class="op">;</span></span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>          pController<span class="op">.</span>reset<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>          pController<span class="op">.</span>reset<span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>      <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> value<span class="op">;</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>  <span class="kw">enum</span> <span class="kw">class</span> State <span class="op">:</span> <span class="dt">int32_t</span> <span class="op">{</span> attack<span class="op">,</span> decay<span class="op">,</span> release<span class="op">,</span> tail<span class="op">,</span> terminated <span class="op">};</span></span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> Sample threshold <span class="op">=</span> <span class="fl">1e-5</span><span class="op">;</span></span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint32_t</span> tailLength <span class="op">=</span> <span class="dv">32</span><span class="op">;</span></span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint32_t</span> tailCounter <span class="op">=</span> tailLength<span class="op">;</span></span>
+<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>  PController<span class="op">&lt;</span>Sample<span class="op">&gt;</span> pController<span class="op">;</span></span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a>  State state <span class="op">=</span> State<span class="op">::</span>terminated<span class="op">;</span></span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint32_t</span> atk <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a>  Sample decTime <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>  Sample relTime <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>  Sample sampleRate <span class="op">=</span> <span class="dv">44100</span><span class="op">;</span></span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a>  Sample sustain <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p>テストに使ったコードへのリンクです。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/P_exponential_envelope.hpp">filter_notes/P_exponential_envelope.hpp at master · ryukau/filter_notes · GitHub</a></li>
-<li><a href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/test_P_exponential_envelope.cpp">filter_notes/test_P_exponential_envelope.cpp at master · ryukau/filter_notes · GitHub</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/P_exponential_envelope.hpp">filter_notes/P_exponential_envelope.hpp
+at master · ryukau/filter_notes · GitHub</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/test_P_exponential_envelope.cpp">filter_notes/test_P_exponential_envelope.cpp
+at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
 <p>テスト結果です。</p>
 <figure>
@@ -898,95 +992,135 @@ f_c = \frac{1}{T}
 <figure>
 <img src="img/testP_ChangeSustain.png" alt="Image of test result of changing sustain." style="padding-bottom: 12px;"/>
 </figure>
-<p><code>P_ADSR</code> の <code>State::tail</code> の部分を拡大した図です。</p>
+<p><code>P_ADSR</code> の <code>State::tail</code>
+の部分を拡大した図です。</p>
 <figure>
 <img src="img/P_tail.png" alt="Image of tail state of envelope." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="減衰する指数曲線とその反転の乗算">減衰する指数曲線とその反転の乗算</h2>
-<p>減衰する指数曲線とその反転を掛け合わせて合成したエンベロープ <span class="math inline">\(E_{\mathtt{AD}}(t)\)</span> を作ります。</p>
+<h2
+id="減衰する指数曲線とその反転の乗算">減衰する指数曲線とその反転の乗算</h2>
+<p>減衰する指数曲線とその反転を掛け合わせて合成したエンベロープ <span
+class="math inline">\(E_{\mathtt{AD}}(t)\)</span> を作ります。</p>
 <p><span class="math display">\[
 E_{\mathtt{AD}}(t) = (1 - a^{t}) d^{t}
 \]</span></p>
-<p>ピークの位置 <span class="math inline">\(t_p\)</span> とピークの大きさ <span class="math inline">\(E_{\mathtt{AD}}(t_p)\)</span> を求めます。 <span class="math inline">\(t_p\)</span> はアタック時間です。 <span class="math inline">\(E_{\mathtt{AD}}(t_p)\)</span> は出力範囲を <span class="math inline">\([0, 1]\)</span> に正規化するために使えます。</p>
-<p><span class="math inline">\(t_p\)</span> の時点で <span class="math inline">\(E_{\mathtt{AD}}(t)\)</span> を <span class="math inline">\(t\)</span> について微分した関数の値が 0 になるはずです。 Maxima で解きます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb6-1"><a href="#cb6-1"></a><span class="cn">expr</span>: <span class="fu">diff</span>((<span class="dv">1</span>-<span class="cn">a</span>^<span class="cn">t</span>) * <span class="cn">d</span>^<span class="cn">t</span>, <span class="cn">t</span>);</span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">expr</span>, <span class="cn">t</span>);</span></code></pre></div>
+<p>ピークの位置 <span class="math inline">\(t_p\)</span>
+とピークの大きさ <span
+class="math inline">\(E_{\mathtt{AD}}(t_p)\)</span> を求めます。 <span
+class="math inline">\(t_p\)</span> はアタック時間です。 <span
+class="math inline">\(E_{\mathtt{AD}}(t_p)\)</span> は出力範囲を <span
+class="math inline">\([0, 1]\)</span> に正規化するために使えます。</p>
+<p><span class="math inline">\(t_p\)</span> の時点で <span
+class="math inline">\(E_{\mathtt{AD}}(t)\)</span> を <span
+class="math inline">\(t\)</span> について微分した関数の値が 0
+になるはずです。 Maxima で解きます。</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cn">expr</span>: <span class="fu">diff</span>((<span class="dv">1</span>-<span class="cn">a</span>^<span class="cn">t</span>) * <span class="cn">d</span>^<span class="cn">t</span>, <span class="cn">t</span>);</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">expr</span>, <span class="cn">t</span>);</span></code></pre></div>
 <p>出力です。</p>
 <p><span class="math display">\[
-t_p = \frac{\log{\left( \dfrac{\log{(d)}}{\log{(d)}+\log{(a)}}\right) }}{\log{(a)}}
+t_p = \frac{\log{\left( \dfrac{\log{(d)}}{\log{(d)}+\log{(a)}}\right)
+}}{\log{(a)}}
 \]</span></p>
-<p><span class="math inline">\(a\)</span> と <span class="math inline">\(d\)</span> を求めます。ユーザが指定したアタック時間を <span class="math inline">\(A\)</span> 、 ユーザが指定したディケイ時間を <span class="math inline">\(D\)</span> とします。 <span class="math inline">\([0, 1)\)</span> の範囲の適当なしきい値 <span class="math inline">\(\epsilon\)</span> を用意して、 <span class="math inline">\(a^{A} = d^{D} = \epsilon\)</span> とすると <span class="math inline">\(a, d\)</span> は次の式で計算できます。</p>
+<p><span class="math inline">\(a\)</span> と <span
+class="math inline">\(d\)</span>
+を求めます。ユーザが指定したアタック時間を <span
+class="math inline">\(A\)</span> 、 ユーザが指定したディケイ時間を <span
+class="math inline">\(D\)</span> とします。 <span
+class="math inline">\([0, 1)\)</span> の範囲の適当なしきい値 <span
+class="math inline">\(\epsilon\)</span> を用意して、 <span
+class="math inline">\(a^{A} = d^{D} = \epsilon\)</span> とすると <span
+class="math inline">\(a, d\)</span> は次の式で計算できます。</p>
 <p><span class="math display">\[
 a = \epsilon^{1/A}, \quad b = \epsilon^{1/B}
 \]</span></p>
 <p>C++ での実装です。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a></span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="kw">class</span> ExpAD {</span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="kw">public</span>:</span>
-<span id="cb7-5"><a href="#cb7-5"></a>  <span class="dt">void</span> setup(<span class="dt">float</span> sampleRate) { <span class="kw">this</span>-&gt;sampleRate = sampleRate; }</span>
-<span id="cb7-6"><a href="#cb7-6"></a>  <span class="dt">bool</span> isTerminated() { <span class="cf">return</span> valueD &lt;= threshold; }</span>
-<span id="cb7-7"><a href="#cb7-7"></a></span>
-<span id="cb7-8"><a href="#cb7-8"></a>  <span class="co">// attack and decay in seconds.</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a>  <span class="dt">void</span> reset(<span class="dt">float</span> attack, <span class="dt">float</span> decay)</span>
-<span id="cb7-10"><a href="#cb7-10"></a>  {</span>
-<span id="cb7-11"><a href="#cb7-11"></a>    valueA = <span class="fl">1.0</span><span class="bu">f</span>;</span>
-<span id="cb7-12"><a href="#cb7-12"></a>    <span class="cf">if</span> (attack &lt; <span class="fl">1e-5</span>) attack = <span class="fl">1e-5</span>;</span>
-<span id="cb7-13"><a href="#cb7-13"></a>    alphaA = powf(threshold, <span class="fl">1.0</span><span class="bu">f</span> / (attack * sampleRate));</span>
-<span id="cb7-14"><a href="#cb7-14"></a></span>
-<span id="cb7-15"><a href="#cb7-15"></a>    valueD = <span class="fl">1.0</span><span class="bu">f</span>;</span>
-<span id="cb7-16"><a href="#cb7-16"></a>    <span class="cf">if</span> (decay &lt; <span class="fl">1e-5</span>) decay = <span class="fl">1e-5</span>;</span>
-<span id="cb7-17"><a href="#cb7-17"></a>    alphaD = powf(threshold, <span class="fl">1.0</span><span class="bu">f</span> / (decay * sampleRate));</span>
-<span id="cb7-18"><a href="#cb7-18"></a></span>
-<span id="cb7-19"><a href="#cb7-19"></a>    <span class="cf">if</span> (attack &lt;= <span class="fl">0.0</span><span class="bu">f</span>) {</span>
-<span id="cb7-20"><a href="#cb7-20"></a>      gain = <span class="fl">1.0</span><span class="bu">f</span>;</span>
-<span id="cb7-21"><a href="#cb7-21"></a>    } <span class="cf">else</span> <span class="cf">if</span> (decay &lt;= <span class="fl">0.0</span><span class="bu">f</span>) {</span>
-<span id="cb7-22"><a href="#cb7-22"></a>      gain = <span class="fl">0.0</span><span class="bu">f</span>;</span>
-<span id="cb7-23"><a href="#cb7-23"></a>    } <span class="cf">else</span> {</span>
-<span id="cb7-24"><a href="#cb7-24"></a>      <span class="kw">auto</span> log_a = logf(alphaA);</span>
-<span id="cb7-25"><a href="#cb7-25"></a>      <span class="kw">auto</span> log_d = logf(alphaD);</span>
-<span id="cb7-26"><a href="#cb7-26"></a>      <span class="kw">auto</span> t_p = logf(log_d / (log_a + log_d)) / log_a;</span>
-<span id="cb7-27"><a href="#cb7-27"></a>      gain = <span class="fl">1.0</span><span class="bu">f</span> / ((<span class="fl">1.0</span><span class="bu">f</span> - powf(alphaA, t_p)) * powf(alphaD, t_p));</span>
-<span id="cb7-28"><a href="#cb7-28"></a>    }</span>
-<span id="cb7-29"><a href="#cb7-29"></a>  }</span>
-<span id="cb7-30"><a href="#cb7-30"></a></span>
-<span id="cb7-31"><a href="#cb7-31"></a>  <span class="dt">float</span> process()</span>
-<span id="cb7-32"><a href="#cb7-32"></a>  {</span>
-<span id="cb7-33"><a href="#cb7-33"></a>    valueA *= alphaA;</span>
-<span id="cb7-34"><a href="#cb7-34"></a>    valueD *= alphaD;</span>
-<span id="cb7-35"><a href="#cb7-35"></a>    <span class="cf">return</span> gain * (<span class="fl">1.0</span><span class="bu">f</span> - threshold - valueA) * (valueD - threshold);</span>
-<span id="cb7-36"><a href="#cb7-36"></a>  }</span>
-<span id="cb7-37"><a href="#cb7-37"></a></span>
-<span id="cb7-38"><a href="#cb7-38"></a><span class="kw">protected</span>:</span>
-<span id="cb7-39"><a href="#cb7-39"></a>  <span class="at">const</span> <span class="dt">float</span> threshold = <span class="fl">1e-5</span>;</span>
-<span id="cb7-40"><a href="#cb7-40"></a>  <span class="dt">float</span> sampleRate = <span class="dv">44100</span>;</span>
-<span id="cb7-41"><a href="#cb7-41"></a>  <span class="dt">float</span> gain = <span class="dv">0</span>;</span>
-<span id="cb7-42"><a href="#cb7-42"></a>  <span class="dt">float</span> valueA = <span class="dv">0</span>;</span>
-<span id="cb7-43"><a href="#cb7-43"></a>  <span class="dt">float</span> alphaA = <span class="dv">0</span>;</span>
-<span id="cb7-44"><a href="#cb7-44"></a>  <span class="dt">float</span> valueD = <span class="dv">0</span>;</span>
-<span id="cb7-45"><a href="#cb7-45"></a>  <span class="dt">float</span> alphaD = <span class="dv">0</span>;</span>
-<span id="cb7-46"><a href="#cb7-46"></a>};</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ExpAD <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setup<span class="op">(</span><span class="dt">float</span> sampleRate<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">-&gt;</span>sampleRate <span class="op">=</span> sampleRate<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isTerminated<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> valueD <span class="op">&lt;=</span> threshold<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">// attack and decay in seconds.</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span><span class="dt">float</span> attack<span class="op">,</span> <span class="dt">float</span> decay<span class="op">)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    valueA <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>attack <span class="op">&lt;</span> <span class="fl">1e-5</span><span class="op">)</span> attack <span class="op">=</span> <span class="fl">1e-5</span><span class="op">;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    alphaA <span class="op">=</span> powf<span class="op">(</span>threshold<span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span> <span class="op">/</span> <span class="op">(</span>attack <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    valueD <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>decay <span class="op">&lt;</span> <span class="fl">1e-5</span><span class="op">)</span> decay <span class="op">=</span> <span class="fl">1e-5</span><span class="op">;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    alphaD <span class="op">=</span> powf<span class="op">(</span>threshold<span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span> <span class="op">/</span> <span class="op">(</span>decay <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>attack <span class="op">&lt;=</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>      gain <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>decay <span class="op">&lt;=</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>      gain <span class="op">=</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>      <span class="kw">auto</span> log_a <span class="op">=</span> logf<span class="op">(</span>alphaA<span class="op">);</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>      <span class="kw">auto</span> log_d <span class="op">=</span> logf<span class="op">(</span>alphaD<span class="op">);</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>      <span class="kw">auto</span> t_p <span class="op">=</span> logf<span class="op">(</span>log_d <span class="op">/</span> <span class="op">(</span>log_a <span class="op">+</span> log_d<span class="op">))</span> <span class="op">/</span> log_a<span class="op">;</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>      gain <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span> <span class="op">/</span> <span class="op">((</span><span class="fl">1.0</span><span class="bu">f</span> <span class="op">-</span> powf<span class="op">(</span>alphaA<span class="op">,</span> t_p<span class="op">))</span> <span class="op">*</span> powf<span class="op">(</span>alphaD<span class="op">,</span> t_p<span class="op">));</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> process<span class="op">()</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    valueA <span class="op">*=</span> alphaA<span class="op">;</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    valueD <span class="op">*=</span> alphaD<span class="op">;</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gain <span class="op">*</span> <span class="op">(</span><span class="fl">1.0</span><span class="bu">f</span> <span class="op">-</span> threshold <span class="op">-</span> valueA<span class="op">)</span> <span class="op">*</span> <span class="op">(</span>valueD <span class="op">-</span> threshold<span class="op">);</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> <span class="dt">float</span> threshold <span class="op">=</span> <span class="fl">1e-5</span><span class="op">;</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> sampleRate <span class="op">=</span> <span class="dv">44100</span><span class="op">;</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> gain <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> valueA <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> alphaA <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> valueD <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> alphaD <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p>テストコードへのリンクです。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/expAD.cpp">filter_notes/expAD.cpp at master · ryukau/filter_notes · GitHub</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/expAD.cpp">filter_notes/expAD.cpp
+at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
 <p>テスト結果です。</p>
 <figure>
 <img src="img/ExpAD_cpp.png" alt="Image of ExpAD envelope. C++ implementation." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="別解">別解</h3>
-<p>この計算方法は <a href="https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html">EnvelopedSine</a> で使っています。エンベロープ <span class="math inline">\(\tilde{E}_{\mathtt{AD}}\)</span> の式です。</p>
+<p>この計算方法は <a
+href="https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html">EnvelopedSine</a>
+で使っています。エンベロープ <span
+class="math inline">\(\tilde{E}_{\mathtt{AD}}\)</span> の式です。</p>
 <p><span class="math display">\[
 \tilde{E}_{\mathtt{AD}}(t) = (1 - e^{-at}) e^{-bt}
 \]</span></p>
-<p><span class="math inline">\(E_{\mathtt{AD}}(t)\)</span> の式について <span class="math inline">\(a \to e^{-a},\ d \to e^{-b}\)</span> と置き換えています。</p>
-<p>ピークの位置 <span class="math inline">\(t_p\)</span> とピークの大きさ <span class="math inline">\(\tilde{E}_{\mathtt{AD}}(t_p)\)</span> を求めます。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb8-1"><a href="#cb8-1"></a><span class="cn">expr</span>: <span class="fu">diff</span>((<span class="dv">1</span>-<span class="fu">exp</span>(-<span class="cn">a</span>*<span class="cn">t</span>)) * <span class="cn">exp</span>(-<span class="cn">b</span>*<span class="cn">t</span>), <span class="cn">t</span>);</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">expr</span>, <span class="cn">t</span>);</span></code></pre></div>
+<p><span class="math inline">\(E_{\mathtt{AD}}(t)\)</span> の式について
+<span class="math inline">\(a \to e^{-a},\ d \to e^{-b}\)</span>
+と置き換えています。</p>
+<p>ピークの位置 <span class="math inline">\(t_p\)</span>
+とピークの大きさ <span
+class="math inline">\(\tilde{E}_{\mathtt{AD}}(t_p)\)</span>
+を求めます。</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cn">expr</span>: <span class="fu">diff</span>((<span class="dv">1</span>-<span class="fu">exp</span>(-<span class="cn">a</span>*<span class="cn">t</span>)) * <span class="cn">exp</span>(-<span class="cn">b</span>*<span class="cn">t</span>), <span class="cn">t</span>);</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="dv">0</span> = <span class="cn">expr</span>, <span class="cn">t</span>);</span></code></pre></div>
 <p><span class="math display">\[
 t_p = \frac{\log{\left( \dfrac{a}{b}+1\right) }}{a}
 \]</span></p>
-<p><span class="math inline">\(a\)</span> と <span class="math inline">\(b\)</span> を求めます。アタック時間を <span class="math inline">\(A\)</span> 、 ディケイ時間を <span class="math inline">\(B\)</span> 、 適当なしきい値を <span class="math inline">\(\epsilon \in [0, 1)\)</span> とします。 <span class="math inline">\(e^{-a A},\ e^{-b B},\ \epsilon\)</span> が等しくなるような <span class="math inline">\(a, b\)</span> は次の式で計算できます。</p>
+<p><span class="math inline">\(a\)</span> と <span
+class="math inline">\(b\)</span> を求めます。アタック時間を <span
+class="math inline">\(A\)</span> 、 ディケイ時間を <span
+class="math inline">\(B\)</span> 、 適当なしきい値を <span
+class="math inline">\(\epsilon \in [0, 1)\)</span> とします。 <span
+class="math inline">\(e^{-a A},\ e^{-b B},\ \epsilon\)</span>
+が等しくなるような <span class="math inline">\(a, b\)</span>
+は次の式で計算できます。</p>
 <p><span class="math inline">\(e^{-a A} = \epsilon\)</span> より、</p>
 <p><span class="math display">\[
 a = - \dfrac{\log(\epsilon)}{A}.
@@ -996,24 +1130,25 @@ a = - \dfrac{\log(\epsilon)}{A}.
 \quad b = - \dfrac{\log(\epsilon)}{B}.
 \]</span></p>
 <p>コード例です。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb9-2"><a href="#cb9-2"></a></span>
-<span id="cb9-3"><a href="#cb9-3"></a><span class="kw">def</span> envelopeExpr(a, b, time):</span>
-<span id="cb9-4"><a href="#cb9-4"></a>    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">-</span> np.exp(<span class="op">-</span>a <span class="op">*</span> time)) <span class="op">*</span> np.exp(<span class="op">-</span>b <span class="op">*</span> time)</span>
-<span id="cb9-5"><a href="#cb9-5"></a></span>
-<span id="cb9-6"><a href="#cb9-6"></a><span class="kw">def</span> envelope(attack, decay, eps<span class="op">=</span><span class="fl">1e-5</span>):</span>
-<span id="cb9-7"><a href="#cb9-7"></a>    _a <span class="op">=</span> <span class="op">-</span>np.log(eps) <span class="op">/</span> attack</span>
-<span id="cb9-8"><a href="#cb9-8"></a>    _b <span class="op">=</span> <span class="op">-</span>np.log(eps) <span class="op">/</span> decay</span>
-<span id="cb9-9"><a href="#cb9-9"></a>    peakTime <span class="op">=</span> np.log(_a <span class="op">/</span> _b <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> _a</span>
-<span id="cb9-10"><a href="#cb9-10"></a>    gain <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> envelopeExpr(_a, _b, peakTime)</span>
-<span id="cb9-11"><a href="#cb9-11"></a></span>
-<span id="cb9-12"><a href="#cb9-12"></a>    samplerate <span class="op">=</span> <span class="dv">48000</span></span>
-<span id="cb9-13"><a href="#cb9-13"></a>    duration <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb9-14"><a href="#cb9-14"></a>    time <span class="op">=</span> np.linspace(<span class="dv">0</span>, duration, duration <span class="op">*</span> samplerate)</span>
-<span id="cb9-15"><a href="#cb9-15"></a></span>
-<span id="cb9-16"><a href="#cb9-16"></a>    <span class="cf">return</span> envelopeExpr(_a, _b, time)</span>
-<span id="cb9-17"><a href="#cb9-17"></a></span>
-<span id="cb9-18"><a href="#cb9-18"></a>output <span class="op">=</span> envelope(<span class="fl">1.0</span>, <span class="fl">2.0</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> envelopeExpr(a, b, time):</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">-</span> np.exp(<span class="op">-</span>a <span class="op">*</span> time)) <span class="op">*</span> np.exp(<span class="op">-</span>b <span class="op">*</span> time)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> envelope(attack, decay, eps<span class="op">=</span><span class="fl">1e-5</span>):</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    _a <span class="op">=</span> <span class="op">-</span>np.log(eps) <span class="op">/</span> attack</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    _b <span class="op">=</span> <span class="op">-</span>np.log(eps) <span class="op">/</span> decay</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    peakTime <span class="op">=</span> np.log(_a <span class="op">/</span> _b <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> _a</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    gain <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> envelopeExpr(_a, _b, peakTime)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    samplerate <span class="op">=</span> <span class="dv">48000</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    duration <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    time <span class="op">=</span> np.linspace(<span class="dv">0</span>, duration, duration <span class="op">*</span> samplerate)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> envelopeExpr(_a, _b, time)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> envelope(<span class="fl">1.0</span>, <span class="fl">2.0</span>)</span></code></pre></div>
 <figure>
 <img src="img/ExpAD.png" alt="Image of ExpAD envelope. Alternative implementation." style="padding-bottom: 12px;"/>
 </figure>

@@ -5,18 +5,19 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-05-08" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>am_pitchshift</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,43 +344,68 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-05-08
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#am変調による周波数シフト">AM変調による周波数シフト</a>
+<li><a href="#am変調による周波数シフト"
+id="toc-am変調による周波数シフト">AM変調による周波数シフト</a>
 <ul>
-<li><a href="#analytic-signal-の計算">Analytic Signal の計算</a></li>
-<li><a href="#実装">実装</a>
+<li><a href="#analytic-signal-の計算"
+id="toc-analytic-signal-の計算">Analytic Signal の計算</a></li>
+<li><a href="#実装" id="toc-実装">実装</a>
 <ul>
-<li><a href="#ヒルベルト変換">ヒルベルト変換</a></li>
-<li><a href="#オールパスその1">オールパスその1</a></li>
-<li><a href="#オールパスその2">オールパスその2</a></li>
-<li><a href="#オールパスその3">オールパスその3</a></li>
-<li><a href="#オールパスその4">オールパスその4</a></li>
-<li><a href="#オールパスその5">オールパスその5</a></li>
-<li><a href="#オールパスその6">オールパスその6</a></li>
+<li><a href="#ヒルベルト変換"
+id="toc-ヒルベルト変換">ヒルベルト変換</a></li>
+<li><a href="#オールパスその1"
+id="toc-オールパスその1">オールパスその1</a></li>
+<li><a href="#オールパスその2"
+id="toc-オールパスその2">オールパスその2</a></li>
+<li><a href="#オールパスその3"
+id="toc-オールパスその3">オールパスその3</a></li>
+<li><a href="#オールパスその4"
+id="toc-オールパスその4">オールパスその4</a></li>
+<li><a href="#オールパスその5"
+id="toc-オールパスその5">オールパスその5</a></li>
+<li><a href="#オールパスその6"
+id="toc-オールパスその6">オールパスその6</a></li>
 </ul></li>
-<li><a href="#音のサンプル">音のサンプル</a></li>
-<li><a href="#その他">その他</a>
+<li><a href="#音のサンプル" id="toc-音のサンプル">音のサンプル</a></li>
+<li><a href="#その他" id="toc-その他">その他</a>
 <ul>
-<li><a href="#周波数特性の位相差">周波数特性の位相差</a></li>
-<li><a href="#scipy.signal-の-sos"><code>scipy.signal</code> の <code>sos</code></a></li>
-<li><a href="#pure-data-の-biquad">Pure Data の <code>biquad~</code></a></li>
-<li><a href="#ピッチシフトと周波数シフト">ピッチシフトと周波数シフト</a></li>
+<li><a href="#周波数特性の位相差"
+id="toc-周波数特性の位相差">周波数特性の位相差</a></li>
+<li><a href="#scipy.signal-の-sos"
+id="toc-scipy.signal-の-sos"><code>scipy.signal</code> の
+<code>sos</code></a></li>
+<li><a href="#pure-data-の-biquad" id="toc-pure-data-の-biquad">Pure
+Data の <code>biquad~</code></a></li>
+<li><a href="#ピッチシフトと周波数シフト"
+id="toc-ピッチシフトと周波数シフト">ピッチシフトと周波数シフト</a></li>
 </ul></li>
-<li><a href="#変更点">変更点</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
 </details>
 </header>
 <h1 id="am変調による周波数シフト">AM変調による周波数シフト</h1>
-<p>この文章では虚数を <span class="math inline">\(j\)</span> で表します。</p>
-<p>Scott Wardle さんによる <a href="https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf">A Hilbert-Transformer Frequency Shifter for Audio</a> で紹介されていたAM変調による周波数シフトで遊びます。</p>
-<p>紹介されていた手法では <a href="https://en.wikipedia.org/wiki/Analytic_signal">analytic signal</a> <span class="math inline">\(s(t)\)</span> に <span class="math inline">\(e^{j \omega_c t}\)</span> を掛け合わせてから実部を取り出すことで <span class="math inline">\(\omega_c\)</span> だけ周波数シフトできます。Analytic signal は負の周波数成分が全て0になる信号で、複素数です。</p>
+<p>この文章では虚数を <span class="math inline">\(j\)</span>
+で表します。</p>
+<p>Scott Wardle さんによる <a
+href="https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf">A
+Hilbert-Transformer Frequency Shifter for Audio</a>
+で紹介されていたAM変調による周波数シフトで遊びます。</p>
+<p>紹介されていた手法では <a
+href="https://en.wikipedia.org/wiki/Analytic_signal">analytic signal</a>
+<span class="math inline">\(s(t)\)</span> に <span
+class="math inline">\(e^{j \omega_c t}\)</span>
+を掛け合わせてから実部を取り出すことで <span
+class="math inline">\(\omega_c\)</span>
+だけ周波数シフトできます。Analytic signal
+は負の周波数成分が全て0になる信号で、複素数です。</p>
 <p><span class="math display">\[
 \begin{aligned}
 y_{\mathtt{shift}} (t)
@@ -382,35 +414,66 @@ y_{\mathtt{shift}} (t)
   &amp;= |s(t)| \cos(\angle s(t) \pm \omega_c t)\\
 |s(t)| &amp;= \sqrt{\mathrm{Re}^2(s(t)) + \mathrm{Im}^2(s(t))}\\
 \angle s(t)
-  &amp;= \mathrm{atan2}\left(\mathrm{Im}(s(t)), \mathrm{Re}(s(t)) \right)
+  &amp;= \mathrm{atan2}\left(\mathrm{Im}(s(t)), \mathrm{Re}(s(t))
+\right)
 \end{aligned}
 \]</span></p>
 <ul>
-<li><a href="https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf">WAR19 - Audio_Hilbert_WAR19.pdf</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Analytic_signal">Analytic signal - Wikipedia</a></li>
+<li><a
+href="https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf">WAR19
+- Audio_Hilbert_WAR19.pdf</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Analytic_signal">Analytic
+signal - Wikipedia</a></li>
 </ul>
 <h2 id="analytic-signal-の計算">Analytic Signal の計算</h2>
-<p>任意の信号 <span class="math inline">\(x\)</span> は FFT を使って analytic signal <span class="math inline">\(s\)</span> に変換できます。次の式は <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html"><code>scipy.signal.hilbert</code></a> の計算式で <a href="https://en.wikipedia.org/wiki/Step_function">ステップ関数</a> <span class="math inline">\(U\)</span> を使って負の周波数成分を0にしています。</p>
+<p>任意の信号 <span class="math inline">\(x\)</span> は FFT を使って
+analytic signal <span class="math inline">\(s\)</span>
+に変換できます。次の式は <a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html"><code>scipy.signal.hilbert</code></a>
+の計算式で <a
+href="https://en.wikipedia.org/wiki/Step_function">ステップ関数</a>
+<span class="math inline">\(U\)</span>
+を使って負の周波数成分を0にしています。</p>
 <p><span class="math display">\[
 s = \mathtt{ifft}(\mathtt{fft}(x) 2 U) = x + j \mathcal{H}(x)
 \]</span></p>
-<p><span class="math inline">\(\mathcal{H}\)</span> は <a href="https://en.wikipedia.org/wiki/Hilbert_transform">ヒルベルト変換</a>です。ヒルベルト変換された信号 <span class="math inline">\(\mathcal{H}(x)\)</span> は、元の信号 <span class="math inline">\(x\)</span> に比べると負の周波数成分の位相が90°進み、正の周波数成分の位相が90°遅れています。</p>
-<p>FFT をリアルタイム処理で使うとレイテンシや計算コストが問題になることがあります。この問題を避けるためにオールパスフィルタを使って analytic signal を近似する方法があります。近似では2つのオールパスフィルタ <span class="math inline">\(H_{\mathrm{Re}},\,H_{\mathrm{Im}}\)</span> を用意して、位相差 <span class="math inline">\(\angle (H_{\mathrm{Re}} / H_{\mathrm{Im}})\)</span> がヒルベルト変換の位相特性を近似するようになっています。</p>
-<p>次の図は analytic signal の近似に使われる2つのオールパスフィルタの位相差です。</p>
+<p><span class="math inline">\(\mathcal{H}\)</span> は <a
+href="https://en.wikipedia.org/wiki/Hilbert_transform">ヒルベルト変換</a>です。ヒルベルト変換された信号
+<span class="math inline">\(\mathcal{H}(x)\)</span> は、元の信号 <span
+class="math inline">\(x\)</span>
+に比べると負の周波数成分の位相が90°進み、正の周波数成分の位相が90°遅れています。</p>
+<p>FFT
+をリアルタイム処理で使うとレイテンシや計算コストが問題になることがあります。この問題を避けるためにオールパスフィルタを使って
+analytic signal
+を近似する方法があります。近似では2つのオールパスフィルタ <span
+class="math inline">\(H_{\mathrm{Re}},\,H_{\mathrm{Im}}\)</span>
+を用意して、位相差 <span class="math inline">\(\angle (H_{\mathrm{Re}} /
+H_{\mathrm{Im}})\)</span>
+がヒルベルト変換の位相特性を近似するようになっています。</p>
+<p>次の図は analytic signal
+の近似に使われる2つのオールパスフィルタの位相差です。</p>
 <figure>
 <img src="niemitalo_allpass.png" alt="Image of allpass filter approximation of hilbert transfrom by Olli Niemitalo." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <ul>
-<li><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html">scipy.signal.hilbert — SciPy v1.3.0 Reference Guide</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Hilbert_transform">Hilbert transform - Wikipedia</a></li>
-<li><a href="https://www.dsprelated.com/freebooks/mdft/Analytic_Signals_Hilbert_Transform.html">Analytic Signals and Hilbert Transform Filters | Mathematics of the DFT</a></li>
-<li><a href="https://www.gaussianwaves.com/2017/04/analytic-signal-hilbert-transform-and-fft/">Analytic signal, Hilbert Transform and FFT – GaussianWaves</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html">scipy.signal.hilbert
+— SciPy v1.3.0 Reference Guide</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Hilbert_transform">Hilbert
+transform - Wikipedia</a></li>
+<li><a
+href="https://www.dsprelated.com/freebooks/mdft/Analytic_Signals_Hilbert_Transform.html">Analytic
+Signals and Hilbert Transform Filters | Mathematics of the DFT</a></li>
+<li><a
+href="https://www.gaussianwaves.com/2017/04/analytic-signal-hilbert-transform-and-fft/">Analytic
+signal, Hilbert Transform and FFT – GaussianWaves</a></li>
 </ul>
 <h2 id="実装">実装</h2>
 <p>コードはPython3です。次のライブラリを使っています。</p>
 <ul>
 <li><a href="https://scipy.org/">SciPy, NumPy</a></li>
-<li><a href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundfile</a></li>
+<li><a
+href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundfile</a></li>
 </ul>
 <p>上から順番にコードをテキストファイルにコピペしていけば動くプログラムになっています。完成したコードは次のリンクから読むことができます。</p>
 <ul>
@@ -418,7 +481,8 @@ s = \mathtt{ifft}(\mathtt{fft}(x) 2 U) = x + j \mathcal{H}(x)
 </ul>
 <h3 id="ヒルベルト変換">ヒルベルト変換</h3>
 <p><code>scipy.signal.hilbert</code> を使います。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pitch_shift(samplerate, analytic_signal, shift_hz):</span>
@@ -430,8 +494,10 @@ s = \mathtt{ifft}(\mathtt{fft}(x) 2 U) = x + j \mathcal{H}(x)
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> naive(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, signal.hilbert(wav), shift_hz)</span></code></pre></div>
 <h3 id="オールパスその1">オールパスその1</h3>
-<p><a href="http://yehar.com/blog/?p=368">Olli Niemitalo さんによって紹介されていたフィルタ</a>です。</p>
-<p>式の <span class="math inline">\(\times\)</span> は乗算です。横に長くなったので改行時に明示的に演算子を書いています。</p>
+<p><a href="http://yehar.com/blog/?p=368">Olli Niemitalo
+さんによって紹介されていたフィルタ</a>です。</p>
+<p>式の <span class="math inline">\(\times\)</span>
+は乗算です。横に長くなったので改行時に明示的に演算子を書いています。</p>
 <p><span class="math display">\[
 \begin{aligned}
 H_{sect}(z, a) =&amp;\; \frac{a^2 - z^{-2}}{1 - a^2 z^{-2}}\\
@@ -447,7 +513,8 @@ H_{\mathrm{Im}}(z) =&amp;\; H_{sect}(z, 0.6923878)\\
 H_{Hilbert}(z) =&amp; 0.5 ( H_{\mathrm{Re}}(z) + j H_{\mathrm{Im}}(z))
 \end{aligned}
 \]</span></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_delay(sos):</span>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_delay(sos):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> numpy.vstack((sos, [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>]))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> olli(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
@@ -474,19 +541,27 @@ H_{Hilbert}(z) =&amp; 0.5 ( H_{\mathrm{Re}}(z) + j H_{\mathrm{Im}}(z))
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
-<li><a href="http://yehar.com/blog/?p=368">Hilbert transform « iki.fi/o</a></li>
+<li><a href="http://yehar.com/blog/?p=368">Hilbert transform «
+iki.fi/o</a></li>
 </ul>
 <h3 id="オールパスその2">オールパスその2</h3>
-<p><a href="https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer">IIR Hilbert Transformer</a> で Robby Wasabi さんによって紹介されていたフィルタです。</p>
+<p><a
+href="https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer">IIR
+Hilbert Transformer</a> で Robby Wasabi
+さんによって紹介されていたフィルタです。</p>
 <p><span class="math display">\[
 \begin{aligned}
-H_{\mathrm{Re}}(z) =&amp;\; \frac{0.190696 - z^{-2}}{1 - 0.190696 z^{-2}}
+H_{\mathrm{Re}}(z) =&amp;\; \frac{0.190696 - z^{-2}}{1 - 0.190696
+z^{-2}}
   \times \frac{0.860735 - z^{-2}}{1 - 0.860735 z^{-2}}\\
-H_{\mathrm{Im}}(z) =&amp;\; \frac{0.553100 - z^{-2}}{1 - 0.553100 z^{-2}} \times z^{-1}\\
-H_{Hilbert}(z) =&amp;\; 0.5 \left( H_{\mathrm{Re}}(z) + j H_{\mathrm{Im}}(z) \right)
+H_{\mathrm{Im}}(z) =&amp;\; \frac{0.553100 - z^{-2}}{1 - 0.553100
+z^{-2}} \times z^{-1}\\
+H_{Hilbert}(z) =&amp;\; 0.5 \left( H_{\mathrm{Re}}(z) + j
+H_{\mathrm{Im}}(z) \right)
 \end{aligned}
 \]</span></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wasabi(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wasabi(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    sos_real <span class="op">=</span> numpy.array([</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        [<span class="fl">0.190696</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="op">-</span><span class="fl">0.190696</span>],</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        [<span class="fl">0.860735</span>, <span class="dv">0</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="op">-</span><span class="fl">0.860735</span>],</span>
@@ -499,10 +574,16 @@ H_{Hilbert}(z) =&amp;\; 0.5 \left( H_{\mathrm{Re}}(z) + j H_{\mathrm{Im}}(z) \ri
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
-<li><a href="https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer">transform - IIR Hilbert Transformer - Signal Processing Stack Exchange</a></li>
+<li><a
+href="https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer">transform
+- IIR Hilbert Transformer - Signal Processing Stack Exchange</a></li>
 </ul>
 <h3 id="オールパスその3">オールパスその3</h3>
-<p>Pure Data の <a href="https://github.com/pure-data/pure-data/blob/master/extra/hilbert%7E.pd"><code>hilbert~</code></a> で使われているフィルタです。コメントで Emmanuel Favreau さんが 1982 年頃に作った <a href="https://en.wikipedia.org/wiki/Sogitec_4X">4X</a> のパッチから取ってきた、とクレジットされています。</p>
+<p>Pure Data の <a
+href="https://github.com/pure-data/pure-data/blob/master/extra/hilbert%7E.pd"><code>hilbert~</code></a>
+で使われているフィルタです。コメントで Emmanuel Favreau さんが 1982
+年頃に作った <a href="https://en.wikipedia.org/wiki/Sogitec_4X">4X</a>
+のパッチから取ってきた、とクレジットされています。</p>
 <p><span class="math display">\[
 \begin{aligned}
 H_{biquad}(z, a_1, a_2) =&amp;\;
@@ -517,7 +598,8 @@ H_{Hilbert}(z) =&amp;\;
   H_{\mathrm{Re}}(z) + j H_{\mathrm{Im}}(z)
 \end{aligned}
 \]</span></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> favreau(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> favreau(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> biquad(a1, a2):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [a2, a1, <span class="dv">1</span>, <span class="dv">1</span>, a1, a2]</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -535,13 +617,23 @@ H_{Hilbert}(z) =&amp;\;
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
-<li><a href="https://github.com/pure-data/pure-data/blob/master/extra/hilbert%7E.pd">pure-data/hilbert~.pd at master · pure-data/pure-data · GitHub</a></li>
-<li><a href="https://github.com/olilarkin/OL-OWLPatches/blob/master/IIRHilbert.lib">OL-OWLPatches/IIRHilbert.lib at master · olilarkin/OL-OWLPatches · GitHub</a></li>
-<li><a href="http://electro-music.com/forum/topic-69813.html">electro-music.com :: View topic - Hilbert transform code</a></li>
+<li><a
+href="https://github.com/pure-data/pure-data/blob/master/extra/hilbert%7E.pd">pure-data/hilbert~.pd
+at master · pure-data/pure-data · GitHub</a></li>
+<li><a
+href="https://github.com/olilarkin/OL-OWLPatches/blob/master/IIRHilbert.lib">OL-OWLPatches/IIRHilbert.lib
+at master · olilarkin/OL-OWLPatches · GitHub</a></li>
+<li><a
+href="http://electro-music.com/forum/topic-69813.html">electro-music.com
+:: View topic - Hilbert transform code</a></li>
 </ul>
 <h3 id="オールパスその4">オールパスその4</h3>
-<p>Signal Processing Stack Exchange で Ross Wilkinson さんが紹介していたフィルタです。</p>
-<p>奇数の <span class="math inline">\(k\)</span> についてフィルタの零点 <span class="math inline">\(q_n\)</span> 、極 <span class="math inline">\(p_n\)</span> を定義します。 <span class="math inline">\(n\)</span> は整数です。</p>
+<p>Signal Processing Stack Exchange で Ross Wilkinson
+さんが紹介していたフィルタです。</p>
+<p>奇数の <span class="math inline">\(k\)</span> についてフィルタの零点
+<span class="math inline">\(q_n\)</span> 、極 <span
+class="math inline">\(p_n\)</span> を定義します。 <span
+class="math inline">\(n\)</span> は整数です。</p>
 <p><span class="math display">\[
 \begin{aligned}
 q_n &amp;= \begin{cases}
@@ -549,28 +641,42 @@ q_n &amp;= \begin{cases}
   -\exp \left( \pi / 2^{|n|} \right) &amp; \text{if} &amp; n &lt; 0.
 \end{cases}\\
 p_n &amp;= \frac{1}{q_n}.\\
-\quad n &amp;\in [-k, k], \quad n \in \mathbb{Z}. \quad k\,\text{ is odd}.
+\quad n &amp;\in [-k, k], \quad n \in \mathbb{Z}. \quad k\,\text{ is
+odd}.
 \end{aligned}
 \]</span></p>
-<p><span class="math inline">\(n\)</span> が偶数のときだけを取り出したフィルタ <span class="math inline">\(A_k\)</span> と、 <span class="math inline">\(n\)</span> が奇数のときだけを取り出したフィルタ <span class="math inline">\(B_k\)</span> の2つのフィルタを作ります。</p>
+<p><span class="math inline">\(n\)</span>
+が偶数のときだけを取り出したフィルタ <span
+class="math inline">\(A_k\)</span> と、 <span
+class="math inline">\(n\)</span> が奇数のときだけを取り出したフィルタ
+<span class="math inline">\(B_k\)</span> の2つのフィルタを作ります。</p>
 <p><span class="math display">\[
 \begin{aligned}
 Q_n &amp;= (q_n,\,p_n)\\
 \overrightharpoon{A}_k &amp;= \begin{bmatrix}
-  Q_{0}&amp; Q_{2}&amp; Q_{4}&amp; \dots&amp; Q_{k - 5}&amp; Q_{k - 3}&amp; Q_{k - 1}
+  Q_{0}&amp; Q_{2}&amp; Q_{4}&amp; \dots&amp; Q_{k - 5}&amp; Q_{k -
+3}&amp; Q_{k - 1}
 \end{bmatrix}\\
-A_k &amp;= \mathtt{concat}(-\overrightharpoon{A}_k, \overrightharpoon{A}_k)\\
+A_k &amp;= \mathtt{concat}(-\overrightharpoon{A}_k,
+\overrightharpoon{A}_k)\\
 \overrightharpoon{B}_k &amp;= \begin{bmatrix}
-  Q_{1} &amp; Q_{3} &amp; Q_{5} &amp; \dots &amp; Q_{k - 4} &amp; Q_{k - 2} &amp; Q_{k}
+  Q_{1} &amp; Q_{3} &amp; Q_{5} &amp; \dots &amp; Q_{k - 4} &amp; Q_{k -
+2} &amp; Q_{k}
 \end{bmatrix}\\
-B_k &amp;= \mathtt{concat}(-\overrightharpoon{B}_k, \overrightharpoon{B}_k)\\
+B_k &amp;= \mathtt{concat}(-\overrightharpoon{B}_k,
+\overrightharpoon{B}_k)\\
 \end{aligned}
 \]</span></p>
-<p><span class="math inline">\(A_k\)</span> の伝達関数を <span class="math inline">\(H_{A_k}(z)\)</span> 、 <span class="math inline">\(B_k\)</span> の伝達関数を <span class="math inline">\(H_{B_k}(z)\)</span> とすると analytic signal を次のように近似できます。</p>
+<p><span class="math inline">\(A_k\)</span> の伝達関数を <span
+class="math inline">\(H_{A_k}(z)\)</span> 、 <span
+class="math inline">\(B_k\)</span> の伝達関数を <span
+class="math inline">\(H_{B_k}(z)\)</span> とすると analytic signal
+を次のように近似できます。</p>
 <p><span class="math display">\[
 H_{Hilbert}(z) = H_{A_k}(z) + j z^{-1} H_{B_k}(z)
 \]</span></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wilkinson(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wilkinson(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="dv">9</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> numpy.arange((k <span class="op">+</span> <span class="dv">1</span>) <span class="op">/</span> <span class="dv">2</span>)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -592,10 +698,18 @@ H_{Hilbert}(z) = H_{A_k}(z) + j z^{-1} H_{B_k}(z)
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    peak <span class="op">=</span> numpy.<span class="bu">max</span>(numpy.<span class="bu">abs</span>(sig))</span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sig <span class="op">/</span> peak <span class="cf">if</span> peak <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> sig</span></code></pre></div>
 <ul>
-<li><a href="https://dsp.stackexchange.com/questions/8692/hilbert-transform-filter-for-audio-applications-using-iir-half-band-parallel-al">Hilbert transform filter for audio applications: Using IIR half-band parallel all pass structure - Signal Processing Stack Exchange</a></li>
+<li><a
+href="https://dsp.stackexchange.com/questions/8692/hilbert-transform-filter-for-audio-applications-using-iir-half-band-parallel-al">Hilbert
+transform filter for audio applications: Using IIR half-band parallel
+all pass structure - Signal Processing Stack Exchange</a></li>
 </ul>
 <h3 id="オールパスその5">オールパスその5</h3>
-<p><a href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Peter C. McNulty さんによって紹介されていたフィルタ</a>です。リンク先の Table 1 の抵抗の単位 [W] は <span class="math inline">\(\Omega\)</span> (オーム) の意味です。 <span class="math inline">\(\Omega\)</span> の文字が表示できないときは W で代用されることがあるそうです。</p>
+<p><a
+href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Peter
+C. McNulty さんによって紹介されていたフィルタ</a>です。リンク先の Table
+1 の抵抗の単位 [W] は <span class="math inline">\(\Omega\)</span>
+(オーム) の意味です。 <span class="math inline">\(\Omega\)</span>
+の文字が表示できないときは W で代用されることがあるそうです。</p>
 <p>フィルタネットワークで使われるオールパスフィルタの伝達関数です。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -618,8 +732,12 @@ p =&amp;\; 10^{-12}\\
 H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 \end{aligned}
 \]</span></p>
-<p><span class="math inline">\(H_{AP}\)</span> は連続系なので <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.cont2discrete.html#scipy.signal.cont2discrete"><code>scipy.signal.cont2discrete</code></a> で離散系に変えます。 <code>cont2discrete</code> の <code>method</code> は zoh よりも gbt にしたほうがノイズが減りました。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpy.polynomial <span class="im">import</span> polynomial</span>
+<p><span class="math inline">\(H_{AP}\)</span> は連続系なので <a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.cont2discrete.html#scipy.signal.cont2discrete"><code>scipy.signal.cont2discrete</code></a>
+で離散系に変えます。 <code>cont2discrete</code> の <code>method</code>
+は zoh よりも gbt にしたほうがノイズが減りました。</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpy.polynomial <span class="im">import</span> polynomial</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> allpass(samplerate, rc):</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    rc <span class="op">*=</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi</span>
@@ -660,11 +778,15 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">-</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
 <span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
-<li><a href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog Wide Band Audio Phase Shift Networks</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Ohm#Symbol">Ohm - Wikipedia</a></li>
+<li><a
+href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog
+Wide Band Audio Phase Shift Networks</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Ohm#Symbol">Ohm -
+Wikipedia</a></li>
 </ul>
 <h3 id="オールパスその6">オールパスその6</h3>
-<p>これも McNulty さんによって紹介されていたフィルタです。設計は Chuck さんによるそうです。</p>
+<p>これも McNulty さんによって紹介されていたフィルタです。設計は Chuck
+さんによるそうです。</p>
 <p><span class="math display">\[
 \begin{aligned}
 H_{AP}(s, R, C) =&amp;\; \frac{-1 + 2\pi RCs}{1 + 2\pi RCs}\\
@@ -682,7 +804,8 @@ H_{\mathrm{Im}}(z) =&amp;\;
 H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 \end{aligned}
 \]</span></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chuck(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chuck(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    rc_imag <span class="op">=</span> [</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        allpass(samplerate, rc)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> rc <span class="kw">in</span> [<span class="fl">5.49e-06</span>, <span class="fl">4.75e-05</span>, <span class="fl">2.37e-04</span>, <span class="fl">1.27e-03</span>]</span>
@@ -712,11 +835,14 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">-</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
 <span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
-<li><a href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog Wide Band Audio Phase Shift Networks</a></li>
+<li><a
+href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog
+Wide Band Audio Phase Shift Networks</a></li>
 </ul>
 <h2 id="音のサンプル">音のサンプル</h2>
 <p>次のようなコードで音をレンダリングしました。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> soundfile</span>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> soundfile</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>data, samplerate <span class="op">=</span> soundfile.read(<span class="st">&quot;snd/yey.wav&quot;</span>, always_2d<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>wav <span class="op">=</span> data.T[<span class="dv">0</span>]</span>
@@ -724,7 +850,11 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> naive(samplerate, wav, shift_hz)</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>soundfile.write(<span class="st">&quot;naive.wav&quot;</span>, out, samplerate)</span></code></pre></div>
-<p><span class="math inline">\(\omega_c = 1000\)</span> として周波数シフトした音のサンプルです。ソースは freesound.org で見つけた hemogREC さんによる <a href="https://freesound.org/people/hemogREC/sounds/144467/">yey.wav</a> です。</p>
+<p><span class="math inline">\(\omega_c = 1000\)</span>
+として周波数シフトした音のサンプルです。ソースは freesound.org
+で見つけた hemogREC さんによる <a
+href="https://freesound.org/people/hemogREC/sounds/144467/">yey.wav</a>
+です。</p>
 <figure>
 <figcaption>
 ソース
@@ -746,7 +876,8 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <ol type="1">
 <li>Niemitalo のフィルタ
 </figcaption>
-<audio controls> <source src="snd/niemitalo.wav" type="audio/wav"> </audio>
+<audio controls> <source src="snd/niemitalo.wav" type="audio/wav">
+</audio>
 </figure></li>
 </ol>
 <figure>
@@ -762,7 +893,8 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <ol start="3" type="1">
 <li>Favreau のフィルタ
 </figcaption>
-<audio controls> <source src="snd/favreau.wav" type="audio/wav"> </audio>
+<audio controls> <source src="snd/favreau.wav" type="audio/wav">
+</audio>
 </figure></li>
 </ol>
 <figure>
@@ -770,7 +902,8 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <ol start="4" type="1">
 <li>Wilkinson のフィルタ
 </figcaption>
-<audio controls> <source src="snd/wilkinson.wav" type="audio/wav"> </audio>
+<audio controls> <source src="snd/wilkinson.wav" type="audio/wav">
+</audio>
 </figure></li>
 </ol>
 <figure>
@@ -778,7 +911,8 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <ol start="5" type="1">
 <li>McNulty のフィルタ
 </figcaption>
-<audio controls> <source src="snd/mcnulty.wav" type="audio/wav"> </audio>
+<audio controls> <source src="snd/mcnulty.wav" type="audio/wav">
+</audio>
 </figure></li>
 </ol>
 <figure>
@@ -789,19 +923,29 @@ H_{Hilbert}(s) =&amp;\; H_{\mathrm{Re}}(s) - j H_{\mathrm{Im}}(s)
 <audio controls> <source src="snd/chuck.wav" type="audio/wav"> </audio>
 </figure></li>
 </ol>
-<p>Wilkinson のフィルタは特性は問題ないのですが、うまく周波数シフトできていません。<a href="https://ccrma.stanford.edu/~jos/fp/Series_Second_Order_Sections.html">直列2次セクション</a>に変換するときに何か問題があるのかもしれません。 Wasabi のフィルタもノイズがはっきりと聞き取れます。</p>
+<p>Wilkinson
+のフィルタは特性は問題ないのですが、うまく周波数シフトできていません。<a
+href="https://ccrma.stanford.edu/~jos/fp/Series_Second_Order_Sections.html">直列2次セクション</a>に変換するときに何か問題があるのかもしれません。
+Wasabi のフィルタもノイズがはっきりと聞き取れます。</p>
 <h2 id="その他">その他</h2>
 <h3 id="周波数特性の位相差">周波数特性の位相差</h3>
-<p>伝達関数の周波数特性は複素数で表されているので、位相差の計算 <span class="math inline">\(\angle (H_{\mathrm{Re}} / H_{\mathrm{Im}})\)</span> では除算が出てきます。複素数の除算は次のように書けます。</p>
+<p>伝達関数の周波数特性は複素数で表されているので、位相差の計算 <span
+class="math inline">\(\angle (H_{\mathrm{Re}} /
+H_{\mathrm{Im}})\)</span>
+では除算が出てきます。複素数の除算は次のように書けます。</p>
 <p><span class="math display">\[
 \frac{z_1}{z_2} = \frac{r_1}{r_2} e^{j (\phi_1 - \phi_2)},\quad
 z_1 = r_1 e^{j \phi_1},\quad
 z_2 = r_2 e^{j \phi_2}
 \]</span></p>
-<p>よって <span class="math inline">\(\angle (z_1 / z_2)\)</span> は <span class="math inline">\(\phi_1 - \phi_2\)</span> です。</p>
-<h3 id="scipy.signal-の-sos"><code>scipy.signal</code> の <code>sos</code></h3>
-<p><code>scipy.signal</code> で <code>sos</code> と略されている cascaded second-order sections のデータ構造です。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> [</span>
+<p>よって <span class="math inline">\(\angle (z_1 / z_2)\)</span> は
+<span class="math inline">\(\phi_1 - \phi_2\)</span> です。</p>
+<h3 id="scipy.signal-の-sos"><code>scipy.signal</code> の
+<code>sos</code></h3>
+<p><code>scipy.signal</code> で <code>sos</code> と略されている cascaded
+second-order sections のデータ構造です。</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> [</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  [b00, b01, b02, <span class="dv">1</span>, a01, a02],</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  [b10, b11, b12, <span class="dv">1</span>, a11, a12],</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  [b20, b21, b22, <span class="dv">1</span>, a21, a22],</span>
@@ -821,7 +965,8 @@ H(z) =
   \times \dots
 \]</span></p>
 <h3 id="pure-data-の-biquad">Pure Data の <code>biquad~</code></h3>
-<p>Pure Data の <code>biquad~</code> の係数を移植するときは <code>fb</code> の符号を逆にしないと正しく動かないことがあります。</p>
+<p>Pure Data の <code>biquad~</code> の係数を移植するときは
+<code>fb</code> の符号を逆にしないと正しく動かないことがあります。</p>
 <p><code>biquad~</code> の引数です。</p>
 <pre class="puredata"><code>&quot;biquad~&quot; [fb1] [fb2] [ff1] [ff2] [ff3]</code></pre>
 <p><code>biquad~</code> の伝達関数です。</p>
@@ -836,11 +981,18 @@ H(z) = \frac{
 <pre class="python3"><code>sos_biquad = [[ff1, ff2, ff3, 1, -fb1, -fb2]]
 output = scipy.signal.sosfilt(sos_biquad, some_signal)</code></pre>
 <ul>
-<li><a href="http://www.pd-tutorial.com/english/ch03s03.html">Programming Electronic Music in Pd - 3.3 Subtractive synthesis</a></li>
+<li><a
+href="http://www.pd-tutorial.com/english/ch03s03.html">Programming
+Electronic Music in Pd - 3.3 Subtractive synthesis</a></li>
 </ul>
 <h3 id="ピッチシフトと周波数シフト">ピッチシフトと周波数シフト</h3>
-<p><a href="http://music.fullbucket.de/freqshifter.html">full bucket music の Frequency Shifter</a> の説明文によるとピッチシフトと周波数シフトとは別物です。ピッチシフトは倍音構造が保持されますが、周波数シフトは倍音構造が崩れてしまうからです。</p>
-<p>この記事はもともと AM ピッチシフトという呼び方を使っていましたが、今は AM 周波数シフトという呼び方に変更しました。 URL が <code>am_pitchshift.html</code> となっているのはその名残です。</p>
+<p><a href="http://music.fullbucket.de/freqshifter.html">full bucket
+music の Frequency Shifter</a>
+の説明文によるとピッチシフトと周波数シフトとは別物です。ピッチシフトは倍音構造が保持されますが、周波数シフトは倍音構造が崩れてしまうからです。</p>
+<p>この記事はもともと AM
+ピッチシフトという呼び方を使っていましたが、今は AM
+周波数シフトという呼び方に変更しました。 URL が
+<code>am_pitchshift.html</code> となっているのはその名残です。</p>
 <h2 id="変更点">変更点</h2>
 <ul>
 <li>2022/05/08
@@ -849,7 +1001,8 @@ output = scipy.signal.sosfilt(sos_biquad, some_signal)</code></pre>
 </ul></li>
 <li>2019/08/06
 <ul>
-<li>コードの <code>shift_hz</code> が誤って周波数のまま扱われていた部分を角周波数に修正。</li>
+<li>コードの <code>shift_hz</code>
+が誤って周波数のまま扱われていた部分を角周波数に修正。</li>
 </ul></li>
 </ul>
 <footer>

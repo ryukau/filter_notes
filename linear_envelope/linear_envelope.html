@@ -5,33 +5,34 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2020-03-27" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>linear_envelope</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +53,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -324,6 +325,10 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
 </head>
@@ -336,63 +341,86 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2020-03-27
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#直線の-adsr-エンベロープ">直線の ADSR エンベロープ</a><ul>
-<li><a href="#adsr-エンベロープ">ADSR エンベロープ</a></li>
-<li><a href="#直線の計算">直線の計算</a></li>
-<li><a href="#挙動">挙動</a><ul>
-<li><a href="#ノートオン中の-adsr-の変更">ノートオン中の ADSR の変更</a></li>
-<li><a href="#アタック中のリリース">アタック中のリリース</a></li>
-<li><a href="#ディケイ中のリリース">ディケイ中のリリース</a></li>
-<li><a href="#リリース中のノートオン">リリース中のノートオン</a></li>
+<li><a href="#直線の-adsr-エンベロープ"
+id="toc-直線の-adsr-エンベロープ">直線の ADSR エンベロープ</a>
+<ul>
+<li><a href="#adsr-エンベロープ" id="toc-adsr-エンベロープ">ADSR
+エンベロープ</a></li>
+<li><a href="#直線の計算" id="toc-直線の計算">直線の計算</a></li>
+<li><a href="#挙動" id="toc-挙動">挙動</a>
+<ul>
+<li><a href="#ノートオン中の-adsr-の変更"
+id="toc-ノートオン中の-adsr-の変更">ノートオン中の ADSR の変更</a></li>
+<li><a href="#アタック中のリリース"
+id="toc-アタック中のリリース">アタック中のリリース</a></li>
+<li><a href="#ディケイ中のリリース"
+id="toc-ディケイ中のリリース">ディケイ中のリリース</a></li>
+<li><a href="#リリース中のノートオン"
+id="toc-リリース中のノートオン">リリース中のノートオン</a></li>
 </ul></li>
-<li><a href="#実装">実装</a></li>
-<li><a href="#テスト">テスト</a></li>
-<li><a href="#simd-による並列化">SIMD による並列化</a></li>
-<li><a href="#記事の変更点">記事の変更点</a></li>
+<li><a href="#実装" id="toc-実装">実装</a></li>
+<li><a href="#テスト" id="toc-テスト">テスト</a></li>
+<li><a href="#simd-による並列化" id="toc-simd-による並列化">SIMD
+による並列化</a></li>
+<li><a href="#記事の変更点" id="toc-記事の変更点">記事の変更点</a></li>
 </ul></li>
 </ul>
 </nav>
 </details>
 </header>
 <h1 id="直線の-adsr-エンベロープ">直線の ADSR エンベロープ</h1>
-<p>シンセサイザに使う直線を組み合わせた ADSR エンベロープを実装します。計算はシンプルですが、場合分けの塊なのでテストのポイントをまとめています。</p>
+<p>シンセサイザに使う直線を組み合わせた ADSR
+エンベロープを実装します。計算はシンプルですが、場合分けの塊なのでテストのポイントをまとめています。</p>
 <h2 id="adsr-エンベロープ">ADSR エンベロープ</h2>
-<p>シンセサイザでよく使われるエンベロープは、トリガされると low から high に向かって増加したあと high から low に向かって減少するような信号を出力します。例えばエンベロープの出力をオシレータの出力やサンプルデータと掛け合わせることで音量の変化を作ることができます。</p>
-<p>よくあるシンセサイザのエンベロープはアタック、ディケイ、サステイン、リリース (Attack, Decay, Sustain, Release) の4つの区間が組み合わさっています。4つの区間をそれぞれ1文字に略して ADSR と言うことがあります。次の図は ADSR エンベロープを表しています。</p>
+<p>シンセサイザでよく使われるエンベロープは、トリガされると low から
+high に向かって増加したあと high から low
+に向かって減少するような信号を出力します。例えばエンベロープの出力をオシレータの出力やサンプルデータと掛け合わせることで音量の変化を作ることができます。</p>
+<p>よくあるシンセサイザのエンベロープはアタック、ディケイ、サステイン、リリース
+(Attack, Decay, Sustain, Release)
+の4つの区間が組み合わさっています。4つの区間をそれぞれ1文字に略して ADSR
+と言うことがあります。次の図は ADSR エンベロープを表しています。</p>
 <figure>
 <img src="img/adsr_envelope.svg" alt="Image of ADOsc audio graph." style="padding-bottom: 12px;"/>
 </figure>
-<p>アタックは low から high までの立ち上がりにかかる時間、 ディケイは high からサステインの値までの減衰にかかる時間です。</p>
+<p>アタックは low から high までの立ち上がりにかかる時間、 ディケイは
+high からサステインの値までの減衰にかかる時間です。</p>
 <p>サステインは、ディケイの終わりから指が鍵盤が離される(ノートオフ)までの区間ですが、ユーザが操作するパラメータとしてはその区間でエンベロープが出力する値の大きさになっています。</p>
-<p>リリースはノートオフの後、エンベロープが low まで減衰するのにかかる時間です。アタックやディケイの途中でノートオフされたときもリリースに移行します。</p>
+<p>リリースはノートオフの後、エンベロープが low
+まで減衰するのにかかる時間です。アタックやディケイの途中でノートオフされたときもリリースに移行します。</p>
 <h2 id="直線の計算">直線の計算</h2>
-<p>一つの区間での直線の計算の実装例です。出力の範囲は [0, 1] です。移動距離 1 と、区間の長さ <code>seconds</code> から、速度 <code>delta</code> [gain/sample] を計算しています。距離の単位はメートルなどではない抽象的な値なので適当に gain としています。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">struct</span> LinearAttack {</span>
-<span id="cb1-2"><a href="#cb1-2"></a>  <span class="dt">float</span> delta;</span>
-<span id="cb1-3"><a href="#cb1-3"></a>  <span class="dt">float</span> value = <span class="dv">0</span>;</span>
-<span id="cb1-4"><a href="#cb1-4"></a></span>
-<span id="cb1-5"><a href="#cb1-5"></a>  LinearAttack(<span class="dt">float</span> sampleRate, <span class="dt">float</span> seconds) : delta(<span class="fl">1.0</span><span class="bu">f</span> / (seconds * sampleRate)) {}</span>
-<span id="cb1-6"><a href="#cb1-6"></a></span>
-<span id="cb1-7"><a href="#cb1-7"></a>  <span class="dt">float</span> process()</span>
-<span id="cb1-8"><a href="#cb1-8"></a>  {</span>
-<span id="cb1-9"><a href="#cb1-9"></a>    value += delta;</span>
-<span id="cb1-10"><a href="#cb1-10"></a>    <span class="cf">if</span> (value &gt; <span class="fl">1.0</span><span class="bu">f</span>) <span class="cf">return</span> <span class="fl">1.0</span><span class="bu">f</span>;</span>
-<span id="cb1-11"><a href="#cb1-11"></a>    <span class="cf">return</span> value;</span>
-<span id="cb1-12"><a href="#cb1-12"></a>  }</span>
-<span id="cb1-13"><a href="#cb1-13"></a>};</span></code></pre></div>
+<p>一つの区間での直線の計算の実装例です。出力の範囲は [0, 1]
+です。移動距離 1 と、区間の長さ <code>seconds</code> から、速度
+<code>delta</code> [gain/sample]
+を計算しています。距離の単位はメートルなどではない抽象的な値なので適当に
+gain としています。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> LinearAttack <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> delta<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  LinearAttack<span class="op">(</span><span class="dt">float</span> sampleRate<span class="op">,</span> <span class="dt">float</span> seconds<span class="op">)</span> <span class="op">:</span> delta<span class="op">(</span><span class="fl">1.0</span><span class="bu">f</span> <span class="op">/</span> <span class="op">(</span>seconds <span class="op">*</span> sampleRate<span class="op">))</span> <span class="op">{}</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> process<span class="op">()</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    value <span class="op">+=</span> delta<span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>value <span class="op">&gt;</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> <span class="cf">return</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> value<span class="op">;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p><code>process</code> の出力を表した図です。</p>
 <figure>
 <img src="img/line.svg" alt="Image of a section of line." style="padding-bottom: 12px;"/>
 </figure>
 <h2 id="挙動">挙動</h2>
 <h3 id="ノートオン中の-adsr-の変更">ノートオン中の ADSR の変更</h3>
-<p>ノートオン中に ADSR のパラメータを変更可能にするかどうかの選択があります。パラメータを変更可能にしたほうが便利ですが、傾きを再計算するコストがかかります。全てのサンプルで傾きを再計算すると無視できないほど重くなるので、この文章ではバッファの先頭でのみ傾きの再計算を行うようにしています。</p>
+<p>ノートオン中に ADSR
+のパラメータを変更可能にするかどうかの選択があります。パラメータを変更可能にしたほうが便利ですが、傾きを再計算するコストがかかります。全てのサンプルで傾きを再計算すると無視できないほど重くなるので、この文章ではバッファの先頭でのみ傾きの再計算を行うようにしています。</p>
 <p>リリースについてはサステインが変更されている途中でノートオフされると、ノートオフの時点でさらに傾きを計算し直すかどうかの選択があります。今回の実装では傾きを再計算しています。</p>
 <h3 id="アタック中のリリース">アタック中のリリース</h3>
 <p>ノートオフの時点の高さから減衰を始めます。</p>
@@ -405,248 +433,277 @@ Update: 2020-03-27
 <img src="img/release_while_decay.svg" alt="Image of envelope receiving note-off while decay." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="リリース中のノートオン">リリース中のノートオン</h3>
-<p>左の図のようにノートオンの時点での高さを維持してアタックに移る挙動と、右の図のようにノートオンごとに高さを 0 にリセットする挙動の 2 種類が考えられます。</p>
+<p>左の図のようにノートオンの時点での高さを維持してアタックに移る挙動と、右の図のようにノートオンごとに高さを
+0 にリセットする挙動の 2 種類が考えられます。</p>
 <figure>
 <img src="img/trigger_while_release.svg" alt="Image of 2 variation of envelope when receiving note-on while release." style="padding-bottom: 12px;"/>
 </figure>
-<p>特殊な場合を除けば、高さを維持する挙動を使うほうがポップノイズが減ります。 <a href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a> では、ノートオンを受け取ったボイスから、ポップノイズを減らすために用意された専用のボイスにパラメータをコピーして短いリリースをレンダリングすることでポップノイズを低減しているので、音量エンベロープに高さをリセットする挙動を使っています。</p>
+<p>特殊な場合を除けば、高さを維持する挙動を使うほうがポップノイズが減ります。
+<a
+href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a>
+では、ノートオンを受け取ったボイスから、ポップノイズを減らすために用意された専用のボイスにパラメータをコピーして短いリリースをレンダリングすることでポップノイズを低減しているので、音量エンベロープに高さをリセットする挙動を使っています。</p>
 <h2 id="実装">実装</h2>
-<p>C++ です。 <code>std::clamp</code> を使っているので C++17 以降で動作します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">// linear_envelope.hpp</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="pp">#include </span><span class="im">&lt;cstdint&gt;</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="kw">template</span>&lt;<span class="kw">typename</span> Sample&gt; <span class="kw">class</span> LinearADSREnvelope {</span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="kw">public</span>:</span>
-<span id="cb2-7"><a href="#cb2-7"></a>  <span class="dt">void</span> setup(Sample sampleRate) { <span class="kw">this</span>-&gt;sampleRate = sampleRate; }</span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a>  Sample adaptTime(Sample seconds, Sample noteFreq)</span>
-<span id="cb2-10"><a href="#cb2-10"></a>  {</span>
-<span id="cb2-11"><a href="#cb2-11"></a>    <span class="at">const</span> Sample cycle = Sample(<span class="dv">1</span>) / noteFreq;</span>
-<span id="cb2-12"><a href="#cb2-12"></a>    <span class="cf">return</span> seconds &gt;= cycle ? seconds : cycle &gt; Sample(<span class="fl">0.1</span>) ? Sample(<span class="fl">0.1</span>) : cycle;</span>
-<span id="cb2-13"><a href="#cb2-13"></a>  }</span>
-<span id="cb2-14"><a href="#cb2-14"></a></span>
-<span id="cb2-15"><a href="#cb2-15"></a>  Sample secondToDelta(Sample seconds) { <span class="cf">return</span> Sample(<span class="dv">1</span>) / (sampleRate * seconds); }</span>
-<span id="cb2-16"><a href="#cb2-16"></a></span>
-<span id="cb2-17"><a href="#cb2-17"></a>  <span class="dt">void</span> trigger(</span>
-<span id="cb2-18"><a href="#cb2-18"></a>    Sample attackTime,</span>
-<span id="cb2-19"><a href="#cb2-19"></a>    Sample decayTime,</span>
-<span id="cb2-20"><a href="#cb2-20"></a>    Sample sustainLevel,</span>
-<span id="cb2-21"><a href="#cb2-21"></a>    Sample releaseTime,</span>
-<span id="cb2-22"><a href="#cb2-22"></a>    Sample noteFreq)</span>
-<span id="cb2-23"><a href="#cb2-23"></a>  {</span>
-<span id="cb2-24"><a href="#cb2-24"></a>    state = stateAttack;</span>
-<span id="cb2-25"><a href="#cb2-25"></a>    value = Sample(<span class="dv">1</span>);</span>
-<span id="cb2-26"><a href="#cb2-26"></a>    atkOffset = state == stateTerminated ? <span class="dv">0</span> : out;</span>
-<span id="cb2-27"><a href="#cb2-27"></a>    atkRange = Sample(<span class="dv">1</span>) - atkOffset;</span>
-<span id="cb2-28"><a href="#cb2-28"></a>    set(attackTime, decayTime, sustainLevel, releaseTime, noteFreq);</span>
-<span id="cb2-29"><a href="#cb2-29"></a>  }</span>
-<span id="cb2-30"><a href="#cb2-30"></a></span>
-<span id="cb2-31"><a href="#cb2-31"></a>  <span class="dt">void</span> set(</span>
-<span id="cb2-32"><a href="#cb2-32"></a>    Sample attackTime,</span>
-<span id="cb2-33"><a href="#cb2-33"></a>    Sample decayTime,</span>
-<span id="cb2-34"><a href="#cb2-34"></a>    Sample sustainLevel,</span>
-<span id="cb2-35"><a href="#cb2-35"></a>    Sample releaseTime,</span>
-<span id="cb2-36"><a href="#cb2-36"></a>    Sample noteFreq)</span>
-<span id="cb2-37"><a href="#cb2-37"></a>  {</span>
-<span id="cb2-38"><a href="#cb2-38"></a>    sus = <span class="bu">std::</span>clamp&lt;Sample&gt;(sustainLevel, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</span>
-<span id="cb2-39"><a href="#cb2-39"></a>    atk = secondToDelta(adaptTime(attackTime, noteFreq));</span>
-<span id="cb2-40"><a href="#cb2-40"></a>    dec = secondToDelta(adaptTime(decayTime, noteFreq));</span>
-<span id="cb2-41"><a href="#cb2-41"></a>    rel = secondToDelta(adaptTime(releaseTime, noteFreq));</span>
-<span id="cb2-42"><a href="#cb2-42"></a>  }</span>
-<span id="cb2-43"><a href="#cb2-43"></a></span>
-<span id="cb2-44"><a href="#cb2-44"></a>  <span class="dt">void</span> release()</span>
-<span id="cb2-45"><a href="#cb2-45"></a>  {</span>
-<span id="cb2-46"><a href="#cb2-46"></a>    state = stateRelease;</span>
-<span id="cb2-47"><a href="#cb2-47"></a>    value = Sample(<span class="dv">1</span>);</span>
-<span id="cb2-48"><a href="#cb2-48"></a>    relRange = out;</span>
-<span id="cb2-49"><a href="#cb2-49"></a>  }</span>
-<span id="cb2-50"><a href="#cb2-50"></a></span>
-<span id="cb2-51"><a href="#cb2-51"></a>  Sample process()</span>
-<span id="cb2-52"><a href="#cb2-52"></a>  {</span>
-<span id="cb2-53"><a href="#cb2-53"></a>    <span class="cf">if</span> (value &lt;= Sample(<span class="dv">0</span>)) {</span>
-<span id="cb2-54"><a href="#cb2-54"></a>      state = state + <span class="dv">1</span>;</span>
-<span id="cb2-55"><a href="#cb2-55"></a>      value = Sample(<span class="dv">1</span>);</span>
-<span id="cb2-56"><a href="#cb2-56"></a>    }</span>
-<span id="cb2-57"><a href="#cb2-57"></a></span>
-<span id="cb2-58"><a href="#cb2-58"></a>    <span class="cf">switch</span> (state) {</span>
-<span id="cb2-59"><a href="#cb2-59"></a>      <span class="cf">case</span> stateAttack:</span>
-<span id="cb2-60"><a href="#cb2-60"></a>        value -= atk;</span>
-<span id="cb2-61"><a href="#cb2-61"></a>        out = atkOffset + atkRange * (Sample(<span class="dv">1</span>) - value);</span>
-<span id="cb2-62"><a href="#cb2-62"></a>        <span class="cf">break</span>;</span>
-<span id="cb2-63"><a href="#cb2-63"></a></span>
-<span id="cb2-64"><a href="#cb2-64"></a>      <span class="cf">case</span> stateDecay:</span>
-<span id="cb2-65"><a href="#cb2-65"></a>        value -= dec;</span>
-<span id="cb2-66"><a href="#cb2-66"></a>        out = (Sample(<span class="dv">1</span>) - sus) * value + sus;</span>
-<span id="cb2-67"><a href="#cb2-67"></a>        <span class="cf">break</span>;</span>
-<span id="cb2-68"><a href="#cb2-68"></a></span>
-<span id="cb2-69"><a href="#cb2-69"></a>      <span class="cf">case</span> stateSustain:</span>
-<span id="cb2-70"><a href="#cb2-70"></a>        out = sus;</span>
-<span id="cb2-71"><a href="#cb2-71"></a>        <span class="cf">break</span>;</span>
-<span id="cb2-72"><a href="#cb2-72"></a></span>
-<span id="cb2-73"><a href="#cb2-73"></a>      <span class="cf">case</span> stateRelease:</span>
-<span id="cb2-74"><a href="#cb2-74"></a>        value -= rel;</span>
-<span id="cb2-75"><a href="#cb2-75"></a>        out = relRange * value;</span>
-<span id="cb2-76"><a href="#cb2-76"></a>        <span class="cf">break</span>;</span>
-<span id="cb2-77"><a href="#cb2-77"></a></span>
-<span id="cb2-78"><a href="#cb2-78"></a>      <span class="cf">default</span>:</span>
-<span id="cb2-79"><a href="#cb2-79"></a>        <span class="cf">return</span> Sample(<span class="dv">0</span>);</span>
-<span id="cb2-80"><a href="#cb2-80"></a>    }</span>
-<span id="cb2-81"><a href="#cb2-81"></a>    <span class="cf">return</span> <span class="bu">std::</span>clamp&lt;Sample&gt;(out, Sample(<span class="dv">0</span>), Sample(<span class="dv">1</span>));</span>
-<span id="cb2-82"><a href="#cb2-82"></a>  }</span>
-<span id="cb2-83"><a href="#cb2-83"></a></span>
-<span id="cb2-84"><a href="#cb2-84"></a><span class="kw">protected</span>:</span>
-<span id="cb2-85"><a href="#cb2-85"></a>  <span class="kw">enum</span> State : <span class="dt">int32_t</span> {</span>
-<span id="cb2-86"><a href="#cb2-86"></a>    stateAttack,</span>
-<span id="cb2-87"><a href="#cb2-87"></a>    stateDecay,</span>
-<span id="cb2-88"><a href="#cb2-88"></a>    stateSustain,</span>
-<span id="cb2-89"><a href="#cb2-89"></a>    stateRelease,</span>
-<span id="cb2-90"><a href="#cb2-90"></a>    stateTerminated</span>
-<span id="cb2-91"><a href="#cb2-91"></a>  };</span>
-<span id="cb2-92"><a href="#cb2-92"></a></span>
-<span id="cb2-93"><a href="#cb2-93"></a>  Sample sampleRate = <span class="dv">44100</span>;</span>
-<span id="cb2-94"><a href="#cb2-94"></a>  Sample sus = <span class="fl">0.5</span>;</span>
-<span id="cb2-95"><a href="#cb2-95"></a>  Sample atk = <span class="fl">0.01</span>;</span>
-<span id="cb2-96"><a href="#cb2-96"></a>  Sample atkOffset = <span class="dv">0</span>;</span>
-<span id="cb2-97"><a href="#cb2-97"></a>  Sample atkRange = <span class="dv">1</span>;</span>
-<span id="cb2-98"><a href="#cb2-98"></a>  Sample dec = <span class="fl">0.01</span>;</span>
-<span id="cb2-99"><a href="#cb2-99"></a>  Sample rel = <span class="fl">0.01</span>;</span>
-<span id="cb2-100"><a href="#cb2-100"></a>  Sample relRange = <span class="fl">0.5</span>;</span>
-<span id="cb2-101"><a href="#cb2-101"></a>  Sample value = <span class="dv">0</span>;</span>
-<span id="cb2-102"><a href="#cb2-102"></a>  Sample out = <span class="dv">0</span>;</span>
-<span id="cb2-103"><a href="#cb2-103"></a>  <span class="dt">int32_t</span> state = stateTerminated;</span>
-<span id="cb2-104"><a href="#cb2-104"></a>};</span></code></pre></div>
-<p><code>adaptTime</code> は信号の周波数に応じて区間の時間を少し長くすることで、ポップノイズを低減するメソッドです。</p>
-<p><code>secondToDelta</code> は秒数から 1 サンプルあたりのエンベロープの値の変化量を計算します。各区間の内部的な出力は [0, 1] の範囲に正規化されています。 <code>process</code> から出力されるときに適切な値にマッピングしています。</p>
-<p><code>trigger</code> の引数の <code>*Time</code> の単位は秒です。リリース中のノートオンは高さを維持する挙動にしています。</p>
-<p><code>set</code> は UI で変更されたパラメータを更新するために呼び出します。今回の実装ではサステイン中に <code>sustainLevel</code> を変更するとノイズが乗ります。ノイズを減らすときは次のページで紹介している <code>Smoother</code> クラスが使えます。</p>
+<p>C++ です。 <code>std::clamp</code> を使っているので C++17
+以降で動作します。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// linear_envelope.hpp</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cstdint&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> LinearADSREnvelope <span class="op">{</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setup<span class="op">(</span>Sample sampleRate<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">-&gt;</span>sampleRate <span class="op">=</span> sampleRate<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  Sample adaptTime<span class="op">(</span>Sample seconds<span class="op">,</span> Sample noteFreq<span class="op">)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample cycle <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> noteFreq<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> seconds <span class="op">&gt;=</span> cycle <span class="op">?</span> seconds <span class="op">:</span> cycle <span class="op">&gt;</span> Sample<span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">?</span> Sample<span class="op">(</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">:</span> cycle<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  Sample secondToDelta<span class="op">(</span>Sample seconds<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>sampleRate <span class="op">*</span> seconds<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> trigger<span class="op">(</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    Sample attackTime<span class="op">,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    Sample decayTime<span class="op">,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    Sample sustainLevel<span class="op">,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    Sample releaseTime<span class="op">,</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    Sample noteFreq<span class="op">)</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> stateAttack<span class="op">;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    atkOffset <span class="op">=</span> state <span class="op">==</span> stateTerminated <span class="op">?</span> <span class="dv">0</span> <span class="op">:</span> out<span class="op">;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    atkRange <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> atkOffset<span class="op">;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    set<span class="op">(</span>attackTime<span class="op">,</span> decayTime<span class="op">,</span> sustainLevel<span class="op">,</span> releaseTime<span class="op">,</span> noteFreq<span class="op">);</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> set<span class="op">(</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    Sample attackTime<span class="op">,</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    Sample decayTime<span class="op">,</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    Sample sustainLevel<span class="op">,</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    Sample releaseTime<span class="op">,</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    Sample noteFreq<span class="op">)</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    sus <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>sustainLevel<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    atk <span class="op">=</span> secondToDelta<span class="op">(</span>adaptTime<span class="op">(</span>attackTime<span class="op">,</span> noteFreq<span class="op">));</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    dec <span class="op">=</span> secondToDelta<span class="op">(</span>adaptTime<span class="op">(</span>decayTime<span class="op">,</span> noteFreq<span class="op">));</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    rel <span class="op">=</span> secondToDelta<span class="op">(</span>adaptTime<span class="op">(</span>releaseTime<span class="op">,</span> noteFreq<span class="op">));</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> release<span class="op">()</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> stateRelease<span class="op">;</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    relRange <span class="op">=</span> out<span class="op">;</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">()</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>value <span class="op">&lt;=</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>      state <span class="op">=</span> state <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>      value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">switch</span> <span class="op">(</span>state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> stateAttack<span class="op">:</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>        value <span class="op">-=</span> atk<span class="op">;</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> atkOffset <span class="op">+</span> atkRange <span class="op">*</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> value<span class="op">);</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> stateDecay<span class="op">:</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>        value <span class="op">-=</span> dec<span class="op">;</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> sus<span class="op">)</span> <span class="op">*</span> value <span class="op">+</span> sus<span class="op">;</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> stateSustain<span class="op">:</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> sus<span class="op">;</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>      <span class="cf">case</span> stateRelease<span class="op">:</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>        value <span class="op">-=</span> rel<span class="op">;</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> relRange <span class="op">*</span> value<span class="op">;</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>      <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>out<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>  <span class="kw">enum</span> State <span class="op">:</span> <span class="dt">int32_t</span> <span class="op">{</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    stateAttack<span class="op">,</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    stateDecay<span class="op">,</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>    stateSustain<span class="op">,</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>    stateRelease<span class="op">,</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>    stateTerminated</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>  Sample sampleRate <span class="op">=</span> <span class="dv">44100</span><span class="op">;</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>  Sample sus <span class="op">=</span> <span class="fl">0.5</span><span class="op">;</span></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>  Sample atk <span class="op">=</span> <span class="fl">0.01</span><span class="op">;</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>  Sample atkOffset <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>  Sample atkRange <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>  Sample dec <span class="op">=</span> <span class="fl">0.01</span><span class="op">;</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>  Sample rel <span class="op">=</span> <span class="fl">0.01</span><span class="op">;</span></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>  Sample relRange <span class="op">=</span> <span class="fl">0.5</span><span class="op">;</span></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>  Sample out <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int32_t</span> state <span class="op">=</span> stateTerminated<span class="op">;</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><code>adaptTime</code>
+は信号の周波数に応じて区間の時間を少し長くすることで、ポップノイズを低減するメソッドです。</p>
+<p><code>secondToDelta</code> は秒数から 1
+サンプルあたりのエンベロープの値の変化量を計算します。各区間の内部的な出力は
+[0, 1] の範囲に正規化されています。 <code>process</code>
+から出力されるときに適切な値にマッピングしています。</p>
+<p><code>trigger</code> の引数の <code>*Time</code>
+の単位は秒です。リリース中のノートオンは高さを維持する挙動にしています。</p>
+<p><code>set</code> は UI
+で変更されたパラメータを更新するために呼び出します。今回の実装ではサステイン中に
+<code>sustainLevel</code>
+を変更するとノイズが乗ります。ノイズを減らすときは次のページで紹介している
+<code>Smoother</code> クラスが使えます。</p>
 <ul>
-<li><a href="https://ryukau.github.io/filter_notes/control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの UI から入力された値の補間</a></li>
+<li><a
+href="https://ryukau.github.io/filter_notes/control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの
+UI から入力された値の補間</a></li>
 </ul>
-<p><code>process</code> はエンベロープの出力を計算します。出力が [0, 1] の範囲から少しだけはみ出してもいいなら <code>clamp</code> を消すことができます。このとき、はみ出す量の絶対値の上限は <code>1 / (sampleRate * seconds)</code> です。</p>
+<p><code>process</code> はエンベロープの出力を計算します。出力が [0, 1]
+の範囲から少しだけはみ出してもいいなら <code>clamp</code>
+を消すことができます。このとき、はみ出す量の絶対値の上限は
+<code>1 / (sampleRate * seconds)</code> です。</p>
 <h2 id="テスト">テスト</h2>
-<p>wav ファイルへの書き出しに <a href="http://www.mega-nerd.com/libsndfile/">libsndfile</a> を使っています。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">// test.cpp</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="pp">#include </span><span class="im">&quot;linear_envelope.hpp&quot;</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a><span class="pp">#include </span><span class="im">&lt;sndfile.h&gt;</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
-<span id="cb3-9"><a href="#cb3-9"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a></span>
-<span id="cb3-11"><a href="#cb3-11"></a><span class="kw">using</span> Sample = <span class="dt">float</span>;</span>
-<span id="cb3-12"><a href="#cb3-12"></a></span>
-<span id="cb3-13"><a href="#cb3-13"></a><span class="kw">constexpr</span> Sample sampleRate = <span class="fl">44100.0</span>;</span>
-<span id="cb3-14"><a href="#cb3-14"></a></span>
-<span id="cb3-15"><a href="#cb3-15"></a><span class="dt">int32_t</span></span>
-<span id="cb3-16"><a href="#cb3-16"></a>writeWave(<span class="at">const</span> <span class="dt">char</span> *filename, <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; &amp;buffer, <span class="at">const</span> <span class="dt">size_t</span> &amp;samplerate)</span>
-<span id="cb3-17"><a href="#cb3-17"></a>{</span>
-<span id="cb3-18"><a href="#cb3-18"></a>  SF_INFO sfinfo;</span>
-<span id="cb3-19"><a href="#cb3-19"></a>  memset(&amp;sfinfo, <span class="dv">0</span>, <span class="kw">sizeof</span>(sfinfo));</span>
-<span id="cb3-20"><a href="#cb3-20"></a>  sfinfo.samplerate = samplerate;</span>
-<span id="cb3-21"><a href="#cb3-21"></a>  sfinfo.frames = buffer.size();</span>
-<span id="cb3-22"><a href="#cb3-22"></a>  sfinfo.channels = <span class="dv">1</span>;</span>
-<span id="cb3-23"><a href="#cb3-23"></a>  sfinfo.format = (SF_FORMAT_WAV | SF_FORMAT_FLOAT);</span>
-<span id="cb3-24"><a href="#cb3-24"></a></span>
-<span id="cb3-25"><a href="#cb3-25"></a>  SNDFILE *file = sf_open(filename, SFM_WRITE, &amp;sfinfo);</span>
-<span id="cb3-26"><a href="#cb3-26"></a>  <span class="cf">if</span> (!file) {</span>
-<span id="cb3-27"><a href="#cb3-27"></a>    <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Error: sf_open failed.&quot;</span> &lt;&lt; <span class="bu">std::</span>endl;</span>
-<span id="cb3-28"><a href="#cb3-28"></a>    <span class="cf">return</span> <span class="dv">1</span>;</span>
-<span id="cb3-29"><a href="#cb3-29"></a>  }</span>
-<span id="cb3-30"><a href="#cb3-30"></a></span>
-<span id="cb3-31"><a href="#cb3-31"></a>  <span class="dt">size_t</span> length = sfinfo.channels * buffer.size();</span>
-<span id="cb3-32"><a href="#cb3-32"></a>  <span class="cf">if</span> (sf_write_float(file, &amp;buffer[<span class="dv">0</span>], length) != length)</span>
-<span id="cb3-33"><a href="#cb3-33"></a>    <span class="bu">std::</span>cout &lt;&lt; sf_strerror(file) &lt;&lt; <span class="bu">std::</span>endl;</span>
-<span id="cb3-34"><a href="#cb3-34"></a></span>
-<span id="cb3-35"><a href="#cb3-35"></a>  sf_close(file);</span>
-<span id="cb3-36"><a href="#cb3-36"></a></span>
-<span id="cb3-37"><a href="#cb3-37"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb3-38"><a href="#cb3-38"></a>}</span>
-<span id="cb3-39"><a href="#cb3-39"></a></span>
-<span id="cb3-40"><a href="#cb3-40"></a><span class="dt">void</span> testADSR(</span>
-<span id="cb3-41"><a href="#cb3-41"></a>  <span class="dt">float</span> attackTime = <span class="fl">1.0</span><span class="bu">f</span>,</span>
-<span id="cb3-42"><a href="#cb3-42"></a>  <span class="dt">float</span> decayTime = <span class="fl">1.0</span><span class="bu">f</span>,</span>
-<span id="cb3-43"><a href="#cb3-43"></a>  <span class="dt">float</span> sustainLevel = <span class="fl">0.5</span><span class="bu">f</span>,</span>
-<span id="cb3-44"><a href="#cb3-44"></a>  <span class="dt">float</span> releaseTime = <span class="fl">2.0</span><span class="bu">f</span>,</span>
-<span id="cb3-45"><a href="#cb3-45"></a>  <span class="dt">float</span> releaseAt = <span class="fl">3.0</span><span class="bu">f</span>,</span>
-<span id="cb3-46"><a href="#cb3-46"></a>  <span class="dt">float</span> noteFreq = <span class="fl">100.0</span><span class="bu">f</span>)</span>
-<span id="cb3-47"><a href="#cb3-47"></a>{</span>
-<span id="cb3-48"><a href="#cb3-48"></a>  LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</span>
-<span id="cb3-49"><a href="#cb3-49"></a>  envelope.setup(sampleRate);</span>
-<span id="cb3-50"><a href="#cb3-50"></a>  envelope.trigger(attackTime, decayTime, sustainLevel, releaseTime, noteFreq);</span>
-<span id="cb3-51"><a href="#cb3-51"></a></span>
-<span id="cb3-52"><a href="#cb3-52"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dt">size_t</span>(<span class="dv">8</span> * sampleRate));</span>
-<span id="cb3-53"><a href="#cb3-53"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size(); ++idx) {</span>
-<span id="cb3-54"><a href="#cb3-54"></a>    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(releaseAt * sampleRate)) envelope.release();</span>
-<span id="cb3-55"><a href="#cb3-55"></a>    buffer[idx] = envelope.process();</span>
-<span id="cb3-56"><a href="#cb3-56"></a>  }</span>
-<span id="cb3-57"><a href="#cb3-57"></a>  writeWave(<span class="st">&quot;ADSR.wav&quot;</span>, buffer, sampleRate);</span>
-<span id="cb3-58"><a href="#cb3-58"></a>}</span>
-<span id="cb3-59"><a href="#cb3-59"></a></span>
-<span id="cb3-60"><a href="#cb3-60"></a><span class="dt">void</span> testReleaseWhileAttack()</span>
-<span id="cb3-61"><a href="#cb3-61"></a>{</span>
-<span id="cb3-62"><a href="#cb3-62"></a>  LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</span>
-<span id="cb3-63"><a href="#cb3-63"></a>  envelope.setup(sampleRate);</span>
-<span id="cb3-64"><a href="#cb3-64"></a>  envelope.trigger(<span class="fl">4.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">2.0</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</span>
-<span id="cb3-65"><a href="#cb3-65"></a></span>
-<span id="cb3-66"><a href="#cb3-66"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dt">size_t</span>(<span class="dv">8</span> * sampleRate));</span>
-<span id="cb3-67"><a href="#cb3-67"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size(); ++idx) {</span>
-<span id="cb3-68"><a href="#cb3-68"></a>    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">3.0</span><span class="bu">f</span> * sampleRate)) envelope.release();</span>
-<span id="cb3-69"><a href="#cb3-69"></a>    buffer[idx] = envelope.process();</span>
-<span id="cb3-70"><a href="#cb3-70"></a>  }</span>
-<span id="cb3-71"><a href="#cb3-71"></a>  writeWave(<span class="st">&quot;ReleaseWhileAttack.wav&quot;</span>, buffer, sampleRate);</span>
-<span id="cb3-72"><a href="#cb3-72"></a>}</span>
-<span id="cb3-73"><a href="#cb3-73"></a></span>
-<span id="cb3-74"><a href="#cb3-74"></a><span class="dt">void</span> testReleaseWhileDecay()</span>
-<span id="cb3-75"><a href="#cb3-75"></a>{</span>
-<span id="cb3-76"><a href="#cb3-76"></a>  LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</span>
-<span id="cb3-77"><a href="#cb3-77"></a>  envelope.setup(sampleRate);</span>
-<span id="cb3-78"><a href="#cb3-78"></a>  envelope.trigger(<span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</span>
-<span id="cb3-79"><a href="#cb3-79"></a></span>
-<span id="cb3-80"><a href="#cb3-80"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dt">size_t</span>(<span class="dv">8</span> * sampleRate));</span>
-<span id="cb3-81"><a href="#cb3-81"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size(); ++idx) {</span>
-<span id="cb3-82"><a href="#cb3-82"></a>    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">1.5</span><span class="bu">f</span> * sampleRate)) envelope.release();</span>
-<span id="cb3-83"><a href="#cb3-83"></a>    buffer[idx] = envelope.process();</span>
-<span id="cb3-84"><a href="#cb3-84"></a>  }</span>
-<span id="cb3-85"><a href="#cb3-85"></a>  writeWave(<span class="st">&quot;ReleaseWhileDecay.wav&quot;</span>, buffer, sampleRate);</span>
-<span id="cb3-86"><a href="#cb3-86"></a>}</span>
-<span id="cb3-87"><a href="#cb3-87"></a></span>
-<span id="cb3-88"><a href="#cb3-88"></a><span class="dt">void</span> testTriggerWhileRelease()</span>
-<span id="cb3-89"><a href="#cb3-89"></a>{</span>
-<span id="cb3-90"><a href="#cb3-90"></a>  LinearADSREnvelope&lt;<span class="dt">float</span>&gt; envelope;</span>
-<span id="cb3-91"><a href="#cb3-91"></a>  envelope.setup(sampleRate);</span>
-<span id="cb3-92"><a href="#cb3-92"></a>  envelope.trigger(<span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">1.0</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">2.0</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</span>
-<span id="cb3-93"><a href="#cb3-93"></a></span>
-<span id="cb3-94"><a href="#cb3-94"></a>  <span class="bu">std::</span>vector&lt;<span class="dt">float</span>&gt; buffer(<span class="dt">size_t</span>(<span class="dv">8</span> * sampleRate));</span>
-<span id="cb3-95"><a href="#cb3-95"></a>  <span class="cf">for</span> (<span class="dt">size_t</span> idx = <span class="dv">0</span>; idx &lt; buffer.size(); ++idx) {</span>
-<span id="cb3-96"><a href="#cb3-96"></a>    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">3.0</span><span class="bu">f</span> * sampleRate)) envelope.release();</span>
-<span id="cb3-97"><a href="#cb3-97"></a>    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">4.0</span><span class="bu">f</span> * sampleRate))</span>
-<span id="cb3-98"><a href="#cb3-98"></a>      envelope.trigger(<span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">0.5</span><span class="bu">f</span>, <span class="fl">0.3</span><span class="bu">f</span>, <span class="fl">2.0</span><span class="bu">f</span>, <span class="fl">100.0</span><span class="bu">f</span>);</span>
-<span id="cb3-99"><a href="#cb3-99"></a>    <span class="cf">if</span> (idx == <span class="dt">size_t</span>(<span class="fl">6.0</span><span class="bu">f</span> * sampleRate)) envelope.release();</span>
-<span id="cb3-100"><a href="#cb3-100"></a>    buffer[idx] = envelope.process();</span>
-<span id="cb3-101"><a href="#cb3-101"></a>  }</span>
-<span id="cb3-102"><a href="#cb3-102"></a>  writeWave(<span class="st">&quot;TriggerWhileRelease.wav&quot;</span>, buffer, sampleRate);</span>
-<span id="cb3-103"><a href="#cb3-103"></a>}</span>
-<span id="cb3-104"><a href="#cb3-104"></a></span>
-<span id="cb3-105"><a href="#cb3-105"></a><span class="dt">int</span> main()</span>
-<span id="cb3-106"><a href="#cb3-106"></a>{</span>
-<span id="cb3-107"><a href="#cb3-107"></a>  testADSR();</span>
-<span id="cb3-108"><a href="#cb3-108"></a>  testReleaseWhileAttack();</span>
-<span id="cb3-109"><a href="#cb3-109"></a>  testReleaseWhileDecay();</span>
-<span id="cb3-110"><a href="#cb3-110"></a>  testTriggerWhileRelease();</span>
-<span id="cb3-111"><a href="#cb3-111"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb3-112"><a href="#cb3-112"></a>}</span></code></pre></div>
+<p>wav ファイルへの書き出しに <a
+href="http://www.mega-nerd.com/libsndfile/">libsndfile</a>
+を使っています。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// test.cpp</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;linear_envelope.hpp&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;sndfile.h&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> Sample <span class="op">=</span> <span class="dt">float</span><span class="op">;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> Sample sampleRate <span class="op">=</span> <span class="fl">44100.0</span><span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="dt">int32_t</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>writeWave<span class="op">(</span><span class="at">const</span> <span class="dt">char</span> <span class="op">*</span>filename<span class="op">,</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> <span class="op">&amp;</span>buffer<span class="op">,</span> <span class="at">const</span> <span class="dt">size_t</span> <span class="op">&amp;</span>samplerate<span class="op">)</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  SF_INFO sfinfo<span class="op">;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  memset<span class="op">(&amp;</span>sfinfo<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>sfinfo<span class="op">));</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  sfinfo<span class="op">.</span>samplerate <span class="op">=</span> samplerate<span class="op">;</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  sfinfo<span class="op">.</span>frames <span class="op">=</span> buffer<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  sfinfo<span class="op">.</span>channels <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  sfinfo<span class="op">.</span>format <span class="op">=</span> <span class="op">(</span>SF_FORMAT_WAV <span class="op">|</span> SF_FORMAT_FLOAT<span class="op">);</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  SNDFILE <span class="op">*</span>file <span class="op">=</span> sf_open<span class="op">(</span>filename<span class="op">,</span> SFM_WRITE<span class="op">,</span> <span class="op">&amp;</span>sfinfo<span class="op">);</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>file<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> <span class="st">&quot;Error: sf_open failed.&quot;</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> length <span class="op">=</span> sfinfo<span class="op">.</span>channels <span class="op">*</span> buffer<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>sf_write_float<span class="op">(</span>file<span class="op">,</span> <span class="op">&amp;</span>buffer<span class="op">[</span><span class="dv">0</span><span class="op">],</span> length<span class="op">)</span> <span class="op">!=</span> length<span class="op">)</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> sf_strerror<span class="op">(</span>file<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  sf_close<span class="op">(</span>file<span class="op">);</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> testADSR<span class="op">(</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> attackTime <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> decayTime <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> sustainLevel <span class="op">=</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> releaseTime <span class="op">=</span> <span class="fl">2.0</span><span class="bu">f</span><span class="op">,</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> releaseAt <span class="op">=</span> <span class="fl">3.0</span><span class="bu">f</span><span class="op">,</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> noteFreq <span class="op">=</span> <span class="fl">100.0</span><span class="bu">f</span><span class="op">)</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  LinearADSREnvelope<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> envelope<span class="op">;</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  envelope<span class="op">.</span>setup<span class="op">(</span>sampleRate<span class="op">);</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  envelope<span class="op">.</span>trigger<span class="op">(</span>attackTime<span class="op">,</span> decayTime<span class="op">,</span> sustainLevel<span class="op">,</span> releaseTime<span class="op">,</span> noteFreq<span class="op">);</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> buffer<span class="op">(</span><span class="dt">size_t</span><span class="op">(</span><span class="dv">8</span> <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> idx <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> idx <span class="op">&lt;</span> buffer<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>idx <span class="op">==</span> <span class="dt">size_t</span><span class="op">(</span>releaseAt <span class="op">*</span> sampleRate<span class="op">))</span> envelope<span class="op">.</span>release<span class="op">();</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    buffer<span class="op">[</span>idx<span class="op">]</span> <span class="op">=</span> envelope<span class="op">.</span>process<span class="op">();</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  writeWave<span class="op">(</span><span class="st">&quot;ADSR.wav&quot;</span><span class="op">,</span> buffer<span class="op">,</span> sampleRate<span class="op">);</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> testReleaseWhileAttack<span class="op">()</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  LinearADSREnvelope<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> envelope<span class="op">;</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>  envelope<span class="op">.</span>setup<span class="op">(</span>sampleRate<span class="op">);</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>  envelope<span class="op">.</span>trigger<span class="op">(</span><span class="fl">4.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">2.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">100.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> buffer<span class="op">(</span><span class="dt">size_t</span><span class="op">(</span><span class="dv">8</span> <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> idx <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> idx <span class="op">&lt;</span> buffer<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>idx <span class="op">==</span> <span class="dt">size_t</span><span class="op">(</span><span class="fl">3.0</span><span class="bu">f</span> <span class="op">*</span> sampleRate<span class="op">))</span> envelope<span class="op">.</span>release<span class="op">();</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    buffer<span class="op">[</span>idx<span class="op">]</span> <span class="op">=</span> envelope<span class="op">.</span>process<span class="op">();</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>  writeWave<span class="op">(</span><span class="st">&quot;ReleaseWhileAttack.wav&quot;</span><span class="op">,</span> buffer<span class="op">,</span> sampleRate<span class="op">);</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> testReleaseWhileDecay<span class="op">()</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  LinearADSREnvelope<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> envelope<span class="op">;</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>  envelope<span class="op">.</span>setup<span class="op">(</span>sampleRate<span class="op">);</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>  envelope<span class="op">.</span>trigger<span class="op">(</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">100.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> buffer<span class="op">(</span><span class="dt">size_t</span><span class="op">(</span><span class="dv">8</span> <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> idx <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> idx <span class="op">&lt;</span> buffer<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>idx <span class="op">==</span> <span class="dt">size_t</span><span class="op">(</span><span class="fl">1.5</span><span class="bu">f</span> <span class="op">*</span> sampleRate<span class="op">))</span> envelope<span class="op">.</span>release<span class="op">();</span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    buffer<span class="op">[</span>idx<span class="op">]</span> <span class="op">=</span> envelope<span class="op">.</span>process<span class="op">();</span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>  writeWave<span class="op">(</span><span class="st">&quot;ReleaseWhileDecay.wav&quot;</span><span class="op">,</span> buffer<span class="op">,</span> sampleRate<span class="op">);</span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> testTriggerWhileRelease<span class="op">()</span></span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>  LinearADSREnvelope<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> envelope<span class="op">;</span></span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>  envelope<span class="op">.</span>setup<span class="op">(</span>sampleRate<span class="op">);</span></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>  envelope<span class="op">.</span>trigger<span class="op">(</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">2.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">100.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> buffer<span class="op">(</span><span class="dt">size_t</span><span class="op">(</span><span class="dv">8</span> <span class="op">*</span> sampleRate<span class="op">));</span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> idx <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> idx <span class="op">&lt;</span> buffer<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>idx <span class="op">==</span> <span class="dt">size_t</span><span class="op">(</span><span class="fl">3.0</span><span class="bu">f</span> <span class="op">*</span> sampleRate<span class="op">))</span> envelope<span class="op">.</span>release<span class="op">();</span></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>idx <span class="op">==</span> <span class="dt">size_t</span><span class="op">(</span><span class="fl">4.0</span><span class="bu">f</span> <span class="op">*</span> sampleRate<span class="op">))</span></span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>      envelope<span class="op">.</span>trigger<span class="op">(</span><span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.3</span><span class="bu">f</span><span class="op">,</span> <span class="fl">2.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">100.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>idx <span class="op">==</span> <span class="dt">size_t</span><span class="op">(</span><span class="fl">6.0</span><span class="bu">f</span> <span class="op">*</span> sampleRate<span class="op">))</span> envelope<span class="op">.</span>release<span class="op">();</span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>    buffer<span class="op">[</span>idx<span class="op">]</span> <span class="op">=</span> envelope<span class="op">.</span>process<span class="op">();</span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>  writeWave<span class="op">(</span><span class="st">&quot;TriggerWhileRelease.wav&quot;</span><span class="op">,</span> buffer<span class="op">,</span> sampleRate<span class="op">);</span></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>  testADSR<span class="op">();</span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>  testReleaseWhileAttack<span class="op">();</span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>  testReleaseWhileDecay<span class="op">();</span></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>  testTriggerWhileRelease<span class="op">();</span></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>ファイルの配置です。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a>$ <span class="ex">tree</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="ex">.</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a>├── <span class="ex">linear_envelope.hpp</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a>└── <span class="ex">test.cpp</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tree</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> linear_envelope.hpp</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> test.cpp</span></code></pre></div>
 <p>コンパイルして実行します。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1"></a>$ <span class="ex">g++</span> -std=c++17 -lsndfile -O3 test.cpp</span>
-<span id="cb5-2"><a href="#cb5-2"></a>$ <span class="ex">./a.out</span></span></code></pre></div>
-<p>結果です。この画像は matplotlib でプロットしています。縦軸は振幅、横軸は時間で単位は秒数です。大まかなチェックなら <a href="https://www.audacityteam.org/">Audacity</a> や <a href="https://sonicvisualiser.org/">Sonic Visualiser</a> も使えますが、どちらも拡大縮小がしづらいです。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> g++ <span class="at">-std</span><span class="op">=</span>c++17 <span class="at">-lsndfile</span> <span class="at">-O3</span> test.cpp</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./a.out</span></code></pre></div>
+<p>結果です。この画像は matplotlib
+でプロットしています。縦軸は振幅、横軸は時間で単位は秒数です。大まかなチェックなら
+<a href="https://www.audacityteam.org/">Audacity</a> や <a
+href="https://sonicvisualiser.org/">Sonic Visualiser</a>
+も使えますが、どちらも拡大縮小がしづらいです。</p>
 <figure>
 <img src="img/testADSR.png" alt="Image of test result of linear ADSR envelope." style="padding-bottom: 12px;"/>
 </figure>
@@ -660,17 +717,25 @@ Update: 2020-03-27
 <img src="img/testTriggerWhileRelease.png" alt="Image of test result of trigger while release." style="padding-bottom: 12px;"/>
 </figure>
 <h2 id="simd-による並列化">SIMD による並列化</h2>
-<p>CubicPadSynth に <a href="https://github.com/vectorclass/version2">vector class library</a> を使って並列化した実装があります。この実装ではリリース時に傾きの再計算をしていません。</p>
+<p>CubicPadSynth に <a
+href="https://github.com/vectorclass/version2">vector class library</a>
+を使って並列化した実装があります。この実装ではリリース時に傾きの再計算をしていません。</p>
 <ul>
-<li><a href="https://github.com/ryukau/VSTPlugins/blob/master/CubicPadSynth/source/dsp/envelope.hpp#L155">VSTPlugins/envelope.hpp at master · ryukau/VSTPlugins · GitHub</a></li>
+<li><a
+href="https://github.com/ryukau/VSTPlugins/blob/master/CubicPadSynth/source/dsp/envelope.hpp#L155">VSTPlugins/envelope.hpp
+at master · ryukau/VSTPlugins · GitHub</a></li>
 </ul>
 <h2 id="記事の変更点">記事の変更点</h2>
 <ul>
 <li>2020-03-23:
 <ul>
-<li><code>P Controller</code> の節を <code>オーディオプラグインの UI から入力された値の補間</code> に移動。</li>
-<li><code>カットオフ周波数から $k_p$ を求める</code> で式の求め方が間違っていたので修正。</li>
-<li><code>複素数を使わずにカットオフ周波数から $k_p$ 求める式</code> を追加。</li>
+<li><code>P Controller</code> の節を
+<code>オーディオプラグインの UI から入力された値の補間</code>
+に移動。</li>
+<li><code>カットオフ周波数から $k_p$ を求める</code>
+で式の求め方が間違っていたので修正。</li>
+<li><code>複素数を使わずにカットオフ周波数から $k_p$ 求める式</code>
+を追加。</li>
 </ul></li>
 </ul>
 <footer>

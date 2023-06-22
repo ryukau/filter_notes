@@ -5,18 +5,19 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-05-07" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>peak_hold_envelope</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,36 +344,43 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-05-07
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#ピークホールドによるエンベロープ">ピークホールドによるエンベロープ</a>
+<li><a href="#ピークホールドによるエンベロープ"
+id="toc-ピークホールドによるエンベロープ">ピークホールドによるエンベロープ</a>
 <ul>
-<li><a href="#前向きホールド">前向きホールド</a></li>
-<li><a href="#スムーシング">スムーシング</a></li>
-<li><a href="#理想的なホールド">理想的なホールド</a>
+<li><a href="#前向きホールド"
+id="toc-前向きホールド">前向きホールド</a></li>
+<li><a href="#スムーシング" id="toc-スムーシング">スムーシング</a></li>
+<li><a href="#理想的なホールド"
+id="toc-理想的なホールド">理想的なホールド</a>
 <ul>
-<li><a href="#realtime-implementation">リアルタイムで使えるアルゴリズム</a>
+<li><a href="#realtime-implementation"
+id="toc-realtime-implementation">リアルタイムで使えるアルゴリズム</a>
 <ul>
-<li><a href="#レシピ">レシピ</a></li>
+<li><a href="#レシピ" id="toc-レシピ">レシピ</a></li>
 </ul></li>
-<li><a href="#テスト">テスト</a></li>
-<li><a href="#c-による実装">C++ による実装</a></li>
+<li><a href="#テスト" id="toc-テスト">テスト</a></li>
+<li><a href="#c-による実装" id="toc-c-による実装">C++
+による実装</a></li>
 </ul></li>
-<li><a href="#その他">その他</a>
+<li><a href="#その他" id="toc-その他">その他</a>
 <ul>
-<li><a href="#後ろ向きホールド">後ろ向きホールド</a></li>
+<li><a href="#後ろ向きホールド"
+id="toc-後ろ向きホールド">後ろ向きホールド</a></li>
 </ul></li>
-<li><a href="#変更点">変更点</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
 </details>
 </header>
-<h1 id="ピークホールドによるエンベロープ">ピークホールドによるエンベロープ</h1>
+<h1
+id="ピークホールドによるエンベロープ">ピークホールドによるエンベロープ</h1>
 <p>音のリミッタで使うために、ピークホールドを使ったエンベロープの検出を実装します。</p>
 <p>ある信号の絶対値をなだらかに包み込むような信号のことを、その信号のエンベロープと言います。しきい値やニーなどの特性を加えたエンベロープの逆数を入力信号に掛け合わせることで音量を制限するリミッタが作れます。</p>
 <h2 id="前向きホールド">前向きホールド</h2>
@@ -386,8 +400,13 @@ Update: 2022-05-07
 <figure>
 <img src="img/forward_peak_hold_of_decaying_signal.svg" alt="Plot of forward peak hold." style="padding-bottom: 12px;"/>
 </figure>
-<p>Python 3 で実装します。この文章の Python 3 のコードは上から順にテキストファイルにコピペすると動きます。実行には <a href="https://www.scipy.org/">SciPy</a> 、 <a href="https://numpy.org/">NumPy</a> 、 <a href="https://matplotlib.org/">matplotlib</a> が必要です。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<p>Python 3 で実装します。この文章の Python 3
+のコードは上から順にテキストファイルにコピペすると動きます。実行には <a
+href="https://www.scipy.org/">SciPy</a> 、 <a
+href="https://numpy.org/">NumPy</a> 、 <a
+href="https://matplotlib.org/">matplotlib</a> が必要です。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> peakHoldForward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
@@ -420,9 +439,14 @@ Update: 2022-05-07
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>plt.plot(holdF, label<span class="op">=</span><span class="st">&quot;Forward Hold&quot;</span>)</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
 <h2 id="スムーシング">スムーシング</h2>
-<p>前向きホールドによるエンベロープをそのまま使うとホールド値を忘れるときにポップノイズが出てしまうので、フィルタを使ってスムーシングします。ここで使うフィルタは一定時間同じ値が入力されると、その値に到達することが保証されているものとします。移動平均フィルタの重ね掛けや、 Bessel フィルタはこのような設計ができます。リミッタ向きのフィルタについては<a href="../s_curve_step_response_filter/s_curve_step_response_filter.html">「ステップ応答が S 字を描くフィルタ」</a>にまとめています。</p>
+<p>前向きホールドによるエンベロープをそのまま使うとホールド値を忘れるときにポップノイズが出てしまうので、フィルタを使ってスムーシングします。ここで使うフィルタは一定時間同じ値が入力されると、その値に到達することが保証されているものとします。移動平均フィルタの重ね掛けや、
+Bessel
+フィルタはこのような設計ができます。リミッタ向きのフィルタについては<a
+href="../s_curve_step_response_filter/s_curve_step_response_filter.html">「ステップ応答が
+S 字を描くフィルタ」</a>にまとめています。</p>
 <p>以降では以下のコードで設計した三角窓の FIR フィルタを使います。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> makeTriangleFir(delay):</span>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> makeTriangleFir(delay):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;delay は 2 より大きい整数。&quot;&quot;&quot;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> np.interp(</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, delay <span class="op">+</span> <span class="dv">1</span>),</span>
@@ -449,7 +473,8 @@ Update: 2022-05-07
 </figure>
 <h2 id="理想的なホールド">理想的なホールド</h2>
 <p>ホールド値より小さいピークを見逃さないためには、ホールド時間と同じ長さのバッファを用意して入力を覚えておく方法があります。出力にはバッファ内の最大値を使います。以下はこのアルゴリズムのコード例です。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> idealPeakHoldNaive(sig, holdtime: <span class="bu">int</span>):</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
@@ -460,21 +485,26 @@ Update: 2022-05-07
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">buffer</span>.popleft()</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> <span class="bu">max</span>(<span class="bu">buffer</span>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
-<p>ここでは上のコードのアルゴリズムのことを理想的なホールドの素朴な実装と呼びます。素朴な実装の問題点は計算量です。上のコードの <code>out[i] = max(buffer)</code> は Python では 1 行で書けますが、計算量はバッファの長さに比例します。したがってホールド時間を長くすると計算が重たくなります。</p>
+<p>ここでは上のコードのアルゴリズムのことを理想的なホールドの素朴な実装と呼びます。素朴な実装の問題点は計算量です。上のコードの
+<code>out[i] = max(buffer)</code> は Python では 1
+行で書けますが、計算量はバッファの長さに比例します。したがってホールド時間を長くすると計算が重たくなります。</p>
 <h3 id="realtime-implementation">リアルタイムで使えるアルゴリズム</h3>
 <p>計算量の問題を解決するために試行錯誤したところ、局所最大値をキューに保存することで高速に計算するアルゴリズムを思いつきました。</p>
 <p>例として以下のような入力について考えます。図の赤い実線が理想的なホールドの出力です。赤い点線は出力値の候補を表しています。</p>
 <figure>
 <img src="img/ideal_hold_local_maximum.svg" alt="Plot of local maximum of ideal hold. 1st peak has the largest value. 2nd peak is the smallest. The value of 3rd peak is in between 1st and 2nd." style="padding-bottom: 12px;"/>
 </figure>
-<p>ここでピーク 2 は以下の条件が揃っているので出力に影響を及ぼしません。</p>
+<p>ここでピーク 2
+は以下の条件が揃っているので出力に影響を及ぼしません。</p>
 <ul>
 <li>ピーク 2 はピーク 1 のホールド時間内に現れる。</li>
 <li>ピーク 2 より後に、より値の大きいピーク 3 が現れる。</li>
 <li>ピーク 3 もピーク 1 のホールド時間内に現れる。</li>
 <li>ピーク 2 はピーク 1 とピーク 3 よりも小さい。</li>
 </ul>
-<p>言い換えると、ピーク 3 が入力されたときにホールド時間だけ入力を振り返って、ピーク 3 よりも小さい値を忘れてしまってもいいということです。</p>
+<p>言い換えると、ピーク 3
+が入力されたときにホールド時間だけ入力を振り返って、ピーク 3
+よりも小さい値を忘れてしまってもいいということです。</p>
 <h4 id="レシピ">レシピ</h4>
 <p>以下のメモリを確保します。</p>
 <ul>
@@ -483,14 +513,17 @@ Update: 2022-05-07
 </ul>
 <p>計算手順です。</p>
 <ol type="1">
-<li>キューの最後尾が入力サンプル <code>x0</code> 以上の値になるまで、キューの最後尾を繰り返し除去。</li>
+<li>キューの最後尾が入力サンプル <code>x0</code>
+以上の値になるまで、キューの最後尾を繰り返し除去。</li>
 <li><code>x0</code> をキューの後ろに追加。</li>
 <li><code>x0</code> をディレイに入力。</li>
 <li>もしディレイの出力とキューの先頭の値が等しければ、キューから値を取り出す。</li>
-<li>キューに一つでも値が残っていれば、キューの先頭を出力。そうでなければ 0 を出力。</li>
+<li>キューに一つでも値が残っていれば、キューの先頭を出力。そうでなければ
+0 を出力。</li>
 </ol>
 <p>上のレシピに沿った Python 3 による実装です。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> idealPeakHoldFast(sig, holdTime):</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
@@ -534,7 +567,8 @@ Update: 2022-05-07
 <h3 id="テスト">テスト</h3>
 <p>理想的なホールドを使えばはみ出しが起こらないことをテストします。</p>
 <p>テスト用の入力として、ランダムにインパルスが散らばったノイズを作ります。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> nextTime(rng, rate):</span>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> nextTime(rng, rate):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    ポアソン過程。</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">    もし単位時間当たり N 回のイベントが起こるなら `rate` を `1/N` に設定する。</span></span>
@@ -555,12 +589,16 @@ Update: 2022-05-07
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> t2 <span class="op">&lt;</span> length:</span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>            out[t2] <span class="op">=</span> amp <span class="op">*</span> (time <span class="op">-</span> t1)</span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
-<p>ポアソン過程の実装は Jeff Preshing さんによる以下の記事を参考にしました。</p>
+<p>ポアソン過程の実装は Jeff Preshing
+さんによる以下の記事を参考にしました。</p>
 <ul>
-<li><a href="https://preshing.com/20111007/how-to-generate-random-timings-for-a-poisson-process/">How to Generate Random Timings for a Poisson Process</a></li>
+<li><a
+href="https://preshing.com/20111007/how-to-generate-random-timings-for-a-poisson-process/">How
+to Generate Random Timings for a Poisson Process</a></li>
 </ul>
 <p>以下はテストコードです。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> multiprocessing <span class="im">import</span> Pool</span>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> multiprocessing <span class="im">import</span> Pool</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> verifyHoldEnvelope(sig, env, name):</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    condition <span class="op">=</span> (sig <span class="op">-</span> env) <span class="op">&gt;</span> <span class="dv">8</span> <span class="op">*</span> np.finfo(np.float64).eps</span>
@@ -598,11 +636,15 @@ Update: 2022-05-07
 <span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
 <span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    testIdealHoldRandom()</span></code></pre></div>
-<p>フィルタの遅延はホールド時間以下の任意のサンプル数に設定できますが、値によっては誤差が増えます。上のコードでは誤差の上限を適当に <code>8 * np.finfo(np.float64).eps</code> としています。</p>
-<p>はみ出しを検知したときは <code>Test failed: ...</code> を出力します。シード値 0 から 1023 まで理想的なホールドをテストしたところ、はみ出しは検知されませんでした。</p>
+<p>フィルタの遅延はホールド時間以下の任意のサンプル数に設定できますが、値によっては誤差が増えます。上のコードでは誤差の上限を適当に
+<code>8 * np.finfo(np.float64).eps</code> としています。</p>
+<p>はみ出しを検知したときは <code>Test failed: ...</code>
+を出力します。シード値 0 から 1023
+まで理想的なホールドをテストしたところ、はみ出しは検知されませんでした。</p>
 <h3 id="c-による実装">C++ による実装</h3>
 <p>以下のコードの <code>PeakHold</code> が理想的なホールドです。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;random&gt;</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
@@ -758,21 +800,31 @@ Update: 2022-05-07
 <span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p><code>PeakHold</code> ではニュートラル値 <code>neutral</code> を変更できるようにしています。</p>
-<p><code>RingQueue</code> は <code>push_back</code> や <code>pop_front</code> でメモリの確保や解放が行われないようにした <code>std::deque</code> の代替です。速度はほとんど同じです。</p>
+<p><code>PeakHold</code> ではニュートラル値 <code>neutral</code>
+を変更できるようにしています。</p>
+<p><code>RingQueue</code> は <code>push_back</code> や
+<code>pop_front</code> でメモリの確保や解放が行われないようにした
+<code>std::deque</code> の代替です。速度はほとんど同じです。</p>
 <h2 id="その他">その他</h2>
 <h3 id="後ろ向きホールド">後ろ向きホールド</h3>
 <p>試行錯誤しているときに下の図のような後ろ向きホールドを思いついたのですが、理想的なホールドの生成には使えないことがわかりました。</p>
 <figure>
 <img src="img/backward_hold.svg" alt="Example plot of backward hold." style="padding-bottom: 12px;"/>
 </figure>
-<p>前向きホールドと組み合わせて最大値を取ることで理想的なホールドに近づけられます。入力信号を <span class="math inline">\(x\)</span> 、ホールド時間を <span class="math inline">\(d\)</span> 、理想的なホールドを <span class="math inline">\(H_I\)</span> 、 前向きホールドを <span class="math inline">\(H_F\)</span> 、後ろ向きホールドを <span class="math inline">\(H_B\)</span> とすると以下の計算です。</p>
+<p>前向きホールドと組み合わせて最大値を取ることで理想的なホールドに近づけられます。入力信号を
+<span class="math inline">\(x\)</span> 、ホールド時間を <span
+class="math inline">\(d\)</span> 、理想的なホールドを <span
+class="math inline">\(H_I\)</span> 、 前向きホールドを <span
+class="math inline">\(H_F\)</span> 、後ろ向きホールドを <span
+class="math inline">\(H_B\)</span> とすると以下の計算です。</p>
 <p><span class="math display">\[
 H_I(x) = \max(H_F(x), H_B(x) z^{-d})
 \]</span></p>
-<p><span class="math inline">\(z^{-d}\)</span> は <span class="math inline">\(d\)</span> サンプルの遅延を表しています。</p>
+<p><span class="math inline">\(z^{-d}\)</span> は <span
+class="math inline">\(d\)</span> サンプルの遅延を表しています。</p>
 <p>後ろ向きホールドの実装です。インデックスの並びが逆転している以外は、前向きホールドと同じです。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> peakHoldBackward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> peakHoldBackward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    hold <span class="op">=</span> reset</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
@@ -790,7 +842,8 @@ H_I(x) = \max(H_F(x), H_B(x) z^{-d})
 <figure>
 <img src="img/backward_hold_fail.svg" alt="Example plots of a case that backward hold fails to make correct envelope." style="padding-bottom: 12px;"/>
 </figure>
-<p>前から順に a, b, c の3つピークがあります。以下の条件が揃うと b を見逃してしまうので失敗します。</p>
+<p>前から順に a, b, c の3つピークがあります。以下の条件が揃うと b
+を見逃してしまうので失敗します。</p>
 <ul>
 <li>b は a のホールド時間内に現れる。</li>
 <li>c は b のホールド時間内に現れる。</li>

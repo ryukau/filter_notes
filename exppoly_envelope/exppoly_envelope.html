@@ -5,33 +5,34 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2020-03-27" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>exppoly_envelope</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +53,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,38 +344,55 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2020-03-27
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#exppoly-エンベロープ">ExpPoly エンベロープ</a><ul>
-<li><a href="#性質">性質</a><ul>
-<li><a href="#et-が最大となる-t"><span class="math inline">\(E(t)\)</span> が最大となる <span class="math inline">\(t\)</span></a></li>
-<li><a href="#et-の振幅から時間を求める"><span class="math inline">\(E(t)\)</span> の振幅から時間を求める</a></li>
-<li><a href="#計算可能な-talpha-の範囲">計算可能な <span class="math inline">\(t^\alpha\)</span> の範囲</a></li>
+<li><a href="#exppoly-エンベロープ"
+id="toc-exppoly-エンベロープ">ExpPoly エンベロープ</a>
+<ul>
+<li><a href="#性質" id="toc-性質">性質</a>
+<ul>
+<li><a href="#et-が最大となる-t" id="toc-et-が最大となる-t"><span
+class="math inline">\(E(t)\)</span> が最大となる <span
+class="math inline">\(t\)</span></a></li>
+<li><a href="#et-の振幅から時間を求める"
+id="toc-et-の振幅から時間を求める"><span
+class="math inline">\(E(t)\)</span> の振幅から時間を求める</a></li>
+<li><a href="#計算可能な-talpha-の範囲"
+id="toc-計算可能な-talpha-の範囲">計算可能な <span
+class="math inline">\(t^\alpha\)</span> の範囲</a></li>
 </ul></li>
-<li><a href="#実装">実装</a></li>
-<li><a href="#その他">その他</a></li>
-<li><a href="#変更点">変更点</a></li>
+<li><a href="#実装" id="toc-実装">実装</a></li>
+<li><a href="#その他" id="toc-その他">その他</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
 </details>
 </header>
 <h1 id="exppoly-エンベロープ">ExpPoly エンベロープ</h1>
-<p><a href="https://ryukau.github.io/WobblingMetalBoard/">WobblingMetalBoard</a> を作っているときに次のエンベロープを思いつきました。</p>
+<p><a
+href="https://ryukau.github.io/WobblingMetalBoard/">WobblingMetalBoard</a>
+を作っているときに次のエンベロープを思いつきました。</p>
 <p><span class="math display">\[
 E(t) = t^\alpha e^{-\beta t}
 \]</span></p>
-<p><span class="math inline">\(t\)</span> は時間、 <span class="math inline">\(\alpha,\beta\)</span> は任意の定数です。簡単に性質を調べて実装します。</p>
+<p><span class="math inline">\(t\)</span> は時間、 <span
+class="math inline">\(\alpha,\beta\)</span>
+は任意の定数です。簡単に性質を調べて実装します。</p>
 <h2 id="性質">性質</h2>
-<h3 id="et-が最大となる-t"><span class="math inline">\(E(t)\)</span> が最大となる <span class="math inline">\(t\)</span></h3>
-<p><span class="math inline">\(E(t)\)</span> を <span class="math inline">\(t\)</span> について微分します。 Maxima を使います。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1"></a><span class="cn">env</span>(<span class="cn">t</span>) := <span class="cn">t</span>^α * <span class="cn">exp</span>(-β * <span class="cn">t</span>);</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="cn">env_d1</span>: <span class="fu">diff</span>(<span class="cn">env</span>(<span class="cn">t</span>), <span class="cn">t</span>);</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="cn">env_d2</span>: <span class="fu">diff</span>(<span class="cn">env_d1</span>, <span class="cn">t</span>);</span></code></pre></div>
+<h3 id="et-が最大となる-t"><span class="math inline">\(E(t)\)</span>
+が最大となる <span class="math inline">\(t\)</span></h3>
+<p><span class="math inline">\(E(t)\)</span> を <span
+class="math inline">\(t\)</span> について微分します。 Maxima
+を使います。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cn">env</span>(<span class="cn">t</span>) := <span class="cn">t</span>^α * <span class="cn">exp</span>(-β * <span class="cn">t</span>);</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cn">env_d1</span>: <span class="fu">diff</span>(<span class="cn">env</span>(<span class="cn">t</span>), <span class="cn">t</span>);</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cn">env_d2</span>: <span class="fu">diff</span>(<span class="cn">env_d1</span>, <span class="cn">t</span>);</span></code></pre></div>
 <p><span class="math display">\[
 \begin{aligned}
 \dot{E}(t)
@@ -382,108 +406,164 @@ E(t) = t^\alpha e^{-\beta t}
 ) e^{-\beta t}
 \end{aligned}
 \]</span></p>
-<p><span class="math inline">\(\dot{E}(t)\)</span> の傾きが 0 になるときの <span class="math inline">\(t\)</span> を求めます。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">solve</span>(<span class="cn">env_d1</span> = <span class="dv">0</span>, <span class="cn">t</span>);</span></code></pre></div>
+<p><span class="math inline">\(\dot{E}(t)\)</span> の傾きが 0
+になるときの <span class="math inline">\(t\)</span> を求めます。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">env_d1</span> = <span class="dv">0</span>, <span class="cn">t</span>);</span></code></pre></div>
 <p>次の解が得られました。</p>
 <p><span class="math display">\[
 t = \dfrac{\alpha}{\beta}
 \]</span></p>
-<p>実際に計算してみると <span class="math inline">\(t = \dfrac{\alpha}{\beta}\)</span> のとき <span class="math inline">\(E(t)\)</span> が最大となります。つまりアタックの長さは <span class="math inline">\(\dfrac{\alpha}{\beta}\)</span> です。</p>
-<p>アタックの長さから振幅を <span class="math inline">\([0, 1]\)</span> に正規化した <span class="math inline">\(\hat{E}(t)\)</span> を求めることができます。</p>
+<p>実際に計算してみると <span class="math inline">\(t =
+\dfrac{\alpha}{\beta}\)</span> のとき <span
+class="math inline">\(E(t)\)</span>
+が最大となります。つまりアタックの長さは <span
+class="math inline">\(\dfrac{\alpha}{\beta}\)</span> です。</p>
+<p>アタックの長さから振幅を <span class="math inline">\([0, 1]\)</span>
+に正規化した <span class="math inline">\(\hat{E}(t)\)</span>
+を求めることができます。</p>
 <p><span class="math display">\[
 \hat{E}(t) = \frac{E(t)}{E \left( \dfrac{\alpha}{\beta} \right)}
 \]</span></p>
 <p>NumPy を使った実装例です。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">import</span> numpy</span>
-<span id="cb3-2"><a href="#cb3-2"></a></span>
-<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">def</span> expPoly(α, β, time):</span>
-<span id="cb3-4"><a href="#cb3-4"></a>    <span class="cf">return</span> time<span class="op">**</span>α <span class="op">*</span> numpy.exp(<span class="op">-</span>β <span class="op">*</span> time)</span>
-<span id="cb3-5"><a href="#cb3-5"></a></span>
-<span id="cb3-6"><a href="#cb3-6"></a><span class="kw">def</span> expPolyNormalized(α, β, time):</span>
-<span id="cb3-7"><a href="#cb3-7"></a>    normalize <span class="op">=</span> expPoly(α, β, α <span class="op">/</span> β)</span>
-<span id="cb3-8"><a href="#cb3-8"></a>    <span class="cf">return</span> time<span class="op">**</span>α <span class="op">*</span> numpy.exp(<span class="op">-</span>β <span class="op">*</span> time) <span class="op">/</span> normalize</span>
-<span id="cb3-9"><a href="#cb3-9"></a></span>
-<span id="cb3-10"><a href="#cb3-10"></a>time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">1024</span>)</span>
-<span id="cb3-11"><a href="#cb3-11"></a>envelope <span class="op">=</span> expPolyNormalized(<span class="dv">1</span>, <span class="dv">1</span>, time)</span></code></pre></div>
-<p><span class="math inline">\(\beta = 1\)</span> に固定して <span class="math inline">\(\alpha\)</span> を変えたときの <span class="math inline">\(\hat{E}(t)\)</span> のプロットです。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> expPoly(α, β, time):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> time<span class="op">**</span>α <span class="op">*</span> numpy.exp(<span class="op">-</span>β <span class="op">*</span> time)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> expPolyNormalized(α, β, time):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    normalize <span class="op">=</span> expPoly(α, β, α <span class="op">/</span> β)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> time<span class="op">**</span>α <span class="op">*</span> numpy.exp(<span class="op">-</span>β <span class="op">*</span> time) <span class="op">/</span> normalize</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">16</span>, <span class="dv">1024</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>envelope <span class="op">=</span> expPolyNormalized(<span class="dv">1</span>, <span class="dv">1</span>, time)</span></code></pre></div>
+<p><span class="math inline">\(\beta = 1\)</span> に固定して <span
+class="math inline">\(\alpha\)</span> を変えたときの <span
+class="math inline">\(\hat{E}(t)\)</span> のプロットです。</p>
 <figure>
 <img src="img/alpha.png" alt="Image of poly-exp envelope with varying alpha." style="padding-bottom: 12px;"/>
 </figure>
-<p><span class="math inline">\(\alpha = 1\)</span> に固定して <span class="math inline">\(\beta\)</span> を変えたときの <span class="math inline">\(\hat{E}(t)\)</span> のプロットです。</p>
+<p><span class="math inline">\(\alpha = 1\)</span> に固定して <span
+class="math inline">\(\beta\)</span> を変えたときの <span
+class="math inline">\(\hat{E}(t)\)</span> のプロットです。</p>
 <figure>
 <img src="img/beta.png" alt="Image of poly-exp envelope with varying beta." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="et-の振幅から時間を求める"><span class="math inline">\(E(t)\)</span> の振幅から時間を求める</h3>
-<p><span class="math inline">\(E(t)\)</span> は <span class="math inline">\(t\)</span> が <span class="math inline">\(+\infty\)</span> に到達すると <span class="math inline">\(0\)</span> になります。適当に計算を打ち切るために <span class="math inline">\(\hat{E}(t) = x\)</span> となる時間 <span class="math inline">\(t\)</span> を求めます。 <span class="math inline">\(x = \dfrac{t^\alpha e^{-\beta t}}{E \left( \dfrac{\alpha}{\beta} \right)}\)</span> を <span class="math inline">\(t\)</span> について解いてみます。この問題は Maxima では解けなかったので Wolfram Alpha を使いました。</p>
+<h3 id="et-の振幅から時間を求める"><span
+class="math inline">\(E(t)\)</span> の振幅から時間を求める</h3>
+<p><span class="math inline">\(E(t)\)</span> は <span
+class="math inline">\(t\)</span> が <span
+class="math inline">\(+\infty\)</span> に到達すると <span
+class="math inline">\(0\)</span> になります。適当に計算を打ち切るために
+<span class="math inline">\(\hat{E}(t) = x\)</span> となる時間 <span
+class="math inline">\(t\)</span> を求めます。 <span
+class="math inline">\(x = \dfrac{t^\alpha e^{-\beta t}}{E \left(
+\dfrac{\alpha}{\beta} \right)}\)</span> を <span
+class="math inline">\(t\)</span> について解いてみます。この問題は Maxima
+では解けなかったので Wolfram Alpha を使いました。</p>
 <pre class="wolfram"><code>solve x = t^a * exp(-b * t) / eta for t</code></pre>
-<p>結果です。 <span class="math inline">\(W\)</span> は <a href="http://mathworld.wolfram.com/LambertW-Function.html">Lambert W-function</a> あるいは product log function と呼ばれている関数です。</p>
+<p>結果です。 <span class="math inline">\(W\)</span> は <a
+href="http://mathworld.wolfram.com/LambertW-Function.html">Lambert
+W-function</a> あるいは product log function
+と呼ばれている関数です。</p>
 <p><span class="math display">\[
-t = -\frac{\alpha W \left( - \dfrac{\beta (x \eta)^{1 / \alpha}}{\alpha} \right)}{\beta}, \quad \eta = E \left( \frac{\alpha}{\beta} \right)
+t = -\frac{\alpha W \left( - \dfrac{\beta (x \eta)^{1 / \alpha}}{\alpha}
+\right)}{\beta}, \quad \eta = E \left( \frac{\alpha}{\beta} \right)
 \]</span></p>
 <p>正しい値がでるのか試しました。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">import</span> numpy</span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="im">import</span> scipy.special.lambertw <span class="im">as</span> lambertw</span>
-<span id="cb5-4"><a href="#cb5-4"></a></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="kw">def</span> getTime(α, β, x, normalize, k<span class="op">=</span><span class="dv">0</span>):</span>
-<span id="cb5-6"><a href="#cb5-6"></a>    <span class="cf">return</span> <span class="op">-</span>α <span class="op">*</span> lambertw(<span class="op">-</span>β <span class="op">*</span> (x <span class="op">*</span> normalize)<span class="op">**</span>(<span class="dv">1</span> <span class="op">/</span> α) <span class="op">/</span> α, k) <span class="op">/</span> β</span>
-<span id="cb5-7"><a href="#cb5-7"></a></span>
-<span id="cb5-8"><a href="#cb5-8"></a><span class="kw">def</span> expPoly(α, β, time):</span>
-<span id="cb5-9"><a href="#cb5-9"></a>    <span class="cf">return</span> time<span class="op">**</span>α <span class="op">*</span> numpy.exp(<span class="op">-</span>β <span class="op">*</span> time)</span>
-<span id="cb5-10"><a href="#cb5-10"></a></span>
-<span id="cb5-11"><a href="#cb5-11"></a><span class="kw">def</span> expPolyNormalized(α, β, time):</span>
-<span id="cb5-12"><a href="#cb5-12"></a>    normalize <span class="op">=</span> expPoly(α, β, α <span class="op">/</span> β)</span>
-<span id="cb5-13"><a href="#cb5-13"></a>    <span class="cf">return</span> (</span>
-<span id="cb5-14"><a href="#cb5-14"></a>        time<span class="op">**</span>α <span class="op">*</span> numpy.exp(<span class="op">-</span>β <span class="op">*</span> time) <span class="op">/</span> normalize,</span>
-<span id="cb5-15"><a href="#cb5-15"></a>        normalize,</span>
-<span id="cb5-16"><a href="#cb5-16"></a>    )</span>
-<span id="cb5-17"><a href="#cb5-17"></a></span>
-<span id="cb5-18"><a href="#cb5-18"></a>samplerate <span class="op">=</span> <span class="dv">48000</span></span>
-<span id="cb5-19"><a href="#cb5-19"></a>duration <span class="op">=</span> <span class="dv">8</span></span>
-<span id="cb5-20"><a href="#cb5-20"></a></span>
-<span id="cb5-21"><a href="#cb5-21"></a>time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, duration, duration <span class="op">*</span> samplerate)</span>
-<span id="cb5-22"><a href="#cb5-22"></a>alpha <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb5-23"><a href="#cb5-23"></a>beta <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb5-24"><a href="#cb5-24"></a></span>
-<span id="cb5-25"><a href="#cb5-25"></a>curve, normalize <span class="op">=</span> expPolyNormalized(alpha, beta, time)</span>
-<span id="cb5-26"><a href="#cb5-26"></a></span>
-<span id="cb5-27"><a href="#cb5-27"></a>xx <span class="op">=</span> numpy.linspace(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">10</span>)</span>
-<span id="cb5-28"><a href="#cb5-28"></a>tt0 <span class="op">=</span> getTime(alpha, beta, xx, normalize, <span class="dv">0</span>)</span>
-<span id="cb5-29"><a href="#cb5-29"></a>value_tt0, _ <span class="op">=</span> expPolyNormalized(alpha, beta, tt0)</span>
-<span id="cb5-30"><a href="#cb5-30"></a></span>
-<span id="cb5-31"><a href="#cb5-31"></a><span class="co"># k = 0 以外の場合は省略。</span></span>
-<span id="cb5-32"><a href="#cb5-32"></a></span>
-<span id="cb5-33"><a href="#cb5-33"></a>pyplot.plot(time, curve)</span>
-<span id="cb5-34"><a href="#cb5-34"></a>pyplot.scatter(tt0, value_tt0, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;k=0&quot;</span>)</span>
-<span id="cb5-35"><a href="#cb5-35"></a>pyplot.show()</span></code></pre></div>
-<p>結果です。 <span class="math inline">\(k\)</span> は Lambert W-function の引数で、適当な整数です。図を見ると、振幅から時間を求めるときはアタックの区間で <span class="math inline">\(k=0\)</span> 、ディケイの区間では <span class="math inline">\(k=-1\)</span> を使えば良さそうです。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.special.lambertw <span class="im">as</span> lambertw</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> getTime(α, β, x, normalize, k<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>α <span class="op">*</span> lambertw(<span class="op">-</span>β <span class="op">*</span> (x <span class="op">*</span> normalize)<span class="op">**</span>(<span class="dv">1</span> <span class="op">/</span> α) <span class="op">/</span> α, k) <span class="op">/</span> β</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> expPoly(α, β, time):</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> time<span class="op">**</span>α <span class="op">*</span> numpy.exp(<span class="op">-</span>β <span class="op">*</span> time)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> expPolyNormalized(α, β, time):</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    normalize <span class="op">=</span> expPoly(α, β, α <span class="op">/</span> β)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        time<span class="op">**</span>α <span class="op">*</span> numpy.exp(<span class="op">-</span>β <span class="op">*</span> time) <span class="op">/</span> normalize,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        normalize,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>samplerate <span class="op">=</span> <span class="dv">48000</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>duration <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, duration, duration <span class="op">*</span> samplerate)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>beta <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>curve, normalize <span class="op">=</span> expPolyNormalized(alpha, beta, time)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>xx <span class="op">=</span> numpy.linspace(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>tt0 <span class="op">=</span> getTime(alpha, beta, xx, normalize, <span class="dv">0</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>value_tt0, _ <span class="op">=</span> expPolyNormalized(alpha, beta, tt0)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co"># k = 0 以外の場合は省略。</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>pyplot.plot(time, curve)</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>pyplot.scatter(tt0, value_tt0, color<span class="op">=</span><span class="st">&quot;red&quot;</span>, label<span class="op">=</span><span class="st">&quot;k=0&quot;</span>)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>pyplot.show()</span></code></pre></div>
+<p>結果です。 <span class="math inline">\(k\)</span> は Lambert
+W-function
+の引数で、適当な整数です。図を見ると、振幅から時間を求めるときはアタックの区間で
+<span class="math inline">\(k=0\)</span> 、ディケイの区間では <span
+class="math inline">\(k=-1\)</span> を使えば良さそうです。</p>
 <figure>
 <img src="img/TimeFromAmplitude.png" alt="Image of determining time t from amplitude of E(t)." style="padding-bottom: 12px;"/>
 </figure>
 <ul>
-<li><a href="https://docs.scipy.org/doc/scipy-1.2.0/reference/generated/scipy.special.lambertw.html">scipy.special.lambertw — SciPy v1.2.0 Reference Guide</a></li>
-<li><a href="https://github.com/DarkoVeberic/LambertW">GitHub - DarkoVeberic/LambertW: C++ implementation of the Lambert W(x) function</a></li>
+<li><a
+href="https://docs.scipy.org/doc/scipy-1.2.0/reference/generated/scipy.special.lambertw.html">scipy.special.lambertw
+— SciPy v1.2.0 Reference Guide</a></li>
+<li><a href="https://github.com/DarkoVeberic/LambertW">GitHub -
+DarkoVeberic/LambertW: C++ implementation of the Lambert W(x)
+function</a></li>
 </ul>
-<h3 id="計算可能な-talpha-の範囲">計算可能な <span class="math inline">\(t^\alpha\)</span> の範囲</h3>
-<p><span class="math inline">\(E(t)\)</span> に含まれる <span class="math inline">\(t^\alpha\)</span> は浮動小数点数で計算するとそのうち <code>inf</code> になります。そこで <span class="math inline">\(t\)</span> がどこまで進むと <span class="math inline">\(t^\alpha \approx +\infty\)</span> となるのかを調べます。</p>
-<p><span class="math inline">\(+\infty\)</span> になる時点を <span class="math inline">\(t_{\mathrm{max}}\)</span> 、浮動小数点数で表現できる最大値を <span class="math inline">\(F\)</span> とすると、次の式が立ちます。</p>
+<h3 id="計算可能な-talpha-の範囲">計算可能な <span
+class="math inline">\(t^\alpha\)</span> の範囲</h3>
+<p><span class="math inline">\(E(t)\)</span> に含まれる <span
+class="math inline">\(t^\alpha\)</span>
+は浮動小数点数で計算するとそのうち <code>inf</code> になります。そこで
+<span class="math inline">\(t\)</span> がどこまで進むと <span
+class="math inline">\(t^\alpha \approx +\infty\)</span>
+となるのかを調べます。</p>
+<p><span class="math inline">\(+\infty\)</span> になる時点を <span
+class="math inline">\(t_{\mathrm{max}}\)</span>
+、浮動小数点数で表現できる最大値を <span
+class="math inline">\(F\)</span> とすると、次の式が立ちます。</p>
 <p><span class="math display">\[
 t_{\mathrm{max}} = F^{1 / \alpha}
 \]</span></p>
-<p><span class="math inline">\(\alpha\)</span> が 1 より小さいとき、 <span class="math inline">\(t_{\mathrm{max}}\)</span> は <span class="math inline">\(F\)</span> より大きいので、 <span class="math inline">\(t\)</span> が <code>nan</code> や <code>inf</code> でなければ取り得る全ての値の範囲で計算に問題が無いことが分かります。 <span class="math inline">\(\alpha\)</span> が 1 以上のときの <span class="math inline">\(t_{\mathrm{max}}\)</span> を計算してみます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">import</span> numpy</span>
-<span id="cb6-2"><a href="#cb6-2"></a></span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">def</span> printTimeMax(dtype):</span>
-<span id="cb6-4"><a href="#cb6-4"></a>    fmax <span class="op">=</span> numpy.finfo(dtype).<span class="bu">max</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a>    alpha <span class="op">=</span> numpy.array([<span class="dv">2</span><span class="op">**</span>i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">16</span>)], dtype<span class="op">=</span>dtype)</span>
-<span id="cb6-6"><a href="#cb6-6"></a>    timeMax <span class="op">=</span> numpy.power(fmax, dtype(<span class="dv">1</span>) <span class="op">/</span> alpha, dtype<span class="op">=</span>dtype)</span>
-<span id="cb6-7"><a href="#cb6-7"></a>    <span class="bu">print</span>(dtype)</span>
-<span id="cb6-8"><a href="#cb6-8"></a>    <span class="cf">for</span> a, t <span class="kw">in</span> <span class="bu">zip</span>(alpha, timeMax):</span>
-<span id="cb6-9"><a href="#cb6-9"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{a:9.1f}</span><span class="ss">, </span><span class="sc">{t}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-10"><a href="#cb6-10"></a></span>
-<span id="cb6-11"><a href="#cb6-11"></a>printTimeMax(numpy.float32)</span>
-<span id="cb6-12"><a href="#cb6-12"></a>printTimeMax(numpy.float64)</span></code></pre></div>
-<p>整形した出力です。左の列が <span class="math inline">\(\alpha\)</span> 、右の列が <span class="math inline">\(t_{\mathrm{max}}\)</span> です。単精度のときは <span class="math inline">\(\alpha\)</span> が 64.0 のときに 4.0 秒しかレンダリングできないことが分かります。</p>
+<p><span class="math inline">\(\alpha\)</span> が 1 より小さいとき、
+<span class="math inline">\(t_{\mathrm{max}}\)</span> は <span
+class="math inline">\(F\)</span> より大きいので、 <span
+class="math inline">\(t\)</span> が <code>nan</code> や <code>inf</code>
+でなければ取り得る全ての値の範囲で計算に問題が無いことが分かります。
+<span class="math inline">\(\alpha\)</span> が 1 以上のときの <span
+class="math inline">\(t_{\mathrm{max}}\)</span> を計算してみます。</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> printTimeMax(dtype):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    fmax <span class="op">=</span> numpy.finfo(dtype).<span class="bu">max</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> numpy.array([<span class="dv">2</span><span class="op">**</span>i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">16</span>)], dtype<span class="op">=</span>dtype)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    timeMax <span class="op">=</span> numpy.power(fmax, dtype(<span class="dv">1</span>) <span class="op">/</span> alpha, dtype<span class="op">=</span>dtype)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(dtype)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> a, t <span class="kw">in</span> <span class="bu">zip</span>(alpha, timeMax):</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>a<span class="sc">:9.1f}</span><span class="ss">, </span><span class="sc">{</span>t<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>printTimeMax(numpy.float32)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>printTimeMax(numpy.float64)</span></code></pre></div>
+<p>整形した出力です。左の列が <span
+class="math inline">\(\alpha\)</span> 、右の列が <span
+class="math inline">\(t_{\mathrm{max}}\)</span> です。単精度のときは
+<span class="math inline">\(\alpha\)</span> が 64.0 のときに 4.0
+秒しかレンダリングできないことが分かります。</p>
 <pre><code>&lt;class &#39;numpy.float32&#39;&gt;
       2.0, 1.8446742974197924e+19
       4.0, 4294967296.0
@@ -517,7 +597,9 @@ t_{\mathrm{max}} = F^{1 / \alpha}
    8192.0, 1.0905077326652577
   16384.0, 1.0442737824274138
   32768.0, 1.0218971486541166</code></pre>
-<p>正規化係数 <span class="math inline">\(E \left( \dfrac{\alpha}{\beta} \right)\)</span> を求めることができる <span class="math inline">\(\beta\)</span> の範囲です。</p>
+<p>正規化係数 <span class="math inline">\(E \left( \dfrac{\alpha}{\beta}
+\right)\)</span> を求めることができる <span
+class="math inline">\(\beta\)</span> の範囲です。</p>
 <p><span class="math display">\[
 \begin{aligned}
 t_{\mathrm{max}} &amp;\geq \dfrac{\alpha}{\beta} \\
@@ -526,70 +608,83 @@ t_{\mathrm{max}} &amp;\geq \dfrac{\alpha}{\beta} \\
 \]</span></p>
 <h2 id="実装">実装</h2>
 <p>C++ による実装例です。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="pp">#include </span><span class="im">&lt;cfloat&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a></span>
-<span id="cb8-4"><a href="#cb8-4"></a><span class="kw">class</span> ExpPolyEnvelope {</span>
-<span id="cb8-5"><a href="#cb8-5"></a><span class="kw">public</span>:</span>
-<span id="cb8-6"><a href="#cb8-6"></a>  <span class="co">// attack の単位は秒。</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="co">// curve は任意の値。 β に相当。</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a>  <span class="co">// attack と curve が大きいと計算結果が inf になるときがあるので注意。</span></span>
-<span id="cb8-9"><a href="#cb8-9"></a>  <span class="dt">void</span> reset(<span class="dt">double</span> sampleRate, <span class="dt">double</span> attack, <span class="dt">double</span> curve)</span>
-<span id="cb8-10"><a href="#cb8-10"></a>  {</span>
-<span id="cb8-11"><a href="#cb8-11"></a>    alpha = attack * curve;</span>
-<span id="cb8-12"><a href="#cb8-12"></a></span>
-<span id="cb8-13"><a href="#cb8-13"></a>    <span class="kw">auto</span> betaMin = alpha / getTerminationTime();</span>
-<span id="cb8-14"><a href="#cb8-14"></a>    <span class="cf">if</span> (curve &lt; betaMin) curve = betaMin;</span>
-<span id="cb8-15"><a href="#cb8-15"></a></span>
-<span id="cb8-16"><a href="#cb8-16"></a>    peak = pow(alpha / curve, alpha) * exp(-alpha);</span>
-<span id="cb8-17"><a href="#cb8-17"></a>    gamma = exp(-curve / sampleRate);</span>
-<span id="cb8-18"><a href="#cb8-18"></a>    tick = <span class="fl">1.0</span> / sampleRate;</span>
-<span id="cb8-19"><a href="#cb8-19"></a></span>
-<span id="cb8-20"><a href="#cb8-20"></a>    time = <span class="fl">0.0</span>;</span>
-<span id="cb8-21"><a href="#cb8-21"></a>    value = <span class="fl">1.0</span>;</span>
-<span id="cb8-22"><a href="#cb8-22"></a>  }</span>
-<span id="cb8-23"><a href="#cb8-23"></a></span>
-<span id="cb8-24"><a href="#cb8-24"></a>  <span class="dt">bool</span> isReleasing() { <span class="cf">return</span> time &gt;= attack; }</span>
-<span id="cb8-25"><a href="#cb8-25"></a>  <span class="dt">double</span> getTerminationTime() { <span class="cf">return</span> pow(DBL_MAX, <span class="fl">1.0</span> / alpha); }</span>
-<span id="cb8-26"><a href="#cb8-26"></a></span>
-<span id="cb8-27"><a href="#cb8-27"></a>  <span class="dt">double</span> process()</span>
-<span id="cb8-28"><a href="#cb8-28"></a>  {</span>
-<span id="cb8-29"><a href="#cb8-29"></a>    <span class="kw">auto</span> output = pow(time, alpha) * value / peak;</span>
-<span id="cb8-30"><a href="#cb8-30"></a>    <span class="cf">if</span> (!<span class="bu">std::</span>isfinite(output)) <span class="cf">return</span> <span class="fl">0.0</span>; <span class="co">// 念のため。</span></span>
-<span id="cb8-31"><a href="#cb8-31"></a>    time += tick;</span>
-<span id="cb8-32"><a href="#cb8-32"></a>    value *= gamma;</span>
-<span id="cb8-33"><a href="#cb8-33"></a>    <span class="cf">return</span> output;</span>
-<span id="cb8-34"><a href="#cb8-34"></a>  }</span>
-<span id="cb8-35"><a href="#cb8-35"></a></span>
-<span id="cb8-36"><a href="#cb8-36"></a><span class="kw">protected</span>:</span>
-<span id="cb8-37"><a href="#cb8-37"></a>  <span class="dt">double</span> value = <span class="dv">0</span>;</span>
-<span id="cb8-38"><a href="#cb8-38"></a>  <span class="dt">double</span> peak = <span class="dv">1</span>;</span>
-<span id="cb8-39"><a href="#cb8-39"></a>  <span class="dt">double</span> gamma = <span class="dv">0</span>;</span>
-<span id="cb8-40"><a href="#cb8-40"></a>  <span class="dt">double</span> attack = <span class="dv">0</span>;</span>
-<span id="cb8-41"><a href="#cb8-41"></a>  <span class="dt">double</span> tick = <span class="dv">0</span>;</span>
-<span id="cb8-42"><a href="#cb8-42"></a>  <span class="dt">double</span> alpha = <span class="dv">0</span>;</span>
-<span id="cb8-43"><a href="#cb8-43"></a>  <span class="dt">double</span> time = <span class="dv">0</span>;</span>
-<span id="cb8-44"><a href="#cb8-44"></a>};</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cfloat&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ExpPolyEnvelope <span class="op">{</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">// attack の単位は秒。</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// curve は任意の値。 β に相当。</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">// attack と curve が大きいと計算結果が inf になるときがあるので注意。</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">(</span><span class="dt">double</span> sampleRate<span class="op">,</span> <span class="dt">double</span> attack<span class="op">,</span> <span class="dt">double</span> curve<span class="op">)</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    alpha <span class="op">=</span> attack <span class="op">*</span> curve<span class="op">;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> betaMin <span class="op">=</span> alpha <span class="op">/</span> getTerminationTime<span class="op">();</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>curve <span class="op">&lt;</span> betaMin<span class="op">)</span> curve <span class="op">=</span> betaMin<span class="op">;</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    peak <span class="op">=</span> pow<span class="op">(</span>alpha <span class="op">/</span> curve<span class="op">,</span> alpha<span class="op">)</span> <span class="op">*</span> exp<span class="op">(-</span>alpha<span class="op">);</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    gamma <span class="op">=</span> exp<span class="op">(-</span>curve <span class="op">/</span> sampleRate<span class="op">);</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    tick <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> sampleRate<span class="op">;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    time <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isReleasing<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> time <span class="op">&gt;=</span> attack<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> getTerminationTime<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> pow<span class="op">(</span>DBL_MAX<span class="op">,</span> <span class="fl">1.0</span> <span class="op">/</span> alpha<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> process<span class="op">()</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> output <span class="op">=</span> pow<span class="op">(</span>time<span class="op">,</span> alpha<span class="op">)</span> <span class="op">*</span> value <span class="op">/</span> peak<span class="op">;</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span><span class="bu">std::</span>isfinite<span class="op">(</span>output<span class="op">))</span> <span class="cf">return</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">// 念のため。</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    time <span class="op">+=</span> tick<span class="op">;</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    value <span class="op">*=</span> gamma<span class="op">;</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output<span class="op">;</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> peak <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> gamma <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> attack <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> tick <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> alpha <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> time <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p>テストコードへのリンクです。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/master/exppoly_envelope/demo/test.cpp">filter_notes/test.cpp at master · ryukau/filter_notes · GitHub</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/exppoly_envelope/demo/test.cpp">filter_notes/test.cpp
+at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
 <p>テスト結果です。</p>
 <figure>
 <img src="img/ExpPoly.png" alt="Image of test result of ExpPoly envelope implemented in C++." style="padding-bottom: 12px;"/>
 </figure>
 <h2 id="その他">その他</h2>
-<p><span class="math inline">\(E(t)\)</span> は <a href="https://en.wikipedia.org/wiki/Gamma_distribution">Gamma distribution</a> の PDF の一部と同じ形です。</p>
+<p><span class="math inline">\(E(t)\)</span> は <a
+href="https://en.wikipedia.org/wiki/Gamma_distribution">Gamma
+distribution</a> の PDF の一部と同じ形です。</p>
 <ul>
-<li><a href="https://math.stackexchange.com/questions/1562012/integrating-rm-xae-bx">calculus - Integrating <span class="math inline">\(\rm x^ae^{-bx}\)</span>. - Mathematics Stack Exchange</a></li>
-<li><a href="https://math.stackexchange.com/questions/855226/finding-z-transform-of-this-function">Finding z transform of this function. - Mathematics Stack Exchange</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Exponential_polynomial">Exponential polynomial - Wikipedia</a></li>
+<li><a
+href="https://math.stackexchange.com/questions/1562012/integrating-rm-xae-bx">calculus
+- Integrating <span class="math inline">\(\rm x^ae^{-bx}\)</span>. -
+Mathematics Stack Exchange</a></li>
+<li><a
+href="https://math.stackexchange.com/questions/855226/finding-z-transform-of-this-function">Finding
+z transform of this function. - Mathematics Stack Exchange</a></li>
+<li><a
+href="https://en.wikipedia.org/wiki/Exponential_polynomial">Exponential
+polynomial - Wikipedia</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
 <li>2020-03-26
 <ul>
-<li>既存の用語 exponential polynomial にならって名前を PolyExp から ExpPoly に変更。</li>
+<li>既存の用語 exponential polynomial にならって名前を PolyExp から
+ExpPoly に変更。</li>
 <li>文章の整理。</li>
 </ul></li>
 </ul>

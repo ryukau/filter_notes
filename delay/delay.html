@@ -5,18 +5,19 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-05-08" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>delay</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,26 +344,32 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-05-08
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#ディレイの実装">ディレイの実装</a>
+<li><a href="#ディレイの実装" id="toc-ディレイの実装">ディレイの実装</a>
 <ul>
-<li><a href="#整数ディレイ">整数ディレイ</a></li>
-<li><a href="#分数ディレイフィルタ">分数ディレイフィルタ</a>
+<li><a href="#整数ディレイ" id="toc-整数ディレイ">整数ディレイ</a></li>
+<li><a href="#分数ディレイフィルタ"
+id="toc-分数ディレイフィルタ">分数ディレイフィルタ</a>
 <ul>
-<li><a href="#奇数の-n-と偶数の-n">奇数の <span class="math inline">\(N\)</span> と偶数の <span class="math inline">\(N\)</span></a></li>
+<li><a href="#奇数の-n-と偶数の-n" id="toc-奇数の-n-と偶数の-n">奇数の
+<span class="math inline">\(N\)</span> と偶数の <span
+class="math inline">\(N\)</span></a></li>
 </ul></li>
-<li><a href="#オーバーサンプリング">オーバーサンプリング</a></li>
-<li><a href="#レートリミッタ">レートリミッタ</a></li>
-<li><a href="#ディレイ時間の補正">ディレイ時間の補正</a></li>
-<li><a href="#まとめて実装">まとめて実装</a></li>
-<li><a href="#その他">その他</a></li>
-<li><a href="#参考文献">参考文献</a></li>
-<li><a href="#変更点">変更点</a></li>
+<li><a href="#オーバーサンプリング"
+id="toc-オーバーサンプリング">オーバーサンプリング</a></li>
+<li><a href="#レートリミッタ"
+id="toc-レートリミッタ">レートリミッタ</a></li>
+<li><a href="#ディレイ時間の補正"
+id="toc-ディレイ時間の補正">ディレイ時間の補正</a></li>
+<li><a href="#まとめて実装" id="toc-まとめて実装">まとめて実装</a></li>
+<li><a href="#その他" id="toc-その他">その他</a></li>
+<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -368,18 +381,29 @@ Update: 2022-05-08
 <img src="img/ringbuffer.svg" alt="Image of ringbuffer." style="width: 640px; padding-bottom: 12px;"/>
 </figure>
 <p>時間が1サンプル進むたびにリングバッファの書き込みポインタと読み取りポインタのインデックスを1つ進めます。バッファの終端から1サンプル進むとインデックス0に戻ります。</p>
-<p>ディレイ時間は実装の内部ではサンプル数で表現されます。 秒数 <span class="math inline">\(t\)</span> とサンプリング周波数 <span class="math inline">\(f_s\)</span> を掛け合わせることでサンプル数で表された時間 <span class="math inline">\(d\)</span> が計算できます。</p>
+<p>ディレイ時間は実装の内部ではサンプル数で表現されます。 秒数 <span
+class="math inline">\(t\)</span> とサンプリング周波数 <span
+class="math inline">\(f_s\)</span>
+を掛け合わせることでサンプル数で表された時間 <span
+class="math inline">\(d\)</span> が計算できます。</p>
 <p><span class="math display">\[
 d = tf_s
 \]</span></p>
-<p>例として <span class="math inline">\(t = 0.23,\,f_s = 10\)</span> とすると <span class="math inline">\(d = 2.3\)</span> となります。 <span class="math inline">\(d\)</span> はリングバッファのインデックスを表していますが、実数なので <code>buffer[d]</code> などと書くとエラーになります。そこで補間が必要になってきます。</p>
-<p>補間を行うディレイは、整数サンプルのディレイと、その後に続く補間に処理を分けることができます。補間は分数サンプルのディレイを行うフィルタとして扱えるので、分数ディレイフィルタ (fractional delay filter) と呼ばれることがあります。</p>
+<p>例として <span class="math inline">\(t = 0.23,\,f_s = 10\)</span>
+とすると <span class="math inline">\(d = 2.3\)</span> となります。 <span
+class="math inline">\(d\)</span>
+はリングバッファのインデックスを表していますが、実数なので
+<code>buffer[d]</code>
+などと書くとエラーになります。そこで補間が必要になってきます。</p>
+<p>補間を行うディレイは、整数サンプルのディレイと、その後に続く補間に処理を分けることができます。補間は分数サンプルのディレイを行うフィルタとして扱えるので、分数ディレイフィルタ
+(fractional delay filter) と呼ばれることがあります。</p>
 <figure>
 <img src="img/delay_outline.svg" alt="Image of signal flow of a delay." style="width: 720px; padding-bottom: 12px;"/>
 </figure>
 <h2 id="整数ディレイ">整数ディレイ</h2>
 <p>まずは補間のないディレイを実装します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IntDelay {</span>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IntDelay {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span>(sampleRate<span class="op">,</span> time) {</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">sampleRate</span> <span class="op">=</span> sampleRate</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">buf</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">ceil</span>(sampleRate <span class="op">*</span> time) <span class="op">+</span> <span class="dv">1</span>)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
@@ -388,7 +412,7 @@ d = tf_s
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">time</span> <span class="op">=</span> time</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  set <span class="fu">time</span>(time) {</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">set</span> <span class="fu">time</span>(time) {</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> delay <span class="op">=</span> time <span class="op">*</span> <span class="kw">this</span><span class="op">.</span><span class="at">sampleRate</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">rptr</span> <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">floor</span>(<span class="kw">this</span><span class="op">.</span><span class="at">wptr</span> <span class="op">-</span> delay)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> (<span class="kw">this</span><span class="op">.</span><span class="at">rptr</span> <span class="op">&lt;</span> <span class="dv">0</span>) <span class="kw">this</span><span class="op">.</span><span class="at">rptr</span> <span class="op">+=</span> <span class="kw">this</span><span class="op">.</span><span class="at">buf</span><span class="op">.</span><span class="at">length</span></span>
@@ -404,10 +428,17 @@ d = tf_s
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p><code>time</code> の単位は秒です。 <code>this.buf</code> の長さはコンストラクタの <code>time</code> に応じて設定されるので、後でディレイタイムを変更するときは予想される最大値をコンストラクタの <code>time</code> に渡しておきます。</p>
-<p><code>while</code> の行で <code>this.rptr</code> が [0, this.buf.length] の範囲に収まるようにしています。 <code>delay &gt;= this.buf.length || delay &lt; 0</code> のときは正しい値が設定されないので注意してください。</p>
+<p><code>time</code> の単位は秒です。 <code>this.buf</code>
+の長さはコンストラクタの <code>time</code>
+に応じて設定されるので、後でディレイタイムを変更するときは予想される最大値をコンストラクタの
+<code>time</code> に渡しておきます。</p>
+<p><code>while</code> の行で <code>this.rptr</code> が [0,
+this.buf.length] の範囲に収まるようにしています。
+<code>delay &gt;= this.buf.length || delay &lt; 0</code>
+のときは正しい値が設定されないので注意してください。</p>
 <p>テストします。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> sampleRate <span class="op">=</span> <span class="dv">44100</span></span>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> sampleRate <span class="op">=</span> <span class="dv">44100</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> source <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(<span class="dv">8</span>)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>source[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span></span>
@@ -425,7 +456,8 @@ d = tf_s
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(result)</span></code></pre></div>
 <p>出力です。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>[</span>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>[</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  [<span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> <span class="co">// source</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> <span class="co">// 1 sample delay</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> <span class="co">// 2 sample delay</span></span>
@@ -437,18 +469,30 @@ d = tf_s
 <figure>
 <img src="img/lagrange_taylor.svg" alt="Image of a implementation of lagrange interpolation based on taylor expansion." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
-<p><span class="math inline">\(z^{-n}\)</span> は <span class="math inline">\(n\)</span> サンプルディレイを表しています。</p>
-<p><span class="math inline">\(\Delta\)</span> はフィルタを通したときに追加されるディレイで、単位はサンプル数、範囲は <span class="math inline">\([0, N]\)</span> の実数です。 <span class="math inline">\(N\)</span> 次のときの <span class="math inline">\(\Delta\)</span> の値は <span class="math inline">\([(N-1)/2, (N+1)/2]\)</span> の範囲で設定するといいようなので、次の式のように書けます。</p>
+<p><span class="math inline">\(z^{-n}\)</span> は <span
+class="math inline">\(n\)</span> サンプルディレイを表しています。</p>
+<p><span class="math inline">\(\Delta\)</span>
+はフィルタを通したときに追加されるディレイで、単位はサンプル数、範囲は
+<span class="math inline">\([0, N]\)</span> の実数です。 <span
+class="math inline">\(N\)</span> 次のときの <span
+class="math inline">\(\Delta\)</span> の値は <span
+class="math inline">\([(N-1)/2, (N+1)/2]\)</span>
+の範囲で設定するといいようなので、次の式のように書けます。</p>
 <p><span class="math display">\[
 \Delta = \frac{N - 1}{2} + \delta, \quad 0 \leq \delta &lt; 1
 \]</span></p>
-<p>例えば3次のラグランジュ補間では <span class="math inline">\(\Delta\)</span> の値が1.0 から 2.0 の範囲に収まるように使えば良いことがわかります。</p>
-<p>上のブロック線図をそのまま実装すると <span class="math inline">\(\delta=1\)</span> のときに時間が1サンプル戻るようになります。</p>
+<p>例えば3次のラグランジュ補間では <span
+class="math inline">\(\Delta\)</span> の値が1.0 から 2.0
+の範囲に収まるように使えば良いことがわかります。</p>
+<p>上のブロック線図をそのまま実装すると <span
+class="math inline">\(\delta=1\)</span>
+のときに時間が1サンプル戻るようになります。</p>
 <figure>
 <img src="img/fd_filter_direction.svg" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <p>3次のラグランジュ補間を実装します。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Lagrange3Interp {</span>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Lagrange3Interp {</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span>() {</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">xd</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(<span class="dv">3</span>)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">diff</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(<span class="dv">3</span>)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
@@ -474,9 +518,15 @@ d = tf_s
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sig</span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p><code>fraction</code> は補間の位置 <span class="math inline">\(\delta\)</span> で、範囲 <code>[0.0, 1.0)</code> の値です。 <code>sig</code> の計算はわかりやすさのために <code>(0 - delta) / 1</code> のような意味のない計算も明示的に書いています。</p>
-<p><span class="math inline">\(N\)</span> 次のラグランジュ補間が計算できるように一般化します。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LagrangeNInterp {</span>
+<p><code>fraction</code> は補間の位置 <span
+class="math inline">\(\delta\)</span> で、範囲 <code>[0.0, 1.0)</code>
+の値です。 <code>sig</code> の計算はわかりやすさのために
+<code>(0 - delta) / 1</code>
+のような意味のない計算も明示的に書いています。</p>
+<p><span class="math inline">\(N\)</span>
+次のラグランジュ補間が計算できるように一般化します。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LagrangeNInterp {</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span>(order) {</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">N</span> <span class="op">=</span> order</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">fix</span> <span class="op">=</span> (<span class="kw">this</span><span class="op">.</span><span class="at">N</span> <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> <span class="dv">2</span></span>
@@ -517,24 +567,44 @@ d = tf_s
 <span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">at</span>(fraction)</span>
 <span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h3 id="奇数の-n-と偶数の-n">奇数の <span class="math inline">\(N\)</span> と偶数の <span class="math inline">\(N\)</span></h3>
-<p>サンプル数で表したディレイ時間 <span class="math inline">\(d\)</span> を整数部 <span class="math inline">\(n\)</span> と分数部 <span class="math inline">\(\delta\)</span> に分けます。</p>
+<h3 id="奇数の-n-と偶数の-n">奇数の <span
+class="math inline">\(N\)</span> と偶数の <span
+class="math inline">\(N\)</span></h3>
+<p>サンプル数で表したディレイ時間 <span class="math inline">\(d\)</span>
+を整数部 <span class="math inline">\(n\)</span> と分数部 <span
+class="math inline">\(\delta\)</span> に分けます。</p>
 <p><span class="math display">\[
 d = n + \delta
 \quad \text{where} \quad n = \lfloor d \rfloor
 , \quad 0 \leq \delta &lt; 1.
 \]</span></p>
-<p>ラグランジュ補間では、計算のために補間したい位置の周りにある <span class="math inline">\(N\)</span> サンプルを参照するのですが、 <span class="math inline">\(N\)</span> が偶数のときは <span class="math inline">\(0 \leq \delta \leq 0.5\)</span> の場合と <span class="math inline">\(0.5 &lt; \delta \leq 1\)</span> の場合で参照するサンプルの組が変わってしまいます。</p>
+<p>ラグランジュ補間では、計算のために補間したい位置の周りにある <span
+class="math inline">\(N\)</span> サンプルを参照するのですが、 <span
+class="math inline">\(N\)</span> が偶数のときは <span
+class="math inline">\(0 \leq \delta \leq 0.5\)</span> の場合と <span
+class="math inline">\(0.5 &lt; \delta \leq 1\)</span>
+の場合で参照するサンプルの組が変わってしまいます。</p>
 <figure>
 <img src="img/lagrange_fd_filter_odd_even_consideration.svg" alt="Image of several pair of samples that is needed to compute lagrange interpolation." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
-<p>この文章では <span class="math inline">\(N\)</span> が奇数の実装だけを掲載しています。<span class="math inline">\(N\)</span> が偶数のときは入力を1サンプルずらした2つの分数ディレイフィルタを用意して、 <span class="math inline">\(\Delta\)</span> の値によって通過させるフィルタを入れ替える実装が考えられます。</p>
+<p>この文章では <span class="math inline">\(N\)</span>
+が奇数の実装だけを掲載しています。<span class="math inline">\(N\)</span>
+が偶数のときは入力を1サンプルずらした2つの分数ディレイフィルタを用意して、
+<span class="math inline">\(\Delta\)</span>
+の値によって通過させるフィルタを入れ替える実装が考えられます。</p>
 <h2 id="オーバーサンプリング">オーバーサンプリング</h2>
 <p>整数ディレイと分数ディレイフィルタをそのままつないだだけだと、ディレイ時間を変更したときにノイズが乗ります。ノイズはサンプル数で表されたディレイ時間の整数部が変わるときに乗るようです。</p>
-<p>いろいろ試したところ、オーバーサンプリングによってノイズを減らすことができました。オーバーサンプリングは、信号のサンプリング周波数を <span class="math inline">\(K\)</span> 倍に増やして処理を行うことでノイズを低減するテクニックです。ここではサンプルとサンプルの間の値は分かっていないので、補間を使って近似します。</p>
-<p>実装ではオーバーサンプリングしたい区間をアップサンプリングとダウンサンプリングの処理で挟みます。アップサンプリングはサンプリング周波数を <span class="math inline">\(K\)</span> 倍に増やす処理、ダウンサンプリングはサンプリング周波数を <span class="math inline">\(1 / K\)</span> 倍に減らす処理です。ここではアップサンプリングの補間に分数ディレイフィルタを使います。</p>
+<p>いろいろ試したところ、オーバーサンプリングによってノイズを減らすことができました。オーバーサンプリングは、信号のサンプリング周波数を
+<span class="math inline">\(K\)</span>
+倍に増やして処理を行うことでノイズを低減するテクニックです。ここではサンプルとサンプルの間の値は分かっていないので、補間を使って近似します。</p>
+<p>実装ではオーバーサンプリングしたい区間をアップサンプリングとダウンサンプリングの処理で挟みます。アップサンプリングはサンプリング周波数を
+<span class="math inline">\(K\)</span>
+倍に増やす処理、ダウンサンプリングはサンプリング周波数を <span
+class="math inline">\(1 / K\)</span>
+倍に減らす処理です。ここではアップサンプリングの補間に分数ディレイフィルタを使います。</p>
 <p>オーバーサンプリングの処理は次のように書けます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> interp <span class="op">=</span> <span class="kw">new</span> <span class="fu">LagrangeNInterp</span>(<span class="dv">3</span>)</span>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> interp <span class="op">=</span> <span class="kw">new</span> <span class="fu">LagrangeNInterp</span>(<span class="dv">3</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">overSampling</span>(section<span class="op">,</span> input<span class="op">,</span> K) {</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  interp<span class="op">.</span><span class="fu">push</span>(input)</span>
@@ -548,9 +618,13 @@ d = n + \delta
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <h2 id="レートリミッタ">レートリミッタ</h2>
 <p>ディレイ時間を変更したときのノイズを減らす別の方法としてレートリミッタが使えます。</p>
-<p>レートリミッタは 1 フレームあたりでの値の変化量を制限する部品です。例えば現在値が 0 、目標値が 100 、レート制限値が 1 とすると、目標値へ 100 フレームかけて到達するようにします。</p>
+<p>レートリミッタは 1
+フレームあたりでの値の変化量を制限する部品です。例えば現在値が 0
+、目標値が 100 、レート制限値が 1 とすると、目標値へ 100
+フレームかけて到達するようにします。</p>
 <p>以下は C++ によるレートリミッタの実装例です。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> RateLimiter <span class="op">{</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  Sample target <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -572,7 +646,8 @@ d = n + \delta
 <span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p>以下のようにディレイに組み込んで使えます。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> Delay <span class="op">{</span></span>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">struct</span> Delay <span class="op">{</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> buf<span class="op">{</span><span class="dv">48000</span><span class="op">};</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  RateLimiter<span class="op">&lt;</span>Sample<span class="op">&gt;</span> timeLimiter<span class="op">;</span></span>
@@ -601,19 +676,29 @@ d = n + \delta
 <span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> buf<span class="op">[</span>rptr0<span class="op">]</span> <span class="op">+</span> rFraction <span class="op">*</span> <span class="op">(</span>buf<span class="op">[</span>rptr1<span class="op">]</span> <span class="op">-</span> buf<span class="op">[</span>rptr0<span class="op">]);</span></span>
 <span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<p>上の <code>Delay</code> はオーバーサンプリングを行っていませんが、ディレイ時間 <code>timeInSample</code> を変更したときもノイズはほぼ聞こえません。ただし、ハイシェルフフィルタなどを使って極端に高域を強調するとノイズが消えているわけではないことが確認できます。徹底的にノイズを減らすのであればオーバーサンプリングとレートリミッタを両方使ったほうがよさそうです。</p>
-<p>以下は実際にプラグインで使った実装へのリンクです。 <code>rate</code> はすべてのディレイについて一括で変えたかったので static にしています。</p>
+<p>上の <code>Delay</code>
+はオーバーサンプリングを行っていませんが、ディレイ時間
+<code>timeInSample</code>
+を変更したときもノイズはほぼ聞こえません。ただし、ハイシェルフフィルタなどを使って極端に高域を強調するとノイズが消えているわけではないことが確認できます。徹底的にノイズを減らすのであればオーバーサンプリングとレートリミッタを両方使ったほうがよさそうです。</p>
+<p>以下は実際にプラグインで使った実装へのリンクです。 <code>rate</code>
+はすべてのディレイについて一括で変えたかったので static
+にしています。</p>
 <ul>
-<li><a href="https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5fa82111c7/FDN64Reverb/source/dsp/fdnreverb.hpp#L65">FDN64Reverb で使った RateLimiter の実装を読む (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5fa82111c7/FDN64Reverb/source/dsp/fdnreverb.hpp#L65">FDN64Reverb
+で使った RateLimiter の実装を読む (github.com)</a></li>
 </ul>
-<p>レートリミッタの代わりに 1 次ローパスフィルタや <a href="https://ryukau.github.io/filter_notes/control_rate_interpolation/control_rate_interpolation.html#p-controller">EMA フィルタ</a>などのオーバーシュートしないフィルタを使うことも考えられます。レートリミッタのような正確な値の変動の制限は期待できませんが、ディレイ時間に使うとそれなりに味のある音になります。</p>
+<p>レートリミッタの代わりに 1 次ローパスフィルタや <a
+href="https://ryukau.github.io/filter_notes/control_rate_interpolation/control_rate_interpolation.html#p-controller">EMA
+フィルタ</a>などのオーバーシュートしないフィルタを使うことも考えられます。レートリミッタのような正確な値の変動の制限は期待できませんが、ディレイ時間に使うとそれなりに味のある音になります。</p>
 <h2 id="ディレイ時間の補正">ディレイ時間の補正</h2>
 <p>整数ディレイの前後に取り付けられた分数ディレイフィルタの遅延を補正します。次の図はオーバーサンプリングを追加したときのディレイの処理の流れです。</p>
 <figure>
 <img src="img/oversampling_outline.svg" alt="Image of ." style="width: 720px;padding-bottom: 12px;"/>
 </figure>
 <p>FD Filter は Fractional Delay Filter の略です。</p>
-<p>例として、オーバーサンプリングを4倍、書き込みと読み取りのラグランジュ補間を3次に設定したディレイを使って、入力信号 を3.375 (3 + 3/8) サンプル遅らせることを考えます。</p>
+<p>例として、オーバーサンプリングを4倍、書き込みと読み取りのラグランジュ補間を3次に設定したディレイを使って、入力信号
+を3.375 (3 + 3/8) サンプル遅らせることを考えます。</p>
 <p>入力信号です。</p>
 <figure>
 <img src="img/oversampling_input.svg" alt="Image of ." style="width: 640px;padding-bottom: 12px;"/>
@@ -622,21 +707,36 @@ d = n + \delta
 <figure>
 <img src="img/oversampling_oversampled.svg" alt="Image of ." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
-<p>入力信号を補間した状態です。上段の time は入力信号のサンプリング周波数に基づいてサンプル数で表された時間です。下段の time in buffer はディレイのリングバッファ上でのサンプル数で表された時間で、オーバーサンプリングされた信号のサンプリング周波数に基づいています。</p>
-<p>入力信号のサンプリング周波数で 3.375 サンプルのディレイは 4 倍にオーバーサンプリングされると 4 * 3.375 = 13.5 サンプルのディレイになります。</p>
-<p><code>wptr</code> はリングバッファへの書き込みポインタです。上の図では書き込みを終えたときの位置を指しています。ここでの目的は <code>wptr</code> の位置から、分数ディレイフィルタで追加される遅れを考慮した整数ディレイの読み取りポインタ <code>rptr</code> の位置を計算することです。</p>
-<p><code>input</code> と <code>wptr</code> のずれは書き込み時の補間によるものです。読み取りでも補間を行うのでディレイが追加されます。書き込みの補間によるディレイを <code>wDelay</code> 、読み取りの補間によるディレイを <code>rDelay</code> とすると指定したディレイ時間 <code>d_buf</code> との関係は次の図のようになります。</p>
+<p>入力信号を補間した状態です。上段の time
+は入力信号のサンプリング周波数に基づいてサンプル数で表された時間です。下段の
+time in buffer
+はディレイのリングバッファ上でのサンプル数で表された時間で、オーバーサンプリングされた信号のサンプリング周波数に基づいています。</p>
+<p>入力信号のサンプリング周波数で 3.375 サンプルのディレイは 4
+倍にオーバーサンプリングされると 4 * 3.375 = 13.5
+サンプルのディレイになります。</p>
+<p><code>wptr</code>
+はリングバッファへの書き込みポインタです。上の図では書き込みを終えたときの位置を指しています。ここでの目的は
+<code>wptr</code>
+の位置から、分数ディレイフィルタで追加される遅れを考慮した整数ディレイの読み取りポインタ
+<code>rptr</code> の位置を計算することです。</p>
+<p><code>input</code> と <code>wptr</code>
+のずれは書き込み時の補間によるものです。読み取りでも補間を行うのでディレイが追加されます。書き込みの補間によるディレイを
+<code>wDelay</code> 、読み取りの補間によるディレイを <code>rDelay</code>
+とすると指定したディレイ時間 <code>d_buf</code>
+との関係は次の図のようになります。</p>
 <figure>
 <img src="img/oversampling_pointer_offsets.svg" alt="Image of ." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
-<p>各変数の計算式をまとめます。 <code>wOrder</code> は入力の補間の次数、 <code>rOrder</code> は出力の補間の次数です。</p>
+<p>各変数の計算式をまとめます。 <code>wOrder</code> は入力の補間の次数、
+<code>rOrder</code> は出力の補間の次数です。</p>
 <pre><code>wDelay = oversampling * (wOrder - 1) / 2
 rDelay = (rOrder - 1) / 2
 d_buf = oversampling * input_samplerate * time
 rptr = ceil(wptr - d_buf) + wDelay + rDelay</code></pre>
 <h2 id="まとめて実装">まとめて実装</h2>
 <p>ここまでのテクニックを一つにまとめて実装します。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Delay {</span>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Delay {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// readOrder と writeOrder は奇数。</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">constructor</span>(sampleRate<span class="op">,</span> time<span class="op">,</span> overSample <span class="op">=</span> <span class="dv">2</span><span class="op">,</span> readOrder <span class="op">=</span> <span class="dv">1</span><span class="op">,</span> writeOrder <span class="op">=</span> <span class="dv">1</span>) {</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">overSample</span> <span class="op">=</span> overSample</span>
@@ -654,7 +754,7 @@ rptr = ceil(wptr - d_buf) + wDelay + rDelay</code></pre>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">time</span> <span class="op">=</span> time</span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  set <span class="fu">time</span>(value) {</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">set</span> <span class="fu">time</span>(value) {</span>
 <span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> delayTime <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(</span>
 <span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>      <span class="kw">this</span><span class="op">.</span><span class="at">fix</span><span class="op">,</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="kw">this</span><span class="op">.</span><span class="at">sampleRate</span> <span class="op">*</span> value<span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">buf</span><span class="op">.</span><span class="at">length</span>))</span>
 <span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">rFraction</span> <span class="op">=</span> delayTime <span class="op">%</span> <span class="dv">1</span></span>
@@ -687,60 +787,138 @@ rptr = ceil(wptr - d_buf) + wDelay + rDelay</code></pre>
 <span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="at">rInterp</span><span class="op">.</span><span class="fu">at</span>(<span class="kw">this</span><span class="op">.</span><span class="at">rFraction</span>)</span>
 <span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>音のサンプルです。220Hzのサイン波を入力して、ディレイ時間を2Hzのサイン波で変調しています。入力 と出力の補間の次数は同じです。</p>
+<p>音のサンプルです。220Hzのサイン波を入力して、ディレイ時間を2Hzのサイン波で変調しています。入力
+と出力の補間の次数は同じです。</p>
 <p>入力したサイン波です。</p>
-<p><label>220Hzのサイン波</label> <audio controls> <source src="snd/sin_source.wav" type="audio/wav"> Audio of 220Hz sine wave. </audio></p>
+<p><label>220Hzのサイン波</label> <audio controls>
+<source src="snd/sin_source.wav" type="audio/wav"> Audio of 220Hz sine
+wave. </audio></p>
 <p>オーバーサンプリングなしの音です。ノイズがのっています。</p>
-<p><label>1倍、1次補間</label> <audio controls> <source src="snd/sin_01x_r1_w1.wav" type="audio/wav"> Audio of delay. 1x oversampling, 1st order lagrange interpolation. </audio></p>
-<p><label>1倍、3次補間</label> <audio controls> <source src="snd/sin_01x_r3_w3.wav" type="audio/wav"> Audio of delay. 1x oversampling, 3rd order lagrange interpolation. </audio></p>
-<p><label>1倍、5次補間</label> <audio controls> <source src="snd/sin_01x_r5_w5.wav" type="audio/wav"> Audio of delay. 1x oversampling, 5th order lagrange interpolation. </audio></p>
-<p><label>1倍、7次補間</label> <audio controls> <source src="snd/sin_01x_r7_w7.wav" type="audio/wav"> Audio of delay. 1x oversampling, 7th order lagrange interpolation. </audio></p>
-<p><label>1倍、9次補間</label> <audio controls> <source src="snd/sin_01x_r9_w9.wav" type="audio/wav"> Audio of delay. 1x oversampling, 9th order lagrange interpolation. </audio></p>
+<p><label>1倍、1次補間</label> <audio controls>
+<source src="snd/sin_01x_r1_w1.wav" type="audio/wav"> Audio of delay. 1x
+oversampling, 1st order lagrange interpolation. </audio></p>
+<p><label>1倍、3次補間</label> <audio controls>
+<source src="snd/sin_01x_r3_w3.wav" type="audio/wav"> Audio of delay. 1x
+oversampling, 3rd order lagrange interpolation. </audio></p>
+<p><label>1倍、5次補間</label> <audio controls>
+<source src="snd/sin_01x_r5_w5.wav" type="audio/wav"> Audio of delay. 1x
+oversampling, 5th order lagrange interpolation. </audio></p>
+<p><label>1倍、7次補間</label> <audio controls>
+<source src="snd/sin_01x_r7_w7.wav" type="audio/wav"> Audio of delay. 1x
+oversampling, 7th order lagrange interpolation. </audio></p>
+<p><label>1倍、9次補間</label> <audio controls>
+<source src="snd/sin_01x_r9_w9.wav" type="audio/wav"> Audio of delay. 1x
+oversampling, 9th order lagrange interpolation. </audio></p>
 <p>オーバーサンプリング2倍の音です。1次補間ではノイズが大きく減ったように聞こえます。</p>
-<p><label>2倍、1次補間</label> <audio controls> <source src="snd/sin_02x_r1_w1.wav" type="audio/wav"> Audio of delay. 2x oversampling, 1st order lagrange interpolation. </audio></p>
-<p><label>2倍、3次補間</label> <audio controls> <source src="snd/sin_02x_r3_w3.wav" type="audio/wav"> Audio of delay. 2x oversampling, 3rd order lagrange interpolation. </audio></p>
-<p><label>2倍、5次補間</label> <audio controls> <source src="snd/sin_02x_r5_w5.wav" type="audio/wav"> Audio of delay. 2x oversampling, 5th order lagrange interpolation. </audio></p>
-<p><label>2倍、7次補間</label> <audio controls> <source src="snd/sin_02x_r7_w7.wav" type="audio/wav"> Audio of delay. 2x oversampling, 7th order lagrange interpolation. </audio></p>
-<p><label>2倍、9次補間</label> <audio controls> <source src="snd/sin_02x_r9_w9.wav" type="audio/wav"> Audio of delay. 2x oversampling, 9th order lagrange interpolation. </audio></p>
+<p><label>2倍、1次補間</label> <audio controls>
+<source src="snd/sin_02x_r1_w1.wav" type="audio/wav"> Audio of delay. 2x
+oversampling, 1st order lagrange interpolation. </audio></p>
+<p><label>2倍、3次補間</label> <audio controls>
+<source src="snd/sin_02x_r3_w3.wav" type="audio/wav"> Audio of delay. 2x
+oversampling, 3rd order lagrange interpolation. </audio></p>
+<p><label>2倍、5次補間</label> <audio controls>
+<source src="snd/sin_02x_r5_w5.wav" type="audio/wav"> Audio of delay. 2x
+oversampling, 5th order lagrange interpolation. </audio></p>
+<p><label>2倍、7次補間</label> <audio controls>
+<source src="snd/sin_02x_r7_w7.wav" type="audio/wav"> Audio of delay. 2x
+oversampling, 7th order lagrange interpolation. </audio></p>
+<p><label>2倍、9次補間</label> <audio controls>
+<source src="snd/sin_02x_r9_w9.wav" type="audio/wav"> Audio of delay. 2x
+oversampling, 9th order lagrange interpolation. </audio></p>
 <p>オーバーサンプリング4倍の音です。5次補間以降は音量を上げるとノイズが聞き取れます。</p>
-<p><label>4倍、1次補間</label> <audio controls> <source src="snd/sin_04x_r1_w1.wav" type="audio/wav"> Audio of delay. 4x oversampling, 1st order lagrange interpolation. </audio></p>
-<p><label>4倍、3次補間</label> <audio controls> <source src="snd/sin_04x_r3_w3.wav" type="audio/wav"> Audio of delay. 4x oversampling, 3rd order lagrange interpolation. </audio></p>
-<p><label>4倍、5次補間</label> <audio controls> <source src="snd/sin_04x_r5_w5.wav" type="audio/wav"> Audio of delay. 4x oversampling, 5th order lagrange interpolation. </audio></p>
-<p><label>4倍、7次補間</label> <audio controls> <source src="snd/sin_04x_r7_w7.wav" type="audio/wav"> Audio of delay. 4x oversampling, 7th order lagrange interpolation. </audio></p>
-<p><label>4倍、9次補間</label> <audio controls> <source src="snd/sin_04x_r9_w9.wav" type="audio/wav"> Audio of delay. 4x oversampling, 9th order lagrange interpolation. </audio></p>
+<p><label>4倍、1次補間</label> <audio controls>
+<source src="snd/sin_04x_r1_w1.wav" type="audio/wav"> Audio of delay. 4x
+oversampling, 1st order lagrange interpolation. </audio></p>
+<p><label>4倍、3次補間</label> <audio controls>
+<source src="snd/sin_04x_r3_w3.wav" type="audio/wav"> Audio of delay. 4x
+oversampling, 3rd order lagrange interpolation. </audio></p>
+<p><label>4倍、5次補間</label> <audio controls>
+<source src="snd/sin_04x_r5_w5.wav" type="audio/wav"> Audio of delay. 4x
+oversampling, 5th order lagrange interpolation. </audio></p>
+<p><label>4倍、7次補間</label> <audio controls>
+<source src="snd/sin_04x_r7_w7.wav" type="audio/wav"> Audio of delay. 4x
+oversampling, 7th order lagrange interpolation. </audio></p>
+<p><label>4倍、9次補間</label> <audio controls>
+<source src="snd/sin_04x_r9_w9.wav" type="audio/wav"> Audio of delay. 4x
+oversampling, 9th order lagrange interpolation. </audio></p>
 <p>オーバーサンプリング8倍の音です。ノイズは聞き取れません。</p>
-<p><label>8倍、1次補間</label> <audio controls> <source src="snd/sin_08x_r1_w1.wav" type="audio/wav"> Audio of delay. 8x oversampling, 1st order lagrange interpolation. </audio></p>
-<p><label>8倍、3次補間</label> <audio controls> <source src="snd/sin_08x_r3_w3.wav" type="audio/wav"> Audio of delay. 8x oversampling, 3rd order lagrange interpolation. </audio></p>
-<p><label>8倍、5次補間</label> <audio controls> <source src="snd/sin_08x_r5_w5.wav" type="audio/wav"> Audio of delay. 8x oversampling, 5th order lagrange interpolation. </audio></p>
-<p><label>8倍、7次補間</label> <audio controls> <source src="snd/sin_08x_r7_w7.wav" type="audio/wav"> Audio of delay. 8x oversampling, 7th order lagrange interpolation. </audio></p>
-<p><label>8倍、9次補間</label> <audio controls> <source src="snd/sin_08x_r9_w9.wav" type="audio/wav"> Audio of delay. 8x oversampling, 9th order lagrange interpolation. </audio></p>
+<p><label>8倍、1次補間</label> <audio controls>
+<source src="snd/sin_08x_r1_w1.wav" type="audio/wav"> Audio of delay. 8x
+oversampling, 1st order lagrange interpolation. </audio></p>
+<p><label>8倍、3次補間</label> <audio controls>
+<source src="snd/sin_08x_r3_w3.wav" type="audio/wav"> Audio of delay. 8x
+oversampling, 3rd order lagrange interpolation. </audio></p>
+<p><label>8倍、5次補間</label> <audio controls>
+<source src="snd/sin_08x_r5_w5.wav" type="audio/wav"> Audio of delay. 8x
+oversampling, 5th order lagrange interpolation. </audio></p>
+<p><label>8倍、7次補間</label> <audio controls>
+<source src="snd/sin_08x_r7_w7.wav" type="audio/wav"> Audio of delay. 8x
+oversampling, 7th order lagrange interpolation. </audio></p>
+<p><label>8倍、9次補間</label> <audio controls>
+<source src="snd/sin_08x_r9_w9.wav" type="audio/wav"> Audio of delay. 8x
+oversampling, 9th order lagrange interpolation. </audio></p>
 <p>ディレイ時間の変更でリングバッファの内容が低速再生される状態ではどうなるか試します。</p>
 <p>220Hzのサイン波を入力して低速再生したときの音です。音量を上げると1次補間でノイズが聞こえます。</p>
-<p><label>低速再生サイン波、8倍、1次補間</label> <audio controls> <source src="snd/sin_slow_08x_r1_w1.wav" type="audio/wav"> Audio of delay with low speed playback. 8x oversampling, 1st order lagrange interpolation. </audio></p>
-<p><label>低速再生サイン波、8倍、3次補間</label> <audio controls> <source src="snd/sin_slow_08x_r3_w3.wav" type="audio/wav"> Audio of delay with low speed playback. 8x oversampling, 3rd order lagrange interpolation. </audio></p>
-<p><label>低速再生サイン波、8倍、5次補間</label> <audio controls> <source src="snd/sin_slow_08x_r5_w5.wav" type="audio/wav"> Audio of delay with low speed playback. 8x oversampling, 5th order lagrange interpolation. </audio></p>
-<p><label>低速再生サイン波、8倍、7次補間</label> <audio controls> <source src="snd/sin_slow_08x_r7_w7.wav" type="audio/wav"> Audio of delay with low speed playback. 8x oversampling, 7th order lagrange interpolation. </audio></p>
-<p><label>低速再生サイン波、8倍、9次補間</label> <audio controls> <source src="snd/sin_slow_08x_r9_w9.wav" type="audio/wav"> Audio of delay with low speed playback. 8x oversampling, 9th order lagrange interpolation. </audio></p>
+<p><label>低速再生サイン波、8倍、1次補間</label> <audio controls>
+<source src="snd/sin_slow_08x_r1_w1.wav" type="audio/wav"> Audio of
+delay with low speed playback. 8x oversampling, 1st order lagrange
+interpolation. </audio></p>
+<p><label>低速再生サイン波、8倍、3次補間</label> <audio controls>
+<source src="snd/sin_slow_08x_r3_w3.wav" type="audio/wav"> Audio of
+delay with low speed playback. 8x oversampling, 3rd order lagrange
+interpolation. </audio></p>
+<p><label>低速再生サイン波、8倍、5次補間</label> <audio controls>
+<source src="snd/sin_slow_08x_r5_w5.wav" type="audio/wav"> Audio of
+delay with low speed playback. 8x oversampling, 5th order lagrange
+interpolation. </audio></p>
+<p><label>低速再生サイン波、8倍、7次補間</label> <audio controls>
+<source src="snd/sin_slow_08x_r7_w7.wav" type="audio/wav"> Audio of
+delay with low speed playback. 8x oversampling, 7th order lagrange
+interpolation. </audio></p>
+<p><label>低速再生サイン波、8倍、9次補間</label> <audio controls>
+<source src="snd/sin_slow_08x_r9_w9.wav" type="audio/wav"> Audio of
+delay with low speed playback. 8x oversampling, 9th order lagrange
+interpolation. </audio></p>
 <p><code>Math.random()</code> で生成したノイズを入力します。</p>
-<p><label>ノイズ</label> <audio controls> <source src="snd/noise_source.wav" type="audio/wav"> Audio of 220Hz sine wave. </audio></p>
+<p><label>ノイズ</label> <audio controls>
+<source src="snd/noise_source.wav" type="audio/wav"> Audio of 220Hz sine
+wave. </audio></p>
 <p>ノイズを入力して低速再生したときの音です。補間の次数が高くなるほどローパスフィルタがかかったような音に近くなります。</p>
-<p><label>低速再生ノイズ、16倍、1次補間</label> <audio controls> <source src="snd/noise_16x_r1_w1.wav" type="audio/wav"> Audio of delay with low speed playback. 16x oversampling, 1st order lagrange interpolation. </audio></p>
-<p><label>低速再生ノイズ、16倍、3次補間</label> <audio controls> <source src="snd/noise_16x_r3_w3.wav" type="audio/wav"> Audio of delay with low speed playback. 16x oversampling, 3rd order lagrange interpolation. </audio></p>
-<p><label>低速再生ノイズ、16倍、5次補間</label> <audio controls> <source src="snd/noise_16x_r5_w5.wav" type="audio/wav"> Audio of delay with low speed playback. 16x oversampling, 5th order lagrange interpolation. </audio></p>
-<p><label>低速再生ノイズ、16倍、7次補間</label> <audio controls> <source src="snd/noise_16x_r7_w7.wav" type="audio/wav"> Audio of delay with low speed playback. 16x oversampling, 7th order lagrange interpolation. </audio></p>
-<p><label>低速再生ノイズ、16倍、9次補間</label> <audio controls> <source src="snd/noise_16x_r9_w9.wav" type="audio/wav"> Audio of delay with low speed playback. 16x oversampling, 9th order lagrange interpolation. </audio></p>
+<p><label>低速再生ノイズ、16倍、1次補間</label> <audio controls>
+<source src="snd/noise_16x_r1_w1.wav" type="audio/wav"> Audio of delay
+with low speed playback. 16x oversampling, 1st order lagrange
+interpolation. </audio></p>
+<p><label>低速再生ノイズ、16倍、3次補間</label> <audio controls>
+<source src="snd/noise_16x_r3_w3.wav" type="audio/wav"> Audio of delay
+with low speed playback. 16x oversampling, 3rd order lagrange
+interpolation. </audio></p>
+<p><label>低速再生ノイズ、16倍、5次補間</label> <audio controls>
+<source src="snd/noise_16x_r5_w5.wav" type="audio/wav"> Audio of delay
+with low speed playback. 16x oversampling, 5th order lagrange
+interpolation. </audio></p>
+<p><label>低速再生ノイズ、16倍、7次補間</label> <audio controls>
+<source src="snd/noise_16x_r7_w7.wav" type="audio/wav"> Audio of delay
+with low speed playback. 16x oversampling, 7th order lagrange
+interpolation. </audio></p>
+<p><label>低速再生ノイズ、16倍、9次補間</label> <audio controls>
+<source src="snd/noise_16x_r9_w9.wav" type="audio/wav"> Audio of delay
+with low speed playback. 16x oversampling, 9th order lagrange
+interpolation. </audio></p>
 <p>レンダリングした音を聞く限りでは、高次の補間を使うときはオーバーサンプリングの倍率を補間の次数以上にするとノイズが大きく減るようです。</p>
 <p>ディレイ時間があまり変更されないときは、1次補間で2倍のオーバーサンプリングにすれば十分な気がします。テープエコーのシミュレーションなどでリングバッファ内の音を低速再生する状態を作るときは高次の補間のほうが良さそうです。</p>
 <h2 id="その他">その他</h2>
-<p>1次のラグランジュ補間は線形補間です。 <span class="math inline">\(k\)</span> 次のラグランジュ補間の定義です。</p>
+<p>1次のラグランジュ補間は線形補間です。 <span
+class="math inline">\(k\)</span> 次のラグランジュ補間の定義です。</p>
 <p><span class="math display">\[
-L_k(x) = \sum_{j=0}^{k} y_j \prod_{m=0,\,m \neq j}^{k} \frac{x - x_m}{x_j - x_m}
+L_k(x) = \sum_{j=0}^{k} y_j \prod_{m=0,\,m \neq j}^{k} \frac{x -
+x_m}{x_j - x_m}
 \]</span></p>
 <p><span class="math inline">\(k = 1\)</span> を代入します。</p>
 <p><span class="math display">\[
 \begin{aligned}
 L_1(x)
-&amp;= \sum_{j=0}^{1} y_j \prod_{m=0,\,m \neq j}^{1} \frac{x - x_m}{x_j - x_m}\\
+&amp;= \sum_{j=0}^{1} y_j \prod_{m=0,\,m \neq j}^{1} \frac{x - x_m}{x_j
+- x_m}\\
 &amp;= y_0 \left(
     \prod_{m=0,\,m \neq 0}^{1} \frac{x - x_m}{x_0 - x_m}
   \right)
@@ -751,15 +929,22 @@ L_1(x)
   + y_1 \frac{x - x_0}{x_1 - x_0}
 \end{aligned}
 \]</span></p>
-<p>ここで <span class="math inline">\(x\)</span> が等間隔にサンプリングされているとき <span class="math inline">\(x_0 = 0,\,x_1 = 1\)</span> と代入できます。</p>
+<p>ここで <span class="math inline">\(x\)</span>
+が等間隔にサンプリングされているとき <span class="math inline">\(x_0 =
+0,\,x_1 = 1\)</span> と代入できます。</p>
 <p><span class="math display">\[
 y_0 \frac{x - x_1}{x_0 - x_1} + y_1 \frac{x - x_0}{x_1 - x_0}
 = - y_0 (x - 1) + y_1 x
 \]</span></p>
-<p><span class="math inline">\(0 \leq x \leq 1\)</span> で <span class="math inline">\(y_0\)</span> と <span class="math inline">\(y_1\)</span> の間を線形補間する式になっています。</p>
+<p><span class="math inline">\(0 \leq x \leq 1\)</span> で <span
+class="math inline">\(y_0\)</span> と <span
+class="math inline">\(y_1\)</span>
+の間を線形補間する式になっています。</p>
 <h2 id="参考文献">参考文献</h2>
 <ul>
-<li><a href="https://ccrma.stanford.edu/~jos/Interpolation/">MUS420 Lecture 4A Interpolated Delay Lines, Ideal Bandlimited Interpolation, and Fractional Delay Filter Design</a></li>
+<li><a href="https://ccrma.stanford.edu/~jos/Interpolation/">MUS420
+Lecture 4A Interpolated Delay Lines, Ideal Bandlimited Interpolation,
+and Fractional Delay Filter Design</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>

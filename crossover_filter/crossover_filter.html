@@ -8,15 +8,16 @@
 <meta name="dcterms.date" content="2023-06-22" />
 <title>crossover_filter</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
 
@@ -263,6 +264,10 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
 <script
@@ -353,9 +358,11 @@ Linkwitz-Riley</a></li>
 <p>窓関数法 (windowed sinc) で使うローパスの線形位相 FIR
 フィルタ係数は以下の式で計算できます。</p>
 <p><span class="math display">\[
+\begin{equation}
 \mathtt{fir\_lp}(n) = \frac{\sin(2\pi n f_0 / f_s)}{\pi n},
 \quad n \in [-\mathtt{ceil}(N_{\mathrm{FIR}}/2),
 \mathtt{floor}(N_{\mathrm{FIR}}/2)].
+\end{equation}
 \]</span></p>
 <ul>
 <li><span class="math inline">\(f_s\)</span>: サンプリング周波数 Hz
@@ -374,20 +381,22 @@ href="https://en.wikipedia.org/wiki/Kaiser_window">Kaiser
 w_n = \frac{\cosh \left[ \alpha
 \sqrt{1-\left(\dfrac{n-K}{N_{\mathrm{FIR}}}\right)^2}
 \right]}{\cosh(\alpha)}
+\label{Kaiser}
 \end{equation}
 \]</span></p>
-<p>式 1 は <a
+<p>式 <span class="math inline">\(\ref{Kaiser}\)</span> は <a
 href="https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWindow.h">Oboe
 の Resampler</a> で参照されている <a
 href="https://dsp.stackexchange.com/a/37720">dsp.stackexchange.com
 の回答</a>に掲載されていました。 Windows の VC++ か、 Linux の GCC
-環境なら、式 1 の近似を使わなくても C++ 17 で追加された
-<code>&lt;cmath&gt;</code> の <a
+環境なら、式 <span class="math inline">\(\ref{Kaiser}\)</span>
+の近似を使わなくても C++ 17 で追加された <code>&lt;cmath&gt;</code> の
+<a
 href="https://en.cppreference.com/w/cpp/numeric/special_functions"><code>cyl_bessel_k</code></a>
 で直接 Kaiser
 窓を実装することができます。しかし、この記事を書いた時点では Mac の
-Xcode (Apple Clang) では数学特殊関数が使えなかったので式 1
-の近似を掲載しています。</p>
+Xcode (Apple Clang) では数学特殊関数が使えなかったので式 <span
+class="math inline">\(\ref{Kaiser}\)</span> の近似を掲載しています。</p>
 <p>FIR の畳み込みの計算については「<a
 href="https://ryukau.github.io/filter_notes/convolution_without_latency/convolution_without_latency.html">レイテンシのない畳み込み</a>」に詳細を掲載しています。ここでは省略します。</p>
 <h3 id="実装">実装</h3>
@@ -638,28 +647,39 @@ class="math inline">\(c\)</span> は複素数です。</p>
 <p><span class="math display">\[
 \begin{align}
 H_{\mathrm{c}}(z) = \frac{1}{1 - cz^{-1}} &amp;= 1 + c z^{-1} + c^2
-z^{-2} + c^3 z^{-3} \dots \\
+z^{-2} + c^3 z^{-3} \dots
+\label{LR-FIR-expanded}
+\\
 &amp;= (1 + cz^{-1})(1 + c^2 z^{-2})(1 + c^4 z^{-4})(1 + c^8 z^{-8})
 \dots
+\label{LR-FIR-factorized}
 \end{align}
 \]</span></p>
 <p>何をしているのかというと、 <span class="math inline">\(\dfrac{1}{1 -
-cz^{-1}}\)</span> という IIR フィルタの伝達関数を式 7
-でインパルス応答に変形して、式 8 で多項式の因数分解を行っています。式 7
-の IIR (無限インパルス応答) を適当に打ち切れば FIR
-フィルタとして計算できます。それだけだと嬉しくありませんが、式 8
+cz^{-1}}\)</span> という IIR フィルタの伝達関数を式 <span
+class="math inline">\(\ref{LR-FIR-expanded}\)</span>
+でインパルス応答に変形して、式 <span
+class="math inline">\(\ref{LR-FIR-factorized}\)</span>
+で多項式の因数分解を行っています。式 <span
+class="math inline">\(\ref{LR-FIR-expanded}\)</span> の IIR
+(無限インパルス応答) を適当に打ち切れば FIR
+フィルタとして計算できます。それだけだと嬉しくありませんが、式 <span
+class="math inline">\(\ref{LR-FIR-factorized}\)</span>
 のように因数分解することで計算量を圧縮するというのがアイデアです。</p>
-<p>時間反転を行うときは式 8 の <span class="math inline">\((1 + c^n
-z^{-n})\)</span> を <span class="math inline">\((c^n + z^{-n})\)</span>
-に置き換えます。</p>
+<p>時間反転を行うときは式 <span
+class="math inline">\(\ref{LR-FIR-factorized}\)</span> の <span
+class="math inline">\((1 + c^n z^{-n})\)</span> を <span
+class="math inline">\((c^n + z^{-n})\)</span> に置き換えます。</p>
 <p><span class="math display">\[
 \begin{equation}
 \mathrm{reverse}(H_{\mathrm{c}}(z)) = (c + z^{-1})(c^2 + z^{-2})(c^4 +
 z^{-4})(c^8 + z^{-8}) \dots
+\label{LR-FIR-factorized-reversed}
 \end{equation}
 \]</span></p>
-<p>以下は式 8, 9 で示された 1 次の複素数フィルタの FIR
-近似のブロック線図です。</p>
+<p>以下は式 <span class="math inline">\(\ref{LR-FIR-factorized},
+\ref{LR-FIR-factorized-reversed}\)</span> で示された 1
+次の複素数フィルタの FIR 近似のブロック線図です。</p>
 <figure>
 <img src="img/complex_1pole.svg" alt="Block diagram of complex 1-pole filter. Time forward and time reversed variants are shown." style="padding-bottom: 12px;"/>
 </figure>
@@ -750,6 +770,7 @@ Bessel フィルタと同様に全極フィルタなので同じ手法で 2
 H_{\mathrm{Butter.} N}(z) &amp;= G \prod_{k=1}^{N/2} \frac{1 + 2 z^{-1}
 + z^{-2}}{1 - 2 \mathrm{Re}(p_k) z^{-1} + |p_k|^2 z^{-2}}, \\
 G &amp;= \prod_{k=1}^{N/2} \frac{1 - 2 \mathrm{Re}(p_k) + |p_k|^2}{4}.
+\label{allpole-sos-gain}
 \end{align}
 \]</span></p>
 <p><span class="math inline">\(p_k\)</span> は 2
@@ -784,7 +805,8 @@ class="math inline">\(g\)</span> に分割します。</p>
 <p><span class="math display">\[
 g = G^{\frac{1}{N/2}}.
 \]</span></p>
-<p>式 15 を変形して 2
+<p>式 <span class="math inline">\(\ref{allpole-sos-gain}\)</span>
+を変形して 2
 次セクションごとに適切なゲインを設定することもできますが、保持する変数が増えます。</p>
 <p>ここまでをまとめると以下のブロック線図となります。フィルタは線形なので
 <span class="math inline">\(g\)</span> の位置を <code>Output</code>

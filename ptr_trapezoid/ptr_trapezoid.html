@@ -5,33 +5,34 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2019-11-29" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>ptr_trapezoid</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +53,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,31 +344,44 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2019-11-29
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#ptr-台形オシレータ">PTR 台形オシレータ</a><ul>
-<li><a href="#ptr-台形の特性">PTR 台形の特性</a><ul>
-<li><a href="#y-の値"><span class="math inline">\(y\)</span> の値</a></li>
-<li><a href="#a_1-と-a_2-の関係"><span class="math inline">\(A_1\)</span> と <span class="math inline">\(A_2\)</span> の関係</a></li>
-<li><a href="#a_1-の範囲"><span class="math inline">\(A_1\)</span> の範囲</a></li>
-<li><a href="#k-の範囲"><span class="math inline">\(K\)</span> の範囲</a></li>
-<li><a href="#直流補正">直流補正</a></li>
+<li><a href="#ptr-台形オシレータ" id="toc-ptr-台形オシレータ">PTR
+台形オシレータ</a>
+<ul>
+<li><a href="#ptr-台形の特性" id="toc-ptr-台形の特性">PTR 台形の特性</a>
+<ul>
+<li><a href="#y-の値" id="toc-y-の値"><span
+class="math inline">\(y\)</span> の値</a></li>
+<li><a href="#a_1-と-a_2-の関係" id="toc-a_1-と-a_2-の関係"><span
+class="math inline">\(A_1\)</span> と <span
+class="math inline">\(A_2\)</span> の関係</a></li>
+<li><a href="#a_1-の範囲" id="toc-a_1-の範囲"><span
+class="math inline">\(A_1\)</span> の範囲</a></li>
+<li><a href="#k-の範囲" id="toc-k-の範囲"><span
+class="math inline">\(K\)</span> の範囲</a></li>
+<li><a href="#直流補正" id="toc-直流補正">直流補正</a></li>
 </ul></li>
-<li><a href="#音程が高いときのノイズの低減">音程が高いときのノイズの低減</a></li>
-<li><a href="#実装">実装</a></li>
+<li><a href="#音程が高いときのノイズの低減"
+id="toc-音程が高いときのノイズの低減">音程が高いときのノイズの低減</a></li>
+<li><a href="#実装" id="toc-実装">実装</a></li>
 </ul></li>
 </ul>
 </nav>
 </details>
 </header>
 <h1 id="ptr-台形オシレータ">PTR 台形オシレータ</h1>
-<p><a href="https://ryukau.github.io/VSTPlugins/manual/TrapezoidSynth/TrapezoidSynth_ja.html">TrapezoidSynth</a> の<a href="https://github.com/ryukau/VSTPlugins/blob/91d663e7ed916bc7c5e372990ad40eb9736ad84e/TrapezoidSynth/source/dsp/oscillator.hpp#L106">オシレータのコード</a>があまりにも場当たり的で自分でも読めなくなったので整理しました。</p>
+<p><a
+href="https://ryukau.github.io/VSTPlugins/manual/TrapezoidSynth/TrapezoidSynth_ja.html">TrapezoidSynth</a>
+の<a
+href="https://github.com/ryukau/VSTPlugins/blob/91d663e7ed916bc7c5e372990ad40eb9736ad84e/TrapezoidSynth/source/dsp/oscillator.hpp#L106">オシレータのコード</a>があまりにも場当たり的で自分でも読めなくなったので整理しました。</p>
 <h2 id="ptr-台形の特性">PTR 台形の特性</h2>
-<p>TrapezoidSynth の PTR 台形オシレータは 4 つの PTR <a href="https://en.wikipedia.org/wiki/Ramp_function">ランプ関数</a>をつぎはぎすることで台形を合成しています。このつぎはぎが複雑さの原因です。</p>
+<p>TrapezoidSynth の PTR 台形オシレータは 4 つの PTR <a
+href="https://en.wikipedia.org/wiki/Ramp_function">ランプ関数</a>をつぎはぎすることで台形を合成しています。このつぎはぎが複雑さの原因です。</p>
 <p>ランプ関数の定義です。</p>
 <p><span class="math display">\[
 R(x) = \begin{cases}
@@ -371,24 +391,38 @@ x, &amp; \text{otherwise.}
 \]</span></p>
 <p>PTR ランプ関数の導出は次のリンクにまとめています。</p>
 <ul>
-<li><a href="../ptr_oscillator/ptr_oscillator.html">PTR オシレータ</a></li>
+<li><a href="../ptr_oscillator/ptr_oscillator.html">PTR
+オシレータ</a></li>
 </ul>
-<p>次の図はランプ関数のつぎはぎの様子を表しています。下側の矢印はランプ関数の <span class="math inline">\(x\)</span> が増える方向です。</p>
+<p>次の図はランプ関数のつぎはぎの様子を表しています。下側の矢印はランプ関数の
+<span class="math inline">\(x\)</span> が増える方向です。</p>
 <figure>
 <img src="img/ramp_patch.svg" alt="Image of trapezoid made from 4 ramp functions." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/Ramp_function">Ramp function - Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Ramp_function">Ramp function
+- Wikipedia</a></li>
 </ul>
 <p>まずは台形の各部に名前をつけます。</p>
 <figure>
 <img src="img/trapezoid_dc1.svg" alt="Image of trapezoid with name of parts." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <h3 id="y-の値"><span class="math inline">\(y\)</span> の値</h3>
-<p>PTR の次数を <span class="math inline">\(N\)</span> 、 1 サンプルあたりに進む位相を <span class="math inline">\(T\)</span> とすると <span class="math inline">\(y = 1 - 2 K N T\)</span> です。 <span class="math inline">\(- 2 K N T\)</span> という値は試行錯誤して見つけた適当な値です。</p>
-<h3 id="a_1-と-a_2-の関係"><span class="math inline">\(A_1\)</span> と <span class="math inline">\(A_2\)</span> の関係</h3>
-<p><span class="math inline">\(A_1\)</span> と <span class="math inline">\(K\)</span> はユーザが決定する定数です。 <span class="math inline">\(A_1\)</span> は1つ目の台形の上辺の長さ、 <span class="math inline">\(K\)</span> は台形の斜線の傾きです。</p>
-<p><span class="math inline">\(B_1 + B_2\)</span> は 1 周期の波長です。ここでは正規化して <span class="math inline">\(B_1 + B_2 = 1\)</span> と定義します。この定義を使って、2つ目の台形の上辺の長さ <span class="math inline">\(A_2\)</span> を計算できます。</p>
+<p>PTR の次数を <span class="math inline">\(N\)</span> 、 1
+サンプルあたりに進む位相を <span class="math inline">\(T\)</span>
+とすると <span class="math inline">\(y = 1 - 2 K N T\)</span> です。
+<span class="math inline">\(- 2 K N T\)</span>
+という値は試行錯誤して見つけた適当な値です。</p>
+<h3 id="a_1-と-a_2-の関係"><span class="math inline">\(A_1\)</span> と
+<span class="math inline">\(A_2\)</span> の関係</h3>
+<p><span class="math inline">\(A_1\)</span> と <span
+class="math inline">\(K\)</span> はユーザが決定する定数です。 <span
+class="math inline">\(A_1\)</span> は1つ目の台形の上辺の長さ、 <span
+class="math inline">\(K\)</span> は台形の斜線の傾きです。</p>
+<p><span class="math inline">\(B_1 + B_2\)</span> は 1
+周期の波長です。ここでは正規化して <span class="math inline">\(B_1 + B_2
+= 1\)</span> と定義します。この定義を使って、2つ目の台形の上辺の長さ
+<span class="math inline">\(A_2\)</span> を計算できます。</p>
 <p><span class="math display">\[
 \begin{aligned}
 A_2 &amp;= B_1 + B_2 - A_1 - \frac{1}{K}\\
@@ -396,13 +430,35 @@ A_2 &amp;= B_1 + B_2 - A_1 - \frac{1}{K}\\
 \end{aligned}
 \]</span></p>
 <h3 id="a_1-の範囲"><span class="math inline">\(A_1\)</span> の範囲</h3>
-<p><span class="math inline">\(A_1\)</span> の最小値は <span class="math inline">\(0\)</span> です。</p>
-<p><span class="math inline">\(A_1\)</span> が最大となるとき、 <span class="math inline">\(A_2 = 0\)</span> です。 <span class="math inline">\(A_2 = 0\)</span> を式 (1) に代入すると <span class="math inline">\(A_1\)</span> の最大値 <span class="math inline">\(1 - \dfrac{1}{K}\)</span> が得られます。</p>
+<p><span class="math inline">\(A_1\)</span> の最小値は <span
+class="math inline">\(0\)</span> です。</p>
+<p><span class="math inline">\(A_1\)</span> が最大となるとき、 <span
+class="math inline">\(A_2 = 0\)</span> です。 <span
+class="math inline">\(A_2 = 0\)</span> を式 (1) に代入すると <span
+class="math inline">\(A_1\)</span> の最大値 <span
+class="math inline">\(1 - \dfrac{1}{K}\)</span> が得られます。</p>
 <h3 id="k-の範囲"><span class="math inline">\(K\)</span> の範囲</h3>
-<p><span class="math inline">\(A_1 = 0,\ A_2 = 0\)</span> のとき、式 (1) より <span class="math inline">\(K = 1\)</span> です。このとき三角波に近い波形になります。 <span class="math inline">\(K &lt; 1\)</span> のときは三角波が途中でハードシンクされたような滑らかでない波形になります。</p>
-<p><span class="math inline">\(A_1 = 0,\ A_2 = 1\)</span> のとき、式 (1) より <span class="math inline">\(K = \infty\)</span> となります。ただし、実際に <span class="math inline">\(K = \infty\)</span> とすると PTR の遷移領域を飛び越えてしまうので波形が不連続になってしまいます。そこで、実装では <span class="math inline">\(A_1 = 0,\ A_2 = 1 - 4 N T\)</span> を式 (1) に代入して得られる <span class="math inline">\(K = \dfrac{1}{4 N T}\)</span> を <span class="math inline">\(K\)</span> の最大値としています。 <span class="math inline">\(4 N T\)</span> は 4 つの PTR ランプ関数の遷移領域の長さです。</p>
+<p><span class="math inline">\(A_1 = 0,\ A_2 = 0\)</span> のとき、式 (1)
+より <span class="math inline">\(K = 1\)</span>
+です。このとき三角波に近い波形になります。 <span class="math inline">\(K
+&lt; 1\)</span>
+のときは三角波が途中でハードシンクされたような滑らかでない波形になります。</p>
+<p><span class="math inline">\(A_1 = 0,\ A_2 = 1\)</span> のとき、式 (1)
+より <span class="math inline">\(K = \infty\)</span>
+となります。ただし、実際に <span class="math inline">\(K =
+\infty\)</span> とすると PTR
+の遷移領域を飛び越えてしまうので波形が不連続になってしまいます。そこで、実装では
+<span class="math inline">\(A_1 = 0,\ A_2 = 1 - 4 N T\)</span> を式 (1)
+に代入して得られる <span class="math inline">\(K = \dfrac{1}{4 N
+T}\)</span> を <span class="math inline">\(K\)</span>
+の最大値としています。 <span class="math inline">\(4 N T\)</span> は 4
+つの PTR ランプ関数の遷移領域の長さです。</p>
 <h3 id="直流補正">直流補正</h3>
-<p>図では <span class="math inline">\(h\)</span> を引いて直流成分を補正しています。 <span class="math inline">\(A_1, B_1\)</span> からなる台形 1 と、 <span class="math inline">\(A_2, B_2\)</span> からなる台形 2 の面積が等しいときに直流が 0 になります。 <span class="math inline">\(h\)</span> を求める方程式を立てます。</p>
+<p>図では <span class="math inline">\(h\)</span>
+を引いて直流成分を補正しています。 <span class="math inline">\(A_1,
+B_1\)</span> からなる台形 1 と、 <span class="math inline">\(A_2,
+B_2\)</span> からなる台形 2 の面積が等しいときに直流が 0 になります。
+<span class="math inline">\(h\)</span> を求める方程式を立てます。</p>
 <p><span class="math display">\[
 \begin{aligned}
 B_1 &amp;= A_1 + \frac{2(y - h)}{K}\\
@@ -411,16 +467,18 @@ B_2 &amp;= A_2 + \frac{2h}{K}\\
 \end{aligned}
 \]</span></p>
 <p>Maxima で解きます。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1"></a><span class="cn">A2</span>: <span class="dv">1</span> - <span class="cn">A1</span> - <span class="dv">1</span> / <span class="cn">K</span>;</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="cn">B1</span>: <span class="cn">A1</span> + <span class="dv">2</span> * (<span class="cn">y</span> - <span class="cn">h</span>) / <span class="cn">K</span>;</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="cn">B2</span>: <span class="cn">A2</span> + <span class="dv">2</span> * <span class="cn">h</span> / <span class="cn">K</span>;</span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="cn">eq</span>: (<span class="cn">A1</span> + <span class="cn">B1</span>) * (<span class="cn">y</span> - <span class="cn">h</span>) / <span class="dv">2</span> = (<span class="cn">A2</span> + <span class="cn">B2</span>) * <span class="cn">h</span> / <span class="dv">2</span>;</span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">expand</span>(<span class="fu">solve</span>(<span class="cn">eq</span>, <span class="cn">h</span>));</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cn">A2</span>: <span class="dv">1</span> - <span class="cn">A1</span> - <span class="dv">1</span> / <span class="cn">K</span>;</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cn">B1</span>: <span class="cn">A1</span> + <span class="dv">2</span> * (<span class="cn">y</span> - <span class="cn">h</span>) / <span class="cn">K</span>;</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cn">B2</span>: <span class="cn">A2</span> + <span class="dv">2</span> * <span class="cn">h</span> / <span class="cn">K</span>;</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cn">eq</span>: (<span class="cn">A1</span> + <span class="cn">B1</span>) * (<span class="cn">y</span> - <span class="cn">h</span>) / <span class="dv">2</span> = (<span class="cn">A2</span> + <span class="cn">B2</span>) * <span class="cn">h</span> / <span class="dv">2</span>;</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">solve</span>(<span class="cn">eq</span>, <span class="cn">h</span>));</span></code></pre></div>
 <p>出力です。</p>
 <p><span class="math display">\[
 h=\frac{y^2 + A_1 K y}{2 y+K-1}
 \]</span></p>
-<p>これで直流成分の大きさ <span class="math inline">\(h\)</span> が分かりました。</p>
+<p>これで直流成分の大きさ <span class="math inline">\(h\)</span>
+が分かりました。</p>
 <h2 id="音程が高いときのノイズの低減">音程が高いときのノイズの低減</h2>
 <p>記号の定義です。</p>
 <ul>
@@ -428,16 +486,35 @@ h=\frac{y^2 + A_1 K y}{2 y+K-1}
 <li><span class="math inline">\(f_s\)</span> : サンプリング周波数</li>
 <li><span class="math inline">\(N\)</span> : PTR の次数</li>
 </ul>
-<p>PTR 台形オシレータの次数 <span class="math inline">\(N\)</span> を大きくするほどエイリアシングノイズが低減されますが、周波数が <span class="math inline">\(\dfrac{f_s}{4 N}\)</span> を超えるとノイズが増えてしまうというトレードオフがあります。ノイズが乗るのは 4 つのランプ関数のすべての遷移領域を通過する前に波形の 1 周期が終わってしまうからです。</p>
-<p><span class="math inline">\(f_s = 44100\)</span> として <span class="math inline">\(N\)</span> を変えたときのノイズが乗らない周波数の上限は次のようになります。</p>
+<p>PTR 台形オシレータの次数 <span class="math inline">\(N\)</span>
+を大きくするほどエイリアシングノイズが低減されますが、周波数が <span
+class="math inline">\(\dfrac{f_s}{4 N}\)</span>
+を超えるとノイズが増えてしまうというトレードオフがあります。ノイズが乗るのは
+4 つのランプ関数のすべての遷移領域を通過する前に波形の 1
+周期が終わってしまうからです。</p>
+<p><span class="math inline">\(f_s = 44100\)</span> として <span
+class="math inline">\(N\)</span>
+を変えたときのノイズが乗らない周波数の上限は次のようになります。</p>
 <ul>
-<li><span class="math inline">\(N = 2 \to 5512.5\,\mathrm{Hz}\)</span></li>
-<li><span class="math inline">\(N = 3 \to 3675\,\mathrm{Hz}\)</span></li>
-<li><span class="math inline">\(N = 4 \to 2756.25\,\mathrm{Hz}\)</span></li>
-<li><span class="math inline">\(N = 5 \to 2205\,\mathrm{Hz}\)</span></li>
+<li><span class="math inline">\(N = 2 \to
+5512.5\,\mathrm{Hz}\)</span></li>
+<li><span class="math inline">\(N = 3 \to
+3675\,\mathrm{Hz}\)</span></li>
+<li><span class="math inline">\(N = 4 \to
+2756.25\,\mathrm{Hz}\)</span></li>
+<li><span class="math inline">\(N = 5 \to
+2205\,\mathrm{Hz}\)</span></li>
 </ul>
-<p><span class="math inline">\(f_s \geq 44100\)</span> のときは <span class="math inline">\(N = 4\)</span> にして 8 倍のオーバーサンプリングをかけると、ノイズが乗らない周波数の上限が 22050 Hz になるので十分な音域が使えるようになります。ただし、オーバーサンプリングを使わずにエイリアシングノイズを効率よく低減できるという PTR の利点を無視することになります。</p>
-<p>オーバーサンプリングを極力避けるためには次の式のように PTR の次数を切り替えることが考えられます。例として <span class="math inline">\(N\)</span> が 2 から 5 の間で切り替わっています。</p>
+<p><span class="math inline">\(f_s \geq 44100\)</span> のときは <span
+class="math inline">\(N = 4\)</span> にして 8
+倍のオーバーサンプリングをかけると、ノイズが乗らない周波数の上限が 22050
+Hz
+になるので十分な音域が使えるようになります。ただし、オーバーサンプリングを使わずにエイリアシングノイズを効率よく低減できるという
+PTR の利点を無視することになります。</p>
+<p>オーバーサンプリングを極力避けるためには次の式のように PTR
+の次数を切り替えることが考えられます。例として <span
+class="math inline">\(N\)</span> が 2 から 5
+の間で切り替わっています。</p>
 <p><span class="math display">\[
 \begin{aligned}
 N_{\mathtt{TrapezoidSynth}}(f) &amp;= \begin{cases}
@@ -450,175 +527,182 @@ N_{\mathtt{TrapezoidSynth}}(f) &amp;= \begin{cases}
 f_u(N) &amp;= \frac{f_s}{4 N}
 \end{aligned}
 \]</span></p>
-<p>分岐処理がオーバーサンプリングよりも速いかどうかはベンチマークを取ってみないとわかりません。また <span class="math inline">\(N\)</span> の切り替えのタイミングで不連続になるので、ピッチベンドなどで周波数が動くとノイズが乗ります。</p>
-<p>TrapezoidSynth では何を思ったのか <span class="math inline">\(N\)</span> の切り替えと 8 倍のオーバーサンプリングの両方が実装されています。</p>
+<p>分岐処理がオーバーサンプリングよりも速いかどうかはベンチマークを取ってみないとわかりません。また
+<span class="math inline">\(N\)</span>
+の切り替えのタイミングで不連続になるので、ピッチベンドなどで周波数が動くとノイズが乗ります。</p>
+<p>TrapezoidSynth では何を思ったのか <span
+class="math inline">\(N\)</span> の切り替えと 8
+倍のオーバーサンプリングの両方が実装されています。</p>
 <h2 id="実装">実装</h2>
 <p>C++ です。</p>
-<p>定数をキャストしているのはテンプレートで <code>float</code> と <code>double</code> を切り替えることを想定していたからです。結局オーバーサンプリングしてごまかしたのでテンプレート化は見送りました。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">class</span> PTRTrapezoidOsc {</span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">public</span>:</span>
-<span id="cb2-5"><a href="#cb2-5"></a>  PTRTrapezoidOsc(<span class="dt">float</span> sampleRate, <span class="dt">float</span> frequencyHz) : sampleRate(sampleRate)</span>
-<span id="cb2-6"><a href="#cb2-6"></a>  {</span>
-<span id="cb2-7"><a href="#cb2-7"></a>    setFreq(frequencyHz);</span>
-<span id="cb2-8"><a href="#cb2-8"></a>  }</span>
-<span id="cb2-9"><a href="#cb2-9"></a></span>
-<span id="cb2-10"><a href="#cb2-10"></a>  <span class="dt">void</span> setFreq(<span class="dt">float</span> hz)</span>
-<span id="cb2-11"><a href="#cb2-11"></a>  {</span>
-<span id="cb2-12"><a href="#cb2-12"></a>    <span class="cf">if</span> (hz &gt;= <span class="dv">0</span>) tick = hz / sampleRate;</span>
-<span id="cb2-13"><a href="#cb2-13"></a>  }</span>
-<span id="cb2-14"><a href="#cb2-14"></a></span>
-<span id="cb2-15"><a href="#cb2-15"></a>  <span class="dt">void</span> setPhase(<span class="dt">float</span> phase) { <span class="kw">this</span>-&gt;phase = phase; }</span>
-<span id="cb2-16"><a href="#cb2-16"></a>  <span class="dt">void</span> addPhase(<span class="dt">float</span> phase) { <span class="kw">this</span>-&gt;phase += phase; }</span>
-<span id="cb2-17"><a href="#cb2-17"></a>  <span class="dt">void</span> setSlope(<span class="dt">float</span> slope) { <span class="kw">this</span>-&gt;slope = slope; }</span>
-<span id="cb2-18"><a href="#cb2-18"></a>  <span class="dt">void</span> setPulseWidth(<span class="dt">float</span> pw) { <span class="kw">this</span>-&gt;pw = pw; }</span>
-<span id="cb2-19"><a href="#cb2-19"></a>  <span class="dt">void</span> reset() { phase = <span class="dv">0</span>; }</span>
-<span id="cb2-20"><a href="#cb2-20"></a></span>
-<span id="cb2-21"><a href="#cb2-21"></a>  <span class="dt">float</span> process()</span>
-<span id="cb2-22"><a href="#cb2-22"></a>  {</span>
-<span id="cb2-23"><a href="#cb2-23"></a>    <span class="cf">if</span> (tick &lt;= <span class="dv">0</span>) <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb2-24"><a href="#cb2-24"></a>    phase += tick;</span>
-<span id="cb2-25"><a href="#cb2-25"></a>    phase -= somefloor&lt;<span class="dt">float</span>&gt;(phase);</span>
-<span id="cb2-26"><a href="#cb2-26"></a>    <span class="cf">return</span> ptrTpz5(phase, tick, slope, pw);</span>
-<span id="cb2-27"><a href="#cb2-27"></a>  }</span>
-<span id="cb2-28"><a href="#cb2-28"></a></span>
-<span id="cb2-29"><a href="#cb2-29"></a>  <span class="dt">float</span> sampleRate;</span>
-<span id="cb2-30"><a href="#cb2-30"></a>  <span class="dt">float</span> phase = <span class="dv">0</span>;</span>
-<span id="cb2-31"><a href="#cb2-31"></a>  <span class="dt">float</span> tick = <span class="dv">0</span>;</span>
-<span id="cb2-32"><a href="#cb2-32"></a>  <span class="dt">float</span> slope = <span class="dv">8</span>;       <span class="co">// 台形の斜辺の傾き。この文章の K に相当。</span></span>
-<span id="cb2-33"><a href="#cb2-33"></a>  <span class="dt">float</span> pw = <span class="dt">float</span>(<span class="fl">0.5</span>); <span class="co">// Pulse width. A1 に相当。</span></span>
-<span id="cb2-34"><a href="#cb2-34"></a></span>
-<span id="cb2-35"><a href="#cb2-35"></a><span class="kw">protected</span>:</span>
-<span id="cb2-36"><a href="#cb2-36"></a>  <span class="co">// tick must be greater than 0.</span></span>
-<span id="cb2-37"><a href="#cb2-37"></a>  <span class="at">static</span> <span class="dt">float</span> ptrTpz5(<span class="dt">float</span> phase, <span class="dt">float</span> tick, <span class="dt">float</span> slope, <span class="dt">float</span> pw)</span>
-<span id="cb2-38"><a href="#cb2-38"></a>  {</span>
-<span id="cb2-39"><a href="#cb2-39"></a>    <span class="dt">uint32_t</span> order = <span class="dv">5</span>; <span class="co">// PTR の次数。 N に相当。</span></span>
-<span id="cb2-40"><a href="#cb2-40"></a>    <span class="cf">if</span> (order &gt; <span class="dt">float</span>(<span class="fl">0.25</span>) / tick) order = <span class="dt">int</span>(<span class="dt">float</span>(<span class="fl">0.25</span>) / tick);</span>
-<span id="cb2-41"><a href="#cb2-41"></a></span>
-<span id="cb2-42"><a href="#cb2-42"></a>    <span class="at">const</span> <span class="dt">float</span> ptrLen = order * tick; <span class="co">// NT に相当。</span></span>
-<span id="cb2-43"><a href="#cb2-43"></a></span>
-<span id="cb2-44"><a href="#cb2-44"></a>    <span class="co">// A1 の範囲を制限。</span></span>
-<span id="cb2-45"><a href="#cb2-45"></a>    <span class="at">const</span> <span class="dt">float</span> maxSlope = <span class="dt">float</span>(<span class="fl">0.25</span>) / ptrLen;</span>
-<span id="cb2-46"><a href="#cb2-46"></a>    <span class="cf">if</span> (slope &gt; maxSlope) {</span>
-<span id="cb2-47"><a href="#cb2-47"></a>      slope = maxSlope;</span>
-<span id="cb2-48"><a href="#cb2-48"></a>    } <span class="cf">else</span> {</span>
-<span id="cb2-49"><a href="#cb2-49"></a>      <span class="at">const</span> <span class="dt">float</span> minSlope = <span class="dt">float</span>(<span class="dv">1</span>);</span>
-<span id="cb2-50"><a href="#cb2-50"></a>      <span class="cf">if</span> (slope &lt; minSlope) slope = minSlope;</span>
-<span id="cb2-51"><a href="#cb2-51"></a>    }</span>
-<span id="cb2-52"><a href="#cb2-52"></a></span>
-<span id="cb2-53"><a href="#cb2-53"></a>    <span class="co">// K の範囲を制限。</span></span>
-<span id="cb2-54"><a href="#cb2-54"></a>    <span class="at">const</span> <span class="dt">float</span> maxPw = <span class="dt">float</span>(<span class="dv">1</span>) - <span class="dt">float</span>(<span class="dv">1</span>) / slope;</span>
-<span id="cb2-55"><a href="#cb2-55"></a>    <span class="cf">if</span> (pw &gt; maxPw) pw = <span class="bu">std::</span>max&lt;<span class="dt">float</span>&gt;(<span class="dt">float</span>(<span class="dv">0</span>), maxPw);</span>
-<span id="cb2-56"><a href="#cb2-56"></a></span>
-<span id="cb2-57"><a href="#cb2-57"></a>    <span class="co">// 直流の計算。 y は適当に見つけた上手く動く値。</span></span>
-<span id="cb2-58"><a href="#cb2-58"></a>    <span class="at">const</span> <span class="dt">float</span> y = <span class="dt">float</span>(<span class="dv">1</span>) - <span class="dt">float</span>(<span class="dv">2</span>) * slope * ptrLen;</span>
-<span id="cb2-59"><a href="#cb2-59"></a>    <span class="at">const</span> <span class="dt">float</span> dc = (y * y + pw * slope * y) / (<span class="dt">float</span>(<span class="dv">2</span>) * y + slope - <span class="dt">float</span>(<span class="dv">1</span>));</span>
-<span id="cb2-60"><a href="#cb2-60"></a></span>
-<span id="cb2-61"><a href="#cb2-61"></a>    <span class="co">// N による分岐。</span></span>
-<span id="cb2-62"><a href="#cb2-62"></a>    <span class="cf">if</span> (order == <span class="dv">5</span>)</span>
-<span id="cb2-63"><a href="#cb2-63"></a>      <span class="cf">return</span> branch&lt;PTRTrapezoidOsc::ptrRamp5&gt;(slope, pw, y, phase, tick) - dc;</span>
-<span id="cb2-64"><a href="#cb2-64"></a>    <span class="cf">else</span> <span class="cf">if</span> (order == <span class="dv">4</span>)</span>
-<span id="cb2-65"><a href="#cb2-65"></a>      <span class="cf">return</span> branch&lt;PTRTrapezoidOsc::ptrRamp4&gt;(slope, pw, y, phase, tick) - dc;</span>
-<span id="cb2-66"><a href="#cb2-66"></a>    <span class="cf">else</span> <span class="cf">if</span> (order == <span class="dv">3</span>)</span>
-<span id="cb2-67"><a href="#cb2-67"></a>      <span class="cf">return</span> branch&lt;PTRTrapezoidOsc::ptrRamp3&gt;(slope, pw, y, phase, tick) - dc;</span>
-<span id="cb2-68"><a href="#cb2-68"></a>    <span class="cf">return</span> branch&lt;PTRTrapezoidOsc::ptrRamp2&gt;(slope, pw, y, phase, tick) - dc;</span>
-<span id="cb2-69"><a href="#cb2-69"></a>  }</span>
-<span id="cb2-70"><a href="#cb2-70"></a></span>
-<span id="cb2-71"><a href="#cb2-71"></a>  <span class="kw">template</span>&lt;<span class="dt">float</span> (*ptrfunc)(<span class="dt">float</span>, <span class="dt">float</span>)&gt;</span>
-<span id="cb2-72"><a href="#cb2-72"></a>  <span class="at">static</span> <span class="dt">float</span> branch(<span class="dt">float</span> slope, <span class="dt">float</span> pw, <span class="dt">float</span> y, <span class="dt">float</span> phase, <span class="dt">float</span> tick)</span>
-<span id="cb2-73"><a href="#cb2-73"></a>  {</span>
-<span id="cb2-74"><a href="#cb2-74"></a>    <span class="co">// ランプ関数のつぎはぎを行う分岐。</span></span>
-<span id="cb2-75"><a href="#cb2-75"></a>    <span class="cf">if</span> (phase &lt;= <span class="dt">float</span>(<span class="fl">0.25</span>) / slope) <span class="co">// Ramp 1</span></span>
-<span id="cb2-76"><a href="#cb2-76"></a>      <span class="cf">return</span> slope * ptrfunc(phase, tick);</span>
-<span id="cb2-77"><a href="#cb2-77"></a>    <span class="cf">else</span> <span class="cf">if</span> (phase &lt;= <span class="dt">float</span>(<span class="fl">0.5</span>) / slope) <span class="co">// Ramp 2</span></span>
-<span id="cb2-78"><a href="#cb2-78"></a>      <span class="cf">return</span> y - slope * ptrfunc(<span class="dt">float</span>(<span class="fl">0.5</span>) / slope - phase, tick);</span>
-<span id="cb2-79"><a href="#cb2-79"></a>    <span class="cf">else</span> <span class="cf">if</span> (phase &lt;= <span class="dt">float</span>(<span class="fl">0.5</span>) / slope + pw) <span class="co">// 台形の上辺。</span></span>
-<span id="cb2-80"><a href="#cb2-80"></a>      <span class="cf">return</span> y;</span>
-<span id="cb2-81"><a href="#cb2-81"></a>    <span class="cf">else</span> <span class="cf">if</span> (phase &lt;= <span class="dt">float</span>(<span class="fl">0.75</span>) / slope + pw) <span class="co">// Ramp 3</span></span>
-<span id="cb2-82"><a href="#cb2-82"></a>      <span class="cf">return</span> y - slope * ptrfunc(phase - <span class="dt">float</span>(<span class="fl">0.5</span>) / slope - pw, tick);</span>
-<span id="cb2-83"><a href="#cb2-83"></a>    <span class="cf">else</span> <span class="cf">if</span> (phase &lt;= <span class="dt">float</span>(<span class="dv">1</span>) / slope + pw) <span class="co">// Ramp 4</span></span>
-<span id="cb2-84"><a href="#cb2-84"></a>      <span class="cf">return</span> slope * ptrfunc(<span class="dt">float</span>(<span class="dv">1</span>) / slope + pw + -phase, tick);</span>
-<span id="cb2-85"><a href="#cb2-85"></a>    <span class="cf">return</span> <span class="dt">float</span>(<span class="dv">0</span>); <span class="co">// 残りを 0 埋め。台形の各部の名前の図の A2 にあたる領域。</span></span>
-<span id="cb2-86"><a href="#cb2-86"></a>  }</span>
-<span id="cb2-87"><a href="#cb2-87"></a></span>
-<span id="cb2-88"><a href="#cb2-88"></a>  <span class="co">// 以降は PTR ランプ関数。</span></span>
-<span id="cb2-89"><a href="#cb2-89"></a>  <span class="at">static</span> <span class="dt">float</span> ptrRamp2(<span class="dt">float</span> phi, <span class="dt">float</span> T)</span>
-<span id="cb2-90"><a href="#cb2-90"></a>  {</span>
-<span id="cb2-91"><a href="#cb2-91"></a>    <span class="dt">float</span> n = phi / T;</span>
-<span id="cb2-92"><a href="#cb2-92"></a>    <span class="cf">if</span> (n &gt;= <span class="dt">float</span>(<span class="dv">1</span>)) <span class="cf">return</span> <span class="dt">float</span>(<span class="dv">2</span>) * T * n - <span class="dt">float</span>(<span class="dv">2</span>) * T;</span>
-<span id="cb2-93"><a href="#cb2-93"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">1</span>)) <span class="cf">return</span> (T * n * n * n) / <span class="dt">float</span>(<span class="dv">3</span>);</span>
-<span id="cb2-94"><a href="#cb2-94"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">2</span>))</span>
-<span id="cb2-95"><a href="#cb2-95"></a>      <span class="cf">return</span> -(T * n * n * n) / <span class="dt">float</span>(<span class="dv">3</span>) + <span class="dt">float</span>(<span class="dv">2</span>) * T * n * n - <span class="dt">float</span>(<span class="dv">2</span>) * T * n</span>
-<span id="cb2-96"><a href="#cb2-96"></a>        + (<span class="dt">float</span>(<span class="dv">2</span>) * T) / <span class="dt">float</span>(<span class="dv">3</span>);</span>
-<span id="cb2-97"><a href="#cb2-97"></a>    <span class="cf">return</span> <span class="fl">0.0</span>; <span class="co">// Just in case.</span></span>
-<span id="cb2-98"><a href="#cb2-98"></a>  }</span>
-<span id="cb2-99"><a href="#cb2-99"></a></span>
-<span id="cb2-100"><a href="#cb2-100"></a>  <span class="at">static</span> <span class="dt">float</span> ptrRamp3(<span class="dt">float</span> phi, <span class="dt">float</span> T)</span>
-<span id="cb2-101"><a href="#cb2-101"></a>  {</span>
-<span id="cb2-102"><a href="#cb2-102"></a>    <span class="dt">float</span> n = phi / T;</span>
-<span id="cb2-103"><a href="#cb2-103"></a>    <span class="cf">if</span> (n &gt;= <span class="dt">float</span>(<span class="dv">2</span>)) <span class="cf">return</span> <span class="dt">float</span>(<span class="dv">2</span>) * T * n - <span class="dt">float</span>(<span class="dv">3</span>) * T;</span>
-<span id="cb2-104"><a href="#cb2-104"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">1</span>)) <span class="cf">return</span> (T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">12</span>);</span>
-<span id="cb2-105"><a href="#cb2-105"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">2</span>))</span>
-<span id="cb2-106"><a href="#cb2-106"></a>      <span class="cf">return</span> -(T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">6</span>) + T * n * n * n</span>
-<span id="cb2-107"><a href="#cb2-107"></a>        - (<span class="dt">float</span>(<span class="dv">3</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">2</span>) + T * n - T / <span class="dt">float</span>(<span class="dv">4</span>);</span>
-<span id="cb2-108"><a href="#cb2-108"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">3</span>))</span>
-<span id="cb2-109"><a href="#cb2-109"></a>      <span class="cf">return</span> (T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">12</span>) - T * n * n * n</span>
-<span id="cb2-110"><a href="#cb2-110"></a>        + (<span class="dt">float</span>(<span class="dv">9</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">2</span>) - <span class="dt">float</span>(<span class="dv">7</span>) * T * n</span>
-<span id="cb2-111"><a href="#cb2-111"></a>        + (<span class="dt">float</span>(<span class="dv">15</span>) * T) / <span class="dt">float</span>(<span class="dv">4</span>);</span>
-<span id="cb2-112"><a href="#cb2-112"></a>    <span class="cf">return</span> <span class="fl">0.0</span>; <span class="co">// Just in case.</span></span>
-<span id="cb2-113"><a href="#cb2-113"></a>  }</span>
-<span id="cb2-114"><a href="#cb2-114"></a></span>
-<span id="cb2-115"><a href="#cb2-115"></a>  <span class="at">static</span> <span class="dt">float</span> ptrRamp4(<span class="dt">float</span> phi, <span class="dt">float</span> T)</span>
-<span id="cb2-116"><a href="#cb2-116"></a>  {</span>
-<span id="cb2-117"><a href="#cb2-117"></a>    <span class="dt">float</span> n = phi / T;</span>
-<span id="cb2-118"><a href="#cb2-118"></a>    <span class="cf">if</span> (n &gt;= <span class="dt">float</span>(<span class="dv">3</span>)) <span class="cf">return</span> <span class="dt">float</span>(<span class="dv">2</span>) * T * n - <span class="dt">float</span>(<span class="dv">4</span>) * T;</span>
-<span id="cb2-119"><a href="#cb2-119"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">1</span>)) <span class="cf">return</span> (T * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">60</span>);</span>
-<span id="cb2-120"><a href="#cb2-120"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">2</span>))</span>
-<span id="cb2-121"><a href="#cb2-121"></a>      <span class="cf">return</span> -(T * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">20</span>) + (T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">3</span>)</span>
-<span id="cb2-122"><a href="#cb2-122"></a>        - (<span class="dt">float</span>(<span class="dv">2</span>) * T * n * n * n) / <span class="dt">float</span>(<span class="dv">3</span>) + (<span class="dt">float</span>(<span class="dv">2</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">3</span>)</span>
-<span id="cb2-123"><a href="#cb2-123"></a>        - (T * n) / <span class="dt">float</span>(<span class="dv">3</span>) + T / <span class="dt">float</span>(<span class="dv">15</span>);</span>
-<span id="cb2-124"><a href="#cb2-124"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">3</span>))</span>
-<span id="cb2-125"><a href="#cb2-125"></a>      <span class="cf">return</span> (T * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">20</span>)</span>
-<span id="cb2-126"><a href="#cb2-126"></a>        - (<span class="dt">float</span>(<span class="dv">2</span>) * T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">3</span>)</span>
-<span id="cb2-127"><a href="#cb2-127"></a>        + (<span class="dt">float</span>(<span class="dv">10</span>) * T * n * n * n) / <span class="dt">float</span>(<span class="dv">3</span>) - (<span class="dt">float</span>(<span class="dv">22</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">3</span>)</span>
-<span id="cb2-128"><a href="#cb2-128"></a>        + (<span class="dt">float</span>(<span class="dv">23</span>) * T * n) / <span class="dt">float</span>(<span class="dv">3</span>) - (<span class="dt">float</span>(<span class="dv">47</span>) * T) / <span class="dt">float</span>(<span class="dv">15</span>);</span>
-<span id="cb2-129"><a href="#cb2-129"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">4</span>))</span>
-<span id="cb2-130"><a href="#cb2-130"></a>      <span class="cf">return</span> -(T * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">60</span>) + (T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">3</span>)</span>
-<span id="cb2-131"><a href="#cb2-131"></a>        - (<span class="dt">float</span>(<span class="dv">8</span>) * T * n * n * n) / <span class="dt">float</span>(<span class="dv">3</span>) + (<span class="dt">float</span>(<span class="dv">32</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">3</span>)</span>
-<span id="cb2-132"><a href="#cb2-132"></a>        - (<span class="dt">float</span>(<span class="dv">58</span>) * T * n) / <span class="dt">float</span>(<span class="dv">3</span>) + (<span class="dt">float</span>(<span class="dv">196</span>) * T) / <span class="dt">float</span>(<span class="dv">15</span>);</span>
-<span id="cb2-133"><a href="#cb2-133"></a>    <span class="cf">return</span> <span class="fl">0.0</span>; <span class="co">// Just in case.</span></span>
-<span id="cb2-134"><a href="#cb2-134"></a>  }</span>
-<span id="cb2-135"><a href="#cb2-135"></a></span>
-<span id="cb2-136"><a href="#cb2-136"></a>  <span class="at">static</span> <span class="dt">float</span> ptrRamp5(<span class="dt">float</span> phi, <span class="dt">float</span> T)</span>
-<span id="cb2-137"><a href="#cb2-137"></a>  {</span>
-<span id="cb2-138"><a href="#cb2-138"></a>    <span class="dt">float</span> n = phi / T;</span>
-<span id="cb2-139"><a href="#cb2-139"></a>    <span class="cf">if</span> (n &gt;= <span class="dt">float</span>(<span class="dv">4</span>)) <span class="cf">return</span> <span class="dt">float</span>(<span class="dv">2</span>) * T * n - <span class="dt">float</span>(<span class="dv">5</span>) * T;</span>
-<span id="cb2-140"><a href="#cb2-140"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">1</span>)) <span class="cf">return</span> (T * n * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">360</span>);</span>
-<span id="cb2-141"><a href="#cb2-141"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">2</span>))</span>
-<span id="cb2-142"><a href="#cb2-142"></a>      <span class="cf">return</span> -(T * n * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">90</span>)</span>
-<span id="cb2-143"><a href="#cb2-143"></a>        + (T * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">12</span>) - (<span class="dt">float</span>(<span class="dv">5</span>) * T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">24</span>)</span>
-<span id="cb2-144"><a href="#cb2-144"></a>        + (<span class="dt">float</span>(<span class="dv">5</span>) * T * n * n * n) / <span class="dt">float</span>(<span class="dv">18</span>) - (<span class="dt">float</span>(<span class="dv">5</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">24</span>)</span>
-<span id="cb2-145"><a href="#cb2-145"></a>        + (T * n) / <span class="dt">float</span>(<span class="dv">12</span>) - T / <span class="dt">float</span>(<span class="dv">72</span>);</span>
-<span id="cb2-146"><a href="#cb2-146"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">3</span>))</span>
-<span id="cb2-147"><a href="#cb2-147"></a>      <span class="cf">return</span> (T * n * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">60</span>) - (T * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">4</span>)</span>
-<span id="cb2-148"><a href="#cb2-148"></a>        + (<span class="dt">float</span>(<span class="dv">35</span>) * T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">24</span>)</span>
-<span id="cb2-149"><a href="#cb2-149"></a>        - (<span class="dt">float</span>(<span class="dv">25</span>) * T * n * n * n) / <span class="dt">float</span>(<span class="dv">6</span>) + (<span class="dt">float</span>(<span class="dv">155</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">24</span>)</span>
-<span id="cb2-150"><a href="#cb2-150"></a>        - (<span class="dt">float</span>(<span class="dv">21</span>) * T * n) / <span class="dt">float</span>(<span class="dv">4</span>) + (<span class="dt">float</span>(<span class="dv">127</span>) * T) / <span class="dt">float</span>(<span class="dv">72</span>);</span>
-<span id="cb2-151"><a href="#cb2-151"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">4</span>))</span>
-<span id="cb2-152"><a href="#cb2-152"></a>      <span class="cf">return</span> -(T * n * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">90</span>) + (T * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">4</span>)</span>
-<span id="cb2-153"><a href="#cb2-153"></a>        - (<span class="dt">float</span>(<span class="dv">55</span>) * T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">24</span>)</span>
-<span id="cb2-154"><a href="#cb2-154"></a>        + (<span class="dt">float</span>(<span class="dv">65</span>) * T * n * n * n) / <span class="dt">float</span>(<span class="dv">6</span>) - (<span class="dt">float</span>(<span class="dv">655</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">24</span>)</span>
-<span id="cb2-155"><a href="#cb2-155"></a>        + (<span class="dt">float</span>(<span class="dv">141</span>) * T * n) / <span class="dt">float</span>(<span class="dv">4</span>) - (<span class="dt">float</span>(<span class="dv">1331</span>) * T) / <span class="dt">float</span>(<span class="dv">72</span>);</span>
-<span id="cb2-156"><a href="#cb2-156"></a>    <span class="cf">if</span> (n &lt; <span class="dt">float</span>(<span class="dv">5</span>))</span>
-<span id="cb2-157"><a href="#cb2-157"></a>      <span class="cf">return</span> (T * n * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">360</span>)</span>
-<span id="cb2-158"><a href="#cb2-158"></a>        - (T * n * n * n * n * n) / <span class="dt">float</span>(<span class="dv">12</span>)</span>
-<span id="cb2-159"><a href="#cb2-159"></a>        + (<span class="dt">float</span>(<span class="dv">25</span>) * T * n * n * n * n) / <span class="dt">float</span>(<span class="dv">24</span>)</span>
-<span id="cb2-160"><a href="#cb2-160"></a>        - (<span class="dt">float</span>(<span class="dv">125</span>) * T * n * n * n) / <span class="dt">float</span>(<span class="dv">18</span>) + (<span class="dt">float</span>(<span class="dv">625</span>) * T * n * n) / <span class="dt">float</span>(<span class="dv">24</span>)</span>
-<span id="cb2-161"><a href="#cb2-161"></a>        - (<span class="dt">float</span>(<span class="dv">601</span>) * T * n) / <span class="dt">float</span>(<span class="dv">12</span>) + (<span class="dt">float</span>(<span class="dv">2765</span>) * T) / <span class="dt">float</span>(<span class="dv">72</span>);</span>
-<span id="cb2-162"><a href="#cb2-162"></a>    <span class="cf">return</span> <span class="fl">0.0</span>; <span class="co">// Just in case.</span></span>
-<span id="cb2-163"><a href="#cb2-163"></a>  }</span>
-<span id="cb2-164"><a href="#cb2-164"></a>};</span></code></pre></div>
+<p>定数をキャストしているのはテンプレートで <code>float</code> と
+<code>double</code>
+を切り替えることを想定していたからです。結局オーバーサンプリングしてごまかしたのでテンプレート化は見送りました。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PTRTrapezoidOsc <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  PTRTrapezoidOsc<span class="op">(</span><span class="dt">float</span> sampleRate<span class="op">,</span> <span class="dt">float</span> frequencyHz<span class="op">)</span> <span class="op">:</span> sampleRate<span class="op">(</span>sampleRate<span class="op">)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    setFreq<span class="op">(</span>frequencyHz<span class="op">);</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setFreq<span class="op">(</span><span class="dt">float</span> hz<span class="op">)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>hz <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> tick <span class="op">=</span> hz <span class="op">/</span> sampleRate<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setPhase<span class="op">(</span><span class="dt">float</span> phase<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">-&gt;</span>phase <span class="op">=</span> phase<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> addPhase<span class="op">(</span><span class="dt">float</span> phase<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">-&gt;</span>phase <span class="op">+=</span> phase<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setSlope<span class="op">(</span><span class="dt">float</span> slope<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">-&gt;</span>slope <span class="op">=</span> slope<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setPulseWidth<span class="op">(</span><span class="dt">float</span> pw<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">-&gt;</span>pw <span class="op">=</span> pw<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span> <span class="op">{</span> phase <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> process<span class="op">()</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>tick <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">+=</span> tick<span class="op">;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">-=</span> somefloor<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>phase<span class="op">);</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ptrTpz5<span class="op">(</span>phase<span class="op">,</span> tick<span class="op">,</span> slope<span class="op">,</span> pw<span class="op">);</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> sampleRate<span class="op">;</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> phase <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> tick <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> slope <span class="op">=</span> <span class="dv">8</span><span class="op">;</span>       <span class="co">// 台形の斜辺の傾き。この文章の K に相当。</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> pw <span class="op">=</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.5</span><span class="op">);</span> <span class="co">// Pulse width. A1 に相当。</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="co">// tick must be greater than 0.</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> <span class="dt">float</span> ptrTpz5<span class="op">(</span><span class="dt">float</span> phase<span class="op">,</span> <span class="dt">float</span> tick<span class="op">,</span> <span class="dt">float</span> slope<span class="op">,</span> <span class="dt">float</span> pw<span class="op">)</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> order <span class="op">=</span> <span class="dv">5</span><span class="op">;</span> <span class="co">// PTR の次数。 N に相当。</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>order <span class="op">&gt;</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.25</span><span class="op">)</span> <span class="op">/</span> tick<span class="op">)</span> order <span class="op">=</span> <span class="dt">int</span><span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="fl">0.25</span><span class="op">)</span> <span class="op">/</span> tick<span class="op">);</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> ptrLen <span class="op">=</span> order <span class="op">*</span> tick<span class="op">;</span> <span class="co">// NT に相当。</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">// A1 の範囲を制限。</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> maxSlope <span class="op">=</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.25</span><span class="op">)</span> <span class="op">/</span> ptrLen<span class="op">;</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>slope <span class="op">&gt;</span> maxSlope<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>      slope <span class="op">=</span> maxSlope<span class="op">;</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>      <span class="at">const</span> <span class="dt">float</span> minSlope <span class="op">=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>slope <span class="op">&lt;</span> minSlope<span class="op">)</span> slope <span class="op">=</span> minSlope<span class="op">;</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="co">// K の範囲を制限。</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> maxPw <span class="op">=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> slope<span class="op">;</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>pw <span class="op">&gt;</span> maxPw<span class="op">)</span> pw <span class="op">=</span> <span class="bu">std::</span>max<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span><span class="dt">float</span><span class="op">(</span><span class="dv">0</span><span class="op">),</span> maxPw<span class="op">);</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 直流の計算。 y は適当に見つけた上手く動く値。</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> y <span class="op">=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> slope <span class="op">*</span> ptrLen<span class="op">;</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> dc <span class="op">=</span> <span class="op">(</span>y <span class="op">*</span> y <span class="op">+</span> pw <span class="op">*</span> slope <span class="op">*</span> y<span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> y <span class="op">+</span> slope <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="co">// N による分岐。</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>order <span class="op">==</span> <span class="dv">5</span><span class="op">)</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> branch<span class="op">&lt;</span>PTRTrapezoidOsc<span class="op">::</span>ptrRamp5<span class="op">&gt;(</span>slope<span class="op">,</span> pw<span class="op">,</span> y<span class="op">,</span> phase<span class="op">,</span> tick<span class="op">)</span> <span class="op">-</span> dc<span class="op">;</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>order <span class="op">==</span> <span class="dv">4</span><span class="op">)</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> branch<span class="op">&lt;</span>PTRTrapezoidOsc<span class="op">::</span>ptrRamp4<span class="op">&gt;(</span>slope<span class="op">,</span> pw<span class="op">,</span> y<span class="op">,</span> phase<span class="op">,</span> tick<span class="op">)</span> <span class="op">-</span> dc<span class="op">;</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>order <span class="op">==</span> <span class="dv">3</span><span class="op">)</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> branch<span class="op">&lt;</span>PTRTrapezoidOsc<span class="op">::</span>ptrRamp3<span class="op">&gt;(</span>slope<span class="op">,</span> pw<span class="op">,</span> y<span class="op">,</span> phase<span class="op">,</span> tick<span class="op">)</span> <span class="op">-</span> dc<span class="op">;</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> branch<span class="op">&lt;</span>PTRTrapezoidOsc<span class="op">::</span>ptrRamp2<span class="op">&gt;(</span>slope<span class="op">,</span> pw<span class="op">,</span> y<span class="op">,</span> phase<span class="op">,</span> tick<span class="op">)</span> <span class="op">-</span> dc<span class="op">;</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span><span class="op">&lt;</span><span class="dt">float</span> <span class="op">(*</span>ptrfunc<span class="op">)(</span><span class="dt">float</span><span class="op">,</span> <span class="dt">float</span><span class="op">)&gt;</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> <span class="dt">float</span> branch<span class="op">(</span><span class="dt">float</span> slope<span class="op">,</span> <span class="dt">float</span> pw<span class="op">,</span> <span class="dt">float</span> y<span class="op">,</span> <span class="dt">float</span> phase<span class="op">,</span> <span class="dt">float</span> tick<span class="op">)</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ランプ関数のつぎはぎを行う分岐。</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>phase <span class="op">&lt;=</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.25</span><span class="op">)</span> <span class="op">/</span> slope<span class="op">)</span> <span class="co">// Ramp 1</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> slope <span class="op">*</span> ptrfunc<span class="op">(</span>phase<span class="op">,</span> tick<span class="op">);</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>phase <span class="op">&lt;=</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span> <span class="op">/</span> slope<span class="op">)</span> <span class="co">// Ramp 2</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> y <span class="op">-</span> slope <span class="op">*</span> ptrfunc<span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span> <span class="op">/</span> slope <span class="op">-</span> phase<span class="op">,</span> tick<span class="op">);</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>phase <span class="op">&lt;=</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span> <span class="op">/</span> slope <span class="op">+</span> pw<span class="op">)</span> <span class="co">// 台形の上辺。</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> y<span class="op">;</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>phase <span class="op">&lt;=</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.75</span><span class="op">)</span> <span class="op">/</span> slope <span class="op">+</span> pw<span class="op">)</span> <span class="co">// Ramp 3</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> y <span class="op">-</span> slope <span class="op">*</span> ptrfunc<span class="op">(</span>phase <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span> <span class="op">/</span> slope <span class="op">-</span> pw<span class="op">,</span> tick<span class="op">);</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>phase <span class="op">&lt;=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> slope <span class="op">+</span> pw<span class="op">)</span> <span class="co">// Ramp 4</span></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> slope <span class="op">*</span> ptrfunc<span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> slope <span class="op">+</span> pw <span class="op">+</span> <span class="op">-</span>phase<span class="op">,</span> tick<span class="op">);</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dt">float</span><span class="op">(</span><span class="dv">0</span><span class="op">);</span> <span class="co">// 残りを 0 埋め。台形の各部の名前の図の A2 にあたる領域。</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 以降は PTR ランプ関数。</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> <span class="dt">float</span> ptrRamp2<span class="op">(</span><span class="dt">float</span> phi<span class="op">,</span> <span class="dt">float</span> T<span class="op">)</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> n <span class="op">=</span> phi <span class="op">/</span> T<span class="op">;</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="cf">return</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T<span class="op">;</span></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="cf">return</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">);</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">))</span></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">-(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">+</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">);</span></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">// Just in case.</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> <span class="dt">float</span> ptrRamp3<span class="op">(</span><span class="dt">float</span> phi<span class="op">,</span> <span class="dt">float</span> T<span class="op">)</span></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> n <span class="op">=</span> phi <span class="op">/</span> T<span class="op">;</span></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">))</span> <span class="cf">return</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">*</span> T<span class="op">;</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="cf">return</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">12</span><span class="op">);</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">))</span></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">-(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">6</span><span class="op">)</span> <span class="op">+</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">+</span> T <span class="op">*</span> n <span class="op">-</span> T <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">);</span></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">))</span></span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">12</span><span class="op">)</span> <span class="op">-</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">9</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">7</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">15</span><span class="op">)</span> <span class="op">*</span> T<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">);</span></span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">// Just in case.</span></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> <span class="dt">float</span> ptrRamp4<span class="op">(</span><span class="dt">float</span> phi<span class="op">,</span> <span class="dt">float</span> T<span class="op">)</span></span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> n <span class="op">=</span> phi <span class="op">/</span> T<span class="op">;</span></span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">))</span> <span class="cf">return</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">)</span> <span class="op">*</span> T<span class="op">;</span></span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="cf">return</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">60</span><span class="op">);</span></span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">))</span></span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">-(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">20</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span></span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span>T <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">+</span> T <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">15</span><span class="op">);</span></span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">))</span></span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">20</span><span class="op">)</span></span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span></span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">10</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">22</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span></span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">23</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">47</span><span class="op">)</span> <span class="op">*</span> T<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">15</span><span class="op">);</span></span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">))</span></span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">-(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">60</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">8</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">32</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span></span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">58</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">196</span><span class="op">)</span> <span class="op">*</span> T<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">15</span><span class="op">);</span></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">// Just in case.</span></span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> <span class="dt">float</span> ptrRamp5<span class="op">(</span><span class="dt">float</span> phi<span class="op">,</span> <span class="dt">float</span> T<span class="op">)</span></span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> n <span class="op">=</span> phi <span class="op">/</span> T<span class="op">;</span></span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">))</span> <span class="cf">return</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="dv">5</span><span class="op">)</span> <span class="op">*</span> T<span class="op">;</span></span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="cf">return</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">360</span><span class="op">);</span></span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">))</span></span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">-(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">90</span><span class="op">)</span></span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">12</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">5</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">24</span><span class="op">)</span></span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">5</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">18</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">5</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">24</span><span class="op">)</span></span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span>T <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">12</span><span class="op">)</span> <span class="op">-</span> T <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">72</span><span class="op">);</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">3</span><span class="op">))</span></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">60</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">)</span></span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">35</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">24</span><span class="op">)</span></span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">25</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">6</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">155</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">24</span><span class="op">)</span></span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">21</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">127</span><span class="op">)</span> <span class="op">*</span> T<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">72</span><span class="op">);</span></span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">))</span></span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">-(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">90</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">)</span></span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">55</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">24</span><span class="op">)</span></span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">65</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">6</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">655</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">24</span><span class="op">)</span></span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">141</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">4</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">1331</span><span class="op">)</span> <span class="op">*</span> T<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">72</span><span class="op">);</span></span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dt">float</span><span class="op">(</span><span class="dv">5</span><span class="op">))</span></span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">360</span><span class="op">)</span></span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span>T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">12</span><span class="op">)</span></span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">25</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">24</span><span class="op">)</span></span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">125</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">18</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">625</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">24</span><span class="op">)</span></span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">601</span><span class="op">)</span> <span class="op">*</span> T <span class="op">*</span> n<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">12</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">2765</span><span class="op">)</span> <span class="op">*</span> T<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span><span class="dv">72</span><span class="op">);</span></span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">// Just in case.</span></span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
 </footer>

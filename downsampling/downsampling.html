@@ -5,18 +5,19 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2022-05-12" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>downsampling</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,34 +344,45 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2022-05-12
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#ダウンサンプリング">ダウンサンプリング</a>
+<li><a href="#ダウンサンプリング"
+id="toc-ダウンサンプリング">ダウンサンプリング</a>
 <ul>
-<li><a href="#用語">用語</a></li>
-<li><a href="#noble-identities-とポリフェイズフィルタ">Noble Identities とポリフェイズフィルタ</a></li>
-<li><a href="#使えるローパスフィルタの種類">使えるローパスフィルタの種類</a>
+<li><a href="#用語" id="toc-用語">用語</a></li>
+<li><a href="#noble-identities-とポリフェイズフィルタ"
+id="toc-noble-identities-とポリフェイズフィルタ">Noble Identities
+とポリフェイズフィルタ</a></li>
+<li><a href="#使えるローパスフィルタの種類"
+id="toc-使えるローパスフィルタの種類">使えるローパスフィルタの種類</a>
 <ul>
-<li><a href="#オーバーラップ">オーバーラップ</a></li>
+<li><a href="#オーバーラップ"
+id="toc-オーバーラップ">オーバーラップ</a></li>
 </ul></li>
-<li><a href="#fir-フィルタの設計と実装">FIR フィルタの設計と実装</a>
+<li><a href="#fir-フィルタの設計と実装"
+id="toc-fir-フィルタの設計と実装">FIR フィルタの設計と実装</a>
 <ul>
-<li><a href="#c-による実装">C++ による実装</a></li>
+<li><a href="#c-による実装" id="toc-c-による実装">C++
+による実装</a></li>
 </ul></li>
-<li><a href="#iir-フィルタの設計と実装">IIR フィルタの設計と実装</a>
+<li><a href="#iir-フィルタの設計と実装"
+id="toc-iir-フィルタの設計と実装">IIR フィルタの設計と実装</a>
 <ul>
-<li><a href="#c-による実装-1">C++ による実装</a></li>
+<li><a href="#c-による実装-1" id="toc-c-による実装-1">C++
+による実装</a></li>
 </ul></li>
-<li><a href="#マルチステージ">マルチステージ</a></li>
-<li><a href="#その他">その他</a>
+<li><a href="#マルチステージ"
+id="toc-マルチステージ">マルチステージ</a></li>
+<li><a href="#その他" id="toc-その他">その他</a>
 <ul>
-<li><a href="#適切なマルチステージの分割">適切なマルチステージの分割</a></li>
+<li><a href="#適切なマルチステージの分割"
+id="toc-適切なマルチステージの分割">適切なマルチステージの分割</a></li>
 </ul></li>
-<li><a href="#変更点">変更点</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -373,28 +391,55 @@ Update: 2022-05-12
 <h1 id="ダウンサンプリング">ダウンサンプリング</h1>
 <p>今まで適当にやっていたダウンサンプリングについて調べたことをまとめました。</p>
 <h2 id="用語">用語</h2>
-<p>異なる複数のサンプリング周波数の信号を扱うシステムをマルチレートシステム (multirate system) といいます。</p>
-<p>ここではサンプリング周波数を下げる処理のことをダウンサンプリング (down-sampling) 、上げる処理のことをアップサンプリング (up-sampling) と呼びます。</p>
-<p>ダウンサンプリングを行うためにデシメータ (decimator) とフィルタを組み合わせた部品のことをダウンサンプラ (down-sampler) 、アップサンプリングを行うためにエクスパンダ (expander) とフィルタを組み合わせた部品のことをアップサンプラ (up-sampler) と呼びます。</p>
+<p>異なる複数のサンプリング周波数の信号を扱うシステムをマルチレートシステム
+(multirate system) といいます。</p>
+<p>ここではサンプリング周波数を下げる処理のことをダウンサンプリング
+(down-sampling) 、上げる処理のことをアップサンプリング (up-sampling)
+と呼びます。</p>
+<p>ダウンサンプリングを行うためにデシメータ (decimator)
+とフィルタを組み合わせた部品のことをダウンサンプラ (down-sampler)
+、アップサンプリングを行うためにエクスパンダ (expander)
+とフィルタを組み合わせた部品のことをアップサンプラ (up-sampler)
+と呼びます。</p>
 <figure>
 <img src="img/upsampler_and_downsampler.svg" alt="Block diagram of up-sampler and down-sampler." style="padding-bottom: 12px;"/>
 </figure>
-<p>デシメータは信号を間引いてサンプリング周波数を <span class="math inline">\(1/M\)</span> 倍に下げる部品、エクスパンダは信号に 0 を付け足してサンプリング周波数を <span class="math inline">\(L\)</span> 倍に上げる部品のことです。下の図はデシメータとエクスパンダによる時間領域での信号の変換を示した図です。</p>
+<p>デシメータは信号を間引いてサンプリング周波数を <span
+class="math inline">\(1/M\)</span> 倍に下げる部品、エクスパンダは信号に
+0 を付け足してサンプリング周波数を <span
+class="math inline">\(L\)</span>
+倍に上げる部品のことです。下の図はデシメータとエクスパンダによる時間領域での信号の変換を示した図です。</p>
 <figure>
 <img src="img/decimator_and_expander_time_domain.svg" alt="Example time domain plot of 2-fold decimation and 2-fold expansion." style="padding-bottom: 12px;"/>
 </figure>
-<p>デシメータとエクスパンダの処理の意味は、変換後の信号の周波数成分の変化を見るとわかりやすいです。デシメータはナイキスト周波数以内の成分の周波数を <span class="math inline">\(M\)</span> 倍に広げます。このとき周波数成分がナイキスト周波数を超える位置に動くので折り返しが起こります。エクスパンダはナイキスト周波数を超える位置にある鏡像を含む、すべての成分の周波数を <span class="math inline">\(1/L\)</span> 倍にします。このため元の周波数成分の鏡像がナイキスト周波数以内に入り込んできます。</p>
+<p>デシメータとエクスパンダの処理の意味は、変換後の信号の周波数成分の変化を見るとわかりやすいです。デシメータはナイキスト周波数以内の成分の周波数を
+<span class="math inline">\(M\)</span>
+倍に広げます。このとき周波数成分がナイキスト周波数を超える位置に動くので折り返しが起こります。エクスパンダはナイキスト周波数を超える位置にある鏡像を含む、すべての成分の周波数を
+<span class="math inline">\(1/L\)</span>
+倍にします。このため元の周波数成分の鏡像がナイキスト周波数以内に入り込んできます。</p>
 <figure>
 <img src="img/decimator_and_expander_frequency_domain.svg" alt="Example frequency domain plot of 2-fold decimation and 2-fold expansion." style="padding-bottom: 12px;"/>
 </figure>
-<p>上の図の赤い実線は正と負のナイキスト周波数以内の成分です。赤い点線はナイキスト周波数を超えた周波数に現れる、元の成分の鏡像を表しています。アップサンプラとダウンサンプラのフィルタは、上の図のナイキスト周波数である <span class="math inline">\([-1,1]\)</span> の範囲に現れる不要な折り返しや入り込みを消すために必要となります。</p>
-<p>アップサンプラは補間器 (interpolator) と呼ばれることがあります。ややこしいのですが、ダウンサンプラのことを指してデシメータと呼ぶこともあるようです。つまり、デシメータは信号を間引くだけの部品を指すこともあれば、間引きとフィルタを組み合わせた部品を指すこともあります。今回参考にした Vaidyanathan による <a href="https://authors.library.caltech.edu/6798/1/VAIprocieee90.pdf">Multirate Digital Filters, Filter Banks, Polyphase Networks, and Applications: A Tutorial</a> では信号を間引くだけの部品のことをデシメータと呼んでダウンサンプラと区別しているので、この文章もそれにならっています。</p>
-<h2 id="noble-identities-とポリフェイズフィルタ">Noble Identities とポリフェイズフィルタ</h2>
-<p>以下のブロック線図で表される <a href="https://ccrma.stanford.edu/~jos/sasp/Multirate_Noble_Identities.html">noble identities</a> と呼ばれる恒等式があります。</p>
+<p>上の図の赤い実線は正と負のナイキスト周波数以内の成分です。赤い点線はナイキスト周波数を超えた周波数に現れる、元の成分の鏡像を表しています。アップサンプラとダウンサンプラのフィルタは、上の図のナイキスト周波数である
+<span class="math inline">\([-1,1]\)</span>
+の範囲に現れる不要な折り返しや入り込みを消すために必要となります。</p>
+<p>アップサンプラは補間器 (interpolator)
+と呼ばれることがあります。ややこしいのですが、ダウンサンプラのことを指してデシメータと呼ぶこともあるようです。つまり、デシメータは信号を間引くだけの部品を指すこともあれば、間引きとフィルタを組み合わせた部品を指すこともあります。今回参考にした
+Vaidyanathan による <a
+href="https://authors.library.caltech.edu/6798/1/VAIprocieee90.pdf">Multirate
+Digital Filters, Filter Banks, Polyphase Networks, and Applications: A
+Tutorial</a>
+では信号を間引くだけの部品のことをデシメータと呼んでダウンサンプラと区別しているので、この文章もそれにならっています。</p>
+<h2 id="noble-identities-とポリフェイズフィルタ">Noble Identities
+とポリフェイズフィルタ</h2>
+<p>以下のブロック線図で表される <a
+href="https://ccrma.stanford.edu/~jos/sasp/Multirate_Noble_Identities.html">noble
+identities</a> と呼ばれる恒等式があります。</p>
 <figure>
 <img src="img/noble_identities.svg" alt="Block diagram of noble identities." style="padding-bottom: 12px;"/>
 </figure>
-<p>また、伝達関数 <span class="math inline">\(H(z)\)</span> が<a href="https://en.wikipedia.org/wiki/Rational_function">有理関数</a>のとき、以下の式のようにポリフェイズ分解できます。</p>
+<p>また、伝達関数 <span class="math inline">\(H(z)\)</span> が<a
+href="https://en.wikipedia.org/wiki/Rational_function">有理関数</a>のとき、以下の式のようにポリフェイズ分解できます。</p>
 <p><span class="math display">\[
 \begin{aligned}
 H(z) &amp;= \sum_{\ell=0}^{M-1} z^{-\ell} \left(
@@ -407,26 +452,53 @@ H(z) &amp;= \sum_{\ell=L-1}^{0} z^{-\ell} \left(
 \qquad &amp;&amp; \text{Type 2 polyphase}\\
 \end{aligned}
 \]</span></p>
-<p>FIR の場合、 <span class="math inline">\(h(n)\)</span> は前から <span class="math inline">\(n\)</span> 番目のフィルタ係数です。例えば <span class="math inline">\(H(z) = b_0 + b_1 z^{-1} + b_2 z^{-2} + \dots\)</span> のとき、 <span class="math inline">\(h(0) = b_0,\;h(1) = b_1,\;h(2) = b_2,\;\dots\)</span> となります。 IIR もポリフェイズ分解できるそうですが設計方法がよくわからなかったのでここでは扱っていません。</p>
-<p>Type 1 polyphase の式はダウンサンプリングの計算に使います。例えば <span class="math inline">\(M=2\)</span> のときはフィルタ係数を以下の 2 組に分解できます。</p>
+<p>FIR の場合、 <span class="math inline">\(h(n)\)</span> は前から <span
+class="math inline">\(n\)</span> 番目のフィルタ係数です。例えば <span
+class="math inline">\(H(z) = b_0 + b_1 z^{-1} + b_2 z^{-2} +
+\dots\)</span> のとき、 <span class="math inline">\(h(0) = b_0,\;h(1) =
+b_1,\;h(2) = b_2,\;\dots\)</span> となります。 IIR
+もポリフェイズ分解できるそうですが設計方法がよくわからなかったのでここでは扱っていません。</p>
+<p>Type 1 polyphase の式はダウンサンプリングの計算に使います。例えば
+<span class="math inline">\(M=2\)</span> のときはフィルタ係数を以下の 2
+組に分解できます。</p>
 <p><span class="math display">\[
 \begin{aligned}
 E_0(z) = h(0) + h(2) z^{-1} + h(4) z^{-2} + \dots\\
 E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 \end{aligned}
 \]</span></p>
-<p>Type 2 polyphase の式はアップサンプリングの計算で使います。 Type 1 polyphase の式では <span class="math inline">\(\ell\)</span> が <span class="math inline">\(0, \dots, M-1\)</span> と増えていきますが、 type 2 polyphase の式では <span class="math inline">\(L-1, \dots, 0\)</span> と減っていきます。つまり分解したフィルタを計算する順番がダウンサンプリングのときとは逆になります。</p>
-<p>Noble identities とポリフェイズ分解の式から以下ようにブロック線図を変形できます。</p>
+<p>Type 2 polyphase の式はアップサンプリングの計算で使います。 Type 1
+polyphase の式では <span class="math inline">\(\ell\)</span> が <span
+class="math inline">\(0, \dots, M-1\)</span> と増えていきますが、 type 2
+polyphase の式では <span class="math inline">\(L-1, \dots, 0\)</span>
+と減っていきます。つまり分解したフィルタを計算する順番がダウンサンプリングのときとは逆になります。</p>
+<p>Noble identities
+とポリフェイズ分解の式から以下ようにブロック線図を変形できます。</p>
 <figure>
 <img src="img/polyphase.svg" alt="Block diagram of polyphase decomposition." style="padding-bottom: 12px;"/>
 </figure>
-<p>上の図の <span class="math inline">\(z^{-1}\)</span> が縦に連なっている箇所は、入力 1 サンプルごとに通過させるフィルタ <span class="math inline">\(E_\ell\)</span> を切り替える処理と考えることができます。つまり <span class="math inline">\(H(z)\)</span> を長さ <span class="math inline">\(N\)</span> の FIR フィルタとすると、入力 1 サンプルあたりの計算量を <span class="math inline">\(N\)</span> から <span class="math inline">\(N/M\)</span> または <span class="math inline">\(N/L\)</span> に減らすことができます。</p>
+<p>上の図の <span class="math inline">\(z^{-1}\)</span>
+が縦に連なっている箇所は、入力 1 サンプルごとに通過させるフィルタ <span
+class="math inline">\(E_\ell\)</span>
+を切り替える処理と考えることができます。つまり <span
+class="math inline">\(H(z)\)</span> を長さ <span
+class="math inline">\(N\)</span> の FIR フィルタとすると、入力 1
+サンプルあたりの計算量を <span class="math inline">\(N\)</span> から
+<span class="math inline">\(N/M\)</span> または <span
+class="math inline">\(N/L\)</span> に減らすことができます。</p>
 <ul>
-<li><a href="https://ccrma.stanford.edu/~jos/sasp/Multirate_Noble_Identities.html">Multirate Noble Identities</a></li>
+<li><a
+href="https://ccrma.stanford.edu/~jos/sasp/Multirate_Noble_Identities.html">Multirate
+Noble Identities</a></li>
 </ul>
 <h2 id="使えるローパスフィルタの種類">使えるローパスフィルタの種類</h2>
-<p>ここでは楽器のシンセサイザの出力のダウンサンプリングが目的なので、ローパスフィルタだけについて見てきます。大まかに以下の 4 種類のローパスフィルタがダウンサンプリングに使えそうです。</p>
+<p>ここでは楽器のシンセサイザの出力のダウンサンプリングが目的なので、ローパスフィルタだけについて見てきます。大まかに以下の
+4 種類のローパスフィルタがダウンサンプリングに使えそうです。</p>
 <table>
+<colgroup>
+<col style="width: 51%" />
+<col style="width: 48%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th>種類</th>
@@ -452,9 +524,23 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 </tr>
 </tbody>
 </table>
-<p>FIR ポリフェイズは設計も実装も簡単ですが、ダウンサンプリングの倍率が大きくなるとフィルタを長くする必要が出てくるので遅くなります。設計には急峻な<a href="https://en.wikipedia.org/wiki/Roll-off">ロールオフ</a>を達成しやすい Remez アルゴリズムが適しています。窓関数法や最小二乗法は Remez に比べるとロールオフが緩やかになる傾向があります。 FIR の欠点は群遅延の大きさです。群遅延の大きさは、そのままレイテンシの大きさになります。</p>
-<p>IIR を直接計算する方法の利点は群遅延が小さいことです。またダウンサンプリングの倍率が高いときは FIR よりも計算が速くなる傾向があります。 IIR は線形位相でないという欠点がありますが、<a href="https://ptolemy.berkeley.edu/eecs20/week8/phase.html">人間の耳は位相に対する感度がよくないと言われている</a>ので、音に使うなら問題になりにくいと考えられます。設計にはロールオフが急峻な楕円フィルタが適しています。以下の表に古典的な IIR フィルタの特徴についてまとめています。</p>
+<p>FIR
+ポリフェイズは設計も実装も簡単ですが、ダウンサンプリングの倍率が大きくなるとフィルタを長くする必要が出てくるので遅くなります。設計には急峻な<a
+href="https://en.wikipedia.org/wiki/Roll-off">ロールオフ</a>を達成しやすい
+Remez アルゴリズムが適しています。窓関数法や最小二乗法は Remez
+に比べるとロールオフが緩やかになる傾向があります。 FIR
+の欠点は群遅延の大きさです。群遅延の大きさは、そのままレイテンシの大きさになります。</p>
+<p>IIR
+を直接計算する方法の利点は群遅延が小さいことです。またダウンサンプリングの倍率が高いときは
+FIR よりも計算が速くなる傾向があります。 IIR
+は線形位相でないという欠点がありますが、<a
+href="https://ptolemy.berkeley.edu/eecs20/week8/phase.html">人間の耳は位相に対する感度がよくないと言われている</a>ので、音に使うなら問題になりにくいと考えられます。設計にはロールオフが急峻な楕円フィルタが適しています。以下の表に古典的な
+IIR フィルタの特徴についてまとめています。</p>
 <table>
+<colgroup>
+<col style="width: 6%" />
+<col style="width: 93%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th>IIR の種類</th>
@@ -464,11 +550,15 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <tbody>
 <tr class="odd">
 <td>Butterworth</td>
-<td><a href="https://en.wikipedia.org/wiki/Ripple_(electrical)#Frequency-domain_ripple">リップル</a>無し。緩やかなロールオフ。<a href="https://en.wikipedia.org/wiki/Stopband">ストップバンド</a>は<a href="https://en.wikipedia.org/wiki/Monotonic_function">単調</a>に減衰。</td>
+<td><a
+href="https://en.wikipedia.org/wiki/Ripple_(electrical)#Frequency-domain_ripple">リップル</a>無し。緩やかなロールオフ。<a
+href="https://en.wikipedia.org/wiki/Stopband">ストップバンド</a>は<a
+href="https://en.wikipedia.org/wiki/Monotonic_function">単調</a>に減衰。</td>
 </tr>
 <tr class="even">
 <td>Chebyshev Type 1</td>
-<td><a href="https://en.wikipedia.org/wiki/Passband">パスバンド</a>にリップル。ストップバンドは単調に減衰。</td>
+<td><a
+href="https://en.wikipedia.org/wiki/Passband">パスバンド</a>にリップル。ストップバンドは単調に減衰。</td>
 </tr>
 <tr class="odd">
 <td>Chebyshev Type 2</td>
@@ -480,24 +570,58 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 </tr>
 </tbody>
 </table>
-<p>IIR ポリフェイズは設計方法がよくわからなかったので、ここでは実装していません。ほぼ線形位相 (approximately linear-phase) と非線形位相 (nonlinear-phase) の 2 種類があるようです。詳細は以下のリンクを参照してください。 2 倍のダウンサンプリングであれば MATLAB に <a href="https://www.mathworks.com/help/dsp/ref/dsp.iirhalfbanddecimator-system-object.html"><code>dsp.IIRHalfbandDecimator</code></a> という関数があります。</p>
+<p>IIR
+ポリフェイズは設計方法がよくわからなかったので、ここでは実装していません。ほぼ線形位相
+(approximately linear-phase) と非線形位相 (nonlinear-phase) の 2
+種類があるようです。詳細は以下のリンクを参照してください。 2
+倍のダウンサンプリングであれば MATLAB に <a
+href="https://www.mathworks.com/help/dsp/ref/dsp.iirhalfbanddecimator-system-object.html"><code>dsp.IIRHalfbandDecimator</code></a>
+という関数があります。</p>
 <ul>
-<li><a href="https://dsp.stackexchange.com/a/24078">infinite impulse response - Polyphase decomposition of IIR filter - Signal Processing Stack Exchange</a></li>
-<li><a href="https://ieeexplore.ieee.org/document/1086034">Recursive Nth-band digital filters- Part I: Design and properties - IEEE Journals &amp; Magazine</a></li>
-<li><a href="https://ieeexplore.ieee.org/document/1086035">Recursive Nth-band digital filters- Part II: Design of multistage decimators and interpolators - IEEE Journals &amp; Magazine</a></li>
-<li><a href="https://www.mathworks.com/help/dsp/ref/dsp.iirhalfbanddecimator-system-object.html">Decimate by factor of two using polyphase IIR - MATLAB</a></li>
-<li><a href="https://ieeexplore.ieee.org/abstract/document/709538">Allpass filter design and applications - IEEE Journals &amp; Magazine</a></li>
+<li><a href="https://dsp.stackexchange.com/a/24078">infinite impulse
+response - Polyphase decomposition of IIR filter - Signal Processing
+Stack Exchange</a></li>
+<li><a href="https://ieeexplore.ieee.org/document/1086034">Recursive
+Nth-band digital filters- Part I: Design and properties - IEEE Journals
+&amp; Magazine</a></li>
+<li><a href="https://ieeexplore.ieee.org/document/1086035">Recursive
+Nth-band digital filters- Part II: Design of multistage decimators and
+interpolators - IEEE Journals &amp; Magazine</a></li>
+<li><a
+href="https://www.mathworks.com/help/dsp/ref/dsp.iirhalfbanddecimator-system-object.html">Decimate
+by factor of two using polyphase IIR - MATLAB</a></li>
+<li><a
+href="https://ieeexplore.ieee.org/abstract/document/709538">Allpass
+filter design and applications - IEEE Journals &amp; Magazine</a></li>
 </ul>
 <h3 id="オーバーラップ">オーバーラップ</h3>
-<p>サンプリング周波数を <span class="math inline">\(f_s\)</span> 、ダウンサンプリングの倍率を <span class="math inline">\(M\)</span> とすると、ローパスフィルタのストップバンド周波数 <span class="math inline">\(f_\sigma\)</span> を <span class="math inline">\(\dfrac{f_s}{2M}\)</span> より小さくしてオーバーラップを無くすかどうかの選択肢が出てきます。多少はエイリアシングがあってもいいなら <span class="math inline">\(f_\sigma \geq \dfrac{f_s}{2M}\)</span> とすることで、フィルタのロールオフに余裕を持たせることができます。エイリアシングを完全に止めるなら <span class="math inline">\(f_\sigma &lt; \dfrac{f_s}{2M}\)</span> として帯域がオーバーラップしないようにします。</p>
+<p>サンプリング周波数を <span class="math inline">\(f_s\)</span>
+、ダウンサンプリングの倍率を <span class="math inline">\(M\)</span>
+とすると、ローパスフィルタのストップバンド周波数 <span
+class="math inline">\(f_\sigma\)</span> を <span
+class="math inline">\(\dfrac{f_s}{2M}\)</span>
+より小さくしてオーバーラップを無くすかどうかの選択肢が出てきます。多少はエイリアシングがあってもいいなら
+<span class="math inline">\(f_\sigma \geq \dfrac{f_s}{2M}\)</span>
+とすることで、フィルタのロールオフに余裕を持たせることができます。エイリアシングを完全に止めるなら
+<span class="math inline">\(f_\sigma &lt; \dfrac{f_s}{2M}\)</span>
+として帯域がオーバーラップしないようにします。</p>
 <figure>
 <img src="img/overwrapping.svg" alt="Plots of difference between overwrapping and non-overwrapping lowpass filter for anti-aliasing." style="padding-bottom: 12px;"/>
 </figure>
-<p>人間の可聴域の上限は 20000 Hz と言われています。なので、例えばサンプリング周波数が 48000 Hz なら可聴域の上限 20000 Hz からナイキスト周波数 24000 Hz まで 4000 Hz の区間はエイリアシングが出ていても普通の人には聞こえません。個人差がありますが 16000 Hz より高い音は聞こえにくくなる傾向があるので、パスバンド周波数を 20000 Hz より低く下げることも考えられます。以下のリンクの table 1 を参照してみてください。</p>
+<p>人間の可聴域の上限は 20000 Hz
+と言われています。なので、例えばサンプリング周波数が 48000 Hz
+なら可聴域の上限 20000 Hz からナイキスト周波数 24000 Hz まで 4000 Hz
+の区間はエイリアシングが出ていても普通の人には聞こえません。個人差がありますが
+16000 Hz より高い音は聞こえにくくなる傾向があるので、パスバンド周波数を
+20000 Hz より低く下げることも考えられます。以下のリンクの table 1
+を参照してみてください。</p>
 <ul>
-<li><a href="https://asa.scitation.org/doi/pdf/10.1121/1.2761883">Hearing thresholds for pure tones above 16kHz</a></li>
+<li><a
+href="https://asa.scitation.org/doi/pdf/10.1121/1.2761883">Hearing
+thresholds for pure tones above 16kHz</a></li>
 </ul>
-<p>計算量を節約するときは Butterworth フィルタのように振幅特性が単調に減衰するフィルタを使うことで低域に折り返しが入り込むことだけは防ぐという設計も考えられます。</p>
+<p>計算量を節約するときは Butterworth
+フィルタのように振幅特性が単調に減衰するフィルタを使うことで低域に折り返しが入り込むことだけは防ぐという設計も考えられます。</p>
 <figure>
 <img src="img/monotonic_vs_equiripple.svg" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
@@ -510,9 +634,12 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <li>フィルタの種類。</li>
 <li>ストップバンドでの低減。</li>
 </ul>
-<p>ここでは出力信号のサンプリング周波数を 48000 Hz で統一しています。</p>
-<p>以下のコードで <code>scipy.signal.remez</code> を使って設計します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<p>ここでは出力信号のサンプリング周波数を 48000 Hz
+で統一しています。</p>
+<p>以下のコードで <code>scipy.signal.remez</code>
+を使って設計します。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> decimationFir(length, oversample, cutoff, nyquist<span class="op">=</span><span class="fl">0.5</span>):</span>
@@ -524,11 +651,26 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    desired <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">0</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.remez(length, bands, desired, fs<span class="op">=</span>oversample)</span></code></pre></div>
 <p><code>length</code> はフィルタの長さ (タップ数) です。</p>
-<p><code>oversample</code> はオーバーサンプリングの倍率です。例えば <code>oversample = 2</code> のときは 1/2 倍のダウンサンプリングに使うフィルタを設計します。</p>
-<p><code>cutoff</code> はナイキスト周波数が 0.5 に正規化されているときのカットオフ周波数です。例えばサンプリング周波数 48000 Hz 、カットオフ周波数 20000 Hz のときは <code>cutoff</code> の値を 20000 / 48000 = 0.4 と設定できます。</p>
-<p>オーバーラップありのときは <code>nyquist</code> を 0.5 以上の値にします。以下のコードでオーバーラップあり、ストップバンドの低減が -60 dB のフィルタが設計できます。フィルタの長さが短くできるのがオーバーラップありの利点です。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> decimationFir(<span class="dv">68</span>, <span class="dv">4</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>)</span></code></pre></div>
-<p><code>oversample = 2, cutoff = 0.375</code> のときに、ストップバンドの低減が大まかに -60, -80, -100, -120 dB となる値を下の表にまとめました。 <code>oversample = 4</code> のときは下の表のフィルタの長さを 2 倍にすると同じ特性が得られます。同様に <code>oversample = 8</code> のときは 4 倍、 <code>oversample = 16</code> のときは 8 倍にすると同じ特性が得られます。</p>
+<p><code>oversample</code> はオーバーサンプリングの倍率です。例えば
+<code>oversample = 2</code> のときは 1/2
+倍のダウンサンプリングに使うフィルタを設計します。</p>
+<p><code>cutoff</code> はナイキスト周波数が 0.5
+に正規化されているときのカットオフ周波数です。例えばサンプリング周波数
+48000 Hz 、カットオフ周波数 20000 Hz のときは <code>cutoff</code> の値を
+20000 / 48000 = 0.4 と設定できます。</p>
+<p>オーバーラップありのときは <code>nyquist</code> を 0.5
+以上の値にします。以下のコードでオーバーラップあり、ストップバンドの低減が
+-60 dB
+のフィルタが設計できます。フィルタの長さが短くできるのがオーバーラップありの利点です。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> decimationFir(<span class="dv">68</span>, <span class="dv">4</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>)</span></code></pre></div>
+<p><code>oversample = 2, cutoff = 0.375</code>
+のときに、ストップバンドの低減が大まかに -60, -80, -100, -120 dB
+となる値を下の表にまとめました。 <code>oversample = 4</code>
+のときは下の表のフィルタの長さを 2
+倍にすると同じ特性が得られます。同様に <code>oversample = 8</code>
+のときは 4 倍、 <code>oversample = 16</code> のときは 8
+倍にすると同じ特性が得られます。</p>
 <table>
 <thead>
 <tr class="header">
@@ -555,15 +697,20 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 </tr>
 </tbody>
 </table>
-<p>例えば <code>oversample = 4</code> でストップバンドの低減が -60 dB のときは、フィルタの長さを 54 * 2 = 108 にすれば所望の特性が得られます。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> decimationFir(<span class="dv">108</span>, <span class="dv">4</span>, <span class="fl">0.375</span>)</span></code></pre></div>
+<p>例えば <code>oversample = 4</code> でストップバンドの低減が -60 dB
+のときは、フィルタの長さを 54 * 2 = 108
+にすれば所望の特性が得られます。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> decimationFir(<span class="dv">108</span>, <span class="dv">4</span>, <span class="fl">0.375</span>)</span></code></pre></div>
 <p>以下は上のコードで設計した FIR フィルタの振幅特性です。</p>
 <figure>
 <img src="img/fir_example.svg" alt="Plot of example fir filter amplitude response." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="c-による実装">C++ による実装</h3>
-<p>ポリフェイズ分解した FIR フィルタを用いた 1/2 倍のダウンサンプリングの実装例です。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<p>ポリフェイズ分解した FIR フィルタを用いた 1/2
+倍のダウンサンプリングの実装例です。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
@@ -665,26 +812,37 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>上の実装では <code>FirFilter</code> にリングバッファ <code>buf</code> を持たせて、入力サンプルごとに回しています。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> <span class="op">&amp;</span>bf <span class="op">=</span> buf<span class="op">[</span>ph<span class="op">];</span></span>
+<p>上の実装では <code>FirFilter</code> にリングバッファ <code>buf</code>
+を持たせて、入力サンプルごとに回しています。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> <span class="op">&amp;</span>bf <span class="op">=</span> buf<span class="op">[</span>ph<span class="op">];</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> bf<span class="op">.</span>size<span class="op">()</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> bf<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> bf<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">];</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>bf<span class="op">.</span>back<span class="op">()</span> <span class="op">=</span> input<span class="op">[</span>ph<span class="op">];</span></span></code></pre></div>
 <p>この回転は <code>std::rotate</code> に置き換えられます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> <span class="op">&amp;</span>bf <span class="op">=</span> buf<span class="op">[</span>ph<span class="op">];</span></span>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> <span class="op">&amp;</span>bf <span class="op">=</span> buf<span class="op">[</span>ph<span class="op">];</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>rotate<span class="op">(</span>buf<span class="op">.</span>begin<span class="op">(),</span> buf<span class="op">.</span>begin<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> buf<span class="op">.</span>end<span class="op">());</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>bf<span class="op">.</span>back<span class="op">()</span> <span class="op">=</span> input<span class="op">[</span>ph<span class="op">];</span></span></code></pre></div>
-<p>簡単なベンチマークを取ったところ、バッファの長さが 16 のときは <code>for</code> で回す実装が速いですが、バッファの長さが 32 を超えると <code>std::rotate</code> のほうが速かったです。この結果は環境によって変わると思われるので参考程度に留めておいてください。</p>
-<p>またリングバッファを回さず、事前に回しておいたフィルタ係数を畳み込む実装も考えられます。例えば <code>[0, 1, 2, 3]</code> というフィルタ係数が与えられたとき、以下のような配列を作ります。</p>
+<p>簡単なベンチマークを取ったところ、バッファの長さが 16 のときは
+<code>for</code> で回す実装が速いですが、バッファの長さが 32 を超えると
+<code>std::rotate</code>
+のほうが速かったです。この結果は環境によって変わると思われるので参考程度に留めておいてください。</p>
+<p>またリングバッファを回さず、事前に回しておいたフィルタ係数を畳み込む実装も考えられます。例えば
+<code>[0, 1, 2, 3]</code>
+というフィルタ係数が与えられたとき、以下のような配列を作ります。</p>
 <pre><code>[
   [0, 1, 2, 3],
   [1, 2, 3, 0],
   [2, 3, 0, 1],
   [3, 0, 1, 2],
 ]</code></pre>
-<p>畳み込む方向によっては内側の配列の前後が <code>[3, 2, 1, 0], [0, 3, 2, 1], ...</code> のように反転します。</p>
+<p>畳み込む方向によっては内側の配列の前後が
+<code>[3, 2, 1, 0], [0, 3, 2, 1], ...</code> のように反転します。</p>
 <p>私の環境では事前に回しておく実装のほうが速かったです。以下のリンクから実装が読めます。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L863">事前に FIR フィルタ係数を回しておく実装を読む (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L863">事前に
+FIR フィルタ係数を回しておく実装を読む (github.com)</a></li>
 </ul>
 <h2 id="iir-フィルタの設計と実装">IIR フィルタの設計と実装</h2>
 <p>まず以下の仕様を決めます。</p>
@@ -696,9 +854,11 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <li>ストップバンドでの低減。</li>
 <li>パスバンドのリップルの大きさ。</li>
 </ul>
-<p>ここでは出力信号のサンプリング周波数を 48000 Hz で統一しています。</p>
+<p>ここでは出力信号のサンプリング周波数を 48000 Hz
+で統一しています。</p>
 <p>オーバーラップ無しのときは楕円フィルタが適しています。以下のコードで楕円ローパスフィルタを設計できます。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> <span class="dv">12</span>        <span class="co"># フィルタの次数。</span></span>
@@ -709,7 +869,8 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> signal.ellip(</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    order, ripple, attenuation, cutoff, <span class="st">&quot;low&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>, fs<span class="op">=</span>oversample)</span></code></pre></div>
-<p>下の表に <code>ripple = 0.01</code> 、 <code>cutoff = 0.4</code> でオーバーサンプリングの倍率とストップバンドでの低減を変えたときにオーバーラップしない最小の次数をまとめています。</p>
+<p>下の表に <code>ripple = 0.01</code> 、 <code>cutoff = 0.4</code>
+でオーバーサンプリングの倍率とストップバンドでの低減を変えたときにオーバーラップしない最小の次数をまとめています。</p>
 <table>
 <thead>
 <tr class="header">
@@ -801,9 +962,14 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 </tr>
 </tbody>
 </table>
-<p><code>ripple = 0.01</code> 、 <code>cutoff = 0.4</code> のとき、次数 12 の楕円フィルタはいろいろなオーバーサンプリングの倍率に対応できて便利そうです。</p>
-<p>オーバーラップありのときは Butterworth フィルタも使えます。以下のコードで Butterworth ローパスフィルタを設計できます。</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<p><code>ripple = 0.01</code> 、 <code>cutoff = 0.4</code> のとき、次数
+12
+の楕円フィルタはいろいろなオーバーサンプリングの倍率に対応できて便利そうです。</p>
+<p>オーバーラップありのときは Butterworth
+フィルタも使えます。以下のコードで Butterworth
+ローパスフィルタを設計できます。</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> <span class="dv">8</span>        <span class="co"># フィルタの次数。</span></span>
@@ -811,14 +977,23 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>oversample <span class="op">=</span> <span class="dv">2</span>    <span class="co"># オーバーサンプリングの倍率。</span></span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> signal.butter(order, cutoff, <span class="st">&quot;low&quot;</span>, output<span class="op">=</span><span class="st">&quot;sos&quot;</span>, fs<span class="op">=</span>oversample)</span></code></pre></div>
-<p>以下は <code>cutoff = 0.4</code> の Butterworth フィルタを使ったときの一回目の折り返しの低減量のプロットです。 4 倍以上のオーバーサンプリングでは、次数が 1 増えるごとに折り返しが -6 dB 低減されます。 2 倍のときはバイリニア変換による周波数の歪みが大きいので、低減量の傾きが急になっています。サンプリング周波数 <span class="math inline">\(f_s\)</span> が 48000 Hz のとき <span class="math inline">\(f_s/4\)</span> は 12000 Hz 、 <span class="math inline">\(f_s/8\)</span> は 6000 Hz です。</p>
+<p>以下は <code>cutoff = 0.4</code> の Butterworth
+フィルタを使ったときの一回目の折り返しの低減量のプロットです。 4
+倍以上のオーバーサンプリングでは、次数が 1 増えるごとに折り返しが -6 dB
+低減されます。 2
+倍のときはバイリニア変換による周波数の歪みが大きいので、低減量の傾きが急になっています。サンプリング周波数
+<span class="math inline">\(f_s\)</span> が 48000 Hz のとき <span
+class="math inline">\(f_s/4\)</span> は 12000 Hz 、 <span
+class="math inline">\(f_s/8\)</span> は 6000 Hz です。</p>
 <figure>
 <img src="img/butter_aliasing_attenuation.png" alt="Plot of aliasing attenuation of Butterworth filter." style="padding-bottom: 12px;"/>
 </figure>
-<p><span class="math inline">\(f_s/8\)</span> で -60 dB の低減が欲しいときは 8 次の Butterworth フィルタで十分そうです。</p>
+<p><span class="math inline">\(f_s/8\)</span> で -60 dB
+の低減が欲しいときは 8 次の Butterworth フィルタで十分そうです。</p>
 <h3 id="c-による実装-1">C++ による実装</h3>
 <p>IIR フィルタを用いた 1/8 倍のダウンサンプリングの実装例です。</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
@@ -918,25 +1093,43 @@ E_1(z) = h(1) + h(3) z^{-1} + h(5) z^{-2} + \dots\\
 <span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p><code>SosEllipticDecimation8::co</code> がフィルタ係数です。フィルタ係数は 2 次セクション (second order sections, sos) 形式で、以下のように並んでいます。</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">{{</span></span>
+<p><code>SosEllipticDecimation8::co</code>
+がフィルタ係数です。フィルタ係数は 2 次セクション (second order
+sections, sos) 形式で、以下のように並んでいます。</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">{{</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>b0<span class="op">,</span> b1<span class="op">,</span> b2<span class="op">,</span> a1<span class="op">,</span> a2<span class="op">},</span> <span class="co">// Section 0</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="co">/*      ...     */</span><span class="op">},</span> <span class="co">// Section 1</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="co">/*      ...     */</span><span class="op">},</span> <span class="co">// Section 2</span></span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="op">}}</span></span></code></pre></div>
-<p><code>b0</code> 、 <code>b1</code> 、 <code>b2</code> は伝達関数の分母の係数、 <code>a1</code> 、 <code>a2</code> は伝達関数の分子の係数です。 <code>a0</code> はすべて 1 に正規化されているので計算を省いています。</p>
+<p><code>b0</code> 、 <code>b1</code> 、 <code>b2</code>
+は伝達関数の分母の係数、 <code>a1</code> 、 <code>a2</code>
+は伝達関数の分子の係数です。 <code>a0</code> はすべて 1
+に正規化されているので計算を省いています。</p>
 <p><span class="math display">\[
 H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 \]</span></p>
-<p><code>SOSFilter</code> は <a href="https://ccrma.stanford.edu/~jos/fp/Direct_Form_I.html">direct form I</a> の実装です。 Direct form II も試したのですが、今回の実装では direct form I よりも少し遅かったです。</p>
+<p><code>SOSFilter</code> は <a
+href="https://ccrma.stanford.edu/~jos/fp/Direct_Form_I.html">direct form
+I</a> の実装です。 Direct form II も試したのですが、今回の実装では
+direct form I よりも少し遅かったです。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L269">Direct form II の実装を読む (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L269">Direct
+form II の実装を読む (github.com)</a></li>
 </ul>
 <h2 id="マルチステージ">マルチステージ</h2>
-<p>サンプリング周波数の変換をマルチステージにするという手法があります。例えば 1/8 倍のダウンサンプリングであれば、1/2 倍と 1/4 倍の 2 ステージ、あるいは 1/2 倍を 3 回繰り返す 3 ステージ、などに分割することができます。</p>
-<p>IIR フィルタを用いた音のダウンサンプリングではマルチステージにすることでノイズを減らせます。試行錯誤の結果、 1 ステージ目に Butterworth のような単調減衰フィルタ、 2 ステージ目に<a href="https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html">ハーフバンド楕円フィルタ</a>を使うといいことがわかりました。</p>
-<p>以下はマルチステージ構成のブロック線図です。 <span class="math inline">\(M\)</span> はダウンサンプリングの倍率です。</p>
+<p>サンプリング周波数の変換をマルチステージにするという手法があります。例えば
+1/8 倍のダウンサンプリングであれば、1/2 倍と 1/4 倍の 2
+ステージ、あるいは 1/2 倍を 3 回繰り返す 3
+ステージ、などに分割することができます。</p>
+<p>IIR
+フィルタを用いた音のダウンサンプリングではマルチステージにすることでノイズを減らせます。試行錯誤の結果、
+1 ステージ目に Butterworth のような単調減衰フィルタ、 2 ステージ目に<a
+href="https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html">ハーフバンド楕円フィルタ</a>を使うといいことがわかりました。</p>
+<p>以下はマルチステージ構成のブロック線図です。 <span
+class="math inline">\(M\)</span> はダウンサンプリングの倍率です。</p>
 <figure>
 <img src="img/iir_multistage_blockdiagram.svg" alt="Image of a block diagram of IIR multi-stage downsampler." style="padding-bottom: 12px;"/>
 </figure>
@@ -944,24 +1137,52 @@ H(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 <figure>
 <img src="img/iir_multistage_frequency.svg" alt="Image of gain responses of lowpass filters inside of multi-stage donwsampler." style="padding-bottom: 12px;"/>
 </figure>
-<p><span class="math inline">\(f_s\)</span> を入力信号のサンプリング周波数、 <span class="math inline">\(f_1\)</span> を 1 ステージ目のデシメーション後のナイキスト周波数、 <span class="math inline">\(f_2\)</span> を 2 ステージ目のデシメーション後のナイキスト周波数とします。ハーフバンド楕円フィルタは 1/2 倍のダウンサンプリングにしか使えないので <span class="math inline">\(f_1 = 2 f_2\)</span> です。</p>
-<p>1 ステージ目の Butterworth は、周波数 <span class="math inline">\(3 f_2\)</span> で -140 dB 低減するように設計します。また 2 ステージ目のハーフバンド楕円フィルタもストップバンドで -140 dB 低減するように設計します。</p>
-<p>-140 dB というのは、およそ 24 bit の S/N 比です。より正確な値は <span class="math inline">\(20 \log_{10} 2^{-24} \approx -144.5 \mathrm{[dB]}\)</span> です。 24 bit という数字は <a href="https://docs.oracle.com/cd/E19957-01/806-3568/ncg_math.html">IEEE 754</a> の単精度浮動小数点数の仮数部のビット数から来ています。意外だったのですが、浮動小数点数の値が仮数部のビット数を下回るとノイズが乗ります。原因としてはフィルタの計算での丸め誤差などが考えられます。</p>
-<p>以下のリンク先に 1 ステージ目の Butterworth のフィルタ係数と、設計に使った Python 3 のコードがあります。</p>
+<p><span class="math inline">\(f_s\)</span>
+を入力信号のサンプリング周波数、 <span
+class="math inline">\(f_1\)</span> を 1
+ステージ目のデシメーション後のナイキスト周波数、 <span
+class="math inline">\(f_2\)</span> を 2
+ステージ目のデシメーション後のナイキスト周波数とします。ハーフバンド楕円フィルタは
+1/2 倍のダウンサンプリングにしか使えないので <span
+class="math inline">\(f_1 = 2 f_2\)</span> です。</p>
+<p>1 ステージ目の Butterworth は、周波数 <span class="math inline">\(3
+f_2\)</span> で -140 dB 低減するように設計します。また 2
+ステージ目のハーフバンド楕円フィルタもストップバンドで -140 dB
+低減するように設計します。</p>
+<p>-140 dB というのは、およそ 24 bit の S/N 比です。より正確な値は <span
+class="math inline">\(20 \log_{10} 2^{-24} \approx -144.5
+\mathrm{[dB]}\)</span> です。 24 bit という数字は <a
+href="https://docs.oracle.com/cd/E19957-01/806-3568/ncg_math.html">IEEE
+754</a>
+の単精度浮動小数点数の仮数部のビット数から来ています。意外だったのですが、浮動小数点数の値が仮数部のビット数を下回るとノイズが乗ります。原因としてはフィルタの計算での丸め誤差などが考えられます。</p>
+<p>以下のリンク先に 1 ステージ目の Butterworth
+のフィルタ係数と、設計に使った Python 3 のコードがあります。</p>
 <ul>
-<li><a href="https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5fa82111c7/common/dsp/multiratecoefficient.hpp#L24">1 ステージ目の Butterworth のフィルタ係数を見る (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5fa82111c7/common/dsp/multiratecoefficient.hpp#L24">1
+ステージ目の Butterworth のフィルタ係数を見る (github.com)</a></li>
 </ul>
 <p>ハーフバンド楕円の設計と実装については以下の記事を参照してください。</p>
 <ul>
-<li><a href="https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html">ハーフバンド楕円フィルタの実装</a></li>
+<li><a
+href="https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html">ハーフバンド楕円フィルタの実装</a></li>
 </ul>
 <h2 id="その他">その他</h2>
 <h3 id="適切なマルチステージの分割">適切なマルチステージの分割</h3>
-<p>適切なマルチステージの分割を求める手法として <a href="https://www.dsprelated.com/showarticle/1037.php">Ahmed Shahein さんによる記事</a>の参考文献に挙げられていた以下の論文があるようです。</p>
+<p>適切なマルチステージの分割を求める手法として <a
+href="https://www.dsprelated.com/showarticle/1037.php">Ahmed Shahein
+さんによる記事</a>の参考文献に挙げられていた以下の論文があるようです。</p>
 <ul>
-<li>“Optimizing Multistage Decimation and Interpolation Processing”, Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 10, NO. 4, APRIL 2003, pp. 107-110.</li>
-<li>“Optimizing Multistage Decimation and Interpolation Processing—Part II”, Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 14, NO. 1, JANUARY 2007, pp. 24-26.</li>
-<li><a href="https://www.dsprelated.com/showarticle/1037.php">Multi-Decimation Stage Filtering for Sigma Delta ADCs: Design and Optimization - AHMED SHAHEIN</a></li>
+<li>“Optimizing Multistage Decimation and Interpolation Processing”,
+Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 10, NO. 4, APRIL
+2003, pp. 107-110.</li>
+<li>“Optimizing Multistage Decimation and Interpolation Processing—Part
+II”, Mark W. Coffey, IEEE SIGNAL PROCESSING LETTERS, VOL. 14, NO. 1,
+JANUARY 2007, pp. 24-26.</li>
+<li><a
+href="https://www.dsprelated.com/showarticle/1037.php">Multi-Decimation
+Stage Filtering for Sigma Delta ADCs: Design and Optimization - AHMED
+SHAHEIN</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>

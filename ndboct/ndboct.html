@@ -5,33 +5,34 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2019-08-14" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>ndboct</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +53,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
 code span.an { color: #666666; font-style: italic; } /* Annotation */
@@ -324,9 +325,15 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
 </head>
 
 <body>
@@ -337,22 +344,28 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2019-08-14
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#n-dboctのスロープを持つフィルタ">n dB/octのスロープを持つフィルタ</a><ul>
-<li><a href="#逆離散フーリエ変換を使う方法">逆離散フーリエ変換を使う方法</a></li>
-<li><a href="#式を途中まで解く">式を途中まで解く</a></li>
-<li><a href="#参考サイト">参考サイト</a></li>
+<li><a href="#n-dboctのスロープを持つフィルタ"
+id="toc-n-dboctのスロープを持つフィルタ">n
+dB/octのスロープを持つフィルタ</a>
+<ul>
+<li><a href="#逆離散フーリエ変換を使う方法"
+id="toc-逆離散フーリエ変換を使う方法">逆離散フーリエ変換を使う方法</a></li>
+<li><a href="#式を途中まで解く"
+id="toc-式を途中まで解く">式を途中まで解く</a></li>
+<li><a href="#参考サイト" id="toc-参考サイト">参考サイト</a></li>
 </ul></li>
 </ul>
 </nav>
 </details>
 </header>
-<h1 id="n-dboctのスロープを持つフィルタ">n dB/octのスロープを持つフィルタ</h1>
+<h1 id="n-dboctのスロープを持つフィルタ">n
+dB/octのスロープを持つフィルタ</h1>
 <p>n dB/oct のスロープを持つフィルタを設計します。</p>
 <figure>
 <img src="img/fir_filter_n_dB_oct.png" alt="Image of the filter with n dB/oct slope." style="width: 300px; padding-bottom: 12px;"/>
@@ -371,88 +384,98 @@ M &amp;= {{\,n}\over{20}}\log_2 10
 \end{aligned}
 \]</span></p>
 <h2 id="逆離散フーリエ変換を使う方法">逆離散フーリエ変換を使う方法</h2>
-<p><a href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">逆離散フーリエ変換（IDFT）</a>を使って楽に設計します。</p>
+<p><a
+href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">逆離散フーリエ変換（IDFT）</a>を使って楽に設計します。</p>
 <p>コードを順番にPython3のインタープリタにコピペしていけば動作します。別ページでまとめて見ることもできます。</p>
 <ul>
-<li><a href="https://github.com/ryukau/filter_notes/blob/master/ndboct/ndboct.py">n dB/octのフィルタを作るコード (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/ndboct/ndboct.py">n
+dB/octのフィルタを作るコード (github.com)</a></li>
 </ul>
-<p><a href="https://www.scipy.org/">SciPy</a>、<a href="http://www.numpy.org/">NumPy</a>、<a href="https://matplotlib.org/tutorials/introductory/pyplot.html">Matplotlib</a>を import します。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> p</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="im">from</span> scipy <span class="im">import</span> signal</span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="im">from</span> scipy.fftpack <span class="im">import</span> <span class="op">*</span></span></code></pre></div>
+<p><a href="https://www.scipy.org/">SciPy</a>、<a
+href="http://www.numpy.org/">NumPy</a>、<a
+href="https://matplotlib.org/tutorials/introductory/pyplot.html">Matplotlib</a>を
+import します。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> p</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> signal</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.fftpack <span class="im">import</span> <span class="op">*</span></span></code></pre></div>
 <p>プロットに使う関数を用意します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">def</span> showResponse(sample_rate, sig):</span>
-<span id="cb2-2"><a href="#cb2-2"></a>    <span class="co"># sig の周波数成分を dB に変換してプロット。</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>    res <span class="op">=</span> fftshift(fft(sig, <span class="dv">2</span><span class="op">**</span><span class="dv">16</span>) <span class="op">/</span> (<span class="bu">len</span>(sig) <span class="op">/</span> <span class="fl">2.0</span>))</span>
-<span id="cb2-4"><a href="#cb2-4"></a>    gain <span class="op">=</span> np.array_split(</span>
-<span id="cb2-5"><a href="#cb2-5"></a>        <span class="dv">20</span> <span class="op">*</span> np.log10(<span class="bu">abs</span>(res <span class="op">/</span> np.<span class="bu">max</span>(<span class="bu">abs</span>(res)))),</span>
-<span id="cb2-6"><a href="#cb2-6"></a>        <span class="dv">2</span>,</span>
-<span id="cb2-7"><a href="#cb2-7"></a>    )[<span class="dv">0</span>][::<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb2-8"><a href="#cb2-8"></a>    freq <span class="op">=</span> getFreq(sample_rate, gain)</span>
-<span id="cb2-9"><a href="#cb2-9"></a>    p.plot(freq, gain)</span>
-<span id="cb2-10"><a href="#cb2-10"></a>    p.grid(which<span class="op">=</span><span class="st">&#39;both&#39;</span>)</span>
-<span id="cb2-11"><a href="#cb2-11"></a>    p.show()</span>
-<span id="cb2-12"><a href="#cb2-12"></a></span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="kw">def</span> getFreq(sample_rate, spec):</span>
-<span id="cb2-14"><a href="#cb2-14"></a>    <span class="co"># 出力はプロットのx軸に使う。</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a>    freq_step <span class="op">=</span> sample_rate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> (<span class="bu">len</span>(spec) <span class="op">-</span> <span class="dv">1</span>)</span>
-<span id="cb2-16"><a href="#cb2-16"></a>    <span class="cf">return</span> [i <span class="op">*</span> freq_step <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(spec))]</span>
-<span id="cb2-17"><a href="#cb2-17"></a></span>
-<span id="cb2-18"><a href="#cb2-18"></a><span class="kw">def</span> toDecibel(spec):</span>
-<span id="cb2-19"><a href="#cb2-19"></a>    <span class="cf">return</span> [<span class="dv">20</span> <span class="op">*</span> np.log10(v) <span class="cf">for</span> v <span class="kw">in</span> spec]</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> showResponse(sample_rate, sig):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># sig の周波数成分を dB に変換してプロット。</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> fftshift(fft(sig, <span class="dv">2</span><span class="op">**</span><span class="dv">16</span>) <span class="op">/</span> (<span class="bu">len</span>(sig) <span class="op">/</span> <span class="fl">2.0</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    gain <span class="op">=</span> np.array_split(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="dv">20</span> <span class="op">*</span> np.log10(<span class="bu">abs</span>(res <span class="op">/</span> np.<span class="bu">max</span>(<span class="bu">abs</span>(res)))),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="dv">2</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    )[<span class="dv">0</span>][::<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    freq <span class="op">=</span> getFreq(sample_rate, gain)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    p.plot(freq, gain)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    p.grid(which<span class="op">=</span><span class="st">&#39;both&#39;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    p.show()</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> getFreq(sample_rate, spec):</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 出力はプロットのx軸に使う。</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    freq_step <span class="op">=</span> sample_rate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> (<span class="bu">len</span>(spec) <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [i <span class="op">*</span> freq_step <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(spec))]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> toDecibel(spec):</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="dv">20</span> <span class="op">*</span> np.log10(v) <span class="cf">for</span> v <span class="kw">in</span> spec]</span></code></pre></div>
 <p>欲しい周波数特性を用意します。</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">def</span> makeFrequencySpecification(sample_rate, length, low, high, slope):</span>
-<span id="cb3-2"><a href="#cb3-2"></a>    <span class="co"># slope は負の値。単位は[dB/oct]。</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a>    <span class="co"># low, high は周波数[Hz]。</span></span>
-<span id="cb3-4"><a href="#cb3-4"></a>    <span class="co">#</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a>    <span class="co"># dB/oct を算出する式の解説。</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>    <span class="co"># https://femci.gsfc.nasa.gov/random/randomequations.html</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a>    <span class="co">#</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a>    <span class="co"># 6.020599913279624 = 20 * np.log10(2)</span></span>
-<span id="cb3-9"><a href="#cb3-9"></a>    <span class="co">#</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a>    <span class="bu">oct</span> <span class="op">=</span> (high <span class="op">/</span> low)<span class="op">**</span>(slope <span class="op">/</span> <span class="fl">6.020599913279624</span>)</span>
-<span id="cb3-11"><a href="#cb3-11"></a>    spec <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> length</span>
-<span id="cb3-12"><a href="#cb3-12"></a>    freq_step <span class="op">=</span> sample_rate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> (length <span class="op">-</span> <span class="dv">1</span>)</span>
-<span id="cb3-13"><a href="#cb3-13"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(spec)):</span>
-<span id="cb3-14"><a href="#cb3-14"></a>        freq <span class="op">=</span> i <span class="op">*</span> freq_step</span>
-<span id="cb3-15"><a href="#cb3-15"></a>        <span class="cf">if</span> freq <span class="op">&lt;=</span> low:</span>
-<span id="cb3-16"><a href="#cb3-16"></a>            spec[i] <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb3-17"><a href="#cb3-17"></a>        <span class="cf">elif</span> freq <span class="op">&gt;=</span> high:</span>
-<span id="cb3-18"><a href="#cb3-18"></a>            spec[i] <span class="op">=</span> <span class="bu">oct</span></span>
-<span id="cb3-19"><a href="#cb3-19"></a>        <span class="cf">else</span>:</span>
-<span id="cb3-20"><a href="#cb3-20"></a>            spec[i] <span class="op">=</span> (freq <span class="op">/</span> low)<span class="op">**</span>(slope <span class="op">/</span> <span class="fl">6.020599913279624</span>)</span>
-<span id="cb3-21"><a href="#cb3-21"></a>    <span class="cf">return</span> spec</span>
-<span id="cb3-22"><a href="#cb3-22"></a></span>
-<span id="cb3-23"><a href="#cb3-23"></a></span>
-<span id="cb3-24"><a href="#cb3-24"></a>sample_rate <span class="op">=</span> <span class="dv">44100</span></span>
-<span id="cb3-25"><a href="#cb3-25"></a>spec <span class="op">=</span> makeFrequencySpecification(sample_rate, <span class="dv">1024</span>, <span class="dv">100</span>, <span class="dv">10000</span>, <span class="dv">-10</span>)</span>
-<span id="cb3-26"><a href="#cb3-26"></a></span>
-<span id="cb3-27"><a href="#cb3-27"></a><span class="co"># 設計した特性をプロット。</span></span>
-<span id="cb3-28"><a href="#cb3-28"></a>spec_db <span class="op">=</span> toDecibel(spec)</span>
-<span id="cb3-29"><a href="#cb3-29"></a>freq <span class="op">=</span> getFreq(sample_rate, spec)</span>
-<span id="cb3-30"><a href="#cb3-30"></a></span>
-<span id="cb3-31"><a href="#cb3-31"></a>p.title(<span class="st">&#39;Specification&#39;</span>)</span>
-<span id="cb3-32"><a href="#cb3-32"></a>p.plot(freq, spec_db)</span>
-<span id="cb3-33"><a href="#cb3-33"></a>p.xscale(<span class="st">&#39;log&#39;</span>)</span>
-<span id="cb3-34"><a href="#cb3-34"></a>p.grid(which<span class="op">=</span><span class="st">&#39;both&#39;</span>)</span>
-<span id="cb3-35"><a href="#cb3-35"></a>p.show()</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> makeFrequencySpecification(sample_rate, length, low, high, slope):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># slope は負の値。単位は[dB/oct]。</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># low, high は周波数[Hz]。</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># dB/oct を算出する式の解説。</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># https://femci.gsfc.nasa.gov/random/randomequations.html</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 6.020599913279624 = 20 * np.log10(2)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">oct</span> <span class="op">=</span> (high <span class="op">/</span> low)<span class="op">**</span>(slope <span class="op">/</span> <span class="fl">6.020599913279624</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    spec <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> length</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    freq_step <span class="op">=</span> sample_rate <span class="op">/</span> <span class="dv">2</span> <span class="op">/</span> (length <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(spec)):</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        freq <span class="op">=</span> i <span class="op">*</span> freq_step</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> freq <span class="op">&lt;=</span> low:</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>            spec[i] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> freq <span class="op">&gt;=</span> high:</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>            spec[i] <span class="op">=</span> <span class="bu">oct</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>            spec[i] <span class="op">=</span> (freq <span class="op">/</span> low)<span class="op">**</span>(slope <span class="op">/</span> <span class="fl">6.020599913279624</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> spec</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>sample_rate <span class="op">=</span> <span class="dv">44100</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>spec <span class="op">=</span> makeFrequencySpecification(sample_rate, <span class="dv">1024</span>, <span class="dv">100</span>, <span class="dv">10000</span>, <span class="op">-</span><span class="dv">10</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 設計した特性をプロット。</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>spec_db <span class="op">=</span> toDecibel(spec)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>freq <span class="op">=</span> getFreq(sample_rate, spec)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>p.title(<span class="st">&#39;Specification&#39;</span>)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>p.plot(freq, spec_db)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>p.xscale(<span class="st">&#39;log&#39;</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>p.grid(which<span class="op">=</span><span class="st">&#39;both&#39;</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>p.show()</span></code></pre></div>
 <p>ここでは100Hzから10000Hz間において、-10dB/octの傾きで減衰する、窓長1024の特性を作りました。</p>
 <figure>
 <img src="img/n_dB_oct_spec.png" alt="Image of filter specification." style="width: 480px;"/>
 </figure>
 <p>フィルタ係数を出します。</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>filt <span class="op">=</span> fftshift(ifft(spec <span class="op">+</span> spec[::<span class="op">-</span><span class="dv">1</span>]))</span>
-<span id="cb4-2"><a href="#cb4-2"></a></span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="co"># フィルタ係数の見た目。</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a>p.title(<span class="st">&#39;Filter Coefficients&#39;</span>)</span>
-<span id="cb4-5"><a href="#cb4-5"></a>p.plot(filt)</span>
-<span id="cb4-6"><a href="#cb4-6"></a>p.show()</span>
-<span id="cb4-7"><a href="#cb4-7"></a></span>
-<span id="cb4-8"><a href="#cb4-8"></a><span class="co"># フィルタの周波数応答。</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a>p.title(<span class="st">&#39;Frequency Response of the filter&#39;</span>)</span>
-<span id="cb4-10"><a href="#cb4-10"></a>p.xscale(<span class="st">&#39;log&#39;</span>)</span>
-<span id="cb4-11"><a href="#cb4-11"></a>showResponse(sample_rate, filt)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>filt <span class="op">=</span> fftshift(ifft(spec <span class="op">+</span> spec[::<span class="op">-</span><span class="dv">1</span>]))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># フィルタ係数の見た目。</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>p.title(<span class="st">&#39;Filter Coefficients&#39;</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>p.plot(filt)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>p.show()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># フィルタの周波数応答。</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>p.title(<span class="st">&#39;Frequency Response of the filter&#39;</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>p.xscale(<span class="st">&#39;log&#39;</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>showResponse(sample_rate, filt)</span></code></pre></div>
 <p>フィルタ係数の見た目です。</p>
 <figure>
 <img src="img/n_dB_oct_cofficients.png" alt="Image of the filter coefficients." style="width: 480px;"/>
@@ -461,29 +484,33 @@ M &amp;= {{\,n}\over{20}}\log_2 10
 <figure>
 <img src="img/n_dB_oct_response.png" alt="Image of frequency response of the filter." style="width: 480px;"/>
 </figure>
-<p>不連続点を拡大すると<a href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">ギブス現象</a>が観察できます。</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>showResponse(sample_rate, filt)</span></code></pre></div>
+<p>不連続点を拡大すると<a
+href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">ギブス現象</a>が観察できます。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>showResponse(sample_rate, filt)</span></code></pre></div>
 <figure>
 <img src="img/n_dB_oct_response_gibbs.png" alt="Image of gibbs phenomenon." style="width: 593px;"/>
 </figure>
 <p>図の左は周波数軸が対数でないときのフィルタの周波数応答です。右上は低域側の不連続点、右下は高域側の不連続点を拡大したものです。</p>
 <p>フィルタができたので、ノイズを作ってかけてみます。</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># フィルタをノイズに適用。</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a>noise <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, sample_rate)</span>
-<span id="cb6-3"><a href="#cb6-3"></a>p.title(<span class="st">&#39;Before&#39;</span>)</span>
-<span id="cb6-4"><a href="#cb6-4"></a>p.xscale(<span class="st">&#39;log&#39;</span>)</span>
-<span id="cb6-5"><a href="#cb6-5"></a>showResponse(sample_rate, noise)</span>
-<span id="cb6-6"><a href="#cb6-6"></a></span>
-<span id="cb6-7"><a href="#cb6-7"></a>filtered <span class="op">=</span> signal.convolve(noise, filt, mode<span class="op">=</span><span class="st">&#39;same&#39;</span>)</span>
-<span id="cb6-8"><a href="#cb6-8"></a>p.title(<span class="st">&#39;After&#39;</span>)</span>
-<span id="cb6-9"><a href="#cb6-9"></a>p.xscale(<span class="st">&#39;log&#39;</span>)</span>
-<span id="cb6-10"><a href="#cb6-10"></a>showResponse(sample_rate, filtered)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># フィルタをノイズに適用。</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>noise <span class="op">=</span> np.random.uniform(<span class="op">-</span><span class="fl">1.0</span>, <span class="fl">1.0</span>, sample_rate)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>p.title(<span class="st">&#39;Before&#39;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>p.xscale(<span class="st">&#39;log&#39;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>showResponse(sample_rate, noise)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>filtered <span class="op">=</span> signal.convolve(noise, filt, mode<span class="op">=</span><span class="st">&#39;same&#39;</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>p.title(<span class="st">&#39;After&#39;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>p.xscale(<span class="st">&#39;log&#39;</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>showResponse(sample_rate, filtered)</span></code></pre></div>
 <p>フィルタをかける前とかけた後のスペクトラムです。</p>
 <figure>
 <img src="img/n_dB_oct_noise_and_filtered_response.png" alt="Image of frequency response of the filter." style="width: 612px;"/>
 </figure>
 <h2 id="式を途中まで解く">式を途中まで解く</h2>
-<p><a href="https://math.stackexchange.com/questions/935405/what-s-the-difference-between-analytical-and-numerical-approaches-to-problems">解析解</a>について調べます。</p>
+<p><a
+href="https://math.stackexchange.com/questions/935405/what-s-the-difference-between-analytical-and-numerical-approaches-to-problems">解析解</a>について調べます。</p>
 <p>問題を再掲します。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -498,24 +525,26 @@ A(\omega) &amp;=
 M &amp;= {{\,n}\over{20}}\log_2 10
 \end{aligned}
 \]</span></p>
-<p><span class="math inline">\(A(\omega)\)</span> を<a href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform#Inverse_transform">逆DTFT</a>の式に入れてMaximaで解きます。</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">/* Maxima */</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="cn">expintrep</span>: <span class="kw">true</span>;</span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="cn">expintexpand</span>: <span class="kw">true</span>;</span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="fu">declare</span>(<span class="cn">n</span>, <span class="cn">integer</span>, <span class="cn">M</span>, <span class="cn">real</span>, <span class="cn">l</span>, <span class="cn">real</span>, <span class="cn">h</span>, <span class="cn">real</span>);</span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</span>
-<span id="cb7-6"><a href="#cb7-6"></a></span>
-<span id="cb7-7"><a href="#cb7-7"></a><span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) := (<span class="cn">h</span> / <span class="cn">l</span>)**(<span class="cn">M</span>);</span>
-<span id="cb7-8"><a href="#cb7-8"></a></span>
-<span id="cb7-9"><a href="#cb7-9"></a><span class="cn">O</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">pi</span>, -<span class="cn">h</span>);</span>
-<span id="cb7-10"><a href="#cb7-10"></a><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</span>
-<span id="cb7-11"><a href="#cb7-11"></a><span class="cn">Q</span>: <span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">l</span>, <span class="cn">l</span>);</span>
-<span id="cb7-12"><a href="#cb7-12"></a><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</span>
-<span id="cb7-13"><a href="#cb7-13"></a><span class="cn">S</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">h</span>, <span class="cn">pi</span>);</span>
-<span id="cb7-14"><a href="#cb7-14"></a><span class="cn">answer</span>: <span class="fu">expand</span>(<span class="fu">demoivre</span>((<span class="cn">O</span> + <span class="cn">P</span> + <span class="cn">Q</span> + <span class="cn">R</span> + <span class="cn">S</span>) / (<span class="dv">2</span>*<span class="cn">pi</span>)));</span>
-<span id="cb7-15"><a href="#cb7-15"></a></span>
-<span id="cb7-16"><a href="#cb7-16"></a><span class="co">/* where */</span></span>
-<span id="cb7-17"><a href="#cb7-17"></a><span class="cn">M</span>: <span class="fu">log</span>(<span class="dv">10</span>)*<span class="cn">m</span>/<span class="dv">20</span>/<span class="fu">log</span>(<span class="dv">2</span>);</span></code></pre></div>
+<p><span class="math inline">\(A(\omega)\)</span> を<a
+href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform#Inverse_transform">逆DTFT</a>の式に入れてMaximaで解きます。</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* Maxima */</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cn">expintrep</span>: <span class="kw">true</span>;</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cn">expintexpand</span>: <span class="kw">true</span>;</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">declare</span>(<span class="cn">n</span>, <span class="cn">integer</span>, <span class="cn">M</span>, <span class="cn">real</span>, <span class="cn">l</span>, <span class="cn">real</span>, <span class="cn">h</span>, <span class="cn">real</span>);</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) := (<span class="cn">h</span> / <span class="cn">l</span>)**(<span class="cn">M</span>);</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="cn">O</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">pi</span>, -<span class="cn">h</span>);</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="cn">Q</span>: <span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">l</span>, <span class="cn">l</span>);</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="cn">S</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">h</span>, <span class="cn">pi</span>);</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="cn">answer</span>: <span class="fu">expand</span>(<span class="fu">demoivre</span>((<span class="cn">O</span> + <span class="cn">P</span> + <span class="cn">Q</span> + <span class="cn">R</span> + <span class="cn">S</span>) / (<span class="dv">2</span>*<span class="cn">pi</span>)));</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">/* where */</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="cn">M</span>: <span class="fu">log</span>(<span class="dv">10</span>)*<span class="cn">m</span>/<span class="dv">20</span>/<span class="fu">log</span>(<span class="dv">2</span>);</span></code></pre></div>
 <p><span class="math display">\[
 \begin{aligned}
 \frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
@@ -530,52 +559,72 @@ M &amp;= {{\,n}\over{20}}\log_2 10
 +{{h^{M}\,\sin \left(n\,\pi\right)}\over{l^{M}\,n\,\pi}}
 -{{h^{M}\,\sin \left(h\,n\right)}\over{l^{M}\,n\,\pi}}
 \\
-&amp;+{{i\,\left(-1\right)^{{{M}\over{2}}} n^{-M-1}}\over{2\,\pi\,l^{M}}}
-\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 , i\,l\,n\right)\Bigr)
+&amp;+{{i\,\left(-1\right)^{{{M}\over{2}}}
+n^{-M-1}}\over{2\,\pi\,l^{M}}}
+\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 ,
+i\,l\,n\right)\Bigr)
 \\
 &amp;+{{i\,\left(-i\right)^{-M}\,n^{-M-1}}\over{2\,\pi\,l^{M}}}
-\Bigl(\Gamma\left(M+1 , -i\,l\,n\right) - \Gamma\left(M+1 , -i\,h\,n\right)\Bigr)
+\Bigl(\Gamma\left(M+1 , -i\,l\,n\right) - \Gamma\left(M+1 ,
+-i\,h\,n\right)\Bigr)
 \end{aligned}
 \]</span></p>
-<p><span class="math inline">\(\Gamma(s, x)\)</span> は <a href="https://en.wikipedia.org/wiki/Incomplete_gamma_function#Definition">upper incomplete gamma function</a> です。</p>
+<p><span class="math inline">\(\Gamma(s, x)\)</span> は <a
+href="https://en.wikipedia.org/wiki/Incomplete_gamma_function#Definition">upper
+incomplete gamma function</a> です。</p>
 <p><span class="math display">\[
 \Gamma(s, x) = \int_{x}^{\infty} t^{s - 1} e^{-t} dt
 \]</span></p>
-<p><span class="math inline">\(\Gamma(s, x)\)</span> がどこから出てきたのかを確認するために、Maximaのコードで定義したP式とR式に注目します。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb8-1"><a href="#cb8-1"></a><span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) := (<span class="cn">h</span> / <span class="cn">l</span>)**(<span class="cn">M</span>);</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</span>
-<span id="cb8-4"><a href="#cb8-4"></a><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</span></code></pre></div>
+<p><span class="math inline">\(\Gamma(s, x)\)</span>
+がどこから出てきたのかを確認するために、Maximaのコードで定義したP式とR式に注目します。</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">h</span>) := (<span class="cn">h</span> / <span class="cn">l</span>)**(<span class="cn">M</span>);</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">assume</span>(<span class="cn">n</span> &gt; <span class="dv">0</span>, <span class="cn">l</span> &gt;= <span class="dv">0</span>, <span class="cn">l</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt;= <span class="dv">0</span>, <span class="cn">h</span> &lt;= <span class="cn">pi</span>, <span class="cn">h</span> &gt; <span class="cn">l</span>);</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cn">P</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, -<span class="cn">h</span>, -<span class="cn">l</span>);</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="cn">R</span>: <span class="fu">integrate</span>(<span class="cn">oct</span>(<span class="cn">m</span>, <span class="cn">l</span>, <span class="cn">omega</span>) * <span class="fu">exp</span>(<span class="va">%i</span>*<span class="cn">omega</span>*<span class="cn">n</span>), <span class="cn">omega</span>, <span class="cn">l</span>, <span class="cn">h</span>);</span></code></pre></div>
 <p><span class="math display">\[
 \begin{aligned}
 \int^{\pi}_{-\pi} A_P(\omega) e^{j\omega n} d\omega
 =
 &amp;{{i\,\left(-1\right)^{{{M}\over{2}}} n^{-M-1}}\over{2\,\pi\,l^{M}}}
-\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 , i\,l\,n\right)\Bigr)
+\Bigl(\Gamma\left(M+1 , i\,h\,n\right) - \Gamma\left(M+1 ,
+i\,l\,n\right)\Bigr)
 \\
 \int^{\pi}_{-\pi} A_R(\omega) e^{j\omega n} d\omega
 =
 &amp;{{i\,\left(-i\right)^{-M}\,n^{-M-1}}\over{2\,\pi\,l^{M}}}
-\Bigl(\Gamma\left(M+1 , -i\,l\,n\right) - \Gamma\left(M+1 , -i\,h\,n\right)\Bigr)
+\Bigl(\Gamma\left(M+1 , -i\,l\,n\right) - \Gamma\left(M+1 ,
+-i\,h\,n\right)\Bigr)
 \end{aligned}
 \]</span></p>
-<p>適当に <span class="math inline">\(\Gamma\left(M+1 , i\,h\,n\right)\)</span> を展開します。</p>
+<p>適当に <span class="math inline">\(\Gamma\left(M+1 ,
+i\,h\,n\right)\)</span> を展開します。</p>
 <p><span class="math display">\[
-\Gamma\left(M+1 , i\,h\,n\right) = \int_{i\,h\,n}^{\infty} t^{M} e^{-t} dt
+\Gamma\left(M+1 , i\,h\,n\right) = \int_{i\,h\,n}^{\infty} t^{M} e^{-t}
+dt
 \]</span></p>
-<p><a href="https://en.wikipedia.org/wiki/Line_integral#Complex_line_integral">複素数の線積分</a>に見えます。</p>
+<p><a
+href="https://en.wikipedia.org/wiki/Line_integral#Complex_line_integral">複素数の線積分</a>に見えます。</p>
 <h2 id="参考サイト">参考サイト</h2>
 <ul>
-<li><a href="http://maxima.sourceforge.net/docs/manual/maxima_11.html#declare">Maxima 5.41.0 Manual: 11. Maximas Database</a>
+<li><a
+href="http://maxima.sourceforge.net/docs/manual/maxima_11.html#declare">Maxima
+5.41.0 Manual: 11. Maximas Database</a>
 <ul>
 <li>Maxima の declare。</li>
 </ul></li>
-<li><a href="https://stackoverflow.com/questions/14291119/stop-maxima-from-asking-positive-negative-or-zero">Stop maxima from asking positive, negative or zero - Stack Overflow</a>
+<li><a
+href="https://stackoverflow.com/questions/14291119/stop-maxima-from-asking-positive-negative-or-zero">Stop
+maxima from asking positive, negative or zero - Stack Overflow</a>
 <ul>
 <li>Maxima の assume。</li>
 </ul></li>
-<li><a href="http://maxima.sourceforge.net/docs/manual/maxima_15.html">Maxima 5.41.0 Manual: 15. Special Functions</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Exponential_integral">Exponential integral - Wikipedia</a>
+<li><a
+href="http://maxima.sourceforge.net/docs/manual/maxima_15.html">Maxima
+5.41.0 Manual: 15. Special Functions</a></li>
+<li><a
+href="https://en.wikipedia.org/wiki/Exponential_integral">Exponential
+integral - Wikipedia</a>
 <ul>
 <li>Incomplete gamma function と関連。</li>
 </ul></li>

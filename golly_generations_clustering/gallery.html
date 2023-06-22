@@ -5,18 +5,19 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2018-11-29" />
+<meta name="dcterms.date" content="2023-06-22" />
 <title>gallery</title>
 
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css"
-integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"
-integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ"
-crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js"
-integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-onload="renderMathInElement(document.body);"></script>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
 
 <style>
 
@@ -263,6 +264,10 @@ select:hover {
 background-color: #ffffff;
 border: 2px solid #aaccff;
 }
+
+span.math.inline a {
+  color: #000000;
+}
 </style>
 
 </head>
@@ -275,42 +280,66 @@ border: 2px solid #aaccff;
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2018-11-29
+Update: 2023-06-22
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#プロットギャラリー">プロットギャラリー</a><ul>
-<li><a href="#elbow-method">Elbow Method</a><ul>
-<li><a href="#素朴なスペクトログラム">素朴なスペクトログラム</a></li>
-<li><a href="#正規化したスペクトログラム">正規化したスペクトログラム</a></li>
-<li><a href="#対数スペクトログラム">対数スペクトログラム</a></li>
-<li><a href="#mfcc">MFCC</a></li>
+<li><a href="#プロットギャラリー"
+id="toc-プロットギャラリー">プロットギャラリー</a>
+<ul>
+<li><a href="#elbow-method" id="toc-elbow-method">Elbow Method</a>
+<ul>
+<li><a href="#素朴なスペクトログラム"
+id="toc-素朴なスペクトログラム">素朴なスペクトログラム</a></li>
+<li><a href="#正規化したスペクトログラム"
+id="toc-正規化したスペクトログラム">正規化したスペクトログラム</a></li>
+<li><a href="#対数スペクトログラム"
+id="toc-対数スペクトログラム">対数スペクトログラム</a></li>
+<li><a href="#mfcc" id="toc-mfcc">MFCC</a></li>
 </ul></li>
-<li><a href="#t-sne">t-SNE</a><ul>
-<li><a href="#素朴なスペクトログラム-1">素朴なスペクトログラム</a></li>
-<li><a href="#正規化したスペクトログラム-1">正規化したスペクトログラム</a></li>
-<li><a href="#対数スペクトログラム-1">対数スペクトログラム</a></li>
-<li><a href="#mfcc-1">MFCC</a></li>
+<li><a href="#t-sne" id="toc-t-sne">t-SNE</a>
+<ul>
+<li><a href="#素朴なスペクトログラム-1"
+id="toc-素朴なスペクトログラム-1">素朴なスペクトログラム</a></li>
+<li><a href="#正規化したスペクトログラム-1"
+id="toc-正規化したスペクトログラム-1">正規化したスペクトログラム</a></li>
+<li><a href="#対数スペクトログラム-1"
+id="toc-対数スペクトログラム-1">対数スペクトログラム</a></li>
+<li><a href="#mfcc-1" id="toc-mfcc-1">MFCC</a></li>
 </ul></li>
-<li><a href="#中央値">中央値</a><ul>
-<li><a href="#素朴なスペクトログラム-2">素朴なスペクトログラム</a></li>
-<li><a href="#正規化したスペクトログラム-2">正規化したスペクトログラム</a></li>
-<li><a href="#対数スペクトログラム-2">対数スペクトログラム</a></li>
-<li><a href="#mfcc-2">MFCC</a></li>
+<li><a href="#中央値" id="toc-中央値">中央値</a>
+<ul>
+<li><a href="#素朴なスペクトログラム-2"
+id="toc-素朴なスペクトログラム-2">素朴なスペクトログラム</a></li>
+<li><a href="#正規化したスペクトログラム-2"
+id="toc-正規化したスペクトログラム-2">正規化したスペクトログラム</a></li>
+<li><a href="#対数スペクトログラム-2"
+id="toc-対数スペクトログラム-2">対数スペクトログラム</a></li>
+<li><a href="#mfcc-2" id="toc-mfcc-2">MFCC</a></li>
 </ul></li>
-<li><a href="#平均絶対誤差-mean-absolute-error">平均絶対誤差 (Mean Absolute Error)</a><ul>
-<li><a href="#素朴なスペクトログラム-3">素朴なスペクトログラム</a></li>
-<li><a href="#正規化したスペクトログラム-3">正規化したスペクトログラム</a></li>
-<li><a href="#対数スペクトログラム-3">対数スペクトログラム</a></li>
-<li><a href="#mfcc-3">MFCC</a></li>
+<li><a href="#平均絶対誤差-mean-absolute-error"
+id="toc-平均絶対誤差-mean-absolute-error">平均絶対誤差 (Mean Absolute
+Error)</a>
+<ul>
+<li><a href="#素朴なスペクトログラム-3"
+id="toc-素朴なスペクトログラム-3">素朴なスペクトログラム</a></li>
+<li><a href="#正規化したスペクトログラム-3"
+id="toc-正規化したスペクトログラム-3">正規化したスペクトログラム</a></li>
+<li><a href="#対数スペクトログラム-3"
+id="toc-対数スペクトログラム-3">対数スペクトログラム</a></li>
+<li><a href="#mfcc-3" id="toc-mfcc-3">MFCC</a></li>
 </ul></li>
-<li><a href="#耳で聞いた印象">耳で聞いた印象</a><ul>
-<li><a href="#素朴なスペクトログラム-4">素朴なスペクトログラム</a></li>
-<li><a href="#正規化したスペクトログラム-4">正規化したスペクトログラム</a></li>
-<li><a href="#対数スペクトログラム-4">対数スペクトログラム</a></li>
-<li><a href="#mfcc-4">MFCC</a></li>
+<li><a href="#耳で聞いた印象" id="toc-耳で聞いた印象">耳で聞いた印象</a>
+<ul>
+<li><a href="#素朴なスペクトログラム-4"
+id="toc-素朴なスペクトログラム-4">素朴なスペクトログラム</a></li>
+<li><a href="#正規化したスペクトログラム-4"
+id="toc-正規化したスペクトログラム-4">正規化したスペクトログラム</a></li>
+<li><a href="#対数スペクトログラム-4"
+id="toc-対数スペクトログラム-4">対数スペクトログラム</a></li>
+<li><a href="#mfcc-4" id="toc-mfcc-4">MFCC</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -319,8 +348,11 @@ Update: 2018-11-29
 </header>
 <h1 id="プロットギャラリー">プロットギャラリー</h1>
 <p>クラスタリングの特徴として試した、素朴なスペクトログラム、正規化したスペクトログラム、MFCCから得られたプロットです。</p>
-<p>素朴なスペクトログラムは <code>scipy.signal.spectrogram</code> をそのまま特徴に使っています。</p>
-<p>正規化したスペクトログラムはデータごとに <code>scipy.signal.spectrogram</code> の範囲を [0, 1] に正規化した特徴です。</p>
+<p>素朴なスペクトログラムは <code>scipy.signal.spectrogram</code>
+をそのまま特徴に使っています。</p>
+<p>正規化したスペクトログラムはデータごとに
+<code>scipy.signal.spectrogram</code> の範囲を [0, 1]
+に正規化した特徴です。</p>
 <p>MFCCは <code>python_speech_features.mfcc</code> を使っています。</p>
 <p>プロットは耳以外での評価が何かできないかと思ったので作りました。どれも曖昧でこれといった正解はありません。</p>
 <h2 id="elbow-method">Elbow Method</h2>
@@ -361,8 +393,12 @@ Update: 2018-11-29
 <img src="img/mfcc/tsne.png" alt="Image of t-SNE plot from mfcc features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
 <h2 id="中央値">中央値</h2>
-<p>中央値が表すスペクトログラムとMFCCです。各画像の縦が周波数で下から上に向かって大きくなります。横は時間で左から右に向かって進んでいます。明るい部分ほど係数が大きくなります。 <code>n</code> はクラスタに含まれるデータポイントの数を表しています。</p>
-<p>スペクトログラムによるクラスタはどれも <code>n=1</code> となる outlier がMFCCに比べると多いです。3つの内では正規化したスペクトログラムが一番良さそうに見えます。対数スペクトログラムは極端な値が出ているように見えます。素朴なスペクトログラムが真っ黒なのは一部の値が極端に大きいからです。</p>
+<p>中央値が表すスペクトログラムとMFCCです。各画像の縦が周波数で下から上に向かって大きくなります。横は時間で左から右に向かって進んでいます。明るい部分ほど係数が大きくなります。
+<code>n</code>
+はクラスタに含まれるデータポイントの数を表しています。</p>
+<p>スペクトログラムによるクラスタはどれも <code>n=1</code> となる
+outlier
+がMFCCに比べると多いです。3つの内では正規化したスペクトログラムが一番良さそうに見えます。対数スペクトログラムは極端な値が出ているように見えます。素朴なスペクトログラムが真っ黒なのは一部の値が極端に大きいからです。</p>
 <h3 id="素朴なスペクトログラム-2">素朴なスペクトログラム</h3>
 <figure>
 <img src="img/spectrogram_naive/centers.png" alt="Image of plot of K-Means centers from naive spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
@@ -379,7 +415,8 @@ Update: 2018-11-29
 <figure>
 <img src="img/mfcc/centers.png" alt="Image of plot of K-Means centers from mfcc features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="平均絶対誤差-mean-absolute-error">平均絶対誤差 (Mean Absolute Error)</h2>
+<h2 id="平均絶対誤差-mean-absolute-error">平均絶対誤差 (Mean Absolute
+Error)</h2>
 <p>中央値と、中央値が代表するクラスタ内のデータポイントとの平均絶対誤差です。</p>
 <h3 id="素朴なスペクトログラム-3">素朴なスペクトログラム</h3>
 <figure>
@@ -399,7 +436,8 @@ Update: 2018-11-29
 </figure>
 <h2 id="耳で聞いた印象">耳で聞いた印象</h2>
 <h3 id="素朴なスペクトログラム-4">素朴なスペクトログラム</h3>
-<p><code>n&lt;=20</code> のクラスタは似たような音が入っている。 <code>n</code> が大きいクラスタは何でもあり。</p>
+<p><code>n&lt;=20</code> のクラスタは似たような音が入っている。
+<code>n</code> が大きいクラスタは何でもあり。</p>
 <h3 id="正規化したスペクトログラム-4">正規化したスペクトログラム</h3>
 <ul>
 <li>0 はいろいろ混ざっていた。</li>
@@ -423,7 +461,8 @@ Update: 2018-11-29
 <li>1, 11, 21 はプチノイズ。</li>
 <li>4, 7, 16 はカラーノイズ。</li>
 <li>3, 8, 9, 12, 13, 14, 19, 29, 31, 35, 39 は高いトーン。</li>
-<li>17, 18, 30, 34, 36 は高めのカラーノイズと高めのトーンの中間のような音。</li>
+<li>17, 18, 30, 34, 36
+は高めのカラーノイズと高めのトーンの中間のような音。</li>
 <li>22, 23, 24, 26, 37, 38 はプチノイズと高いトーン。</li>
 <li>32, 33 は低めのカラーノイズと低めのトーンの中間のような音。</li>
 </ul>

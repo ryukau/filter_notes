@@ -15,8 +15,10 @@
 窓関数法 (windowed sinc) で使うローパスの線形位相 FIR フィルタ係数は以下の式で計算できます。
 
 $$
+\begin{equation}
 \mathtt{fir\_lp}(n) = \frac{\sin(2\pi n f_0 / f_s)}{\pi n},
 \quad n \in [-\mathtt{ceil}(N_{\mathrm{FIR}}/2), \mathtt{floor}(N_{\mathrm{FIR}}/2)].
+\end{equation}
 $$
 
 - $f_s$: サンプリング周波数 Hz 。
@@ -28,10 +30,11 @@ $$
 $$
 \begin{equation}
 w_n = \frac{\cosh \left[ \alpha \sqrt{1-\left(\dfrac{n-K}{N_{\mathrm{FIR}}}\right)^2} \right]}{\cosh(\alpha)}
+\label{Kaiser}
 \end{equation}
 $$
 
-式 1 は [Oboe の Resampler](https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWindow.h) で参照されている [dsp.stackexchange.com の回答](https://dsp.stackexchange.com/a/37720)に掲載されていました。 Windows の VC++ か、 Linux の GCC 環境なら、式 1 の近似を使わなくても C++ 17 で追加された `<cmath>` の [`cyl_bessel_k`](https://en.cppreference.com/w/cpp/numeric/special_functions) で直接 Kaiser 窓を実装することができます。しかし、この記事を書いた時点では Mac の Xcode (Apple Clang) では数学特殊関数が使えなかったので式 1 の近似を掲載しています。
+式 $\ref{Kaiser}$ は [Oboe の Resampler](https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWindow.h) で参照されている [dsp.stackexchange.com の回答](https://dsp.stackexchange.com/a/37720)に掲載されていました。 Windows の VC++ か、 Linux の GCC 環境なら、式 $\ref{Kaiser}$ の近似を使わなくても C++ 17 で追加された `<cmath>` の [`cyl_bessel_k`](https://en.cppreference.com/w/cpp/numeric/special_functions) で直接 Kaiser 窓を実装することができます。しかし、この記事を書いた時点では Mac の Xcode (Apple Clang) では数学特殊関数が使えなかったので式 $\ref{Kaiser}$ の近似を掲載しています。
 
 FIR の畳み込みの計算については「[レイテンシのない畳み込み](https://ryukau.github.io/filter_notes/convolution_without_latency/convolution_without_latency.html)」に詳細を掲載しています。ここでは省略します。
 
@@ -204,22 +207,26 @@ Linkwitz-Riley フィルタは、次数の同じ 2 つの Butterworth フィル�
 
 $$
 \begin{align}
-H_{\mathrm{c}}(z) = \frac{1}{1 - cz^{-1}} &= 1 + c z^{-1} + c^2 z^{-2} + c^3 z^{-3} \dots \\
+H_{\mathrm{c}}(z) = \frac{1}{1 - cz^{-1}} &= 1 + c z^{-1} + c^2 z^{-2} + c^3 z^{-3} \dots
+\label{LR-FIR-expanded}
+\\
 &= (1 + cz^{-1})(1 + c^2 z^{-2})(1 + c^4 z^{-4})(1 + c^8 z^{-8}) \dots
+\label{LR-FIR-factorized}
 \end{align}
 $$
 
-何をしているのかというと、 $\dfrac{1}{1 - cz^{-1}}$ という IIR フィルタの伝達関数を式 7 でインパルス応答に変形して、式 8 で多項式の因数分解を行っています。式 7 の IIR (無限インパルス応答) を適当に打ち切れば FIR フィルタとして計算できます。それだけだと嬉しくありませんが、式 8 のように因数分解することで計算量を圧縮するというのがアイデアです。
+何をしているのかというと、 $\dfrac{1}{1 - cz^{-1}}$ という IIR フィルタの伝達関数を式 $\ref{LR-FIR-expanded}$ でインパルス応答に変形して、式 $\ref{LR-FIR-factorized}$ で多項式の因数分解を行っています。式 $\ref{LR-FIR-expanded}$ の IIR (無限インパルス応答) を適当に打ち切れば FIR フィルタとして計算できます。それだけだと嬉しくありませんが、式 $\ref{LR-FIR-factorized}$ のように因数分解することで計算量を圧縮するというのがアイデアです。
 
-時間反転を行うときは式 8 の $(1 + c^n z^{-n})$ を $(c^n + z^{-n})$ に置き換えます。
+時間反転を行うときは式 $\ref{LR-FIR-factorized}$ の $(1 + c^n z^{-n})$ を $(c^n + z^{-n})$ に置き換えます。
 
 $$
 \begin{equation}
 \mathrm{reverse}(H_{\mathrm{c}}(z)) = (c + z^{-1})(c^2 + z^{-2})(c^4 + z^{-4})(c^8 + z^{-8}) \dots
+\label{LR-FIR-factorized-reversed}
 \end{equation}
 $$
 
-以下は式 8, 9 で示された 1 次の複素数フィルタの FIR 近似のブロック線図です。
+以下は式 $\ref{LR-FIR-factorized}, \ref{LR-FIR-factorized-reversed}$ で示された 1 次の複素数フィルタの FIR 近似のブロック線図です。
 
 <figure>
 <img src="img/complex_1pole.svg" alt="Block diagram of complex 1-pole filter. Time forward and time reversed variants are shown." style="padding-bottom: 12px;"/>
@@ -282,6 +289,7 @@ $$
 \begin{align}
 H_{\mathrm{Butter.} N}(z) &= G \prod_{k=1}^{N/2} \frac{1 + 2 z^{-1} + z^{-2}}{1 - 2 \mathrm{Re}(p_k) z^{-1} + |p_k|^2 z^{-2}}, \\
 G &= \prod_{k=1}^{N/2} \frac{1 - 2 \mathrm{Re}(p_k) + |p_k|^2}{4}.
+\label{allpole-sos-gain}
 \end{align}
 $$
 
@@ -307,7 +315,7 @@ $$
 g = G^{\frac{1}{N/2}}.
 $$
 
-式 15 を変形して 2 次セクションごとに適切なゲインを設定することもできますが、保持する変数が増えます。
+式 \ref{allpole-sos-gain} を変形して 2 次セクションごとに適切なゲインを設定することもできますが、保持する変数が増えます。
 
 ここまでをまとめると以下のブロック線図となります。フィルタは線形なので $g$ の位置を `Output` の直前に動かしても動作します。
 
