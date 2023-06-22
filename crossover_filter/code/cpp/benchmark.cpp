@@ -174,10 +174,41 @@ public:
   }
 };
 
-template<typename Sample> class ComplexIIR8Stage {
-public:
-  static constexpr size_t stage = 8;
+template<typename Sample, size_t fullStage, size_t recStage> struct ComplexIIRDelay;
 
+template<typename Sample, size_t fullStage> struct ComplexIIRDelay<Sample, fullStage, 0> {
+  void reset() {}
+
+  using C = std::complex<Sample>;
+  inline C process1PoleForward(C x0, const std::array<C, fullStage> &) { return x0; }
+  inline C process1PoleReversed(C x0, const std::array<C, fullStage> &) { return x0; }
+};
+
+template<typename Sample, size_t fullStage, size_t recStage> struct ComplexIIRDelay {
+  static constexpr size_t index = fullStage - recStage;
+  FixedIntDelay<std::complex<Sample>, size_t(1) << index> delay;
+  ComplexIIRDelay<Sample, fullStage, recStage - 1> recursion;
+
+  void reset()
+  {
+    delay.reset();
+    recursion.reset();
+  }
+
+  inline std::complex<Sample> process1PoleForward(
+    std::complex<Sample> x0, const std::array<std::complex<Sample>, fullStage> &poles)
+  {
+    return recursion.process1PoleForward(x0 + poles[index] * delay.process(x0), poles);
+  }
+
+  inline std::complex<Sample> process1PoleReversed(
+    std::complex<Sample> x0, const std::array<std::complex<Sample>, fullStage> &poles)
+  {
+    return recursion.process1PoleReversed(poles[index] * x0 + delay.process(x0), poles);
+  }
+};
+
+template<typename Sample, size_t stage = 8> class ComplexIIR {
 private:
   static constexpr size_t nPoles = stage - 1;
 
@@ -185,25 +216,13 @@ private:
   std::array<std::complex<Sample>, stage> poles;
 
   std::complex<Sample> x1 = 0;
-  FixedIntDelay<std::complex<Sample>, 2> delay1;
-  FixedIntDelay<std::complex<Sample>, 4> delay2;
-  FixedIntDelay<std::complex<Sample>, 8> delay3;
-  FixedIntDelay<std::complex<Sample>, 16> delay4;
-  FixedIntDelay<std::complex<Sample>, 32> delay5;
-  FixedIntDelay<std::complex<Sample>, 64> delay6;
-  FixedIntDelay<std::complex<Sample>, 128> delay7;
+  ComplexIIRDelay<Sample, stage, stage - 1> delay;
 
 public:
   void reset()
   {
     x1 = 0;
-    delay1.reset();
-    delay2.reset();
-    delay3.reset();
-    delay4.reset();
-    delay5.reset();
-    delay6.reset();
-    delay7.reset();
+    delay.reset();
   }
 
   void prepare(std::complex<Sample> pole)
@@ -219,32 +238,14 @@ public:
   {
     std::complex<Sample> sig = x0 + poles[0] * x1;
     x1 = x0;
-
-    sig += poles[1] * delay1.process(sig);
-    sig += poles[2] * delay2.process(sig);
-    sig += poles[3] * delay3.process(sig);
-    sig += poles[4] * delay4.process(sig);
-    sig += poles[5] * delay5.process(sig);
-    sig += poles[6] * delay6.process(sig);
-    sig += poles[7] * delay7.process(sig);
-
-    return sig;
+    return delay.process1PoleForward(sig, poles);
   }
 
   std::complex<Sample> process1PoleReversed(Sample x0)
   {
     std::complex<Sample> sig = poles[0] * x0 + x1;
     x1 = x0;
-
-    sig = poles[1] * sig + delay1.process(sig);
-    sig = poles[2] * sig + delay2.process(sig);
-    sig = poles[3] * sig + delay3.process(sig);
-    sig = poles[4] * sig + delay4.process(sig);
-    sig = poles[5] * sig + delay5.process(sig);
-    sig = poles[6] * sig + delay6.process(sig);
-    sig = poles[7] * sig + delay7.process(sig);
-
-    return sig;
+    return delay.process1PoleReversed(sig, poles);
   }
 
   Sample process2PoleForward(Sample x0)
@@ -260,12 +261,12 @@ public:
   }
 };
 
-template<typename Sample, size_t order> class LinkwitzRileyFIR {
+template<typename Sample, size_t order, size_t stage = 8> class LinkwitzRileyFIR {
 private:
   static constexpr size_t nSection = order / 4;
 
-  std::array<ComplexIIR8Stage<Sample>, nSection> reverse;
-  std::array<ComplexIIR8Stage<Sample>, nSection> forward;
+  std::array<ComplexIIR<Sample, stage>, nSection> reverse;
+  std::array<ComplexIIR<Sample, stage>, nSection> forward;
 
   std::array<Sample, nSection> u1{};
   std::array<Sample, nSection> u2{};
@@ -275,8 +276,7 @@ private:
   Sample gain = Sample(1);
 
 public:
-  static constexpr size_t latency
-    = nSection * (size_t(1) << (ComplexIIR8Stage<Sample>::stage)) + 1;
+  static constexpr size_t latency = nSection * (size_t(1) << stage) + 1;
 
   LinkwitzRileyFIR() { static_assert(order % 4 == 0 && order >= 4); }
 
@@ -330,10 +330,10 @@ public:
   }
 };
 
-template<typename Sample, size_t order> class LinkwitzRileyFIR2Band4n {
+template<typename Sample, size_t order, size_t stage = 8> class LinkwitzRileyFIR2Band4n {
 private:
-  LinkwitzRileyFIR<Sample, order> lowpass;
-  FixedIntDelay<Sample, LinkwitzRileyFIR<Sample, order>::latency> highpassDelay;
+  LinkwitzRileyFIR<Sample, order, stage> lowpass;
+  FixedIntDelay<Sample, LinkwitzRileyFIR<Sample, order, stage>::latency> highpassDelay;
 
 public:
   const std::string name{"LinkwitzRileyFIR2Band4n"};
@@ -493,7 +493,7 @@ int main()
 
   std::cout << std::format(ROW_STR, "Name", "Elapsed [ms]");
   text += test2band<LinkwitzRileyIIR2Band4n<Float, 4>, Float>();
-  text += test2band<LinkwitzRileyFIR2Band4n<Float, 4>, Float>();
+  text += test2band<LinkwitzRileyFIR2Band4n<Float, 4, 8>, Float>();
   text += test2band<WindowedFIR2Band<Float, 255>, Float>();
 
   text.pop_back();
