@@ -103,19 +103,23 @@ private:
   Sample y1 = 0;
 
 public:
-  void reset() {
+  void reset()
+  {
     x1 = 0;
     y1 = 0;
   }
 
-  void setCutoff(Sample sampleRate, Sample cutoffHz) {
+  void setCutoff(Sample sampleRate, Sample cutoffHz)
+  {
     constexpr Sample pi = std::numbers::pi_v<Sample>;
-    auto a0 = Sample(1) + Sample(1) / std::tan(pi * cutoffHz / sampleRate);
+    auto k = std::tan(pi * cutoffHz / sampleRate);
+    auto a0 = Sample(1) + Sample(1) / k;
     bn = Sample(1) / a0;
     a1 = (k - Sample(1)) / a0; // Negated.
   }
 
-  Sample process(Sample x0) {
+  Sample process(Sample x0)
+  {
     y0 = bn * (x0 + x1) + a1 * y1;
     x1 = x0;
     return y1 = y0;

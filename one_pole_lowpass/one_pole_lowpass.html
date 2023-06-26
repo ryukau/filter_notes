@@ -469,24 +469,28 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  Sample y1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    y1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setCutoff<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> Sample pi <span class="op">=</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> a0 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="bu">std::</span>tan<span class="op">(</span>pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">);</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    bn <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> a0<span class="op">;</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> <span class="op">(</span>k <span class="op">-</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="op">/</span> a0<span class="op">;</span> <span class="co">// Negated.</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample x0<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    y0 <span class="op">=</span> bn <span class="op">*</span> <span class="op">(</span>x0 <span class="op">+</span> x1<span class="op">)</span> <span class="op">+</span> a1 <span class="op">*</span> y1<span class="op">;</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0<span class="op">;</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y1 <span class="op">=</span> y0<span class="op">;</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    y1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setCutoff<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> Sample pi <span class="op">=</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> k <span class="op">=</span> <span class="bu">std::</span>tan<span class="op">(</span>pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">);</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> a0 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> k<span class="op">;</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    bn <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> a0<span class="op">;</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> <span class="op">(</span>k <span class="op">-</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="op">/</span> a0<span class="op">;</span> <span class="co">// Negated.</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample x0<span class="op">)</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    y0 <span class="op">=</span> bn <span class="op">*</span> <span class="op">(</span>x0 <span class="op">+</span> x1<span class="op">)</span> <span class="op">+</span> a1 <span class="op">*</span> y1<span class="op">;</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0<span class="op">;</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y1 <span class="op">=</span> y0<span class="op">;</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <h2 id="その他">その他</h2>
 <h3 id="ema-フィルタの-sos">EMA フィルタの SOS</h3>
 <p>以下は EMA フィルタの伝達関数です。</p>
