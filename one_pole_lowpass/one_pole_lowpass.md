@@ -112,8 +112,8 @@ public:
   void setCutoff(Sample sampleRate, Sample cutoffHz)
   {
     constexpr auto pi = std::numbers::pi_v<Sample>;
-    auto k = std::tan(pi * cutoffHz / sampleRate);
-    auto a0 = Sample(1) + Sample(1) / k;
+    auto k = Sample(1) / std::tan(pi * cutoffHz / sampleRate);
+    auto a0 = Sample(1) + k;
     bn = Sample(1) / a0;
     a1 = (k - Sample(1)) / a0; // Negated.
   }
@@ -174,7 +174,7 @@ C++ で実装します。
 template<typename Sample> class BLTHP1 {
 private:
   Sample b0 = 1;
-  Sample a1 = -1; // Negated.
+  Sample a1 = 1;
   Sample x1 = 0;
   Sample y1 = 0;
 
@@ -188,15 +188,15 @@ public:
   void setCutoff(Sample sampleRate, Sample cutoffHz)
   {
     constexpr auto pi = std::numbers::pi_v<Sample>;
-    auto k = std::tan(pi * cutoffHz / sampleRate);
+    auto k = Sample(1) / std::tan(pi * cutoffHz / sampleRate);
     auto a0 = Sample(1) + k;
-    b0 = Sample(1) / a0;
-    a1 = (k - Sample(1)) / a0; // Negated.
+    b0 = k / a0;
+    a1 = (Sample(1) - k) / a0;
   }
 
   Sample process(Sample x0)
   {
-    auto y0 = b0 * (x0 - x1) + a1 * y1;
+    auto y0 = b0 * (x0 - x1) - a1 * y1;
     x1 = x0;
     return y1 = y0;
   }
