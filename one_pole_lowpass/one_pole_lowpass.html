@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-26" />
+<meta name="dcterms.date" content="2023-06-30" />
 <title>one_pole_lowpass</title>
 
 <!-- MathJax -->
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-26
+Update: 2023-06-30
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -357,6 +357,7 @@ id="toc-次ローパスのバイリニア変換">1 次ローパスのバイリ�
 id="toc-ナイキスト周波数でのゲイン">ナイキスト周波数でのゲイン</a></li>
 <li><a href="#c-による実装" id="toc-c-による実装">C++
 による実装</a></li>
+<li><a href="#ハイパス" id="toc-ハイパス">ハイパス</a></li>
 <li><a href="#その他" id="toc-その他">その他</a>
 <ul>
 <li><a href="#ema-フィルタの-sos" id="toc-ema-フィルタの-sos">EMA
@@ -365,6 +366,7 @@ id="toc-ナイキスト周波数でのゲイン">ナイキスト周波数での�
 id="toc-プロットに使ったコード">プロットに使ったコード</a></li>
 </ul></li>
 <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -403,7 +405,9 @@ class="math inline">\(k\)</span> の計算式です。</p>
 <p><span class="math display">\[
 k = \frac{1}{\tan(\pi f_c / f_s)}
 \]</span></p>
-<p>Python 3 で実装します。</p>
+<p>Python 3 で実装します。 <code>sos</code> は <code>scipy.signal</code>
+で使われる 2 次セクション (second order sections)
+の形式のフィルタ係数です。</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -477,7 +481,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setCutoff<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span></span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> Sample pi <span class="op">=</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> pi <span class="op">=</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> k <span class="op">=</span> <span class="bu">std::</span>tan<span class="op">(</span>pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">);</span></span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> a0 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> k<span class="op">;</span></span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    bn <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> a0<span class="op">;</span></span>
@@ -486,11 +490,75 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample x0<span class="op">)</span></span>
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    y0 <span class="op">=</span> bn <span class="op">*</span> <span class="op">(</span>x0 <span class="op">+</span> x1<span class="op">)</span> <span class="op">+</span> a1 <span class="op">*</span> y1<span class="op">;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> y0 <span class="op">=</span> bn <span class="op">*</span> <span class="op">(</span>x0 <span class="op">+</span> x1<span class="op">)</span> <span class="op">+</span> a1 <span class="op">*</span> y1<span class="op">;</span></span>
 <span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0<span class="op">;</span></span>
 <span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y1 <span class="op">=</span> y0<span class="op">;</span></span>
 <span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h2 id="ハイパス">ハイパス</h2>
+<p>以下は 1 次ハイパスの連続系での伝達関数です。</p>
+<p><span class="math display">\[
+H(s) = \frac{s/\omega_c}{1 + s/\omega_c} = \frac{k s}{1 + k s}
+\]</span></p>
+<p>以下は簡略化したバイリニア変換の式です。</p>
+<p><span class="math display">\[
+s = \frac{1-z^{-1}}{1+z^{-1}}
+\]</span></p>
+<p>バイリニア変換の式を <span class="math inline">\(H(s)\)</span>
+に代入します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+H(z)
+&amp;= \frac{k \frac{1-z^{-1}}{1+z^{-1}}}{1 + k
+\frac{1-z^{-1}}{1+z^{-1}}} \\
+&amp;= \frac{k - k z^{-1}}{1 + z^{-1} + k - k z^{-1}} \\
+&amp;= \frac{k - k z^{-1}}{(1 + k) + (1 - k) z^{-1}} \\
+\end{aligned}
+\]</span></p>
+<p>Python 3 で実装します。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> np.tan(np.pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>a0 <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> k</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>b0 <span class="op">=</span> k <span class="op">/</span> a0</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>b1 <span class="op">=</span> <span class="op">-</span>b0</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>a1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> k) <span class="op">/</span> a0</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>sos <span class="op">=</span> [[b0, b1, <span class="dv">0</span>, <span class="dv">1</span>, a1, <span class="dv">0</span>]]</span></code></pre></div>
+<p>以下はバイリニア変換による 1 次ハイパスの周波数応答です。</p>
+<figure>
+<img src="img/blt_one_pole_highpass.svg" alt="Plot of frequency response of bilinear transformed 1-pole highpass filter." style="padding-bottom: 12px;"/>
+</figure>
+<p>C++ で実装します。</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> BLTHP1 <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  Sample b0 <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  Sample a1 <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span> <span class="co">// Negated.</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  Sample x1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  Sample y1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    y1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setCutoff<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> pi <span class="op">=</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> k <span class="op">=</span> <span class="bu">std::</span>tan<span class="op">(</span>pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">);</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> a0 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> k<span class="op">;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> a0<span class="op">;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    a1 <span class="op">=</span> <span class="op">(</span>k <span class="op">-</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">))</span> <span class="op">/</span> a0<span class="op">;</span> <span class="co">// Negated.</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample x0<span class="op">)</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> y0 <span class="op">=</span> b0 <span class="op">*</span> <span class="op">(</span>x0 <span class="op">-</span> x1<span class="op">)</span> <span class="op">+</span> a1 <span class="op">*</span> y1<span class="op">;</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0<span class="op">;</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y1 <span class="op">=</span> y0<span class="op">;</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <h2 id="その他">その他</h2>
 <h3 id="ema-フィルタの-sos">EMA フィルタの SOS</h3>
 <p>以下は EMA フィルタの伝達関数です。</p>
@@ -503,11 +571,25 @@ y &amp;= 1 - \cos(2 \pi f_c / f_s).
 \]</span></p>
 <p>以下は <code>scipy.signal</code> の sos 形式で EMA
 フィルタを設計するコードです。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> getEMASos(sampleRate, cutoffHz):</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    kp <span class="op">=</span> np.sqrt(y <span class="op">*</span> y <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> y) <span class="op">-</span> y</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[kp, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, kp <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> getEMASos(sampleRate, cutoffHz):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    kp <span class="op">=</span> np.sqrt(y <span class="op">*</span> y <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> y) <span class="op">-</span> y</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[kp, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, kp <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>]]</span></code></pre></div>
+<p>ハイパスは入力からローパスを減算すれば得られます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+H_{\mathrm{HP}}(z) &amp;= 1 - H(z) \\
+&amp;= 1 - \frac{k_p}{1 + (k_p - 1) z^{-1}} \\
+&amp;= \frac{(1 - k_p) + (k_p - 1) z^{-1}}{1 + (k_p - 1) z^{-1}} \\
+\end{aligned}
+\]</span></p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> getEMASos(sampleRate, cutoffHz):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    kp <span class="op">=</span> np.sqrt(y <span class="op">*</span> y <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> y) <span class="op">-</span> y</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    kq <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> kp</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[kq, <span class="op">-</span>kq, <span class="dv">0</span>, <span class="dv">1</span>, <span class="op">-</span>kq, <span class="dv">0</span>]]</span></code></pre></div>
 <h3 id="プロットに使ったコード">プロットに使ったコード</h3>
 <ul>
 <li><a
@@ -521,6 +603,13 @@ href="https://www.allaboutcircuits.com/technical-articles/understanding-transfer
 Low-Pass Filter Transfer Functions - Technical Articles</a></li>
 <li><a href="https://en.wikipedia.org/wiki/Bilinear_transform">Bilinear
 transform - Wikipedia</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2023/06/30
+<ul>
+<li>ハイパスを追加。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>

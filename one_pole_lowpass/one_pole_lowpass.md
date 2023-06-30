@@ -32,7 +32,7 @@ $$
 k = \frac{1}{\tan(\pi f_c / f_s)}
 $$
 
-Python 3 で実装します。
+Python 3 で実装します。 `sos` は `scipy.signal` で使われる 2 次セクション (second order sections) の形式のフィルタ係数です。
 
 ```python
 import numpy as np
@@ -111,7 +111,7 @@ public:
 
   void setCutoff(Sample sampleRate, Sample cutoffHz)
   {
-    constexpr Sample pi = std::numbers::pi_v<Sample>;
+    constexpr auto pi = std::numbers::pi_v<Sample>;
     auto k = std::tan(pi * cutoffHz / sampleRate);
     auto a0 = Sample(1) + Sample(1) / k;
     bn = Sample(1) / a0;
@@ -120,7 +120,83 @@ public:
 
   Sample process(Sample x0)
   {
-    y0 = bn * (x0 + x1) + a1 * y1;
+    auto y0 = bn * (x0 + x1) + a1 * y1;
+    x1 = x0;
+    return y1 = y0;
+  }
+};
+```
+
+## ハイパス
+以下は 1 次ハイパスの連続系での伝達関数です。
+
+$$
+H(s) = \frac{s/\omega_c}{1 + s/\omega_c} = \frac{k s}{1 + k s}
+$$
+
+以下は簡略化したバイリニア変換の式です。
+
+$$
+s = \frac{1-z^{-1}}{1+z^{-1}}
+$$
+
+バイリニア変換の式を $H(s)$ に代入します。
+
+$$
+\begin{aligned}
+H(z)
+&= \frac{k \frac{1-z^{-1}}{1+z^{-1}}}{1 + k \frac{1-z^{-1}}{1+z^{-1}}} \\
+&= \frac{k - k z^{-1}}{1 + z^{-1} + k - k z^{-1}} \\
+&= \frac{k - k z^{-1}}{(1 + k) + (1 - k) z^{-1}} \\
+\end{aligned}
+$$
+
+Python 3 で実装します。
+
+```python
+k = 1 / np.tan(np.pi * cutoffHz / sampleRate)
+a0 = 1 + k
+b0 = k / a0
+b1 = -b0
+a1 = (1 - k) / a0
+sos = [[b0, b1, 0, 1, a1, 0]]
+```
+
+以下はバイリニア変換による 1 次ハイパスの周波数応答です。
+
+<figure>
+<img src="img/blt_one_pole_highpass.svg" alt="Plot of frequency response of bilinear transformed 1-pole highpass filter." style="padding-bottom: 12px;"/>
+</figure>
+
+C++ で実装します。
+
+```c++
+template<typename Sample> class BLTHP1 {
+private:
+  Sample b0 = 1;
+  Sample a1 = -1; // Negated.
+  Sample x1 = 0;
+  Sample y1 = 0;
+
+public:
+  void reset()
+  {
+    x1 = 0;
+    y1 = 0;
+  }
+
+  void setCutoff(Sample sampleRate, Sample cutoffHz)
+  {
+    constexpr auto pi = std::numbers::pi_v<Sample>;
+    auto k = std::tan(pi * cutoffHz / sampleRate);
+    auto a0 = Sample(1) + k;
+    b0 = Sample(1) / a0;
+    a1 = (k - Sample(1)) / a0; // Negated.
+  }
+
+  Sample process(Sample x0)
+  {
+    auto y0 = b0 * (x0 - x1) + a1 * y1;
     x1 = x0;
     return y1 = y0;
   }
@@ -148,9 +224,31 @@ def getEMASos(sampleRate, cutoffHz):
     return [[kp, 0, 0, 1, kp - 1, 0]]
 ```
 
+ハイパスは入力からローパスを減算すれば得られます。
+
+$$
+\begin{aligned}
+H_{\mathrm{HP}}(z) &= 1 - H(z) \\
+&= 1 - \frac{k_p}{1 + (k_p - 1) z^{-1}} \\
+&= \frac{(1 - k_p) + (k_p - 1) z^{-1}}{1 + (k_p - 1) z^{-1}} \\
+\end{aligned}
+$$
+
+```python
+def getEMASos(sampleRate, cutoffHz):
+    y = 1 - np.cos(2 * np.pi * cutoffHz / sampleRate)
+    kp = np.sqrt(y * y + 2 * y) - y
+    kq = 1 - kp
+    return [[kq, -kq, 0, 1, -kq, 0]]
+```
+
 ### プロットに使ったコード
 - [filter_notes/one_pole_lowpass/code/test.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/one_pole_lowpass/code/test.py)
 
 ## 参考文献
 - [Understanding Low-Pass Filter Transfer Functions - Technical Articles](https://www.allaboutcircuits.com/technical-articles/understanding-transfer-functions-for-low-pass-filters/)
 - [Bilinear transform - Wikipedia](https://en.wikipedia.org/wiki/Bilinear_transform)
+
+## 変更点
+- 2023/06/30
+  - ハイパスを追加。
