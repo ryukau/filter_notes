@@ -1,4 +1,6 @@
 # ギブス現象を抑える
+**注意**: 内容が怪しいです。
+
 GottleibとShuの論文 ["ON THE GIBBS PHENOMENON AND ITS RESOLUTION"](http://dsec.pku.edu.cn/~tieli/notes/numer_anal/SIAMRev_39_644.pdf) を基に[ギブス現象](https://en.wikipedia.org/wiki/Gibbs_phenomenon)を抑える方法を試します。
 
 この文章で実装したコードを[GitHubで見る](https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py)ことができます。実行するには[SciPy](https://www.scipy.org/)、[pyFFTW](http://hgomersall.github.io/pyFFTW/)、[matplotlib](https://matplotlib.org/)が必要です。パラメータを変えて遊んでみてください。

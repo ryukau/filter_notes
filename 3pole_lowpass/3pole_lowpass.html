@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2023-10-30" />
 <title>3pole_lowpass</title>
 
 <!-- MathJax -->
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2023-10-30
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -858,9 +858,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 </figure>
 <p>近似曲線の式です。</p>
 <p><span class="math display">\[
-\def{\kMin}{k_{\mathrm{Min}}}
-\def{\kMax}{k_{\mathrm{Max}}}
-k \approx \kMax - \frac{2}{\pi} (\kMax - \kMin) \arccos(1 - c)
+k \approx k_{\mathrm{Max}} - \frac{2}{\pi} (k_{\mathrm{Max}} -
+k_{\mathrm{Min}}) \arccos(1 - c)
 \]</span></p>
 <p>近似曲線は <span class="math inline">\(\arccos\)</span>
 を使って試行錯誤で作りました。 <span

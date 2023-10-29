@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2023-10-30" />
 <title>crossover_filter</title>
 
 <!-- MathJax -->
@@ -283,7 +283,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2023-10-30
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -292,6 +292,7 @@ Update: 2023-06-22
 <li><a href="#クロスオーバーフィルタの実装"
 id="toc-クロスオーバーフィルタの実装">クロスオーバーフィルタの実装</a>
 <ul>
+<li><a href="#概要" id="toc-概要">概要</a></li>
 <li><a href="#素朴な-fir-フィルタ" id="toc-素朴な-fir-フィルタ">素朴な
 FIR フィルタ</a>
 <ul>
@@ -337,6 +338,7 @@ Linkwitz-Riley</a></li>
 バンドのベンチマーク</a></li>
 </ul></li>
 <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -344,12 +346,36 @@ Linkwitz-Riley</a></li>
 </header>
 <h1 id="クロスオーバーフィルタの実装">クロスオーバーフィルタの実装</h1>
 <p>周波数帯域の分割に用いるクロスオーバーフィルタを実装します。</p>
+<h2 id="概要">概要</h2>
+<p>かなりややこしいので概要を設けました。ページ上部の Table of Contents
+も多少は役に立つかと思います。</p>
 <p>以下の 3 つのフィルタを実装します。</p>
 <ul>
 <li>素朴な FIR フィルタ</li>
 <li>IIR の Linkwitz-Riley フィルタ</li>
 <li>FIR の Linkwitz-Riley フィルタ</li>
 </ul>
+<p>IIR の Linkwitz-Riley
+フィルタは以下の属性の組み合わせによって実装の詳細が 6
+つに分かれます。</p>
+<ul>
+<li>フィルタが偶数次あるいは奇数次。</li>
+<li>2 バンド、 3 バンド以上かつ汎用的、 3 バンド以上かつ効率重視。</li>
+</ul>
+<p>偶数次、奇数次によってフィルタ係数の計算が変わります。 2
+バンドでは補正オールパスフィルタが不要ですが、 3
+バンド以上では補正オールパスフィルタが必要となってきます。また補正オールパスフィルタを計算するタイミングで汎用性と計算効率のトレードオフがあります。</p>
+<p>FIR の Linkwitz-Riley
+フィルタの節では小さい部品から順にクロスオーバーフィルタを組み立てています。つまり:</p>
+<ul>
+<li>1 次の複素数フィルタの FIR 近似から 2 次の複素共役フィルタの FIR
+近似が組み立てられる。</li>
+<li>2 次の複素共役フィルタの FIR 近似から Butterworth フィルタ の FIR
+近似が組み立てられる。</li>
+<li>Butterworth フィルタ の FIR 近似から線形位相 FIR Linkwitz-Riley
+フィルタが組み立てられる。</li>
+</ul>
+<p>という流れになっています。</p>
 <h2 id="素朴な-fir-フィルタ">素朴な FIR フィルタ</h2>
 <p>フィルタ係数が左右対称な線形位相の FIR
 フィルタはクロスオーバーフィルタとして使えます。</p>
@@ -443,7 +469,10 @@ Butterworth フィルタ</h4>
 <p><span class="math inline">\(N\)</span> 個の 2 次セクション (second
 order sections, sos) を直列につなぐことで 2 つ直列につないだ Butterworth
 フィルタを実装できます。すべてのセクションのカットオフ周波数はクロスオーバー周波数をそのまま使います。
-<span class="math inline">\(Q\)</span> 値は以下の式で計算します。</p>
+<span class="math inline">\(Q\)</span> 値は <a
+href="https://www.earlevel.com/main/2016/09/29/cascading-filters/">earlevel.com
+の “Cascading filters”</a>
+という記事で紹介されていた以下の式で計算します。</p>
 <p><span class="math display">\[
 \begin{equation}
 Q_k = 0.5 \sin \left((k + 0.5)\dfrac{\pi}{N} \right), \quad k \in [0,
@@ -555,11 +584,11 @@ href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd8
 </ul>
 <h4 id="分割と併合">分割と併合</h4>
 <p>3 バンド以上の分割と併合について 2
-つの方法を紹介します。原則としては一般的な実装を行い、クロスオーバーがボトルネックとなっていれば効率のいい実装を使うことが考えられます。</p>
+つの方法を紹介します。原則としては汎用的な実装を行い、クロスオーバーがボトルネックとなっていれば効率のいい実装を使うことが考えられます。</p>
 <p>2
 バンドでは補正オールパスフィルタが不要なので以下の処理は実装しなくていいです。</p>
-<h5 id="一般的な実装">一般的な実装</h5>
-<p>一般的な帯域分割は補正オールパスの総数が分割するバンド数に応じた<a
+<h5 id="汎用的な実装">汎用的な実装</h5>
+<p>汎用的な帯域分割は補正オールパスの総数が分割するバンド数に応じた<a
 href="https://en.wikipedia.org/wiki/Triangular_number">三角数</a>
 (triangular number)
 となりますが、単純な加算で併合を行える特長があります。つまりバンド数が多いと分割の計算が重たくなりますが、分割後の使い勝手はこちらのほうがいいです。</p>
@@ -588,13 +617,13 @@ href="https://en.wikipedia.org/wiki/Triangular_number">三角数</a>
 <ul>
 <li><a
 href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L554-L568">Python
-3 による一般的な Linkwitz-Riley クロスオーバーの分割と併合の実装を読む
+3 による汎用的な Linkwitz-Riley クロスオーバーの分割と併合の実装を読む
 (github.com)</a></li>
 </ul>
 <h5 id="効率のいい実装">効率のいい実装</h5>
 <p>分割後の信号を再取得できるときは以下のブロック線図のようにオールパスの数を
 <code>(バンド数) - 1</code> に減らすことができます。例えば 1
-つの音のプラグインの内部で分割と併合の処理を両方行うときに使えます。この方法は出力を投げっぱなしにできないため、一般的な方法にくらべると汎用性は落ちます。</p>
+つの音のプラグインの内部で分割と併合の処理を両方行うときに使えます。この方法は出力を投げっぱなしにできないため汎用性は落ちます。</p>
 <figure>
 <img src="img/efficient_4band_crossover.svg" alt="Block diagram of efficient 4 band crossover." style="padding-bottom: 12px;"/>
 </figure>
@@ -935,8 +964,8 @@ at master · ryukau/filter_notes · GitHub</a></li>
 FIR のステージ数や、素朴な FIR
 のフィルタ係数の数によって結果が変わることが予想されます。</p>
 <p>このベンチマークは実は素朴な FIR
-で十分ではないか、という疑問を解消するために行ったのでパラメータを細かく変えてトレンドを調べていません。クロスオーバー周波数をリアルタイムで変更する用途であれば、上記の結果より素朴な
-FIR が圧倒的に遅くなるので Linkwitz-Riley FIR
+で十分ではないか、という疑問を解消するために行ったのでパラメータを細かく変えてトレンドを調べていません。クロスオーバー周波数をリアルタイムで変更する用途であれば、素朴な
+FIR のフィルタ係数の更新がかなりの負荷になるので、 Linkwitz-Riley FIR
 の利用価値はあるように見えます。クロスオーバー周波数が固定なら素朴な FIR
 でも十分な気がします。</p>
 <h2 id="参考文献">参考文献</h2>
@@ -969,6 +998,16 @@ href="https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWin
 at main · google/oboe · GitHub</a></li>
 <li><a href="https://thewolfsound.com/allpass-filter/">Allpass Filter:
 All You Need To Know - WolfSound</a></li>
+</ul>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2023/10/30
+<ul>
+<li>概要の追加。</li>
+<li>「2 つ直列につないだ Butterworth
+フィルタ」の式の出典を文中に追加。</li>
+<li>文章の整理。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>

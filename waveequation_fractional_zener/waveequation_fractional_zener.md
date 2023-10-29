@@ -1,4 +1,6 @@
 # 1次元の分数階Zener波動方程式
+**注意**: 内容が怪しいです。
+
 HolmとNäsholmによる ["A causal and fractional all-frequency wave equation for lossy media"](http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf) の式(10)で紹介されていた、分数階Zener波動方程式 (fractional Zener model wave equation) を1次元の implicit な形で実装します。
 
 分数階Zener波動方程式です。

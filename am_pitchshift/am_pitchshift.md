@@ -214,14 +214,14 @@ $n$ が偶数のときだけを取り出したフィルタ $A_k$ と、 $n$ が�
 $$
 \begin{aligned}
 Q_n &= (q_n,\,p_n)\\
-\overrightharpoon{A}_k &= \begin{bmatrix}
+\hat{A}_k &= \begin{bmatrix}
   Q_{0}& Q_{2}& Q_{4}& \dots& Q_{k - 5}& Q_{k - 3}& Q_{k - 1}
 \end{bmatrix}\\
-A_k &= \mathtt{concat}(-\overrightharpoon{A}_k, \overrightharpoon{A}_k)\\
-\overrightharpoon{B}_k &= \begin{bmatrix}
+A_k &= \mathtt{concat}(-\hat{A}_k, \hat{A}_k)\\
+\hat{B}_k &= \begin{bmatrix}
   Q_{1} & Q_{3} & Q_{5} & \dots & Q_{k - 4} & Q_{k - 2} & Q_{k}
 \end{bmatrix}\\
-B_k &= \mathtt{concat}(-\overrightharpoon{B}_k, \overrightharpoon{B}_k)\\
+B_k &= \mathtt{concat}(-\hat{B}_k, \hat{B}_k)\\
 \end{aligned}
 $$
 

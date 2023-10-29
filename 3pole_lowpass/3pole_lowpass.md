@@ -480,9 +480,7 @@ plotResonance(data)
 近似曲線の式です。
 
 $$
-\def{\kMin}{k_{\mathrm{Min}}}
-\def{\kMax}{k_{\mathrm{Max}}}
-k \approx \kMax - \frac{2}{\pi} (\kMax - \kMin) \arccos(1 - c)
+k \approx k_{\mathrm{Max}} - \frac{2}{\pi} (k_{\mathrm{Max}} - k_{\mathrm{Min}}) \arccos(1 - c)
 $$
 
 近似曲線は $\arccos$ を使って試行錯誤で作りました。 $\arccos$ の利用は $1-k$ の軸を線形スケールにしたときのプロットを見て適当に決めました。

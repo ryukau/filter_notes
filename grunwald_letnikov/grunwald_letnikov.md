@@ -1,4 +1,6 @@
 # 分数階微積分の数値計算
+**注意**: 内容が怪しいです。
+
 [Loverroの "Fractional Calculus: History, Definitions and Applications for the
 Engineer" ](https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf)に沿って、数値計算がしやすそうなGrünwald–Letnikovの[分数階微積分](https://en.wikipedia.org/wiki/Fractional_calculus)について見ていきます。
 

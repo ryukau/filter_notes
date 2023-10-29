@@ -1,4 +1,6 @@
 # お手軽なFIRフィルタのレシピ
+**注意**: 内容が怪しいです。
+
 [FIR](https://en.wikipedia.org/wiki/Finite_impulse_response)のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。
 
 ## 記号

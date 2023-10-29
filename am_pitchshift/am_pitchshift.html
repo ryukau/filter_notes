@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2023-10-30" />
 <title>am_pitchshift</title>
 
 <!-- MathJax -->
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2023-10-30
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -653,18 +653,16 @@ class="math inline">\(n\)</span> が奇数のときだけを取り出したフ�
 <p><span class="math display">\[
 \begin{aligned}
 Q_n &amp;= (q_n,\,p_n)\\
-\overrightharpoon{A}_k &amp;= \begin{bmatrix}
+\hat{A}_k &amp;= \begin{bmatrix}
   Q_{0}&amp; Q_{2}&amp; Q_{4}&amp; \dots&amp; Q_{k - 5}&amp; Q_{k -
 3}&amp; Q_{k - 1}
 \end{bmatrix}\\
-A_k &amp;= \mathtt{concat}(-\overrightharpoon{A}_k,
-\overrightharpoon{A}_k)\\
-\overrightharpoon{B}_k &amp;= \begin{bmatrix}
+A_k &amp;= \mathtt{concat}(-\hat{A}_k, \hat{A}_k)\\
+\hat{B}_k &amp;= \begin{bmatrix}
   Q_{1} &amp; Q_{3} &amp; Q_{5} &amp; \dots &amp; Q_{k - 4} &amp; Q_{k -
 2} &amp; Q_{k}
 \end{bmatrix}\\
-B_k &amp;= \mathtt{concat}(-\overrightharpoon{B}_k,
-\overrightharpoon{B}_k)\\
+B_k &amp;= \mathtt{concat}(-\hat{B}_k, \hat{B}_k)\\
 \end{aligned}
 \]</span></p>
 <p><span class="math inline">\(A_k\)</span> の伝達関数を <span

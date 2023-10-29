@@ -72,27 +72,29 @@ $$
 
 ```javascript
 // u(x, t) -> wave[t][x]
-var wave = []
+var wave = [];
 for (var i = 0; i < 3; ++i) {
-  wave.push(new Array(512).fill(0))
+  wave.push(new Array(512).fill(0));
 }
 
-var c = 4       // 波の速度 : m/s
-var dt = 1 / 60 // 1ステップの時間 : 秒
-var dx = 0.1    // wave の要素間の距離 : メートル
+var c = 4;       // 波の速度 : m/s
+var dt = 1 / 60; // 1ステップの時間 : 秒
+var dx = 0.1;    // wave の要素間の距離 : メートル
 
-var alpha = (c * dt / dx)**2
-var beta = 2 * (1 - alpha)
+var u_s = c * dt / dx;
+var gamma = (u_s - 1) / (u_s + 1);
+var alpha = (c * dt / dx) ** 2;
+var beta = 2 * (1 - alpha);
 
 function step() {
-  wave.unshift(wave.pop())
+  wave.unshift(wave.pop());
 
   // 固定端。wave[t][0] と wave [t][last] は 0 で固定。
-  var last = wave[0].length - 1
+  var last = wave[0].length - 1;
   for (var x = 1; x < last; ++x) {
     wave[0][x] = alpha * (wave[1][x + 1] + wave[1][x - 1])
       + beta * wave[1][x]
-      - wave[2][x]
+      - wave[2][x];
   }
 }
 ```
@@ -104,7 +106,7 @@ function step() {
 ```javascript
 function move() {
   // 波を適当に動かす。
-  wave[0][Math.floor(wave[0].length / 2)] = 0.01 * Math.sin(Date.now() * 1e-3)
+  wave[0][Math.floor(wave[0].length / 2)] = 0.01 * Math.sin(Date.now() * 1e-3);
 }
 
 function draw() {
@@ -112,10 +114,10 @@ function draw() {
 }
 
 function animate() {
-  draw()
-  step()
-  move()
-  requestAnimationFrame(animate)
+  draw();
+  step();
+  move();
+  requestAnimationFrame(animate);
 }
 ```
 
@@ -126,14 +128,14 @@ function animate() {
 
 ```javascript
 function step() {
-  wave.unshift(wave.pop())
+  wave.unshift(wave.pop());
 
   // wave[0][0] と wave[0][last] に定数を入れておく。
-  var last = wave[0].length - 1
+  var last = wave[0].length - 1;
   for (var x = 1; x < last; ++x) {
     wave[0][x] = alpha * (wave[1][x + 1] + wave[1][x - 1])
       + beta * wave[1][x]
-      - wave[2][x]
+      - wave[2][x];
   }
 }
 ```
@@ -142,23 +144,23 @@ function step() {
 
 ```javascript
 function step() {
-  wave.unshift(wave.pop())
+  wave.unshift(wave.pop());
 
-  var last = wave[0].length - 1
+  var last = wave[0].length - 1;
 
   // 何度も繰り返すので for の中に if を入れることを避ける。
   wave[0][0] = alpha * (wave[1][1] + wave[1][1])
     + beta * wave[1][0]
-    - wave[2][0]
+    - wave[2][0];
 
   wave[0][last] = alpha * (wave[1][last - 1] + wave[1][last - 1])
     + beta * wave[1][last]
-    - wave[2][last]
+    - wave[2][last];
 
   for (var x = 1; x < last; ++x) {
     wave[0][x] = alpha * (wave[1][x + 1] + wave[1][x - 1])
       + beta * wave[1][x]
-      - wave[2][x]
+      - wave[2][x];
   }
 }
 ```
@@ -167,25 +169,46 @@ function step() {
 
 ```javascript
 function step() {
-  wave.unshift(wave.pop())
+  wave.unshift(wave.pop());
 
-  var last = wave[0].length - 1
+  var last = wave[0].length - 1;
 
   wave[0][0] = alpha * (wave[1][1] + wave[1][last])
     + beta * wave[1][0]
-    - wave[2][0]
+    - wave[2][0];
 
   wave[0][last] = alpha * (wave[1][0] + wave[1][last - 1])
     + beta * wave[1][last]
-    - wave[2][last]
+    - wave[2][last];
 
   for (var x = 1; x < last; ++x) {
     wave[0][x] = alpha * (wave[1][x + 1] + wave[1][x - 1])
       + beta * wave[1][x]
-      - wave[2][x]
+      - wave[2][x];
   }
 }
 ```
+
+吸収端 (absorbing boundary) のときは以下のコードが使えます。
+
+```javascript
+function step()
+{
+  wave.unshift(wave.pop());
+
+  var N = wave[0].length - 1;
+
+  wave[0][0] = wave[1][1]     + gamma * (wave[0][1]     - wave[1][0]);
+  wave[0][N] = wave[1][N - 1] + gamma * (wave[0][N - 1] - wave[1][N]);
+  for (var x = 1; x < N; ++x) {
+    wave[0][x] = alpha * (wave[1][x + 1] + wave[1][x - 1])
+      + beta * wave[1][x]
+      - wave[2][x];
+  }
+}
+```
+
+- [Nonstandard FDTD Theory](http://www.cavelab.cs.tsukuba.ac.jp/nsfdtd/theory/beginner_04.html)
 
 ## デモ
 キャンバスをクリックすると左端の固定端を動かして波を起こします。
@@ -219,19 +242,19 @@ $$
 厳密なシミュレーションでなければ、各ステップで適当な減衰係数をかけることで雰囲気は出ます。
 
 ```javascript
-var attenuation = 0.996 // 減衰係数。 0 < attenuation < 1
+var attenuation = 0.996; // 減衰係数。 0 < attenuation < 1
 
 function step() {
-  wave.unshift(wave.pop())
+  wave.unshift(wave.pop());
 
   // 固定端。
-  var last = wave[0].length - 1
+  var last = wave[0].length - 1;
   for (var x = 1; x < last; ++x) {
     wave[0][x] = attenuation * (
       alpha * (wave[1][x + 1] + wave[1][x - 1])
       + beta * wave[1][x]
       - wave[2][x]
-    )
+    );
   }
 }
 ```
@@ -247,3 +270,8 @@ $c$ 、 $dt$ 、 $dx$ の値によってはシミュレーションが発散し�
 - [Finite difference coefficient - Wikipedia](https://en.wikipedia.org/wiki/Finite_difference_coefficient)
 - [Acoustic attenuation - Wikipedia](https://en.wikipedia.org/wiki/Acoustic_attenuation)
 - [Physically Based Modeling](http://www.cs.cmu.edu/~baraff/sigcourse/index.html)
+- [Nonstandard FDTD Theory](http://www.cavelab.cs.tsukuba.ac.jp/nsfdtd/theory/beginner_04.html)
+
+## 変更点
+- 2023/10/29
+  - 吸収端 (absorbing boundary) の追加。

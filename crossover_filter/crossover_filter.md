@@ -1,11 +1,29 @@
 # クロスオーバーフィルタの実装
 周波数帯域の分割に用いるクロスオーバーフィルタを実装します。
 
+## 概要
+かなりややこしいので概要を設けました。ページ上部の Table of Contents も多少は役に立つかと思います。
+
 以下の 3 つのフィルタを実装します。
 
 - 素朴な FIR フィルタ
 - IIR の Linkwitz-Riley フィルタ
 - FIR の Linkwitz-Riley フィルタ
+
+IIR の Linkwitz-Riley フィルタは以下の属性の組み合わせによって実装の詳細が 6 つに分かれます。
+
+- フィルタが偶数次あるいは奇数次。
+- 2 バンド、 3 バンド以上かつ汎用的、 3 バンド以上かつ効率重視。
+
+偶数次、奇数次によってフィルタ係数の計算が変わります。 2 バンドでは補正オールパスフィルタが不要ですが、 3 バンド以上では補正オールパスフィルタが必要となってきます。また補正オールパスフィルタを計算するタイミングで汎用性と計算効率のトレードオフがあります。
+
+FIR の Linkwitz-Riley フィルタの節では小さい部品から順にクロスオーバーフィルタを組み立てています。つまり:
+
+- 1 次の複素数フィルタの FIR 近似から 2 次の複素共役フィルタの FIR 近似が組み立てられる。
+- 2 次の複素共役フィルタの FIR 近似から Butterworth フィルタ の FIR 近似が組み立てられる。
+- Butterworth フィルタ の FIR 近似から線形位相 FIR Linkwitz-Riley フィルタが組み立てられる。
+
+という流れになっています。
 
 ## 素朴な FIR フィルタ
 フィルタ係数が左右対称な線形位相の FIR フィルタはクロスオーバーフィルタとして使えます。
@@ -62,7 +80,7 @@ Linkwitz-Riley フィルタの次数は内部で使われる Butterworth フィ�
 
 ### 実装
 #### 2 つ直列につないだ Butterworth フィルタ
-$N$ 個の 2 次セクション (second order sections, sos) を直列につなぐことで 2 つ直列につないだ Butterworth フィルタを実装できます。すべてのセクションのカットオフ周波数はクロスオーバー周波数をそのまま使います。 $Q$ 値は以下の式で計算します。
+$N$ 個の 2 次セクション (second order sections, sos) を直列につなぐことで 2 つ直列につないだ Butterworth フィルタを実装できます。すべてのセクションのカットオフ周波数はクロスオーバー周波数をそのまま使います。 $Q$ 値は [earlevel.com の "Cascading filters"](https://www.earlevel.com/main/2016/09/29/cascading-filters/) という記事で紹介されていた以下の式で計算します。
 
 $$
 \begin{equation}
@@ -145,12 +163,12 @@ $k$ の範囲が 1 から始まり、終端は含めていることに注意し�
 - [Python 3 による $M = 4n + 2$ のときの補正オールパスフィルタの実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L98-L104)
 
 #### 分割と併合
-3 バンド以上の分割と併合について 2 つの方法を紹介します。原則としては一般的な実装を行い、クロスオーバーがボトルネックとなっていれば効率のいい実装を使うことが考えられます。
+3 バンド以上の分割と併合について 2 つの方法を紹介します。原則としては汎用的な実装を行い、クロスオーバーがボトルネックとなっていれば効率のいい実装を使うことが考えられます。
 
 2 バンドでは補正オールパスフィルタが不要なので以下の処理は実装しなくていいです。
 
-##### 一般的な実装
-一般的な帯域分割は補正オールパスの総数が分割するバンド数に応じた[三角数](https://en.wikipedia.org/wiki/Triangular_number) (triangular number) となりますが、単純な加算で併合を行える特長があります。つまりバンド数が多いと分割の計算が重たくなりますが、分割後の使い勝手はこちらのほうがいいです。
+##### 汎用的な実装
+汎用的な帯域分割は補正オールパスの総数が分割するバンド数に応じた[三角数](https://en.wikipedia.org/wiki/Triangular_number) (triangular number) となりますが、単純な加算で併合を行える特長があります。つまりバンド数が多いと分割の計算が重たくなりますが、分割後の使い勝手はこちらのほうがいいです。
 
 <figure>
 <img src="img/4band_crossover.svg" alt="Block diagram of 4 band crossover using Linkwitz-Riley filter (LR). Input first goes to LR, then splits to high and low. High goes to Butterworth allpass, and low goes to another LR. Repeat this until desired number of bands are obtained." style="padding-bottom: 12px;"/>
@@ -168,10 +186,10 @@ $k$ の範囲が 1 から始まり、終端は含めていることに注意し�
 
 以下は Python 3 による実装へのリンクです。クロスオーバー周波数のリスト `cutoffsHz` の長さがバンド数となります。
 
-- [Python 3 による一般的な Linkwitz-Riley クロスオーバーの分割と併合の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L554-L568)
+- [Python 3 による汎用的な Linkwitz-Riley クロスオーバーの分割と併合の実装を読む (github.com)](https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L554-L568)
 
 ##### 効率のいい実装
-分割後の信号を再取得できるときは以下のブロック線図のようにオールパスの数を `(バンド数) - 1` に減らすことができます。例えば 1 つの音のプラグインの内部で分割と併合の処理を両方行うときに使えます。この方法は出力を投げっぱなしにできないため、一般的な方法にくらべると汎用性は落ちます。
+分割後の信号を再取得できるときは以下のブロック線図のようにオールパスの数を `(バンド数) - 1` に減らすことができます。例えば 1 つの音のプラグインの内部で分割と併合の処理を両方行うときに使えます。この方法は出力を投げっぱなしにできないため汎用性は落ちます。
 
 <figure>
 <img src="img/efficient_4band_crossover.svg" alt="Block diagram of efficient 4 band crossover." style="padding-bottom: 12px;"/>
@@ -378,7 +396,7 @@ $$
 
 結果を見ると IIR の Linkwitz-Riley が速く、 FIR の実装はあまり差がありません。ただし、素朴な FIR は畳み込みの計算について大いに改善の余地があります。また Linkwitz-Riley FIR のステージ数や、素朴な FIR のフィルタ係数の数によって結果が変わることが予想されます。
 
-このベンチマークは実は素朴な FIR で十分ではないか、という疑問を解消するために行ったのでパラメータを細かく変えてトレンドを調べていません。クロスオーバー周波数をリアルタイムで変更する用途であれば、上記の結果より素朴な FIR が圧倒的に遅くなるので Linkwitz-Riley FIR の利用価値はあるように見えます。クロスオーバー周波数が固定なら素朴な FIR でも十分な気がします。
+このベンチマークは実は素朴な FIR で十分ではないか、という疑問を解消するために行ったのでパラメータを細かく変えてトレンドを調べていません。クロスオーバー周波数をリアルタイムで変更する用途であれば、素朴な FIR のフィルタ係数の更新がかなりの負荷になるので、 Linkwitz-Riley FIR の利用価値はあるように見えます。クロスオーバー周波数が固定なら素朴な FIR でも十分な気がします。
 
 ## 参考文献
 - [Linkwitz–Riley filter - Wikipedia](https://en.wikipedia.org/wiki/Linkwitz%E2%80%93Riley_filter)
@@ -390,3 +408,9 @@ $$
 - [Kaiser window approximation - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/37714/kaiser-window-approximation/37720#37720)
 - [oboe/src/flowgraph/resampler/KaiserWindow.h at main · google/oboe · GitHub](https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWindow.h)
 - [Allpass Filter: All You Need To Know - WolfSound](https://thewolfsound.com/allpass-filter/)
+
+## 変更点
+- 2023/10/30
+  - 概要の追加。
+  - 「2 つ直列につないだ Butterworth フィルタ」の式の出典を文中に追加。
+  - 文章の整理。
