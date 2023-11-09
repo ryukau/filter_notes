@@ -18,6 +18,7 @@ template<typename Sample, size_t length> struct FeedbackMatrix {
   enum class MatrixType {
     orthogonal,
     specialOrthogonal,
+    householder,
     circulant,
     upperTriangular,
     lowerTriangular,
@@ -107,6 +108,47 @@ template<typename Sample, size_t length> struct FeedbackMatrix {
 
     for (size_t row = 0; row < dim; ++row) {
       for (size_t col = 0; col < dim; ++col) H[col][row] *= D[row];
+    }
+  }
+
+  /**
+  Reference: https://nhigham.com/2020/09/15/what-is-a-householder-matrix/
+  */
+  template<size_t dim>
+  void randomHouseholder(unsigned seed, std::array<std::array<Sample, dim>, dim> &matrix)
+  {
+    pcg64 rng{};
+    rng.seed(seed);
+    std::uniform_real_distribution<Sample> dist{Sample(0), Sample(1)};
+
+    std::array<Sample, dim> vec{};
+    for (size_t i = 0; i < dim; ++i) vec[i] = dist(rng);
+
+    Sample denom = 0;
+    for (size_t i = 0; i < dim; ++i) denom += vec[i] * vec[i];
+
+    // Return identity matrix if `vec` is all 0.
+    if (denom <= std::numeric_limits<Sample>::epsilon()) {
+      for (size_t i = 0; i < dim; ++i) {
+        for (size_t j = 0; j < dim; ++j) {
+          matrix[i][j] = i == j ? Sample(1) : Sample(0);
+        }
+      }
+      return;
+    }
+
+    auto scale = Sample(-2) / denom;
+
+    for (size_t i = 0; i < dim; ++i) {
+      // Diagonal elements.
+      matrix[i][i] = Sample(1) + scale * vec[i] * vec[i];
+
+      // Non-diagonal elements.
+      for (size_t j = i + 1; j < dim; ++j) {
+        auto value = scale * vec[i] * vec[j];
+        matrix[i][j] = value;
+        matrix[j][i] = value;
+      }
     }
   }
 
@@ -333,6 +375,8 @@ template<typename Sample, size_t length> struct FeedbackMatrix {
   {
     if (matrixType == MatrixType::specialOrthogonal) {
       randomSpecialOrthogonal(seed, matrix);
+    } else if (matrixType == MatrixType::householder) {
+      randomHouseholder(seed, matrix);
     } else if (matrixType == MatrixType::circulant) {
       randomOrthogonalCirculant(seed, matrix);
     } else if (matrixType == MatrixType::upperTriangular) {
@@ -388,6 +432,7 @@ int main()
   std::cout << "\n--- Benchmark\n";
   matrix.write("orthogonal", FBMat::MatrixType::orthogonal, seed);
   matrix.write("specialOrthogonal", FBMat::MatrixType::specialOrthogonal, seed);
+  matrix.write("householder", FBMat::MatrixType::householder, seed);
   matrix.write("circulant", FBMat::MatrixType::circulant, seed);
   matrix.write("upperTriangular", FBMat::MatrixType::upperTriangular, seed);
   matrix.write("lowerTriangular", FBMat::MatrixType::lowerTriangular, seed);

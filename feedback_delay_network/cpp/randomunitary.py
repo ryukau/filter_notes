@@ -2,6 +2,7 @@ import numpy as np
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
 
+
 def haar_measure(n, seed=0):
     rng = np.random.default_rng(seed)
 
@@ -10,6 +11,7 @@ def haar_measure(n, seed=0):
     d = r.diagonal()
     q *= d / abs(d)
     return q
+
 
 def random_ortho(dim, seed=0):
     """Comments from `scipy.stats.ortho_group` are preserved."""
@@ -24,12 +26,13 @@ def random_ortho(dim, seed=0):
         # random sign, 50/50, but chosen carefully to avoid roundoff error
         D = np.sign(x[0]) if x[0] != 0 else 1
         x[0] += D * np.sqrt(norm2)
-        x /= np.sqrt((norm2 - x0**2 + x[0]**2) / 2.)
+        x /= np.sqrt((norm2 - x0**2 + x[0] ** 2) / 2.0)
 
         # Householder transformation
         H[:, n:] = -D * (H[:, n:] - np.outer(np.dot(H[:, n:], x), x))
         # print(H)
     return H
+
 
 def random_special_ortho(dim, seed=0):
     """Comments from `scipy.stats.special_ortho_group` are preserved."""
@@ -43,16 +46,17 @@ def random_special_ortho(dim, seed=0):
         x0 = x[0].item()
         D[n] = np.sign(x[0]) if x[0] != 0 else 1
         x[0] += D[n] * np.sqrt(norm2)
-        x /= np.sqrt((norm2 - x0**2 + x[0]**2) / 2.)
+        x /= np.sqrt((norm2 - x0**2 + x[0] ** 2) / 2.0)
 
         # Householder transformation
         H[:, n:] -= np.outer(np.dot(H[:, n:], x), x)
 
-    D[-1] = (-1)**(dim - 1) * D[:-1].prod()
+    D[-1] = (-1) ** (dim - 1) * D[:-1].prod()
 
     # Equivalent to np.dot(np.diag(D), H) but faster, apparently
     H = (D * H.T).T
     return H
+
 
 def random_ortho_close_to_identity(dim=4, identityAmount=0.1, seed=0):
     rng = np.random.default_rng(seed)
@@ -66,10 +70,21 @@ def random_ortho_close_to_identity(dim=4, identityAmount=0.1, seed=0):
 
         D = np.sign(x[0]) if x[0] != 0 else 1
         x[0] += D * np.sqrt(norm2)
-        x /= np.sqrt((norm2 - x0**2 + x[0]**2) / 2.)
+        x /= np.sqrt((norm2 - x0**2 + x[0] ** 2) / 2.0)
 
         H[:, n:] = -D * (H[:, n:] - np.outer(np.dot(H[:, n:], x), x))
     return H
+
+
+def random_householder(dim=4, seed=0):
+    """
+    Reference: https://nhigham.com/2020/09/15/what-is-a-householder-matrix/
+    """
+    rng = np.random.default_rng(seed)
+    v = np.matrix(rng.uniform(0, 1, (dim, 1)))
+    scaler = (2 / (v.T * v)).item()
+    return np.eye(dim) - scaler * np.array(v * v.T)
+
 
 def random_ortho_circulant(dim=4, seed=0):
     """
@@ -83,6 +98,7 @@ def random_ortho_circulant(dim=4, seed=0):
     sqrt = np.sqrt(source)
     circ = np.repeat(sqrt, dim).reshape((dim, dim))
     return circ * sqrt * scale - np.eye(dim)
+
 
 def random_triangular(dim=4, seed=0):
     """
@@ -107,14 +123,15 @@ def random_triangular(dim=4, seed=0):
     for idx in range(0, dim):
         row = np.zeros(dim)
         randomized = rng.uniform(0, 1, dim - idx - 1)
-        row[idx + 1:] = randomized
+        row[idx + 1 :] = randomized
         summed += np.sum(randomized)
         mat.append(row)
     scale = 1 / summed
     for idx in range(0, dim):
         mat[idx][idx] = scale - 1
-        mat[idx][idx + 1:] *= scale
+        mat[idx][idx + 1 :] *= scale
     return np.vstack(mat)
+
 
 def random_schroeder(dim=4, seed=0):
     """
@@ -132,6 +149,7 @@ def random_schroeder(dim=4, seed=0):
     mat[dim - 1][:-2] = np.full(dim - 2, -diag[-2])
     mat[dim - 1][-2] = 1 - diag[-2] * diag[-2]
     return mat
+
 
 def random_absorbent(dim=4, seed=0):
     """
@@ -159,10 +177,13 @@ def random_absorbent(dim=4, seed=0):
 
     Q = random_ortho(half, seed)  # Q can be any unitary matrix.
 
-    return np.vstack((
-        np.hstack((-Q * G, Q)),
-        np.hstack((np.eye(half) - G2, G)),
-    ))
+    return np.vstack(
+        (
+            np.hstack((-Q * G, Q)),
+            np.hstack((np.eye(half) - G2, G)),
+        )
+    )
+
 
 def hadamard_sylvester(dim=4):
     """
@@ -175,7 +196,7 @@ def hadamard_sylvester(dim=4):
     """
     mat = np.empty((dim, dim), dtype=int)
 
-    mat[0][0] = 1  #/ np.sqrt(dim)
+    mat[0][0] = 1  # / np.sqrt(dim)
 
     start = 1
     end = 2
@@ -191,10 +212,8 @@ def hadamard_sylvester(dim=4):
                 )
         start *= 2
         end *= 2
-        print(start, end)
-    print(mat)
-    exit()
     return mat
+
 
 def random_conference(dim=4):
     """
@@ -203,6 +222,7 @@ def random_conference(dim=4):
     - `dim mod 4 == 2`.
     - `dim - 1` is sum of 2 squared integer.
     """
+
     def isConference(n):
         if n % 4 != 2:
             print("non conference")
@@ -218,7 +238,8 @@ def random_conference(dim=4):
         quadraticResidue.remove(0)
 
     legendreSymbol = [
-        0 if i == 0 else value if i in quadraticResidue else -value for i in range(modulo)
+        0 if i == 0 else value if i in quadraticResidue else -value
+        for i in range(modulo)
     ]
 
     # print(quadraticResidue)
@@ -234,6 +255,7 @@ def random_conference(dim=4):
         mat[shift + 1][1:] = np.roll(legendreSymbol, shift)
     return mat
 
+
 def weighing_matrix(dim=4):
     """
     W(n, n - 1) is conference matrix.
@@ -242,16 +264,18 @@ def weighing_matrix(dim=4):
     """
     pass
 
+
 def testMatrix():
     # mat = haar_measure(4)
     # mat = random_ortho(4, None)
     # mat = random_special_ortho(4)
     # mat = random_ortho_close_to_identity()
+    mat = random_householder(4)
     # mat = random_ortho_circulant(4, None)
     # mat = random_triangular(4, None)
     # mat = random_schroeder(4, None)
     # mat = random_absorbent(4, None)
-    mat = hadamard_sylvester(4)
+    # mat = hadamard_sylvester(4)
     # mat = random_conference(62)
 
     det_mat = np.linalg.det(mat)
@@ -275,6 +299,7 @@ def testMatrix():
     for idx, row in enumerate(dotted):
         plt.plot(np.abs(row), color=cmap(idx / row.shape[0]), label=str(idx))
     plt.show()
+
 
 def testRotation():
     # mat = random_ortho_close_to_identity()
@@ -303,6 +328,7 @@ def testRotation():
             plt.plot(np.abs(row), color=cmap(idx / row.shape[0]), label=str(idx))
         plt.show()
 
+
 def testSort():
     mat = random_ortho(4)
 
@@ -317,6 +343,7 @@ def testSort():
     for idx, row in enumerate(dotted):
         plt.plot(np.abs(row), color=cmap(idx / row.shape[0]), label=str(idx))
     plt.show()
+
 
 if __name__ == "__main__":
     testMatrix()

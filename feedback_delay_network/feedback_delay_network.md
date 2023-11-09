@@ -173,6 +173,61 @@ void randomSpecialOrthogonal(unsigned seed, std::array<std::array<Sample, dim>, 
 }
 ```
 
+#### Householder 行列
+"[What Is a Householder Matrix?](https://nhigham.com/2020/09/15/what-is-a-householder-matrix/)" によると $n \times n$ の Householder 行列 $\mathbf{P}$ は以下の式で表されます。
+
+$$
+\mathbf{P} = \mathbf{I} - \frac{2}{\mathbf{v}^\mathrm{T} \mathbf{v}} \mathbf{v} \mathbf{v}^\mathrm{T},
+\qquad
+\mathbf{0} \neq \mathbf{v} \in \mathbb{R}^n.
+$$
+
+$\mathbf{I}$ は単位行列、 $\mathbf{v}$ は少なくとも 1 つの要素が 0 でないベクトルです。
+
+Householder 行列の特徴は、 $n$ 個の乱数から直行行列を組み立てられることと、対称行列 ($\mathbf{P} = \mathbf{P}^\mathrm{T}$) となることです。先に紹介した `scipy.stats.ortho_group.rvs()` と `scipy.stats.special_ortho_group.rvs()` では $n$ についての[三角数](https://en.wikipedia.org/wiki/Triangular_number)、つまり $n(n+1)/2$ 個の乱数が要りますが、対称行列になるとは限りません。
+
+以下は実装です。
+
+```c++
+template<size_t dim>
+void randomHouseholder(unsigned seed, std::array<std::array<Sample, dim>, dim> &matrix)
+{
+  pcg64 rng{};
+  rng.seed(seed);
+  std::uniform_real_distribution<Sample> dist{Sample(0), Sample(1)};
+
+  std::array<Sample, dim> vec{};
+  for (size_t i = 0; i < dim; ++i) vec[i] = dist(rng);
+
+  Sample denom = 0;
+  for (size_t i = 0; i < dim; ++i) denom += vec[i] * vec[i];
+
+  // Return identity matrix if `vec` is all 0.
+  if (denom <= std::numeric_limits<Sample>::epsilon()) {
+    for (size_t i = 0; i < dim; ++i) {
+      for (size_t j = 0; j < dim; ++j) {
+        matrix[i][j] = i == j ? Sample(1) : Sample(0);
+      }
+    }
+    return;
+  }
+
+  auto scale = Sample(-2) / denom;
+
+  for (size_t i = 0; i < dim; ++i) {
+    // Diagonal elements.
+    matrix[i][i] = Sample(1) + scale * vec[i] * vec[i];
+
+    // Non-diagonal elements.
+    for (size_t j = i + 1; j < dim; ++j) {
+      auto value = scale * vec[i] * vec[j];
+      matrix[i][j] = value;
+      matrix[j][i] = value;
+    }
+  }
+}
+```
+
 #### 巡回行列
 以下は "Circulant and elliptic feedback delay networks for artificial reverberation." で紹介されていた FDN が発散しない巡回行列の式です。
 
@@ -743,6 +798,7 @@ http://ccrma.stanford.edu/~jos/pasp/, online book,
 - [scipy.stats.unitary_group — SciPy v1.8.0 Manual](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.unitary_group.html)
 - [scipy.stats.ortho_group — SciPy v1.8.0 Manual](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ortho_group.html)
 - [scipy.stats.special_ortho_group — SciPy v1.8.0 Manual](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.special_ortho_group.html)
+- [What Is a Householder Matrix? – Nick Higham](https://nhigham.com/2020/09/15/what-is-a-householder-matrix/)
 - [10.4: Using Eigenvalues and Eigenvectors to Find Stability and Solve ODEs - Engineering LibreTexts](https://eng.libretexts.org/Bookshelves/Industrial_and_Systems_Engineering/Book%3A_Chemical_Process_Dynamics_and_Controls_(Woolf)/10%3A_Dynamical_Systems_Analysis/10.04%3A_Using_eigenvalues_and_eigenvectors_to_find_stability_and_solve_ODEs)
 - [Conference matrix - Wikipedia](https://en.wikipedia.org/wiki/Conference_matrix)
 - [Hadamard Matrices](http://lancaster.ac.uk/~fearn/documents/Group1A_Report.pdf)
@@ -751,6 +807,8 @@ http://ccrma.stanford.edu/~jos/pasp/, online book,
 - [A000952 - OEIS](https://oeis.org/A000952)
 
 ## 変更点
+- 2023/11/09
+  - Householder 行列を追加。
 - 2022/06/11
   - FDN64Reverb の macOS ビルドが用意できたので、用意できていないとする記述を消去。
 - 2022/05/16
