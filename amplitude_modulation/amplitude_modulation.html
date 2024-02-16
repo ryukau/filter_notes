@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2024-02-17" />
+<title>amplitude_modulation</title>
+
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
+
+<style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+font-family: inherit;
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 4px;
+margin: 2px;
+line-height: calc(1em + 16px);
+}
+
+a {
+text-decoration: none;
+}
+
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
+padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
+}
+
+tr:nth-child(odd) {
+background: #eeeeee;
+}
+
+tr:nth-child(even) {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+td {
+height: 1.5em;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
+}
+
+li {
+margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+span.math.inline a {
+  color: #000000;
+}
+</style>
+
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2024-02-17
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#am-のアンチエイリアシング"
+id="toc-am-のアンチエイリアシング">AM のアンチエイリアシング</a>
+<ul>
+<li><a href="#略称" id="toc-略称">略称</a></li>
+<li><a href="#素朴な-am" id="toc-素朴な-am">素朴な AM</a></li>
+<li><a href="#シングルサイドバンド"
+id="toc-シングルサイドバンド">シングルサイドバンド</a></li>
+<li><a href="#アンチエイリアシング"
+id="toc-アンチエイリアシング">アンチエイリアシング</a>
+<ul>
+<li><a href="#上側波帯" id="toc-上側波帯">上側波帯</a></li>
+<li><a href="#下側波帯" id="toc-下側波帯">下側波帯</a></li>
+<li><a href="#素朴な-am-1" id="toc-素朴な-am-1">素朴な AM</a></li>
+</ul></li>
+<li><a href="#その他" id="toc-その他">その他</a></li>
+<li><a href="#参考サイト" id="toc-参考サイト">参考サイト</a></li>
+</ul></li>
+</ul>
+</nav>
+</details>
+</header>
+<h1 id="am-のアンチエイリアシング">AM のアンチエイリアシング</h1>
+<p>AM (amplitude modulation)
+のアンチエイリアシングを行います。入力信号は音声です。</p>
+<h2 id="略称">略称</h2>
+<ul>
+<li>振幅変調 -&gt; AM (amplitude modulation)</li>
+<li>両側波帯 -&gt; DSB (double side-band)</li>
+<li>単側波帯 -&gt; SSB (single side-band)</li>
+<li>上側波帯 -&gt; USB (upper side-band)</li>
+<li>下側波帯 -&gt; LSB (lower side-band)</li>
+</ul>
+<p>両側波帯は素朴な AM と等価。</p>
+<h2 id="素朴な-am">素朴な AM</h2>
+<p>以下は素朴な AM のブロック線図です。</p>
+<figure>
+<img src="img/am.svg" alt="Block diagram of amplitude modulation." style="width: 32rem;padding-bottom: 12px;"/>
+</figure>
+<p>以下はキャリアとモジュレータがどちらもサイン波のときの AM
+の式です。キャリアの振幅を 1 に正規化しています。</p>
+<p><span class="math display">\[
+\begin{aligned}
+x_c(t) &amp;= \sin(\omega_c t), \\
+x_m(t) &amp;= m \cos(\omega_m t + \phi), \\
+y(t)
+&amp;= \big( B + x_m(t) \big) x_c(t) \\
+&amp;= B \sin(\omega_c t) + \frac{m}{2} \Big(
+    \sin \big( (\omega_c + \omega_m) t + \phi \big)
+  + \sin \big( (\omega_c - \omega_m) t - \phi \big)
+\Big).
+\end{aligned}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(t\)</span> : 時間。</li>
+<li><span class="math inline">\(y\)</span> : 出力信号。</li>
+<li><span class="math inline">\(x_c\)</span> : キャリア信号。</li>
+<li><span class="math inline">\(x_m\)</span> : モジュレータ信号。</li>
+<li><span class="math inline">\(\omega_c\)</span> :
+キャリアの角周波数。</li>
+<li><span class="math inline">\(\omega_m\)</span> :
+モジュレータの角周波数。</li>
+<li><span class="math inline">\(\phi\)</span> :
+キャリアとモジュレータの位相差。</li>
+<li><span class="math inline">\(B\)</span> :
+出力にキャリアを混ぜる量。</li>
+<li><span class="math inline">\(m\)</span> : モジュレータの振幅。</li>
+</ul>
+<p><span class="math inline">\(B\)</span> と <span
+class="math inline">\(m\)</span>
+によって変調の特性が変わります。参考にした <a
+href="https://en.wikipedia.org/wiki/Amplitude_modulation">Wikipedia
+の記事</a>では <span class="math inline">\(B = 1\)</span>
+としています。</p>
+<p>ここで上側波帯の成分と、下側波帯の成分を以下のようにまとめます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+U(t) &amp;= \sin \big( (\omega_c + \omega_m) t + \phi \big). \\
+L(t) &amp;= \sin \big( (\omega_c - \omega_m) t - \phi \big). \\
+\end{aligned}
+\]</span></p>
+<p><span class="math inline">\(U\)</span> と <span
+class="math inline">\(L\)</span> を使えば出力 <span
+class="math inline">\(y\)</span> を以下のように書けます。</p>
+<p><span class="math display">\[
+y(t) = B x_c(t) + \frac{m}{2} \Big( U(t) + L(t) \Big).
+\]</span></p>
+<p>素朴な AM
+は、以下で紹介するシングルサイドバンドと区別するために、ダブルサイドバンドと呼ばれることがあります。</p>
+<h2 id="シングルサイドバンド">シングルサイドバンド</h2>
+<p>キャリアとモジュレータを <a
+href="https://en.wikipedia.org/wiki/Analytic_signal">analytic signal</a>
+に変換できれば上側波帯あるいは下側波帯のみを取り出すことができます。
+Analytic signal は以下の式で計算できます。</p>
+<p><span class="math display">\[
+\mathtt{analytic} = x + j \mathcal{H}(x).
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\mathcal{H}\)</span> :
+ヒルベルト変換。</li>
+</ul>
+<p>以下はシングルサイドバンド AM の計算式です。</p>
+<p><span class="math display">\[
+\begin{aligned}
+U(t)
+&amp;= \mathrm{Re}(\hat{x}_c) \mathrm{Re}(\hat{x}_m) -
+\mathrm{Im}(\hat{x}_c) \mathrm{Im}(\hat{x}_m)
+= x_c x_m - \mathcal{H}(x_c) \mathcal{H}(x_m).
+\\
+L(t)
+&amp;= \mathrm{Re}(\hat{x}_c) \mathrm{Re}(\hat{x}_m) +
+\mathrm{Im}(\hat{x}_c) \mathrm{Im}(\hat{x}_m)
+= x_c x_m + \mathcal{H}(x_c) \mathcal{H}(x_m).
+\end{aligned}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(U\)</span> :
+上側波帯のみの出力信号。</li>
+<li><span class="math inline">\(L\)</span> :
+下側波帯のみの出力信号。</li>
+<li><span class="math inline">\(\hat{x}_c\)</span> : キャリア信号の
+analytic signal 。</li>
+<li><span class="math inline">\(\hat{x}_m\)</span> : モジュレータ信号の
+analytic signal 。</li>
+</ul>
+<p><span class="math inline">\(U\)</span> と <span
+class="math inline">\(L\)</span> の式は analytic signal の定義より <span
+class="math inline">\(\mathrm{Re}(\hat{x}_c) \mathrm{Re}(\hat{x}_m) =
+x_c x_m\)</span> と簡略化できます。しかし、リアルタイムで動作する
+analytic signal への変換を近似するフィルタ (Hilbert フィルタ)
+では実部の信号も変化するので、実装では簡略化する前の形を使うことがあります。
+Hilbert フィルタについては「<a
+href="https://ryukau.github.io/filter_notes/am_pitchshift/am_pitchshift.html">AM
+による周波数シフト</a>」で実装例を紹介しています。</p>
+<p>以下は <code>scipy.signal.hilbert</code> を使った Python 3
+によるシングルサイドバンド AM の実装です。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> upperAM(carrior, modulator):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    c0 <span class="op">=</span> signal.hilbert(carrior)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    m0 <span class="op">=</span> signal.hilbert(modulator)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> c0.real <span class="op">*</span> m0.real <span class="op">-</span> c0.imag <span class="op">*</span> m0.imag</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lowerAM(carrior, modulator):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    c0 <span class="op">=</span> signal.hilbert(carrior)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    m0 <span class="op">=</span> signal.hilbert(modulator)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> c0.real <span class="op">*</span> m0.real <span class="op">+</span> c0.imag <span class="op">*</span> m0.imag</span></code></pre></div>
+<p>以下はリアルタイム向けの実装へのリンクです。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba075fdf2472d6a1a/AmplitudeModulator/dsp/am.hpp#L324-L364">C++
+によるシングルサイドバンド AM の実装 (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/4c1fd63413b2626fd4cd0f224029c45d9cfbc8e7/common/dsp/analyticsignalfilter.js#L85-L102">JavaScript
+によるシングルサイドバンド AM の実装 (github.com)</a></li>
+</ul>
+<h2 id="アンチエイリアシング">アンチエイリアシング</h2>
+<p>音声信号は直流からナイキスト周波数までの全帯域が使われることが普通です。したがって
+AM をかけると全帯域に渡るエイリアシングが起きます。</p>
+<p>以下は処理の各段階で現れる信号の周波数帯を示した図です。ここでのアンチエイリアシングは
+<span class="math inline">\(\left[ -\dfrac{1}{2} f_s, 0 \right)\)</span>
+と <span class="math inline">\(\left[ \dfrac{1}{2} f_s, f_s
+\right)\)</span> の成分を 0 にします。実装では <a
+href="https://numpy.org/doc/stable/reference/generated/numpy.fft.rfft.html"><code>rfft</code></a>
+を使うので負の周波数は扱っていません。</p>
+<figure>
+<img src="img/sideband_range.svg" alt="" style="width: 42rem;padding-bottom: 12px;"/>
+</figure>
+<h4 id="上側波帯">上側波帯</h4>
+<p>上側波帯は 1.5
+倍のアップサンプリングを行った後に変調することでアンチエイリアシングができます。以下の図の
+<span class="math inline">\(\dfrac{3}{4} f_s\)</span> が 1.5
+倍のアップサンプリング後のナイキスト周波数です。赤で塗りつぶした部分が折り返しますが、ダウンサンプリングで
+<span class="math inline">\(\left[ \dfrac{1}{2} f_s, \dfrac{3}{4} f_s
+\right)\)</span> の範囲を 0 にするので <span
+class="math inline">\(\left[ 0, \dfrac{1}{2} f_s \right)\)</span>
+の範囲には折り返しません。</p>
+<figure>
+<img src="img/upper_sideband_antialiasing.svg" alt="Image of a diagram that shows frequency range of input signal, input + upper side-band (USB), and the aliasing of input + upper side-band. The range of aliasing is contained in between half of f_s and 3/4 of f_s." style="width: 32rem;padding-bottom: 12px;"/>
+</figure>
+<p>以下はリアルタイム向けの処理のブロック線図です。効率よく 1.5
+倍のアップサンプリングを行う方法がわからないので 2
+倍のアップサンプリングを使っています。</p>
+<figure>
+<img src="img/upper_sideband_antialiasing_block_diagram.svg" alt="Image of a block diagram of anti-aliasing of upper side-band AM." style="width:42rem;padding-bottom: 12px;"/>
+</figure>
+<p>以下は Python 3 によるオフライン実装です。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> antiAliasedUpperAM(carrior, modulator):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    upCar <span class="op">=</span> signal.resample(carrior, <span class="dv">2</span> <span class="op">*</span> <span class="bu">len</span>(carrior))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    upMod <span class="op">=</span> signal.resample(modulator, <span class="dv">2</span> <span class="op">*</span> <span class="bu">len</span>(modulator))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.resample(upperAM(upCar, upMod), <span class="bu">len</span>(carrior))</span></code></pre></div>
+<p>以下は <code>signal.resample</code>
+をリアルタイムで動くハーフバンド楕円フィルタに置き換えた実装へのリンクです。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba075fdf2472d6a1a/AmplitudeModulator/dsp/am.hpp#L366-L390">C++
+による USB-AM の実装 (github.com)</a></li>
+</ul>
+<h4 id="下側波帯">下側波帯</h4>
+<p>下側波帯は以下の手順でアンチエイリアシングができます。 <span
+class="math inline">\(f_N\)</span>
+は元の信号のナイキスト周波数です。</p>
+<ol type="1">
+<li>2 倍のアップサンプリング。</li>
+<li><span class="math inline">\(f_N\)</span> の周波数シフト。</li>
+<li><span class="math inline">\([0, f_N)\)</span>
+の成分をハイパスで除去。</li>
+<li><span class="math inline">\(-f_N\)</span> の周波数シフト。</li>
+<li>1/2 倍のダウンサンプリング。</li>
+</ol>
+<p>周波数シフトについては「<a
+href="https://ryukau.github.io/filter_notes/am_pitchshift/am_pitchshift.html">AM
+による周波数シフト</a>」で手法を紹介しています。</p>
+<p>以下はリアルタイム向けの処理のブロック線図です。</p>
+<figure>
+<img src="img/lower_sideband_antialiasing_block_diagram.svg" alt="Image of a block diagram of anti-aliasing of lower side-band AM." style="width:44rem;padding-bottom: 12px;"/>
+</figure>
+<p>以下は Python 3 によるオフライン実装です。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> applySpectrumBandpass(sig, lowerCutoff, upperCutoff):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    spectrum <span class="op">=</span> np.fft.rfft(sig)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Highpass.</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    lowerIndex <span class="op">=</span> <span class="bu">int</span>(<span class="bu">len</span>(spectrum) <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> lowerCutoff)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    spectrum[: <span class="bu">min</span>(lowerIndex, <span class="bu">len</span>(spectrum))] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Lowpass.</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    upperIndex <span class="op">=</span> <span class="bu">int</span>(<span class="bu">len</span>(spectrum) <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> upperCutoff)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    spectrum[<span class="bu">max</span>(<span class="dv">0</span>, upperIndex) :] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.fft.irfft(spectrum)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> frequencyShift(sig, normalizedFreq):</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> signal.hilbert(sig)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    norm <span class="op">=</span> np.<span class="bu">abs</span>(analytic)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> np.angle(analytic)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    time <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="bu">len</span>(analytic), <span class="bu">len</span>(analytic))</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> norm <span class="op">*</span> np.cos(theta <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> normalizedFreq <span class="op">*</span> time)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> antiAliasedLowerAM(carrior, modulator):</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    upCar <span class="op">=</span> signal.resample(carrior, <span class="dv">2</span> <span class="op">*</span> <span class="bu">len</span>(carrior))</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    upMod <span class="op">=</span> signal.resample(modulator, <span class="dv">2</span> <span class="op">*</span> <span class="bu">len</span>(modulator))</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    shiftedCar <span class="op">=</span> frequencyShift(upCar, <span class="fl">0.25</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    am <span class="op">=</span> lowerAM(shiftedCar, upMod)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    filtered <span class="op">=</span> applySpectrumBandpass(am, <span class="fl">0.25</span>, <span class="fl">0.5</span>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> frequencyShift(filtered, <span class="op">-</span><span class="fl">0.25</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.resample(result, <span class="bu">len</span>(carrior))</span></code></pre></div>
+<p>以下はリアルタイム向けの実装へのリンクです。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba075fdf2472d6a1a/AmplitudeModulator/dsp/am.hpp#L392-L428">C++
+による LSB-AM の実装 (github.com)</a></li>
+</ul>
+<p>変調後にかけるハイパスフィルタは楕円フィルタのストップバンドゲインを高め
+(-140 dB ではなく -60 dB)
+に設定することでフォールオフを急峻にしています。人間の聴覚は低い周波数の解像度がいいので、低減の開始が
+20 Hz 前後、折り返しは 100 Hz
+以下でストップバンドゲインに到達するように設計しました。</p>
+<h4 id="素朴な-am-1">素朴な AM</h4>
+<p>素朴な AM
+は以下の手順でアンチエイリアシングができます。上側波帯と下側波帯が両方出るのでアップサンプリングの倍率を
+3
+倍にする点が異なります。上側波帯のアンチエイリアシングと同様に、理論上は
+2.5 倍のアップサンプリングで十分ですが、実装では 3
+倍にしたほうが楽です。</p>
+<ol type="1">
+<li>3 倍のアップサンプリング。</li>
+<li><span class="math inline">\(f_N\)</span> の周波数シフト。</li>
+<li><span class="math inline">\([0, f_N)\)</span>
+の成分をハイパスで除去。</li>
+<li><span class="math inline">\([2 f_N, 3 f_N)\)</span>
+の成分をローパスで除去。</li>
+<li><span class="math inline">\(-f_N\)</span> の周波数シフト。</li>
+<li>1/3 倍のダウンサンプリング。</li>
+</ol>
+<p>以下はリアルタイム向けの処理のブロック線図です。</p>
+<figure>
+<img src="img/lower_sideband_antialiasing_block_diagram.svg" alt="Image of a block diagram of anti-aliasing of lower side-band AM." style="width:44rem;padding-bottom: 12px;"/>
+</figure>
+<p>以下は Python 3 によるオフライン実装です。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> antiAliasedAMFull(carrior, modulator):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    upCar <span class="op">=</span> signal.resample(carrior, <span class="dv">3</span> <span class="op">*</span> <span class="bu">len</span>(carrior))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    upMod <span class="op">=</span> signal.resample(modulator, <span class="dv">3</span> <span class="op">*</span> <span class="bu">len</span>(modulator))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    shiftedCar <span class="op">=</span> frequencyShift(upCar, <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    am <span class="op">=</span> shiftedCar <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> upMod)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    filtered <span class="op">=</span> applySpectrumBandpass(am, <span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span>, <span class="dv">2</span> <span class="op">/</span> <span class="dv">6</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> frequencyShift(filtered, <span class="op">-</span><span class="dv">1</span> <span class="op">/</span> <span class="dv">6</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.resample(result, <span class="bu">len</span>(carrior))</span></code></pre></div>
+<p>以下はリアルタイム向けの実装です。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba075fdf2472d6a1a/AmplitudeModulator/dsp/am.hpp#L282-L322">C++
+による AM アンチエイリアシングの実装 (github.com)</a></li>
+<li><a
+href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/4c1fd63413b2626fd4cd0f224029c45d9cfbc8e7/common/dsp/analyticsignalfilter.js#L123-L279">JavaScript
+による AM アンチエイリアシングの実装 (github.com)</a></li>
+</ul>
+<h2 id="その他">その他</h2>
+<p>以下にリンクした GitHub のリポジトリで AM
+のアンチエイリアシングを実装した AmplitudeModulator
+というプラグインのソースコードを配布しています。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/UhhyouPluginsJuce/tree/main">GitHub -
+ryukau/UhhyouPluginsJuce: Audio plugins.</a></li>
+</ul>
+<h2 id="参考サイト">参考サイト</h2>
+<ul>
+<li><a
+href="https://en.wikipedia.org/wiki/Amplitude_modulation">Amplitude
+modulation - Wikipedia</a></li>
+<li><a
+href="https://en.wikipedia.org/wiki/Single-sideband_modulation">Single-sideband
+modulation - Wikipedia</a></li>
+</ul>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
