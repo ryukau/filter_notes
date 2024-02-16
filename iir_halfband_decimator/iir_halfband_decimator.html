@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-02-16" />
 <title>iir_halfband_decimator</title>
 
 <!-- MathJax -->
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-02-16
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -384,6 +384,7 @@ id="toc-paulfd-による-hiir-designer">paulfd による hiir-designer</a>
 id="toc-フィルタ係数のフォーマット">フィルタ係数のフォーマット</a></li>
 </ul></li>
 </ul></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -503,27 +504,31 @@ y_0 &amp;= a (x_0 - y_1) + x_1\\
 \end{aligned}
 \]</span></p>
 <p>コードにします。以下はポリフェイズフィルタとして実装するときの、 1
-次オールパスセクションの実装です。</p>
+次オールパスセクションの実装です。 <code>nSection</code>
+は直列につなぐ数です。</p>
 <div class="sourceCode" id="cb3"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> FirstOrderAllpass <span class="op">{</span></span>
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">,</span> <span class="dt">size_t</span> nSection<span class="op">&gt;</span> <span class="kw">class</span> FirstOrderAllpassSections <span class="op">{</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  Sample x1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  Sample y1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> nSection<span class="op">&gt;</span> x<span class="op">{};</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> nSection<span class="op">&gt;</span> y<span class="op">{};</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    y1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    x<span class="op">.</span>fill<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    y<span class="op">.</span>fill<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample x0<span class="op">,</span> Sample a<span class="op">)</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">,</span> <span class="at">const</span> <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> nSection<span class="op">&gt;</span> <span class="op">&amp;</span>a<span class="op">)</span></span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    y1 <span class="op">=</span> a <span class="op">*</span> <span class="op">(</span>x0 <span class="op">-</span> y1<span class="op">)</span> <span class="op">+</span> x1<span class="op">;</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    x1 <span class="op">=</span> x0<span class="op">;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y1<span class="op">;</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> nSection<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>      y<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> a<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> <span class="op">(</span>input <span class="op">-</span> y<span class="op">[</span>i<span class="op">])</span> <span class="op">+</span> x<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>      x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> input<span class="op">;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>      input <span class="op">=</span> y<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y<span class="op">.</span>back<span class="op">();</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <h3 id="iir-ポリフェイズフィルタ">IIR ポリフェイズフィルタ</h3>
 <p>フィルタ全体の伝達関数 <span class="math inline">\(H\)</span>
 を再掲します。</p>
@@ -567,36 +572,51 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">,</span> <span class="kw">typename</span> Coefficient<span class="op">&gt;</span> <span class="kw">class</span> HalfBandIIR <span class="op">{</span></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>FirstOrderAllpass<span class="op">&lt;</span>Sample<span class="op">&gt;,</span> Coefficient<span class="op">::</span>h0_a<span class="op">.</span>size<span class="op">()&gt;</span> ap0<span class="op">;</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>FirstOrderAllpass<span class="op">&lt;</span>Sample<span class="op">&gt;,</span> Coefficient<span class="op">::</span>h1_a<span class="op">.</span>size<span class="op">()&gt;</span> ap1<span class="op">;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  FirstOrderAllpassSections<span class="op">&lt;</span>Sample<span class="op">,</span> Coefficient<span class="op">::</span>h0_a<span class="op">.</span>size<span class="op">()&gt;</span> ap0<span class="op">;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  FirstOrderAllpassSections<span class="op">&lt;</span>Sample<span class="op">,</span> Coefficient<span class="op">::</span>h1_a<span class="op">.</span>size<span class="op">()&gt;</span> ap1<span class="op">;</span></span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">&amp;</span>ap <span class="op">:</span> ap0<span class="op">)</span> ap<span class="op">.</span>reset<span class="op">();</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">&amp;</span>ap <span class="op">:</span> ap1<span class="op">)</span> ap<span class="op">.</span>reset<span class="op">();</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    ap0<span class="op">.</span>reset<span class="op">();</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    ap1<span class="op">.</span>reset<span class="op">();</span></span>
 <span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="co">// input[0] は input[1] よりも 1 サンプル前の値。</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> <span class="op">&amp;</span>input<span class="op">)</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ダウンサンプリング。 input[0] は input[1] よりも 1 サンプル前の値。</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  Sample processDown<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> <span class="op">&amp;</span>input<span class="op">)</span></span>
 <span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> s0 <span class="op">=</span> input<span class="op">[</span><span class="dv">0</span><span class="op">];</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> ap0<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> s0 <span class="op">=</span> ap0<span class="op">[</span>i<span class="op">].</span>process<span class="op">(</span>s0<span class="op">,</span> Coefficient<span class="op">::</span>h0_a<span class="op">[</span>i<span class="op">]);</span></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> s1 <span class="op">=</span> input<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> ap1<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> s1 <span class="op">=</span> ap1<span class="op">[</span>i<span class="op">].</span>process<span class="op">(</span>s1<span class="op">,</span> Coefficient<span class="op">::</span>h1_a<span class="op">[</span>i<span class="op">]);</span></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Sample<span class="op">(</span><span class="fl">0.5</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span>s0 <span class="op">+</span> s1<span class="op">);</span></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> s0 <span class="op">=</span> ap0<span class="op">.</span>process<span class="op">(</span>input<span class="op">[</span><span class="dv">0</span><span class="op">],</span> Coefficient<span class="op">::</span>h0_a<span class="op">);</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> s1 <span class="op">=</span> ap1<span class="op">.</span>process<span class="op">(</span>input<span class="op">[</span><span class="dv">1</span><span class="op">],</span> Coefficient<span class="op">::</span>h1_a<span class="op">);</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Sample<span class="op">(</span><span class="fl">0.5</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span>s0 <span class="op">+</span> s1<span class="op">);</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">// アップサンプリング。</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> <span class="dv">2</span><span class="op">&gt;</span> processUp<span class="op">(</span>Sample input<span class="op">)</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">{</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>      ap1<span class="op">.</span>process<span class="op">(</span>input<span class="op">,</span> Coefficient<span class="op">::</span>h1_a<span class="op">),</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>      ap0<span class="op">.</span>process<span class="op">(</span>input<span class="op">,</span> Coefficient<span class="op">::</span>h0_a<span class="op">),</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <h3 id="テスト">テスト</h3>
 <p><span class="math inline">\(0\)</span> から <span
 class="math inline">\(f_s\)</span>
-までピッチベンドするサイン波を入力してテストしました。上の図は入力信号のスペクトログラム、下の図はハーフバンド楕円フィルタを通して
+までピッチベンドするサイン波を入力してテストしました。</p>
+<p>以下はダウンサンプリングの結果です。上の図は入力信号のスペクトログラム、下の図はハーフバンド楕円フィルタを通して
 1/2
 倍にダウンサンプリングした出力信号のスペクトログラムです。ダウンサンプリング前なので、入力信号のサンプリング周波数は
 <span class="math inline">\(2f_s\)</span>
 です。出力信号のスペクトログラムにエイリアシングが出ていないので成功しています。</p>
 <figure>
-<img src="img/halfband_test.png" alt="Image of a test result of 2-fold downsampling using half-band eliptic filter." style="padding-bottom: 12px;"/>
+<img src="img/Result_Down.png" alt="Image of a test result of 2-fold down-sampling using half-band eliptic filter." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下はアップサンプリングの結果です。上の図は入力信号のスペクトログラム、下の図はハーフバンド楕円フィルタを通して
+2 倍にアップサンプリングした出力信号のスペクトログラムです。下の図の
+<span class="math inline">\([f_s/2, f_s)\)</span>
+の範囲が真っ黒なので成功しています。</p>
+<figure>
+<img src="img/Result_Up.png" alt="Image of a test result of 2-fold up-sampling using half-band eliptic filter." style="padding-bottom: 12px;"/>
 </figure>
 <p>以下はテストコードへのリンクです。</p>
 <ul>
@@ -701,6 +721,13 @@ class="math inline">\(H_0, H_1\)</span> の表記が使われていますが、
 <code>half_band.py</code> の表記とは 0 と 1
 が入れ替わっているので注意してください。ここではすべて
 <code>half_band.py</code> の表記に合わせています。</p>
+<h2 id="変更点">変更点</h2>
+<ul>
+<li>2024/02/16
+<ul>
+<li>アップサンプリングの実装を追加。</li>
+</ul></li>
+</ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
 </footer>

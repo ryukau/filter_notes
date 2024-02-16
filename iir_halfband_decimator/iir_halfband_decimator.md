@@ -82,26 +82,29 @@ y_0 &= a (x_0 - y_1) + x_1\\
 \end{aligned}
 $$
 
-コードにします。以下はポリフェイズフィルタとして実装するときの、 1 次オールパスセクションの実装です。
+コードにします。以下はポリフェイズフィルタとして実装するときの、 1 次オールパスセクションの実装です。 `nSection` は直列につなぐ数です。
 
 ```c++
-template<typename Sample> class FirstOrderAllpass {
+template<typename Sample, size_t nSection> class FirstOrderAllpassSections {
 private:
-  Sample x1 = 0;
-  Sample y1 = 0;
+  std::array<Sample, nSection> x{};
+  std::array<Sample, nSection> y{};
 
 public:
   void reset()
   {
-    x1 = 0;
-    y1 = 0;
+    x.fill(0);
+    y.fill(0);
   }
 
-  Sample process(Sample x0, Sample a)
+  Sample process(Sample input, const std::array<Sample, nSection> &a)
   {
-    y1 = a * (x0 - y1) + x1;
-    x1 = x0;
-    return y1;
+    for (size_t i = 0; i < nSection; ++i) {
+      y[i] = a[i] * (input - y[i]) + x[i];
+      x[i] = input;
+      input = y[i];
+    }
+    return y.back();
   }
 };
 ```
@@ -153,33 +156,48 @@ template<typename T> struct HalfBandCoefficient {
 
 template<typename Sample, typename Coefficient> class HalfBandIIR {
 private:
-  std::array<FirstOrderAllpass<Sample>, Coefficient::h0_a.size()> ap0;
-  std::array<FirstOrderAllpass<Sample>, Coefficient::h1_a.size()> ap1;
+  FirstOrderAllpassSections<Sample, Coefficient::h0_a.size()> ap0;
+  FirstOrderAllpassSections<Sample, Coefficient::h1_a.size()> ap1;
 
 public:
   void reset()
   {
-    for (auto &ap : ap0) ap.reset();
-    for (auto &ap : ap1) ap.reset();
+    ap0.reset();
+    ap1.reset();
   }
 
-  // input[0] は input[1] よりも 1 サンプル前の値。
-  Sample process(std::array<Sample, 2> &input)
+  // ダウンサンプリング。 input[0] は input[1] よりも 1 サンプル前の値。
+  Sample processDown(std::array<Sample, 2> &input)
   {
-    auto s0 = input[0];
-    for (size_t i = 0; i < ap0.size(); ++i) s0 = ap0[i].process(s0, Coefficient::h0_a[i]);
-    auto s1 = input[1];
-    for (size_t i = 0; i < ap1.size(); ++i) s1 = ap1[i].process(s1, Coefficient::h1_a[i]);
+    auto s0 = ap0.process(input[0], Coefficient::h0_a);
+    auto s1 = ap1.process(input[1], Coefficient::h1_a);
     return Sample(0.5) * (s0 + s1);
+  }
+
+  // アップサンプリング。
+  std::array<Sample, 2> processUp(Sample input)
+  {
+    return {
+      ap1.process(input, Coefficient::h1_a),
+      ap0.process(input, Coefficient::h0_a),
+    };
   }
 };
 ```
 
 ### テスト
-$0$ から $f_s$ までピッチベンドするサイン波を入力してテストしました。上の図は入力信号のスペクトログラム、下の図はハーフバンド楕円フィルタを通して 1/2 倍にダウンサンプリングした出力信号のスペクトログラムです。ダウンサンプリング前なので、入力信号のサンプリング周波数は $2f_s$ です。出力信号のスペクトログラムにエイリアシングが出ていないので成功しています。
+$0$ から $f_s$ までピッチベンドするサイン波を入力してテストしました。
+
+以下はダウンサンプリングの結果です。上の図は入力信号のスペクトログラム、下の図はハーフバンド楕円フィルタを通して 1/2 倍にダウンサンプリングした出力信号のスペクトログラムです。ダウンサンプリング前なので、入力信号のサンプリング周波数は $2f_s$ です。出力信号のスペクトログラムにエイリアシングが出ていないので成功しています。
 
 <figure>
-<img src="img/halfband_test.png" alt="Image of a test result of 2-fold downsampling using half-band eliptic filter." style="padding-bottom: 12px;"/>
+<img src="img/Result_Down.png" alt="Image of a test result of 2-fold down-sampling using half-band eliptic filter." style="padding-bottom: 12px;"/>
+</figure>
+
+以下はアップサンプリングの結果です。上の図は入力信号のスペクトログラム、下の図はハーフバンド楕円フィルタを通して 2 倍にアップサンプリングした出力信号のスペクトログラムです。下の図の $[f_s/2, f_s)$ の範囲が真っ黒なので成功しています。
+
+<figure>
+<img src="img/Result_Up.png" alt="Image of a test result of 2-fold up-sampling using half-band eliptic filter." style="padding-bottom: 12px;"/>
 </figure>
 
 以下はテストコードへのリンクです。
@@ -263,3 +281,7 @@ template<typename T> struct HalfBandCoefficient {
 ```
 
 `PolyphaseIir2Designer.h` のコメントでも $H_0, H_1$ の表記が使われていますが、 `half_band.py` の表記とは 0 と 1 が入れ替わっているので注意してください。ここではすべて `half_band.py` の表記に合わせています。
+
+## 変更点
+- 2024/02/16
+  - アップサンプリングの実装を追加。

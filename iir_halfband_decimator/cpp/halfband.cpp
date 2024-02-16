@@ -104,14 +104,25 @@ public:
     for (auto &ap : ap1) ap.reset();
   }
 
-  // input[0] must be earlier sample.
-  Sample process(std::array<Sample, 2> &input)
+  // For down-sampling. input[0] must be earlier sample.
+  Sample processDown(std::array<Sample, 2> &input)
   {
     auto s0 = input[0];
     for (size_t i = 0; i < ap0.size(); ++i) s0 = ap0[i].process(s0, Coefficient::h0_a[i]);
     auto s1 = input[1];
     for (size_t i = 0; i < ap1.size(); ++i) s1 = ap1[i].process(s1, Coefficient::h1_a[i]);
     return Sample(0.5) * (s0 + s1);
+  }
+
+  // For up-sampling.
+  std::array<Sample, 2> processUp(Sample input)
+  {
+    // Coefficients are flipped compared to `processDown`.
+    auto s1 = input;
+    for (size_t i = 0; i < ap1.size(); ++i) s1 = ap1[i].process(s1, Coefficient::h1_a[i]);
+    auto s0 = input;
+    for (size_t i = 0; i < ap0.size(); ++i) s0 = ap0[i].process(s0, Coefficient::h0_a[i]);
+    return {s1, s0};
   }
 };
 
@@ -150,12 +161,21 @@ public:
     ap1.reset();
   }
 
-  // input[0] must be earlier sample.
-  Sample process(std::array<Sample, 2> &input)
+  // For down-sampling. input[0] must be earlier sample.
+  Sample processDown(std::array<Sample, 2> &input)
   {
     auto s0 = ap0.process(input[0], Coefficient::h0_a);
     auto s1 = ap1.process(input[1], Coefficient::h1_a);
     return Sample(0.5) * (s0 + s1);
+  }
+
+  // For up-sampling.
+  std::array<Sample, 2> processUp(Sample input)
+  {
+    return {
+      ap1.process(input, Coefficient::h1_a),
+      ap0.process(input, Coefficient::h0_a),
+    };
   }
 };
 
@@ -177,7 +197,7 @@ public:
 constexpr size_t nLoop = 1;
 
 template<typename Filter>
-void bench(float sampleRate, std::string name, std::vector<float> &src)
+void benchDown(float sampleRate, std::string name, std::vector<float> &src)
 {
   Filter halfbandiir;
 
@@ -193,7 +213,7 @@ void bench(float sampleRate, std::string name, std::vector<float> &src)
       phases[1] = src[i + 1];
 
       auto start = std::chrono::steady_clock::now();
-      wav[i / 2] = halfbandiir.process(phases);
+      wav[i / 2] = halfbandiir.processDown(phases);
       auto end = std::chrono::steady_clock::now();
 
       std::chrono::duration<double, std::milli> elapsed = end - start;
@@ -203,7 +223,36 @@ void bench(float sampleRate, std::string name, std::vector<float> &src)
   std::cout << name << ": " << wav.size() << "[sample], " << sumElapsed << "[ms], "
             << "\n";
 
-  writeWave("snd/" + name + ".wav", wav, size_t(sampleRate));
+  writeWave("snd/" + name + "_Down.wav", wav, size_t(sampleRate));
+}
+
+template<typename Filter>
+void benchUp(float sampleRate, std::string name, std::vector<float> &src)
+{
+  Filter halfbandiir;
+
+  std::vector<float> wav;
+  wav.resize(src.size() * 2);
+
+  double sumElapsed = 0.0;
+  std::array<float, 2> phases{};
+  for (size_t loop = 0; loop < nLoop; ++loop) {
+    halfbandiir.reset();
+    for (size_t i = 0; i < src.size(); ++i) {
+      auto start = std::chrono::steady_clock::now();
+      auto out = halfbandiir.processUp(src[i]);
+      wav[2 * i + 0] = out[0];
+      wav[2 * i + 1] = out[1];
+      auto end = std::chrono::steady_clock::now();
+
+      std::chrono::duration<double, std::milli> elapsed = end - start;
+      sumElapsed += elapsed.count();
+    }
+  }
+  std::cout << name << ": " << wav.size() << "[sample], " << sumElapsed << "[ms], "
+            << "\n";
+
+  writeWave("snd/" + name + "_Up.wav", wav, size_t(sampleRate));
 }
 
 std::vector<float> generate2xSourceSignal(float sampleRate)
@@ -227,18 +276,30 @@ std::vector<float> generate2xSourceSignal(float sampleRate)
 
 int main()
 {
-  constexpr float sampleRate = 48000.0f;
-  auto source = generate2xSourceSignal(sampleRate);
+  constexpr float downRate = 48000.0f;
+  auto source = generate2xSourceSignal(downRate);
 
   std::cout << "--- Warm up\n";
-  bench<HalfBandIIRArray<float, HalfBandCoefficient<float>>>(sampleRate, "Array", source);
+  benchDown<HalfBandIIRArray<float, HalfBandCoefficient<float>>>(
+    2 * downRate, "Array", source);
 
-  std::cout << "\n--- Benchmark\n";
-  bench<HalfBandIIRSplit<float, HalfBandCoefficient<float>>>(sampleRate, "Split", source);
-  bench<HalfBandIIRArray<float, HalfBandCoefficient<float>>>(sampleRate, "Array", source);
-  bench<HalfBandIIRSplit<float, HalfBandCoefficientHiir<float>>>(
-    sampleRate, "SplitHiir", source);
-  bench<HalfBandIIRArray<float, HalfBandCoefficientHiir<float>>>(
-    sampleRate, "ArrayHiir", source);
+  std::cout << "\n--- Benchmark Down-sampling\n";
+  benchDown<HalfBandIIRSplit<float, HalfBandCoefficient<float>>>(
+    downRate, "Split", source);
+  benchDown<HalfBandIIRArray<float, HalfBandCoefficient<float>>>(
+    downRate, "Array", source);
+  benchDown<HalfBandIIRSplit<float, HalfBandCoefficientHiir<float>>>(
+    downRate, "SplitHiir", source);
+  benchDown<HalfBandIIRArray<float, HalfBandCoefficientHiir<float>>>(
+    downRate, "ArrayHiir", source);
+
+  std::cout << "\n--- Benchmark Up-sampling\n";
+  constexpr float upRate = 4 * downRate;
+  benchUp<HalfBandIIRSplit<float, HalfBandCoefficient<float>>>(upRate, "Split", source);
+  benchUp<HalfBandIIRArray<float, HalfBandCoefficient<float>>>(upRate, "Array", source);
+  benchUp<HalfBandIIRSplit<float, HalfBandCoefficientHiir<float>>>(
+    upRate, "SplitHiir", source);
+  benchUp<HalfBandIIRArray<float, HalfBandCoefficientHiir<float>>>(
+    upRate, "ArrayHiir", source);
   return 0;
 }

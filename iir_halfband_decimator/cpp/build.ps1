@@ -14,4 +14,4 @@ if (!(test-path snd)) {
 
 cmake --build build --config release
 ./build/Release/halfband.exe
-python plot.py
+# python plot.py
