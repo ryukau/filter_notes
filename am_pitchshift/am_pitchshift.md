@@ -1,7 +1,7 @@
-# AM変調による周波数シフト
+# AM による周波数シフト
 この文章では虚数を $j$ で表します。
 
-Scott Wardle さんによる [A Hilbert-Transformer Frequency Shifter for Audio](https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf) で紹介されていたAM変調による周波数シフトで遊びます。
+Scott Wardle さんによる [A Hilbert-Transformer Frequency Shifter for Audio](https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf) で紹介されていた AM による周波数シフトで遊びます。
 
 紹介されていた手法では [analytic signal](https://en.wikipedia.org/wiki/Analytic_signal) $s(t)$ に $e^{j \omega_c t}$ を掛け合わせてから実部を取り出すことで $\omega_c$ だけ周波数シフトできます。Analytic signal は負の周波数成分が全て0になる信号で、複素数です。
 
@@ -51,7 +51,7 @@ FFT をリアルタイム処理で使うとレイテンシや計算コストが�
 
 上から順番にコードをテキストファイルにコピペしていけば動くプログラムになっています。完成したコードは次のリンクから読むことができます。
 
-- [コードを読む](./pitchshift.py)
+- [コードを読む](./frequencyshift.py)
 
 ### ヒルベルト変換
 `scipy.signal.hilbert` を使います。
@@ -60,14 +60,14 @@ FFT をリアルタイム処理で使うとレイテンシや計算コストが�
 import numpy
 import scipy.signal as signal
 
-def pitch_shift(samplerate, analytic_signal, shift_hz):
+def frequency_shift(samplerate, analytic_signal, shift_hz):
     norm = numpy.abs(analytic_signal)
     theta = numpy.angle(analytic_signal)
     time = numpy.linspace(0, len(analytic_signal) / samplerate, len(analytic_signal))
     return norm * numpy.cos(theta + 2 * numpy.pi * shift_hz * time)
 
 def naive(samplerate, sig, shift_hz=1000):
-    return pitch_shift(samplerate, signal.hilbert(wav), shift_hz)
+    return frequency_shift(samplerate, signal.hilbert(wav), shift_hz)
 ```
 
 ### オールパスその1
@@ -117,7 +117,7 @@ def olli(samplerate, sig, shift_hz=1000):
     real = signal.sosfilt(sos_real, sig)
     imag = signal.sosfilt(sos_imag, sig)
     analytic = 0.5 * (real + 1j * imag)
-    return pitch_shift(samplerate, analytic, shift_hz)
+    return frequency_shift(samplerate, analytic, shift_hz)
 ```
 
 - [Hilbert transform « iki.fi/o](http://yehar.com/blog/?p=368)
@@ -146,7 +146,7 @@ def wasabi(samplerate, sig, shift_hz=1000):
     real = signal.sosfilt(sos_real, sig)
     imag = signal.sosfilt(sos_imag, sig)
     analytic = 0.5 * (real + 1j * imag)
-    return pitch_shift(samplerate, analytic, shift_hz)
+    return frequency_shift(samplerate, analytic, shift_hz)
 ```
 
 - [transform - IIR Hilbert Transformer - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer)
@@ -186,7 +186,7 @@ def favreau(samplerate, sig, shift_hz=1000):
     real = signal.sosfilt(sos_real, sig)
     imag = signal.sosfilt(sos_imag, sig)
     analytic = 0.5 * (real + 1j * imag)
-    return pitch_shift(samplerate, analytic, shift_hz)
+    return frequency_shift(samplerate, analytic, shift_hz)
 ```
 
 - [pure-data/hilbert~.pd at master · pure-data/pure-data · GitHub](https://github.com/pure-data/pure-data/blob/master/extra/hilbert%7E.pd)
@@ -250,7 +250,7 @@ def wilkinson(samplerate, sig, shift_hz=1000):
     imag = signal.sosfilt(sos_imag, sig)
     analytic = real - 1j * imag
 
-    sig = pitch_shift(samplerate, analytic, shift_hz)
+    sig = frequency_shift(samplerate, analytic, shift_hz)
     peak = numpy.max(numpy.abs(sig))
     return sig / peak if peak != 0 else sig
 ```
@@ -326,7 +326,7 @@ def mcnulty(samplerate, sig, shift_hz=1000):
     imag = signal.sosfilt(sos_imag, sig)
 
     analytic = 0.5 * (real - 1j * imag)
-    return pitch_shift(samplerate, analytic, shift_hz)
+    return frequency_shift(samplerate, analytic, shift_hz)
 ```
 
 - [Analog Wide Band Audio Phase Shift Networks](https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html)
@@ -382,7 +382,7 @@ def chuck(samplerate, sig, shift_hz=1000):
     imag = signal.sosfilt(sos_imag, sig)
 
     analytic = 0.5 * (real - 1j * imag)
-    return pitch_shift(samplerate, analytic, shift_hz)
+    return frequency_shift(samplerate, analytic, shift_hz)
 ```
 
 - [Analog Wide Band Audio Phase Shift Networks](https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html)
@@ -534,6 +534,9 @@ output = scipy.signal.sosfilt(sos_biquad, some_signal)
 この記事はもともと AM ピッチシフトという呼び方を使っていましたが、今は AM 周波数シフトという呼び方に変更しました。 URL が `am_pitchshift.html` となっているのはその名残です。
 
 ## 変更点
+- 2024/02/16
+  - タイトルの「AM変調」を「AM」に変更。
+  - コードの `pitch_shift` を `frequency_shift` に変更。
 - 2022/05/08
   - 手法の呼び方を AM ピッチシフトから AM 周波数シフトに変更。
 - 2019/08/06

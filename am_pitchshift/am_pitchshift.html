@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-10-30" />
+<meta name="dcterms.date" content="2024-02-16" />
 <title>am_pitchshift</title>
 
 <!-- MathJax -->
@@ -344,14 +344,14 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-10-30
+Update: 2024-02-16
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#am変調による周波数シフト"
-id="toc-am変調による周波数シフト">AM変調による周波数シフト</a>
+<li><a href="#am-による周波数シフト" id="toc-am-による周波数シフト">AM
+による周波数シフト</a>
 <ul>
 <li><a href="#analytic-signal-の計算"
 id="toc-analytic-signal-の計算">Analytic Signal の計算</a></li>
@@ -391,13 +391,13 @@ id="toc-ピッチシフトと周波数シフト">ピッチシフトと周波数�
 </nav>
 </details>
 </header>
-<h1 id="am変調による周波数シフト">AM変調による周波数シフト</h1>
+<h1 id="am-による周波数シフト">AM による周波数シフト</h1>
 <p>この文章では虚数を <span class="math inline">\(j\)</span>
 で表します。</p>
 <p>Scott Wardle さんによる <a
 href="https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf">A
-Hilbert-Transformer Frequency Shifter for Audio</a>
-で紹介されていたAM変調による周波数シフトで遊びます。</p>
+Hilbert-Transformer Frequency Shifter for Audio</a> で紹介されていた AM
+による周波数シフトで遊びます。</p>
 <p>紹介されていた手法では <a
 href="https://en.wikipedia.org/wiki/Analytic_signal">analytic signal</a>
 <span class="math inline">\(s(t)\)</span> に <span
@@ -477,7 +477,7 @@ href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundfile</a></li>
 </ul>
 <p>上から順番にコードをテキストファイルにコピペしていけば動くプログラムになっています。完成したコードは次のリンクから読むことができます。</p>
 <ul>
-<li><a href="./pitchshift.py">コードを読む</a></li>
+<li><a href="./frequencyshift.py">コードを読む</a></li>
 </ul>
 <h3 id="ヒルベルト変換">ヒルベルト変換</h3>
 <p><code>scipy.signal.hilbert</code> を使います。</p>
@@ -485,14 +485,14 @@ href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundfile</a></li>
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pitch_shift(samplerate, analytic_signal, shift_hz):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> frequency_shift(samplerate, analytic_signal, shift_hz):</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    norm <span class="op">=</span> numpy.<span class="bu">abs</span>(analytic_signal)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> numpy.angle(analytic_signal)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    time <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="bu">len</span>(analytic_signal) <span class="op">/</span> samplerate, <span class="bu">len</span>(analytic_signal))</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> norm <span class="op">*</span> numpy.cos(theta <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> shift_hz <span class="op">*</span> time)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> naive(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, signal.hilbert(wav), shift_hz)</span></code></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frequency_shift(samplerate, signal.hilbert(wav), shift_hz)</span></code></pre></div>
 <h3 id="オールパスその1">オールパスその1</h3>
 <p><a href="http://yehar.com/blog/?p=368">Olli Niemitalo
 さんによって紹介されていたフィルタ</a>です。</p>
@@ -539,7 +539,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frequency_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a href="http://yehar.com/blog/?p=368">Hilbert transform «
 iki.fi/o</a></li>
@@ -572,7 +572,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frequency_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a
 href="https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer">transform
@@ -615,7 +615,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    real <span class="op">=</span> signal.sosfilt(sos_real, sig)</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">+</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frequency_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a
 href="https://github.com/pure-data/pure-data/blob/master/extra/hilbert%7E.pd">pure-data/hilbert~.pd
@@ -692,7 +692,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> real <span class="op">-</span> <span class="ot">1j</span> <span class="op">*</span> imag</span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    sig <span class="op">=</span> pitch_shift(samplerate, analytic, shift_hz)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    sig <span class="op">=</span> frequency_shift(samplerate, analytic, shift_hz)</span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    peak <span class="op">=</span> numpy.<span class="bu">max</span>(numpy.<span class="bu">abs</span>(sig))</span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sig <span class="op">/</span> peak <span class="cf">if</span> peak <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> sig</span></code></pre></div>
 <ul>
@@ -774,7 +774,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
 <span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">-</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frequency_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a
 href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog
@@ -831,7 +831,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    imag <span class="op">=</span> signal.sosfilt(sos_imag, sig)</span>
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    analytic <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (real <span class="op">-</span> <span class="ot">1j</span> <span class="op">*</span> imag)</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pitch_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frequency_shift(samplerate, analytic, shift_hz)</span></code></pre></div>
 <ul>
 <li><a
 href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog
@@ -993,6 +993,12 @@ music の Frequency Shifter</a>
 <code>am_pitchshift.html</code> となっているのはその名残です。</p>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/02/16
+<ul>
+<li>タイトルの「AM変調」を「AM」に変更。</li>
+<li>コードの <code>pitch_shift</code> を <code>frequency_shift</code>
+に変更。</li>
+</ul></li>
 <li>2022/05/08
 <ul>
 <li>手法の呼び方を AM ピッチシフトから AM 周波数シフトに変更。</li>
