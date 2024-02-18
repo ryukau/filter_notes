@@ -144,7 +144,7 @@ def antiAliasedUpperAM(carrior, modulator):
     return signal.resample(upperAM(upCar, upMod), len(carrior))
 ```
 
-以下は `signal.resample` をリアルタイムで動くハーフバンド楕円フィルタに置き換えた実装へのリンクです。
+以下は `signal.resample` をリアルタイムで動く[ハーフバンド楕円フィルタ](https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html)に置き換えた実装へのリンクです。
 
 - [C++ による USB-AM の実装 (github.com)](https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba075fdf2472d6a1a/AmplitudeModulator/dsp/am.hpp#L366-L390)
 
@@ -219,7 +219,7 @@ def antiAliasedLowerAM(carrior, modulator):
 以下はリアルタイム向けの処理のブロック線図です。
 
 <figure>
-<img src="img/lower_sideband_antialiasing_block_diagram.svg" alt="Image of a block diagram of anti-aliasing of lower side-band AM." style="width:44rem;padding-bottom: 12px;"/>
+<img src="img/double_sideband_antialiasing_block_diagram.svg" alt="Image of a block diagram of anti-aliasing of double side-band AM." style="width:44rem;padding-bottom: 12px;"/>
 </figure>
 
 以下は Python 3 によるオフライン実装です。
@@ -250,3 +250,8 @@ def antiAliasedAMFull(carrior, modulator):
 ## 参考サイト
 - [Amplitude modulation - Wikipedia](https://en.wikipedia.org/wiki/Amplitude_modulation)
 - [Single-sideband modulation - Wikipedia](https://en.wikipedia.org/wiki/Single-sideband_modulation)
+
+## 変更点
+- 2024/02/18
+  - 「ハーフバンド楕円フィルタ」へのリンクを追加。
+  - 素朴な AM のアンチエイリアシングのブロック線図のリンクを修正。
