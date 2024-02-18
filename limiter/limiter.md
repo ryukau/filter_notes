@@ -574,6 +574,42 @@ print(np.max(np.abs(upSig)), np.max(np.abs(upLimited)))
 
 - [軽量なトゥルーピークモードのコードを読む (github.com)](https://github.com/ryukau/filter_notes/blob/master/limiter/lighttruepeaklimiter.py)
 
+### プリフィルタの設計
+この設計は BasicLimiter に関する以下の issue の解決策として提示したものです。
+
+- [Move UpSampling Cutoff Frequency into BasicLimiter at Nyquist · Issue #46 · ryukau/VSTPlugins · GitHub](https://github.com/ryukau/VSTPlugins/issues/46)
+
+アップサンプリング前のローパスフィルタ (プリフィルタ) の設計の一例として [ITU-R BS.1770-5](https://www.itu.int/rec/R-REC-BS.1770/en) の Attachment 1 to Annex 2 (p.21) に記載された maximum under-read の式を使う方法が考えられます。
+
+Maximum under-read は、任意の周波数 $f$ についてサンプルピークとトゥルーピークの差の最大値です。 ITU-R BS.1770-5 では周波数 $f$ の三角関数のピークがサンプルとサンプルの中間点に位置したときに under-read が最大となると書いてありますが、証明はないので本当かどうかはわかりません。以下は maximum under-read のアイデアを示した図です。
+
+<figure>
+<img src="img/maximum_underread.svg" alt="Image of an example of maximum under-read condition at f=f_s/4, according to ITU-R BS.1770 definition. First half of sine wave goes through 2 samples at the same height, and the peak of half sine is exactly in between those 2 samples." style="padding-bottom: 12px;"/>
+</figure>
+
+以下は maximum under-read ($u$) の式です。 $f$ はナイキスト周波数が 0.5 となるように正規化されています。 $f$ の単位は \[rad/2π\] です。
+
+$$
+u(f) = 20 \log(\cos(\pi f)).
+$$
+
+以下はプリフィルタを設計する Python 3 のコードです。
+
+```python
+import numpy as np
+firLength = 64  # Should be even.
+normalizedFreq = np.linspace(0, 0.5, firLength // 2 + 1, endpoint=True)
+invMaxTruepeak = np.cos(np.pi * normalizedFreq)
+fir = np.fft.irfft(invMaxTruepeak.astype(np.complex128))
+fir = np.roll(fir, len(fir) // 2 - 1)
+```
+
+以下はプリフィルタの周波数特性です。今回設計した maximum under-read に基づくプリフィルタと、適当に設計した BasicLimiter のプリフィルタを比較しています。上 2 つのプロットはどちらも振幅特性ですが、縦軸のスケールを変えています。 FIR フィルタの長さが同じであれば、パスバンドが平坦なほどカットオフ周波数を低く設定しなければならないトレードオフがあります。
+
+<figure>
+<img src="img/prefilter.svg" alt="Image of frequency response of pre-filter." style="padding-bottom: 12px;"/>
+</figure>
+
 ## その他
 ### 継時マスキング
 [継時マスキング](https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0) ([temporal masking](https://en.wikipedia.org/wiki/Auditory_masking#Temporal_masking)) は、突然大きな音がしたときは前後にある小さな音が聞こえにくくなるという人間の聴覚の性質です。リミッタはピークの前後をエンベロープで歪ませて振幅を制限します。ピークの前後は継時マスキングによってもともと聞こえていないので、歪ませても違和感が少ないと考えることができます。
@@ -608,6 +644,8 @@ print(np.max(np.abs(upSig)), np.max(np.abs(upLimited)))
 - [Fruity Limiter - Effect Plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm)
 
 ## 変更点
+- 2024/02/18
+  - プリフィルタの設計の項を追加。
 - 2022/05/20
   - 軽量なトゥルーピークモードの項を追加。
 - 2022/05/11

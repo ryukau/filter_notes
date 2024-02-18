@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-02-18" />
 <title>limiter</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-02-18
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -384,6 +384,8 @@ id="toc-fir-フィルタによるアップサンプリングの限界">FIR
 id="toc-簡易な性能の測定">簡易な性能の測定</a></li>
 <li><a href="#軽量なトゥルーピークモード"
 id="toc-軽量なトゥルーピークモード">軽量なトゥルーピークモード</a></li>
+<li><a href="#プリフィルタの設計"
+id="toc-プリフィルタの設計">プリフィルタの設計</a></li>
 </ul></li>
 <li><a href="#その他" id="toc-その他">その他</a>
 <ul>
@@ -717,8 +719,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="dt">float</span> maxPeak <span class="op">=</span> <span class="fl">10.0</span><span class="bu">f</span><span class="op">;</span></span>
 <span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>  <span class="co">// テスト信号の生成。</span></span>
-<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>random_device<span class="op"> </span>rd<span class="op">;</span></span>
-<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>mt19937_64<span class="op"> </span>rng<span class="op">(</span>rd<span class="op">());</span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>random_device rd<span class="op">;</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>mt19937_64 rng<span class="op">(</span>rd<span class="op">());</span></span>
 <span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> dist<span class="op">(-</span>maxPeak<span class="op">,</span> maxPeak<span class="op">);</span></span>
 <span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> input<span class="op">(</span>sampleRate<span class="op">);</span></span>
@@ -742,9 +744,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>max <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> <span class="st">&quot;Limiting succeeded.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> <span class="st">&quot;Limiting succeeded.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> <span class="st">&quot;Limiting failed.</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> <span class="st">&quot;Limiting failed.</span><span class="sc">\n</span><span class="st">&quot;</span></span>
 <span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>              <span class="op">&lt;&lt;</span> <span class="bu">std::</span>setprecision<span class="op">(</span><span class="bu">std::</span>numeric_limits<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;::</span>digits10 <span class="op">+</span> <span class="dv">1</span><span class="op">)</span></span>
 <span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>              <span class="op">&lt;&lt;</span> <span class="st">&quot;threshold: &quot;</span> <span class="op">&lt;&lt;</span> limiter<span class="op">.</span>thresholdAmp <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span></span>
 <span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>              <span class="op">&lt;&lt;</span> <span class="st">&quot;max      : &quot;</span> <span class="op">&lt;&lt;</span> max <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
@@ -1045,6 +1047,53 @@ href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_comput
 href="https://github.com/ryukau/filter_notes/blob/master/limiter/lighttruepeaklimiter.py">軽量なトゥルーピークモードのコードを読む
 (github.com)</a></li>
 </ul>
+<h3 id="プリフィルタの設計">プリフィルタの設計</h3>
+<p>この設計は BasicLimiter に関する以下の issue
+の解決策として提示したものです。</p>
+<ul>
+<li><a href="https://github.com/ryukau/VSTPlugins/issues/46">Move
+UpSampling Cutoff Frequency into BasicLimiter at Nyquist · Issue #46 ·
+ryukau/VSTPlugins · GitHub</a></li>
+</ul>
+<p>アップサンプリング前のローパスフィルタ (プリフィルタ)
+の設計の一例として <a
+href="https://www.itu.int/rec/R-REC-BS.1770/en">ITU-R BS.1770-5</a> の
+Attachment 1 to Annex 2 (p.21) に記載された maximum under-read
+の式を使う方法が考えられます。</p>
+<p>Maximum under-read は、任意の周波数 <span
+class="math inline">\(f\)</span>
+についてサンプルピークとトゥルーピークの差の最大値です。 ITU-R BS.1770-5
+では周波数 <span class="math inline">\(f\)</span>
+の三角関数のピークがサンプルとサンプルの中間点に位置したときに
+under-read
+が最大となると書いてありますが、証明はないので本当かどうかはわかりません。以下は
+maximum under-read のアイデアを示した図です。</p>
+<figure>
+<img src="img/maximum_underread.svg" alt="Image of an example of maximum under-read condition at f=f_s/4, according to ITU-R BS.1770 definition. First half of sine wave goes through 2 samples at the same height, and the peak of half sine is exactly in between those 2 samples." style="padding-bottom: 12px;"/>
+</figure>
+<p>以下は maximum under-read (<span class="math inline">\(u\)</span>)
+の式です。 <span class="math inline">\(f\)</span> はナイキスト周波数が
+0.5 となるように正規化されています。 <span
+class="math inline">\(f\)</span> の単位は [rad/2π] です。</p>
+<p><span class="math display">\[
+u(f) = 20 \log(\cos(\pi f)).
+\]</span></p>
+<p>以下はプリフィルタを設計する Python 3 のコードです。</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>firLength <span class="op">=</span> <span class="dv">64</span>  <span class="co"># Should be even.</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>normalizedFreq <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="fl">0.5</span>, firLength <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span>, endpoint<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>invMaxTruepeak <span class="op">=</span> np.cos(np.pi <span class="op">*</span> normalizedFreq)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> np.fft.irfft(invMaxTruepeak.astype(np.complex128))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> np.roll(fir, <span class="bu">len</span>(fir) <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span>)</span></code></pre></div>
+<p>以下はプリフィルタの周波数特性です。今回設計した maximum under-read
+に基づくプリフィルタと、適当に設計した BasicLimiter
+のプリフィルタを比較しています。上 2
+つのプロットはどちらも振幅特性ですが、縦軸のスケールを変えています。 FIR
+フィルタの長さが同じであれば、パスバンドが平坦なほどカットオフ周波数を低く設定しなければならないトレードオフがあります。</p>
+<figure>
+<img src="img/prefilter.svg" alt="Image of frequency response of pre-filter." style="padding-bottom: 12px;"/>
+</figure>
 <h2 id="その他">その他</h2>
 <h3 id="継時マスキング">継時マスキング</h3>
 <p><a
@@ -1109,6 +1158,10 @@ Limiter - Effect Plugin</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/02/18
+<ul>
+<li>プリフィルタの設計の項を追加。</li>
+</ul></li>
 <li>2022/05/20
 <ul>
 <li>軽量なトゥルーピークモードの項を追加。</li>
