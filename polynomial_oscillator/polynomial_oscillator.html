@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<meta name="dcterms.date" content="2024-04-08" />
+<title>polynomial_oscillator</title>
+
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    tags: 'ams'
+  }
+};
+</script>
+
+<style>
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #ffffff;
+    color: #666666;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+code span.an { color: #666666; font-style: italic; } /* Annotation */
+code span.at { color: #906000; } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #b000b0; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008800; } /* Comment */
+code span.cv { color: #008800; } /* CommentVar */
+code span.do { color: #008800; } /* Documentation */
+code span.dt { color: #906000; } /* DataType */
+code span.dv { color: #0000ff; } /* DecVal */
+code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000ff; } /* Float */
+code span.im { color: #000000; font-weight: bold; } /* Import */
+code span.in { color: #666666; } /* Information */
+code span.kw { color: #000000; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #000000; } /* Other */
+code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #b000b0; } /* SpecialChar */
+code span.ss { color: #b000b0; } /* SpecialString */
+code span.st { color: #b000b0; } /* String */
+code span.va { color: #000088; } /* Variable */
+code span.vs { color: #b000b0; } /* VerbatimString */
+code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
+</style>
+<style>
+body {
+max-width: 704px;
+margin: auto;
+padding: 32px 8px;
+}
+
+img {
+max-width: 100%;
+}
+
+video {
+max-width: 100%;
+}
+
+kbd {
+font-family: inherit;
+border-style: solid;
+border-width: 1px 2px 2px 1px;
+border-radius: 2px;
+padding: 4px;
+margin: 2px;
+line-height: calc(1em + 16px);
+}
+
+a {
+text-decoration: none;
+}
+
+h2 {
+border-left: solid 32px #000000;
+padding-left: 24px;
+}
+
+h3 {
+border-left: solid 20px #404040;
+padding-left: 16px;
+}
+
+h4 {
+border-left: solid 12px #606060;
+padding-left: 8px;
+}
+
+h5 {
+border-left: solid 4px #808080;
+padding-left: 4px;
+}
+
+h6 {
+border-left: solid 2px #a0a0a0;
+padding-left: 2px;
+}
+
+table {
+border-spacing: 0px;
+border-collapse: separate;
+border-left: 1px solid #888888;
+border-right: 1px solid #888888;
+border-top: 1px solid #888888;
+border-bottom: hidden;
+}
+
+tr:nth-child(odd) {
+background: #eeeeee;
+}
+
+tr:nth-child(even) {
+background: #ffffff;
+}
+
+th {
+height: 2em;
+padding: 4px 1em 4px 1em;
+background: #ffffff;
+border-bottom: 1px solid #888888;
+}
+
+th:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+td {
+height: 1.5em;
+padding: 4px 1em 4px 1em;
+border-bottom: 1px solid #888888;
+}
+
+td:not(:first-child) {
+border-left: 1px solid #888888;
+}
+
+dl {
+padding-left: 2em;
+}
+
+dt {
+font-weight: bold;
+border-bottom: 1px dashed #000000;
+margin-top: 2em;
+}
+
+dd {
+border-left: 1px dotted #000000;
+margin-left: 1em;
+padding-left: 1em;
+}
+
+audio {
+vertical-align: middle;
+}
+
+label {
+vertical-align: middle;
+}
+
+:not(.sourceCode)>pre {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+div.sourceCode {
+overflow: auto;
+border: 1px solid #888888;
+padding: 8px;
+}
+
+pre>code.sourceCode>span>a:first-child::before {
+border-right: 1px solid #888888;
+padding-right: 1em;
+margin-right: 1em;
+text-decoration: none;
+}
+
+:not(pre)>code {
+color: #163eac;
+}
+
+li {
+margin: 8px;
+}
+
+summary:hover {
+background-color: #eeeeee;
+}
+
+header {
+border-bottom: 1px gray solid;
+padding: 0.5em;
+margin-bottom: 1em;
+}
+
+footer {
+border-top: 1px gray solid;
+padding: 0.5em;
+margin-top: 1em;
+}
+
+
+canvas {
+/* image-rendering: pixelated; */
+display: inline-block;
+border-style: solid;
+border-width: 1px;
+border-color: #627f84;
+}
+
+.controlBlock {
+display: inline-block;
+width: 450px;
+text-align: left;
+vertical-align: top;
+margin-left: 4px;
+}
+
+input[type="button"] {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+font-size: 16px;
+height: 32px;
+}
+
+input[type="button"]:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+div.numberInput {
+display: block;
+white-space: nowrap;
+}
+
+div.numberInput:hover {
+background-color: #e0ecff;
+}
+
+.numberInputLabel {
+/* max 12 letter  */
+display: inline-block;
+margin: 0 8px 0 8px;
+text-align: left;
+vertical-align: middle;
+width: 100px;
+
+font-size: 10pt;
+font-family: 'Courier New', Courier, monospace;
+}
+
+.numberInputNumber {
+display: inline-block;
+vertical-align: middle;
+width: 120px;
+}
+
+.numberInputRange {
+display: inline-block;
+vertical-align: middle;
+width: 160px;
+}
+
+.pullDownMenu {
+display: inline-block;
+text-align: center;
+}
+
+.pullDownMenu:hover {
+background-color: #e0ecff;
+}
+
+select {
+background-color: #ffffff;
+border: 2px solid #aaaaaa;
+height: 24px;
+vertical-align: middle;
+font-size: 12px;
+}
+
+select:hover {
+background-color: #ffffff;
+border: 2px solid #aaccff;
+}
+
+span.math.inline a {
+  color: #000000;
+}
+</style>
+
+<script
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+type="text/javascript"></script>
+</head>
+
+<body>
+<header>
+<p>
+何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+</p>
+<hr>
+<a href="../index.html">インデックスに戻る</a>
+<p>
+Update: 2024-04-08
+</p>
+<details>
+<summary translate="yes">Table of Contents</summary>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#多項式オシレータ"
+id="toc-多項式オシレータ">多項式オシレータ</a>
+<ul>
+<li><a href="#オシレータの仕様"
+id="toc-オシレータの仕様">オシレータの仕様</a></li>
+<li><a href="#指定された制御点を通る多項式の近似"
+id="toc-指定された制御点を通る多項式の近似">指定された制御点を通る多項式の近似</a></li>
+<li><a href="#振幅の正規化" id="toc-振幅の正規化">振幅の正規化</a></li>
+<li><a href="#その他" id="toc-その他">その他</a>
+<ul>
+<li><a href="#位相の計算" id="toc-位相の計算">位相の計算</a>
+<ul>
+<li><a href="#floor" id="toc-floor"><code>floor</code></a></li>
+<li><a href="#fmod" id="toc-fmod"><code>fmod</code></a></li>
+<li><a href="#if-または-while" id="toc-if-または-while"><code>if</code>
+または <code>while</code></a></li>
+<li><a href="#remainder"
+id="toc-remainder"><code>remainder</code></a></li>
+</ul></li>
+<li><a href="#符号なし整数" id="toc-符号なし整数">符号なし整数</a></li>
+<li><a href="#符号なし整数-ビットマスク"
+id="toc-符号なし整数-ビットマスク">符号なし整数 + ビットマスク</a></li>
+<li><a href="#固定小数点数" id="toc-固定小数点数">固定小数点数</a></li>
+</ul></li>
+<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+</ul></li>
+</ul>
+</nav>
+</details>
+</header>
+<h1 id="多項式オシレータ">多項式オシレータ</h1>
+<p><a
+href="https://ryukau.github.io/UhhyouWebSynthesizers/GlitchSprinkler/synth.html">GlitchSprinkler</a>
+と <a
+href="https://ryukau.github.io/UhhyouWebSynthesizers/IntegerArpeggio/synth.html">IntegerArpeggio</a>
+で使った多項式オシレータについて紹介します。</p>
+<p>多項式とは以下の形の関数のことです。</p>
+<p><span class="math display">\[
+\begin{aligned}
+P(x)
+&amp;= a_0 + a_1 x + a_2 x^2 + a_3 x^3 \dots \\
+&amp;= \sum_{n=0} a_n x^n
+\end{aligned}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(x\)</span> : 変数。</li>
+<li><span class="math inline">\(a_n\)</span> : <span
+class="math inline">\(n\)</span> 次の項に乗算される定数。</li>
+</ul>
+<h2 id="オシレータの仕様">オシレータの仕様</h2>
+<p>楽に速く計算したいので以下のように仕様を定めます。</p>
+<p>多項式から波形を取り出す範囲を <span class="math inline">\([0,
+1)\)</span>
+とします。これで位相のスケーリングを行わずに済みます。詳細は「<a
+href="#位相の計算">その他 -&gt; 位相の計算</a>」を参照してください。</p>
+<p>波形の始点は 0 とします。これで多項式の <code>a_0</code> が常に 0
+となり、計算量が減ります。</p>
+<p>多項式はユーザが指定した <span class="math inline">\(k\)</span>
+個の制御点を通過します。言い換えると、制御点によってユーザが波形を変更できるようにします。</p>
+<h2
+id="指定された制御点を通る多項式の近似">指定された制御点を通る多項式の近似</h2>
+<p>以下は <span class="math inline">\(k\)</span>
+個の制御点があるときに使える多項式です。</p>
+<p><span class="math display">\[
+\hat{P}(x) = \sum_{n=1}^{k} a_n x^n
+\]</span></p>
+<p>この節では、指定した制御点を通るように <span
+class="math inline">\(a_n\)</span> を求めます。</p>
+<p>下の図のように制御点を定義します。</p>
+<figure>
+<img src="img/control_point.svg" alt="" style="padding-bottom: 12px;"/>
+</figure>
+<p><span class="math inline">\(x\)</span>
+が小さい制御点から順にインデックスを与えて <span
+class="math inline">\(x_0 &lt; x_1 &lt; \dots &lt; x_{k+1}\)</span>
+となるようにします。</p>
+<p>インデックス <span class="math inline">\(0\)</span> と インデックス
+<span class="math inline">\(k + 1\)</span>
+の制御点は波形の両端です。インデックス <span
+class="math inline">\(0\)</span> の制御点の値を <span
+class="math inline">\((x_0, y_0) = (0, 0)\)</span> 、インデックス <span
+class="math inline">\(k + 1\)</span> の制御点の値を <span
+class="math inline">\((x_{k+1}, y_{k+1}) = (1, 0)\)</span>
+と固定します。 <span class="math inline">\(x_0\)</span> と <span
+class="math inline">\(x_{k+1}\)</span>
+の値は多項式から波形を取り出す範囲についての仕様に基づきます。 <span
+class="math inline">\(y_0\)</span> は波形の始点を 0 とする仕様から 0
+になります。 <span class="math inline">\(y_{k+1}\)</span>
+はユーザが設定できるようにもできますが、簡略化のために 0
+に固定しています。</p>
+<p>ここまでの定義を使えば <span class="math inline">\(\mathbf{A}
+\mathbf{x} = \mathbf{b}\)</span> の形にして <span
+class="math inline">\(a_n\)</span> を求めることができます。</p>
+<p>多項式 <span class="math inline">\(\hat{P}\)</span>
+はベクトルを使って以下のように書き直すことができます。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat{P}(x)
+&amp;= \sum_{n=1}^{k} a_n x^n
+&amp;=
+\begin{bmatrix} x   &amp;  x^2 &amp;  x^3 &amp;  \cdots
+&amp;  x^k\end{bmatrix}
+\begin{bmatrix} a_1 \\ a_2 \\ a_3 \\ \vdots \\ a_k\end{bmatrix}
+\end{aligned}
+\]</span></p>
+<p>ここで <span class="math inline">\(k\)</span> 個の制御点の組 <span
+class="math inline">\((x_n, y_n)\)</span>
+が分かっているので、以下の行列式を組み立てられます。</p>
+<p><span class="math display">\[
+\begin{bmatrix} y_1 \\ y_2 \\ y_3 \\ \vdots \\ y_k\end{bmatrix}
+=
+\begin{bmatrix}
+  x_1    &amp;  x_1^2 &amp;  x_1^3 &amp; \cdots &amp;  x_1^k  \\
+  x_2    &amp;  x_2^2 &amp;  x_2^3 &amp;        &amp;  x_2^k  \\
+  x_3    &amp;  x_3^2 &amp;  x_3^3 &amp;        &amp;  x_3^k  \\
+  \vdots &amp;        &amp;        &amp; \ddots &amp;  \vdots \\
+  x_k    &amp;  x_k^2 &amp;  x_k^3 &amp; \cdots &amp;  x_k^k  \\
+\end{bmatrix}
+\begin{bmatrix} a_1 \\ a_2 \\ a_3 \\ \vdots \\ a_k\end{bmatrix}
+\]</span></p>
+<p>上の式は <span class="math inline">\(\mathbf{A} \mathbf{x} =
+\mathbf{b}\)</span> の形になっているので <a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve.html"><code>scipy.linalg.solve</code></a>
+のようなソルバで解けます。</p>
+<p>この式の組み立て方は <a
+href="https://nextjournal.com/zorn/fast-fixed-point-sine-and-cosine-approximation-with-julia">Fast
+fixed-point sine and cosine approximation with Julia – Nextjournal</a>
+で紹介されていました。 sin と cos
+の多項式近似にも使えますが、ここで紹介している式の形だと精度はいまいちです。詳細はリンク先の記事や
+<a
+href="https://basesandframes.wordpress.com/2016/05/17/faster-math-functions/">Faster
+Math Functions</a> などを参照してください。</p>
+<p>今回の応用では <span class="math inline">\(\mathbf{A}\)</span>
+がそれほど大きくならないので、ソルバを自前で実装するときは<a
+href="https://ocw.mit.edu/courses/1-204-computer-algorithms-in-systems-engineering-spring-2010/ba1e1301f80d1f0351fa1746aff486e1_MIT1_204S10_lec20.pdf">ガウスの消去法</a>を使えば間に合います。また
+<a href="https://en.wikipedia.org/wiki/LU_decomposition">Wikipedia の LU
+decomposition
+の記事</a>にもソルバのコードが掲載されていますが、対角成分が 0
+となるときのピボッティングなどが省略されているので注意してください。以下は
+IntegerArpeggio で使用した、JavaScript
+で書かれたソルバのコードへのリンクです。</p>
+<ul>
+<li>https://github.com/ryukau/UhhyouWebSynthesizers/blob/614b81f85c0a99f4a44a169003f890d29825d0ba/IntegerArpeggio/waveformxypad.js#L10-L59</li>
+</ul>
+<h2 id="振幅の正規化">振幅の正規化</h2>
+<p>以下の条件を満たすゲイン <span class="math inline">\(g\)</span>
+を求めて最大振幅を 1 に正規化します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; \text{Find}      &amp;&amp; g, \\
+&amp; \text{such that} &amp;&amp; \max(|g P(x)|) = 1, \quad P(x) =
+\sum_{n=1}^{k} a_n x^n, \\
+&amp; \text{where}     &amp;&amp; x \in [0, 1).
+\end{aligned}
+\]</span></p>
+<p>この問題は <span class="math inline">\(x \in [0, 1)\)</span>
+の範囲における <span class="math inline">\(P(x)\)</span>
+のピークを探して、最大のピークの絶対値の逆数を <span
+class="math inline">\(g\)</span> とすれば解けます。</p>
+<p><span class="math inline">\(P(x)\)</span> のピークは、以下のように
+<span class="math inline">\(P(x)\)</span> を微分した式 <span
+class="math inline">\(P&#39;(x)\)</span> が 0 になる点と定義します。</p>
+<p><span class="math display">\[
+\mathtt{peaks} = \left\{ P(x) \mid \forall x \enspace \text{such that}
+\enspace P&#39;(x) = 0 \right\}, \quad
+P&#39;(x) = \frac{d P(x)}{dx}.
+\]</span></p>
+<p>一般的には root finding アルゴリズムに <span
+class="math inline">\(P&#39;(x)\)</span>
+を渡せばピークが求められます。ただし root finding
+アルゴリズムは多数あり、選定も実装も手間です。そこで何とかならないかと試行錯誤していたところ、今回の応用には制御点があり、隣り合う制御点の間には最大でも
+1
+つのピークしか現れないことに気が付きました。以降ではこの観察に基づいて話を進めていきます。ただし、制御点の間のピークの数はあくまでも観察に基づく仮説であって、証明された事実ではないので例外があるかもしれません。</p>
+<p>制御点の間のピークが 1 つ以下であれば、二分探索で安定して <span
+class="math inline">\(P&#39;(x)\)</span>
+の解を探すことができます。以下に <span class="math inline">\(g\)</span>
+を求める手続きを書き下します。途中で出てくる <span
+class="math inline">\(\mathrm{sgn}\)</span> は<a
+href="https://en.wikipedia.org/wiki/Sign_function">符号関数</a>です。</p>
+<ol start="0" type="1">
+<li><span class="math inline">\(P&#39;(x)\)</span> の定数 <span
+class="math inline">\(a&#39;_n\)</span> をすべて求めて、任意の <span
+class="math inline">\(x\)</span> について計算できるようにする。</li>
+<li>インデックスを <span class="math inline">\(i = 0\)</span>
+と定義。</li>
+<li>二分探索の初期状態として、ピークを求める区間の左端を <span
+class="math inline">\(x_L = x_i\)</span> 、右端を <span
+class="math inline">\(x_R = x_{i+1}\)</span> とする。</li>
+<li><span class="math inline">\(P&#39;(x_L)\)</span> と <span
+class="math inline">\(P&#39;(x_R)\)</span> の符号を比較。
+<ul>
+<li>符号が等しければ <span class="math inline">\(\max \big( |P(x_L)|, \,
+|P(x_R)| \big)\)</span> をピークとして次の区間へ移動。 7 に進む。</li>
+<li>符号が等しくなければ 4 に進む。</li>
+</ul></li>
+<li>区間の中間点 <span class="math inline">\(x_m = \dfrac{x_L +
+x_R}{2}\)</span> を計算。</li>
+<li><span class="math inline">\(P&#39;(x_m)\)</span> を計算する。</li>
+<li><span class="math inline">\(P&#39;(x_m)\)</span> の符号を <span
+class="math inline">\(P&#39;(x_L)\)</span> 、 <span
+class="math inline">\(P&#39;(x_R\)</span> の符号と比較する。
+<ul>
+<li><span class="math inline">\(\mathrm{sgn}(P&#39;(x_m)) = 0\)</span>
+のときは <span class="math inline">\(P(x_m)\)</span>
+をピークとして、次の区間に移動。 7 に進む。</li>
+<li><span class="math inline">\(\mathrm{sgn}(P&#39;(x_m)) =
+\mathrm{sgn}(P&#39;(x_L))\)</span> のときは左端を <span
+class="math inline">\(x_m\)</span> として 2 に戻る。</li>
+<li><span class="math inline">\(\mathrm{sgn}(P&#39;(x_m)) =
+\mathrm{sgn}(P&#39;(x_R))\)</span> のときは右端を <span
+class="math inline">\(x_m\)</span> として 2 に戻る。</li>
+</ul></li>
+<li><span class="math inline">\(i = i + 1\)</span>
+としてインデックスを一つ進める。
+<ul>
+<li><span class="math inline">\(i &lt; k\)</span> なら 2 に戻る。</li>
+<li><span class="math inline">\(i = k\)</span> なら 8 に進む。</li>
+</ul></li>
+<li>得られたピークの中から最大のものを取り出して逆数を取ることで <span
+class="math inline">\(g\)</span> が得られる。</li>
+</ol>
+<p>以下は上の手続きを JavaScript で実装したコードへのリンクです。</p>
+<ul>
+<li>https://github.com/ryukau/UhhyouWebSynthesizers/blob/58ecdb1bb85ee5747dfd9e6ea2aa232498e4dcab/IntegerArpeggio/waveformxypad.js#L168-L219</li>
+</ul>
+<p>関数 <span class="math inline">\(P&#39;(x)\)</span>
+はごく普通の多項式であり、特に精度が必要な応用でもないので、二分探索よりもニュートン法のほうが適しているかもしれません。</p>
+<h2 id="その他">その他</h2>
+<h3 id="位相の計算">位相の計算</h3>
+<p>オシレータの位相の計算は様々なバリエーションがあるのでまとめておきます。コードは
+C++ です。</p>
+<h4 id="floor"><code>floor</code></h4>
+<p>おすすめの方法です。 <code>floor</code> を使う利点は
+<code>phase</code> が負の値になっても <code>[0, 1)</code>
+の範囲に丸められることです。</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>phase <span class="op">-=</span> <span class="bu">std::</span>floor<span class="op">(</span>phase<span class="op">);</span></span></code></pre></div>
+<h4 id="fmod"><code>fmod</code></h4>
+<p><a
+href="https://en.cppreference.com/w/cpp/numeric/math/fmod"><code>std::fmod</code></a>
+の利点は位相の範囲の上限を任意に設定できることです。欠点は割られる数 (1
+つ目の引数) が負の値のときに出力も負の値となることです。したがって FM
+などによって負の周波数が出てくるときは対応が必要です。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>phase <span class="op">=</span> <span class="bu">std::</span>fmod<span class="op">(</span>phase <span class="op">+</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">,</span> upperLimit<span class="op">);</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>frequencyHz <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> phase <span class="op">=</span> <span class="op">-</span>phase<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">// あるいは</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>phase <span class="op">=</span> <span class="bu">std::</span>fmod<span class="op">(</span>phase <span class="op">+</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">,</span> upperLimit<span class="op">);</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>phase <span class="op">*=</span> <span class="bu">std::</span>copysign<span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">),</span> frequencyHz<span class="op">);</span></span></code></pre></div>
+<p>また、 <code>sin</code> や <code>cos</code> の位相を回すときは
+<code>fmod</code> を使って <code>upperLimit = 2 * pi</code>
+と設定するとよさそうに思えますが、私が試した範囲では <code>floor</code>
+を使ったほうが速いです。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> twoPi <span class="op">=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">// fmod</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>phase <span class="op">=</span> <span class="bu">std::</span>fmod<span class="op">(</span>phase <span class="op">+</span> twoPi <span class="op">*</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">,</span> twoPi<span class="op">);</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>phase<span class="op">);</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">// floor</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>phase <span class="op">-=</span> <span class="bu">std::</span>floor<span class="op">(</span>phase<span class="op">);</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>twoPi <span class="op">*</span> phase<span class="op">);</span></span></code></pre></div>
+<h4 id="if-または-while"><code>if</code> または <code>while</code></h4>
+<p>位相の値が上限を超えたときに分岐を設ける方法があります。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> <span class="bu">std::</span>clamp<span class="op">(</span>frequencyHz <span class="op">/</span> sampleRateHz<span class="op">,</span> <span class="dt">float</span><span class="op">(</span><span class="dv">0</span><span class="op">),</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.5</span><span class="op">));</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>phase <span class="op">&gt;=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span> phase <span class="op">-=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">// あるいは</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> <span class="bu">std::</span>max<span class="op">(</span>frequencyHz <span class="op">/</span> sampleRateHz<span class="op">,</span> <span class="dt">float</span><span class="op">(</span><span class="dv">0</span><span class="op">));</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>phase <span class="op">&gt;=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span> phase <span class="op">-=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span></code></pre></div>
+<p><code>while</code> を使う方法は <code>frequencyHz</code>
+の大きさに比例して計算量が増えるので、使わないでください。似たようなコードを見たことがあるので一応紹介しています。</p>
+<h4 id="remainder"><code>remainder</code></h4>
+<p><a
+href="https://en.cppreference.com/w/cpp/numeric/math/remainder"><code>std::remainder</code></a>
+は引数が両方とも正の値のとき、出力が負の値となるので位相の回転には不適です。</p>
+<h3 id="符号なし整数">符号なし整数</h3>
+<p>符号なし整数を使えば丸めの処理はコンパイラが何とかしてくれます。 DSP
+のコードがすべて整数演算なら高速です。浮動小数点数を使っているときはキャストやスケーリングが入るので速度面での利点は微妙です。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> scaler <span class="op">=</span> <span class="dt">float</span><span class="op">(</span><span class="bu">std::</span>numeric_limits<span class="op">&lt;</span><span class="dt">unsigned</span><span class="op">&gt;::</span>max<span class="op">());</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> frequencyInt <span class="op">=</span> <span class="dt">unsigned</span><span class="op">(</span>scaler <span class="op">*</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">);</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> frequencyInt<span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用例。</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>twoPi <span class="op">*</span> <span class="dt">float</span><span class="op">(</span>phase<span class="op">)</span> <span class="op">/</span> scaler<span class="op">);</span></span></code></pre></div>
+<p>標準ライブラリの <a
+href="https://en.cppreference.com/w/cpp/header/cinttypes"><code>&lt;cinttypes&gt;</code></a>
+に様々な大きさの整数が定義されています。</p>
+<h3 id="符号なし整数-ビットマスク">符号なし整数 + ビットマスク</h3>
+<p>波形をルックアップテーブルから読み出すときは符号なし整数とビットマスクを組み合わせる実装があります。ただし、ルックアップテーブルの長さは
+2^n に制限されます。</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> scaler <span class="op">=</span> <span class="dt">unsigned</span><span class="op">(</span><span class="bn">0xfffff</span><span class="op">);</span> <span class="co">// 任意の 2^n - 1 の定数。</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> frequencyInt <span class="op">=</span> <span class="dt">unsigned</span><span class="op">(</span><span class="dt">float</span><span class="op">(</span>scaler<span class="op">)</span> <span class="op">*</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">);</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> frequencyInt<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>phase <span class="op">&amp;=</span> scaler<span class="op">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用例。</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> wavetable<span class="op">[</span>phase<span class="op">];</span></span></code></pre></div>
+<h3 id="固定小数点数">固定小数点数</h3>
+<p>以下は前述の <code>floor</code>
+による位相の回転を固定小数点数で実装した例です。</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 定義。</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> fractionBits <span class="op">=</span> <span class="dt">int32_t</span><span class="op">(</span><span class="dv">16</span><span class="op">);</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> fractionMult <span class="op">=</span> <span class="dt">int32_t</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">&lt;&lt;</span> fractionBits<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> fractionMask <span class="op">=</span> fractionMult <span class="op">-</span> <span class="dt">int32_t</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="dt">int32_t</span> phase <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int32_t</span> sampleRateFixed <span class="op">=</span> <span class="dt">int32_t</span><span class="op">(</span>sampleRateHz<span class="op">)</span> <span class="op">&lt;&lt;</span> fractionBits<span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="dt">int32_t</span> frequencyFixed <span class="op">=</span> <span class="dt">int32_t</span><span class="op">(</span>frequencyHz<span class="op">)</span> <span class="op">&lt;&lt;</span> fractionBits<span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> div <span class="op">=</span> <span class="op">[](</span><span class="dt">int32_t</span> x<span class="op">,</span> <span class="dt">int32_t</span> y<span class="op">)</span> <span class="op">-&gt;</span> <span class="dt">int32_t</span> <span class="op">{</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dt">int32_t</span><span class="op">((</span><span class="dt">int64_t</span><span class="op">(</span>x<span class="op">)</span> <span class="op">*</span> fractionMult<span class="op">)</span> <span class="op">/</span> y<span class="op">);</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">// 位相の回転。</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> div<span class="op">(</span>frequencyFixed<span class="op">,</span> sampleRateFixed<span class="op">);</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>phase <span class="op">&amp;=</span> fractionMask<span class="op">;</span> <span class="co">// phase -= floor(phase) と同じ意味。</span></span></code></pre></div>
+<p>上記のコードの固定小数点数のフォーマットは符号 1 ビット、整数部 7
+ビット、小数部 24 ビットで、 Q7.24 あるいは Q8.24 と表記されます。 Qm.n
+という表記は Q フォーマットと呼ばれ、小数点より上の桁数が m ビット
+、小数点より下の桁数が n ビットの固定小数点数という意味です。</p>
+<p>Q フォーマットは <a
+href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">Texas Instruments
+の資料</a> (Appendix A.2, p.A-3) と <a
+href="https://web.archive.org/web/20171104105632/http://infocenter.arm.com/help/topic/com.arm.doc.dui0066g/DUI0066.pdf">ARM
+の資料</a> (4.7.9 Q-format, p.4-24) に掲載されていますが、 m
+に符号ビットを含むかどうかで違いがあります。 Texas Instruments
+では符号ビットを含まない、 ARM では符号ビットを含む、としています。</p>
+<p>固定小数点数を自前で実装すると数学関数の用意が大変なので、特に理由がなければ
+fpm のようなライブラリを使うことを推奨します。</p>
+<ul>
+<li><a href="https://github.com/MikeLankamp/fpm">GitHub -
+MikeLankamp/fpm: C++ header-only fixed-point math library</a></li>
+</ul>
+<h2 id="参考文献">参考文献</h2>
+<ul>
+<li><a
+href="https://nextjournal.com/zorn/fast-fixed-point-sine-and-cosine-approximation-with-julia">Fast
+fixed-point sine and cosine approximation with Julia –
+Nextjournal</a></li>
+<li><a href="http://www.olliw.eu/2014/fast-functions/">OlliW’s
+Bastelseiten » Fast Computation of Functions on
+Microcontrollers</a></li>
+<li><a
+href="https://ocw.mit.edu/courses/1-204-computer-algorithms-in-systems-engineering-spring-2010/ba1e1301f80d1f0351fa1746aff486e1_MIT1_204S10_lec20.pdf">1.204
+Lecture 20, Linear systems -
+ba1e1301f80d1f0351fa1746aff486e1_MIT1_204S10_lec20.pdf</a></li>
+<li><a href="https://en.wikipedia.org/wiki/LU_decomposition">LU
+decomposition - Wikipedia</a></li>
+<li><a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">TMS320C64x
+DSP Library Programmer’s Reference (Rev. B) - spru565b.pdf</a></li>
+<li><a
+href="https://web.archive.org/web/20171104105632/http://infocenter.arm.com/help/topic/com.arm.doc.dui0066g/DUI0066.pdf">Wayback
+Machine</a></li>
+</ul>
+<footer>
+<a href="../index.html">インデックスに戻る</a>
+</footer>
+</body>
+
+</html>
