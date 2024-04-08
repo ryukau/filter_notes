@@ -232,7 +232,7 @@ phase += div(frequencyFixed, sampleRateFixed);
 phase &= fractionMask; // phase -= floor(phase) と同じ意味。
 ```
 
-上記のコードの固定小数点数のフォーマットは符号 1 ビット、整数部 7 ビット、小数部 24 ビットで、 Q7.24 あるいは Q8.24 と表記されます。 Qm.n という表記は Q フォーマットと呼ばれ、小数点より上の桁数が m ビット 、小数点より下の桁数が n ビットの固定小数点数という意味です。
+上記のコードの固定小数点数のフォーマットは符号 1 ビット、整数部 15 ビット、小数部 16 ビットで、 Q15.16 あるいは Q16.16 と表記されます。 Qm.n という表記は Q フォーマットと呼ばれ、小数点より上の桁数が m ビット 、小数点より下の桁数が n ビットの固定小数点数という意味です。
 
 Q フォーマットは [Texas Instruments の資料](https://www.ti.com/lit/ug/spru565b/spru565b.pdf) (Appendix A.2, p.A-3) と [ARM の資料](https://web.archive.org/web/20171104105632/http://infocenter.arm.com/help/topic/com.arm.doc.dui0066g/DUI0066.pdf) (4.7.9 Q-format, p.4-24) に掲載されていますが、 m に符号ビットを含むかどうかで違いがあります。 Texas Instruments では符号ビットを含まない、 ARM では符号ビットを含む、としています。
 

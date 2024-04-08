@@ -676,9 +676,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#c
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">// 位相の回転。</span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> div<span class="op">(</span>frequencyFixed<span class="op">,</span> sampleRateFixed<span class="op">);</span></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>phase <span class="op">&amp;=</span> fractionMask<span class="op">;</span> <span class="co">// phase -= floor(phase) と同じ意味。</span></span></code></pre></div>
-<p>上記のコードの固定小数点数のフォーマットは符号 1 ビット、整数部 7
-ビット、小数部 24 ビットで、 Q7.24 あるいは Q8.24 と表記されます。 Qm.n
-という表記は Q フォーマットと呼ばれ、小数点より上の桁数が m ビット
+<p>上記のコードの固定小数点数のフォーマットは符号 1 ビット、整数部 15
+ビット、小数部 16 ビットで、 Q15.16 あるいは Q16.16 と表記されます。
+Qm.n という表記は Q フォーマットと呼ばれ、小数点より上の桁数が m ビット
 、小数点より下の桁数が n ビットの固定小数点数という意味です。</p>
 <p>Q フォーマットは <a
 href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">Texas Instruments
