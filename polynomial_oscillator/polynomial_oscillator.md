@@ -77,7 +77,7 @@ $$
 
 今回の応用では $\mathbf{A}$ がそれほど大きくならないので、ソルバを自前で実装するときは[ガウスの消去法](https://ocw.mit.edu/courses/1-204-computer-algorithms-in-systems-engineering-spring-2010/ba1e1301f80d1f0351fa1746aff486e1_MIT1_204S10_lec20.pdf)を使えば間に合います。また [Wikipedia の LU decomposition の記事](https://en.wikipedia.org/wiki/LU_decomposition)にもソルバのコードが掲載されていますが、対角成分が 0 となるときのピボッティングなどが省略されているので注意してください。以下は IntegerArpeggio で使用した、JavaScript で書かれたソルバのコードへのリンクです。
 
-- https://github.com/ryukau/UhhyouWebSynthesizers/blob/614b81f85c0a99f4a44a169003f890d29825d0ba/IntegerArpeggio/waveformxypad.js#L10-L59
+- <https://github.com/ryukau/UhhyouWebSynthesizers/blob/614b81f85c0a99f4a44a169003f890d29825d0ba/IntegerArpeggio/waveformxypad.js#L10-L59>
 
 ## 振幅の正規化
 以下の条件を満たすゲイン $g$ を求めて最大振幅を 1 に正規化します。
@@ -122,7 +122,7 @@ $$
 
 以下は上の手続きを JavaScript で実装したコードへのリンクです。
 
-- https://github.com/ryukau/UhhyouWebSynthesizers/blob/58ecdb1bb85ee5747dfd9e6ea2aa232498e4dcab/IntegerArpeggio/waveformxypad.js#L168-L219
+- <https://github.com/ryukau/UhhyouWebSynthesizers/blob/58ecdb1bb85ee5747dfd9e6ea2aa232498e4dcab/IntegerArpeggio/waveformxypad.js#L168-L219>
 
 関数 $P'(x)$ はごく普通の多項式であり、特に精度が必要な応用でもないので、二分探索よりもニュートン法のほうが適しているかもしれません。
 
