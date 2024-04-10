@@ -27,8 +27,8 @@ public:
   Sample phase = 0;
   Sample process(Sample sampleRateHz, Sample frequencyHz)
   {
-    constexpr Sample upperLimit = Sample(1);
-    phase = std::fmod(phase + frequencyHz / sampleRateHz, upperLimit);
+    constexpr Sample upperBound = Sample(1);
+    phase = std::fmod(phase + frequencyHz / sampleRateHz, upperBound);
     if (frequencyHz < 0) phase = -phase;
     return phase;
   }
@@ -39,8 +39,8 @@ public:
   Sample phase = 0;
   Sample process(Sample sampleRateHz, Sample frequencyHz)
   {
-    constexpr Sample upperLimit = Sample(1);
-    phase = std::fmod(phase + frequencyHz / sampleRateHz, upperLimit);
+    constexpr Sample upperBound = Sample(1);
+    phase = std::fmod(phase + frequencyHz / sampleRateHz, upperBound);
     return phase *= std::copysign(Sample(1), frequencyHz);
   }
 };
@@ -50,9 +50,9 @@ public:
   Sample phase = 0;
   Sample process(Sample sampleRateHz, Sample frequencyHz)
   {
-    constexpr Sample upperLimit = Sample(1);
+    constexpr Sample upperBound = Sample(1);
     phase += std::clamp(frequencyHz / sampleRateHz, Sample(0), Sample(0.5));
-    if (phase >= upperLimit) phase -= upperLimit;
+    if (phase >= upperBound) phase -= upperBound;
     return phase;
   }
 };
@@ -62,9 +62,9 @@ public:
   Sample phase = 0;
   Sample process(Sample sampleRateHz, Sample frequencyHz)
   {
-    constexpr Sample upperLimit = Sample(1);
+    constexpr Sample upperBound = Sample(1);
     phase += std::max(frequencyHz / sampleRateHz, Sample(0));
-    while (phase >= upperLimit) phase -= upperLimit;
+    while (phase >= upperBound) phase -= upperBound;
     return phase;
   }
 };
