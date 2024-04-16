@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-04-16" />
 <title>s_curve_step_response_filter</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-04-16
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -583,7 +583,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">.</span>setFrames<span class="op">(</span>frames<span class="op">);</span></span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 浮動小数点数の丸めが -inf に向かうように変更した加算。</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 浮動小数点数の丸めが 0 に向かうように変更した加算。</span></span>
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> Sample add<span class="op">(</span>Sample lhs<span class="op">,</span> Sample rhs<span class="op">)</span></span>
 <span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
 <span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lhs <span class="op">&lt;</span> rhs<span class="op">)</span> <span class="bu">std::</span>swap<span class="op">(</span>lhs<span class="op">,</span> rhs<span class="op">);</span></span>
@@ -619,11 +619,18 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 C++ では
 <code>std::numeric_limits&lt;float&gt;::round_style == std::round_to_nearest</code>
 が true のときに最も近い偶数への丸めが行われます。</p>
-<p>リミッタ向けの実装では <code>add</code> メソッドで無理やり -inf
+<p>リミッタ向けの実装では <code>add</code> メソッドで無理やり 0
 にむかって丸めることでオーバーシュートを防いでいます。 <code>add</code>
 メソッドでは、加算時に 2
-つの値の小さいほうについて仮数部に乗り切らない部分を切り捨てることで
--inf に向かう丸めを実装しています。</p>
+つの値の小さいほうについて仮数部に乗り切らない部分を切り捨てることで 0
+に向かう丸めを実装しています。</p>
+<p>C の標準ライブラリ <code>&lt;fenv.h&gt;</code> 、または C++
+の標準ライブラリ <code>&lt;cfenv&gt;</code> に丸めのモードを切り替える
+<a
+href="https://en.cppreference.com/w/cpp/numeric/fenv/feround"><code>fesetround</code></a>
+が用意されています。ターゲットの環境が -inf あるいは 0
+に向かう丸めをサポートしているときは、上の <code>add</code> ではなく、
+<code>fesetround</code> の使用を推奨します。</p>
 <p>丸めについての例として、以下のような 4 ビットの浮動小数点数
 <code>1000</code> と <code>11.11</code> の加算を挙げておきます。数字は 2
 進数です。</p>
@@ -1094,6 +1101,11 @@ Response</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/04/06
+<ul>
+<li>浮動小数点数の丸めについて <code>&lt;cfenv&gt;</code>
+に関する記載を追加。</li>
+</ul></li>
 <li>2022/05/07
 <ul>
 <li>移動平均フィルタにリミッタ向けの実装を追加。</li>
