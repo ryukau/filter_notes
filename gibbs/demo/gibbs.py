@@ -30,21 +30,23 @@ def analyticSignal(length, numSeries):
     return spectralLowpass(noise, numSeries)
 
 
-def applyFilter(source, filterFunc, power=1):
-    filt = numpy.zeros(len(source))
-    half = (len(source) - 1) / 2
-    for i in range(len(filt)):
-        eta = (i - half) / half
+def applyFilter(source, filterFunc, numSeries, power=1):
+    spec = numpy.fft.rfft(source)
+    filt = numpy.zeros(len(spec))
+    m = numSeries + 1
+    for i in range(m):
+        eta = i / m
         filt[i] = filterFunc(eta) ** power
-    filt /= numpy.sum(filt)
 
-    return (convolve(source, filt, mode="full"), filt)
+    applied = numpy.fft.irfft(spec * filt)
+    filt = numpy.append(filt[m:0:-1], filt[: m + 1])  # for plot
+
+    return (applied, filt)
 
 
 def plotGibbsSuppression(length, filterFunc, numSeries=16, power=1):
     source = additiveSaw(length, numSeries)
-    suppressed, filt = applyFilter(source, filterFunc, power)
-    source = numpy.append(source, numpy.zeros(length))
+    suppressed, filt = applyFilter(source, filterFunc, numSeries, power)
     plot(
         source,
         suppressed,
@@ -54,7 +56,7 @@ def plotGibbsSuppression(length, filterFunc, numSeries=16, power=1):
     )
 
 
-def fejer(eta):
+def fejer(eta):  # eta < 0 があるなら要abs
     return 1 - eta
 
 
@@ -75,8 +77,8 @@ def exponential(eta, alpha=2**10, p=4):
     return numpy.exp(-alpha * eta**p)
 
 
-def daubechies(eta):
-    return 1 - 210 * eta**4 + 504 * eta**5 - 420 * eta**6 + 120 * eta**7
+def daubechies4(eta):  # eta < 0 があるなら要abs
+    return 1 - 35 * eta**4 + 84 * eta**5 - 70 * eta**6 + 20 * eta**7
 
 
 def plot(signal, result, params, param_name, file_name):
@@ -195,7 +197,7 @@ if __name__ == "__main__":
     plotGibbsSuppression(1024, raisedCosine, 16, 1)
     plotGibbsSuppression(1024, sharpendRaisedCosine, 16, 1)
     plotGibbsSuppression(1024, exponential, 16, 1)
-    plotGibbsSuppression(1024, daubechies, 16, 1)
+    plotGibbsSuppression(1024, daubechies4, 16, 1)
 
     plotGottleibShu(1024, 16)
     plotGottleibShuNoise(1024, analyticSignal, 16)

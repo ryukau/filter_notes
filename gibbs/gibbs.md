@@ -1,7 +1,5 @@
 # ギブス現象を抑える
-**注意**: 内容が怪しいです。
-
-GottleibとShuの論文 ["ON THE GIBBS PHENOMENON AND ITS RESOLUTION"](http://dsec.pku.edu.cn/~tieli/notes/numer_anal/SIAMRev_39_644.pdf) を基に[ギブス現象](https://en.wikipedia.org/wiki/Gibbs_phenomenon)を抑える方法を試します。
+GottleibとShuの論文 ["ON THE GIBBS PHENOMENON AND ITS RESOLUTION"](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=0aa153451c7fadf37cc0d2d48659e5bca0dec2e1) を基に[ギブス現象](https://en.wikipedia.org/wiki/Gibbs_phenomenon)を抑える方法を試します。
 
 この文章で実装したコードを[GitHubで見る](https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py)ことができます。実行するには[SciPy](https://www.scipy.org/)、[pyFFTW](http://hgomersall.github.io/pyFFTW/)、[matplotlib](https://matplotlib.org/)が必要です。パラメータを変えて遊んでみてください。
 
@@ -32,21 +30,23 @@ def additiveSaw(length, numSeries):
     return spectralLowpass(numpy.linspace(-1, 1, length), numSeries)
 
 
-def applyFilter(source, filterFunc, power=1):
-    filt = numpy.zeros(len(source))
-    half = (len(source) - 1) / 2
-    for i in range(len(filt)):
-        eta = (i - half) / half
-        filt[i] = filterFunc(eta)**power
-    filt /= numpy.sum(filt)
+def applyFilter(source, filterFunc, numSeries, power=1):
+    spec = numpy.fft.rfft(source)
+    filt = numpy.zeros(len(spec))
+    m = numSeries + 1
+    for i in range(m):
+        eta = i / m
+        filt[i] = filterFunc(eta) ** power
 
-    return (convolve(source, filt, mode='full'), filt)
+    applied = numpy.fft.irfft(spec * filt)
+    filt = numpy.append(filt[m:0:-1], filt[: m + 1])  # プロットに使用。
+
+    return (applied, filt)
 
 
 def plotGibbsSuppression(length, filterFunc, numSeries=16, power=1):
     source = additiveSaw(length, numSeries)
-    suppressed, filt = applyFilter(source, filterFunc, power)
-    source = numpy.append(source, numpy.zeros(length))
+    suppressed, filt = applyFilter(source, filterFunc, numSeries, power)
     # 結果をプロットする。ここでは省略。
 ```
 
@@ -159,20 +159,20 @@ Maximaで展開します。 $p$ は任意の正の実数です。
 declare(eta, real, t, real);
 p: 4;
 I: integrate((t*(1 - t))**(4 - 1), t, 0, eta);
-expand(1 - (2 * p - 1)! / (p - 1)! * I);
+expand(1 - (2 * p - 1)! / (p - 1)!**2 * I);
 ```
 
 適当に $p = 4$ として実装します。
 
 ```python
-def daubechies(eta):
-    return 1 - 210 * eta**4 + 504 * eta**5 - 420**eta**6 + 120 * eta**7
+def daubechies4(eta):
+    return 1 - 35 * eta**4 + 84 * eta**5 - 70 * eta**6 + 20 * eta**7
 ```
 
 フィルタを適用した結果です。
 
 <figure>
-<img src="img/result_daubechies.png" alt="Image of a result of daubechies filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
+<img src="img/result_daubechies4.png" alt="Image of a result of daubechies filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 
 ## Gegenbauer Polynomialを使う方法
@@ -308,3 +308,8 @@ $\lambda$ と $m$ が大きいと Gegenbauer Polynomial の計算でオーバー
 
 ## その他
 Gegenbauer polynomialを使う方法の $m$ を増やしていくことで、Gegenbauer polynomialによる信号の加算合成ができます。ただし信号の両端の値が非常に大きくなるので[Tukey窓](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tukey.html#scipy.signal.tukey)などを掛け合わせて抑える必要があります。また $\lambda = 1$ とすることで、ある程度はオーバーフローを避けることができます。
+
+## 変更点
+- 2024/04/16
+  - [NukeKarasawa40298 さんによって修正されたコード](https://github.com/NukeKarasawa40298/NukeKarasawa40298.github.io/blob/main/gibbs/gibbs_.py)を用いて、フィルタを周波数領域でかけるように修正。
+  - Daubechiesフィルタの Maxima のコードの間違いを修正。
