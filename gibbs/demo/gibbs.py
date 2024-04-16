@@ -1,16 +1,15 @@
 import numpy
 import matplotlib.pyplot as pyplot
-from pyfftw.interfaces.numpy_fft import rfft, irfft
 from scipy.signal import *
-from scipy.special import (factorial, eval_gegenbauer, gamma)
+from scipy.special import eval_gegenbauer, gamma
 
 
 def spectralLowpass(sig, numSeries):
     if numSeries >= len(sig):
         return sig
-    spec = rfft(sig)
-    spec[numSeries + 1:len(sig) - 1] = 0
-    return irfft(spec)
+    spec = numpy.fft.rfft(sig)
+    spec[numSeries + 1 : len(sig) - 1] = 0
+    return numpy.fft.irfft(spec)
 
 
 def additiveSaw(length, numSeries):
@@ -27,7 +26,7 @@ def analyticSignal(length, numSeries):
     order = 128
     rand = numpy.random.random(order)
     for i in range(order):
-        noise += rand[i] * sig**(i + 1)
+        noise += rand[i] * sig ** (i + 1)
     return spectralLowpass(noise, numSeries)
 
 
@@ -36,10 +35,10 @@ def applyFilter(source, filterFunc, power=1):
     half = (len(source) - 1) / 2
     for i in range(len(filt)):
         eta = (i - half) / half
-        filt[i] = filterFunc(eta)**power
+        filt[i] = filterFunc(eta) ** power
     filt /= numpy.sum(filt)
 
-    return (convolve(source, filt, mode='full'), filt)
+    return (convolve(source, filt, mode="full"), filt)
 
 
 def plotGibbsSuppression(length, filterFunc, numSeries=16, power=1):
@@ -50,8 +49,8 @@ def plotGibbsSuppression(length, filterFunc, numSeries=16, power=1):
         source,
         suppressed,
         filt,
-        filterFunc.__name__ + ' Filter',
-        'result_' + filterFunc.__name__ + '.png',
+        filterFunc.__name__ + " Filter",
+        "result_" + filterFunc.__name__ + ".png",
     )
 
 
@@ -84,12 +83,12 @@ def plot(signal, result, params, param_name, file_name):
     fig = pyplot.figure(figsize=(6, 8))
 
     ax1 = fig.add_subplot(311)
-    ax1.set_title('Signal')
+    ax1.set_title("Signal")
     ax1.grid()
     ax1.plot(signal)
 
     ax2 = fig.add_subplot(312)
-    ax2.set_title('Result')
+    ax2.set_title("Result")
     ax2.grid()
     ax2.plot(result)
 
@@ -110,8 +109,8 @@ def plotGottleibShu(length, numSeries=16):
         source,
         suppressed,
         g_hat,
-        'Approximated Gegenbauer Coefficients',
-        'result_gottleibShu.png',
+        "Approximated Gegenbauer Coefficients",
+        "result_gottleibShu.png",
     )
 
 
@@ -124,13 +123,13 @@ def plotGottleibShuNoise(length, signalFunc, numSeries=16):
         source,
         suppressed,
         regibbsed,
-        'Filtered result',
-        'result_gottleibShu_' + signalFunc.__name__ + '.png',
+        "Filtered result",
+        "result_gottleibShu_" + signalFunc.__name__ + ".png",
     )
 
     # Plot spectrum.
-    source_spec = rfft(source)[0:numSeries + 1]
-    regibbsed_spec = rfft(regibbsed)[0:numSeries + 1]
+    source_spec = numpy.fft.rfft(source)[0 : numSeries + 1]
+    regibbsed_spec = numpy.fft.rfft(regibbsed)[0 : numSeries + 1]
     source_power = numpy.abs(source_spec)
     regibbsed_power = numpy.abs(regibbsed_spec)
     source_phase = numpy.angle(source_spec)
@@ -139,29 +138,29 @@ def plotGottleibShuNoise(length, signalFunc, numSeries=16):
     fig = pyplot.figure(figsize=(8, 6))
 
     ax11 = fig.add_subplot(221)
-    ax11.set_title('Signal power')
+    ax11.set_title("Signal power")
     ax11.grid()
     ax11.plot(source_power)
 
     ax21 = fig.add_subplot(222)
-    ax21.set_title('Signal phase')
+    ax21.set_title("Signal phase")
     ax21.grid()
     ax21.set_ylim(-numpy.pi, numpy.pi)
     ax21.plot(source_phase)
 
     ax12 = fig.add_subplot(223)
-    ax12.set_title('Filtered result power')
+    ax12.set_title("Filtered result power")
     ax12.grid()
     ax12.plot(regibbsed_power)
 
     ax22 = fig.add_subplot(224)
-    ax22.set_title('Filtered result phase')
+    ax22.set_title("Filtered result phase")
     ax22.grid()
     ax22.set_ylim(-numpy.pi, numpy.pi)
     ax22.plot(regibbsed_phase)
 
     fig.tight_layout()
-    fig.savefig('spectrum_comparison_' + signalFunc.__name__ + '.png')
+    fig.savefig("spectrum_comparison_" + signalFunc.__name__ + ".png")
     pyplot.close()
 
 
@@ -178,13 +177,14 @@ def gottliebShu(sig, N, gam=0.25):
     ggnbr = eval_gegenbauer(numpy.tile(numpy.vstack(k), len(sig)), lam, x)
     ggnbr_t = numpy.transpose(ggnbr)
 
-    h_k_lam = numpy.sqrt(numpy.pi) \
-        * ggnbr_t[-1] \
-        * gamma(lam + 0.5) / gamma(lam) / (k + lam)
+    h_k_lam = (
+        numpy.sqrt(numpy.pi) * ggnbr_t[-1] * gamma(lam + 0.5) / gamma(lam) / (k + lam)
+    )
 
-    g_hat = numpy.sum(
-        numpy.power(1 - x * x, numpy.abs(lam - 0.5)) * sig * ggnbr,
-        axis=1) / h_k_lam
+    g_hat = (
+        numpy.sum(numpy.power(1 - x * x, numpy.abs(lam - 0.5)) * sig * ggnbr, axis=1)
+        / h_k_lam
+    )
 
     return (numpy.sum(g_hat * ggnbr_t, axis=1), g_hat)
 
