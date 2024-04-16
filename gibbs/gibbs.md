@@ -1,7 +1,7 @@
 # ギブス現象を抑える
 GottleibとShuの論文 ["ON THE GIBBS PHENOMENON AND ITS RESOLUTION"](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=0aa153451c7fadf37cc0d2d48659e5bca0dec2e1) を基に[ギブス現象](https://en.wikipedia.org/wiki/Gibbs_phenomenon)を抑える方法を試します。
 
-この文章で実装したコードを[GitHubで見る](https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py)ことができます。実行するには[SciPy](https://www.scipy.org/)、[pyFFTW](http://hgomersall.github.io/pyFFTW/)、[matplotlib](https://matplotlib.org/)が必要です。パラメータを変えて遊んでみてください。
+この文章で実装したコードを[GitHubで見る](https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py)ことができます。実行するには [SciPy](https://www.scipy.org/) と [matplotlib](https://matplotlib.org/) が必要です。パラメータを変えて遊んでみてください。
 
 [コードを見る (github.com)](https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py)
 
@@ -13,17 +13,15 @@ GottleibとShuの論文で先行研究として紹介されていた方法です
 ```python
 import numpy
 import matplotlib.pyplot as pyplot
-from pyfftw.interfaces.numpy_fft import rfft, irfft
-from scipy.signal import *
-from scipy.special import (factorial, eval_gegenbauer, gamma)
+from scipy.special import eval_gegenbauer, gamma
 
 
 def spectralLowpass(sig, numSeries):
     if numSeries >= len(sig):
         return sig
-    spec = rfft(sig)
-    spec[numSeries:len(sig) - 1] = 0
-    return irfft(spec)
+    spec = numpy.fft.rfft(sig)
+    spec[numSeries + 1 : len(sig) - 1] = 0
+    return numpy.fft.irfft(spec)
 
 
 def additiveSaw(length, numSeries):
@@ -138,7 +136,7 @@ $$
 実装します。
 
 ```python
-def exponential(eta, alpha=2**10, p=4):
+def exponential(eta, alpha=8, p=4):
     return numpy.exp(-alpha * eta**p)
 ```
 
@@ -176,7 +174,7 @@ def daubechies4(eta):
 </figure>
 
 ## Gegenbauer Polynomialを使う方法
-GottleibとShuの論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。解析的な形とは $f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 + \dots$ というような形のことです。
+GottleibとShuの論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。ここでの解析的な形とは $f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 + \dots$ というような形、つまり[多項式](https://en.wikipedia.org/wiki/Polynomial)のことです。
 
 まずGegenbauer係数 $\hat{g}_k^{\lambda}$ を求めます。
 
@@ -211,26 +209,27 @@ $g^m(x)$ は真の信号と比例関係にあるそうです。つまり出力�
 $\lambda = N / 4$ 、 $m = N / 2$ として実装します。
 
 ```python
-def gottliebShu(sig, N, gam=0.25):
+def gottliebShu(sig, N, L=0.25):
     """
     :param sig: numpy.array input signal.
     :param N: Number of spectral partial sum or number of overtone.
-    :param gam: Positive real constant.
+    :param L: Positive real constant.
     """
-    lam = gam * N  # N が大きいと eval_gegenbauerでオーバーフローする。
+    lam = L * N  # N が大きいと eval_gegenbauerでオーバーフローする。
 
     x = numpy.linspace(-1.0, 1.0, len(sig))
     k = numpy.arange(0, int(N / 2))
     ggnbr = eval_gegenbauer(numpy.tile(numpy.vstack(k), len(sig)), lam, x)
     ggnbr_t = numpy.transpose(ggnbr)
 
-    h_k_lam = numpy.sqrt(numpy.pi) \
-        * ggnbr_t[-1] \
-        * gamma(lam + 0.5) / gamma(lam) / (k + lam)
+    h_k_lam = (
+        numpy.sqrt(numpy.pi) * ggnbr_t[-1] * gamma(lam + 0.5) / gamma(lam) / (k + lam)
+    )
 
-    g_hat = numpy.sum(
-        numpy.power(1 - x * x, numpy.abs(lam - 0.5)) * sig * ggnbr,
-        axis=1) / h_k_lam
+    g_hat = (
+        numpy.sum(numpy.power(1 - x * x, numpy.abs(lam - 0.5)) * sig * ggnbr, axis=1)
+        / h_k_lam
+    )
 
     return (numpy.sum(g_hat * ggnbr_t, axis=1), g_hat)
 ```
@@ -271,7 +270,7 @@ plotGottleibShuNoise(1024, additiveNoise, 16)
 plotGottleibShuNoise(1024, analyticSignal, 16)
 ```
 
-`additiveNoise` の結果です。 `additiveNoise` は乱数で生成したノイズにローパスフィルタをかけた信号です。画像のFiltered resultはギブス現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。
+以下は `additiveNoise` の結果です。 `additiveNoise` は乱数で生成したノイズにローパスフィルタをかけた信号です。画像のFiltered resultはギブス現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。
 
 <figure>
 <img src="img/result_gottleibShu_additiveNoise.png" alt="Image of a result of gottlieb and shu's gibbs suppression to additive noise." style="width: 600px; padding-bottom: 12px;"/>
@@ -285,7 +284,7 @@ plotGottleibShuNoise(1024, analyticSignal, 16)
 
 `additiveNoise` ではギブス現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むのでGegenbauer Polynomialを使う方法をそのまま使うことはできません。
 
-`analyticSignal` の結果です。 `analyticSignal` は解析的な要素のみで合成した信号です。
+以下は `analyticSignal` の結果です。 `analyticSignal` は解析的な要素のみで合成した信号です。
 
 <figure>
 <img src="img/result_gottleibShu_analyticSignal.png" alt="Image of a result of gottlieb and shu's gibbs suppression to analytic signal." style="width: 600px; padding-bottom: 12px;"/>
@@ -313,3 +312,7 @@ Gegenbauer polynomialを使う方法の $m$ を増やしていくことで、Geg
 - 2024/04/16
   - [NukeKarasawa40298 さんによって修正されたコード](https://github.com/NukeKarasawa40298/NukeKarasawa40298.github.io/blob/main/gibbs/gibbs_.py)を用いて、フィルタを周波数領域でかけるように修正。
   - Daubechiesフィルタの Maxima のコードの間違いを修正。
+  - Exponentialフィルタの Python 3 のコードの `alpha` のデフォルト値を変更。
+  - Python 3 の依存関係を整理。
+    - FFT を pyFFTW から NumPy のものに置換。
+    - 不要な `import` を削除。

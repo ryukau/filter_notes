@@ -1,6 +1,5 @@
 import numpy
 import matplotlib.pyplot as pyplot
-from scipy.signal import *
 from scipy.special import eval_gegenbauer, gamma
 
 
@@ -73,7 +72,7 @@ def sharpendRaisedCosine(eta):
     return s**4 * (35 - 84 * s + 70 * s**2 - 20 * s**3)
 
 
-def exponential(eta, alpha=2**10, p=4):
+def exponential(eta, alpha=8, p=4):
     return numpy.exp(-alpha * eta**p)
 
 
@@ -166,13 +165,13 @@ def plotGottleibShuNoise(length, signalFunc, numSeries=16):
     pyplot.close()
 
 
-def gottliebShu(sig, N, gam=0.25):
+def gottliebShu(sig, N, L=0.25):
     """
     :param sig: numpy.array input signal.
     :param N: Number of spectral partial sum or number of overtone.
-    :param gam: Positive real constant.
+    :param L: Positive real constant.
     """
-    lam = gam * N  # N が大きいと eval_gegenbauerでオーバーフローする。
+    lam = L * N  # N が大きいと eval_gegenbauerでオーバーフローする。
 
     x = numpy.linspace(-1.0, 1.0, len(sig))
     k = numpy.arange(0, int(N / 2))
