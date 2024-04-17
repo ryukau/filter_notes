@@ -54,7 +54,9 @@ plotFilter()
 
 出力です。 1 回畳み込んだときに三角窓になっています。 2 回目以降の畳み込みでは[区間ごとに変わる多項式 (piecewise polynomial) になる](https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/homework/hw2_p2_sol.pdf)ようです。
 
-![Convoluted moveing average filter kernel shape.](img/MovingAverageKernel.png)
+<figure>
+<img src="img/MovingAverageKernel.png" alt="Cascaded moving average filter kernel shape." style="padding-bottom: 12px;"/>
+</figure>
 
 ### ステップ応答
 移動平均フィルタを畳み込んだフィルタのステップ応答を確認します。
@@ -79,7 +81,9 @@ plotStep()
 
 出力です。 1 回以上畳み込んだフィルタはステップ応答が S 字になっています。
 
-![Moving average and its convolution filters step responses.](img/MovingAverageStepResponse.png)
+<figure>
+<img src="img/MovingAverageStepResponse.png" alt="Step responses of cascaded moving average filters." style="padding-bottom: 12px;"/>
+</figure>
 
 ### 実装
 移動平均フィルタは [Musicdsp.org の Lookahead Limiter](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html) のページで紹介されている手法を使えば効率よく計算できます。このページでは移動平均の重ね掛けを 1 回行って、フィルタ係数を矩形窓から三角窓の形に変えています。
@@ -313,7 +317,9 @@ plt.show()
 
 出力です。ステップ応答は S 字になりますがオーバーシュートが出ます。
 
-![Bessel filter step response.](img/BesselStepResponse.png)
+<figure>
+<img src="Bessel filter step response." alt="img/BesselStepResponse.png" style="padding-bottom: 12px;"/>
+</figure>
 
 ### 2 次セクションへの分割
 次数の高い伝達関数をそのまま計算すると浮動小数点数による誤差で発散することがあります。そこで 2 次セクション (second order sections, sos) に分割して C++ に移植します。
@@ -585,7 +591,9 @@ plt.show()
 
 出力です。オーバーシュートが出ています。バイリニア変換した Bessel フィルタと同じに見えます。
 
-![Thiran lowpass filter step response.](img/ThiranStepResponse.png)
+<figure>
+<img src="img/ThiranStepResponse.png" alt="Thiran lowpass filter step response." style="padding-bottom: 12px;"/>
+</figure>
 
 ゲインの値を定義通りに計算すると `delay` の値によってはステップ応答が 1 から少しずれた値に収束することがあります。 1 に収束させるときは [`signal.freqz()`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.freqz.html#scipy.signal.freqz) の値からゲインを計算できます。
 
@@ -611,7 +619,9 @@ def thiranLowpassFixedGain(n, τ):
 
 Bessel フィルタと Thiran ローパスフィルタのステップ応答はほとんど同じで重なっています。
 
-![Comparison of step responase of triangular, Bessel and Thiran filter.](img/StepResponseComparison.png)
+<figure>
+<img src="img/StepResponseComparison.png" alt="Comparison of step responase of triangular, Bessel and Thiran filter." style="padding-bottom: 12px;"/>
+</figure>
 
 離散系で S 字のステップ応答が欲しいときは、オーバーシュートがなく、計算も速くて簡単な移動平均の重ね掛けを使えばよさそうです。
 
@@ -620,7 +630,7 @@ Bessel フィルタと Thiran ローパスフィルタのステップ応答は�
 Thiran ローパスフィルタはバイリニア変換した Bessel フィルタとほとんど同じですが、 2 次セクションに分割できないので使いどころはなさそうです。
 
 ## その他
-オーバーシュートせずにステップ応答が S 字を描くフィルタとしては、適当な[窓関数](https://en.wikipedia.org/wiki/Window_function)をフィルタ係数にした FIR フィルタも使えます。ただし、遷移時間が長くなると FIR フィルタのタップ数が増える分だけ計算が重たくなります。
+オーバーシュートせずにステップ応答が S 字を描くフィルタとしては、フィルタ係数がすべて正の値となる FIR フィルタも使えます。ただし、遷移時間が長くなると FIR フィルタのタップ数が増える分だけ計算が重たくなります。フィルタ係数は Wikipedia の[窓関数](https://en.wikipedia.org/wiki/Window_function)の記事からいろいろな曲線が選べます。
 
 ## 参考文献
 - [Lookahead Limiter — Musicdsp.org documentation](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html)
@@ -632,6 +642,10 @@ Thiran ローパスフィルタはバイリニア変換した Bessel フィル�
 - [Amplitude Response](https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html)
 
 ## 変更点
+- 2024/04/07
+  - Typo の修正。
+  - その他の節に「フィルタ係数がすべて正の値」という条件を追加。
+  - 代替テキストをデフォルトで非表示にするため、画像を Markdown 表記 `![]()` から `<image>` タグに変更。
 - 2024/04/06
   - 浮動小数点数の丸めについて `<cfenv>` に関する記載を追加。
 - 2022/05/07

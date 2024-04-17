@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-04-16" />
+<meta name="dcterms.date" content="2024-04-18" />
 <title>gibbs</title>
 
 <!-- MathJax -->
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-04-16
+Update: 2024-04-18
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -356,22 +356,22 @@ id="toc-ギブス現象を抑える">ギブス現象を抑える</a>
 <li><a href="#フィルタを使う方法"
 id="toc-フィルタを使う方法">フィルタを使う方法</a>
 <ul>
-<li><a href="#次フィルタ" id="toc-次フィルタ">1次フィルタ</a></li>
-<li><a href="#lanczosフィルタ"
-id="toc-lanczosフィルタ">Lanczosフィルタ</a></li>
-<li><a href="#raised-cosineフィルタ"
-id="toc-raised-cosineフィルタ">Raised Cosineフィルタ</a></li>
-<li><a href="#sharpened-raised-cosineフィルタ"
-id="toc-sharpened-raised-cosineフィルタ">Sharpened Raised
-Cosineフィルタ</a></li>
-<li><a href="#exponentialフィルタ"
-id="toc-exponentialフィルタ">Exponentialフィルタ</a></li>
-<li><a href="#daubechiesフィルタ"
-id="toc-daubechiesフィルタ">Daubechiesフィルタ</a></li>
+<li><a href="#次フィルタ" id="toc-次フィルタ">1 次フィルタ</a></li>
+<li><a href="#lanczos-フィルタ" id="toc-lanczos-フィルタ">Lanczos
+フィルタ</a></li>
+<li><a href="#raised-cosine-フィルタ"
+id="toc-raised-cosine-フィルタ">Raised Cosine フィルタ</a></li>
+<li><a href="#sharpened-raised-cosine-フィルタ"
+id="toc-sharpened-raised-cosine-フィルタ">Sharpened Raised Cosine
+フィルタ</a></li>
+<li><a href="#exponential-フィルタ"
+id="toc-exponential-フィルタ">Exponential フィルタ</a></li>
+<li><a href="#daubechies-フィルタ"
+id="toc-daubechies-フィルタ">Daubechies フィルタ</a></li>
 </ul></li>
-<li><a href="#gegenbauer-polynomialを使う方法"
-id="toc-gegenbauer-polynomialを使う方法">Gegenbauer
-Polynomialを使う方法</a>
+<li><a href="#gegenbauer-polynomial-を使う方法"
+id="toc-gegenbauer-polynomial-を使う方法">Gegenbauer Polynomial
+を使う方法</a>
 <ul>
 <li><a href="#問題点" id="toc-問題点">問題点</a></li>
 </ul></li>
@@ -383,20 +383,22 @@ Polynomialを使う方法</a>
 </details>
 </header>
 <h1 id="ギブス現象を抑える">ギブス現象を抑える</h1>
-<p>GottleibとShuの論文 <a
+<p>Gottleib と Shu の論文 <a
 href="https://citeseerx.ist.psu.edu/document?repid=rep1&amp;type=pdf&amp;doi=0aa153451c7fadf37cc0d2d48659e5bca0dec2e1">“ON
 THE GIBBS PHENOMENON AND ITS RESOLUTION”</a> を基に<a
 href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">ギブス現象</a>を抑える方法を試します。</p>
-<p>この文章で実装したコードを<a
-href="https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py">GitHubで見る</a>ことができます。実行するには
-<a href="https://www.scipy.org/">SciPy</a> と <a
+<p>この文章で実装したコードを <a
+href="https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py">GitHub
+で見る</a>ことができます。実行するには <a
+href="https://www.scipy.org/">SciPy</a> と <a
 href="https://matplotlib.org/">matplotlib</a>
 が必要です。パラメータを変えて遊んでみてください。</p>
 <p><a
 href="https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py">コードを見る
 (github.com)</a></p>
 <h2 id="フィルタを使う方法">フィルタを使う方法</h2>
-<p>GottleibとShuの論文で先行研究として紹介されていた方法です。ここではFIRフィルタとして実装します。</p>
+<p>Gottleib と Shu
+の論文で先行研究として紹介されていた方法です。ここではFIRフィルタとして実装します。</p>
 <p>フィルタを適用する部分を実装します。</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
@@ -441,7 +443,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lanczosフィルタの適用例。</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>plotGibbsSuppression(<span class="dv">1024</span>, lanczos, <span class="dv">16</span>, <span class="dv">1</span>)</span></code></pre></div>
-<h3 id="次フィルタ">1次フィルタ</h3>
+<h3 id="次フィルタ">1 次フィルタ</h3>
 <p><span class="math display">\[
 \sigma_1(\eta) = 1 - \eta
 \]</span></p>
@@ -449,11 +451,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fejer(eta):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">-</span> eta</span></code></pre></div>
-<p>フィルタを適用した結果です。画像のSignalは入力信号、Resultはフィルタを適用した結果です。一番下の図はFIRフィルタの係数です。</p>
+<p>フィルタを適用した結果です。画像の Signal は入力信号、 Result
+はフィルタを適用した結果です。一番下の図は FIR フィルタの係数です。</p>
 <figure>
 <img src="img/result_fejer.png" alt="Image of a result of fejer filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="lanczosフィルタ">Lanczosフィルタ</h3>
+<h3 id="lanczos-フィルタ">Lanczos フィルタ</h3>
 <p><span class="math display">\[
 \sigma_2(\eta) = \frac{\sin(\pi\eta)}{\pi\eta}
 \]</span></p>
@@ -465,7 +468,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <figure>
 <img src="img/result_lanczos.png" alt="Image of a result of lanczos filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="raised-cosineフィルタ">Raised Cosineフィルタ</h3>
+<h3 id="raised-cosine-フィルタ">Raised Cosine フィルタ</h3>
 <p><span class="math display">\[
 \sigma_3(\eta) = \frac{1}{2}(1 + \cos(\pi\eta))
 \]</span></p>
@@ -477,8 +480,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <figure>
 <img src="img/result_raisedCosine.png" alt="Image of a result of raised cosine filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="sharpened-raised-cosineフィルタ">Sharpened Raised
-Cosineフィルタ</h3>
+<h3 id="sharpened-raised-cosine-フィルタ">Sharpened Raised Cosine
+フィルタ</h3>
 <p><span class="math display">\[
 \sigma_4(\eta) = \sigma_3^4(\eta)(35 - 84\sigma_3(\eta) +
 70\sigma_3^2(\eta) - 20\sigma_3^3(\eta))
@@ -492,7 +495,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <figure>
 <img src="img/result_sharpendRaisedCosine.png" alt="Image of a result of sharpened raised cosine filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="exponentialフィルタ">Exponentialフィルタ</h3>
+<h3 id="exponential-フィルタ">Exponential フィルタ</h3>
 <p><span class="math display">\[
 \sigma_5(\eta) = e^{-\alpha\eta^p}
 \]</span></p>
@@ -504,13 +507,13 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <figure>
 <img src="img/result_exponential.png" alt="Image of a result of exponential filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="daubechiesフィルタ">Daubechiesフィルタ</h3>
+<h3 id="daubechies-フィルタ">Daubechies フィルタ</h3>
 <p><span class="math display">\[
 \sigma_6(\eta) = 1 - \frac{(2p-1)!}{(p-1)!} \int_0^{\eta} [t(1-t)]^{p-1}
 dt
 \]</span></p>
-<p>Maximaで展開します。 <span class="math inline">\(p\)</span>
-は任意の正の実数です。</p>
+<p><a href="https://maxima.sourceforge.io/">Maxima</a> で展開します。
+<span class="math inline">\(p\)</span> は任意の正の実数です。</p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">declare</span>(<span class="cn">eta</span>, <span class="cn">real</span>, <span class="cn">t</span>, <span class="cn">real</span>);</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cn">p</span>: <span class="dv">4</span>;</span>
@@ -525,19 +528,26 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <figure>
 <img src="img/result_daubechies4.png" alt="Image of a result of daubechies filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h2 id="gegenbauer-polynomialを使う方法">Gegenbauer
-Polynomialを使う方法</h2>
-<p>GottleibとShuの論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。ここでの解析的な形とは
+<h2 id="gegenbauer-polynomial-を使う方法">Gegenbauer Polynomial
+を使う方法</h2>
+<p>Gottleib と Shu
+の論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。ここでの解析的な形とは
 <span class="math inline">\(f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 +
 \dots\)</span> というような形、つまり<a
 href="https://en.wikipedia.org/wiki/Polynomial">多項式</a>のことです。</p>
-<p>まずGegenbauer係数 <span
+<p>まず Gegenbauer 係数 <span
 class="math inline">\(\hat{g}_k^{\lambda}\)</span> を求めます。</p>
 <p><span class="math display">\[
-\hat{g}_k^{\lambda} = \frac{1}{h_k^{\lambda}}
+\begin{aligned}
+\hat{g}_k^{\lambda} &amp;= \frac{1}{h_k^{\lambda}}
 \int_{-1}^{1} (1 - x^2)^{\lambda -
-\frac{1}{2}}f_N(x)C_k^{\lambda}(x)\,dx
-,\quad 0 \le k \le m
+\frac{1}{2}}f_N(x)C_k^{\lambda}(x)\,dx,
+\\
+h_k^{\lambda} &amp;= \pi^{\frac{1}{2}}C_k^{\lambda}(x)
+\frac{\Gamma(\lambda + \frac{1}{2})}{\Gamma(\lambda)(k + \lambda)},
+\\
+0 &amp;\le k \le m.
+\end{aligned}
 \]</span></p>
 <ul>
 <li><span class="math inline">\(C_k^{\lambda}(x)\)</span> : <a
@@ -553,13 +563,7 @@ class="math inline">\([-1, 1]\)</span> の範囲に正規化した入力信号</
 class="math inline">\(1/2\)</span> より大きい任意の正の実数</li>
 <li><span class="math inline">\(h_k^{\lambda}\)</span> : 正規化定数</li>
 </ul>
-<p><span class="math inline">\(h_k^{\lambda}\)</span>
-は次の式で求められます。</p>
-<p><span class="math display">\[
-h_k^{\lambda} = \pi^{\frac{1}{2}}C_k^{\lambda}(x)
-\frac{\Gamma(\lambda + \frac{1}{2})}{\Gamma(\lambda)(k + \lambda)}
-\]</span></p>
-<p>Gegenbauer係数 <span
+<p>Gegenbauer 係数 <span
 class="math inline">\(\hat{g}_k^{\lambda}\)</span> を用いて出力信号
 <span class="math inline">\(g^m(x)\)</span> を合成します。</p>
 <p><span class="math display">\[
@@ -630,19 +634,21 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>plotGottleibShuNoise(<span class="dv">1024</span>, analyticSignal, <span class="dv">16</span>)</span></code></pre></div>
 <p>以下は <code>additiveNoise</code> の結果です。
 <code>additiveNoise</code>
-は乱数で生成したノイズにローパスフィルタをかけた信号です。画像のFiltered
-resultはギブス現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。</p>
+は乱数で生成したノイズにローパスフィルタをかけた信号です。画像の
+Filtered result
+はギブス現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。</p>
 <figure>
 <img src="img/result_gottleibShu_additiveNoise.png" alt="Image of a result of gottlieb and shu's gibbs suppression to additive noise." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 <p><code>additiveNoise</code>
-について入力信号と、ギブス現象を抑えた結果にフィルタをかけた信号の周波数の比較です。powerは周波数成分の大きさ、phaseは周波数成分の位相です。</p>
+について入力信号と、ギブス現象を抑えた結果にフィルタをかけた信号の周波数の比較です。
+power は周波数成分の大きさ、 phase は周波数成分の位相です。</p>
 <figure>
 <img src="img/spectrum_comparison_additiveNoise.png" alt="Image comparison of additive noise spectrum." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 <p><code>additiveNoise</code>
-ではギブス現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むのでGegenbauer
-Polynomialを使う方法をそのまま使うことはできません。</p>
+ではギブス現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むので
+Gegenbauer Polynomial を使う方法をそのまま使うことはできません。</p>
 <p>以下は <code>analyticSignal</code> の結果です。
 <code>analyticSignal</code> は解析的な要素のみで合成した信号です。</p>
 <figure>
@@ -669,14 +675,21 @@ class="math inline">\(m\)</span>
 class="math inline">\(m\)</span> が大きいと Gegenbauer Polynomial
 の計算でオーバーフローすることがあります。これが問題になるときは任意精度で実装するしかなさそうです。</p>
 <h2 id="その他">その他</h2>
-<p>Gegenbauer polynomialを使う方法の <span
-class="math inline">\(m\)</span> を増やしていくことで、Gegenbauer
-polynomialによる信号の加算合成ができます。ただし信号の両端の値が非常に大きくなるので<a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tukey.html#scipy.signal.tukey">Tukey窓</a>などを掛け合わせて抑える必要があります。また
-<span class="math inline">\(\lambda = 1\)</span>
+<p>Gegenbauer polynomial を使う方法の <span
+class="math inline">\(m\)</span> を増やしていくことで、 Gegenbauer
+polynomial
+による信号の加算合成ができます。ただし信号の両端の値が非常に大きくなるので
+<a
+href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tukey.html#scipy.signal.tukey">Tukey
+窓</a>などを掛け合わせて抑える必要があります。また <span
+class="math inline">\(\lambda = 1\)</span>
 とすることで、ある程度はオーバーフローを避けることができます。</p>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/04/17
+<ul>
+<li>文章の整理。</li>
+</ul></li>
 <li>2024/04/16
 <ul>
 <li><a

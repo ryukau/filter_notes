@@ -581,7 +581,7 @@ print(np.max(np.abs(upSig)), np.max(np.abs(upLimited)))
 
 アップサンプリング前のローパスフィルタ (プリフィルタ) の設計の一例として [ITU-R BS.1770-5](https://www.itu.int/rec/R-REC-BS.1770/en) の Attachment 1 to Annex 2 (p.21) に記載された maximum under-read の式を使う方法が考えられます。
 
-Maximum under-read は、任意の周波数 $f$ についてサンプルピークとトゥルーピークの差の最大値です。 ITU-R BS.1770-5 では周波数 $f$ の三角関数のピークがサンプルとサンプルの中間点に位置したときに under-read が最大となると書いてありますが、証明はないので本当かどうかはわかりません。以下は maximum under-read のアイデアを示した図です。
+Maximum under-read は、任意の周波数 $f$ についてサンプルピークとトゥルーピークの差の最大値です。 ITU-R BS.1770-5 では周波数 $f$ の sin あるいは cos のピークがサンプルとサンプルの中間点に位置したときに under-read が最大となると書いてありますが、証明はないので本当かどうかはわかりません。以下は maximum under-read のアイデアを示した図です。
 
 <figure>
 <img src="img/maximum_underread.svg" alt="Image of an example of maximum under-read condition at f=f_s/4, according to ITU-R BS.1770 definition. First half of sine wave goes through 2 samples at the same height, and the peak of half sine is exactly in between those 2 samples." style="padding-bottom: 12px;"/>
@@ -644,6 +644,8 @@ fir = np.roll(fir, len(fir) // 2 - 1)
 - [Fruity Limiter - Effect Plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm)
 
 ## 変更点
+- 2024/04/17
+  - 文章の整理。
 - 2024/02/18
   - プリフィルタの設計の項を追加。
 - 2022/05/20

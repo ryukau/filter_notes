@@ -1,7 +1,7 @@
 # アナログの周波数特性に一致する二次のデジタルフィルタの実装
 Martin Vicanek さんによる [Matched Second Order Digital Filters](https://vicanek.de/articles/BiquadFits.pdf) と [Matched One-Pole Digital Shelving Filters](https://vicanek.de/articles/ShelvingFits.pdf) で紹介されていた整合フィルタ (matched filter) を実装します。整合フィルタとはアナログの周波数特性に一致する離散フィルタのことです。
 
-[Audio EQ Cookbook](https://www.w3.org/TR/audio-eq-cookbook/) などで紹介されている二次フィルタはバイリニア変換を使っています。バイリニア変換は $tan$ によって周波数を歪ませてマッピングしているので、アナログ特性とデジタル特性の間に差が生じます。整合フィルタの特長は、このような周波数の歪みを避けるように設計されていることです。
+[Audio EQ Cookbook](https://www.w3.org/TR/audio-eq-cookbook/) などで紹介されている二次フィルタはバイリニア変換を使っています。バイリニア変換は $\tan$ によって周波数を歪ませてマッピングしているので、アナログ特性とデジタル特性の間に差が生じます。整合フィルタの特長は、このような周波数の歪みを避けるように設計されていることです。
 
 ## 実装
 Python 3 でフィルタ係数 $b_0, b_1, b_2, a_1, a_2$ を計算する関数を実装します。フィルタ係数は以下の離散系の伝達関数と対応します。
@@ -357,3 +357,7 @@ def matchedShelvingOnePole(cutoffRadian, gain):
 - [MV's Plugins Articles](https://vicanek.de/articles.htm)
 - Martin Vicanek, ["Matched Second Order Digital Filters"](https://vicanek.de/articles/BiquadFits.pdf), 2016-02-14.
 - Martin Vicanek, ["Matched One-Pole Digital Shelving Filters"](https://vicanek.de/articles/ShelvingFits.pdf), revised 2019-09-24.
+
+## 変更点
+- 2024/04/17
+  - 文章の整理。

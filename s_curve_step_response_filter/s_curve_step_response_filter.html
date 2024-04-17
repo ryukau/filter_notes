@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-04-16" />
+<meta name="dcterms.date" content="2024-04-17" />
 <title>s_curve_step_response_filter</title>
 
 <!-- MathJax -->
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-04-16
+Update: 2024-04-17
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -459,10 +459,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 href="https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/homework/hw2_p2_sol.pdf">区間ごとに変わる多項式
 (piecewise polynomial) になる</a>ようです。</p>
 <figure>
-<img src="img/MovingAverageKernel.png"
-alt="Convoluted moveing average filter kernel shape." />
-<figcaption aria-hidden="true">Convoluted moveing average filter kernel
-shape.</figcaption>
+<img src="img/MovingAverageKernel.png" alt="Cascaded moving average filter kernel shape." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="ステップ応答">ステップ応答</h3>
 <p>移動平均フィルタを畳み込んだフィルタのステップ応答を確認します。</p>
@@ -485,10 +482,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <p>出力です。 1 回以上畳み込んだフィルタはステップ応答が S
 字になっています。</p>
 <figure>
-<img src="img/MovingAverageStepResponse.png"
-alt="Moving average and its convolution filters step responses." />
-<figcaption aria-hidden="true">Moving average and its convolution
-filters step responses.</figcaption>
+<img src="img/MovingAverageStepResponse.png" alt="Step responses of cascaded moving average filters." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="実装">実装</h3>
 <p>移動平均フィルタは <a
@@ -746,9 +740,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <p>出力です。ステップ応答は S
 字になりますがオーバーシュートが出ます。</p>
 <figure>
-<img src="img/BesselStepResponse.png"
-alt="Bessel filter step response." />
-<figcaption aria-hidden="true">Bessel filter step response.</figcaption>
+<img src="Bessel filter step response." alt="img/BesselStepResponse.png" style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="次セクションへの分割">2 次セクションへの分割</h3>
 <p>次数の高い伝達関数をそのまま計算すると浮動小数点数による誤差で発散することがあります。そこで
@@ -1028,10 +1020,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a h
 <p>出力です。オーバーシュートが出ています。バイリニア変換した Bessel
 フィルタと同じに見えます。</p>
 <figure>
-<img src="img/ThiranStepResponse.png"
-alt="Thiran lowpass filter step response." />
-<figcaption aria-hidden="true">Thiran lowpass filter step
-response.</figcaption>
+<img src="img/ThiranStepResponse.png" alt="Thiran lowpass filter step response." style="padding-bottom: 12px;"/>
 </figure>
 <p>ゲインの値を定義通りに計算すると <code>delay</code>
 の値によってはステップ応答が 1
@@ -1059,10 +1048,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 <p>Bessel フィルタと Thiran
 ローパスフィルタのステップ応答はほとんど同じで重なっています。</p>
 <figure>
-<img src="img/StepResponseComparison.png"
-alt="Comparison of step responase of triangular, Bessel and Thiran filter." />
-<figcaption aria-hidden="true">Comparison of step responase of
-triangular, Bessel and Thiran filter.</figcaption>
+<img src="img/StepResponseComparison.png" alt="Comparison of step responase of triangular, Bessel and Thiran filter." style="padding-bottom: 12px;"/>
 </figure>
 <p>離散系で S
 字のステップ応答が欲しいときは、オーバーシュートがなく、計算も速くて簡単な移動平均の重ね掛けを使えばよさそうです。</p>
@@ -1073,10 +1059,11 @@ triangular, Bessel and Thiran filter.</figcaption>
 次セクションに分割できないので使いどころはなさそうです。</p>
 <h2 id="その他">その他</h2>
 <p>オーバーシュートせずにステップ応答が S
-字を描くフィルタとしては、適当な<a
-href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>をフィルタ係数にした
-FIR フィルタも使えます。ただし、遷移時間が長くなると FIR
-フィルタのタップ数が増える分だけ計算が重たくなります。</p>
+字を描くフィルタとしては、フィルタ係数がすべて正の値となる FIR
+フィルタも使えます。ただし、遷移時間が長くなると FIR
+フィルタのタップ数が増える分だけ計算が重たくなります。フィルタ係数は
+Wikipedia の<a
+href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>の記事からいろいろな曲線が選べます。</p>
 <h2 id="参考文献">参考文献</h2>
 <ul>
 <li><a
@@ -1101,6 +1088,13 @@ Response</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/04/07
+<ul>
+<li>Typo の修正。</li>
+<li>その他の節に「フィルタ係数がすべて正の値」という条件を追加。</li>
+<li>代替テキストをデフォルトで非表示にするため、画像を Markdown 表記
+<code>![]()</code> から <code>&lt;image&gt;</code> タグに変更。</li>
+</ul></li>
 <li>2024/04/06
 <ul>
 <li>浮動小数点数の丸めについて <code>&lt;cfenv&gt;</code>
