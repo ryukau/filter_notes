@@ -76,6 +76,29 @@ def random_ortho_close_to_identity(dim=4, identityAmount=0.1, seed=0):
     return H
 
 
+def random_special_ortho_close_to_identity(dim=4, identityAmount=0.1, seed=0):
+    rng = np.random.default_rng(seed)
+
+    H = np.eye(dim)
+    D = np.empty((dim,))
+    for n in range(dim - 1):
+        x = rng.normal(size=(dim - n,)) * identityAmount
+        norm2 = np.dot(x, x)
+        x0 = x[0].item()
+        D[n] = np.sign(x[0]) if x[0] != 0 else 1
+        x[0] += D[n] * np.sqrt(norm2)
+        x /= np.sqrt((norm2 - x0**2 + x[0] ** 2) / 2.0)
+
+        # Householder transformation
+        H[:, n:] -= np.outer(np.dot(H[:, n:], x), x)
+
+    D[-1] = (-1) ** (dim - 1) * D[:-1].prod()
+
+    # Equivalent to np.dot(np.diag(D), H) but faster, apparently
+    H = (D * H.T).T
+    return H
+
+
 def random_householder(dim=4, seed=0):
     """
     Reference: https://nhigham.com/2020/09/15/what-is-a-householder-matrix/
@@ -302,10 +325,10 @@ def testMatrix():
 
 
 def testRotation():
-    # mat = random_ortho_close_to_identity()
+    mat = random_special_ortho_close_to_identity()
     # mat /= np.linalg.norm(mat)
 
-    mat = random_ortho_circulant()
+    # mat = random_ortho_circulant()
     eye = np.ones(4)
 
     print(mat, end="\n\n\n\n")

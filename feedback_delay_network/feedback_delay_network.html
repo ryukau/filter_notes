@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-11-09" />
+<meta name="dcterms.date" content="2024-04-20" />
 <title>feedback_delay_network</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-11-09
+Update: 2024-04-20
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -379,8 +379,8 @@ id="toc-アダマール行列">アダマール行列</a></li>
 id="toc-音についての所感">音についての所感</a></li>
 <li><a href="#その他" id="toc-その他">その他</a>
 <ul>
-<li><a href="#単位行列に近いランダムな直交行列の生成"
-id="toc-単位行列に近いランダムな直交行列の生成">単位行列に近いランダムな直交行列の生成</a></li>
+<li><a href="#単位行列に近いランダムな特殊直交行列の生成"
+id="toc-単位行列に近いランダムな特殊直交行列の生成">単位行列に近いランダムな特殊直交行列の生成</a></li>
 <li><a href="#ランダムな直交行列のソート"
 id="toc-ランダムな直交行列のソート">ランダムな直交行列のソート</a></li>
 <li><a href="#weighing-行列" id="toc-weighing-行列">Weighing
@@ -647,7 +647,7 @@ class="math inline">\(\mathbf{P}\)</span> は以下の式で表されます。</
 \]</span></p>
 <p><span class="math inline">\(\mathbf{I}\)</span> は単位行列、 <span
 class="math inline">\(\mathbf{v}\)</span> は少なくとも 1 つの要素が 0
-でないベクトルです。</p>
+でない列ベクトルです。</p>
 <p>Householder 行列の特徴は、 <span class="math inline">\(n\)</span>
 個の乱数から直行行列を組み立てられることと、対称行列 (<span
 class="math inline">\(\mathbf{P} = \mathbf{P}^\mathrm{T}\)</span>)
@@ -965,7 +965,7 @@ href="https://en.wikipedia.org/wiki/Hadamard_matrix">アダマール行列</a>�
 <p>まず初期状態として以下の行列 <span
 class="math inline">\(\mathbf{H}_1\)</span> があります。</p>
 <p><span class="math display">\[
-\mathbf{H}_1 = \begin{bmatrix} 1 \end{bmatrix}
+\mathbf{H}_1 = \begin{bmatrix} 1 \end{bmatrix}.
 \]</span></p>
 <p>そして再帰的に <span class="math inline">\(\mathbf{H}_{n}\)</span>
 をタイルすることで <span class="math inline">\(\mathbf{H}_{n^2}\)</span>
@@ -979,8 +979,7 @@ class="math inline">\(\mathbf{H}_1\)</span> があります。</p>
 <p>この計算は <span class="math inline">\(\begin{bmatrix}1 &amp; 1 \\ 1
 &amp; -1 \end{bmatrix}\)</span> の<a
 href="https://en.wikipedia.org/wiki/Kronecker_product">クロネッカー積</a>を繰り返すと説明されていることもあります。</p>
-<p>タイリングは回転させても OK
-です。ただし、異なる回転を組み合わせるとアダマール行列ではなくなります。</p>
+<p>タイリングは回転させても直行行列になります。ただし、アダマール行列ではなくなります。</p>
 <p><span class="math display">\[
 \overset{\tiny \triangle}{\mathbf{{H}}}_{n^2} = \begin{bmatrix}
 \overset{\tiny \triangle}{\mathbf{{H}}}_{n} &amp; \overset{\tiny
@@ -996,11 +995,11 @@ href="https://en.wikipedia.org/wiki/Kronecker_product">クロネッカー積</a>
 \checkmark}{\mathbf{{H}}}_{n}
 \end{bmatrix}
 ,\quad \text{or} \quad
-\overset{\tiny \hearts}{\mathbf{{H}}}_{n^2} = \begin{bmatrix}
--\overset{\tiny \hearts}{\mathbf{{H}}}_{n} &amp; \overset{\tiny
-\hearts}{\mathbf{{H}}}_{n}\\
-\overset{\tiny \hearts}{\mathbf{{H}}}_{n} &amp; \overset{\tiny
-\hearts}{\mathbf{{H}}}_{n}
+\overset{\tiny \heartsuit}{\mathbf{{H}}}_{n^2} = \begin{bmatrix}
+-\overset{\tiny \heartsuit}{\mathbf{{H}}}_{n} &amp; \overset{\tiny
+\heartsuit}{\mathbf{{H}}}_{n}\\
+\overset{\tiny \heartsuit}{\mathbf{{H}}}_{n} &amp; \overset{\tiny
+\heartsuit}{\mathbf{{H}}}_{n}
 \end{bmatrix}
 .
 \]</span></p>
@@ -1057,10 +1056,10 @@ residue</a> の集合を作ります。 Quadratic residue
 を求められます。</p>
 <p><span class="math display">\[
 \begin{aligned}
-1^2 \bmod 5 &amp;= 1 \\
-2^2 \bmod 5 &amp;= 4 \\
-3^2 \bmod 5 &amp;= 4 \\
-4^2 \bmod 5 &amp;= 1 \\
+1^2 \bmod 5 &amp;= 1, \\
+2^2 \bmod 5 &amp;= 4, \\
+3^2 \bmod 5 &amp;= 4, \\
+4^2 \bmod 5 &amp;= 1. \\
 \end{aligned}
 \]</span></p>
 <p>つまりモジュロが 5 のとき、 1 と 4 は quadratic residue です。 <a
@@ -1100,10 +1099,10 @@ class="math inline">\(k=5\)</span> のときの例です。</p>
 \mathrm{QR}(5) = \{1, 4\}.
 \\\\
 0 \enspace \text{is special},&amp;
-1 \in QR(5),&amp;
-2 \notin QR(5),&amp;
-3 \notin QR(5),&amp;
-4 \in QR(5).&amp;
+1 \in \mathrm{QR}(5),&amp;
+2 \notin \mathrm{QR}(5),&amp;
+3 \notin \mathrm{QR}(5),&amp;
+4 \in \mathrm{QR}(5).&amp;
 \\\\
 \left( \dfrac{0}{5} \right) = 0,&amp;
 \left( \dfrac{1}{5} \right) = 1,&amp;
@@ -1121,7 +1120,7 @@ class="math inline">\(a \bmod k\)</span>
 \begin{aligned}
 \mathbb{Z}/k\mathbb{Z} &amp;= \{a \bmod k \mid \forall a \in \mathbb{Z}
 \}\\
-&amp;= \{0, 1, 2, \dots, k - 1\}
+&amp;= \{0, 1, 2, \dots, k - 1\}.
 \end{aligned}
 \]</span></p>
 <p>Legendre symbol の集合の計算は Python 3
@@ -1218,7 +1217,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#
 <span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 id="音についての所感">音についての所感</h2>
-<p>ここまでで紹介したすべての行列は VST 3 プラグインの <a
+<p>ここまで紹介した中で、 Householder を除く行列は VST 3 プラグインの <a
 href="https://ryukau.github.io/VSTPlugins/index.html#fdn64reverb">FDN64Reverb</a>
 に実装したので、興味のある方は試してみてください。</p>
 <p>三角行列と Schroeder
@@ -1239,8 +1238,8 @@ FDN
 <p>直交行列と特殊直交行列についてはランダマイズのときに対角成分の大きさを調整できるようにすれば質感のコントロールができそうです。</p>
 <h2 id="その他">その他</h2>
 <h3
-id="単位行列に近いランダムな直交行列の生成">単位行列に近いランダムな直交行列の生成</h3>
-<p>直交行列をランダムに生成するとき、以下の行で乱数を使っています。</p>
+id="単位行列に近いランダムな特殊直交行列の生成">単位行列に近いランダムな特殊直交行列の生成</h3>
+<p>特殊直交行列をランダムに生成するとき、以下の行で乱数を使っています。</p>
 <div class="sourceCode" id="cb13"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span></code></pre></div>
 <p>この行を以下のように変更することで、どれくらい単位行列に近くなるかということを設定できます。</p>
@@ -1248,7 +1247,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> identityAmount <span class="op">*</span> dist<span class="op">(</span>rng<span class="op">);</span></span></code></pre></div>
 <p><code>identityAmount</code> は 0 より大きい実数です。 0
-に近づくほど生成された直交行列が単位行列に近づきます。 1
+に近づくほど生成された特殊直交行列が単位行列に近づきます。 1
 を大きく超えると対角成分が他の成分に比べて小さくなります。負の値も使えますが、
 <code>dist(rng)</code> は 0
 で対称な正規分布から値を引いてくるので特に意味はないです。</p>
@@ -1262,7 +1261,7 @@ class="math inline">\(n-1\)</span> は 1
 <p><span class="math display">\[
 M_n = R M_{n-1}
 \]</span></p>
-<p>なぜ単位行列に近づけたかったのかというと、乗算による値の変化が大きいときに出るポップノイズを抑えたかったからです。直交行列は回転を表しています。そして単位行列に近いということは、一回当たりの乗算による回転量が少ないと考えられます。結果としては単にトレモロのような音になるだけで、計算コストに効果が見合っていないと感じました。また、乗算のたびに誤差の影響で直交行列からかけ離れていくという問題もあります。</p>
+<p>なぜ単位行列に近づけたかったのかというと、乗算による値の変化が大きいときに出るポップノイズを抑えたかったからです。特殊直交行列は回転を表しています。そして単位行列に近いということは、一回当たりの乗算による回転量が少ないと考えられます。結果としては単にトレモロのような音になるだけで、計算コストに効果が見合っていないと感じました。また、乗算のたびに誤差の影響で特殊直交行列からかけ離れていくという問題もあります。</p>
 <h3 id="ランダムな直交行列のソート">ランダムな直交行列のソート</h3>
 <p>今回は使っていませんが、 FDN
 への応用では以下のように直交行列をソートすることで扱いやすくなることがあるかもしれません。</p>
@@ -1364,6 +1363,10 @@ Residues</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/04/19
+<ul>
+<li>文章の整理。</li>
+</ul></li>
 <li>2023/11/09
 <ul>
 <li>Householder 行列を追加。</li>
