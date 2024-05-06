@@ -7,7 +7,15 @@
 - C++17
   - [libsndfile](http://www.mega-nerd.com/libsndfile/)
 
-`run.sh` を実行するとビルドします。
+## Windows
+`run.ps1` を実行するとビルドします。 libsndfile を vcpkg からリンクします。
+
+```ps1
+./run.ps1
+```
+
+## Bash 環境
+`run.sh` を実行するとビルドします。 `g++` が必要です。
 
 ```bash
 ./run.sh

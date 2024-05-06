@@ -148,7 +148,7 @@ def exponential(eta, alpha=8, p=4):
 
 ### Daubechies フィルタ
 $$
-\sigma_6(\eta) = 1 - \frac{(2p-1)!}{(p-1)!} \int_0^{\eta} [t(1-t)]^{p-1} dt
+\sigma_6(\eta) = 1 - \frac{(2p-1)!}{(p-1)!^2} \int_0^{\eta} [t(1-t)]^{p-1} dt
 $$
 
 [Maxima](https://maxima.sourceforge.io/) で展開します。 $p$ は任意の正の実数です。
@@ -308,6 +308,8 @@ $\lambda$ と $m$ が大きいと Gegenbauer Polynomial の計算でオーバー
 Gegenbauer polynomial を使う方法の $m$ を増やしていくことで、 Gegenbauer polynomial による信号の加算合成ができます。ただし信号の両端の値が非常に大きくなるので [Tukey 窓](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tukey.html#scipy.signal.tukey)などを掛け合わせて抑える必要があります。また $\lambda = 1$ とすることで、ある程度はオーバーフローを避けることができます。
 
 ## 変更点
+- 2024/05/06
+  - Daubechies フィルタの式の間違いを修正。
 - 2024/04/17
   - 文章の整理。
 - 2024/04/16

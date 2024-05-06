@@ -11,8 +11,8 @@ g++ -std=c++17 -lsndfile -O3 -o bin/linterp linterp.cpp
 g++ -std=c++17 -lsndfile -O3 -o bin/smoother smoother.cpp
 ./bin/smoother
 
-g++ -std=c++17 -lsndfile -O3 -o bin/pcontroller pcontroller.cpp
-./bin/pcontroller
+g++ -std=c++17 -lsndfile -O3 -o bin/emafilter emafilter.cpp
+./bin/emafilter
 
 g++ -std=c++17 -lsndfile -O3 -o bin/rate_limiter rate_limiter.cpp
 ./bin/rate_limiter

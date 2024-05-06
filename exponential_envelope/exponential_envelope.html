@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-05-06" />
 <title>exponential_envelope</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-05-06
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -366,8 +366,9 @@ id="toc-指数曲線を使った-adsr-エンベロープ">指数曲線を使っ�
 <li><a href="#デクリック-declick" id="toc-デクリック-declick">デクリック
 (declick)</a></li>
 </ul></li>
-<li><a href="#p-controller-による実装"
-id="toc-p-controller-による実装">P Controller による実装</a></li>
+<li><a href="#exponential-moving-average-フィルタによる実装"
+id="toc-exponential-moving-average-フィルタによる実装">Exponential
+Moving Average フィルタによる実装</a></li>
 <li><a href="#減衰する指数曲線とその反転の乗算"
 id="toc-減衰する指数曲線とその反転の乗算">減衰する指数曲線とその反転の乗算</a>
 <ul>
@@ -416,7 +417,7 @@ class="math inline">\(\alpha^\tau = \epsilon\)</span> の関係と <span
 class="math inline">\(n_\tau\)</span> の式より <span
 class="math inline">\(\alpha\)</span> が求められます。</p>
 <p><span class="math display">\[
-\alpha = \epsilon^\Tau, \quad \Tau = \frac{1}{\tau f_s}.
+\alpha = \epsilon^\eta, \quad \eta = \frac{1}{\tau f_s}.
 \]</span></p>
 <p><span class="math inline">\(\epsilon\)</span>
 の値は任意です。この文章では <code>1e-5</code>
@@ -480,7 +481,7 @@ E_d(\tau) = \epsilon \alpha^\tau = 1
 \]</span></p>
 <p><span class="math inline">\(\alpha\)</span> について解きます。</p>
 <p><span class="math display">\[
-\alpha = \left( \frac{1}{\epsilon} \right)^\Tau, \quad \Tau =
+\alpha = \left( \frac{1}{\epsilon} \right)^\eta, \quad \eta =
 \frac{1}{\tau f_s}.
 \]</span></p>
 <p>実装します。</p>
@@ -810,12 +811,13 @@ declick_off
 <source src="snd/declick_off.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="p-controller-による実装">P Controller による実装</h2>
-<p>P controller については<a
+<h2 id="exponential-moving-average-フィルタによる実装">Exponential
+Moving Average フィルタによる実装</h2>
+<p>Exponential Moving Average (EMA) フィルタについては<a
 href="../control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの
 UI から入力された値の補間</a>を参照してください。</p>
-<p>ステップ状の不連続点を始点として指数曲線を描く出力が得られる P
-controller の特性を利用してエンベロープを実装します。</p>
+<p>ステップ状の不連続点を始点として指数曲線を描く出力が得られる EMA
+フィルタの特性を利用してエンベロープを実装します。</p>
 <p>ユーザから指定された時間 <span class="math inline">\(T\)</span>
 の逆数をカットオフ周波数 <span class="math inline">\(f_c\)</span>
 に使っています。</p>
@@ -833,7 +835,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">double</span> twopi <span class="op">=</span> <span class="fl">6.283185307179586</span><span class="op">;</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> PController <span class="op">{</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> EmaFilter <span class="op">{</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">// float 型での cutoffHz の下限は 3~4 Hz 程度。</span></span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> Sample cutoffToP<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span></span>
@@ -866,7 +868,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    atk <span class="op">=</span> <span class="dt">int32_t</span><span class="op">(</span>sampleRate <span class="op">*</span> attackTime<span class="op">);</span></span>
 <span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    decTime <span class="op">=</span> decayTime<span class="op">;</span></span>
 <span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    relTime <span class="op">=</span> releaseTime<span class="op">;</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    pController<span class="op">.</span>setP<span class="op">(</span>PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> attackTime<span class="op">));</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    pController<span class="op">.</span>setP<span class="op">(</span>EmaFilter<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> attackTime<span class="op">));</span></span>
 <span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> set<span class="op">(</span>Sample attackTime<span class="op">,</span> Sample decayTime<span class="op">,</span> Sample sustainLevel<span class="op">,</span> Sample releaseTime<span class="op">)</span></span>
@@ -890,18 +892,18 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>state <span class="op">==</span> State<span class="op">::</span>attack<span class="op">)</span></span>
 <span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>      pController<span class="op">.</span>setP<span class="op">(</span></span>
-<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>        PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> attackTime<span class="op">));</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>        EmaFilter<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> attackTime<span class="op">));</span></span>
 <span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>state <span class="op">==</span> State<span class="op">::</span>decay<span class="op">)</span></span>
-<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>      pController<span class="op">.</span>setP<span class="op">(</span>PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> decayTime<span class="op">));</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>      pController<span class="op">.</span>setP<span class="op">(</span>EmaFilter<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> decayTime<span class="op">));</span></span>
 <span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>state <span class="op">==</span> State<span class="op">::</span>release<span class="op">)</span></span>
 <span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>      pController<span class="op">.</span>setP<span class="op">(</span></span>
-<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>        PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> releaseTime<span class="op">));</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>        EmaFilter<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> releaseTime<span class="op">));</span></span>
 <span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> release<span class="op">()</span></span>
 <span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
 <span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> State<span class="op">::</span>release<span class="op">;</span></span>
-<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>    pController<span class="op">.</span>setP<span class="op">(</span>PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> relTime<span class="op">));</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>    pController<span class="op">.</span>setP<span class="op">(</span>EmaFilter<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> relTime<span class="op">));</span></span>
 <span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>  <span class="dt">bool</span> isAttacking<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> state <span class="op">==</span> State<span class="op">::</span>attack<span class="op">;</span> <span class="op">}</span></span>
@@ -917,7 +919,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>atk <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>          state <span class="op">=</span> State<span class="op">::</span>decay<span class="op">;</span></span>
 <span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>          pController<span class="op">.</span>setP<span class="op">(</span></span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>            PController<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> decTime<span class="op">));</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>            EmaFilter<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>cutoffToP<span class="op">(</span>sampleRate<span class="op">,</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> decTime<span class="op">));</span></span>
 <span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
 <span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span> <span class="cf">break</span><span class="op">;</span></span>
 <span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a></span>
@@ -958,7 +960,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint32_t</span> tailLength <span class="op">=</span> <span class="dv">32</span><span class="op">;</span></span>
 <span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint32_t</span> tailCounter <span class="op">=</span> tailLength<span class="op">;</span></span>
 <span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>  PController<span class="op">&lt;</span>Sample<span class="op">&gt;</span> pController<span class="op">;</span></span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>  EmaFilter<span class="op">&lt;</span>Sample<span class="op">&gt;</span> pController<span class="op">;</span></span>
 <span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a>  State state <span class="op">=</span> State<span class="op">::</span>terminated<span class="op">;</span></span>
 <span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint32_t</span> atk <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a>  Sample decTime <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -1154,7 +1156,14 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 </figure>
 <h2 id="変更点">変更点</h2>
 <ul>
-<li>2020-03-27
+<li>2024/05/06
+<ul>
+<li>“P Controller” という呼び方を、一般的な用語の “exponential moving
+average フィルタ” に置換。</li>
+<li><code>\Tau</code> が MathJax で表示されていなかったので
+<code>\eta</code> に置換。</li>
+</ul></li>
+<li>2020/03/27
 <ul>
 <li><code>P Controller による実装</code> を追加。</li>
 </ul></li>

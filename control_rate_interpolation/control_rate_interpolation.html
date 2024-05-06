@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-05-06" />
 <title>control_rate_interpolation</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-05-06
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -364,7 +364,9 @@ id="toc-パラメータチューニング">パラメータチューニング</a>
 <li><a href="#異なる計算方法"
 id="toc-異なる計算方法">異なる計算方法</a></li>
 </ul></li>
-<li><a href="#p-controller" id="toc-p-controller">P Controller</a>
+<li><a href="#exponential-moving-average-フィルタ"
+id="toc-exponential-moving-average-フィルタ">Exponential Moving Average
+フィルタ</a>
 <ul>
 <li><a href="#周波数特性" id="toc-周波数特性">周波数特性</a></li>
 <li><a href="#k_p-からカットオフ周波数を求める"
@@ -432,7 +434,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> out<span class="op">[</span>nFrame<span class="op">];</span> <span class="co">// VST 3 や LV2 にならってバッファに C の配列を使う。</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>minstd_rand<span class="op"> </span>rng<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>minstd_rand rng<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> gainDist<span class="op">(</span><span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">);</span></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  DSP dsp<span class="op">;</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
@@ -483,8 +485,8 @@ IIR
 <p>サンプリング周波数とバッファサイズが固定ならパラメータが変化したときだけ次のバッファまで線形補間することでノイズが大きく減ります。</p>
 <p><strong>注意</strong>
 バッファサイズが可変のときは、この節で紹介している手法を使うとノイズが乗ります。後で紹介する
-PController を使う方法をお勧めします。 FL Studio 20.6
-はバッファサイズが可変でした。</p>
+exponential moving average フィルタを使う方法をお勧めします。 FL Studio
+20.6 はバッファサイズが可変でした。</p>
 <p>デスクトップ環境では設定によってサンプリング周波数とバッファサイズが変わります。そこで古い値から新しい値へと更新される時間を指定できるようにします。</p>
 <p>まずはサンプリング周波数 <span class="math inline">\(f_s\)</span>
 とユーザが指定した新しい値へと更新される秒数 <span
@@ -568,7 +570,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> out<span class="op">[</span>nFrame<span class="op">];</span></span>
 <span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>minstd_rand<span class="op"> </span>rng<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>minstd_rand rng<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
 <span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> gainDist<span class="op">(</span><span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">);</span></span>
 <span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  DSP dsp<span class="op">;</span></span>
 <span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>  dsp<span class="op">.</span>gain<span class="op">.</span>setSampleRate<span class="op">(</span>sampleRate<span class="op">,</span> <span class="fl">0.02</span><span class="bu">f</span><span class="op">);</span></span>
@@ -678,14 +680,14 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/bench_smoother.cpp">filter_notes/bench_smoother.cpp
 at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
-<h2 id="p-controller">P Controller</h2>
-<p>思いつきで PID コントローラの P だけを取り出して使っていたので P
-controller と名前をつけていますが exponential moving average filter
-あるいは exponentially weighted moving average filter
-と呼ぶほうが一般的です。エンベロープを滑らかにするときなどにも使えます。</p>
-<p>P controller の の素朴な実装です。</p>
+<h2 id="exponential-moving-average-フィルタ">Exponential Moving Average
+フィルタ</h2>
+<p>Exponential moving average (EMA)
+フィルタはステップ応答が指数関数となる 1
+次ローパスフィルタです。エンベロープの角を取って滑らかにするときにも使えます。</p>
+<p>EMA フィルタの素朴な実装です。</p>
 <div class="sourceCode" id="cb6"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> PController <span class="op">{</span></span>
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> EmaFilter <span class="op">{</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setup<span class="op">(</span>Sample p<span class="op">)</span> <span class="op">{</span> kp <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">&lt;</span>Sample<span class="op">&gt;(</span>p<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span> <span class="op">}</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span> <span class="op">{</span> value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
@@ -696,8 +698,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <h3 id="周波数特性">周波数特性</h3>
-<p><code>PController</code> の伝達関数を出します。
-<code>process()</code> での計算式です。</p>
+<p><code>EmaFilter</code> の伝達関数を出します。 <code>process()</code>
+での計算式です。</p>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>value <span class="op">+=</span> kp <span class="op">*</span> <span class="op">(</span>input <span class="op">-</span> value<span class="op">);</span></span></code></pre></div>
 <p><span class="math inline">\(n\)</span> を経過サンプル数とすると
@@ -717,13 +719,13 @@ y[n] + (k_p - 1) y[n - 1] &amp;= k_p x[n]
 <p><span class="math display">\[
 H(z) = \frac{k_p}{1 + (k_p - 1) z^{-1}}
 \]</span></p>
-<p><code>PController</code> の振幅特性です。ローパスに近い特性です。</p>
+<p><code>EmaFilter</code> の振幅特性です。ローパスに近い特性です。</p>
 <figure>
-<img src="img/pcontroller_amplitude.png" alt="Image of amplitude response of P controller." style="padding-bottom: 12px;"/>
+<img src="img/emafilter_amplitude.png" alt="Image of amplitude response of P controller." style="padding-bottom: 12px;"/>
 </figure>
-<p><code>PController</code> の位相特性です。</p>
+<p><code>EmaFilter</code> の位相特性です。</p>
 <figure>
-<img src="img/pcontroller_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
+<img src="img/emafilter_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
 </figure>
 <h3 id="k_p-からカットオフ周波数を求める"><span
 class="math inline">\(k_p\)</span> からカットオフ周波数を求める</h3>
@@ -760,7 +762,7 @@ class="math inline">\(j\)</span>
 <div class="sourceCode" id="cb9"><pre
 class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2d</span>(-<span class="fu">log</span>(-(<span class="fu">sqrt</span>(<span class="dv">2</span>)*<span class="cn">k_p</span>^<span class="dv">2</span>+(-<span class="fu">sqrt</span>(<span class="dv">2</span>)<span class="dv">-1</span>)*<span class="cn">k_p</span><span class="dv">+1</span>)/(<span class="dv">2</span>*<span class="cn">k_p</span>^<span class="dv">2-1</span>)), [<span class="cn">k_p</span>, <span class="dv">0</span>, <span class="fl">1.1</span>]);</span></code></pre></div>
 <figure>
-<img src="img/pcontroller_kp_omega_plot.svg" alt="Image of k_p-omega plot." style="width: 480px;padding-bottom: 12px;"/>
+<img src="img/emafilter_kp_omega_plot.svg" alt="Image of k_p-omega plot." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <h3 id="カットオフ周波数から-k_p-を求める">カットオフ周波数から <span
 class="math inline">\(k_p\)</span> を求める</h3>
@@ -784,7 +786,7 @@ class="math inline">\(\omega\)</span>
 を表しています。同じ色の曲線は振幅特性です。対応するカットオフ周波数と振幅特性が全て
 -3 dB で交差しているので正しく計算できています。</p>
 <figure>
-<img src="img/pcontroller_cutoff.png" alt="Image of ." style="padding-bottom: 12px;"/>
+<img src="img/emafilter_cutoff.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
 <h3
 id="複素数を使わずにカットオフ周波数から-k_p-求める式">複素数を使わずにカットオフ周波数から
@@ -833,7 +835,7 @@ href="https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digi
 class="math inline">\(k_p\)</span>
 を求めるメソッドが追加されています。</p>
 <div class="sourceCode" id="cb12"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> PController <span class="op">{</span></span>
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> EmaFilter <span class="op">{</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// float 型での cutoffHz の下限は 3~4 Hz 程度。</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> Sample cutoffToP<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span></span>
@@ -853,12 +855,12 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
 <p><code>cutoffHz = 30</code> としたときの出力です。</p>
 <figure>
-<img src="img/pcontroller.png" alt="Image of PController output." style="padding-bottom: 12px;"/>
+<img src="img/emafilter.png" alt="Image of EmaFilter output." style="padding-bottom: 12px;"/>
 </figure>
 <p>テストに使ったコードへのリンクです。</p>
 <ul>
 <li><a
-href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/pcontroller.cpp">filter_notes/pcontroller.cpp
+href="https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/emafilter.cpp">filter_notes/emafilter.cpp
 at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
 <h2 id="rate-limiter">Rate Limiter</h2>
@@ -964,10 +966,10 @@ at master · ryukau/filter_notes · GitHub</a></p>
 <figure>
 <img src="img/smoother.png" alt="Image of smoothed parameter." style="padding-bottom: 12px;"/>
 </figure>
-<p>PController の出力です。 <code>Smoother</code>
+<p>EmaFilter の出力です。 <code>Smoother</code>
 よりも滑らかですが、完全に 0 や 1 になるには時間がかかります。</p>
 <figure>
-<img src="img/pcontroller.png" alt="Image of PController output." style="padding-bottom: 12px;"/>
+<img src="img/emafilter.png" alt="Image of EmaFilter output." style="padding-bottom: 12px;"/>
 </figure>
 <p>Rate Limiter の出力です。 <code>linterp</code>
 とほぼ同じですが、立ち上がりと立ち下りの傾きを独立に指定できます。</p>
@@ -1002,10 +1004,10 @@ Smoother
 </figure>
 <figure>
 <figcaption>
-PController
+EmaFilter
 </figcaption>
 <audio controls>
-<source src="snd/sin_pcontroller.wav" type="audio/wav">
+<source src="snd/sin_emafilter.wav" type="audio/wav">
 </audio>
 </figure>
 <figure>
@@ -1029,7 +1031,12 @@ Wikipedia</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
-<li>2020-03-26
+<li>2024/05/06
+<ul>
+<li>“P Controller” という呼び方を、一般的な用語の “exponential moving
+average フィルタ” に置換。</li>
+</ul></li>
+<li>2020/03/26
 <ul>
 <li>文章の整理。</li>
 <li><code>P Controller</code> を <code>直線の ADSR エンベロープ</code>

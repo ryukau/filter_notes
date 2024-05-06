@@ -38,9 +38,9 @@ constexpr float sampleRate = 48000.0f;
 constexpr size_t nFrame = 512;
 constexpr size_t nBuffer = 32;
 
-template<typename Sample> class PController {
+template<typename Sample> class EmaFilter {
 public:
-  PController(Sample value) : value(value) {}
+  EmaFilter(Sample value) : value(value) {}
 
   // float 型での cutoffHz の下限は 3~4 Hz 程度。
   static Sample cutoffToP(Sample sampleRate, Sample cutoffHz)
@@ -62,7 +62,7 @@ private:
 };
 
 struct DSP {
-  PController<float> gain{1.0f};
+  EmaFilter<float> gain{1.0f};
 
   void process(const size_t frame, float *out)
   {
@@ -80,7 +80,7 @@ int main()
   std::uniform_real_distribution<float> gainDist(0.0f, 1.0f);
   DSP dsp;
 
-  dsp.gain.setP(PController<float>::cutoffToP(sampleRate, 30));
+  dsp.gain.setP(EmaFilter<float>::cutoffToP(sampleRate, 30));
 
   float gainValue = 1.0f;
   for (size_t idx = 0; idx < nBuffer; ++idx) {
@@ -90,5 +90,5 @@ int main()
     std::memcpy(&wav[idx * nFrame], out, sizeof(float) * nFrame);
   }
 
-  return writeWave("snd/pcontroller.wav", wav, sampleRate);
+  return writeWave("snd/emafilter.wav", wav, sampleRate);
 }

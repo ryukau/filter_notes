@@ -27,7 +27,7 @@ $f_s$ はサンプリング周波数です。
 $\tau$ と $\epsilon$ が与えられたとき $\alpha^\tau = \epsilon$ の関係と $n_\tau$ の式より $\alpha$ が求められます。
 
 $$
-\alpha = \epsilon^\Tau, \quad \Tau = \frac{1}{\tau f_s}.
+\alpha = \epsilon^\eta, \quad \eta = \frac{1}{\tau f_s}.
 $$
 
 $\epsilon$ の値は任意です。この文章では `1e-5` を使っています。値を決めるときの参考までに、 10 進数では `float` は約 7 桁、 `double` は約 16 桁の精度があります。
@@ -90,7 +90,7 @@ $$
 $\alpha$ について解きます。
 
 $$
-\alpha = \left( \frac{1}{\epsilon} \right)^\Tau, \quad \Tau = \frac{1}{\tau f_s}.
+\alpha = \left( \frac{1}{\epsilon} \right)^\eta, \quad \eta = \frac{1}{\tau f_s}.
 $$
 
 実装します。
@@ -410,10 +410,10 @@ protected:
   </audio>
 </figure>
 
-## P Controller による実装
-P controller については[オーディオプラグインの UI から入力された値の補間](../control_rate_interpolation/control_rate_interpolation.html)を参照してください。
+## Exponential Moving Average フィルタによる実装
+Exponential Moving Average (EMA) フィルタについては[オーディオプラグインの UI から入力された値の補間](../control_rate_interpolation/control_rate_interpolation.html)を参照してください。
 
-ステップ状の不連続点を始点として指数曲線を描く出力が得られる P controller の特性を利用してエンベロープを実装します。
+ステップ状の不連続点を始点として指数曲線を描く出力が得られる EMA フィルタの特性を利用してエンベロープを実装します。
 
 ユーザから指定された時間 $T$ の逆数をカットオフ周波数 $f_c$ に使っています。
 
@@ -433,7 +433,7 @@ $$
 
 constexpr double twopi = 6.283185307179586;
 
-template<typename Sample> class PController {
+template<typename Sample> class EmaFilter {
 public:
   // float 型での cutoffHz の下限は 3~4 Hz 程度。
   static Sample cutoffToP(Sample sampleRate, Sample cutoffHz)
@@ -466,7 +466,7 @@ public:
     atk = int32_t(sampleRate * attackTime);
     decTime = decayTime;
     relTime = releaseTime;
-    pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
+    pController.setP(EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
   }
 
   void set(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)
@@ -490,18 +490,18 @@ public:
 
     if (state == State::attack)
       pController.setP(
-        PController<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
+        EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
     else if (state == State::decay)
-      pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / decayTime));
+      pController.setP(EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / decayTime));
     else if (state == State::release)
       pController.setP(
-        PController<Sample>::cutoffToP(sampleRate, Sample(1) / releaseTime));
+        EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / releaseTime));
   }
 
   void release()
   {
     state = State::release;
-    pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / relTime));
+    pController.setP(EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / relTime));
   }
 
   bool isAttacking() { return state == State::attack; }
@@ -517,7 +517,7 @@ public:
         if (atk == 0) {
           state = State::decay;
           pController.setP(
-            PController<Sample>::cutoffToP(sampleRate, Sample(1) / decTime));
+            EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / decTime));
         }
       } break;
 
@@ -558,7 +558,7 @@ private:
   uint32_t tailLength = 32;
   uint32_t tailCounter = tailLength;
 
-  PController<Sample> pController;
+  EmaFilter<Sample> pController;
   State state = State::terminated;
   uint32_t atk = 0;
   Sample decTime = 0;
@@ -754,5 +754,8 @@ output = envelope(1.0, 2.0)
 </figure>
 
 ## 変更点
-- 2020-03-27
+- 2024/05/06
+  - "P Controller" という呼び方を、一般的な用語の "exponential moving average フィルタ" に置換。
+  - `\Tau` が MathJax で表示されていなかったので `\eta` に置換。
+- 2020/03/27
   - `P Controller による実装` を追加。

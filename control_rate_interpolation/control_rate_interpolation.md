@@ -82,7 +82,7 @@ g++ -lsndfile -O3 naive.cpp
 ## バッファ内で線形補間
 サンプリング周波数とバッファサイズが固定ならパラメータが変化したときだけ次のバッファまで線形補間することでノイズが大きく減ります。
 
-**注意** バッファサイズが可変のときは、この節で紹介している手法を使うとノイズが乗ります。後で紹介する PController を使う方法をお勧めします。 FL Studio 20.6 はバッファサイズが可変でした。
+**注意** バッファサイズが可変のときは、この節で紹介している手法を使うとノイズが乗ります。後で紹介する exponential moving average フィルタを使う方法をお勧めします。 FL Studio 20.6 はバッファサイズが可変でした。
 
 デスクトップ環境では設定によってサンプリング周波数とバッファサイズが変わります。そこで古い値から新しい値へと更新される時間を指定できるようにします。
 
@@ -267,13 +267,13 @@ protected:
 
 - [filter_notes/bench_smoother.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/bench_smoother.cpp)
 
-## P Controller
-思いつきで PID コントローラの P だけを取り出して使っていたので P controller と名前をつけていますが exponential moving average filter あるいは exponentially weighted moving average filter と呼ぶほうが一般的です。エンベロープを滑らかにするときなどにも使えます。
+## Exponential Moving Average フィルタ
+Exponential moving average (EMA) フィルタはステップ応答が指数関数となる 1 次ローパスフィルタです。エンベロープの角を取って滑らかにするときにも使えます。
 
-P controller の の素朴な実装です。
+EMA フィルタの素朴な実装です。
 
 ```cpp
-template<typename Sample> class PController {
+template<typename Sample> class EmaFilter {
 public:
   void setup(Sample p) { kp = std::clamp<Sample>(p, Sample(0), Sample(1)); }
   void reset() { value = 0; }
@@ -286,7 +286,7 @@ private:
 ```
 
 ### 周波数特性
-`PController` の伝達関数を出します。 `process()` での計算式です。
+`EmaFilter` の伝達関数を出します。 `process()` での計算式です。
 
 ```cpp
 value += kp * (input - value);
@@ -307,16 +307,16 @@ $$
 H(z) = \frac{k_p}{1 + (k_p - 1) z^{-1}}
 $$
 
-`PController` の振幅特性です。ローパスに近い特性です。
+`EmaFilter` の振幅特性です。ローパスに近い特性です。
 
 <figure>
-<img src="img/pcontroller_amplitude.png" alt="Image of amplitude response of P controller." style="padding-bottom: 12px;"/>
+<img src="img/emafilter_amplitude.png" alt="Image of amplitude response of P controller." style="padding-bottom: 12px;"/>
 </figure>
 
-`PController` の位相特性です。
+`EmaFilter` の位相特性です。
 
 <figure>
-<img src="img/pcontroller_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
+<img src="img/emafilter_phase.png" alt="Image of phase response of P controller." style="padding-bottom: 12px;"/>
 </figure>
 
 ### $k_p$ からカットオフ周波数を求める
@@ -352,7 +352,7 @@ plot2d(-log(-(sqrt(2)*k_p^2+(-sqrt(2)-1)*k_p+1)/(2*k_p^2-1)), [k_p, 0, 1.1]);
 ```
 
 <figure>
-<img src="img/pcontroller_kp_omega_plot.svg" alt="Image of k_p-omega plot." style="width: 480px;padding-bottom: 12px;"/>
+<img src="img/emafilter_kp_omega_plot.svg" alt="Image of k_p-omega plot." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 
 ### カットオフ周波数から $k_p$ を求める
@@ -375,7 +375,7 @@ $$
 次の図の縦線がカットオフ周波数 $\omega$ を表しています。同じ色の曲線は振幅特性です。対応するカットオフ周波数と振幅特性が全て -3 dB で交差しているので正しく計算できています。
 
 <figure>
-<img src="img/pcontroller_cutoff.png" alt="Image of ." style="padding-bottom: 12px;"/>
+<img src="img/emafilter_cutoff.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
 
 ### 複素数を使わずにカットオフ周波数から $k_p$ 求める式
@@ -410,7 +410,7 @@ $$
 C++ です。カットオフ周波数から $k_p$ を求めるメソッドが追加されています。
 
 ```cpp
-template<typename Sample> class PController {
+template<typename Sample> class EmaFilter {
 public:
   // float 型での cutoffHz の下限は 3~4 Hz 程度。
   static Sample cutoffToP(Sample sampleRate, Sample cutoffHz)
@@ -433,12 +433,12 @@ private:
 `cutoffHz = 30` としたときの出力です。
 
 <figure>
-<img src="img/pcontroller.png" alt="Image of PController output." style="padding-bottom: 12px;"/>
+<img src="img/emafilter.png" alt="Image of EmaFilter output." style="padding-bottom: 12px;"/>
 </figure>
 
 テストに使ったコードへのリンクです。
 
-- [filter_notes/pcontroller.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/pcontroller.cpp)
+- [filter_notes/emafilter.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/control_rate_interpolation/demo/emafilter.cpp)
 
 ## Rate Limiter
 mathworks.com で紹介されていた Rate Limiter を実装します。 Rate Limiter を通った信号は 1 サンプルあたりの増加量が制限されます。出力波形は線形補間と同じですが、パラメータとして傾きを指定する点が異なります。
@@ -539,10 +539,10 @@ private:
 <img src="img/smoother.png" alt="Image of smoothed parameter." style="padding-bottom: 12px;"/>
 </figure>
 
-PController の出力です。 `Smoother` よりも滑らかですが、完全に 0 や 1 になるには時間がかかります。
+EmaFilter の出力です。 `Smoother` よりも滑らかですが、完全に 0 や 1 になるには時間がかかります。
 
 <figure>
-<img src="img/pcontroller.png" alt="Image of PController output." style="padding-bottom: 12px;"/>
+<img src="img/emafilter.png" alt="Image of EmaFilter output." style="padding-bottom: 12px;"/>
 </figure>
 
 Rate Limiter の出力です。 `linterp` とほぼ同じですが、立ち上がりと立ち下りの傾きを独立に指定できます。
@@ -575,9 +575,9 @@ Rate Limiter の出力です。 `linterp` とほぼ同じですが、立ち上�
 </figure>
 
 <figure>
-  <figcaption>PController</figcaption>
+  <figcaption>EmaFilter</figcaption>
   <audio controls>
-    <source src="snd/sin_pcontroller.wav" type="audio/wav">
+    <source src="snd/sin_emafilter.wav" type="audio/wav">
   </audio>
 </figure>
 
@@ -596,8 +596,10 @@ Slew limiter と呼ばれるアナログシンセサイザのモジュールが�
 - [Slew rate - Wikipedia](https://en.wikipedia.org/wiki/Slew_rate)
 
 ## 変更点
-- 2020-03-26
-  -  文章の整理。
+- 2024/05/06
+  - "P Controller" という呼び方を、一般的な用語の "exponential moving average フィルタ" に置換。
+- 2020/03/26
+  - 文章の整理。
   - `P Controller` を `直線の ADSR エンベロープ` から移動。
   - `Rate Limiter` を追加。
   - `比較` を追加。

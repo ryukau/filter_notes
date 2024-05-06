@@ -410,6 +410,8 @@ $$
 - [Allpass Filter: All You Need To Know - WolfSound](https://thewolfsound.com/allpass-filter/)
 
 ## 変更点
+- 2024/05/06
+  - 線形位相 FIR Linkwitz-Riley の下の図の High と Low が入れ替わっていた誤りを修正。
 - 2024/04/30
   - 分子とするべきところで分母と書いていた誤りを修正。
 - 2023/10/30

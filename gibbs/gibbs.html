@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-04-18" />
+<meta name="dcterms.date" content="2024-05-06" />
 <title>gibbs</title>
 
 <!-- MathJax -->
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-04-18
+Update: 2024-05-06
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -509,8 +509,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 </figure>
 <h3 id="daubechies-フィルタ">Daubechies フィルタ</h3>
 <p><span class="math display">\[
-\sigma_6(\eta) = 1 - \frac{(2p-1)!}{(p-1)!} \int_0^{\eta} [t(1-t)]^{p-1}
-dt
+\sigma_6(\eta) = 1 - \frac{(2p-1)!}{(p-1)!^2} \int_0^{\eta}
+[t(1-t)]^{p-1} dt
 \]</span></p>
 <p><a href="https://maxima.sourceforge.io/">Maxima</a> で展開します。
 <span class="math inline">\(p\)</span> は任意の正の実数です。</p>
@@ -686,6 +686,10 @@ class="math inline">\(\lambda = 1\)</span>
 とすることで、ある程度はオーバーフローを避けることができます。</p>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/05/06
+<ul>
+<li>Daubechies フィルタの式の間違いを修正。</li>
+</ul></li>
 <li>2024/04/17
 <ul>
 <li>文章の整理。</li>
