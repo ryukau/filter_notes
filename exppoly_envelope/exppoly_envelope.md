@@ -89,7 +89,7 @@ solve x = t^a * exp(-b * t) / eta for t
 結果です。 $W$ は [Lambert W-function](http://mathworld.wolfram.com/LambertW-Function.html) あるいは product log function と呼ばれている関数です。
 
 $$
-t = -\frac{\alpha W \left( - \dfrac{\beta (x \eta)^{1 / \alpha}}{\alpha} \right)}{\beta}, \quad \eta = E \left( \frac{\alpha}{\beta} \right)
+t = -\frac{\alpha}{\beta} W \left( -\frac{\beta}{\alpha} \left( x \eta \right)^{1 / \alpha} \right), \quad \eta = E \left( \frac{\alpha}{\beta} \right)
 $$
 
 正しい値がでるのか試しました。
@@ -274,6 +274,70 @@ protected:
 <img src="img/ExpPoly.png" alt="Image of test result of ExpPoly envelope implemented in C++." style="padding-bottom: 12px;"/>
 </figure>
 
+## 区間積分
+ExpPoly エンベロープを GenericDrum の衝突の計算に応用できそうな気がしたので、以下の区間積分が解けるかどうか試しました。
+
+$$
+\begin{equation}
+\int_\tau^\infty t^\alpha e^{-\beta t} dt, \quad \tau \geq 0.
+\label{a}
+\end{equation}
+$$
+
+ここでの応用はエネルギーを時間方向に薄く延ばすことです。つまり、任意の正の実数 $x$ が与えられたときに、式 $\ref{a}$ と $x$ が等しくなるような $\alpha, \beta, \tau$ の組を知りたいです。
+
+SymPy で積分します。 Maxima の `integrate` では解けず、 Wolfram Alpha では計算時間切れになりました。
+
+```python
+import sympy
+
+t = sympy.Symbol("t", real=True, positive=True)
+α = sympy.Symbol("α", real=True, positive=True)
+β = sympy.Symbol("β", real=True, positive=True)
+τ = sympy.Symbol("τ", real=True, positive=True)
+
+result = sympy.integrate(t**α * sympy.E ** (-β * t), (t, τ, sympy.oo))
+print(sympy.latex(result))
+```
+
+出力です。
+
+$$
+τ τ^{α} \left(\frac{β^{- α - 1} τ^{- α - 1} \left(α + 1\right) \Gamma\left(- α - 1\right) \gamma\left(α + 1, β τ\right)}{\Gamma\left(- α\right)} + β^{- α - 1} τ^{- α - 1} \Gamma\left(α + 1\right)\right)
+$$
+
+以下の関数が使われています。
+
+- $\Gamma$ : ガンマ関数。 ([Gamma function](https://en.wikipedia.org/wiki/Gamma_function))
+- $\gamma$ : 第 1 種不完全ガンマ関数。 ([Lower incomplete gamma function](https://en.wikipedia.org/wiki/Incomplete_gamma_function))
+
+整理します。
+
+$$
+\begin{aligned}
+\int_\tau^\infty t^\alpha e^{-\beta t} dt
+&=
+τ^{c} \left(
+  \frac{
+    s c \Gamma(-c) \gamma(c, β τ)
+  }{
+    \Gamma(- α)
+  }
+  + s \Gamma(c)
+\right),
+\\
+c &= \alpha + 1,\\
+s &= β^{-c} τ^{-c}.
+\end{aligned}
+$$
+
+上の SymPy のコードに以下をつけ足して解こうとしたのですが、 `NotImplementedError` が出て行き詰りました。
+
+```python
+x = sympy.Symbol("x", real=True, positive=True)
+sympy.solve(sympy.Eq(result, x), τ)
+```
+
 ## その他
 $E(t)$ は [Gamma distribution](https://en.wikipedia.org/wiki/Gamma_distribution) の PDF の一部と同じ形です。
 
@@ -282,6 +346,9 @@ $E(t)$ は [Gamma distribution](https://en.wikipedia.org/wiki/Gamma_distribution
 - [Exponential polynomial - Wikipedia](https://en.wikipedia.org/wiki/Exponential_polynomial)
 
 ## 変更点
+- 2024-05-14
+  - 「区間積分」の節を追加。
+  - 文章の整理。
 - 2020-03-26
   - 既存の用語 exponential polynomial にならって名前を PolyExp から ExpPoly に変更。
   - 文章の整理。

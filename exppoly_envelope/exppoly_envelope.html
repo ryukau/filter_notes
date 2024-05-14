@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-05-14" />
 <title>exppoly_envelope</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -344,7 +344,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-05-14
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -366,6 +366,7 @@ id="toc-計算可能な-talpha-の範囲">計算可能な <span
 class="math inline">\(t^\alpha\)</span> の範囲</a></li>
 </ul></li>
 <li><a href="#実装" id="toc-実装">実装</a></li>
+<li><a href="#区間積分" id="toc-区間積分">区間積分</a></li>
 <li><a href="#その他" id="toc-その他">その他</a></li>
 <li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
@@ -468,8 +469,9 @@ href="http://mathworld.wolfram.com/LambertW-Function.html">Lambert
 W-function</a> あるいは product log function
 と呼ばれている関数です。</p>
 <p><span class="math display">\[
-t = -\frac{\alpha W \left( - \dfrac{\beta (x \eta)^{1 / \alpha}}{\alpha}
-\right)}{\beta}, \quad \eta = E \left( \frac{\alpha}{\beta} \right)
+t = -\frac{\alpha}{\beta} W \left( -\frac{\beta}{\alpha} \left( x \eta
+\right)^{1 / \alpha} \right), \quad \eta = E \left( \frac{\alpha}{\beta}
+\right)
 \]</span></p>
 <p>正しい値がでるのか試しました。</p>
 <div class="sourceCode" id="cb5"><pre
@@ -663,6 +665,72 @@ at master · ryukau/filter_notes · GitHub</a></li>
 <figure>
 <img src="img/ExpPoly.png" alt="Image of test result of ExpPoly envelope implemented in C++." style="padding-bottom: 12px;"/>
 </figure>
+<h2 id="区間積分">区間積分</h2>
+<p>ExpPoly エンベロープを GenericDrum
+の衝突の計算に応用できそうな気がしたので、以下の区間積分が解けるかどうか試しました。</p>
+<p><span class="math display">\[
+\begin{equation}
+\int_\tau^\infty t^\alpha e^{-\beta t} dt, \quad \tau \geq 0.
+\label{a}
+\end{equation}
+\]</span></p>
+<p>ここでの応用はエネルギーを時間方向に薄く延ばすことです。つまり、任意の正の実数
+<span class="math inline">\(x\)</span> が与えられたときに、式 <span
+class="math inline">\(\ref{a}\)</span> と <span
+class="math inline">\(x\)</span> が等しくなるような <span
+class="math inline">\(\alpha, \beta, \tau\)</span>
+の組を知りたいです。</p>
+<p>SymPy で積分します。 Maxima の <code>integrate</code> では解けず、
+Wolfram Alpha では計算時間切れになりました。</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sympy</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> sympy.Symbol(<span class="st">&quot;t&quot;</span>, real<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>α <span class="op">=</span> sympy.Symbol(<span class="st">&quot;α&quot;</span>, real<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>β <span class="op">=</span> sympy.Symbol(<span class="st">&quot;β&quot;</span>, real<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>τ <span class="op">=</span> sympy.Symbol(<span class="st">&quot;τ&quot;</span>, real<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> sympy.integrate(t<span class="op">**</span>α <span class="op">*</span> sympy.E <span class="op">**</span> (<span class="op">-</span>β <span class="op">*</span> t), (t, τ, sympy.oo))</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sympy.latex(result))</span></code></pre></div>
+<p>出力です。</p>
+<p><span class="math display">\[
+τ τ^{α} \left(\frac{β^{- α - 1} τ^{- α - 1} \left(α + 1\right)
+\Gamma\left(- α - 1\right) \gamma\left(α + 1, β τ\right)}{\Gamma\left(-
+α\right)} + β^{- α - 1} τ^{- α - 1} \Gamma\left(α + 1\right)\right)
+\]</span></p>
+<p>以下の関数が使われています。</p>
+<ul>
+<li><span class="math inline">\(\Gamma\)</span> : ガンマ関数。 (<a
+href="https://en.wikipedia.org/wiki/Gamma_function">Gamma
+function</a>)</li>
+<li><span class="math inline">\(\gamma\)</span> : 第 1
+種不完全ガンマ関数。 (<a
+href="https://en.wikipedia.org/wiki/Incomplete_gamma_function">Lower
+incomplete gamma function</a>)</li>
+</ul>
+<p>整理します。</p>
+<p><span class="math display">\[
+\begin{aligned}
+\int_\tau^\infty t^\alpha e^{-\beta t} dt
+&amp;=
+τ^{c} \left(
+  \frac{
+    s c \Gamma(-c) \gamma(c, β τ)
+  }{
+    \Gamma(- α)
+  }
+  + s \Gamma(c)
+\right),
+\\
+c &amp;= \alpha + 1,\\
+s &amp;= β^{-c} τ^{-c}.
+\end{aligned}
+\]</span></p>
+<p>上の SymPy のコードに以下をつけ足して解こうとしたのですが、
+<code>NotImplementedError</code> が出て行き詰りました。</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> sympy.Symbol(<span class="st">&quot;x&quot;</span>, real<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sympy.solve(sympy.Eq(result, x), τ)</span></code></pre></div>
 <h2 id="その他">その他</h2>
 <p><span class="math inline">\(E(t)\)</span> は <a
 href="https://en.wikipedia.org/wiki/Gamma_distribution">Gamma
@@ -681,6 +749,11 @@ polynomial - Wikipedia</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024-05-14
+<ul>
+<li>「区間積分」の節を追加。</li>
+<li>文章の整理。</li>
+</ul></li>
 <li>2020-03-26
 <ul>
 <li>既存の用語 exponential polynomial にならって名前を PolyExp から
