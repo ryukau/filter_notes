@@ -3,10 +3,12 @@ import scipy.signal as signal
 import scipy.interpolate as interpolate
 import matplotlib.pyplot as plt
 
+
 def getIR(t, interpFunc, nPoint):
     """IR = Impulse Response"""
     sig = np.eye(nPoint)
     return [interpFunc(*sig[i], t) for i in range(nPoint)]
+
 
 def plotResponse(interpFunc, nPoint):
     sampleRate = 2
@@ -56,10 +58,12 @@ def plotResponse(interpFunc, nPoint):
     plt.savefig(f"img/{interpFunc.__name__}.svg")
     plt.close()
 
+
 def linear(y0, y1, t):
     return y0 + t * (y1 - y0)
 
-def cubic(y0, y1, y2, y3, t):
+
+def cubic_old(y0, y1, y2, y3, t):
     t2 = t * t
     c0 = y1 - y2
     c1 = (y2 - y0) * 0.5
@@ -67,12 +71,23 @@ def cubic(y0, y1, y2, y3, t):
     c3 = c0 + c2 + (y3 - y1) * 0.5
     return c3 * t * t2 - (c2 + c3) * t2 + c1 * t + y1
 
+
+def cubic(y0, y1, y2, y3, t):
+    """Using Horner's method."""
+    c0 = y1 - y2
+    c1 = (y2 - y0) * 0.5
+    c2 = c0 + c1
+    c3 = c0 + c2 + (y3 - y1) * 0.5
+    return ((c3 * t - c2 - c3) * t + c1) * t + y1
+
+
 def lagrange3(y0, y1, y2, y3, t):
     u = 1 + t
     d0 = y0 - y1
     d1 = d0 - (y1 - y2)
     d2 = d1 - ((y1 - y2) - (y2 - y3))
     return y0 - u * (d0 + (1 - u) / 2 * (d1 + (2 - u) / 3 * d2))
+
 
 def pchip(y0, y1, y2, y3, t):
     m0 = y1 - y0
@@ -88,6 +103,7 @@ def pchip(y0, y1, y2, y3, t):
     c2 = c0 + c1
     c3 = c0 + c2 + dk1
     return c3 * t * t2 - (c2 + c3) * t2 + c1 * t + y1
+
 
 def akima(y0, y1, y2, y3, y4, y5, t):
     """
@@ -118,6 +134,7 @@ def akima(y0, y1, y2, y3, y4, y5, t):
 
     return ((t * d2 + c2) * t + b2) * t + y2
 
+
 def uniformBSpline(y0, y1, y2, y3, t):
     t2 = t * t
     t3 = t2 * t
@@ -127,6 +144,7 @@ def uniformBSpline(y0, y1, y2, y3, t):
     b2 = 1 / 6 + t / 2 + t2 / 2 - t3 / 2
     b3 = t3 / 6
     return b0 * y0 + b1 * y1 + b2 * y2 + b3 * y3
+
 
 def centripetalCatmullRom(y0, y1, y2, y3, t, alpha=0.1):
     if t <= 0:
@@ -164,14 +182,18 @@ def centripetalCatmullRom(y0, y1, y2, y3, t, alpha=0.1):
     B2 = (t3 - t) / (t3 - t1) * A2 + (t - t1) / (t3 - t1) * A3
     return (t2 - t) / (t2 - t1) * B1 + (t - t1) / (t2 - t1) * B2
 
+
 def centripetalCatmullRom01(y0, y1, y2, y3, t):
     return centripetalCatmullRom(y0, y1, y2, y3, t, 0.1)
+
 
 def centripetalCatmullRom05(y0, y1, y2, y3, t):
     return centripetalCatmullRom(y0, y1, y2, y3, t, 0.5)
 
+
 def centripetalCatmullRom09(y0, y1, y2, y3, t):
     return centripetalCatmullRom(y0, y1, y2, y3, t, 0.9)
+
 
 def sinc4(y0, y1, y2, y3, t):
     s0 = np.sinc(t + 1) / np.e
@@ -181,14 +203,16 @@ def sinc4(y0, y1, y2, y3, t):
     denom = s0 + s1 + s2 + s3
     return (y0 * s0 + y1 * s1 + y2 * s2 + y3 * s3) / denom
 
-plotResponse(linear, 2)
-plotResponse(cubic, 4)
-plotResponse(lagrange3, 4)
-plotResponse(pchip, 4)
-plotResponse(akima, 6)
-plotResponse(uniformBSpline, 4)
-# plotResponse(centripetalCatmullRom01, 4)
-plotResponse(centripetalCatmullRom05, 4)
-# plotResponse(centripetalCatmullRom09, 4)
-plotResponse(sinc4, 4)
-plt.show()
+
+if __name__ == "__main__":
+    plotResponse(linear, 2)
+    plotResponse(cubic, 4)
+    plotResponse(lagrange3, 4)
+    plotResponse(pchip, 4)
+    plotResponse(akima, 6)
+    plotResponse(uniformBSpline, 4)
+    # plotResponse(centripetalCatmullRom01, 4)
+    plotResponse(centripetalCatmullRom05, 4)
+    # plotResponse(centripetalCatmullRom09, 4)
+    plotResponse(sinc4, 4)
+    plt.show()

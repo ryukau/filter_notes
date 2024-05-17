@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-05-06" />
+<meta name="dcterms.date" content="2024-05-17" />
 <title>linear_and_cubic_interpolation</title>
 
 <!-- MathJax -->
@@ -341,7 +341,7 @@ span.math.inline a {
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-05-06
+Update: 2024-05-17
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -452,12 +452,11 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 href="https://ryukau.github.io/filter_notes/wavetable/wavetable.html#%E3%81%9D%E3%81%AE%E4%BB%96">ウェーブテーブルの帯域制限と位相方向の補間</a>で紹介したものです。</p>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cubic(y0, y1, y2, y3, t):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    t2 <span class="op">=</span> t <span class="op">*</span> t</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    c0 <span class="op">=</span> y1 <span class="op">-</span> y2</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    c1 <span class="op">=</span> (y2 <span class="op">-</span> y0) <span class="op">*</span> <span class="fl">0.5</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    c2 <span class="op">=</span> c0 <span class="op">+</span> c1</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    c3 <span class="op">=</span> c0 <span class="op">+</span> c2 <span class="op">+</span> (y3 <span class="op">-</span> y1) <span class="op">*</span> <span class="fl">0.5</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> c3 <span class="op">*</span> t <span class="op">*</span> t2 <span class="op">-</span> (c2 <span class="op">+</span> c3) <span class="op">*</span> t2 <span class="op">+</span> c1 <span class="op">*</span> t <span class="op">+</span> y1</span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    c0 <span class="op">=</span> y1 <span class="op">-</span> y2</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    c1 <span class="op">=</span> (y2 <span class="op">-</span> y0) <span class="op">*</span> <span class="fl">0.5</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    c2 <span class="op">=</span> c0 <span class="op">+</span> c1</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    c3 <span class="op">=</span> c0 <span class="op">+</span> c2 <span class="op">+</span> (y3 <span class="op">-</span> y1) <span class="op">*</span> <span class="fl">0.5</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ((c3 <span class="op">*</span> t <span class="op">-</span> c2 <span class="op">-</span> c3) <span class="op">*</span> t <span class="op">+</span> c1) <span class="op">*</span> t <span class="op">+</span> y1</span></code></pre></div>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Cubic_Hermite_spline">Cubic
 Hermite spline - Wikipedia</a></li>
@@ -664,9 +663,8 @@ href="https://en.wikipedia.org/wiki/Roll-off">ロールオフ</a>が 2
 でアセンブラ出力を見たところ、今回の実装では Catmull–Rom 補間のほうが 3
 次ラグランジュ補間よりもコードが短くなる傾向がありました。</p>
 <ul>
-<li><a
-href="https://godbolt.org/#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXACx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApACYAQuYukl9ZATwDKjdAGFUtAK4sGIM6SuADJ4DJgAcj4ARpjE/gDspAAOqAqETgwe3r7%2ByanpAiFhkSwxcWaJdpgOGUIETMQEWT5%2BAVU1AnUNBEUR0bEJtvWNzTltwz2hfaUDFQCUtqhexMjsHASYLEkGGyYAzG4EAJ5JjKyYANQAKvvY1xfIXlF4yACSgrFJEFcXRxqk9yOXABPyOAUBexBFwIcxMGgAgiZ4lYERd7gQzBd9gARaEXABU0P2KPhaJ%2ByA0WL2uKBFwAtL8zMS4aT7sguFTcRAwfTfho5hcAPTXCBmWF7Elkh6YnEPSnWB5cZmotl7TlyrGWaWaiwXblqhlAgXCq6i8WSi7ETAEZYMB5qwkEAnQzEMiDIGVa5B7AWOz269nOp0KoHKxHxbEsllUWioJhO5ChDbEL4xuNOv4AtPx37Ai7ZjPggu/SH52M5mFY5EstFoq024h2x7PN4fFP7NwF27c/65gFg/ulmFhpGRhEsjZbHaYDvHU7MNjXW73AzAYiGYCYPbvZNfUG90F50Hg0Gln7D8fVlU/Lzq01cAUKghhqXoeXUvm80MSmv3dAc2U315bkOUNMUXz/GUP3/YCQK/MVgJ5Q0fXNX961tT8GVvQkICAhVvggB9eS8Y0RQQnCYPw00EKw0jTR9Z10DFVDLzHREEWLWg9iTT5qHLDNe2LIEs34xkRPTEtxIrWFLwtdDGwuVd1yMLcd0%2BDsuz2bAe37PMB0k6EWPDbEOAWWhOAAVl4PwOC0UhUE4NxrAVBQlhWS5zD2HhSAITRTIWABrEALP%2BcyOEkay/PszheAUEB/l82zTNIOBYCQNAtjoWJyEoDKkiyuJgC4LhIRoWhkziiAoii55mGII5OG8jK2EEAB5BhaAapLSCwFgN3Ebr8CtGoADdMDi7rMFUaovA2RreB4sK7NoPAonXeqPCwKKCGIPAWHmhYYyYYAFAANTwTAAHdWvneaZEEEQxHYKR7vkJQ1Ci3RgQMIwUGcyx9FWuLIAWVAkkcAQJrpVqDSoKgmAUAg6T6ggEHpFgqD62LMHsCG/AgVxRj8YFgimEoyj0FI0jxonKfyPHenJgZgXaPGuhGTwWj0VnagmRn%2BjiFmJlpoXun5mZBYWVzllWPQdswNYeDMyzIu6hyOFUAAOAA2OltckC5gGQZALmKgA6NUICcyxrABXBCBITUvIBDxMvoYgnYfXhEq0OZAuC0LOAi0gbLs9XYviny/L9/RODMVWw5iqOkpjsbiDSZxJCAA%3D%3D%3D">cubic
-と lagrange3 の比較 (godbolt.org)</a></li>
+<li><a href="https://godbolt.org/z/n49aqT1zq">cubic と lagrange3 の比較
+(godbolt.org)</a></li>
 </ul>
 <h3 id="pchip-補間-1">PCHIP 補間</h3>
 <p>PCHIP
@@ -757,6 +755,10 @@ artifacts - Wikipedia</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/05/17
+<ul>
+<li>Catmull-Rom 補間のコードを Horner’s method を使うように変更。</li>
+</ul></li>
 <li>2024/05/06
 <ul>
 <li>文章の整理。</li>

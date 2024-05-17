@@ -566,6 +566,21 @@ def cinterp(y0, y1, y2, y3, t):
     return c3 * t * t2 - (c2 + c3) * t2 + c1 * t + y1
 ```
 
+このキュービック補間は Catmull-Rom 補間と呼ばれます。
+
+C++ などで `-mfma` や `-ffast-math` を使わないのであれば、以下のように Horner's method を使うように書き換えたほうがいいかもしれません。
+
+```python
+def cinterp(y0, y1, y2, y3, t):
+    c0 = y1 - y2
+    c1 = (y2 - y0) * 0.5
+    c2 = c0 + c1
+    c3 = c0 + c2 + (y3 - y1) * 0.5
+    return ((c3 * t - c2 - c3) * t + c1) * t + y1
+```
+
 ## 変更点
+- 2024/05/17
+  - キュービック補間について補足を追加。
 - 2021/02/25
   - 記事名を変更。

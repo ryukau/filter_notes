@@ -37,12 +37,11 @@ def linear(y0, y1, t):
 
 ```python
 def cubic(y0, y1, y2, y3, t):
-    t2 = t * t
     c0 = y1 - y2
     c1 = (y2 - y0) * 0.5
     c2 = c0 + c1
     c3 = c0 + c2 + (y3 - y1) * 0.5
-    return c3 * t * t2 - (c2 + c3) * t2 + c1 * t + y1
+    return ((c3 * t - c2 - c3) * t + c1) * t + y1
 ```
 
 - [Cubic Hermite spline - Wikipedia](https://en.wikipedia.org/wiki/Cubic_Hermite_spline)
@@ -238,7 +237,7 @@ Catmull–Rom 補間とほとんど同じですが、低域でのフラットさ
 
 Catmull–Rom 補間と 3 次ラグランジュ補間については周波数特性に基づいて選ぶよりも、ベンチマークをとって速いほうを使うことも考えられます。 [godbolt.org](https://godbolt.org/) でアセンブラ出力を見たところ、今回の実装では Catmull–Rom 補間のほうが 3 次ラグランジュ補間よりもコードが短くなる傾向がありました。
 
-- [cubic と lagrange3 の比較 (godbolt.org)](https://godbolt.org/#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXACx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApACYAQuYukl9ZATwDKjdAGFUtAK4sGIM6SuADJ4DJgAcj4ARpjE/gDspAAOqAqETgwe3r7%2ByanpAiFhkSwxcWaJdpgOGUIETMQEWT5%2BAVU1AnUNBEUR0bEJtvWNzTltwz2hfaUDFQCUtqhexMjsHASYLEkGGyYAzG4EAJ5JjKyYANQAKvvY1xfIXlF4yACSgrFJEFcXRxqk9yOXABPyOAUBexBFwIcxMGgAgiZ4lYERd7gQzBd9gARaEXABU0P2KPhaJ%2ByA0WL2uKBFwAtL8zMS4aT7sguFTcRAwfTfho5hcAPTXCBmWF7Elkh6YnEPSnWB5cZmotl7TlyrGWaWaiwXblqhlAgXCq6i8WSi7ETAEZYMB5qwkEAnQzEMiDIGVa5B7AWOz269nOp0KoHKxHxbEsllUWioJhO5ChDbEL4xuNOv4AtPx37Ai7ZjPggu/SH52M5mFY5EstFoq024h2x7PN4fFP7NwF27c/65gFg/ulmFhpGRhEsjZbHaYDvHU7MNjXW73AzAYiGYCYPbvZNfUG90F50Hg0Gln7D8fVlU/Lzq01cAUKghhqXoeXUvm80MSmv3dAc2U315bkOUNMUXz/GUP3/YCQK/MVgJ5Q0fXNX961tT8GVvQkICAhVvggB9eS8Y0RQQnCYPw00EKw0jTR9Z10DFVDLzHREEWLWg9iTT5qHLDNe2LIEs34xkRPTEtxIrWFLwtdDGwuVd1yMLcd0%2BDsuz2bAe37PMB0k6EWPDbEOAWWhOAAVl4PwOC0UhUE4NxrAVBQlhWS5zD2HhSAITRTIWABrEALP%2BcyOEkay/PszheAUEB/l82zTNIOBYCQNAtjoWJyEoDKkiyuJgC4LhIRoWhkziiAoii55mGII5OG8jK2EEAB5BhaAapLSCwFgN3Ebr8CtGoADdMDi7rMFUaovA2RreB4sK7NoPAonXeqPCwKKCGIPAWHmhYYyYYAFAANTwTAAHdWvneaZEEEQxHYKR7vkJQ1Ci3RgQMIwUGcyx9FWuLIAWVAkkcAQJrpVqDSoKgmAUAg6T6ggEHpFgqD62LMHsCG/AgVxRj8YFgimEoyj0FI0jxonKfyPHenJgZgXaPGuhGTwWj0VnagmRn%2BjiFmJlpoXun5mZBYWVzllWPQdswNYeDMyzIu6hyOFUAAOAA2OltckC5gGQZALmKgA6NUICcyxrABXBCBITUvIBDxMvoYgnYfXhEq0OZAuC0LOAi0gbLs9XYviny/L9/RODMVWw5iqOkpjsbiDSZxJCAA%3D%3D%3D)
+- [cubic と lagrange3 の比較 (godbolt.org)](https://godbolt.org/z/n49aqT1zq)
 
 ### PCHIP 補間
 PCHIP 補間は入力信号によって補間の特性が変わるので、以下の周波数特性は参考程度のものです。ただし、線形補間、 Catmull–Rom 補間、 3 次ラグランジュ補間に比べると、周波数特性が悪くなるケースがあるということは言えそうです。また、群遅延特性が `t` の値に応じて一様に分布しない点にも注意が必要です。
@@ -314,6 +313,8 @@ print(win / win[1])
 - [Ringing artifacts - Wikipedia](https://en.wikipedia.org/wiki/Ringing_artifacts)
 
 ## 変更点
+- 2024/05/17
+  - Catmull-Rom 補間のコードを Horner's method を使うように変更。
 - 2024/05/06
   - 文章の整理。
 - 2022/07/27
