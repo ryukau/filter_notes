@@ -15,7 +15,9 @@ IIR の Linkwitz-Riley フィルタは以下の属性の組み合わせによっ
 - フィルタが偶数次あるいは奇数次。
 - 2 バンド、 3 バンド以上かつ汎用的、 3 バンド以上かつ効率重視。
 
-偶数次、奇数次によってフィルタ係数の計算が変わります。 2 バンドでは補正オールパスフィルタが不要ですが、 3 バンド以上では補正オールパスフィルタが必要となってきます。また補正オールパスフィルタを計算するタイミングで汎用性と計算効率のトレードオフがあります。
+偶数次、奇数次によってフィルタ係数の計算が変わります。偶数次は 2 次セクションだけで構築できますが、奇数次では 1 次のフィルタが現れます。
+
+2 バンドでは補正オールパスフィルタが不要ですが、 3 バンド以上では補正オールパスフィルタが必要となってきます。また補正オールパスフィルタを計算するタイミングで汎用性と計算効率のトレードオフがあります。
 
 FIR の Linkwitz-Riley フィルタの節では小さい部品から順にクロスオーバーフィルタを組み立てています。つまり:
 
@@ -84,7 +86,10 @@ $N$ 個の 2 次セクション (second order sections, sos) を直列につな�
 
 $$
 \begin{equation}
-Q_k = 0.5 \sin \left((k + 0.5)\dfrac{\pi}{N} \right), \quad k \in [0, N).
+Q_k
+= \frac{1}{2 \sin \left((k + 0.5)\dfrac{\pi}{N} \right)}
+= \frac{1}{2 \cos \left(\dfrac{k\pi}{2N} \right)}
+, \quad k \in [0, N).
 \end{equation}
 $$
 
@@ -106,7 +111,10 @@ $M = 4n$ と $M = 4n + 2$ の場合で実装が変わります。どちらの場
 
 $$
 \begin{equation}
-Q_k = 0.5 \sin \left((k + 0.5)\dfrac{\pi}{N_{\mathrm{AP}}} \right), \quad k \in [0, N_{\mathrm{AP}}).
+Q_k
+= \frac{1}{2 \sin \left((k + 0.5)\dfrac{\pi}{N_{\mathrm{AP}}} \right)}
+= \frac{1}{2 \cos \left(\dfrac{k\pi}{2 N_{\mathrm{AP}}} \right)}
+, \quad k \in [0, N_{\mathrm{AP}}).
 \end{equation}
 $$
 
@@ -410,6 +418,8 @@ $$
 - [Allpass Filter: All You Need To Know - WolfSound](https://thewolfsound.com/allpass-filter/)
 
 ## 変更点
+- 2024/05/17
+  - 「2 つ直列につないだ Butterworth フィルタ」と「補正オールパスフィルタ」の $Q_k$ の式を修正。
 - 2024/05/06
   - 線形位相 FIR Linkwitz-Riley の下の図の High と Low が入れ替わっていた誤りを修正。
 - 2024/04/30

@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-05-06" />
+<meta name="dcterms.date" content="2024-05-17" />
 <title>crossover_filter</title>
 
 <!-- MathJax -->
@@ -283,7 +283,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-05-06
+Update: 2024-05-17
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -362,8 +362,10 @@ Linkwitz-Riley</a></li>
 <li>フィルタが偶数次あるいは奇数次。</li>
 <li>2 バンド、 3 バンド以上かつ汎用的、 3 バンド以上かつ効率重視。</li>
 </ul>
-<p>偶数次、奇数次によってフィルタ係数の計算が変わります。 2
-バンドでは補正オールパスフィルタが不要ですが、 3
+<p>偶数次、奇数次によってフィルタ係数の計算が変わります。偶数次は 2
+次セクションだけで構築できますが、奇数次では 1
+次のフィルタが現れます。</p>
+<p>2 バンドでは補正オールパスフィルタが不要ですが、 3
 バンド以上では補正オールパスフィルタが必要となってきます。また補正オールパスフィルタを計算するタイミングで汎用性と計算効率のトレードオフがあります。</p>
 <p>FIR の Linkwitz-Riley
 フィルタの節では小さい部品から順にクロスオーバーフィルタを組み立てています。つまり:</p>
@@ -475,8 +477,10 @@ href="https://www.earlevel.com/main/2016/09/29/cascading-filters/">earlevel.com
 という記事で紹介されていた以下の式で計算します。</p>
 <p><span class="math display">\[
 \begin{equation}
-Q_k = 0.5 \sin \left((k + 0.5)\dfrac{\pi}{N} \right), \quad k \in [0,
-N).
+Q_k
+= \frac{1}{2 \sin \left((k + 0.5)\dfrac{\pi}{N} \right)}
+= \frac{1}{2 \cos \left(\dfrac{k\pi}{2N} \right)}
+, \quad k \in [0, N).
 \end{equation}
 \]</span></p>
 <p>2 次セクションは biquad フィルタのローパスとハイパスが使えます。「<a
@@ -515,8 +519,10 @@ class="math inline">\(N_{\mathrm{AP}}\)</span> に置き換わります。以下
 <span class="math inline">\(Q\)</span> 値を計算する式の再掲です。</p>
 <p><span class="math display">\[
 \begin{equation}
-Q_k = 0.5 \sin \left((k + 0.5)\dfrac{\pi}{N_{\mathrm{AP}}} \right),
-\quad k \in [0, N_{\mathrm{AP}}).
+Q_k
+= \frac{1}{2 \sin \left((k + 0.5)\dfrac{\pi}{N_{\mathrm{AP}}} \right)}
+= \frac{1}{2 \cos \left(\dfrac{k\pi}{2 N_{\mathrm{AP}}} \right)}
+, \quad k \in [0, N_{\mathrm{AP}}).
 \end{equation}
 \]</span></p>
 <p>以下は C++ による実装へのリンクです。テンプレートパラメータの
@@ -1001,6 +1007,12 @@ All You Need To Know - WolfSound</a></li>
 </ul>
 <h2 id="変更点">変更点</h2>
 <ul>
+<li>2024/05/17
+<ul>
+<li>「2 つ直列につないだ Butterworth
+フィルタ」と「補正オールパスフィルタ」の <span
+class="math inline">\(Q_k\)</span> の式を修正。</li>
+</ul></li>
 <li>2024/05/06
 <ul>
 <li>線形位相 FIR Linkwitz-Riley の下の図の High と Low
