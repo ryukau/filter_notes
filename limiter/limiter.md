@@ -7,6 +7,11 @@ Lookahead Limiter の記事の訳を別ページに掲載しています。
 
 - [Lookahead Limiter の記事の訳を読む (github.io)](./musicdsp_lookahead_limiter.html)
 
+以下は実際に動作する実装へのリンクです。
+
+- C++ による実装: [VSTPlugins/BasicLimiterAutoMake/source/dsp/limiter.hpp at master · ryukau/VSTPlugins · GitHub](https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiterAutoMake/source/dsp/limiter.hpp#L339)
+- JavaScript による実装: [UhhyouWebSynthesizers/common/dsp/limiter.js at main · ryukau/UhhyouWebSynthesizers · GitHub](https://github.com/ryukau/UhhyouWebSynthesizers/blob/main/common/dsp/limiter.js)
+
 ## ブロック線図
 今回実装するリミッタのブロック線図です。
 
@@ -14,15 +19,14 @@ Lookahead Limiter の記事の訳を別ページに掲載しています。
 <img src="img/limiter_block_diagram.svg" alt="Block diagram of limiter." style="padding-bottom: 12px;"/>
 </figure>
 
-以下の 4 つの部品が必要です。
+以下の 4 つの部品が必要です。詳細はリンク先を参照してください。特性曲線については下で簡単に紹介します。
 
-- 特性曲線 (Characteristic Curve)
 - [ピークホールド](../peak_hold_envelope/peak_hold_envelope.html) (Peak Hold)
+- 特性曲線 (Characteristic Curve)
 - [スムーシングフィルタ](../s_curve_step_response_filter/s_curve_step_response_filter.html) (Smoothing Filter)
 - [ディレイ](../delay/delay.html) (Delay)
 
-ピークホールド、スムーシングフィルタ、ディレイについては上の一覧のリンク先で実装を紹介しています。
-
+### 特性曲線
 特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を $x$ 、リミッタのしきい値を $T$ とすると以下の式でハードクリップの特性曲線 $C$ を計算できます。
 
 $$
@@ -32,7 +36,7 @@ C(x) = \begin{cases}
 \end{cases}
 $$
 
-実装ではゲインへの変換もまとめてしまえるので、以下のように書けます。
+実装では $x \to |x|$ と置き換えて、 $C$ を $|x|$ で除算すればゲインへの変換もまとめてしまえるので、以下のように書けます。
 
 $$
 G(x) = \begin{cases}
@@ -41,7 +45,94 @@ G(x) = \begin{cases}
 \end{cases}
 $$
 
-振幅の制限だけが目的であれば以下の条件を満たすならどのような $G(x)$ でも使えます。例えば味付けとして、 $|x| < h$ のときに $\dfrac{|x|}{|x|^2}$ として歪みを加えることが考えられます。また $|x| \geq T$ のときに $\dfrac{T + R(|x| - T)}{|x|}$ とすれば、レシオ $R$ のコンプレッサになります。
+上の式について $|x| \geq T$ のときに $\dfrac{R^{-1}(|x| - T) + T}{|x|}$ とすれば、レシオ $R$ のコンプレッサになります。
+
+振幅の制限だけが目的であれば $|x| < T$ のときに $T$ を超える値さえ出てこなければ、どんな曲線でも使えます。例えば味付けとして、以下のように歪みを加えた曲線が考えられます。 $\epsilon$ はマシンイプシロンです。
+
+$$
+\begin{aligned}
+G_{\tanh}(x) &= \begin{cases}
+  1 & \text{if}\ |x| < \epsilon && \quad \text{(to avoid division by 0)}\\\\
+  \dfrac{\tanh(|x|)}{|x|} & \text{if}\ \epsilon \leq |x| < T \\\\
+  \tanh(T) & \text{if}\ |x| \geq T
+\end{cases}
+\end{aligned}
+$$
+
+#### ソフトクリップ
+この節で出てくる式とコードはゲインへの変換を行っていないので注意してください。ゲインへと変換するには $x \to |x|$ と置き換えて、 $|x|$ で除算してください。
+
+以下のソフトクリップ曲線を紹介します。
+
+<figure>
+<img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
+</figure>
+
+以下はソフトクリップ曲線 $S$ の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。[単調](https://en.wikipedia.org/wiki/Monotonic_function)かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。 $\mathrm{sgn}$ は[符号関数](https://en.wikipedia.org/wiki/Sign_function)です。
+
+$$
+\begin{aligned}
+S(x) &= \begin{cases}
+  x & \text{if}\ |x| < a_1
+    && \text{(linear region)}\\
+  h + \mathrm{sgn}(x) \dfrac{0.25 (a_2 - |x|)^2}{a_1 - h}  & \text{if}\ a_1 \leq|x| < a_2
+    && \text{(2nd order region)}\\
+  h & \text{if}\ a_2 \leq |x|
+    && \text{(clipping region)}\\
+\end{cases}
+\\
+a_1 &= rh\\
+a_2 &= 2h - a_1
+\end{aligned}
+$$
+
+変数の一覧です。
+
+- $x$: 入力信号
+- $h$: リミッタのしきい値
+- $r$: しきい値以下の非線形領域の割合。
+
+2 次曲線領域 (2nd order region) の両端の傾きが、前後の領域の傾きと一致することを確認します。まず $L = h - a_1 = a_2 - h$ と置きます。このとき 2 次曲線領域は入力に対して $a_1 \text{--} a_2$ 間で $2L$ 、出力に対して $a_1 \text{--} h$ 間で $L$ の幅を持っています。
+
+$\xi = a_2 - |x|$ とすると、曲線 $S$ の 2 次曲線領域の式 $S_2$ は以下のように変形できます。
+
+$$
+S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
+$$
+
+$\xi$ について微分します。
+
+$$
+\frac{d S_2}{d \xi} = - \mathrm{sgn}(x) \frac{0.5}{L} \xi
+$$
+
+- $|x| = a_1$ のとき $\xi = a_2 - a_1 = 2L$ なので、傾きは $-\mathrm{sgn}(x)$ 。
+- $|x| = a_2$ のとき $\xi = 0$ なので、傾きは 0 。
+
+$-\mathrm{sgn}(x)$ は $x$ の符号が - のときに 1 、 + のときに -1 になります。下の図で言うと $x$ が負のときは左から右、 $x$ が正のときは右から左に向かって $\xi$ が増えるので線形領域と傾きが一致します。
+
+<figure>
+<img src="img/softclip_smoothness.svg" alt="Image of soft-clipping curve with the direction of ξ depending on the sign of x." style="padding-bottom: 12px;"/>
+</figure>
+
+
+以下はソフトクリッピングのコードです。
+
+```c++
+template<typename T> inline T softClip(T x0, T ratio)
+{
+  const auto absed = std::fabs(x0);
+
+  const auto a1 = threshold * ratio;
+  if (absed <= a1) return x0;
+
+  const auto a2 = 2 * threshold - a1;
+  if (absed >= a2) return threshold;
+
+  return std::copysign(
+    threshold + (a2 - absed) * (a2 - absed) / T(4) / (a1 - threshold), x0);
+}
+```
 
 ## 実装
 C++17 で実装します。コンパイルして実行できる完全なコードを以下のリンクに掲載しています。
@@ -66,7 +157,7 @@ VST 3 プラグインとしての実装した BasicLimiter のコードも以下
 ```
 
 ### 二重移動平均フィルタ
-二重移動平均フィルタはステップ応答が S 字になるフィルタです。フィルタ係数が[三角窓](https://en.wikipedia.org/wiki/Window_function#Triangular_window)の形をしています。リミッタは入力信号をエンベロープで AM 変調する部品なので、ステップ応答が S 字であれば変調が目立つときでもサイン波で AM 変調したような音になることを期待しています。
+二重移動平均フィルタは[ステップ応答が S 字になるフィルタ](../s_curve_step_response_filter/s_curve_step_response_filter.html)です。フィルタ係数が[三角窓](https://en.wikipedia.org/wiki/Window_function#Triangular_window)の形をしています。
 
 以下の実装は単純な畳み込みよりも出力がやや大きくなることがあります。
 
@@ -100,20 +191,21 @@ public:
 
   void setFrames(size_t frames)
   {
-    auto &&half = frames / 2;
+    auto half = frames / 2;
     denom = 1 / Sample((half + 1) * half);
     delay1.setFrames(half + 1);
     delay2.setFrames(half);
   }
 
-  // 浮動小数点数の丸めが -inf に向かうように変更した加算。
+  // 浮動小数点数の丸めが 0 に向かうように変更した加算。
+  // 環境によっては C++ 標準ライブラリ <cfenv> の std::fesetround で楽に実装できる。
   inline Sample add(Sample lhs, Sample rhs)
   {
     if (lhs < rhs) std::swap(lhs, rhs);
     int expL;
     std::frexp(lhs, &expL);
-    auto &&cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits);
-    auto &&rounded = rhs - std::fmod(rhs, cut);
+    auto cut = std::ldexp(float(1), expL - std::numeric_limits<Sample>::digits);
+    auto rounded = rhs - std::fmod(rhs, cut);
     return lhs + rounded;
   }
 
@@ -175,7 +267,7 @@ public:
 
   Sample process(Sample input)
   {
-    auto &&v0 = input;
+    auto v0 = input;
     v1 += kp * (v0 - v1);
     v2 += kp * (v1 - v2);
     return v2;
@@ -264,13 +356,13 @@ public: // デバッグ用にすべて public 。
   // ステレオリンクを調整できるように入力の絶対値を `inAbs` として分離。
   Sample process(const Sample input, Sample inAbs)
   {
-    auto &&peakAmp = peakhold.process(inAbs);
-    auto &&candidate = applyCharacteristicCurve(peakAmp);
-    auto &&released = processRelease(candidate);
-    auto &&gainAmp = std::min(released, candidate);
-    auto &&targetAmp = peakAmp <= gateAmp ? 0 : gainAmp;
-    auto &&smoothed = smoother.process(targetAmp);
-    auto &&delayed = lookaheadDelay.process(input);
+    auto peakAmp = peakhold.process(inAbs);
+    auto candidate = applyCharacteristicCurve(peakAmp);
+    auto released = processRelease(candidate);
+    auto gainAmp = std::min(released, candidate);
+    auto targetAmp = peakAmp <= gateAmp ? 0 : gainAmp;
+    auto smoothed = smoother.process(targetAmp);
+    auto delayed = lookaheadDelay.process(input);
     return smoothed * delayed;
   }
 };
@@ -358,7 +450,7 @@ inline Sample applyCharacteristicCurve(Sample peakAmp)
 Sample process(const Sample input, Sample inAbs)
 {
   // ...
-  auto &&candidate = applyCharacteristicCurve(peakAmp);
+  auto candidate = applyCharacteristicCurve(peakAmp);
   // ...
 }
 ```
@@ -386,88 +478,6 @@ inline Sample processRelease(Sample gain)
 {
   releaseFilter.setMin(gain);
   return releaseFilter.process(gain);
-}
-```
-
-#### ソフトクリップ
-2022/05/08 にリミッタの実装を改善したのでソフトクリップは使う必要がなくなりましたが、式は使えるので掲載しています。
-
-`DoubleAverageFilter` に[ステップ応答が S 字を描くフィルタ](https://ryukau.github.io/filter_notes/s_curve_step_response_filter/s_curve_step_response_filter.html#%E5%AE%9F%E8%A3%85)で紹介している素朴な実装を使うと単純な畳み込みよりも出力が少しだけ大きくなります。この誤差はリミッタがしきい値を超える振幅を出力してしまう問題の原因になります。例えば今回使ったテスト音源だと、しきい値 1 に対して振幅 1.001 が出力されるといった具合でした。この問題の解決法として以下の 2 つの方法が考えられます。
-
-- `thresholdAmp` を指定された値から少し下げる。
-- 出力をクリッピングする。
-
-`thresholdAmp` を下げる方法は、入力信号の振幅や `thresholdAmp` の下げ幅によって誤差が変わってしまうので、どれだけ下げればいいのかを判断することは難しいです。そこで以降では出力をクリッピングするための式を作ります。
-
-今回は以下のソフトクリップ曲線を使いました。
-
-<figure>
-<img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
-</figure>
-
-以下はソフトクリップ曲線 $S$ の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。[単調](https://en.wikipedia.org/wiki/Monotonic_function)かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。 $\mathrm{sgn}$ は[符号関数](https://en.wikipedia.org/wiki/Sign_function)です。
-
-$$
-\begin{aligned}
-S(x) &= \begin{cases}
-  x & \text{if}\ |x| < a_1
-    && \text{(linear region)}\\
-  h + \mathrm{sgn}(x) \dfrac{0.25 (a_2 - |x|)^2}{a_1 - h}  & \text{if}\ a_1 \leq|x| < a_2
-    && \text{(2nd order region)}\\
-  h & \text{if}\ a_2 \leq |x|
-    && \text{(clipping region)}\\
-\end{cases}
-\\
-a_1 &= rh\\
-a_2 &= 2h - a_1
-\end{aligned}
-$$
-
-変数の一覧です。
-
-- $x$: 入力信号
-- $h$: リミッタのしきい値
-- $r$: しきい値以下の非線形領域の割合。
-
-2 次曲線領域 (2nd order region) の両端の傾きが、前後の領域の傾きと一致することを確認します。まず $L = h - a_1 = a_2 - h$ と置きます。このとき 2 次曲線領域は入力に対して $a_1 \text{--} a_2$ 間で $2L$ 、出力に対して $a_1 \text{--} h$ 間で $L$ の幅を持っています。
-
-$\xi = a_2 - |x|$ とすると、曲線 $S$ の 2 次曲線領域の式 $S_2$ は以下のように変形できます。
-
-$$
-S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
-$$
-
-$\xi$ について微分します。
-
-$$
-\frac{d S_2}{d \xi} = - \mathrm{sgn}(x) \frac{0.5}{L} \xi
-$$
-
-- $|x| = a_1$ のとき $\xi = a_2 - a_1 = 2L$ なので、傾きは $-\mathrm{sgn}(x)$ 。
-- $|x| = a_2$ のとき $\xi = 0$ なので、傾きは 0 。
-
-$-\mathrm{sgn}(x)$ は $x$ の符号が - のときに 1 、 + のときに -1 になります。下の図で言うと $x$ が負のときは左から右、 $x$ が正のときは右から左に向かって $\xi$ が増えるので線形領域と傾きが一致します。
-
-<figure>
-<img src="img/softclip_smoothness.svg" alt="Image of soft-clipping curve with the direction of ξ depending on the sign of x." style="padding-bottom: 12px;"/>
-</figure>
-
-
-以下はソフトクリッピングのコードです。
-
-```c++
-template<typename T> inline T softClip(T x0, T ratio)
-{
-  const auto absed = std::fabs(x0);
-
-  const auto a1 = threshold * ratio;
-  if (absed <= a1) return x0;
-
-  const auto a2 = 2 * threshold - a1;
-  if (absed >= a2) return threshold;
-
-  return std::copysign(
-    threshold + (a2 - absed) * (a2 - absed) / T(4) / (a1 - threshold), x0);
 }
 ```
 
@@ -644,6 +654,10 @@ fir = np.roll(fir, len(fir) // 2 - 1)
 - [Fruity Limiter - Effect Plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm)
 
 ## 変更点
+- 2024/05/20
+  - 特性曲線の項を追加。
+  - ソフトクリップの項を特性曲線に移動。
+  - `auto &&` を `auto` に置換。
 - 2024/04/17
   - 文章の整理。
 - 2024/02/18
