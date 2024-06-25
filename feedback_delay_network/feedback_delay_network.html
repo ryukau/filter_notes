@@ -494,10 +494,9 @@ href="https://en.wikipedia.org/wiki/Scalar_multiplication">スカラー</a>)
 <code>Delay</code>
 は線形補間を行っているのでディレイ時間がぴったり整数でなければ徐々に出力が減衰します。</p>
 <p>テンプレートパラメータの <code>length</code> が大きいときは
-<code>std::vector</code>
-を使うように書き換えてください。今回はプラグイン向けに書いているので
-<code>std::array</code> を使っていますが、 <code>dim</code>
-が大きいとスタックに乗りきらなくなって、指定した値よりも配列の長さが短くなることがあります。今回のテスト環境では
+<code>std::vector</code> を使うように書き換えてください。
+<code>dim</code> が大きいと、少なくとも cl.exe
+では指定した値よりも配列の長さが短くなることがありました。今回のテスト環境では
 <code>dim=200</code> あたりが正しく動作する上限でした。</p>
 <h2 id="行列のランダマイズ"><a href="#行列のランダマイズ"
 class="header-anchor" aria-hidden="true">行列のランダマイズ</a></h2>
@@ -1418,6 +1417,11 @@ Residues</a></li>
 <h2 id="変更点"><a href="#変更点" class="header-anchor"
 aria-hidden="true">変更点</a></h2>
 <ul>
+<li>2024/06/25
+<ul>
+<li>実装の節の <code>std::array</code>
+の大きさが指定した値よりも短くなることについて、原因がはっきりしないので記述を変更。</li>
+</ul></li>
 <li>2024/04/19
 <ul>
 <li>文章の整理。</li>

@@ -55,7 +55,7 @@ template<typename Sample, size_t length> struct FeedbackDelayNetwork {
 
 引数 `feedback` はフィードバック行列の値をまとめて変更する係数 ([スカラー](https://en.wikipedia.org/wiki/Scalar_multiplication)) です。 FDN が発振するようにフィードバック行列を設計できれば、 `feedback` をコムフィルタのフィードバックと同じ感覚で扱うことができます。ただし `Delay` は線形補間を行っているのでディレイ時間がぴったり整数でなければ徐々に出力が減衰します。
 
-テンプレートパラメータの `length` が大きいときは `std::vector` を使うように書き換えてください。今回はプラグイン向けに書いているので `std::array` を使っていますが、 `dim` が大きいとスタックに乗りきらなくなって、指定した値よりも配列の長さが短くなることがあります。今回のテスト環境では `dim=200` あたりが正しく動作する上限でした。
+テンプレートパラメータの `length` が大きいときは `std::vector` を使うように書き換えてください。 `dim` が大きいと、少なくとも cl.exe では指定した値よりも配列の長さが短くなることがありました。今回のテスト環境では `dim=200` あたりが正しく動作する上限でした。
 
 ## 行列のランダマイズ
 Schlecht と Habets の ["On lossless feedback delay networks"](https://arxiv.org/pdf/1606.07729) によると、 FDN が発散しないためには、フィードバック行列を[ユニタリ行列](https://mathworld.wolfram.com/UnitaryMatrix.html)か[三角行列](https://mathworld.wolfram.com/TriangularMatrix.html)にするといいそうです。 FDN が発散しないフィードバック行列の中にはユニタリ行列でも三角行列でもないものがあるそうですが、安定性がディレイ時間に依存する、数値計算で行列を求めることが難しい、といった問題が論文中で示されているのでここでは扱っていません。
@@ -807,6 +807,8 @@ http://ccrma.stanford.edu/~jos/pasp/, online book,
 - [A000952 - OEIS](https://oeis.org/A000952)
 
 ## 変更点
+- 2024/06/25
+  - 実装の節の `std::array` の大きさが指定した値よりも短くなることについて、原因がはっきりしないので記述を変更。
 - 2024/04/19
   - 文章の整理。
 - 2023/11/09
