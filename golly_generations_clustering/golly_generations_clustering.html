@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>golly_generations_clustering</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -341,7 +360,7 @@ span.math.inline a {
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -369,8 +388,10 @@ id="toc-プロットギャラリー">プロットギャラリー</a></li>
 </nav>
 </details>
 </header>
-<h1 id="golly-の-generations-で作った音のクラスタリング">Golly の
-Generations で作った音のクラスタリング</h1>
+<h1 id="golly-の-generations-で作った音のクラスタリング"><a
+href="#golly-の-generations-で作った音のクラスタリング"
+class="header-anchor" aria-hidden="true">Golly の Generations
+で作った音のクラスタリング</a></h1>
 <p><a href="http://golly.sourceforge.net/">Golly</a> の <a
 href="http://golly.sourceforge.net/Help/Algorithms/Generations.html">Genrations</a>
 という<a
@@ -380,7 +401,8 @@ href="https://ja.wikipedia.org/wiki/%E3%82%BB%E3%83%AB%E3%83%BB%E3%82%AA%E3%83%B
 <p>似たような音に分類したくなったので、音の<a
 href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">MFCC</a>を特徴として<a
 href="https://en.wikipedia.org/wiki/K-means_clustering">K-Means</a>でクラスタリングしました。</p>
-<h2 id="データセット">データセット</h2>
+<h2 id="データセット"><a href="#データセット" class="header-anchor"
+aria-hidden="true">データセット</a></h2>
 <p>Golly の generations
 から生成した音のデータセットを次のリンクからダウンロードできます。</p>
 <ul>
@@ -393,7 +415,8 @@ generations data set (76MB)</a></li>
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> 7z x golly_generations_cluster.7z</span></code></pre></div>
 <p>解凍してできる <code>cluster</code> 内の <code>generations</code>
 がデータセットです。その他のディレクトリはクラスタリングの結果です。</p>
-<h2 id="プロトタイプ">プロトタイプ</h2>
+<h2 id="プロトタイプ"><a href="#プロトタイプ" class="header-anchor"
+aria-hidden="true">プロトタイプ</a></h2>
 <p>手始めに次のようなコードを書きました。</p>
 <p><code>scipy.signal.spectrogram</code> から得たスペクトログラムを
 <code>numpy.ravel</code> で1次元にして
@@ -475,7 +498,9 @@ href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ravel.html">num
 href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">sklearn.cluster.KMeans
 — scikit-learn 0.20.1 documentation</a></li>
 </ul>
-<h2 id="クラスタリング手法の選定">クラスタリング手法の選定</h2>
+<h2 id="クラスタリング手法の選定"><a href="#クラスタリング手法の選定"
+class="header-anchor"
+aria-hidden="true">クラスタリング手法の選定</a></h2>
 <p>耳で聞いた印象がいまいちだったので <a
 href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.cluster"><code>sklearn.cluster</code></a>
 の中から次のクラスタリング手法を試しました。</p>
@@ -501,7 +526,8 @@ DBSCAN Clustering</a>
 <p>ここでは Golly の generations で作った音のクラスタリングには
 <code>KMeans</code> で十分と判断しました。</p>
 <p>クラスタリング手法では結果が改善しないこともわかったので特徴抽出を変えることにしました。</p>
-<h2 id="mfcc">MFCC</h2>
+<h2 id="mfcc"><a href="#mfcc" class="header-anchor"
+aria-hidden="true">MFCC</a></h2>
 <p><a
 href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.spectrogram.html"><code>numpy.spectrogram</code></a>
 を使ったクラスタリングの結果に満足できなかったので <a
@@ -564,7 +590,8 @@ is pre-emphasis (i.e. passing the speech signal through a first order
 high pass filter) required in speech processing and how does it work? -
 Quora</a></li>
 </ul>
-<h2 id="elbow-method">Elbow Method</h2>
+<h2 id="elbow-method"><a href="#elbow-method" class="header-anchor"
+aria-hidden="true">Elbow Method</a></h2>
 <p><code>KMeans</code> のパラメータ <code>n_clusters</code>
 を決めるために <a
 href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b">elbow method</a>
@@ -616,7 +643,8 @@ clustering - bl.ocks.org</a></li>
 href="https://www.quora.com/How-can-we-choose-a-good-K-for-K-means-clustering">How
 can we choose a ‘good’ K for K-means clustering? - Quora</a></li>
 </ul>
-<h2 id="t-sne-で視覚化">t-SNE で視覚化</h2>
+<h2 id="t-sne-で視覚化"><a href="#t-sne-で視覚化" class="header-anchor"
+aria-hidden="true">t-SNE で視覚化</a></h2>
 <p>いい評価方法が思いつかないので、とりあえず <a
 href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">t-SNE</a>
 で視覚化しました。</p>
@@ -634,7 +662,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <figure>
 <img src="img/mfcc/tsne.png" alt="Image of ." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="適当なプロット">適当なプロット</h2>
+<h2 id="適当なプロット"><a href="#適当なプロット" class="header-anchor"
+aria-hidden="true">適当なプロット</a></h2>
 <p>クラスタの内容を調べるために適当に思いついたパラメータをプロットします。</p>
 <p>中央値が表すMFCCです。各画像の縦が周波数で下から上に向かって大きくなります。横は時間で左から右に向かって進んでいます。明るい部分ほど係数が大きくなります。
 <code>n</code>
@@ -659,10 +688,12 @@ error</a>) です。</p>
 <li>22, 23, 24, 26, 37, 38 はプチノイズと高いトーン。</li>
 <li>32, 33 は低めのカラーノイズと低めのトーンの中間のような音。</li>
 </ul>
-<h2 id="プロットギャラリー">プロットギャラリー</h2>
+<h2 id="プロットギャラリー"><a href="#プロットギャラリー"
+class="header-anchor" aria-hidden="true">プロットギャラリー</a></h2>
 <p>特徴ベクトルを変えて出力したプロットを別ページにまとめました。</p>
 <p><a href="gallery.html">プロットギャラリーを見る</a></p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>ここではクラスタリングの結果について、ざっくり耳で聞いた判断しか行っていません。</p>
 <p>MFCCを試した後でスペクトログラムを改善できないか試しました。</p>
 <ul>

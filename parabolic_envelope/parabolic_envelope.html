@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>parabolic_envelope</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -397,10 +416,13 @@ class="math inline">\(t_{k,p}\)</span> の導出</a></li>
 </nav>
 </details>
 </header>
-<h1 id="放物線エンベロープ">放物線エンベロープ</h1>
+<h1 id="放物線エンベロープ"><a href="#放物線エンベロープ"
+class="header-anchor" aria-hidden="true">放物線エンベロープ</a></h1>
 <p>加速度が一定のときに現れる放物線を使ってエンベロープを作ります。次の図は例として加速度が一定のエンジンを積んだロケットをある点から別の点へ移動させて戻ってくるモデルを表しています。</p>
 <p><img src="img/desired_curve.svg" /></p>
-<h2 id="加速度を任意に決める方法">加速度を任意に決める方法</h2>
+<h2 id="加速度を任意に決める方法"><a href="#加速度を任意に決める方法"
+class="header-anchor"
+aria-hidden="true">加速度を任意に決める方法</a></h2>
 <p>アタックの区間での加速度 <span class="math inline">\(a_A\)</span> と
 <span class="math inline">\(b_A\)</span> 、加速から減速に切り替える時点
 <span class="math inline">\(t_A\)</span>
@@ -408,7 +430,8 @@ class="math inline">\(t_{k,p}\)</span> の導出</a></li>
 class="math inline">\(h_p\)</span> とその時点 <span
 class="math inline">\(t_p\)</span> を求めます。</p>
 <p><img src="img/peak.svg" /></p>
-<h3 id="記号の定義">記号の定義</h3>
+<h3 id="記号の定義"><a href="#記号の定義" class="header-anchor"
+aria-hidden="true">記号の定義</a></h3>
 <p>下付き文字の <span class="math inline">\(A\)</span>
 はアタックのパラメータを表しています。</p>
 <ul>
@@ -421,9 +444,10 @@ class="math inline">\(t_p\)</span> を求めます。</p>
 <li><span class="math inline">\(b_A\)</span> :
 減速時の加速度の絶対値</li>
 </ul>
-<h3 id="ピーク-h_p-とその時点-t_p-の導出">ピーク <span
-class="math inline">\(h_p\)</span> とその時点 <span
-class="math inline">\(t_p\)</span> の導出</h3>
+<h3 id="ピーク-h_p-とその時点-t_p-の導出"><a
+href="#ピーク-h_p-とその時点-t_p-の導出" class="header-anchor"
+aria-hidden="true">ピーク <span class="math inline">\(h_p\)</span>
+とその時点 <span class="math inline">\(t_p\)</span> の導出</a></h3>
 <p>まずは時点 <span class="math inline">\(t_A\)</span> での位置 <span
 class="math inline">\(h_A\)</span> と速度 <span
 class="math inline">\(v_A\)</span>
@@ -476,7 +500,8 @@ h_p
 \frac{v_A}{b_A} \right) + h_A
 \end{aligned}
 \]</span></p>
-<h3 id="正規化">正規化</h3>
+<h3 id="正規化"><a href="#正規化" class="header-anchor"
+aria-hidden="true">正規化</a></h3>
 <p><span class="math inline">\(h_{p} = 1\)</span> となるような <span
 class="math inline">\(a_A\)</span> と <span
 class="math inline">\(b_A\)</span> への係数 <span
@@ -501,7 +526,8 @@ class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a hr
 \nu=\frac{2 {b_A}}{\left( {a_A}
 {b_A}+{{{a_A}}^{2}}\right)  {{{t_A}}^{2}}}
 \]</span></p>
-<h3 id="実装">実装</h3>
+<h3 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>Python3 です。</p>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
@@ -591,7 +617,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <figure>
 <img src="img/GapAtTheEnd.png" alt="Image of gap at the end of envelope." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="時間から加速度を決める方法">時間から加速度を決める方法</h2>
+<h2 id="時間から加速度を決める方法"><a
+href="#時間から加速度を決める方法" class="header-anchor"
+aria-hidden="true">時間から加速度を決める方法</a></h2>
 <p>ユーザが指定した時間 <span class="math inline">\(l\)</span> と変曲点
 <span class="math inline">\(\beta\)</span> から加速度 <span
 class="math inline">\(a, b\)</span> を決めます。</p>
@@ -599,7 +627,8 @@ class="math inline">\(a, b\)</span> を決めます。</p>
 <span class="math inline">\(b_R\)</span>
 を求めます。アタックの加速度も同様に求めることができます。</p>
 <p><img src="img/release.svg" /></p>
-<h3 id="定義">定義</h3>
+<h3 id="定義"><a href="#定義" class="header-anchor"
+aria-hidden="true">定義</a></h3>
 <p>記号の定義です。</p>
 <ul>
 <li><span class="math inline">\(t\)</span> : 時間</li>
@@ -629,8 +658,9 @@ t_R = t_p + \beta_R l_R
 \]</span></p>
 <p><span class="math inline">\(h_p = 1\)</span>
 に正規化されていると仮定しています。</p>
-<h3 id="加速度-a_r-b_r-の導出">加速度 <span class="math inline">\(a_R,
-b_R\)</span> の導出</h3>
+<h3 id="加速度-a_r-b_r-の導出"><a href="#加速度-a_r-b_r-の導出"
+class="header-anchor" aria-hidden="true">加速度 <span
+class="math inline">\(a_R, b_R\)</span> の導出</a></h3>
 <p><span class="math inline">\(t_p \text{--} t_R\)</span>
 間の加速の式です。</p>
 <p><span class="math display">\[
@@ -680,7 +710,8 @@ b_R (1 - \beta_R) l_R &amp;= \frac{2}{l_R} \\
 b_R &amp;= \frac{2}{(1 - \beta_R) l_R^2} \\
 \end{aligned}
 \]</span></p>
-<h3 id="実装-1">実装</h3>
+<h3 id="実装-1"><a href="#実装-1" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>Python3 です。</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
@@ -741,9 +772,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <figure>
 <img src="img/ParabolicEnvelopeFromTime.png" alt="Image of parabolic envelope." style="padding-bottom: 12px;"/>
 </figure>
-<h2
-id="放物線アタックと指数曲線ディケイの組み合わせ">放物線アタックと指数曲線ディケイの組み合わせ</h2>
-<h3 id="定義-1">定義</h3>
+<h2 id="放物線アタックと指数曲線ディケイの組み合わせ"><a
+href="#放物線アタックと指数曲線ディケイの組み合わせ"
+class="header-anchor"
+aria-hidden="true">放物線アタックと指数曲線ディケイの組み合わせ</a></h2>
+<h3 id="定義-1"><a href="#定義-1" class="header-anchor"
+aria-hidden="true">定義</a></h3>
 <p>位置 <span class="math inline">\(\hat{y}_A(t)\)</span> の式です。</p>
 <p><span class="math display">\[
 \hat{y}_A(t) = \begin{cases}
@@ -792,10 +826,12 @@ class="math inline">\(t_k\)</span> のある範囲を調べます。</p>
 。</li>
 </ul>
 <h3
-id="区間-0-leq-t-leq-t_a-でピークに到達する場合の時点-t_ka-の導出">区間
-<span class="math inline">\(0 \leq t \leq t_A\)</span>
+id="区間-0-leq-t-leq-t_a-でピークに到達する場合の時点-t_ka-の導出"><a
+href="#区間-0-leq-t-leq-t_a-でピークに到達する場合の時点-t_ka-の導出"
+class="header-anchor" aria-hidden="true">区間 <span
+class="math inline">\(0 \leq t \leq t_A\)</span>
 でピークに到達する場合の時点 <span
-class="math inline">\(t_{k,A}\)</span> の導出</h3>
+class="math inline">\(t_{k,A}\)</span> の導出</a></h3>
 <p>区間 <span class="math inline">\(0 \leq t \leq t_A\)</span> での速度
 <span class="math inline">\(\hat{\dot{y}}_A(t)\)</span> を求めます。
 Maxima を使います。</p>
@@ -844,10 +880,12 @@ class="math inline">\(t_{k, A}\)</span> は次の式になります。</p>
 t_{k, A} = - \frac{2}{\log \gamma}
 \]</span></p>
 <h3
-id="区間-t_a-leq-t-leq-t_p-でピークに到達する場合の時点-t_kp-の導出">区間
-<span class="math inline">\(t_A \leq t \leq t_p\)</span>
+id="区間-t_a-leq-t-leq-t_p-でピークに到達する場合の時点-t_kp-の導出"><a
+href="#区間-t_a-leq-t-leq-t_p-でピークに到達する場合の時点-t_kp-の導出"
+class="header-anchor" aria-hidden="true">区間 <span
+class="math inline">\(t_A \leq t \leq t_p\)</span>
 でピークに到達する場合の時点 <span
-class="math inline">\(t_{k,p}\)</span> の導出</h3>
+class="math inline">\(t_{k,p}\)</span> の導出</a></h3>
 <p>区間 <span class="math inline">\(t_A \leq t \leq t_p\)</span> で速度
 <span class="math inline">\(\hat{\dot{y}}_A(t)\)</span> が 0 になる時点
 <span class="math inline">\(t_{k,p}\)</span> を求めます。</p>
@@ -875,7 +913,8 @@ t_{k,p,2} &amp;= \frac{
 <p>実装して確認したところ <span class="math inline">\(t_{k,p,2}\)</span>
 を使うと範囲 <span class="math inline">\([0, 1]\)</span>
 の出力が得られました。</p>
-<h3 id="実装-2">実装</h3>
+<h3 id="実装-2"><a href="#実装-2" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>Python3 です。</p>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
@@ -966,7 +1005,8 @@ class="math inline">\(\beta\)</span> が 1.0 に近づくほどピークが 1.0
 <figure>
 <img src="img/ParabolaExpPeakError.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="別解">別解</h3>
+<h3 id="別解"><a href="#別解" class="header-anchor"
+aria-hidden="true">別解</a></h3>
 <p>別ページに別解を掲載しています。計算結果は同じですが <code>log</code>
 の代わりに <code>exp</code> が出てきます。</p>
 <ul>

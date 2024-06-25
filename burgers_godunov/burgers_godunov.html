@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>burgers_godunov</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -365,7 +384,9 @@ id="toc-シミュレーション">シミュレーション</a></li>
 </nav>
 </details>
 </header>
-<h1 id="inviscid-な-burgers-方程式">Inviscid な Burgers 方程式</h1>
+<h1 id="inviscid-な-burgers-方程式"><a
+href="#inviscid-な-burgers-方程式" class="header-anchor"
+aria-hidden="true">Inviscid な Burgers 方程式</a></h1>
 <p><a
 href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Landajuela
 さんの BURGERS EUQATION</a> で紹介されていた Godunov’s method で変形した
@@ -374,7 +395,8 @@ Burgers 方程式を実装して音を入力します。</p>
 <li><a
 href="http://www.bcamath.org/projects/NUMERIWAVES/Burgers_Equation_M_Landajuela.pdf">Burgers_Equation_M_Landajuela.pdf</a></li>
 </ul>
-<h2 id="コードについて">コードについて</h2>
+<h2 id="コードについて"><a href="#コードについて" class="header-anchor"
+aria-hidden="true">コードについて</a></h2>
 <p>次のリンクからコードをまとめて読むことができます。</p>
 <ul>
 <li><a
@@ -390,7 +412,8 @@ href="http://sox.sourceforge.net/">SoX</a> を使っています。</p>
 href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a></li>
 <li><a href="https://www.scipy.org/">SciPy, NumPy</a></li>
 </ul>
-<h2 id="シミュレーション">シミュレーション</h2>
+<h2 id="シミュレーション"><a href="#シミュレーション"
+class="header-anchor" aria-hidden="true">シミュレーション</a></h2>
 <p>ここでシミュレーションするのは inviscid な Burgers 方程式です。</p>
 <p><span class="math display">\[
 u_t + u u_x = 0
@@ -503,7 +526,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <figure>
 <img src="img/inviscid_burgers_result.png" alt="Image of a result of simulation of inviscid Burgers' equation." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="デモ">デモ</h2>
+<h2 id="デモ"><a href="#デモ" class="header-anchor"
+aria-hidden="true">デモ</a></h2>
 <p>キャンバスをクリックすると波が起こります。</p>
 <script src="demo/js/canvas.js"></script>
 <script src="demo/js/vec2.js"></script>
@@ -513,7 +537,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 、下半分は <span class="math inline">\(U &lt; 0\)</span>
 となります。</p>
 <p>今回のシミュレーションでは入力の符号によって波が進む方向が決まるようです。</p>
-<h2 id="音を入力する">音を入力する</h2>
+<h2 id="音を入力する"><a href="#音を入力する" class="header-anchor"
+aria-hidden="true">音を入力する</a></h2>
 <p>波の進む方向が一方向に固定されるので、入力信号がすべて正の値になるように整形します。またシミュレーションが発散しないように入力信号の最大値が
 1 以下となるようにします。</p>
 <p>次の図は <code>dc = 0.6</code> 、 <code>amp = 0.8</code>
@@ -585,7 +610,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <figure>
 <img src="img/processed_output_signal.png" alt="Image of processed output signal." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="音のサンプル">音のサンプル</h2>
+<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+aria-hidden="true">音のサンプル</a></h2>
 <p>ここまでのコードを <code>propagation.py</code>
 にまとめてコマンドラインから使えるようにしました。声のサンプルのラベルに書いている
 <code>-d</code> や <code>-l</code> は <code>propagation.py</code>

@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-04-20" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>feedback_delay_network</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-04-20
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -372,7 +391,17 @@ id="toc-吸収オールパス行列">吸収オールパス行列</a></li>
 <li><a href="#アダマール行列"
 id="toc-アダマール行列">アダマール行列</a></li>
 <li><a href="#conference-行列" id="toc-conference-行列">Conference
-行列</a></li>
+行列</a>
+<ul>
+<li><a href="#大きさの設定" id="toc-大きさの設定">大きさの設定</a></li>
+<li><a href="#quadratic-residue" id="toc-quadratic-residue">Quadratic
+Residue</a></li>
+<li><a href="#legendre-symbol" id="toc-legendre-symbol">Legendre
+Symbol</a></li>
+<li><a href="#行列の組み立て"
+id="toc-行列の組み立て">行列の組み立て</a></li>
+<li><a href="#c-のコード" id="toc-c-のコード">C++ のコード</a></li>
+</ul></li>
 </ul></li>
 </ul></li>
 <li><a href="#音についての所感"
@@ -393,8 +422,9 @@ id="toc-ランダムな直交行列のソート">ランダムな直交行列の�
 </nav>
 </details>
 </header>
-<h1 id="feedback-delay-network-の実装">Feedback Delay Network
-の実装</h1>
+<h1 id="feedback-delay-network-の実装"><a
+href="#feedback-delay-network-の実装" class="header-anchor"
+aria-hidden="true">Feedback Delay Network の実装</a></h1>
 <p>Feedback Delay Network (FDN)
 は以下のブロック線図で表される、ディレイの接続方法です。</p>
 <figure>
@@ -405,7 +435,8 @@ id="toc-ランダムな直交行列のソート">ランダムな直交行列の�
 <span class="math inline">\(N \times N\)</span>
 のフィードバック行列があります。</p>
 <p>この文章では適当にフィードバック行列をランダマイズしてリバーブを作ります。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>FDN
 に使うディレイの実装については以下のリンク先にまとめています。ここではリンク先の「レートリミッタ」の節で紹介している
 <code>Delay</code> を使います。</p>
@@ -468,7 +499,8 @@ href="https://en.wikipedia.org/wiki/Scalar_multiplication">スカラー</a>)
 <code>std::array</code> を使っていますが、 <code>dim</code>
 が大きいとスタックに乗りきらなくなって、指定した値よりも配列の長さが短くなることがあります。今回のテスト環境では
 <code>dim=200</code> あたりが正しく動作する上限でした。</p>
-<h2 id="行列のランダマイズ">行列のランダマイズ</h2>
+<h2 id="行列のランダマイズ"><a href="#行列のランダマイズ"
+class="header-anchor" aria-hidden="true">行列のランダマイズ</a></h2>
 <p>Schlecht と Habets の <a href="https://arxiv.org/pdf/1606.07729">“On
 lossless feedback delay networks”</a> によると、 FDN
 が発散しないためには、フィードバック行列を<a
@@ -505,7 +537,8 @@ href="https://www.sebastianjiroschlecht.com/">Sebastian J. Schlecht</a>
 さんという方の名前を何度も見かけました。 FDN
 関連のテクニックを探すときは Schlecht
 さんの名前で検索するといいかもしれません。</p>
-<h3 id="実装-1">実装</h3>
+<h3 id="実装-1"><a href="#実装-1" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>以下はテストに使ったコードへのリンクです。行列の値を JSON
 形式で書き出して Python 3 で <code>mat.dot(mat.T)</code>
 として生成した行列 <code>mat</code>
@@ -518,7 +551,8 @@ href="https://github.com/ryukau/filter_notes/blob/master/feedback_delay_network/
 href="https://github.com/ryukau/filter_notes/blob/master/feedback_delay_network/cpp/randomunitary.py">Python
 3 によるテストコードを読む (github.com)</a></li>
 </ul>
-<h4 id="直交行列">直交行列</h4>
+<h4 id="直交行列"><a href="#直交行列" class="header-anchor"
+aria-hidden="true">直交行列</a></h4>
 <p>フィードバック行列 <span class="math inline">\(\mathbf{A}\)</span>
 が直交行列なら FDN は安定です。 <span
 class="math inline">\(\mathbf{A}\)</span>
@@ -586,7 +620,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#c
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="特殊直交行列">特殊直交行列</h4>
+<h4 id="特殊直交行列"><a href="#特殊直交行列" class="header-anchor"
+aria-hidden="true">特殊直交行列</a></h4>
 <p>以下の実装は <a
 href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.special_ortho_group.html"><code>scipy.stats.special_ortho_group.rvs()</code></a>
 を C++ に翻訳したものです。</p>
@@ -633,7 +668,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> H<span class="op">[</span>col<span class="op">][</span>row<span class="op">]</span> <span class="op">*=</span> D<span class="op">[</span>row<span class="op">];</span></span>
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="householder-行列">Householder 行列</h4>
+<h4 id="householder-行列"><a href="#householder-行列"
+class="header-anchor" aria-hidden="true">Householder 行列</a></h4>
 <p>“<a
 href="https://nhigham.com/2020/09/15/what-is-a-householder-matrix/">What
 Is a Householder Matrix?</a>” によると <span class="math inline">\(n
@@ -696,7 +732,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="巡回行列">巡回行列</h4>
+<h4 id="巡回行列"><a href="#巡回行列" class="header-anchor"
+aria-hidden="true">巡回行列</a></h4>
 <p>以下は “Circulant and elliptic feedback delay networks for artificial
 reverberation.” で紹介されていた FDN が発散しない巡回行列の式です。</p>
 <p><span class="math display">\[
@@ -773,7 +810,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="三角行列">三角行列</h4>
+<h4 id="三角行列"><a href="#三角行列" class="header-anchor"
+aria-hidden="true">三角行列</a></h4>
 <p>フィードバック行列が三角行列のとき、すべての対角要素の絶対値が 1
 より小さければ発散はしません。ただしゲインがものすごいことになるので実用的にはユニティゲインとなるような値の正規化が必要です。試行錯誤したところ、以下の式で発散しなくなりました。</p>
 <p><span class="math display">\[
@@ -841,7 +879,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> col<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">*=</span> scale<span class="op">;</span></span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="schroeder-リバーブ行列">Schroeder リバーブ行列</h4>
+<h4 id="schroeder-リバーブ行列"><a href="#schroeder-リバーブ行列"
+class="header-anchor" aria-hidden="true">Schroeder リバーブ行列</a></h4>
 <p>“On lossless feedback delay networks.” では Schroeder
 リバーブを再現するフィードバック行列 (Schroeder リバーブ行列)
 が紹介されています。 Schroeder
@@ -901,7 +940,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#c
 <span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">][</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">]</span> <span class="op">=</span> lastGain <span class="op">*</span> scale1<span class="op">;</span></span>
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="吸収オールパス行列">吸収オールパス行列</h4>
+<h4 id="吸収オールパス行列"><a href="#吸収オールパス行列"
+class="header-anchor" aria-hidden="true">吸収オールパス行列</a></h4>
 <p>以下は “Time-varying feedback matrices in feedback delay networks and
 their application in artificial reverberation.”
 で紹介されている吸収オールパス行列 (absorbent allpass matrix)
@@ -959,7 +999,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#c
 <span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="アダマール行列">アダマール行列</h4>
+<h4 id="アダマール行列"><a href="#アダマール行列" class="header-anchor"
+aria-hidden="true">アダマール行列</a></h4>
 <p>ここでは Sylvester’s construction と呼ばれる手法で<a
 href="https://en.wikipedia.org/wiki/Hadamard_matrix">アダマール行列</a>を作ります。</p>
 <p>まず初期状態として以下の行列 <span
@@ -1030,11 +1071,13 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#c
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    end <span class="op">*=</span> <span class="dv">2</span><span class="op">;</span></span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="conference-行列">Conference 行列</h4>
+<h4 id="conference-行列"><a href="#conference-行列"
+class="header-anchor" aria-hidden="true">Conference 行列</a></h4>
 <p>ここでは Paley のアダマール行列の構築法で使われる <a
 href="https://en.wikipedia.org/wiki/Conference_matrix">conference
 行列</a>を生成します。</p>
-<h5 id="大きさの設定">大きさの設定</h5>
+<h5 id="大きさの設定"><a href="#大きさの設定" class="header-anchor"
+aria-hidden="true">大きさの設定</a></h5>
 <p>まずは conference 行列の大きさを決めます。 Conference
 行列の大きさは以下の条件を満たす整数 <span
 class="math inline">\(n\)</span> です。</p>
@@ -1046,7 +1089,8 @@ href="https://en.wikipedia.org/wiki/Square_number">square number</a>)
 </ul>
 <p>以降では式の簡略化のために <span class="math inline">\(n - 1 =
 k\)</span> とします。</p>
-<h5 id="quadratic-residue">Quadratic Residue</h5>
+<h5 id="quadratic-residue"><a href="#quadratic-residue"
+class="header-anchor" aria-hidden="true">Quadratic Residue</a></h5>
 <p><span class="math inline">\(k\)</span> をモジュロとして <a
 href="https://www.mit.edu/~shint/handouts/QuadraticResidues.pdf">quadratic
 residue</a> の集合を作ります。 Quadratic residue
@@ -1072,7 +1116,8 @@ href="https://en.wikipedia.org/wiki/Set-builder_notation">Set-builder
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>modulo <span class="op">=</span> <span class="dv">5</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>quadraticResidue <span class="op">=</span> <span class="bu">set</span>([(i <span class="op">*</span> i) <span class="op">%</span> modulo <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, modulo)])</span></code></pre></div>
-<h5 id="legendre-symbol">Legendre Symbol</h5>
+<h5 id="legendre-symbol"><a href="#legendre-symbol"
+class="header-anchor" aria-hidden="true">Legendre Symbol</a></h5>
 <p>得られた quadratic residue をもとに、以下の式でモジュロ <span
 class="math inline">\(k\)</span> についての <a
 href="https://mathworld.wolfram.com/LegendreSymbol.html">Legendre
@@ -1131,7 +1176,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> (<span class="dv">1</span> <span class="cf">if</span> i <span class="kw">in</span> quadraticResidue <span class="cf">else</span> <span class="op">-</span><span class="dv">1</span>)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(modulo)</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div>
-<h5 id="行列の組み立て">行列の組み立て</h5>
+<h5 id="行列の組み立て"><a href="#行列の組み立て" class="header-anchor"
+aria-hidden="true">行列の組み立て</a></h5>
 <p><span class="math inline">\(\mathrm{LS}(k)\)</span>
 を配列に変えて回転させることで以下の行列 <span
 class="math inline">\(\mathbf{R}\)</span> を作ります。</p>
@@ -1164,7 +1210,8 @@ href="https://numpy.org/doc/stable/reference/generated/numpy.roll.html"><code>nu
 ,\qquad
 \mathbf{1} = \underbrace{[1, 1, \dots, 1]}_{k}.
 \]</span></p>
-<h5 id="c-のコード">C++ のコード</h5>
+<h5 id="c-のコード"><a href="#c-のコード" class="header-anchor"
+aria-hidden="true">C++ のコード</a></h5>
 <p>今回は conference 行列に使える大きさを判定する手間を省くために OEIS
 の <a href="https://oeis.org/A000952">数列 A000952</a> を conference
 行列の候補として、そのまま使うことにしました。 <code>candidate</code>
@@ -1216,7 +1263,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#
 <span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>rotate<span class="op">(</span>symbol<span class="op">.</span>rbegin<span class="op">(),</span> symbol<span class="op">.</span>rbegin<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> symbol<span class="op">.</span>rend<span class="op">());</span></span>
 <span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h2 id="音についての所感">音についての所感</h2>
+<h2 id="音についての所感"><a href="#音についての所感"
+class="header-anchor" aria-hidden="true">音についての所感</a></h2>
 <p>ここまで紹介した中で、 Householder を除く行列は VST 3 プラグインの <a
 href="https://ryukau.github.io/VSTPlugins/index.html#fdn64reverb">FDN64Reverb</a>
 に実装したので、興味のある方は試してみてください。</p>
@@ -1236,9 +1284,11 @@ FDN
 行列を使うのはいい選択に見えます。どちらも -1, 0, 1 の 3
 つの値しかとらないので整数演算にもフレンドリーです。</p>
 <p>直交行列と特殊直交行列についてはランダマイズのときに対角成分の大きさを調整できるようにすれば質感のコントロールができそうです。</p>
-<h2 id="その他">その他</h2>
-<h3
-id="単位行列に近いランダムな特殊直交行列の生成">単位行列に近いランダムな特殊直交行列の生成</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="単位行列に近いランダムな特殊直交行列の生成"><a
+href="#単位行列に近いランダムな特殊直交行列の生成" class="header-anchor"
+aria-hidden="true">単位行列に近いランダムな特殊直交行列の生成</a></h3>
 <p>特殊直交行列をランダムに生成するとき、以下の行で乱数を使っています。</p>
 <div class="sourceCode" id="cb13"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span></code></pre></div>
@@ -1262,7 +1312,9 @@ class="math inline">\(n-1\)</span> は 1
 M_n = R M_{n-1}
 \]</span></p>
 <p>なぜ単位行列に近づけたかったのかというと、乗算による値の変化が大きいときに出るポップノイズを抑えたかったからです。特殊直交行列は回転を表しています。そして単位行列に近いということは、一回当たりの乗算による回転量が少ないと考えられます。結果としては単にトレモロのような音になるだけで、計算コストに効果が見合っていないと感じました。また、乗算のたびに誤差の影響で特殊直交行列からかけ離れていくという問題もあります。</p>
-<h3 id="ランダムな直交行列のソート">ランダムな直交行列のソート</h3>
+<h3 id="ランダムな直交行列のソート"><a
+href="#ランダムな直交行列のソート" class="header-anchor"
+aria-hidden="true">ランダムな直交行列のソート</a></h3>
 <p>今回は使っていませんが、 FDN
 への応用では以下のように直交行列をソートすることで扱いやすくなることがあるかもしれません。</p>
 <div class="sourceCode" id="cb15"><pre
@@ -1273,11 +1325,13 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> special_ortho_group.rvs(<span class="dv">4</span>)</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>sorted_indices <span class="op">=</span> np.argmax(np.<span class="bu">abs</span>(source), axis<span class="op">=</span>axis)</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>mat <span class="op">=</span> np.take(source, sorted_indices, axis)  <span class="co"># ソートしても直交行列。</span></span></code></pre></div>
-<h3 id="weighing-行列">Weighing 行列</h3>
+<h3 id="weighing-行列"><a href="#weighing-行列" class="header-anchor"
+aria-hidden="true">Weighing 行列</a></h3>
 <p><a href="https://en.wikipedia.org/wiki/Weighing_matrix">Weighing
 行列</a>を使うと異なる形の conference
 行列が作れるそうです。構築法がよくわからなかったので実装はあきらめました。</p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a href="https://arxiv.org/pdf/1606.07729">Schlecht, Sebastian J.,
 and Emanuel AP Habets. “On lossless feedback delay networks.” IEEE
@@ -1361,7 +1415,8 @@ href="https://www.mit.edu/~shint/handouts/QuadraticResidues.pdf">Quadratic
 Residues</a></li>
 <li><a href="https://oeis.org/A000952">A000952 - OEIS</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/04/19
 <ul>

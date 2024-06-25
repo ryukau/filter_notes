@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-02-16" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>am_pitchshift</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-02-16
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -391,7 +410,8 @@ id="toc-ピッチシフトと周波数シフト">ピッチシフトと周波数�
 </nav>
 </details>
 </header>
-<h1 id="am-による周波数シフト">AM による周波数シフト</h1>
+<h1 id="am-による周波数シフト"><a href="#am-による周波数シフト"
+class="header-anchor" aria-hidden="true">AM による周波数シフト</a></h1>
 <p>この文章では虚数を <span class="math inline">\(j\)</span>
 で表します。</p>
 <p>Scott Wardle さんによる <a
@@ -425,7 +445,8 @@ href="https://www.mikrocontroller.net/attachment/33905/Audio_Hilbert_WAR19.pdf">
 <li><a href="https://en.wikipedia.org/wiki/Analytic_signal">Analytic
 signal - Wikipedia</a></li>
 </ul>
-<h2 id="analytic-signal-の計算">Analytic Signal の計算</h2>
+<h2 id="analytic-signal-の計算"><a href="#analytic-signal-の計算"
+class="header-anchor" aria-hidden="true">Analytic Signal の計算</a></h2>
 <p>任意の信号 <span class="math inline">\(x\)</span> は FFT を使って
 analytic signal <span class="math inline">\(s\)</span>
 に変換できます。次の式は <a
@@ -468,7 +489,8 @@ Signals and Hilbert Transform Filters | Mathematics of the DFT</a></li>
 href="https://www.gaussianwaves.com/2017/04/analytic-signal-hilbert-transform-and-fft/">Analytic
 signal, Hilbert Transform and FFT – GaussianWaves</a></li>
 </ul>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>コードはPython3です。次のライブラリを使っています。</p>
 <ul>
 <li><a href="https://scipy.org/">SciPy, NumPy</a></li>
@@ -479,7 +501,8 @@ href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundfile</a></li>
 <ul>
 <li><a href="./frequencyshift.py">コードを読む</a></li>
 </ul>
-<h3 id="ヒルベルト変換">ヒルベルト変換</h3>
+<h3 id="ヒルベルト変換"><a href="#ヒルベルト変換" class="header-anchor"
+aria-hidden="true">ヒルベルト変換</a></h3>
 <p><code>scipy.signal.hilbert</code> を使います。</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
@@ -493,7 +516,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> naive(samplerate, sig, shift_hz<span class="op">=</span><span class="dv">1000</span>):</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frequency_shift(samplerate, signal.hilbert(wav), shift_hz)</span></code></pre></div>
-<h3 id="オールパスその1">オールパスその1</h3>
+<h3 id="オールパスその1"><a href="#オールパスその1"
+class="header-anchor" aria-hidden="true">オールパスその1</a></h3>
 <p><a href="http://yehar.com/blog/?p=368">Olli Niemitalo
 さんによって紹介されていたフィルタ</a>です。</p>
 <p>式の <span class="math inline">\(\times\)</span>
@@ -544,7 +568,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <li><a href="http://yehar.com/blog/?p=368">Hilbert transform «
 iki.fi/o</a></li>
 </ul>
-<h3 id="オールパスその2">オールパスその2</h3>
+<h3 id="オールパスその2"><a href="#オールパスその2"
+class="header-anchor" aria-hidden="true">オールパスその2</a></h3>
 <p><a
 href="https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer">IIR
 Hilbert Transformer</a> で Robby Wasabi
@@ -578,7 +603,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 href="https://dsp.stackexchange.com/questions/37411/iir-hilbert-transformer">transform
 - IIR Hilbert Transformer - Signal Processing Stack Exchange</a></li>
 </ul>
-<h3 id="オールパスその3">オールパスその3</h3>
+<h3 id="オールパスその3"><a href="#オールパスその3"
+class="header-anchor" aria-hidden="true">オールパスその3</a></h3>
 <p>Pure Data の <a
 href="https://github.com/pure-data/pure-data/blob/master/extra/hilbert%7E.pd"><code>hilbert~</code></a>
 で使われているフィルタです。コメントで Emmanuel Favreau さんが 1982
@@ -627,7 +653,8 @@ at master · olilarkin/OL-OWLPatches · GitHub</a></li>
 href="http://electro-music.com/forum/topic-69813.html">electro-music.com
 :: View topic - Hilbert transform code</a></li>
 </ul>
-<h3 id="オールパスその4">オールパスその4</h3>
+<h3 id="オールパスその4"><a href="#オールパスその4"
+class="header-anchor" aria-hidden="true">オールパスその4</a></h3>
 <p>Signal Processing Stack Exchange で Ross Wilkinson
 さんが紹介していたフィルタです。</p>
 <p>奇数の <span class="math inline">\(k\)</span> についてフィルタの零点
@@ -701,7 +728,8 @@ href="https://dsp.stackexchange.com/questions/8692/hilbert-transform-filter-for-
 transform filter for audio applications: Using IIR half-band parallel
 all pass structure - Signal Processing Stack Exchange</a></li>
 </ul>
-<h3 id="オールパスその5">オールパスその5</h3>
+<h3 id="オールパスその5"><a href="#オールパスその5"
+class="header-anchor" aria-hidden="true">オールパスその5</a></h3>
 <p><a
 href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Peter
 C. McNulty さんによって紹介されていたフィルタ</a>です。リンク先の Table
@@ -782,7 +810,8 @@ Wide Band Audio Phase Shift Networks</a></li>
 <li><a href="https://en.wikipedia.org/wiki/Ohm#Symbol">Ohm -
 Wikipedia</a></li>
 </ul>
-<h3 id="オールパスその6">オールパスその6</h3>
+<h3 id="オールパスその6"><a href="#オールパスその6"
+class="header-anchor" aria-hidden="true">オールパスその6</a></h3>
 <p>これも McNulty さんによって紹介されていたフィルタです。設計は Chuck
 さんによるそうです。</p>
 <p><span class="math display">\[
@@ -837,7 +866,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 href="https://web.archive.org/web/20180611174451/http://webpages.charter.net/wa1sov/technical/allpass/allpass.html">Analog
 Wide Band Audio Phase Shift Networks</a></li>
 </ul>
-<h2 id="音のサンプル">音のサンプル</h2>
+<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+aria-hidden="true">音のサンプル</a></h2>
 <p>次のようなコードで音をレンダリングしました。</p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> soundfile</span>
@@ -925,8 +955,10 @@ href="https://freesound.org/people/hemogREC/sounds/144467/">yey.wav</a>
 のフィルタは特性は問題ないのですが、うまく周波数シフトできていません。<a
 href="https://ccrma.stanford.edu/~jos/fp/Series_Second_Order_Sections.html">直列2次セクション</a>に変換するときに何か問題があるのかもしれません。
 Wasabi のフィルタもノイズがはっきりと聞き取れます。</p>
-<h2 id="その他">その他</h2>
-<h3 id="周波数特性の位相差">周波数特性の位相差</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="周波数特性の位相差"><a href="#周波数特性の位相差"
+class="header-anchor" aria-hidden="true">周波数特性の位相差</a></h3>
 <p>伝達関数の周波数特性は複素数で表されているので、位相差の計算 <span
 class="math inline">\(\angle (H_{\mathrm{Re}} /
 H_{\mathrm{Im}})\)</span>
@@ -938,8 +970,9 @@ z_2 = r_2 e^{j \phi_2}
 \]</span></p>
 <p>よって <span class="math inline">\(\angle (z_1 / z_2)\)</span> は
 <span class="math inline">\(\phi_1 - \phi_2\)</span> です。</p>
-<h3 id="scipy.signal-の-sos"><code>scipy.signal</code> の
-<code>sos</code></h3>
+<h3 id="scipy.signal-の-sos"><a href="#scipy.signal-の-sos"
+class="header-anchor" aria-hidden="true"><code>scipy.signal</code> の
+<code>sos</code></a></h3>
 <p><code>scipy.signal</code> で <code>sos</code> と略されている cascaded
 second-order sections のデータ構造です。</p>
 <div class="sourceCode" id="cb9"><pre
@@ -962,7 +995,9 @@ H(z) =
     {1 + a_{21} z^{-1} + a_{22} z^{-2}}
   \times \dots
 \]</span></p>
-<h3 id="pure-data-の-biquad">Pure Data の <code>biquad~</code></h3>
+<h3 id="pure-data-の-biquad"><a href="#pure-data-の-biquad"
+class="header-anchor" aria-hidden="true">Pure Data の
+<code>biquad~</code></a></h3>
 <p>Pure Data の <code>biquad~</code> の係数を移植するときは
 <code>fb</code> の符号を逆にしないと正しく動かないことがあります。</p>
 <p><code>biquad~</code> の引数です。</p>
@@ -983,7 +1018,9 @@ output = scipy.signal.sosfilt(sos_biquad, some_signal)</code></pre>
 href="http://www.pd-tutorial.com/english/ch03s03.html">Programming
 Electronic Music in Pd - 3.3 Subtractive synthesis</a></li>
 </ul>
-<h3 id="ピッチシフトと周波数シフト">ピッチシフトと周波数シフト</h3>
+<h3 id="ピッチシフトと周波数シフト"><a
+href="#ピッチシフトと周波数シフト" class="header-anchor"
+aria-hidden="true">ピッチシフトと周波数シフト</a></h3>
 <p><a href="http://music.fullbucket.de/freqshifter.html">full bucket
 music の Frequency Shifter</a>
 の説明文によるとピッチシフトと周波数シフトとは別物です。ピッチシフトは倍音構造が保持されますが、周波数シフトは倍音構造が崩れてしまうからです。</p>
@@ -991,7 +1028,8 @@ music の Frequency Shifter</a>
 ピッチシフトという呼び方を使っていましたが、今は AM
 周波数シフトという呼び方に変更しました。 URL が
 <code>am_pitchshift.html</code> となっているのはその名残です。</p>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/02/16
 <ul>

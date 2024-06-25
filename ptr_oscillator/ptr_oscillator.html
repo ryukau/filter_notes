@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>ptr_oscillator</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -373,13 +392,15 @@ id="toc-ステップ関数-1">ステップ関数</a></li>
 </nav>
 </details>
 </header>
-<h1 id="ptr-オシレータ">PTR オシレータ</h1>
+<h1 id="ptr-オシレータ"><a href="#ptr-オシレータ" class="header-anchor"
+aria-hidden="true">PTR オシレータ</a></h1>
 <p>Kleimola と Valimaki による <a
 href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing
 aliasing from synthetic audio signals using polynomial transition
 regions</a> で紹介されていた PTR
 という方法を使ったオシレータを試します。</p>
-<h2 id="概要">概要</h2>
+<h2 id="概要"><a href="#概要" class="header-anchor"
+aria-hidden="true">概要</a></h2>
 <p>PTR (Polynomial Transition Regions) は DPW (Differenciated Polynomial
 Waveform) という方法に基づいたオシレータの計算方法です。</p>
 <p>DPW と PTR
@@ -395,7 +416,8 @@ href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a>
 を使っています。</p>
 <p><a href="http://maxima.sourceforge.net/">Maxima</a> のコードは
 wxMaxima にコピペすれば動きます。</p>
-<h2 id="鋸歯波">鋸歯波</h2>
+<h2 id="鋸歯波"><a href="#鋸歯波" class="header-anchor"
+aria-hidden="true">鋸歯波</a></h2>
 <p>次の図は鋸歯波の <span class="math inline">\(f(x)\)</span> と PTR
 で計算する遷移領域のイメージ図です。</p>
 <figure>
@@ -700,7 +722,8 @@ class="math inline">\(h / T\)</span> を含む式を計算するコードを読�
 href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_saw.py">Python3
 で音をレンダリングするコードを読む (github.com)</a></li>
 </ul>
-<h2 id="三角波">三角波</h2>
+<h2 id="三角波"><a href="#三角波" class="header-anchor"
+aria-hidden="true">三角波</a></h2>
 <p><span class="math inline">\([-1, 1]\)</span> の範囲で 1
 周期分の三角波を生成する波形関数です。</p>
 <p><span class="math display">\[
@@ -791,7 +814,8 @@ c(N)\)</span> となるようです。</p>
 href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_tri.py">Python3
 で音をレンダリングするコードを読む (github.com)</a></li>
 </ul>
-<h2 id="ランプ関数">ランプ関数</h2>
+<h2 id="ランプ関数"><a href="#ランプ関数" class="header-anchor"
+aria-hidden="true">ランプ関数</a></h2>
 <p>積分定数を決められるように、少しずらした<a
 href="https://en.wikipedia.org/wiki/Ramp_function">ランプ関数</a>を使います。</p>
 <p><span class="math display">\[
@@ -876,7 +900,8 @@ class="math inline">\(c(N)\)</span> を使います。</p>
 href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_ramp.py">Python3
 で音をレンダリングするコードを読む (github.com)</a></li>
 </ul>
-<h2 id="ステップ関数">ステップ関数</h2>
+<h2 id="ステップ関数"><a href="#ステップ関数" class="header-anchor"
+aria-hidden="true">ステップ関数</a></h2>
 <p>ランプ関数を 1 階微分するとステップ関数になります。</p>
 <p><span class="math display">\[
 \begin{alignedat}{2}
@@ -898,7 +923,8 @@ x^3 + 12 x^2 + 8 x + 1\\
 href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_step.py">Python3
 で音をレンダリングするコードを読む (github.com)</a></li>
 </ul>
-<h2 id="レンダリングと結果">レンダリングと結果</h2>
+<h2 id="レンダリングと結果"><a href="#レンダリングと結果"
+class="header-anchor" aria-hidden="true">レンダリングと結果</a></h2>
 <p>PTR 論文では次数の区別に、 <span
 class="math inline">\(\nabla\)</span> による差分の回数 <span
 class="math inline">\(W = N - 1\)</span> を使っています。以下で使う
@@ -910,7 +936,8 @@ class="math inline">\(W\)</span> です。</p>
 href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/plot.py">プロットに使ったコード
 (github.com)</a></li>
 </ul>
-<h3 id="鋸歯波-1">鋸歯波</h3>
+<h3 id="鋸歯波-1"><a href="#鋸歯波-1" class="header-anchor"
+aria-hidden="true">鋸歯波</a></h3>
 <p>波形の比較です。</p>
 <figure>
 <img src="img/saw_waveform.png" alt="Image of PTR sawtooth waveform." style="width: 960px;padding-bottom: 12px;"/>
@@ -1097,7 +1124,8 @@ Synced Saw W = 10
 <source src="snd/PTRSawSync10.wav" type="audio/wav">
 </audio>
 </figure>
-<h3 id="三角波-1">三角波</h3>
+<h3 id="三角波-1"><a href="#三角波-1" class="header-anchor"
+aria-hidden="true">三角波</a></h3>
 <p>三角波のレンダリングは、次の図のように上りと下りの 2
 つの区間に分けて行いました。図の下側の矢印は位相を進める方向を表しています。</p>
 <figure>
@@ -1201,7 +1229,8 @@ Tri W = 10
 <source src="snd/PTRTri10.wav" type="audio/wav">
 </audio>
 </figure>
-<h3 id="ランプ関数-1">ランプ関数</h3>
+<h3 id="ランプ関数-1"><a href="#ランプ関数-1" class="header-anchor"
+aria-hidden="true">ランプ関数</a></h3>
 <p>ランプ関数は 4 つの区間に分けてレンダリングしました。</p>
 <figure>
 <img src="img/ramp_patch.svg" alt="Image of concatnation of ramp function PTR." style="width: 400px;padding-bottom: 12px;"/>
@@ -1306,7 +1335,8 @@ Ramp W = 10
 <source src="snd/PTRRamp10.wav" type="audio/wav">
 </audio>
 </figure>
-<h3 id="ステップ関数-1">ステップ関数</h3>
+<h3 id="ステップ関数-1"><a href="#ステップ関数-1" class="header-anchor"
+aria-hidden="true">ステップ関数</a></h3>
 <p>ステップ関数のレンダリングは三角波と同様です。</p>
 <figure>
 <img src="img/step_patch.svg" alt="Image of concatnation of step function PTR." style="width: 260px;padding-bottom: 12px;"/>
@@ -1408,7 +1438,8 @@ Step W = 10
 <source src="snd/PTRStep10.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>三角波、ランプ関数、ステップ関数のレンダリングのように、波形の 1
 周期で <span class="math inline">\(M\)</span> 個の PTR
 をつなぎ合わせると、周波数を高くしたときに 1 つの PTR
@@ -1438,7 +1469,8 @@ class="math inline">\(\hat{c}(N)\)</span> が紹介されています。</p>
 href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/format.py">式を
 Python3 と C++ のコードにフォーマットするコード (github.com)</a></li>
 </ul>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li>Jari Kleimola, and Vesa Valimaki. “<a
 href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing

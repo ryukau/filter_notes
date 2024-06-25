@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-05-06" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>gibbs</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-05-06
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -382,7 +401,8 @@ id="toc-gegenbauer-polynomial-を使う方法">Gegenbauer Polynomial
 </nav>
 </details>
 </header>
-<h1 id="ギブス現象を抑える">ギブス現象を抑える</h1>
+<h1 id="ギブス現象を抑える"><a href="#ギブス現象を抑える"
+class="header-anchor" aria-hidden="true">ギブス現象を抑える</a></h1>
 <p>Gottleib と Shu の論文 <a
 href="https://citeseerx.ist.psu.edu/document?repid=rep1&amp;type=pdf&amp;doi=0aa153451c7fadf37cc0d2d48659e5bca0dec2e1">“ON
 THE GIBBS PHENOMENON AND ITS RESOLUTION”</a> を基に<a
@@ -396,7 +416,8 @@ href="https://matplotlib.org/">matplotlib</a>
 <p><a
 href="https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py">コードを見る
 (github.com)</a></p>
-<h2 id="フィルタを使う方法">フィルタを使う方法</h2>
+<h2 id="フィルタを使う方法"><a href="#フィルタを使う方法"
+class="header-anchor" aria-hidden="true">フィルタを使う方法</a></h2>
 <p>Gottleib と Shu
 の論文で先行研究として紹介されていた方法です。ここではFIRフィルタとして実装します。</p>
 <p>フィルタを適用する部分を実装します。</p>
@@ -443,7 +464,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lanczosフィルタの適用例。</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>plotGibbsSuppression(<span class="dv">1024</span>, lanczos, <span class="dv">16</span>, <span class="dv">1</span>)</span></code></pre></div>
-<h3 id="次フィルタ">1 次フィルタ</h3>
+<h3 id="次フィルタ"><a href="#次フィルタ" class="header-anchor"
+aria-hidden="true">1 次フィルタ</a></h3>
 <p><span class="math display">\[
 \sigma_1(\eta) = 1 - \eta
 \]</span></p>
@@ -456,7 +478,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <figure>
 <img src="img/result_fejer.png" alt="Image of a result of fejer filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="lanczos-フィルタ">Lanczos フィルタ</h3>
+<h3 id="lanczos-フィルタ"><a href="#lanczos-フィルタ"
+class="header-anchor" aria-hidden="true">Lanczos フィルタ</a></h3>
 <p><span class="math display">\[
 \sigma_2(\eta) = \frac{\sin(\pi\eta)}{\pi\eta}
 \]</span></p>
@@ -468,7 +491,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <figure>
 <img src="img/result_lanczos.png" alt="Image of a result of lanczos filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="raised-cosine-フィルタ">Raised Cosine フィルタ</h3>
+<h3 id="raised-cosine-フィルタ"><a href="#raised-cosine-フィルタ"
+class="header-anchor" aria-hidden="true">Raised Cosine フィルタ</a></h3>
 <p><span class="math display">\[
 \sigma_3(\eta) = \frac{1}{2}(1 + \cos(\pi\eta))
 \]</span></p>
@@ -480,8 +504,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <figure>
 <img src="img/result_raisedCosine.png" alt="Image of a result of raised cosine filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="sharpened-raised-cosine-フィルタ">Sharpened Raised Cosine
-フィルタ</h3>
+<h3 id="sharpened-raised-cosine-フィルタ"><a
+href="#sharpened-raised-cosine-フィルタ" class="header-anchor"
+aria-hidden="true">Sharpened Raised Cosine フィルタ</a></h3>
 <p><span class="math display">\[
 \sigma_4(\eta) = \sigma_3^4(\eta)(35 - 84\sigma_3(\eta) +
 70\sigma_3^2(\eta) - 20\sigma_3^3(\eta))
@@ -495,7 +520,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <figure>
 <img src="img/result_sharpendRaisedCosine.png" alt="Image of a result of sharpened raised cosine filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="exponential-フィルタ">Exponential フィルタ</h3>
+<h3 id="exponential-フィルタ"><a href="#exponential-フィルタ"
+class="header-anchor" aria-hidden="true">Exponential フィルタ</a></h3>
 <p><span class="math display">\[
 \sigma_5(\eta) = e^{-\alpha\eta^p}
 \]</span></p>
@@ -507,7 +533,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <figure>
 <img src="img/result_exponential.png" alt="Image of a result of exponential filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="daubechies-フィルタ">Daubechies フィルタ</h3>
+<h3 id="daubechies-フィルタ"><a href="#daubechies-フィルタ"
+class="header-anchor" aria-hidden="true">Daubechies フィルタ</a></h3>
 <p><span class="math display">\[
 \sigma_6(\eta) = 1 - \frac{(2p-1)!}{(p-1)!^2} \int_0^{\eta}
 [t(1-t)]^{p-1} dt
@@ -528,8 +555,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <figure>
 <img src="img/result_daubechies4.png" alt="Image of a result of daubechies filter gibbs suppression." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
-<h2 id="gegenbauer-polynomial-を使う方法">Gegenbauer Polynomial
-を使う方法</h2>
+<h2 id="gegenbauer-polynomial-を使う方法"><a
+href="#gegenbauer-polynomial-を使う方法" class="header-anchor"
+aria-hidden="true">Gegenbauer Polynomial を使う方法</a></h2>
 <p>Gottleib と Shu
 の論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。ここでの解析的な形とは
 <span class="math inline">\(f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 +
@@ -663,7 +691,8 @@ Gegenbauer Polynomial を使う方法をそのまま使うことはできませ�
 では理論どおりにギブス現象の抑制に成功していると言えそうです。ただし今回選んだパラメータでは目に見える誤差が出ています。
 <span class="math inline">\(m\)</span>
 の値を大きくすれば誤差を減らすことができます。</p>
-<h3 id="問題点">問題点</h3>
+<h3 id="問題点"><a href="#問題点" class="header-anchor"
+aria-hidden="true">問題点</a></h3>
 <p><span class="math inline">\(\hat{g}_k^{\lambda}\)</span>
 を求める式の中にある <span class="math inline">\(f_N(x)\)</span> は
 <span class="math inline">\([-1, 1]\)</span>
@@ -674,7 +703,8 @@ class="math inline">\(m\)</span>
 <p><span class="math inline">\(\lambda\)</span> と <span
 class="math inline">\(m\)</span> が大きいと Gegenbauer Polynomial
 の計算でオーバーフローすることがあります。これが問題になるときは任意精度で実装するしかなさそうです。</p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>Gegenbauer polynomial を使う方法の <span
 class="math inline">\(m\)</span> を増やしていくことで、 Gegenbauer
 polynomial
@@ -684,7 +714,8 @@ href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tukey.ht
 窓</a>などを掛け合わせて抑える必要があります。また <span
 class="math inline">\(\lambda = 1\)</span>
 とすることで、ある程度はオーバーフローを避けることができます。</p>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/05/06
 <ul>

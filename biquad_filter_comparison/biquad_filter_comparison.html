@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>biquad_filter_comparison</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -372,7 +391,8 @@ id="toc-レゾナンスのゲイン">レゾナンスのゲイン</a></li>
 </nav>
 </details>
 </header>
-<h1 id="biquad-フィルタの比較">Biquad フィルタの比較</h1>
+<h1 id="biquad-フィルタの比較"><a href="#biquad-フィルタの比較"
+class="header-anchor" aria-hidden="true">Biquad フィルタの比較</a></h1>
 <p>以下の Biquad フィルタの実装を比較します。</p>
 <ol type="1">
 <li>Robert Bristow-Johnson (RBJ) さんによる<a
@@ -384,7 +404,8 @@ Art of VA Filter Design</a> の SVF。 Chapter 4 に詳細。</li>
 <p>ここでは 1 を RBJ フィルタ、 2 を TPT フィルタと呼ぶことにします。
 TPT は topology-preserving transform の略で、 The Art of VA Filter
 Design で紹介されているアナログフィルタの離散化の方法です。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>C++ 20 で実装します。標準ライブラリの <code>&lt;array&gt;</code>,
 <code>&lt;cmath&gt;</code>, <code>&lt;numbers&gt;</code>
 をインクルードしています。</p>
@@ -402,7 +423,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// `double` is used for accuracy.</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> y <span class="op">=</span> <span class="dt">double</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">-</span> <span class="bu">std::</span>cos<span class="op">(</span><span class="dt">double</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">);</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">-</span> <span class="bu">std::</span>cos<span class="op">(</span><span class="dt">double</span><span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">);</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    kp <span class="op">=</span> Sample<span class="op">(</span><span class="bu">std::</span>sqrt<span class="op">((</span>y <span class="op">+</span> <span class="dt">double</span><span class="op">(</span><span class="dv">2</span><span class="op">))</span> <span class="op">*</span> y<span class="op">)</span> <span class="op">-</span> y<span class="op">);</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
@@ -415,7 +436,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> push<span class="op">(</span>Sample newTarget <span class="op">=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> target <span class="op">=</span> newTarget<span class="op">;</span> <span class="op">}</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> Sample process<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> value <span class="op">+=</span> kp <span class="op">*</span> <span class="op">(</span>target <span class="op">-</span> value<span class="op">);</span> <span class="op">}</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h3 id="rbj-フィルタ">RBJ フィルタ</h3>
+<h3 id="rbj-フィルタ"><a href="#rbj-フィルタ" class="header-anchor"
+aria-hidden="true">RBJ フィルタ</a></h3>
 <p><a href="https://www.w3.org/TR/audio-eq-cookbook/">Audio EQ
 Cookbook</a> に基づいたローパスのみの実装例です。</p>
 <div class="sourceCode" id="cb2"><pre
@@ -431,7 +453,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#c
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>ExpSmoother<span class="op">&lt;</span>Sample<span class="op">&gt;,</span> <span class="dv">5</span><span class="op">&gt;</span> co<span class="op">;</span> <span class="co">// Coefficients {b0, b1, b2, -a1, -a2}.</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> <span class="bu">std::</span>string<span class="op"> </span>name<span class="op">{</span><span class="st">&quot;RbjBiquad&quot;</span><span class="op">};</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> <span class="bu">std::</span>string name<span class="op">{</span><span class="st">&quot;RbjBiquad&quot;</span><span class="op">};</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  RbjBiquad<span class="op">()</span></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
@@ -442,7 +464,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#c
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="pp">  </span><span class="co">/* normalizedFreq = cutoffHz / sampleRate. */</span><span class="pp">                                          </span><span class="op">\</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="pp">  </span><span class="dt">void</span><span class="pp"> </span>method<span class="op">##</span>Lowpass<span class="op">(</span>Sample<span class="pp"> </span>normalizedFreq<span class="op">,</span><span class="pp"> </span>Sample<span class="pp"> </span>Q<span class="op">)</span><span class="pp">                                  </span><span class="op">\</span></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="pp">  </span><span class="op">{</span><span class="pp">                                                                                      </span><span class="op">\</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span><span class="kw">auto</span><span class="pp"> </span>omega<span class="pp"> </span><span class="op">=</span><span class="pp"> </span><span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;</span><span class="pp"> </span><span class="op">*</span><span class="pp"> </span>Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span><span class="pp"> </span><span class="op">*</span><span class="pp"> </span>normalizedFreq<span class="op">;</span><span class="pp">                </span><span class="op">\</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span><span class="kw">auto</span><span class="pp"> </span>omega<span class="pp"> </span><span class="op">=</span><span class="pp"> </span><span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;</span><span class="pp"> </span><span class="op">*</span><span class="pp"> </span>Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span><span class="pp"> </span><span class="op">*</span><span class="pp"> </span>normalizedFreq<span class="op">;</span><span class="pp">                </span><span class="op">\</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span><span class="kw">auto</span><span class="pp"> </span>cos<span class="pp"> </span><span class="op">=</span><span class="pp"> </span><span class="bu">std::</span>cos<span class="op">(</span>omega<span class="op">);</span><span class="pp">                                                          </span><span class="op">\</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span><span class="kw">auto</span><span class="pp"> </span>sin<span class="pp"> </span><span class="op">=</span><span class="pp"> </span><span class="bu">std::</span>sin<span class="op">(</span>omega<span class="op">);</span><span class="pp">                                                          </span><span class="op">\</span></span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span><span class="kw">auto</span><span class="pp"> </span>alpha<span class="pp"> </span><span class="op">=</span><span class="pp"> </span>sin<span class="pp"> </span><span class="op">/</span><span class="pp"> </span><span class="op">(</span>Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span><span class="pp"> </span><span class="op">*</span><span class="pp"> </span>Q<span class="op">);</span><span class="pp">                                                  </span><span class="op">\</span></span>
@@ -504,7 +526,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#c
 <li><a
 href="https://github.com/ryukau/filter_notes/blob/3b830660c7a13fbb730ffd14e0a251fc53acdc54/biquad_filter_comparison/code/cpp/benchmark.cpp#L283-L377">RbjBiquadParallel</a></li>
 </ul>
-<h3 id="tpt-フィルタ">TPT フィルタ</h3>
+<h3 id="tpt-フィルタ"><a href="#tpt-フィルタ" class="header-anchor"
+aria-hidden="true">TPT フィルタ</a></h3>
 <p>The Art of VA Filter Design
 で紹介されている手法に基づいたローパスのみの実装例です。 <a
 href="https://github.com/grame-cncm/faustlibraries/blob/ea4fae33bb57357c7e2880c094079018bb4bd769/filters.lib#L2628-L2707">Faust
@@ -520,7 +543,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  Sample s2 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> <span class="bu">std::</span>string<span class="op"> </span>name<span class="op">{</span><span class="st">&quot;TptBiquad&quot;</span><span class="op">};</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> <span class="bu">std::</span>string name<span class="op">{</span><span class="st">&quot;TptBiquad&quot;</span><span class="op">};</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  TptBiquad<span class="op">()</span></span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
@@ -535,7 +558,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="pp">  </span><span class="co">/* normalizedFreq = cutoffHz / sampleRate. */</span><span class="pp">                                          </span><span class="op">\</span></span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="pp">  </span><span class="dt">void</span><span class="pp"> </span>method<span class="op">##</span>Coefficient<span class="op">(</span>Sample<span class="pp"> </span>normalizedFreq<span class="op">,</span><span class="pp"> </span>Sample<span class="pp"> </span>Q<span class="op">)</span><span class="pp">                              </span><span class="op">\</span></span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="pp">  </span><span class="op">{</span><span class="pp">                                                                                      </span><span class="op">\</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span>g<span class="op">.</span>method<span class="op">(</span><span class="bu">std::</span>tan<span class="op">(</span><span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;</span><span class="pp"> </span><span class="op">*</span>normalizedFreq<span class="op">));</span><span class="pp">                      </span><span class="op">\</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span>g<span class="op">.</span>method<span class="op">(</span><span class="bu">std::</span>tan<span class="op">(</span><span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;</span><span class="pp"> </span><span class="op">*</span>normalizedFreq<span class="op">));</span><span class="pp">                      </span><span class="op">\</span></span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span>R<span class="op">.</span>method<span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span><span class="pp"> </span><span class="op">/</span><span class="pp"> </span>Q<span class="op">);</span><span class="pp">                                                             </span><span class="op">\</span></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span>d<span class="op">.</span>method<span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span><span class="pp"> </span><span class="op">/</span><span class="pp"> </span><span class="op">(</span>Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span><span class="pp"> </span><span class="op">+</span><span class="pp"> </span>g<span class="op">.</span>target<span class="pp"> </span><span class="op">*</span><span class="pp"> </span>g<span class="op">.</span>target<span class="pp"> </span><span class="op">+</span><span class="pp"> </span>g<span class="op">.</span>target<span class="pp"> </span><span class="op">*</span><span class="pp"> </span>R<span class="op">.</span>target<span class="op">));</span><span class="pp">       </span><span class="op">\</span></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="pp">  </span><span class="op">}</span></span>
@@ -584,7 +607,8 @@ at master · ryukau/filter_notes · GitHub</a></li>
 href="https://github.com/ryukau/filter_notes/blob/master/biquad_filter_comparison/code/svf.py">filter_notes/biquad_filter_comparison/code/svf.py
 at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
-<h2 id="比較">比較</h2>
+<h2 id="比較"><a href="#比較" class="header-anchor"
+aria-hidden="true">比較</a></h2>
 <p>使い勝手については以下の違いがあります。</p>
 <ul>
 <li>RBJ フィルタはフィルタの種類によって係数の設定が異なるが、
@@ -718,8 +742,10 @@ href="https://learn.microsoft.com/en-us/cpp/parallel/auto-parallelization-and-au
 href="https://github.com/simd-everywhere/simde">simde</a> や <a
 href="https://github.com/vectorclass/version2">VCL</a>
 などのライブラリを通して間接的に書くしかなさそうです。</p>
-<h2 id="その他">その他</h2>
-<h3 id="butterworth-フィルタ">Butterworth フィルタ</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="butterworth-フィルタ"><a href="#butterworth-フィルタ"
+class="header-anchor" aria-hidden="true">Butterworth フィルタ</a></h3>
 <p>TPT フィルタのレゾナンスが <span class="math inline">\(R =
 \dfrac{1}{\sqrt{2}}\)</span> のとき Butterworth フィルタになります。</p>
 <p>Butterworth フィルタは maximally flat
@@ -727,7 +753,8 @@ href="https://github.com/vectorclass/version2">VCL</a>
 までの範囲の振幅特性が最も平坦となります。また、振幅特性が 1 倍
 (あるいは 0 dB)
 を超えない最大のレゾナンスが設定されたフィルタとも言えます。</p>
-<h3 id="レゾナンスのゲイン">レゾナンスのゲイン</h3>
+<h3 id="レゾナンスのゲイン"><a href="#レゾナンスのゲイン"
+class="header-anchor" aria-hidden="true">レゾナンスのゲイン</a></h3>
 <p>The Art of VA Filter Design (rev. 2.1.2) の 4.2 Resonance
 にローパスのレゾナンスが <span class="math inline">\(R\)</span>
 のときのゲイン <span class="math inline">\(A_{\mathrm{LP}}\)</span>
@@ -795,7 +822,8 @@ A_{\mathrm{HP}} = |H_{\mathrm{HP}}(\omega_{\mathrm{peak}})|
 &lt; \dfrac{1}{\sqrt{2}}.\\
 \end{align*}
 \]</span></p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a href="https://www.w3.org/TR/audio-eq-cookbook/">Audio EQ
 Cookbook</a></li>

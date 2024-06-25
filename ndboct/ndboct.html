@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>ndboct</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -364,8 +383,9 @@ id="toc-式を途中まで解く">式を途中まで解く</a></li>
 </nav>
 </details>
 </header>
-<h1 id="n-dboctのスロープを持つフィルタ">n
-dB/octのスロープを持つフィルタ</h1>
+<h1 id="n-dboctのスロープを持つフィルタ"><a
+href="#n-dboctのスロープを持つフィルタ" class="header-anchor"
+aria-hidden="true">n dB/octのスロープを持つフィルタ</a></h1>
 <p>n dB/oct のスロープを持つフィルタを設計します。</p>
 <figure>
 <img src="img/fir_filter_n_dB_oct.png" alt="Image of the filter with n dB/oct slope." style="width: 300px; padding-bottom: 12px;"/>
@@ -383,7 +403,9 @@ A(\omega) &amp;=
 M &amp;= {{\,n}\over{20}}\log_2 10
 \end{aligned}
 \]</span></p>
-<h2 id="逆離散フーリエ変換を使う方法">逆離散フーリエ変換を使う方法</h2>
+<h2 id="逆離散フーリエ変換を使う方法"><a
+href="#逆離散フーリエ変換を使う方法" class="header-anchor"
+aria-hidden="true">逆離散フーリエ変換を使う方法</a></h2>
 <p><a
 href="https://en.wikipedia.org/wiki/Discrete_Fourier_transform">逆離散フーリエ変換（IDFT）</a>を使って楽に設計します。</p>
 <p>コードを順番にPython3のインタープリタにコピペしていけば動作します。別ページでまとめて見ることもできます。</p>
@@ -508,7 +530,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <figure>
 <img src="img/n_dB_oct_noise_and_filtered_response.png" alt="Image of frequency response of the filter." style="width: 612px;"/>
 </figure>
-<h2 id="式を途中まで解く">式を途中まで解く</h2>
+<h2 id="式を途中まで解く"><a href="#式を途中まで解く"
+class="header-anchor" aria-hidden="true">式を途中まで解く</a></h2>
 <p><a
 href="https://math.stackexchange.com/questions/935405/what-s-the-difference-between-analytical-and-numerical-approaches-to-problems">解析解</a>について調べます。</p>
 <p>問題を再掲します。</p>
@@ -605,7 +628,8 @@ dt
 \]</span></p>
 <p><a
 href="https://en.wikipedia.org/wiki/Line_integral#Complex_line_integral">複素数の線積分</a>に見えます。</p>
-<h2 id="参考サイト">参考サイト</h2>
+<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+aria-hidden="true">参考サイト</a></h2>
 <ul>
 <li><a
 href="http://maxima.sourceforge.net/docs/manual/maxima_11.html#declare">Maxima

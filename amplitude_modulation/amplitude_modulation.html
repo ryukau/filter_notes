@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-02-18" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>amplitude_modulation</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-02-18
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -372,10 +391,13 @@ id="toc-アンチエイリアシング">アンチエイリアシング</a>
 </nav>
 </details>
 </header>
-<h1 id="am-のアンチエイリアシング">AM のアンチエイリアシング</h1>
+<h1 id="am-のアンチエイリアシング"><a href="#am-のアンチエイリアシング"
+class="header-anchor" aria-hidden="true">AM
+のアンチエイリアシング</a></h1>
 <p>AM (amplitude modulation)
 のアンチエイリアシングを行います。入力信号は音声です。</p>
-<h2 id="略称">略称</h2>
+<h2 id="略称"><a href="#略称" class="header-anchor"
+aria-hidden="true">略称</a></h2>
 <ul>
 <li>振幅変調 -&gt; AM (amplitude modulation)</li>
 <li>両側波帯 -&gt; DSB (double side-band)</li>
@@ -384,7 +406,8 @@ id="toc-アンチエイリアシング">アンチエイリアシング</a>
 <li>下側波帯 -&gt; LSB (lower side-band)</li>
 </ul>
 <p>両側波帯は素朴な AM と等価。</p>
-<h2 id="素朴な-am">素朴な AM</h2>
+<h2 id="素朴な-am"><a href="#素朴な-am" class="header-anchor"
+aria-hidden="true">素朴な AM</a></h2>
 <p>以下は素朴な AM のブロック線図です。</p>
 <figure>
 <img src="img/am.svg" alt="Block diagram of amplitude modulation." style="width: 32rem;padding-bottom: 12px;"/>
@@ -439,7 +462,8 @@ y(t) = B x_c(t) + \frac{m}{2} \Big( U(t) + L(t) \Big).
 \]</span></p>
 <p>素朴な AM
 は、以下で紹介するシングルサイドバンドと区別するために、ダブルサイドバンドと呼ばれることがあります。</p>
-<h2 id="シングルサイドバンド">シングルサイドバンド</h2>
+<h2 id="シングルサイドバンド"><a href="#シングルサイドバンド"
+class="header-anchor" aria-hidden="true">シングルサイドバンド</a></h2>
 <p>キャリアとモジュレータを <a
 href="https://en.wikipedia.org/wiki/Analytic_signal">analytic signal</a>
 に変換できれば上側波帯あるいは下側波帯のみを取り出すことができます。
@@ -508,7 +532,8 @@ href="https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba
 href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/4c1fd63413b2626fd4cd0f224029c45d9cfbc8e7/common/dsp/analyticsignalfilter.js#L85-L102">JavaScript
 によるシングルサイドバンド AM の実装 (github.com)</a></li>
 </ul>
-<h2 id="アンチエイリアシング">アンチエイリアシング</h2>
+<h2 id="アンチエイリアシング"><a href="#アンチエイリアシング"
+class="header-anchor" aria-hidden="true">アンチエイリアシング</a></h2>
 <p>音声信号は直流からナイキスト周波数までの全帯域が使われることが普通です。したがって
 AM をかけると全帯域に渡るエイリアシングが起きます。</p>
 <p>以下は処理の各段階で現れる信号の周波数帯を示した図です。ここでのアンチエイリアシングは
@@ -520,7 +545,8 @@ href="https://numpy.org/doc/stable/reference/generated/numpy.fft.rfft.html"><cod
 <figure>
 <img src="img/sideband_range.svg" alt="" style="width: 42rem;padding-bottom: 12px;"/>
 </figure>
-<h4 id="上側波帯">上側波帯</h4>
+<h4 id="上側波帯"><a href="#上側波帯" class="header-anchor"
+aria-hidden="true">上側波帯</a></h4>
 <p>上側波帯は 1.5
 倍のアップサンプリングを行った後に変調することでアンチエイリアシングができます。以下の図の
 <span class="math inline">\(\dfrac{3}{4} f_s\)</span> が 1.5
@@ -551,7 +577,8 @@ href="https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_
 href="https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba075fdf2472d6a1a/AmplitudeModulator/dsp/am.hpp#L366-L390">C++
 による USB-AM の実装 (github.com)</a></li>
 </ul>
-<h4 id="下側波帯">下側波帯</h4>
+<h4 id="下側波帯"><a href="#下側波帯" class="header-anchor"
+aria-hidden="true">下側波帯</a></h4>
 <p>下側波帯は以下の手順でアンチエイリアシングができます。 <span
 class="math inline">\(f_N\)</span>
 は元の信号のナイキスト周波数です。</p>
@@ -613,7 +640,8 @@ href="https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba
 に設定することでフォールオフを急峻にしています。人間の聴覚は低い周波数の解像度がいいので、低減の開始が
 20 Hz 前後、折り返しは 100 Hz
 以下でストップバンドゲインに到達するように設計しました。</p>
-<h4 id="素朴な-am-1">素朴な AM</h4>
+<h4 id="素朴な-am-1"><a href="#素朴な-am-1" class="header-anchor"
+aria-hidden="true">素朴な AM</a></h4>
 <p>素朴な AM
 は以下の手順でアンチエイリアシングができます。上側波帯と下側波帯が両方出るのでアップサンプリングの倍率を
 3
@@ -655,7 +683,8 @@ href="https://github.com/ryukau/UhhyouPluginsJuce/blob/de064bf68c1a7080251cad3ba
 href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/4c1fd63413b2626fd4cd0f224029c45d9cfbc8e7/common/dsp/analyticsignalfilter.js#L123-L279">JavaScript
 による AM アンチエイリアシングの実装 (github.com)</a></li>
 </ul>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>以下にリンクした GitHub のリポジトリで AM
 のアンチエイリアシングを実装した AmplitudeModulator
 というプラグインのソースコードを配布しています。</p>
@@ -664,7 +693,8 @@ href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/4c1fd63413b2626fd4cd0
 href="https://github.com/ryukau/UhhyouPluginsJuce/tree/main">GitHub -
 ryukau/UhhyouPluginsJuce: Audio plugins.</a></li>
 </ul>
-<h2 id="参考サイト">参考サイト</h2>
+<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+aria-hidden="true">参考サイト</a></h2>
 <ul>
 <li><a
 href="https://en.wikipedia.org/wiki/Amplitude_modulation">Amplitude
@@ -673,7 +703,8 @@ modulation - Wikipedia</a></li>
 href="https://en.wikipedia.org/wiki/Single-sideband_modulation">Single-sideband
 modulation - Wikipedia</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/02/18
 <ul>

@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-04-10" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>polynomial_oscillator</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-04-10
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -381,7 +400,8 @@ id="toc-符号なし整数-ビットマスク">符号なし整数 + ビットマ
 </nav>
 </details>
 </header>
-<h1 id="多項式オシレータ">多項式オシレータ</h1>
+<h1 id="多項式オシレータ"><a href="#多項式オシレータ"
+class="header-anchor" aria-hidden="true">多項式オシレータ</a></h1>
 <p><a
 href="https://ryukau.github.io/UhhyouWebSynthesizers/GlitchSprinkler/synth.html">GlitchSprinkler</a>
 と <a
@@ -819,7 +839,8 @@ class WaveformXYPad {
 
 const xypad = new WaveformXYPad(document.body, 384, 192, "Polynomial Waveform", 9, () => {});
 </script>
-<h2 id="オシレータの仕様">オシレータの仕様</h2>
+<h2 id="オシレータの仕様"><a href="#オシレータの仕様"
+class="header-anchor" aria-hidden="true">オシレータの仕様</a></h2>
 <p>楽に速く計算したいので以下のように仕様を定めます。</p>
 <p>多項式から波形を取り出す範囲を <span class="math inline">\([0,
 1)\)</span>
@@ -829,8 +850,9 @@ href="#位相の計算">その他 -&gt; 位相の計算</a>」を参照してく
 となり、計算量が減ります。</p>
 <p>多項式はユーザが指定した <span class="math inline">\(k\)</span>
 個の制御点を通過します。言い換えると、制御点によってユーザが波形を変更できるようにします。</p>
-<h2
-id="指定された制御点を通る多項式の近似">指定された制御点を通る多項式の近似</h2>
+<h2 id="指定された制御点を通る多項式の近似"><a
+href="#指定された制御点を通る多項式の近似" class="header-anchor"
+aria-hidden="true">指定された制御点を通る多項式の近似</a></h2>
 <p>以下は <span class="math inline">\(k\)</span>
 個の制御点があるときに使える多項式です。</p>
 <p><span class="math display">\[
@@ -914,7 +936,8 @@ IntegerArpeggio で使用した、JavaScript
 href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/614b81f85c0a99f4a44a169003f890d29825d0ba/IntegerArpeggio/waveformxypad.js#L10-L59"
 class="uri">https://github.com/ryukau/UhhyouWebSynthesizers/blob/614b81f85c0a99f4a44a169003f890d29825d0ba/IntegerArpeggio/waveformxypad.js#L10-L59</a></li>
 </ul>
-<h2 id="振幅の正規化">振幅の正規化</h2>
+<h2 id="振幅の正規化"><a href="#振幅の正規化" class="header-anchor"
+aria-hidden="true">振幅の正規化</a></h2>
 <p>以下の条件を満たすゲイン <span class="math inline">\(g\)</span>
 を求めて最大振幅を 1 に正規化します。</p>
 <p><span class="math display">\[
@@ -999,18 +1022,22 @@ class="uri">https://github.com/ryukau/UhhyouWebSynthesizers/blob/58ecdb1bb85ee57
 </ul>
 <p>関数 <span class="math inline">\(P&#39;(x)\)</span>
 はごく普通の多項式であり、特に精度が必要な応用でもないので、二分探索よりもニュートン法のほうが適しているかもしれません。</p>
-<h2 id="その他">その他</h2>
-<h3 id="位相の計算">位相の計算</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="位相の計算"><a href="#位相の計算" class="header-anchor"
+aria-hidden="true">位相の計算</a></h3>
 <p>オシレータの位相の計算は様々なバリエーションがあるのでまとめておきます。コードは
 C++ です。</p>
-<h4 id="floor"><code>floor</code></h4>
+<h4 id="floor"><a href="#floor" class="header-anchor"
+aria-hidden="true"><code>floor</code></a></h4>
 <p>おすすめの方法です。 <code>floor</code> を使う利点は
 <code>phase</code> が負の値になっても <code>[0, 1)</code>
 の範囲に丸められることです。</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>phase <span class="op">-=</span> <span class="bu">std::</span>floor<span class="op">(</span>phase<span class="op">);</span></span></code></pre></div>
-<h4 id="fmod"><code>fmod</code></h4>
+<h4 id="fmod"><a href="#fmod" class="header-anchor"
+aria-hidden="true"><code>fmod</code></a></h4>
 <p><a
 href="https://en.cppreference.com/w/cpp/numeric/math/fmod"><code>std::fmod</code></a>
 の利点は位相の範囲の上限を任意に設定できることです。欠点は割られる数 (1
@@ -1039,7 +1066,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> frequencyHz <span class="op">/</span> sampleRateHz<span class="op">;</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>phase <span class="op">-=</span> <span class="bu">std::</span>floor<span class="op">(</span>phase<span class="op">);</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>twoPi <span class="op">*</span> phase<span class="op">);</span></span></code></pre></div>
-<h4 id="if-または-while"><code>if</code> または <code>while</code></h4>
+<h4 id="if-または-while"><a href="#if-または-while"
+class="header-anchor" aria-hidden="true"><code>if</code> または
+<code>while</code></a></h4>
 <p>位相の値が上限を超えたときに分岐を設ける方法があります。</p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>phase <span class="op">+=</span> <span class="bu">std::</span>clamp<span class="op">(</span>frequencyHz <span class="op">/</span> sampleRateHz<span class="op">,</span> <span class="dt">float</span><span class="op">(</span><span class="dv">0</span><span class="op">),</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.5</span><span class="op">));</span></span>
@@ -1051,11 +1080,13 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>phase <span class="op">&gt;=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">))</span> phase <span class="op">-=</span> <span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span></code></pre></div>
 <p><code>while</code> を使う方法は <code>frequencyHz</code>
 の大きさに比例して計算量が増えるので、使わないでください。似たようなコードを見たことがあるので一応紹介しています。</p>
-<h4 id="remainder"><code>remainder</code></h4>
+<h4 id="remainder"><a href="#remainder" class="header-anchor"
+aria-hidden="true"><code>remainder</code></a></h4>
 <p><a
 href="https://en.cppreference.com/w/cpp/numeric/math/remainder"><code>std::remainder</code></a>
 は引数が両方とも正の値のとき、出力が負の値となるので位相の回転には不適です。</p>
-<h4 id="符号なし整数">符号なし整数</h4>
+<h4 id="符号なし整数"><a href="#符号なし整数" class="header-anchor"
+aria-hidden="true">符号なし整数</a></h4>
 <p>符号なし整数を使えば丸めの処理はコンパイラが何とかしてくれます。 DSP
 のコードがすべて整数演算なら高速です。浮動小数点数を使っているときはキャストやスケーリングが入るので速度面での利点は微妙です。</p>
 <div class="sourceCode" id="cb5"><pre
@@ -1068,7 +1099,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <p>標準ライブラリの <a
 href="https://en.cppreference.com/w/cpp/header/cinttypes"><code>&lt;cinttypes&gt;</code></a>
 に様々な大きさの整数が定義されています。</p>
-<h4 id="符号なし整数-ビットマスク">符号なし整数 + ビットマスク</h4>
+<h4 id="符号なし整数-ビットマスク"><a href="#符号なし整数-ビットマスク"
+class="header-anchor" aria-hidden="true">符号なし整数 +
+ビットマスク</a></h4>
 <p>波形をルックアップテーブルから読み出すときは符号なし整数とビットマスクを組み合わせる実装があります。ただし、ルックアップテーブルの長さは
 2^n に制限されます。</p>
 <div class="sourceCode" id="cb6"><pre
@@ -1079,7 +1112,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用例。</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>output <span class="op">=</span> wavetable<span class="op">[</span>phase<span class="op">];</span></span></code></pre></div>
-<h4 id="固定小数点数">固定小数点数</h4>
+<h4 id="固定小数点数"><a href="#固定小数点数" class="header-anchor"
+aria-hidden="true">固定小数点数</a></h4>
 <p>以下は前述の <code>floor</code>
 による位相の回転を固定小数点数で実装した例です。</p>
 <div class="sourceCode" id="cb7"><pre
@@ -1115,7 +1149,8 @@ fpm のようなライブラリを使うことを推奨します。</p>
 <li><a href="https://github.com/MikeLankamp/fpm">GitHub -
 MikeLankamp/fpm: C++ header-only fixed-point math library</a></li>
 </ul>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a
 href="https://nextjournal.com/zorn/fast-fixed-point-sine-and-cosine-approximation-with-julia">Fast
@@ -1136,7 +1171,8 @@ DSP Library Programmer’s Reference (Rev. B) - spru565b.pdf</a></li>
 href="https://web.archive.org/web/20171104105632/http://infocenter.arm.com/help/topic/com.arm.doc.dui0066g/DUI0066.pdf">Wayback
 Machine</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/04/10
 <ul>

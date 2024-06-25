@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>pitch_estimation</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -396,7 +415,8 @@ id="toc-どの手法がいいのか">どの手法がいいのか</a></li>
 </nav>
 </details>
 </header>
-<h1 id="単音からのピッチ推定">単音からのピッチ推定</h1>
+<h1 id="単音からのピッチ推定"><a href="#単音からのピッチ推定"
+class="header-anchor" aria-hidden="true">単音からのピッチ推定</a></h1>
 <p>クラスタリングの特徴量として使うために単音からのピッチ推定を実装します。ここでのピッチとは音の<a
 href="https://en.wikipedia.org/wiki/Fundamental_frequency">基本周波数</a>を指しています。</p>
 <p>Python3のライブラリを探したところ、<a
@@ -408,16 +428,18 @@ href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf"
 pitch method (MPM)</a> を見つけました。</p>
 <p>ここでは YIN と MPM を実装して評価します。 MPM という呼び方は sevagh
 さんにならっています。</p>
-<h2 id="yin">YIN</h2>
+<h2 id="yin"><a href="#yin" class="header-anchor"
+aria-hidden="true">YIN</a></h2>
 <p>YINの処理の流れは次のようになります。</p>
 <ol type="1">
 <li>Cumulative mean normalized difference の計算。</li>
 <li>配列の頭からしきい値以下の局所最小点を探してインデックスを取得。</li>
 <li>取得したインデックスからピッチを計算。</li>
 </ol>
-<h3
-id="cumulative-mean-normalized-difference-function-の定義">Cumulative
-Mean Normalized Difference Function の定義</h3>
+<h3 id="cumulative-mean-normalized-difference-function-の定義"><a
+href="#cumulative-mean-normalized-difference-function-の定義"
+class="header-anchor" aria-hidden="true">Cumulative Mean Normalized
+Difference Function の定義</a></h3>
 <p>Cumulative mean normalized difference
 は次のように定義されています。式中の <span
 class="math inline">\(x[i]\)</span> は配列 <span
@@ -480,7 +502,8 @@ type II の自己相関の計算では <span class="math inline">\(x\)</span>
 のインデックスが <span class="math inline">\([0, N - 1]\)</span>
 の範囲外のとき <span class="math inline">\(x\)</span>
 の値を0としています。</p>
-<h3 id="自己相関の計算">自己相関の計算</h3>
+<h3 id="自己相関の計算"><a href="#自己相関の計算" class="header-anchor"
+aria-hidden="true">自己相関の計算</a></h3>
 <p>自己相関は相互相関の特殊な場合です。相互相関関数 <span
 class="math inline">\(C\)</span> は次のように定義できます。</p>
 <p><span class="math display">\[
@@ -536,7 +559,9 @@ href="http://www.aip.de/groups/soe/local/numres/bookcpdf/c13-2.pdf">NUMERICAL
 RECIPES IN C, c13-2 Correlation and Autocorrelation Using the
 FFT</a></li>
 </ul>
-<h3 id="difference-function-の変形">Difference Function の変形</h3>
+<h3 id="difference-function-の変形"><a
+href="#difference-function-の変形" class="header-anchor"
+aria-hidden="true">Difference Function の変形</a></h3>
 <p>YINの論文では type I の自己相関関数を使った difference function
 だけを扱っています。ここでは type II も試します。</p>
 <p>Difference function を再掲します。</p>
@@ -630,7 +655,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <figure>
 <img src="img/diff.png" alt="Image of plot of difference and cumulative mean normalized difference of sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="周期の探索とピッチの計算">周期の探索とピッチの計算</h3>
+<h3 id="周期の探索とピッチの計算"><a href="#周期の探索とピッチの計算"
+class="header-anchor"
+aria-hidden="true">周期の探索とピッチの計算</a></h3>
 <p>論文ではしきい値以下の局所最小点のインデックスを探すステップを
 absolute threshold と呼んでいます。探索は cumulative mean normalized
 difference
@@ -720,7 +747,8 @@ type I で 67.9Hz 、 type II で 66.3Hz となりました。</p>
 href="http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html">Parabolic
 Interpolation</a></li>
 </ul>
-<h2 id="mcleod-pitch-method">McLeod Pitch Method</h2>
+<h2 id="mcleod-pitch-method"><a href="#mcleod-pitch-method"
+class="header-anchor" aria-hidden="true">McLeod Pitch Method</a></h2>
 <p><a
 href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">McLeod
 Pitch Method (MPM)</a> は type II
@@ -731,8 +759,10 @@ Pitch Method (MPM)</a> は type II
 <li>NSDF から周期を表す局所最大点のインデックスを推定。</li>
 <li>取得したインデックスからピッチを計算。</li>
 </ol>
-<h3 id="normalized-square-difference-function-の計算">Normalized Square
-Difference Function の計算</h3>
+<h3 id="normalized-square-difference-function-の計算"><a
+href="#normalized-square-difference-function-の計算"
+class="header-anchor" aria-hidden="true">Normalized Square Difference
+Function の計算</a></h3>
 <p>MPM の square difference function はYINの difference function
 と同じです。</p>
 <p><span class="math display">\[
@@ -784,7 +814,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    cumsum <span class="op">=</span> (sig <span class="op">*</span> sig)[::<span class="op">-</span><span class="dv">1</span>].cumsum()[::<span class="op">-</span><span class="dv">1</span>]</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    cumsum[cumsum <span class="op">&lt;</span> <span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span>  <span class="co"># 発散を防ぐ。</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> corr <span class="op">/</span> (corr[<span class="dv">0</span>] <span class="op">+</span> cumsum)  <span class="co"># 後で値の比率しか使わないので係数2を省略。</span></span></code></pre></div>
-<h3 id="周期の探索">周期の探索</h3>
+<h3 id="周期の探索"><a href="#周期の探索" class="header-anchor"
+aria-hidden="true">周期の探索</a></h3>
 <p>MPM では normalized square difference の局所最大点を探索します。 MPM
 での局所最大点とは、負から正になる一つのゼロクロス点と、それに続く正から負になるゼロクロス点の間の区間で、信号が最大になる点のことをいいます。</p>
 <p>以下は探索の手順です。</p>
@@ -842,7 +873,8 @@ type I で 67.5Hz 、 type II で 66.1Hz となりました。</p>
 <figure>
 <img src="img/mpm.png" alt="Image of plot of MPM pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="yinとmpmの組み合わせ">YINとMPMの組み合わせ</h2>
+<h2 id="yinとmpmの組み合わせ"><a href="#yinとmpmの組み合わせ"
+class="header-anchor" aria-hidden="true">YINとMPMの組み合わせ</a></h2>
 <p>8通りの手法の組み合わせが考えられます。名前が長いので cumulative mean
 normalized difference を CMND 、 normalized square difference を NSD
 と省略します。</p>
@@ -906,7 +938,8 @@ normalized difference を CMND 、 normalized square difference を NSD
 </tr>
 </tbody>
 </table>
-<h3 id="yin-nsd">YIN-NSD</h3>
+<h3 id="yin-nsd"><a href="#yin-nsd" class="header-anchor"
+aria-hidden="true">YIN-NSD</a></h3>
 <p>YIN の周期の探索でピッチを推定できるように NSD を加工します。</p>
 <p>NSD では信号のピッチが局所最大点として表されていますが YIN
 の周期の探索では局所最小点を見つけます。そこでまずは NSD
@@ -952,7 +985,8 @@ type I で 67.5Hz 、 type II で 66.1Hz となりました。</p>
 <figure>
 <img src="img/yin_nsd.png" alt="Image of plot of YIN-NSD pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="mpm-cmnd">MPM-CMND</h3>
+<h3 id="mpm-cmnd"><a href="#mpm-cmnd" class="header-anchor"
+aria-hidden="true">MPM-CMND</a></h3>
 <p>MPM の周期の探索でピッチを推定できるように CMND を加工します。</p>
 <p>CMND では信号のピッチが局所最小点として表されていますが MPM
 の周期の探索では局所最大点を見つけます。そこでまずは CMND
@@ -985,7 +1019,8 @@ type I で 67.9Hz 、 type II で 66.3Hz となりました。</p>
 <figure>
 <img src="img/mpm_cmnd.png" alt="Image of plot of MPM-CMND pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="評価">評価</h2>
+<h2 id="評価"><a href="#評価" class="header-anchor"
+aria-hidden="true">評価</a></h2>
 <p>ここまでは一つの信号から一つのピッチを推定していました。ここから行うピッチ推定の評価では一つの信号を複数のフレームに分割して、それぞれのフレームから一つずつピッチを推定します。</p>
 <p>実装では <code>python_speech_features.sigproc.framesig</code>
 を使っています。フレームはオーバーラップすることがあります。信号の長さを超えることはありません。</p>
@@ -1011,7 +1046,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>true_cent <span class="op">=</span> hz_to_cent(true_value)</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>data_cent <span class="op">=</span> hz_to_cent(data)</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>mae <span class="op">=</span> mean_absolute_error(true_cent, data_cent)</span></code></pre></div>
-<h3 id="サイン波">サイン波</h3>
+<h3 id="サイン波"><a href="#サイン波" class="header-anchor"
+aria-hidden="true">サイン波</a></h3>
 <p>周波数が一定のサイン波を入力信号としたときの平均絶対誤差です。</p>
 <p>サイン波は次の条件で生成しました。</p>
 <div class="sourceCode" id="cb10"><pre
@@ -1050,7 +1086,8 @@ href="plot_gallery_pitch_estimation.html#サイン波">プロットギャラリ�
 <p>YIN-CMND type I
 は低周波域での誤差が大きく、全体の平均を押し上げています。</p>
 <p>全体的に type I よりも type II のほうが誤差が低くなっています。</p>
-<h3 id="ノイズを加えたサイン波">ノイズを加えたサイン波</h3>
+<h3 id="ノイズを加えたサイン波"><a href="#ノイズを加えたサイン波"
+class="header-anchor" aria-hidden="true">ノイズを加えたサイン波</a></h3>
 <p>サイン波にノイズを加えたときでもピッチが推定できるか試します。</p>
 <div class="sourceCode" id="cb11"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_sin_with_noise(duration, samplerate, frequency, noise_ratio):</span>
@@ -1092,7 +1129,8 @@ href="plot_gallery_pitch_estimation.html#ノイズを加えたサイン波">プ�
 <p>それ以外の手法ではノイズの比率が大きいときでは <code>nan</code>
 が出ますが NSD type II
 のように全体の平均を大きく変えるような誤差は出ていません。</p>
-<h3 id="am変調とfm変調">AM変調とFM変調</h3>
+<h3 id="am変調とfm変調"><a href="#am変調とfm変調" class="header-anchor"
+aria-hidden="true">AM変調とFM変調</a></h3>
 <p>信号は次のように生成しました。</p>
 <div class="sourceCode" id="cb13"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_sin_am(duration, samplerate, car_freq, mod_freq):</span>
@@ -1150,7 +1188,8 @@ Video of pitch estimation to sin AM signal.
 Video of pitch estimation to sin FM signal.
 </p>
 </video>
-<h2 id="どの手法がいいのか">どの手法がいいのか</h2>
+<h2 id="どの手法がいいのか"><a href="#どの手法がいいのか"
+class="header-anchor" aria-hidden="true">どの手法がいいのか</a></h2>
 <p>評価が適当なので、この手法がいいというはっきりした結果は出ませんでした。</p>
 <p>YIN-CMND type I
 はピッチの推定に失敗するとフレームの長さと同じ周期を推定する癖があるようです。</p>
@@ -1164,14 +1203,16 @@ YIN の周期の探索が原因だと思われます。</p>
 よりも低周波域での推定に失敗しやすいようですが、ピッチが高めに推定されることが少ないように見えます。</p>
 <p>MPM-NSD type I
 は動画では目立たかなったので特徴がつかめませんでした。</p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>条件の良いときは CMND type II
 の誤差がもっとも少なくなります。クラスタリングの特徴としてはとりあえずこれを使うことにします。</p>
 <p>実用的なピッチ推定については YIN-NSD type II か MPM-NSD type II
 がいいと思います。入力信号のフィルタリング、 NSD
 に窓をかける、しきい値や定数 <span class="math inline">\(k\)</span>
 の調整といったところで改善が見込めます。</p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a
 href="http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf">2002_JASA_YIN.pdf</a></li>

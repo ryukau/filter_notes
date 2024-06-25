@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>linear_envelope</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -341,7 +360,7 @@ span.math.inline a {
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -374,10 +393,13 @@ id="toc-リリース中のノートオン">リリース中のノートオン</a>
 </nav>
 </details>
 </header>
-<h1 id="直線の-adsr-エンベロープ">直線の ADSR エンベロープ</h1>
+<h1 id="直線の-adsr-エンベロープ"><a href="#直線の-adsr-エンベロープ"
+class="header-anchor" aria-hidden="true">直線の ADSR
+エンベロープ</a></h1>
 <p>シンセサイザに使う直線を組み合わせた ADSR
 エンベロープを実装します。計算はシンプルですが、場合分けの塊なのでテストのポイントをまとめています。</p>
-<h2 id="adsr-エンベロープ">ADSR エンベロープ</h2>
+<h2 id="adsr-エンベロープ"><a href="#adsr-エンベロープ"
+class="header-anchor" aria-hidden="true">ADSR エンベロープ</a></h2>
 <p>シンセサイザでよく使われるエンベロープは、トリガされると low から
 high に向かって増加したあと high から low
 に向かって減少するような信号を出力します。例えばエンベロープの出力をオシレータの出力やサンプルデータと掛け合わせることで音量の変化を作ることができます。</p>
@@ -393,7 +415,8 @@ high からサステインの値までの減衰にかかる時間です。</p>
 <p>サステインは、ディケイの終わりから指が鍵盤が離される(ノートオフ)までの区間ですが、ユーザが操作するパラメータとしてはその区間でエンベロープが出力する値の大きさになっています。</p>
 <p>リリースはノートオフの後、エンベロープが low
 まで減衰するのにかかる時間です。アタックやディケイの途中でノートオフされたときもリリースに移行します。</p>
-<h2 id="直線の計算">直線の計算</h2>
+<h2 id="直線の計算"><a href="#直線の計算" class="header-anchor"
+aria-hidden="true">直線の計算</a></h2>
 <p>一つの区間での直線の計算の実装例です。出力の範囲は [0, 1]
 です。移動距離 1 と、区間の長さ <code>seconds</code> から、速度
 <code>delta</code> [gain/sample]
@@ -417,22 +440,28 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 <figure>
 <img src="img/line.svg" alt="Image of a section of line." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="挙動">挙動</h2>
-<h3 id="ノートオン中の-adsr-の変更">ノートオン中の ADSR の変更</h3>
+<h2 id="挙動"><a href="#挙動" class="header-anchor"
+aria-hidden="true">挙動</a></h2>
+<h3 id="ノートオン中の-adsr-の変更"><a
+href="#ノートオン中の-adsr-の変更" class="header-anchor"
+aria-hidden="true">ノートオン中の ADSR の変更</a></h3>
 <p>ノートオン中に ADSR
 のパラメータを変更可能にするかどうかの選択があります。パラメータを変更可能にしたほうが便利ですが、傾きを再計算するコストがかかります。全てのサンプルで傾きを再計算すると無視できないほど重くなるので、この文章ではバッファの先頭でのみ傾きの再計算を行うようにしています。</p>
 <p>リリースについてはサステインが変更されている途中でノートオフされると、ノートオフの時点でさらに傾きを計算し直すかどうかの選択があります。今回の実装では傾きを再計算しています。</p>
-<h3 id="アタック中のリリース">アタック中のリリース</h3>
+<h3 id="アタック中のリリース"><a href="#アタック中のリリース"
+class="header-anchor" aria-hidden="true">アタック中のリリース</a></h3>
 <p>ノートオフの時点の高さから減衰を始めます。</p>
 <figure>
 <img src="img/release_while_attack.svg" alt="Image of envelope receiving note-off while attack." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="ディケイ中のリリース">ディケイ中のリリース</h3>
+<h3 id="ディケイ中のリリース"><a href="#ディケイ中のリリース"
+class="header-anchor" aria-hidden="true">ディケイ中のリリース</a></h3>
 <p>ノートオフの時点の高さから減衰を始めます。</p>
 <figure>
 <img src="img/release_while_decay.svg" alt="Image of envelope receiving note-off while decay." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="リリース中のノートオン">リリース中のノートオン</h3>
+<h3 id="リリース中のノートオン"><a href="#リリース中のノートオン"
+class="header-anchor" aria-hidden="true">リリース中のノートオン</a></h3>
 <p>左の図のようにノートオンの時点での高さを維持してアタックに移る挙動と、右の図のようにノートオンごとに高さを
 0 にリセットする挙動の 2 種類が考えられます。</p>
 <figure>
@@ -442,7 +471,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 <a
 href="https://ryukau.github.io/VSTPlugins/manual/CubicPadSynth/CubicPadSynth_ja.html">CubicPadSynth</a>
 では、ノートオンを受け取ったボイスから、ポップノイズを減らすために用意された専用のボイスにパラメータをコピーして短いリリースをレンダリングすることでポップノイズを低減しているので、音量エンベロープに高さをリセットする挙動を使っています。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>C++ です。 <code>std::clamp</code> を使っているので C++17
 以降で動作します。</p>
 <div class="sourceCode" id="cb2"><pre
@@ -572,7 +602,8 @@ UI から入力された値の補間</a></li>
 の範囲から少しだけはみ出してもいいなら <code>clamp</code>
 を消すことができます。このとき、はみ出す量の絶対値の上限は
 <code>1 / (sampleRate * seconds)</code> です。</p>
-<h2 id="テスト">テスト</h2>
+<h2 id="テスト"><a href="#テスト" class="header-anchor"
+aria-hidden="true">テスト</a></h2>
 <p>wav ファイルへの書き出しに <a
 href="http://www.mega-nerd.com/libsndfile/">libsndfile</a>
 を使っています。</p>
@@ -603,13 +634,13 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  SNDFILE <span class="op">*</span>file <span class="op">=</span> sf_open<span class="op">(</span>filename<span class="op">,</span> SFM_WRITE<span class="op">,</span> <span class="op">&amp;</span>sfinfo<span class="op">);</span></span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>file<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> <span class="st">&quot;Error: sf_open failed.&quot;</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> <span class="st">&quot;Error: sf_open failed.&quot;</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> length <span class="op">=</span> sfinfo<span class="op">.</span>channels <span class="op">*</span> buffer<span class="op">.</span>size<span class="op">();</span></span>
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>sf_write_float<span class="op">(</span>file<span class="op">,</span> <span class="op">&amp;</span>buffer<span class="op">[</span><span class="dv">0</span><span class="op">],</span> length<span class="op">)</span> <span class="op">!=</span> length<span class="op">)</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> sf_strerror<span class="op">(</span>file<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> sf_strerror<span class="op">(</span>file<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  sf_close<span class="op">(</span>file<span class="op">);</span></span>
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
@@ -716,7 +747,8 @@ href="https://sonicvisualiser.org/">Sonic Visualiser</a>
 <figure>
 <img src="img/testTriggerWhileRelease.png" alt="Image of test result of trigger while release." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="simd-による並列化">SIMD による並列化</h2>
+<h2 id="simd-による並列化"><a href="#simd-による並列化"
+class="header-anchor" aria-hidden="true">SIMD による並列化</a></h2>
 <p>CubicPadSynth に <a
 href="https://github.com/vectorclass/version2">vector class library</a>
 を使って並列化した実装があります。この実装ではリリース時に傾きの再計算をしていません。</p>
@@ -725,7 +757,8 @@ href="https://github.com/vectorclass/version2">vector class library</a>
 href="https://github.com/ryukau/VSTPlugins/blob/master/CubicPadSynth/source/dsp/envelope.hpp#L155">VSTPlugins/envelope.hpp
 at master · ryukau/VSTPlugins · GitHub</a></li>
 </ul>
-<h2 id="記事の変更点">記事の変更点</h2>
+<h2 id="記事の変更点"><a href="#記事の変更点" class="header-anchor"
+aria-hidden="true">記事の変更点</a></h2>
 <ul>
 <li>2020-03-23:
 <ul>

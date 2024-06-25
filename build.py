@@ -13,7 +13,10 @@ import yaml
 from pathlib import Path
 
 
-def gather_markdown():
+def gather_markdown(paths: list[Path]):
+    if len(paths) >= 1:
+        return paths
+
     mds = []
     for path in Path(".").glob("*"):
         if path.is_dir() and not re.match(r"^[\._]", str(path)[0]):
@@ -44,9 +47,11 @@ def pandoc_md_to_html5(md, template_path, rebuild=False):
     result = subprocess.run(
         [
             "pandoc",
+            "--lua-filter",
+            "./pandocfilter.lua",
             "--standalone",
             "--toc",
-            "--toc-depth=4",
+            "--toc-depth=6",
             "--metadata",
             f"title={md.stem}",
             "--metadata",
@@ -75,11 +80,24 @@ def dump_config_yml():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--rebuild", action="store_true", help="rebuild all file")
+    parser.add_argument(
+        "-r", "--rebuild", action="store_true", help="Rebuild all files."
+    )
+    parser.add_argument(
+        "-i",
+        "--input",
+        help="Specify a single input markdown. The specified markdown is forced to be rebuild.",
+        type=Path,
+        nargs="*",
+        default=[],
+    )
     args = parser.parse_args()
+
+    if len(args.input) >= 1:
+        args.rebuild = True
 
     dump_config_yml()
 
-    mds = gather_markdown()
+    mds = gather_markdown(args.input)
     for md in mds:
         pandoc_md_to_html5(md, "template.html", args.rebuild)

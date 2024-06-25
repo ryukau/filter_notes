@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-04-18" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>matched_iir_filter</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-04-18
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -387,8 +406,10 @@ id="toc-整合一次ハイシェルビングフィルタ">整合一次ハイシ�
 </nav>
 </details>
 </header>
-<h1
-id="アナログの周波数特性に一致する二次のデジタルフィルタの実装">アナログの周波数特性に一致する二次のデジタルフィルタの実装</h1>
+<h1 id="アナログの周波数特性に一致する二次のデジタルフィルタの実装"><a
+href="#アナログの周波数特性に一致する二次のデジタルフィルタの実装"
+class="header-anchor"
+aria-hidden="true">アナログの周波数特性に一致する二次のデジタルフィルタの実装</a></h1>
 <p>Martin Vicanek さんによる <a
 href="https://vicanek.de/articles/BiquadFits.pdf">Matched Second Order
 Digital Filters</a> と <a
@@ -401,7 +422,8 @@ Cookbook</a>
 などで紹介されている二次フィルタはバイリニア変換を使っています。バイリニア変換は
 <span class="math inline">\(\tan\)</span>
 によって周波数を歪ませてマッピングしているので、アナログ特性とデジタル特性の間に差が生じます。整合フィルタの特長は、このような周波数の歪みを避けるように設計されていることです。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>Python 3 でフィルタ係数 <span class="math inline">\(b_0, b_1, b_2,
 a_1, a_2\)</span>
 を計算する関数を実装します。フィルタ係数は以下の離散系の伝達関数と対応します。</p>
@@ -439,8 +461,9 @@ at master · ryukau/filter_notes · GitHub</a></li>
 href="https://github.com/ryukau/filter_notes/blob/master/matched_iir_filter/demo/test.cpp">filter_notes/matched_iir_filter/demo/test.cpp
 at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
-<h3 id="orfanidis-のピーキングフィルタ">Orfanidis
-のピーキングフィルタ</h3>
+<h3 id="orfanidis-のピーキングフィルタ"><a
+href="#orfanidis-のピーキングフィルタ" class="header-anchor"
+aria-hidden="true">Orfanidis のピーキングフィルタ</a></h3>
 <p>“Matched Second Order Digital Filters” の式 13 から式 16
 に掲載されている、 <a
 href="https://www.ece.rutgers.edu/~orfanidi/ece348/peq.pdf">Orfanidis
@@ -485,8 +508,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <p><img src="img/orfanidisPeaking.svg"
 alt="Orfanidis peaking filter frequency response." /><br />
 </p>
-<h3 id="massberg-の整合ローパスフィルタ">Massberg
-の整合ローパスフィルタ</h3>
+<h3 id="massberg-の整合ローパスフィルタ"><a
+href="#massberg-の整合ローパスフィルタ" class="header-anchor"
+aria-hidden="true">Massberg の整合ローパスフィルタ</a></h3>
 <p>“Matched Second Order Digital Filters” の式 20 から式 23
 に掲載されている、 Massberg
 による二次整合ローパスフィルタのフィルタ係数の計算式を実装します。</p>
@@ -546,7 +570,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <p><img src="img/massbergLowpass.svg"
 alt="Massberg lowpass filter frequency response." /><br />
 </p>
-<h3 id="vicanek-の整合フィルタ">Vicanek の整合フィルタ</h3>
+<h3 id="vicanek-の整合フィルタ"><a href="#vicanek-の整合フィルタ"
+class="header-anchor" aria-hidden="true">Vicanek の整合フィルタ</a></h3>
 <p>Vicanek
 の整合フィルタは伝達関数の分母に関する計算が共通しています。以下は関連する
 “Matched Second Order Digital Filters” の式の一覧です。</p>
@@ -577,7 +602,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    A2 <span class="op">=</span> <span class="op">-</span><span class="dv">4</span> <span class="op">*</span> a2</span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (a1, a2, φ<span class="dv">0</span>, φ<span class="dv">1</span>, φ<span class="dv">2</span>, A0, A1, A2)</span></code></pre></div>
-<h4 id="ローパス">ローパス</h4>
+<h4 id="ローパス"><a href="#ローパス" class="header-anchor"
+aria-hidden="true">ローパス</a></h4>
 <p>“Matched Second Order Digital Filters” の式 31 から式 34
 の実装です。式 30 に続く文で <span class="math inline">\(b_2 =
 0\)</span> が指定されています。</p>
@@ -600,7 +626,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <p><img src="img/matchedLowpass.svg"
 alt="Matched lowpass filter frequency response." /><br />
 </p>
-<h4 id="ハイパス">ハイパス</h4>
+<h4 id="ハイパス"><a href="#ハイパス" class="header-anchor"
+aria-hidden="true">ハイパス</a></h4>
 <p>“Matched Second Order Digital Filters” の式 36 の実装です。</p>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> matchedHighpass(cutoffRadian, Q):</span>
@@ -616,7 +643,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <p><img src="img/matchedHighpass.svg"
 alt="Matched highpass filter frequency response." /><br />
 </p>
-<h4 id="バンドパス">バンドパス</h4>
+<h4 id="バンドパス"><a href="#バンドパス" class="header-anchor"
+aria-hidden="true">バンドパス</a></h4>
 <p>“Matched Second Order Digital Filters” の式 37 から式 41
 の実装です。</p>
 <div class="sourceCode" id="cb6"><pre
@@ -639,7 +667,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <p><img src="img/matchedBandpass.svg"
 alt="Matched bandpass filter frequency response." /><br />
 </p>
-<h4 id="ピーキング">ピーキング</h4>
+<h4 id="ピーキング"><a href="#ピーキング" class="header-anchor"
+aria-hidden="true">ピーキング</a></h4>
 <p>“Matched Second Order Digital Filters” の式 44 から式 45 の実装です。
 <span class="math inline">\(b_0, b_1, b_2\)</span> は式 29
 に掲載されています。</p>
@@ -669,13 +698,15 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <p><img src="img/matchedPeaking.svg"
 alt="Matched peaking filter frequency response." /><br />
 </p>
-<h3 id="簡略な整合フィルタ">簡略な整合フィルタ</h3>
+<h3 id="簡略な整合フィルタ"><a href="#簡略な整合フィルタ"
+class="header-anchor" aria-hidden="true">簡略な整合フィルタ</a></h3>
 <p>Vicanek
 による、フィルタ係数の計算を簡略化した整合フィルタを実装します。このフィルタは計算が軽いだけでなく、より安定しているので、オーディオレートでフィルタのパラメータを変調するときに適しているそうです。アナログ特性との整合性はバイリニア変換よりはいいですが、前節の整合フィルタに比べるとやや劣ります。</p>
 <p><code>solveDenominator()</code> を使いまわしています。
 <code>a1, a2</code>
 だけを使うので本格的な実装では計算を簡略化できます。</p>
-<h4 id="ローパス-1">ローパス</h4>
+<h4 id="ローパス-1"><a href="#ローパス-1" class="header-anchor"
+aria-hidden="true">ローパス</a></h4>
 <p>“Matched Second Order Digital Filters” の式 46 から式 47
 の実装です。</p>
 <div class="sourceCode" id="cb8"><pre
@@ -695,7 +726,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <p><img src="img/simpleMatchedLowpass.svg"
 alt="Simple matched lowpass filter frequency response." /><br />
 </p>
-<h4 id="ハイパス-1">ハイパス</h4>
+<h4 id="ハイパス-1"><a href="#ハイパス-1" class="header-anchor"
+aria-hidden="true">ハイパス</a></h4>
 <p>“Matched Second Order Digital Filters” の式 48 から式 49
 の実装です。</p>
 <div class="sourceCode" id="cb9"><pre
@@ -715,7 +747,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <p><img src="img/simpleMatchedHighpass.svg"
 alt="Simple matched highpass filter frequency response." /><br />
 </p>
-<h4 id="バンドパス-1">バンドパス</h4>
+<h4 id="バンドパス-1"><a href="#バンドパス-1" class="header-anchor"
+aria-hidden="true">バンドパス</a></h4>
 <p>“Matched Second Order Digital Filters” の式 50 から式 51
 の実装です。</p>
 <div class="sourceCode" id="cb10"><pre
@@ -736,8 +769,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
 <p><img src="img/simpleMatchedBandpass.svg"
 alt="Simple matched bandpass filter frequency response." /><br />
 </p>
-<h3
-id="整合一次ハイシェルビングフィルタ">整合一次ハイシェルビングフィルタ</h3>
+<h3 id="整合一次ハイシェルビングフィルタ"><a
+href="#整合一次ハイシェルビングフィルタ" class="header-anchor"
+aria-hidden="true">整合一次ハイシェルビングフィルタ</a></h3>
 <p>“Matched One-Pole Digital Shelving Filters”
 で紹介されていた整合一次ハイシェルビングフィルタのフィルタ係数の計算を実装します。対応する式は
 4, 5, 10, 11, 12 です。</p>
@@ -772,7 +806,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <p><img src="img/matchedShelvingOnePole.svg"
 alt="Matched one-pole shelving filter frequency response." /><br />
 </p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a href="https://vicanek.de/articles.htm">MV’s Plugins
 Articles</a></li>
@@ -783,7 +818,8 @@ Digital Filters”</a>, 2016-02-14.</li>
 href="https://vicanek.de/articles/ShelvingFits.pdf">“Matched One-Pole
 Digital Shelving Filters”</a>, revised 2019-09-24.</li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/04/17
 <ul>

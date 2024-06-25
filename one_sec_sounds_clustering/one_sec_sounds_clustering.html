@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>one_sec_sounds_clustering</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -341,7 +360,7 @@ span.math.inline a {
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -378,10 +397,13 @@ id="toc-the-infinite-drum-machine-の手法">The Infinite Drum Machine
 </nav>
 </details>
 </header>
-<h1 id="秒以下の音のクラスタリング">1秒以下の音のクラスタリング</h1>
+<h1 id="秒以下の音のクラスタリング"><a
+href="#秒以下の音のクラスタリング" class="header-anchor"
+aria-hidden="true">1秒以下の音のクラスタリング</a></h1>
 <p><a
 href="../golly_generations_clustering/golly_generations_clustering.html">GollyのGenerationsルールから生成した音のクラスタリング</a>が意外とうまく行ったので、1秒以下の音のクラスタリングを試しました。</p>
-<h2 id="コードについて">コードについて</h2>
+<h2 id="コードについて"><a href="#コードについて" class="header-anchor"
+aria-hidden="true">コードについて</a></h2>
 <p>Python3では次のライブラリを使っています。</p>
 <ul>
 <li><a href="https://matplotlib.org/">matplotlib</a></li>
@@ -393,10 +415,12 @@ href="https://python-speech-features.readthedocs.io/en/latest/#">python_speech_f
 href="https://scikit-learn.org/stable/index.html">scikit-learn</a></li>
 <li><a href="https://www.scipy.org/">SciPy, NumPy</a></li>
 </ul>
-<h2 id="データセット">データセット</h2>
+<h2 id="データセット"><a href="#データセット" class="header-anchor"
+aria-hidden="true">データセット</a></h2>
 <p>データセットに含まれる音は、長さを1秒以下、サンプリング周波数を44100Hzにそろえています。</p>
 <p>今回作ったデータセットの大きさは6016サンプルで長さは約81分です。</p>
-<h3 id="シンセサイザの音">シンセサイザの音</h3>
+<h3 id="シンセサイザの音"><a href="#シンセサイザの音"
+class="header-anchor" aria-hidden="true">シンセサイザの音</a></h3>
 <p>以前作ったシンセサイザから、それぞれ1000ほどのサンプルをレンダリングしました。</p>
 <p>今回使ったシンセサイザです。</p>
 <ul>
@@ -431,7 +455,9 @@ href="http://sox.sourceforge.net/">SoX</a>を使っています。</p>
 href="https://github.com/ryukau/filter_notes/blob/master/one_sec_sounds_clustering/demo/split.py">シンセサイザの音を加工するコードを読む
 (github.com)</a></li>
 </ul>
-<h3 id="フィールドレコーディングの音">フィールドレコーディングの音</h3>
+<h3 id="フィールドレコーディングの音"><a
+href="#フィールドレコーディングの音" class="header-anchor"
+aria-hidden="true">フィールドレコーディングの音</a></h3>
 <p>近所を歩いてフィールドレコーディングした音をデータセットに加えました。</p>
 <p>フィールドレコーディングの音はSoXの <code>remix -</code>
 でモノラルにしてから1秒間隔で切っています。</p>
@@ -442,8 +468,10 @@ href="https://github.com/ryukau/filter_notes/blob/master/one_sec_sounds_clusteri
 <li><p><a href="http://sox.sourceforge.net/sox.html">SoX man page</a> -
 EFFECTSの節に <code>remix</code> の解説</p></li>
 </ul>
-<h2 id="特徴抽出">特徴抽出</h2>
-<h3 id="mfccデルタ">MFCC+デルタ</h3>
+<h2 id="特徴抽出"><a href="#特徴抽出" class="header-anchor"
+aria-hidden="true">特徴抽出</a></h2>
+<h3 id="mfccデルタ"><a href="#mfccデルタ" class="header-anchor"
+aria-hidden="true">MFCC+デルタ</a></h3>
 <p><code>python_speech_features.mfcc</code> で取り出したMFCCを
 <code>numpy.ravel</code> で1次元にして
 <code>sklearn.cluster.AffinityPropagation</code>
@@ -485,7 +513,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mfccdelta <span class="op">=</span> numpy.concatenate((numpy.ravel(mfcc), numpy.ravel(delta)))</span></code></pre></div>
 <p>ここでは <code>mfccdelta</code>
 のことをMFCC+デルタと呼んでいます。</p>
-<h3 id="エンベロープ">エンベロープ</h3>
+<h3 id="エンベロープ"><a href="#エンベロープ" class="header-anchor"
+aria-hidden="true">エンベロープ</a></h3>
 <p>ここでのエンベロープは信号を短い区間に区切って、それぞれの区間で信号の絶対値の最大値を取り出したものです。</p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_envelope(data, samplerate, winstep, n_frame):</span>
@@ -515,7 +544,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <p>エンベロープの区間の長さと数はMFCCの対応するパラメータと合わせました。区間の長さは
 <code>winstep=0.01</code> 、区間の数は <code>n_frame=100</code>
 です。</p>
-<h3 id="ソートしたピッチ">ソートしたピッチ</h3>
+<h3 id="ソートしたピッチ"><a href="#ソートしたピッチ"
+class="header-anchor" aria-hidden="true">ソートしたピッチ</a></h3>
 <p>ピッチは <code>python_speech_features.sigproc.framesig</code>
 で区切った各フレームから次の手順で取り出しました。</p>
 <ol type="1">
@@ -530,7 +560,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <p>CMND type II も試したのですが、テストに使った小さなデータセットでは
 NSD type II のほうが良い結果が出ました。</p>
 <p>係数 k の値ではテストデータでの結果は変わりませんでした。</p>
-<h2 id="クラスタリング">クラスタリング</h2>
+<h2 id="クラスタリング"><a href="#クラスタリング" class="header-anchor"
+aria-hidden="true">クラスタリング</a></h2>
 <p>エンベロープ、MFCC+デルタ、ソートしたピッチは別物なのでクラスタリングを分けることにしました。以下はエンベロープ
 -&gt; MFCC+デルタ -&gt;
 ソートしたピッチの順でクラスタリングした結果の一例です。クラスタリングの階層構造がなんとなく見て取れるかと思います。
@@ -582,11 +613,13 @@ Outlier と判断されたクラスタは番号が飛んでいます。</p>
 <iframe width="640" height="360" src="https://www.youtube.com/embed/4SleDuWeYT4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 </iframe>
 <p>多少は似たような音が集まっている気がします。</p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>ラベルのついていないデータセットでのクラスタリングは無謀です。</p>
 <p>今回使ったエンベロープとMFCC+デルタはそういう無茶でもそれなりになんとかしてくれました。エンベロープとMFCC+デルタによるクラスタリングではビブラートのような細かいピッチの揺れやカラーノイズはうまく区別できていないように感じたのでピッチ推定に注目したのですがあまり大きく改善したようには感じませんでした。</p>
-<h2 id="the-infinite-drum-machine-の手法">The Infinite Drum Machine
-の手法</h2>
+<h2 id="the-infinite-drum-machine-の手法"><a
+href="#the-infinite-drum-machine-の手法" class="header-anchor"
+aria-hidden="true">The Infinite Drum Machine の手法</a></h2>
 <p>Google AI Experiments の <a
 href="https://experiments.withgoogle.com/drum-machine">The Infinite Drum
 Machine</a> で使われていた手法を参考にしたので紹介します。 The Infinite
@@ -607,7 +640,8 @@ href="http://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.
 </ol>
 <p><code>block_reduce</code>
 は画像の特徴抽出で使われる関数です。STFTの結果は2次元なので、画像とみなして処理できるというのは面白いです。</p>
-<h1 id="参考サイト">参考サイト</h1>
+<h1 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+aria-hidden="true">参考サイト</a></h1>
 <ul>
 <li><a
 href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">Practical

@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-10-30" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>3pole_lowpass</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-10-30
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -376,7 +395,9 @@ id="toc-直線のカットオフ">直線のカットオフ</a></li>
 </nav>
 </details>
 </header>
-<h1 id="pole-ローパスフィルタ">3-pole ローパスフィルタ</h1>
+<h1 id="pole-ローパスフィルタ"><a href="#pole-ローパスフィルタ"
+class="header-anchor" aria-hidden="true">3-pole
+ローパスフィルタ</a></h1>
 <p>ばねとダンパの項を含んだ加速度の式がフィルタになりそうだと思いました。</p>
 <p><span class="math display">\[
 \ddot{u} = c \dot{u} + k u
@@ -461,7 +482,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 </figure>
 <p>性質を調べて <span class="math inline">\(c\)</span> と <span
 class="math inline">\(k\)</span> をチューニングします。</p>
-<h2 id="出力の大きさ">出力の大きさ</h2>
+<h2 id="出力の大きさ"><a href="#出力の大きさ" class="header-anchor"
+aria-hidden="true">出力の大きさ</a></h2>
 <p><span class="math inline">\(u\)</span>
 の式で出力の大きさを調整しています。</p>
 <p><span class="math display">\[
@@ -474,7 +496,8 @@ class="math inline">\(\dfrac{c}{1 - k}\)</span>
 class="math inline">\(c\)</span>
 を使うとカットオフ周波数が低くなると出力も小さくなります。</p>
 <p>これらの係数は試行錯誤で見つけました。</p>
-<h2 id="伝達関数">伝達関数</h2>
+<h2 id="伝達関数"><a href="#伝達関数" class="header-anchor"
+aria-hidden="true">伝達関数</a></h2>
 <p>フィルタの式に時間のインデックスをつけます。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -573,8 +596,9 @@ C_2 &amp;= -\frac{k^2 - k}{c \alpha} - \frac{k^2 - 1}{c} + k - 1 \\
 C_3 &amp;= \frac{k^2 - k}{c} \\
 \end{aligned}
 \]</span></p>
-<h2
-id="ローパスのカットオフ周波数のチューニング">ローパスのカットオフ周波数のチューニング</h2>
+<h2 id="ローパスのカットオフ周波数のチューニング"><a
+href="#ローパスのカットオフ周波数のチューニング" class="header-anchor"
+aria-hidden="true">ローパスのカットオフ周波数のチューニング</a></h2>
 <p>Maxima の <a
 href="http://maxima.sourceforge.net/docs/manual/maxima_20.html#solve"><code>solve</code></a>
 を試したところ伝達関数からカットオフ周波数 <span
@@ -730,7 +754,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">*</span> x <span class="op">+</span> <span class="dt">float</span><span class="op">(</span><span class="fl">6.320753515093109</span><span class="op">)</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">*</span> x<span class="op">;</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h2 id="レゾナンスのチューニング">レゾナンスのチューニング</h2>
+<h2 id="レゾナンスのチューニング"><a href="#レゾナンスのチューニング"
+class="header-anchor"
+aria-hidden="true">レゾナンスのチューニング</a></h2>
 <p>フィルタの式の係数 <span class="math inline">\(k\)</span>
 を変えるとレゾナンスが変わるようです。レゾナンスを変えたときの振幅のピークが一定になるようにチューニングします。</p>
 <p>まずは <span class="math inline">\(k\)</span>
@@ -964,8 +990,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.01</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span>kExp <span class="op">-</span> <span class="dt">float</span><span class="op">(</span><span class="fl">0.0033956716251850594</span><span class="op">));</span></span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> kMax <span class="op">-</span> <span class="op">(</span>kMax <span class="op">-</span> kMin<span class="op">)</span> <span class="op">*</span> acosf<span class="op">(</span><span class="dt">float</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> c<span class="op">)</span> <span class="op">/</span> <span class="dt">float</span><span class="op">(</span>halfpi<span class="op">);</span></span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h2
-id="ハイパスのカットオフ周波数のチューニング">ハイパスのカットオフ周波数のチューニング</h2>
+<h2 id="ハイパスのカットオフ周波数のチューニング"><a
+href="#ハイパスのカットオフ周波数のチューニング" class="header-anchor"
+aria-hidden="true">ハイパスのカットオフ周波数のチューニング</a></h2>
 <p>カットオフ周波数とレゾナンスのチューニングを終えて、プラグインにして試していると直流が乗ることに気がついたので
 <span class="math inline">\(\alpha\)</span> を追加しました。 <span
 class="math inline">\(\alpha\)</span>
@@ -991,7 +1018,8 @@ class="math inline">\(\alpha\)</span> の範囲を広く使えます。</p>
 \alpha = 0.39299084333814804 + 0.607009156661852 \cdot
 \exp(-4.939791161282682 x)
 \]</span></p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>C++ による実装例です。</p>
 <div class="sourceCode" id="cb12"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
@@ -1062,7 +1090,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#
 href="https://github.com/ryukau/LV2Plugins/blob/master/lv2cvport/CV_3PoleLP/dsp/lp3.hpp">LV2Plugins/lp3.hpp
 at master · ryukau/LV2Plugins · GitHub</a></li>
 </ul>
-<h2 id="音のサンプル">音のサンプル</h2>
+<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+aria-hidden="true">音のサンプル</a></h2>
 <p>フィルタの音のサンプルです。</p>
 <ul>
 <li>入力は <code>scipy.signal.sawtooth</code> で生成した 45 Hz
@@ -1081,7 +1110,8 @@ href="https://pysoundfile.readthedocs.io/en/latest/">Soundfile</a>
 href="https://github.com/ryukau/filter_notes/blob/master/3pole_lowpass/demo/sound.py">filter_notes/sound.py
 at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
-<h3 id="指数カーブのカットオフ">指数カーブのカットオフ</h3>
+<h3 id="指数カーブのカットオフ"><a href="#指数カーブのカットオフ"
+class="header-anchor" aria-hidden="true">指数カーブのカットオフ</a></h3>
 <figure>
 <figcaption>
 exp, uniformPeak=False, resonance=0.0
@@ -1130,7 +1160,8 @@ exp, uniformPeak=True, resonance=0.9
 <source src="snd/exp_uniformPeakTrue_resonance0.9.wav" type="audio/wav">
 </audio>
 </figure>
-<h3 id="直線のカットオフ">直線のカットオフ</h3>
+<h3 id="直線のカットオフ"><a href="#直線のカットオフ"
+class="header-anchor" aria-hidden="true">直線のカットオフ</a></h3>
 <figure>
 <figcaption>
 lin, uniformPeak=False, resonance=0.0
@@ -1179,7 +1210,8 @@ lin, uniformPeak=True, resonance=0.9
 <source src="snd/lin_uniformPeakTrue_resonance0.9.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p><span class="math inline">\(\arccos\)</span> を使った近似曲線は <span
 class="math inline">\(\dfrac{b_0 + b_1 x + b_2 x^2 \dots}{a_0 + a_1 x +
 a_2 x^2 \dots}\)</span> という形の分数でも近似できそうです。</p>
@@ -1188,7 +1220,8 @@ a_2 x^2 \dots}\)</span> という形の分数でも近似できそうです。</
 <span class="math inline">\(\alpha\)</span> を 1
 に固定して処理を減らせます。</p>
 <p>FL Studio で使える Fast LP と似たような音が出ます。</p>
-<h2 id="変更">変更</h2>
+<h2 id="変更"><a href="#変更" class="header-anchor"
+aria-hidden="true">変更</a></h2>
 <ul>
 <li>2020-04-15
 <ul>

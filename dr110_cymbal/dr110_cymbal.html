@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>dr110_cymbal</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -375,7 +394,8 @@ id="toc-high-metal-と-low-metal">High Metal と Low Metal</a></li>
 </nav>
 </details>
 </header>
-<h1 id="dr-110風のシンバル">DR-110風のシンバル</h1>
+<h1 id="dr-110風のシンバル"><a href="#dr-110風のシンバル"
+class="header-anchor" aria-hidden="true">DR-110風のシンバル</a></h1>
 <p><a
 href="https://www.youtube.com/watch?v=-ap0ucC6QBU">DR-110</a>のシンバルに似た音を作ります。</p>
 <p>次のリンクから完成したコードを読むことができます。</p>
@@ -394,13 +414,15 @@ href="https://www.python.org/">Python3</a>と以下のライブラリが必要�
 <li><a
 href="http://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a></li>
 </ul>
-<h2 id="回路図の入手">回路図の入手</h2>
+<h2 id="回路図の入手"><a href="#回路図の入手" class="header-anchor"
+aria-hidden="true">回路図の入手</a></h2>
 <p><a href="http://www.theninhotline.net/dr110/">The Boss DR-110 Dr
 Rhythm Graphic Information Homepage</a> の Schematics
 から回路図をダウンロードできます。</p>
 <p><a
 href="http://www.sdiy.org/richardc64/new_drums/dr110/dr110a1.html">richardc64のDR-110のページ</a>に回路図の解説があります。</p>
-<h2 id="信号の流れ">信号の流れ</h2>
+<h2 id="信号の流れ"><a href="#信号の流れ" class="header-anchor"
+aria-hidden="true">信号の流れ</a></h2>
 <p>DR-110のシンバルはオシレータから出た信号を High Metal と Low Metal
 の2つに分けて、それぞれでフィルタとエンベロープをかけてから足し合わせることで合成されます。High
 Metal と Low Metal という呼び方は<a
@@ -409,7 +431,8 @@ href="http://www.sdiy.org/richardc64/new_drums/dr110/dr110a1.html">richardc64の
 <figure>
 <img src="img/DR-110.svg" alt="Image of signal flow of DR-110 cymbal." style="width: 720px; padding-bottom: 12px;"/>
 </figure>
-<h2 id="オシレータ">オシレータ</h2>
+<h2 id="オシレータ"><a href="#オシレータ" class="header-anchor"
+aria-hidden="true">オシレータ</a></h2>
 <p>4つの矩形波と1つのノイズを足し合わせます。音量の比率は、矩形波がそれぞれ1、ノイズは0.3です。回路図では矩形波の周波数に317、465、820、1150[Hz]が使われています。</p>
 <figure>
 <img src="img/DR-110_osc.svg" alt="Image of signal flow of DR-110 cymbal oscillator." style="width: 360px; padding-bottom: 12px;"/>
@@ -453,10 +476,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> normalize(cymbalSource(time))</span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>soundfile.write(<span class="st">&quot;cymbal_source.wav&quot;</span>, sig, samplerate)</span></code></pre></div>
-<h2 id="フィルタ">フィルタ</h2>
+<h2 id="フィルタ"><a href="#フィルタ" class="header-anchor"
+aria-hidden="true">フィルタ</a></h2>
 <p><a
 href="https://ccrma.stanford.edu/~jos/filters/Transfer_Function.html">伝達関数</a>を使ってDR-110の回路図から離散フィルタを設計します。</p>
-<h3 id="バンドパスフィルタ">バンドパスフィルタ</h3>
+<h3 id="バンドパスフィルタ"><a href="#バンドパスフィルタ"
+class="header-anchor" aria-hidden="true">バンドパスフィルタ</a></h3>
 <p>オシレータセクションで使われているバンドパスフィルタです。BP0とBP1という名前はこの文章で区別するためにつけました。</p>
 <figure>
 <img src="img/osc_crop.png" alt="Image of oscillator section of DR-110 schematic." style="width: 480px; padding-bottom: 12px;"/>
@@ -570,7 +595,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <figure>
 <img src="img/dr110_bandpass_bode.png" alt="Image of Bode plot of DR-110 band-pass filter." style="width: 480px; padding-bottom: 12px;"/>
 </figure>
-<h3 id="ハイパスフィルタ">ハイパスフィルタ</h3>
+<h3 id="ハイパスフィルタ"><a href="#ハイパスフィルタ"
+class="header-anchor" aria-hidden="true">ハイパスフィルタ</a></h3>
 <p>回路図のいたるところに出てくる1次のハイパスフィルタです。</p>
 <p>下図はDR-110のシンバルのエンベロープに関する回路図です。網掛けの色ごとに別のハイパスフィルタを表しています。灰色の矢印は音の信号の流れを表しています。</p>
 <figure>
@@ -606,7 +632,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>soundfile.write(<span class="st">&quot;source.wav&quot;</span>, source, samplerate)</span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>soundfile.write(<span class="st">&quot;dest.wav&quot;</span>, dest, samplerate)</span></code></pre></div>
-<h3 id="high-metal-と-low-metal">High Metal と Low Metal</h3>
+<h3 id="high-metal-と-low-metal"><a href="#high-metal-と-low-metal"
+class="header-anchor" aria-hidden="true">High Metal と Low
+Metal</a></h3>
 <p>High Metalはハイハットで使われるフィルタネットワークです。</p>
 <figure>
 <img src="img/DR-110_high_metal.svg" alt="Image of signal flow of DR-110 high metal section." style="width: 600px; padding-bottom: 12px;"/>
@@ -620,7 +648,8 @@ Metalはシンバルの音の低い部分の表現に使われるフィルタネ
 <figure>
 <img src="img/metal_filter.png" alt="Image of signal flow of DR-110 low metal section." style="width: 480px; padding-bottom: 12px;"/>
 </figure>
-<h2 id="エンベロープ">エンベロープ</h2>
+<h2 id="エンベロープ"><a href="#エンベロープ" class="header-anchor"
+aria-hidden="true">エンベロープ</a></h2>
 <p>DR-110の回路図から抜き出したシンバルのエンベロープの仕様です。</p>
 <figure>
 <img src="img/env_time_crop.png" alt="Image of specification of DR-110 cymbal envelopes." style="width: 320px; padding-bottom: 12px;"/>
@@ -669,7 +698,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>soundfile.write(<span class="st">&quot;source.wav&quot;</span>, source, samplerate)</span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>soundfile.write(<span class="st">&quot;dest.wav&quot;</span>, dest, samplerate)</span></code></pre></div>
-<h2 id="ミックス">ミックス</h2>
+<h2 id="ミックス"><a href="#ミックス" class="header-anchor"
+aria-hidden="true">ミックス</a></h2>
 <p>DR-110ではクローズドハイハット (CH) 、オープンハイハット (OH)
 、シンバル (CY)
 の3つの音が使えます。この3つの音の違いはエンベロープとミックスです。</p>
@@ -686,7 +716,8 @@ Metalは約2:1の比率で足し合わせます。</p>
 href="https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/dr110_cymbal/demo/dr110_cymbal.py#L86">ミックスを行う関数
 metalMix (github.com)</a></li>
 </ul>
-<h2 id="結果">結果</h2>
+<h2 id="結果"><a href="#結果" class="header-anchor"
+aria-hidden="true">結果</a></h2>
 <p>オシレータの音です。</p>
 <p><label>Oscillator output</label> <audio controls>
 <source src="snd/dr110_osc.wav" type="audio/wav"> Audio of simulated
@@ -728,7 +759,8 @@ simulated DR-110 closed hihat sound. </audio></p>
 <p><label>OH</label> <audio controls>
 <source src="snd/dr110_oh_noisy.wav" type="audio/wav"> Audio of
 simulated DR-110 open hihat sound. </audio></p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>アタックが弱いです。エンベロープが単純な指数的減衰ではないのかもしれません。</p>
 <p>シンバルのミックスの後に続く回路を無視しています。実機ではBalanceで大きく音が変わります。</p>
 <p>トランジスタの回路がよく分からなかったのでハイパスフィルタを適当に試行錯誤して設計しました。</p>
@@ -738,7 +770,8 @@ simulated DR-110 open hihat sound. </audio></p>
 Ill-conditioned matrix detected. Result is not guaranteed to be accurate.
 Reciprocal condition number/precision: 1.5222285969682624e-17 / 1.1102230246251565e-16
   RuntimeWarning)</code></pre>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li>電子回路、山本 外史、1994、第11刷、p.145、ISBN4-254-22111-8</li>
 <li><a href="http://www.ti.com/lit/an/sboa093a/sboa093a.pdf">“Handbook

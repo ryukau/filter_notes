@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>stereo_panning</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -412,14 +431,16 @@ id="toc-等パワーパンニング-1">等パワーパンニング</a></li>
 </nav>
 </details>
 </header>
-<h1 id="ステレオパンニング">ステレオパンニング</h1>
+<h1 id="ステレオパンニング"><a href="#ステレオパンニング"
+class="header-anchor" aria-hidden="true">ステレオパンニング</a></h1>
 <p><a
 href="http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/">Loudness
 Concepts &amp; Panning Laws</a> で紹介されているモノラル →
 ステレオのパンニング法 (panning law) を基にして、ステレオ →
 ステレオのパンニングの計算式をいくつか作ります。</p>
-<h2 id="モノラル-ステレオのパンニング">モノラル →
-ステレオのパンニング</h2>
+<h2 id="モノラル-ステレオのパンニング"><a
+href="#モノラル-ステレオのパンニング" class="header-anchor"
+aria-hidden="true">モノラル → ステレオのパンニング</a></h2>
 <p>以下はモノラル → ステレオパンニングのブロック線図です。</p>
 <figure>
 <img src="img/mono_panning_block_diagram.svg" alt="Block diagram of mono to stereo panning." style="padding-bottom: 12px;"/>
@@ -443,7 +464,8 @@ y_R &amp;= R \cdot x\\
 \]</span></p>
 <p><span class="math inline">\(L^2 + R^2\)</span>
 で音のパワーを計算できます。パワーは、スピーカから人間の耳に至るまでの反響や位相のずれなどを加味した、大まかな音量を表しています。</p>
-<h3 id="線形パンニング">線形パンニング</h3>
+<h3 id="線形パンニング"><a href="#線形パンニング" class="header-anchor"
+aria-hidden="true">線形パンニング</a></h3>
 <p>線形パンニングは <span class="math inline">\(p\)</span>
 の値をそのまま使って直線的にゲインを変えるパンニングです。利点はパンを振った後でも左右のチャンネルを足し合わせると元のモノラル信号に戻ることです。欠点は中央にパンを振ると左右にパンを振ったときよりも音が小さく聞こえることです。</p>
 <p>線形パンニングの計算式です。</p>
@@ -467,7 +489,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <figure>
 <img src="img/panMonoLinear.svg" alt="Plot of linear panning gain curve." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="等パワーパンニング">等パワーパンニング</h3>
+<h3 id="等パワーパンニング"><a href="#等パワーパンニング"
+class="header-anchor" aria-hidden="true">等パワーパンニング</a></h3>
 <p>等パワーパンニングは音の大きさがパンによらず均一に聞こえるようにしたパンニングです。欠点は左右のチャンネルを足し合わせたときに最大で
 3 dB 振幅が大きくなることです。</p>
 <p>等パワーパンニングの計算式です。</p>
@@ -494,7 +517,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <figure>
 <img src="img/panMonoConstantPower.svg" alt="Plot of constant power panning gain curve." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="db-パンニング">-4.5 dB パンニング</h3>
+<h3 id="db-パンニング"><a href="#db-パンニング" class="header-anchor"
+aria-hidden="true">-4.5 dB パンニング</a></h3>
 <p>-4.5 dB
 パンニングは線形パンニングと等パワーパンニングの中間的なパンニングです。左右のスピーカの間隔が狭いテレビなどでは等パワーパンニングよりも自然に聞こえることがあるそうです。</p>
 <p>-4.5 dB パンニングの計算式です。</p>
@@ -519,8 +543,9 @@ class="math inline">\(L + R\)</span>
 <figure>
 <img src="img/panMonoIntermediatePower.svg" alt="Plot of -4.5 dB panning gain curve." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="ステレオ-ステレオのパンニング">ステレオ →
-ステレオのパンニング</h2>
+<h2 id="ステレオ-ステレオのパンニング"><a
+href="#ステレオ-ステレオのパンニング" class="header-anchor"
+aria-hidden="true">ステレオ → ステレオのパンニング</a></h2>
 <p>以下はステレオ → ステレオパンニングのブロック線図です。</p>
 <figure>
 <img src="img/stereo_panning_block_diagram.svg" alt="Block diagram of stereo to stereo panning." style="padding-bottom: 12px;"/>
@@ -568,7 +593,8 @@ y_R = R \cdot x\\
 <p>モノラル → ステレオパンニングの計算式と同じになっています。ゲイン
 <span class="math inline">\(L, R\)</span> はモノラル →
 ステレオパンニングの式がそのまま使えます。</p>
-<h3 id="直線的なフェード">直線的なフェード</h3>
+<h3 id="直線的なフェード"><a href="#直線的なフェード"
+class="header-anchor" aria-hidden="true">直線的なフェード</a></h3>
 <p>ステレオ → ステレオパンニングで導入された 4 つのゲイン <span
 class="math inline">\(G_{LL}, G_{LR}, G_{RR}, G_{RL}\)</span>
 をどう決めればいいのか見ていきます。</p>
@@ -678,8 +704,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <figure>
 <img src="img/panStereoLinear.svg" alt="Plot of linear curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="部分的に-2-次曲線を使うフェード">部分的に 2
-次曲線を使うフェード</h3>
+<h3 id="部分的に-2-次曲線を使うフェード"><a
+href="#部分的に-2-次曲線を使うフェード" class="header-anchor"
+aria-hidden="true">部分的に 2 次曲線を使うフェード</a></h3>
 <p>以下の図のような <span class="math inline">\(G_{LL}\)</span>
 の式を作ります。黒い部分は直線、オレンジの部分は 2 次曲線です。</p>
 <figure>
@@ -760,8 +787,10 @@ class="math inline">\(a = 0.4\)</span> です。</p>
 <figure>
 <img src="img/panStereoPartial2ndOrder.svg" alt="Plot of partial 2nd order curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="部分的に-sin-を使うフェード">部分的に <span
-class="math inline">\(\sin\)</span> を使うフェード</h3>
+<h3 id="部分的に-sin-を使うフェード"><a
+href="#部分的に-sin-を使うフェード" class="header-anchor"
+aria-hidden="true">部分的に <span class="math inline">\(\sin\)</span>
+を使うフェード</a></h3>
 <p>部分的に 2 次曲線を使うフェードの 2 次曲線を <span
 class="math inline">\(\sin\)</span> に置き換えたフェードを作ります。</p>
 <p>以下のような <span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
@@ -845,7 +874,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
 <figure>
 <img src="img/panStereoPartialSin.svg" alt="Plot of partial sin curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="円形フェード">円形フェード</h3>
+<h3 id="円形フェード"><a href="#円形フェード" class="header-anchor"
+aria-hidden="true">円形フェード</a></h3>
 <p>円の式です。</p>
 <p><span class="math display">\[
 x^2 + y^2 = r^2
@@ -896,8 +926,9 @@ class="math inline">\(x = 1\)</span> です。</p>
 <figure>
 <img src="img/panStereoCircle.svg" alt="Plot of half circle curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="n-次曲線フェード"><span class="math inline">\(n\)</span>
-次曲線フェード</h3>
+<h3 id="n-次曲線フェード"><a href="#n-次曲線フェード"
+class="header-anchor" aria-hidden="true"><span
+class="math inline">\(n\)</span> 次曲線フェード</a></h3>
 <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
 class="math inline">\(n\)</span>
 はフェード曲線を変えるパラメータで、曲線の次数です。</p>
@@ -928,8 +959,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a h
 <figure>
 <img src="img/panStereoPoly.svg" alt="Plot of polynomial curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="sin-を使うフェード"><span class="math inline">\(\sin\)</span>
-を使うフェード</h3>
+<h3 id="sin-を使うフェード"><a href="#sin-を使うフェード"
+class="header-anchor" aria-hidden="true"><span
+class="math inline">\(\sin\)</span> を使うフェード</a></h3>
 <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。</p>
 <p><span class="math display">\[
 G_{LL}(p) = \begin{cases}
@@ -955,7 +987,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 <figure>
 <img src="img/panStereoSin.svg" alt="Plot of sin curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="s-字のフェード">S 字のフェード</h3>
+<h3 id="s-字のフェード"><a href="#s-字のフェード" class="header-anchor"
+aria-hidden="true">S 字のフェード</a></h3>
 <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
 class="math inline">\(n\)</span>
 はフェード曲線を変えるパラメータで、曲線の次数です。</p>
@@ -986,7 +1019,9 @@ class="math inline">\(n = 1\)</span> です。</p>
 <figure>
 <img src="img/panStereoSCurve.svg" alt="Plot of S-shaped curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="漏れのあるフェード-softplus">漏れのあるフェード (Softplus)</h3>
+<h3 id="漏れのあるフェード-softplus"><a
+href="#漏れのあるフェード-softplus" class="header-anchor"
+aria-hidden="true">漏れのあるフェード (Softplus)</a></h3>
 <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
 class="math inline">\(k\)</span>
 はフェード曲線を変えるパラメータです。範囲は <span
@@ -1025,7 +1060,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 href="https://en.wikipedia.org/wiki/Rectifier_(neural_networks)#Softplus">Rectifier
 (neural networks) - Wikipedia</a></li>
 </ul>
-<h3 id="波打つフェード-sinc">波打つフェード (Sinc)</h3>
+<h3 id="波打つフェード-sinc"><a href="#波打つフェード-sinc"
+class="header-anchor" aria-hidden="true">波打つフェード (Sinc)</a></h3>
 <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。</p>
 <p><span class="math display">\[
 G_{LL}(p) = \begin{cases}
@@ -1057,10 +1093,13 @@ class="math inline">\(k = 9\)</span> です。</p>
 <li><a href="https://en.wikipedia.org/wiki/Sinc_function">Sinc function
 - Wikipedia</a></li>
 </ul>
-<h2 id="音のサンプル">音のサンプル</h2>
+<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+aria-hidden="true">音のサンプル</a></h2>
 <p>データ量を減らすため圧縮に <a href="https://opus-codec.org/">opus</a>
 を使っています。</p>
-<h3 id="モノラル-ステレオパンニング">モノラル → ステレオパンニング</h3>
+<h3 id="モノラル-ステレオパンニング"><a
+href="#モノラル-ステレオパンニング" class="header-anchor"
+aria-hidden="true">モノラル → ステレオパンニング</a></h3>
 <figure>
 <figcaption>
 線形パンニング
@@ -1085,8 +1124,11 @@ class="math inline">\(k = 9\)</span> です。</p>
 <source src="snd/opus/panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
 </audio>
 </figure>
-<h3 id="ステレオ-ステレオパンニング">ステレオ → ステレオパンニング</h3>
-<h4 id="線形パンニング-1">線形パンニング</h4>
+<h3 id="ステレオ-ステレオパンニング"><a
+href="#ステレオ-ステレオパンニング" class="header-anchor"
+aria-hidden="true">ステレオ → ステレオパンニング</a></h3>
+<h4 id="線形パンニング-1"><a href="#線形パンニング-1"
+class="header-anchor" aria-hidden="true">線形パンニング</a></h4>
 <figure>
 <figcaption>
 直線的なフェード
@@ -1159,7 +1201,8 @@ S 字のフェード, n = 1
 <source src="snd/opus/panStereoSinc_panMonoLinear.opus" type="audio/ogg; codecs=opus">
 </audio>
 </figure>
-<h4 id="等パワーパンニング-1">等パワーパンニング</h4>
+<h4 id="等パワーパンニング-1"><a href="#等パワーパンニング-1"
+class="header-anchor" aria-hidden="true">等パワーパンニング</a></h4>
 <figure>
 <figcaption>
 直線的なフェード
@@ -1232,7 +1275,8 @@ S 字のフェード, n = 1
 <source src="snd/opus/panStereoSinc_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
 </audio>
 </figure>
-<h4 id="db-パンニング-1">-4.5 dB パンニング</h4>
+<h4 id="db-パンニング-1"><a href="#db-パンニング-1"
+class="header-anchor" aria-hidden="true">-4.5 dB パンニング</a></h4>
 <figure>
 <figcaption>
 直線的なフェード
@@ -1305,13 +1349,15 @@ S 字のフェード, n = 1
 <source src="snd/opus/panStereoSinc_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
 </audio>
 </figure>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a
 href="http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/">Loudness
 Concepts &amp; Panning Laws</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2021/01/13
 <ul>

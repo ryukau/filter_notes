@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>polyblep_residual</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -381,14 +400,16 @@ id="toc-矩形波オシレータへの適用">矩形波オシレータへの適�
 </nav>
 </details>
 </header>
-<h1 id="polyblep-residual">PolyBLEP Residual</h1>
+<h1 id="polyblep-residual"><a href="#polyblep-residual"
+class="header-anchor" aria-hidden="true">PolyBLEP Residual</a></h1>
 <p>Nam, Pekonen, Valimaki による <a
 href="https://pdfs.semanticscholar.org/33f1/2adabd6df85337848f1463f1e7553233fd12.pdf">Perceptually
 informed synthesis of bandlimited classical waveforms using integrated
 polynomial interpolation</a> で紹介されている B-spline PolyBLEP residual
 の 4, 6, 8 点の式を掲載します。 4 点の式は Nam
 の論文に掲載されている式と同じです (Table VII.) 。</p>
-<h2 id="maxima-のコード">Maxima のコード</h2>
+<h2 id="maxima-のコード"><a href="#maxima-のコード"
+class="header-anchor" aria-hidden="true">Maxima のコード</a></h2>
 <p>式の導出の手順は <a
 href="https://ryukau.github.io/filter_notes/polyblamp_residual/polyblamp_residual.html">PolyBLAMP
 Residual</a> にまとめています。<a
@@ -440,7 +461,9 @@ class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a hr
 <p>4, 6, 8 Point の PolyBLEP residual を求めました。数式と、 wxMaxima の
 <code>Copy for Octave/Matlab</code>
 でコピーしたテキスト形式の式を掲載しています。</p>
-<h3 id="point-polyblep-residual">4 Point PolyBLEP Residual</h3>
+<h3 id="point-polyblep-residual"><a href="#point-polyblep-residual"
+class="header-anchor" aria-hidden="true">4 Point PolyBLEP
+Residual</a></h3>
 <p><span class="math display">\[
 \begin{aligned}
 J B_{4,0}(t) &amp;=
@@ -456,7 +479,9 @@ J B_{4,3}(t) &amp;= \frac{{{t}^{4}}}{24}\\
 JB_4_1(t) :=   t^4/8 - t^3/3 + (2*t)/3 - 1/2;
 JB_4_2(t) := - t^4/8 + t^3/6 + t^2/4 + t/6 + 1/24;
 JB_4_3(t) :=   t^4/24;</code></pre>
-<h3 id="point-polyblep-residual-1">6 Point PolyBLEP Residual</h3>
+<h3 id="point-polyblep-residual-1"><a href="#point-polyblep-residual-1"
+class="header-anchor" aria-hidden="true">6 Point PolyBLEP
+Residual</a></h3>
 <p><span class="math display">\[
 \begin{aligned}
 J B_{6,0}(t) &amp;=
@@ -481,7 +506,9 @@ JB_6_2(t) := - t^6/72 + t^5/20 - t^3/6 + (11*t)/20 - 1/2;
 JB_6_3(t) :=   t^6/72 - t^5/30 - t^4/24 + t^3/18 + (5*t^2)/24 + (13*t)/60 + 29/360;
 JB_6_4(t) := - t^6/144 + t^5/120 + t^4/48 + t^3/36 + t^2/48 + t/120 + 1/720;
 JB_6_5(t) :=   t^6/720;</code></pre>
-<h3 id="point-polyblep-residual-2">8 Point PolyBLEP Residual</h3>
+<h3 id="point-polyblep-residual-2"><a href="#point-polyblep-residual-2"
+class="header-anchor" aria-hidden="true">8 Point PolyBLEP
+Residual</a></h3>
 <p><span class="math display">\[
 \begin{aligned}
 J B_{8,0}(t) &amp;=
@@ -516,8 +543,11 @@ JB_8_4(t) := - t^8/1152 + t^7/336 + t^6/288 - t^5/80 - (19*t^4)/576 + t^3/48 + (
 JB_8_5(t) :=   t^8/1920 - t^7/840 - t^6/360 + t^4/72 + t^3/30 + (7*t^2)/180 + t/42 + 31/5040;
 JB_8_6(t) := - t^8/5760 + t^7/5040 + t^6/1440 + t^5/720 + t^4/576 + t^3/720 + t^2/1440 + t/5040 + 1/40320;
 JB_8_7(t) :=   t^8/40320;</code></pre>
-<h2 id="テスト">テスト</h2>
-<h3 id="polyblep-residual-のプロット">PolyBLEP Residual のプロット</h3>
+<h2 id="テスト"><a href="#テスト" class="header-anchor"
+aria-hidden="true">テスト</a></h2>
+<h3 id="polyblep-residual-のプロット"><a
+href="#polyblep-residual-のプロット" class="header-anchor"
+aria-hidden="true">PolyBLEP Residual のプロット</a></h3>
 <p>PolyBLEP residual をプロットします。コードを実行すると 4 point
 PolyBLEP residual をプロットします。 6 point と 8 point
 を含む完全な実装は次のリンク先に掲載しています。</p>
@@ -586,7 +616,9 @@ class="math inline">\(j\)</span> は PolyBLEP residual
 </ul>
 <p><span class="math inline">\(t\)</span>
 は時間の進む方向と逆行します。</p>
-<h3 id="矩形波オシレータへの適用">矩形波オシレータへの適用</h3>
+<h3 id="矩形波オシレータへの適用"><a href="#矩形波オシレータへの適用"
+class="header-anchor"
+aria-hidden="true">矩形波オシレータへの適用</a></h3>
 <p>正しく動作するかを確認するために、矩形波に PolyBLEP residual
 を足し合わせて周波数特性を出します。</p>
 <p>長いので 4 point の実装だけを掲載します。この実装は PolyBLEP
@@ -691,7 +723,8 @@ href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.square.h
 <figure>
 <img src="img/8PointSquareSpectrum.png" alt="Image of power spectrum of square wave with 8 point PolyBLEP residual added to edge." style="padding-bottom: 12px;"/>
 </figure>
-<h4 id="音のサンプル">音のサンプル</h4>
+<h4 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+aria-hidden="true">音のサンプル</a></h4>
 <figure>
 <figcaption>
 Naive
@@ -724,12 +757,14 @@ Naive
 <source src="snd/polyblep8.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <p>Nam, J., Pekonen, J., &amp; Valimaki, V. (2011). <a
 href="https://pdfs.semanticscholar.org/33f1/2adabd6df85337848f1463f1e7553233fd12.pdf">Perceptually
 informed synthesis of bandlimited classical waveforms using integrated
 polynomial interpolation</a>.</p>
-<h2 id="訂正">訂正</h2>
+<h2 id="訂正"><a href="#訂正" class="header-anchor"
+aria-hidden="true">訂正</a></h2>
 <ul>
 <li>2020-04-06
 <ul>

@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>peak_hold_envelope</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -379,11 +398,13 @@ id="toc-後ろ向きホールド">後ろ向きホールド</a></li>
 </nav>
 </details>
 </header>
-<h1
-id="ピークホールドによるエンベロープ">ピークホールドによるエンベロープ</h1>
+<h1 id="ピークホールドによるエンベロープ"><a
+href="#ピークホールドによるエンベロープ" class="header-anchor"
+aria-hidden="true">ピークホールドによるエンベロープ</a></h1>
 <p>音のリミッタで使うために、ピークホールドを使ったエンベロープの検出を実装します。</p>
 <p>ある信号の絶対値をなだらかに包み込むような信号のことを、その信号のエンベロープと言います。しきい値やニーなどの特性を加えたエンベロープの逆数を入力信号に掛け合わせることで音量を制限するリミッタが作れます。</p>
-<h2 id="前向きホールド">前向きホールド</h2>
+<h2 id="前向きホールド"><a href="#前向きホールド" class="header-anchor"
+aria-hidden="true">前向きホールド</a></h2>
 <p>入力信号の絶対値を計算します。</p>
 <figure>
 <img src="img/input_signal.svg" alt="Plot of input signal and its absolute value." style="padding-bottom: 12px;"/>
@@ -438,7 +459,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>plt.plot(absed, label<span class="op">=</span><span class="st">&quot;Absed&quot;</span>)</span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>plt.plot(holdF, label<span class="op">=</span><span class="st">&quot;Forward Hold&quot;</span>)</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
-<h2 id="スムーシング">スムーシング</h2>
+<h2 id="スムーシング"><a href="#スムーシング" class="header-anchor"
+aria-hidden="true">スムーシング</a></h2>
 <p>前向きホールドによるエンベロープをそのまま使うとホールド値を忘れるときにポップノイズが出てしまうので、フィルタを使ってスムーシングします。ここで使うフィルタは一定時間同じ値が入力されると、その値に到達することが保証されているものとします。移動平均フィルタの重ね掛けや、
 Bessel
 フィルタはこのような設計ができます。リミッタ向きのフィルタについては<a
@@ -471,7 +493,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <figure>
 <img src="img/protruding_peak_desired.svg" alt="Image of desired envelope which eliminates protruding peak." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="理想的なホールド">理想的なホールド</h2>
+<h2 id="理想的なホールド"><a href="#理想的なホールド"
+class="header-anchor" aria-hidden="true">理想的なホールド</a></h2>
 <p>ホールド値より小さいピークを見逃さないためには、ホールド時間と同じ長さのバッファを用意して入力を覚えておく方法があります。出力にはバッファ内の最大値を使います。以下はこのアルゴリズムのコード例です。</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
@@ -488,7 +511,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <p>ここでは上のコードのアルゴリズムのことを理想的なホールドの素朴な実装と呼びます。素朴な実装の問題点は計算量です。上のコードの
 <code>out[i] = max(buffer)</code> は Python では 1
 行で書けますが、計算量はバッファの長さに比例します。したがってホールド時間を長くすると計算が重たくなります。</p>
-<h3 id="realtime-implementation">リアルタイムで使えるアルゴリズム</h3>
+<h3 id="realtime-implementation"><a href="#realtime-implementation"
+class="header-anchor"
+aria-hidden="true">リアルタイムで使えるアルゴリズム</a></h3>
 <p>計算量の問題を解決するために試行錯誤したところ、局所最大値をキューに保存することで高速に計算するアルゴリズムを思いつきました。</p>
 <p>例として以下のような入力について考えます。図の赤い実線が理想的なホールドの出力です。赤い点線は出力値の候補を表しています。</p>
 <figure>
@@ -505,7 +530,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <p>言い換えると、ピーク 3
 が入力されたときにホールド時間だけ入力を振り返って、ピーク 3
 よりも小さい値を忘れてしまってもいいということです。</p>
-<h4 id="レシピ">レシピ</h4>
+<h4 id="レシピ"><a href="#レシピ" class="header-anchor"
+aria-hidden="true">レシピ</a></h4>
 <p>以下のメモリを確保します。</p>
 <ul>
 <li>ホールド時間 + 1 サンプルのディレイ。 0 で初期化。</li>
@@ -564,7 +590,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <figure>
 <img src="img/smoothed_ideal_hold.svg" alt="Plot of smoothed hold envelope." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="テスト">テスト</h3>
+<h3 id="テスト"><a href="#テスト" class="header-anchor"
+aria-hidden="true">テスト</a></h3>
 <p>理想的なホールドを使えばはみ出しが起こらないことをテストします。</p>
 <p>テスト用の入力として、ランダムにインパルスが散らばったノイズを作ります。</p>
 <div class="sourceCode" id="cb5"><pre
@@ -641,7 +668,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <p>はみ出しを検知したときは <code>Test failed: ...</code>
 を出力します。シード値 0 から 1023
 まで理想的なホールドをテストしたところ、はみ出しは検知されませんでした。</p>
-<h3 id="c-による実装">C++ による実装</h3>
+<h3 id="c-による実装"><a href="#c-による実装" class="header-anchor"
+aria-hidden="true">C++ による実装</a></h3>
 <p>以下のコードの <code>PeakHold</code> が理想的なホールドです。</p>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
@@ -791,11 +819,11 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#c
 <span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>  PeakHold<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> hold<span class="op">;</span></span>
 <span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a>  hold<span class="op">.</span>setFrames<span class="op">(</span><span class="dv">4</span><span class="op">);</span></span>
 <span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>minstd_rand<span class="op"> </span>rng<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>minstd_rand rng<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
 <span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> dist<span class="op">(</span><span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">);</span></span>
 <span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> idx <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> idx <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>idx<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> input <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
-<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> input <span class="op">&lt;&lt;</span> <span class="st">&quot;, &quot;</span> <span class="op">&lt;&lt;</span> hold<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> input <span class="op">&lt;&lt;</span> <span class="st">&quot;, &quot;</span> <span class="op">&lt;&lt;</span> hold<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb7-154"><a href="#cb7-154" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-155"><a href="#cb7-155" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -805,8 +833,10 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#c
 <p><code>RingQueue</code> は <code>push_back</code> や
 <code>pop_front</code> でメモリの確保や解放が行われないようにした
 <code>std::deque</code> の代替です。速度はほとんど同じです。</p>
-<h2 id="その他">その他</h2>
-<h3 id="後ろ向きホールド">後ろ向きホールド</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="後ろ向きホールド"><a href="#後ろ向きホールド"
+class="header-anchor" aria-hidden="true">後ろ向きホールド</a></h3>
 <p>試行錯誤しているときに下の図のような後ろ向きホールドを思いついたのですが、理想的なホールドの生成には使えないことがわかりました。</p>
 <figure>
 <img src="img/backward_hold.svg" alt="Example plot of backward hold." style="padding-bottom: 12px;"/>
@@ -849,7 +879,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <li>c は b のホールド時間内に現れる。</li>
 <li>a &gt; b かつ c &gt; b 。</li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2022/05/07
 <ul>

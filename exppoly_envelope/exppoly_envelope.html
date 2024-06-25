@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-05-14" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>exppoly_envelope</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-05-14
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -374,7 +393,8 @@ class="math inline">\(t^\alpha\)</span> の範囲</a></li>
 </nav>
 </details>
 </header>
-<h1 id="exppoly-エンベロープ">ExpPoly エンベロープ</h1>
+<h1 id="exppoly-エンベロープ"><a href="#exppoly-エンベロープ"
+class="header-anchor" aria-hidden="true">ExpPoly エンベロープ</a></h1>
 <p><a
 href="https://ryukau.github.io/WobblingMetalBoard/">WobblingMetalBoard</a>
 を作っているときに次のエンベロープを思いつきました。</p>
@@ -384,9 +404,12 @@ E(t) = t^\alpha e^{-\beta t}
 <p><span class="math inline">\(t\)</span> は時間、 <span
 class="math inline">\(\alpha,\beta\)</span>
 は任意の定数です。簡単に性質を調べて実装します。</p>
-<h2 id="性質">性質</h2>
-<h3 id="et-が最大となる-t"><span class="math inline">\(E(t)\)</span>
-が最大となる <span class="math inline">\(t\)</span></h3>
+<h2 id="性質"><a href="#性質" class="header-anchor"
+aria-hidden="true">性質</a></h2>
+<h3 id="et-が最大となる-t"><a href="#et-が最大となる-t"
+class="header-anchor" aria-hidden="true"><span
+class="math inline">\(E(t)\)</span> が最大となる <span
+class="math inline">\(t\)</span></a></h3>
 <p><span class="math inline">\(E(t)\)</span> を <span
 class="math inline">\(t\)</span> について微分します。 Maxima
 を使います。</p>
@@ -451,8 +474,9 @@ class="math inline">\(\hat{E}(t)\)</span> のプロットです。</p>
 <figure>
 <img src="img/beta.png" alt="Image of poly-exp envelope with varying beta." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="et-の振幅から時間を求める"><span
-class="math inline">\(E(t)\)</span> の振幅から時間を求める</h3>
+<h3 id="et-の振幅から時間を求める"><a href="#et-の振幅から時間を求める"
+class="header-anchor" aria-hidden="true"><span
+class="math inline">\(E(t)\)</span> の振幅から時間を求める</a></h3>
 <p><span class="math inline">\(E(t)\)</span> は <span
 class="math inline">\(t\)</span> が <span
 class="math inline">\(+\infty\)</span> に到達すると <span
@@ -526,8 +550,9 @@ href="https://docs.scipy.org/doc/scipy-1.2.0/reference/generated/scipy.special.l
 DarkoVeberic/LambertW: C++ implementation of the Lambert W(x)
 function</a></li>
 </ul>
-<h3 id="計算可能な-talpha-の範囲">計算可能な <span
-class="math inline">\(t^\alpha\)</span> の範囲</h3>
+<h3 id="計算可能な-talpha-の範囲"><a href="#計算可能な-talpha-の範囲"
+class="header-anchor" aria-hidden="true">計算可能な <span
+class="math inline">\(t^\alpha\)</span> の範囲</a></h3>
 <p><span class="math inline">\(E(t)\)</span> に含まれる <span
 class="math inline">\(t^\alpha\)</span>
 は浮動小数点数で計算するとそのうち <code>inf</code> になります。そこで
@@ -608,7 +633,8 @@ t_{\mathrm{max}} &amp;\geq \dfrac{\alpha}{\beta} \\
 \beta &amp;\geq \dfrac{\alpha}{F^{1 / \alpha}}
 \end{aligned}
 \]</span></p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>C++ による実装例です。</p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
@@ -665,7 +691,8 @@ at master · ryukau/filter_notes · GitHub</a></li>
 <figure>
 <img src="img/ExpPoly.png" alt="Image of test result of ExpPoly envelope implemented in C++." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="区間積分">区間積分</h2>
+<h2 id="区間積分"><a href="#区間積分" class="header-anchor"
+aria-hidden="true">区間積分</a></h2>
 <p>ExpPoly エンベロープを GenericDrum
 の衝突の計算に応用できそうな気がしたので、以下の区間積分が解けるかどうか試しました。</p>
 <p><span class="math display">\[
@@ -731,7 +758,8 @@ s &amp;= β^{-c} τ^{-c}.
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> sympy.Symbol(<span class="st">&quot;x&quot;</span>, real<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sympy.solve(sympy.Eq(result, x), τ)</span></code></pre></div>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p><span class="math inline">\(E(t)\)</span> は <a
 href="https://en.wikipedia.org/wiki/Gamma_distribution">Gamma
 distribution</a> の PDF の一部と同じ形です。</p>
@@ -747,7 +775,8 @@ z transform of this function. - Mathematics Stack Exchange</a></li>
 href="https://en.wikipedia.org/wiki/Exponential_polynomial">Exponential
 polynomial - Wikipedia</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024-05-14
 <ul>

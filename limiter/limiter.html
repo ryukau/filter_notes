@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-05-20" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>limiter</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-05-20
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -410,7 +429,8 @@ id="toc-参考にしたプラグイン">参考にしたプラグイン</a></li>
 </nav>
 </details>
 </header>
-<h1 id="リミッタの実装">リミッタの実装</h1>
+<h1 id="リミッタの実装"><a href="#リミッタの実装" class="header-anchor"
+aria-hidden="true">リミッタの実装</a></h1>
 <p>シンセサイザやエフェクタの部品として使えるような簡易なリミッタを作ります。ここで作るリミッタはどんな入力があっても、振幅を必ずしきい値以下に制限することを目的とします。</p>
 <p>Waves の L1 が発表されてから <a
 href="https://en.wikipedia.org/wiki/Waves_Audio#History">25
@@ -442,7 +462,8 @@ at master · ryukau/VSTPlugins · GitHub</a></li>
 href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/main/common/dsp/limiter.js">UhhyouWebSynthesizers/common/dsp/limiter.js
 at main · ryukau/UhhyouWebSynthesizers · GitHub</a></li>
 </ul>
-<h2 id="ブロック線図">ブロック線図</h2>
+<h2 id="ブロック線図"><a href="#ブロック線図" class="header-anchor"
+aria-hidden="true">ブロック線図</a></h2>
 <p>今回実装するリミッタのブロック線図です。</p>
 <figure>
 <img src="img/limiter_block_diagram.svg" alt="Block diagram of limiter." style="padding-bottom: 12px;"/>
@@ -459,7 +480,8 @@ href="../s_curve_step_response_filter/s_curve_step_response_filter.html">スム�
 (Smoothing Filter)</li>
 <li><a href="../delay/delay.html">ディレイ</a> (Delay)</li>
 </ul>
-<h3 id="特性曲線">特性曲線</h3>
+<h3 id="特性曲線"><a href="#特性曲線" class="header-anchor"
+aria-hidden="true">特性曲線</a></h3>
 <p>特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を
 <span class="math inline">\(x\)</span> 、リミッタのしきい値を <span
 class="math inline">\(T\)</span>
@@ -500,7 +522,8 @@ division by 0)}\\\\
 \end{cases}
 \end{aligned}
 \]</span></p>
-<h4 id="ソフトクリップ">ソフトクリップ</h4>
+<h4 id="ソフトクリップ"><a href="#ソフトクリップ" class="header-anchor"
+aria-hidden="true">ソフトクリップ</a></h4>
 <p>この節で出てくる式とコードはゲインへの変換を行っていないので注意してください。ゲインへと変換するには
 <span class="math inline">\(x \to |x|\)</span> と置き換えて、 <span
 class="math inline">\(|x|\)</span> で除算してください。</p>
@@ -585,7 +608,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">std::</span>copysign<span class="op">(</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    threshold <span class="op">+</span> <span class="op">(</span>a2 <span class="op">-</span> absed<span class="op">)</span> <span class="op">*</span> <span class="op">(</span>a2 <span class="op">-</span> absed<span class="op">)</span> <span class="op">/</span> T<span class="op">(</span><span class="dv">4</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>a1 <span class="op">-</span> threshold<span class="op">),</span> x0<span class="op">);</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>C++17
 で実装します。コンパイルして実行できる完全なコードを以下のリンクに掲載しています。</p>
 <ul>
@@ -615,7 +639,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#c
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits&gt;</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span></code></pre></div>
-<h3 id="二重移動平均フィルタ">二重移動平均フィルタ</h3>
+<h3 id="二重移動平均フィルタ"><a href="#二重移動平均フィルタ"
+class="header-anchor" aria-hidden="true">二重移動平均フィルタ</a></h3>
 <p>二重移動平均フィルタは<a
 href="../s_curve_step_response_filter/s_curve_step_response_filter.html">ステップ応答が
 S 字になるフィルタ</a>です。フィルタ係数が<a
@@ -687,7 +712,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output<span class="op">;</span></span>
 <span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h3 id="リリース用のフィルタ">リリース用のフィルタ</h3>
+<h3 id="リリース用のフィルタ"><a href="#リリース用のフィルタ"
+class="header-anchor" aria-hidden="true">リリース用のフィルタ</a></h3>
 <p>以下はリリース用のフィルタの実装例です。 Exponential moving average
 (EMA) フィルタを 2 つ直列につないでいます。</p>
 <div class="sourceCode" id="cb4"><pre
@@ -731,7 +757,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> v2<span class="op">;</span></span>
 <span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h3 id="リミッタの実装-1">リミッタの実装</h3>
+<h3 id="リミッタの実装-1"><a href="#リミッタの実装-1"
+class="header-anchor" aria-hidden="true">リミッタの実装</a></h3>
 <p>リミッタの実装です。アタック、リリース、サステインの時間を設定できます。アタックと呼んでいるのは二重移動平均フィルタによる遅延なので、実際はリリースにも影響します。リリース時間はどれだけゲインを下げたかで変わるので、あくまでも目安です。</p>
 <p><code>Delay</code> と <code>PeakHold</code> の実装は「<a
 href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールドによるエンベロープ</a>」に掲載しています。</p>
@@ -864,7 +891,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>              <span class="op">&lt;&lt;</span> <span class="st">&quot;max      : &quot;</span> <span class="op">&lt;&lt;</span> max <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="アタック時間の変更">アタック時間の変更</h4>
+<h4 id="アタック時間の変更"><a href="#アタック時間の変更"
+class="header-anchor" aria-hidden="true">アタック時間の変更</a></h4>
 <p><code>prepare</code> について見ていきます。</p>
 <p>今回の実装では、ピークホールドに前から順にすべてのサンプルを入力しないと、リミッタが正しく動作しません。そこでアタック時間あるいはサステイン時間が変更されたときは、以下のコードのようにバッファをいったんリセットしています。リセットによってポップノイズが出てしまいますが、フィードバック経路で使うような場面ではリミッタのしきい値を超える振幅が出力されるよりは安全だと判断しています。</p>
 <div class="sourceCode" id="cb6"><pre
@@ -876,13 +904,15 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>sustainFrames <span class="op">=</span> <span class="dt">size_t</span><span class="op">(</span>sampleRate <span class="op">*</span> sustainSeconds<span class="op">);</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>prevAttack <span class="op">!=</span> attackFrames <span class="op">||</span> prevSustain <span class="op">!=</span> sustainFrames<span class="op">)</span> reset<span class="op">();</span></span></code></pre></div>
-<h4 id="サステイン時間の設定">サステイン時間の設定</h4>
+<h4 id="サステイン時間の設定"><a href="#サステイン時間の設定"
+class="header-anchor" aria-hidden="true">サステイン時間の設定</a></h4>
 <p>ホールド時間だけを長くすることでサステインを加えられます。</p>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>hold<span class="op">.</span>setFrames<span class="op">(</span>attackFrames <span class="op">+</span> <span class="dt">size_t</span><span class="op">(</span>sampleRate <span class="op">*</span> sustainSeconds<span class="op">));</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>smoother<span class="op">.</span>setFrames<span class="op">(</span>attackFrames<span class="op">);</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>lookaheadDelay<span class="op">.</span>setFrames<span class="op">(</span>attackFrames<span class="op">);</span></span></code></pre></div>
-<h4 id="特性曲線とゲインの計算">特性曲線とゲインの計算</h4>
+<h4 id="特性曲線とゲインの計算"><a href="#特性曲線とゲインの計算"
+class="header-anchor" aria-hidden="true">特性曲線とゲインの計算</a></h4>
 <p><code>process</code> について見ていきます。</p>
 <p>リミッタでは音量を下げたいので、特性曲線を計算するついでに入力の絶対値の逆数
 <code>thresholdAmp / x0</code> を計算してゲインとしています。
@@ -901,7 +931,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#c
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> candidate <span class="op">=</span> applyCharacteristicCurve<span class="op">(</span>peakAmp<span class="op">);</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="リリースの計算">リリースの計算</h4>
+<h4 id="リリースの計算"><a href="#リリースの計算" class="header-anchor"
+aria-hidden="true">リリースの計算</a></h4>
 <p>リリース中に大きなピークが入力されたときはゲインが下がるので
 <code>std::min</code> によってリリースが中断されます。言い換えると
 <code>processRelease</code> の引数 <code>gain</code>
@@ -927,7 +958,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#c
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  releaseFilter<span class="op">.</span>setMin<span class="op">(</span>gain<span class="op">);</span></span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> releaseFilter<span class="op">.</span>process<span class="op">(</span>gain<span class="op">);</span></span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h2 id="トゥルーピークモード">トゥルーピークモード</h2>
+<h2 id="トゥルーピークモード"><a href="#トゥルーピークモード"
+class="header-anchor" aria-hidden="true">トゥルーピークモード</a></h2>
 <p>トゥルーピークを考慮したリミッタを作るときは以下のようなマルチレート処理が必要です。
 <code>upfold</code> はオーバーサンプリングの倍率です。</p>
 <div class="sourceCode" id="cb10"><pre
@@ -950,8 +982,9 @@ href="https://ryukau.github.io/filter_notes/downsampling/downsampling.html#noble
 ポリフェイズフィルタ</a>を使います。 IIR
 フィルタを使うと位相が変わるので、フィルタを通った時点でピークが変わってしまいます。トゥルーピークの検出にはアップサンプリングを行うしかないので、ダウンサンプリングの時点で位相が変わると手の施しようがなくなります。</p>
 <p>ダウンサンプリング後の信号はサンプルピークがしきい値を超えることがあります。この問題を避けることは難しいので、あきらめてユーザにしきい値を下げるように促すか、ダウンサンプリング後にさらにリミッタをかけるということが考えられます。</p>
-<h3 id="fir-フィルタによるアップサンプリングの限界">FIR
-フィルタによるアップサンプリングの限界</h3>
+<h3 id="fir-フィルタによるアップサンプリングの限界"><a
+href="#fir-フィルタによるアップサンプリングの限界" class="header-anchor"
+aria-hidden="true">FIR フィルタによるアップサンプリングの限界</a></h3>
 <p>オフライン処理であれば信号が事前にすべてわかっているので、
 <code>scipy.signal.resample</code>
 のような離散フーリエ変換を使ったリサンプリングを使うことで正確にトゥルーピークを復元できます。しかしリアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。以下は
@@ -983,7 +1016,8 @@ href="https://www.esstech.com/wp-content/uploads/2021/03/ES9038Q2M-Datasheet-v1.
 144 なので、リミッタのアップサンプラで使う FIR フィルタのタップ数を 144
 以上にすればよさそうです。可能であればターゲットとする DAC
 のフィルタ係数を吸いだして直接使うことも考えられます。</p>
-<h3 id="簡易な性能の測定">簡易な性能の測定</h3>
+<h3 id="簡易な性能の測定"><a href="#簡易な性能の測定"
+class="header-anchor" aria-hidden="true">簡易な性能の測定</a></h3>
 <p>トゥルーピークモードの性能を測るには、すべてのサンプルの値が +1.0
 あるいは -1.0 となる信号を作って FFT
 リサンプリングによるピーク値と比較することが考えられます。以下は測定コードの例です。
@@ -1043,7 +1077,9 @@ FFT アップサンプリング後のピークがリミッタなしで +8.9 dB �
 href="https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiter/source/dsp/polyphase.hpp">BasicLimiter
 の FIR ポリフェイズフィルタのコードを読む (github.com)</a></li>
 </ul>
-<h3 id="軽量なトゥルーピークモード">軽量なトゥルーピークモード</h3>
+<h3 id="軽量なトゥルーピークモード"><a
+href="#軽量なトゥルーピークモード" class="header-anchor"
+aria-hidden="true">軽量なトゥルーピークモード</a></h3>
 <p>リミッタによるエイリアシングノイズを低減しないなら、以下のブロック線図の構成でもトゥルーピークを抑えられます。</p>
 <figure>
 <img src="img/truepeak_light_block_diagram.svg" alt="Image of a block diagram of true-peak limiter without multirate processing." style="padding-bottom: 12px;"/>
@@ -1061,7 +1097,8 @@ href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_comput
 href="https://github.com/ryukau/filter_notes/blob/master/limiter/lighttruepeaklimiter.py">軽量なトゥルーピークモードのコードを読む
 (github.com)</a></li>
 </ul>
-<h3 id="プリフィルタの設計">プリフィルタの設計</h3>
+<h3 id="プリフィルタの設計"><a href="#プリフィルタの設計"
+class="header-anchor" aria-hidden="true">プリフィルタの設計</a></h3>
 <p>この設計は BasicLimiter に関する以下の issue
 の解決策として提示したものです。</p>
 <ul>
@@ -1107,8 +1144,10 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a h
 <figure>
 <img src="img/prefilter.svg" alt="Image of frequency response of pre-filter." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="その他">その他</h2>
-<h3 id="継時マスキング">継時マスキング</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="継時マスキング"><a href="#継時マスキング" class="header-anchor"
+aria-hidden="true">継時マスキング</a></h3>
 <p><a
 href="https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0">継時マスキング</a>
 (<a
@@ -1121,7 +1160,9 @@ href="https://ccrma.stanford.edu/~bosse/proj/node21.html">突然の大きい音�
 以下の長さにわたって起こる</a>そうです。よってリミッタを耳で評価するときはアタック時間を
 20 ms 以下、リリース時間を 200 ms
 以下に設定してドラムなどの音を入力したときに違和感を感じないことが一つの目安になります。アタックが遅い音は継時マスキングの条件から外れるので、より長いアタック時間やリリース時間が使えるかもしれません。</p>
-<h3 id="スムーシングフィルタの選定">スムーシングフィルタの選定</h3>
+<h3 id="スムーシングフィルタの選定"><a
+href="#スムーシングフィルタの選定" class="header-anchor"
+aria-hidden="true">スムーシングフィルタの選定</a></h3>
 <p>ピークホールドのスムーシングを行うときに正面から FIR
 フィルタを畳み込むのであれば任意のフィルタ係数が使えます。オーバーシュートしない係数として<a
 href="%5BWindow%20function%20-%20Wikipedia%5D(https://en.wikipedia.org/wiki/Window_function)">窓関数</a>が使えますが、数があるので選定が必要です。</p>
@@ -1139,7 +1180,8 @@ href="https://github.com/ryukau/filter_notes/tree/master/limiter/cpp/limiter/dat
 </ul>
 <p>他の選択肢としては DPSS や exponential window が挙げられます。 DPSS
 は Kaiser 、 exponential は三角窓に近い特性が作れます。</p>
-<h3 id="matlab-のリミッタ">MATLAB のリミッタ</h3>
+<h3 id="matlab-のリミッタ"><a href="#matlab-のリミッタ"
+class="header-anchor" aria-hidden="true">MATLAB のリミッタ</a></h3>
 <p>既存のリミッタの実装を探していた時に MATLAB
 のリミッタを見つけました。下のほうにアルゴリズムが載っています。</p>
 <ul>
@@ -1150,7 +1192,8 @@ range limiter - MATLAB</a></li>
 <p>実装して試してみたのですが入力信号によっては振幅がしきい値を超えるケースがありました。フィルタ出力がピーク振幅に到達するまでピークホールドを行っておらず、また入力にディレイをかけてピークを合わせてもいません。スムーシングには
 1 次ローパス (exponential moving average フィルタ) が使われています。 1
 次ローパスの出力は指数曲線を描くので、振幅を確実に制限するときには使えないです。</p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a
 href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
@@ -1161,7 +1204,8 @@ range limiter - MATLAB</a></li>
 <li><a href="http://iem.at/~zmoelnig/publications/limiter/">how to make
 a DIGITAL LIMITER</a></li>
 </ul>
-<h2 id="参考にしたプラグイン">参考にしたプラグイン</h2>
+<h2 id="参考にしたプラグイン"><a href="#参考にしたプラグイン"
+class="header-anchor" aria-hidden="true">参考にしたプラグイン</a></h2>
 <ul>
 <li><a href="http://www.yohng.com/software/w1limit.html">yohng.com · W1
 Limiter</a></li>
@@ -1169,7 +1213,8 @@ Limiter</a></li>
 href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm">Fruity
 Limiter - Effect Plugin</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/05/20
 <ul>

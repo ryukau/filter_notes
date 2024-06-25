@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-10-30" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>basic_fir</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-10-30
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -376,11 +395,14 @@ id="toc-フィルタ係数の計算について">フィルタ係数の計算に�
 </nav>
 </details>
 </header>
-<h1 id="お手軽なfirフィルタのレシピ">お手軽なFIRフィルタのレシピ</h1>
+<h1 id="お手軽なfirフィルタのレシピ"><a
+href="#お手軽なfirフィルタのレシピ" class="header-anchor"
+aria-hidden="true">お手軽なFIRフィルタのレシピ</a></h1>
 <p><strong>注意</strong>: 内容が怪しいです。</p>
 <p><a
 href="https://en.wikipedia.org/wiki/Finite_impulse_response">FIR</a>のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。</p>
-<h2 id="記号">記号</h2>
+<h2 id="記号"><a href="#記号" class="header-anchor"
+aria-hidden="true">記号</a></h2>
 <ul>
 <li><span class="math inline">\(f_{s}\)</span> : <a
 href="https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate">サンプリング周波数</a></li>
@@ -396,7 +418,8 @@ class="math inline">\(2 \pi f_h\)</span></li>
 <p><a
 href="https://en.wikipedia.org/wiki/Passband">通過域</a>の大きさ（<a
 href="https://en.wikipedia.org/wiki/Amplitude">Amplitude</a>）は1とします。</p>
-<h2 id="ローパスフィルタ">ローパスフィルタ</h2>
+<h2 id="ローパスフィルタ"><a href="#ローパスフィルタ"
+class="header-anchor" aria-hidden="true">ローパスフィルタ</a></h2>
 <figure>
 <img src="img/fir_filter_lowpass.png" alt="Image of FIR lowpass filter." style="width: 320px;padding-bottom: 12px;"/>
 </figure>
@@ -430,7 +453,8 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> coefficient</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="ハイパスフィルタ">ハイパスフィルタ</h2>
+<h2 id="ハイパスフィルタ"><a href="#ハイパスフィルタ"
+class="header-anchor" aria-hidden="true">ハイパスフィルタ</a></h2>
 <figure>
 <img src="img/fir_filter_highpass.png" alt="Image of FIR highpass filter." style="width: 320px;padding-bottom: 12px;"/>
 </figure>
@@ -468,7 +492,8 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">:</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(<span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> n) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaH <span class="op">*</span> n)) <span class="op">/</span> (<span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> n)</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> coefficient</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="バンドパスフィルタ">バンドパスフィルタ</h2>
+<h2 id="バンドパスフィルタ"><a href="#バンドパスフィルタ"
+class="header-anchor" aria-hidden="true">バンドパスフィルタ</a></h2>
 <figure>
 <img src="img/fir_filter_bandpass.png" alt="Image of FIR bandpass filter." style="width: 320px;padding-bottom: 12px;"/>
 </figure>
@@ -508,7 +533,9 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">:</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaH <span class="op">*</span> n) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaL <span class="op">*</span> n)) <span class="op">/</span> (<span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> n)</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> coefficient</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="バンドリジェクトフィルタ">バンドリジェクトフィルタ</h2>
+<h2 id="バンドリジェクトフィルタ"><a href="#バンドリジェクトフィルタ"
+class="header-anchor"
+aria-hidden="true">バンドリジェクトフィルタ</a></h2>
 <p>バンドストップフィルタとも呼ばれるようです。</p>
 <figure>
 <img src="img/fir_filter_bandreject.png" alt="Image of FIR bandreject filter." style="width: 320px;padding-bottom: 12px;"/>
@@ -553,7 +580,8 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="op">:</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(piN) <span class="op">+</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaL <span class="op">*</span> n) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaH <span class="op">*</span> n)) <span class="op">/</span> piN</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> coefficient</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="firフィルタのかけ方">FIRフィルタのかけ方</h2>
+<h2 id="firフィルタのかけ方"><a href="#firフィルタのかけ方"
+class="header-anchor" aria-hidden="true">FIRフィルタのかけ方</a></h2>
 <p>まずフィルタをかけるソースを用意します。</p>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> audioContext <span class="op">=</span> <span class="kw">new</span> <span class="bu">AudioContext</span>()</span>
@@ -601,8 +629,9 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    destination[i] <span class="op">+=</span> buffer[j] <span class="op">*</span> filter[j]</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="computer-algebra-system-の利用">Computer Algebra System
-の利用</h2>
+<h2 id="computer-algebra-system-の利用"><a
+href="#computer-algebra-system-の利用" class="header-anchor"
+aria-hidden="true">Computer Algebra System の利用</a></h2>
 <p>手で式を解くと間違えることがあるので <a
 href="https://en.wikipedia.org/wiki/Computer_algebra_system">Computer
 Algebra System (CAS)</a> を利用します。</p>
@@ -633,7 +662,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>omega <span class="op">=</span> Symbol(<span class="st">&#39;omega&#39;</span>)</span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>answer <span class="op">=</span> simplify(integrate(exp(I <span class="op">*</span> omega <span class="op">*</span> n), (omega, <span class="op">-</span>l, l)).rewrite(sin))</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>pprint(answer)</span></code></pre></div>
-<h2 id="フィルタ係数の計算について">フィルタ係数の計算について</h2>
+<h2 id="フィルタ係数の計算について"><a
+href="#フィルタ係数の計算について" class="header-anchor"
+aria-hidden="true">フィルタ係数の計算について</a></h2>
 <p>フィルタ係数は周波数特性を逆離散時間フーリエ変換することで得られます。</p>
 <p><span class="math display">\[
 \frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
@@ -664,14 +695,16 @@ href="https://en.wikipedia.org/wiki/Even_and_odd_functions#Calculus_properties">
 \]</span></p>
 <p>虚部が出てきました。実部は式を変形をしないときと同じになっています。</p>
 <p>念のために定義どおり計算した方がよさそうです。</p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>式を解かなくても周波数特性を逆離散フーリエ変換すればフィルタは作れます。</p>
 <p>フィルタ係数が固定のときは<a
 href="https://www.scipy.org/">SciPy</a>や<a
 href="https://www.gnu.org/software/octave/">Octave</a>などを使って設計するほうが楽で確実です。</p>
 <p>ここで作ったバンドパスフィルタを Banded Waveguides
 に使おうとしたのですが、切れ味が良すぎてWaveguide間の干渉がほとんど起こらず、面白い音になりませんでした。</p>
-<h2 id="参考サイト">参考サイト</h2>
+<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+aria-hidden="true">参考サイト</a></h2>
 <ul>
 <li><a
 href="https://ccrma.stanford.edu/~jos/sasp/Ideal_Lowpass_Filter.html">The

@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>lfo_temposync</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -398,11 +417,13 @@ id="toc-テンポシンクに必要な情報の取得">テンポシンクに必�
 </nav>
 </details>
 </header>
-<h1 id="lfo-のテンポシンク">LFO のテンポシンク</h1>
+<h1 id="lfo-のテンポシンク"><a href="#lfo-のテンポシンク"
+class="header-anchor" aria-hidden="true">LFO のテンポシンク</a></h1>
 <p>LFO を滑らかにテンポシンク (tempo synchronization)
 する方法について調べます。</p>
 <p>ここでは拍単位でのテンポシンクのみを扱います。</p>
-<h2 id="素朴なテンポシンク">素朴なテンポシンク</h2>
+<h2 id="素朴なテンポシンク"><a href="#素朴なテンポシンク"
+class="header-anchor" aria-hidden="true">素朴なテンポシンク</a></h2>
 <p>テンポシンクでは以下のパラメータを使います。ユーザはテンポと同期間隔を変更できます。</p>
 <ul>
 <li><span class="math inline">\(T\)</span>: テンポ [beat/min]</li>
@@ -419,9 +440,11 @@ p = \frac{\mathrm{fmod}(B, S)}{S}
 <span class="math inline">\(p\)</span> は範囲 <span
 class="math inline">\([0, 1)\)</span> の、のこぎり波の LFO
 として使えます。</p>
-<h3 id="評価">評価</h3>
+<h3 id="評価"><a href="#評価" class="header-anchor"
+aria-hidden="true">評価</a></h3>
 <p>振幅変調を使って評価を行います。</p>
-<h4 id="同期間隔の変更">同期間隔の変更</h4>
+<h4 id="同期間隔の変更"><a href="#同期間隔の変更" class="header-anchor"
+aria-hidden="true">同期間隔の変更</a></h4>
 <p>以下のパラメータでテンポシンクを行います。</p>
 <ul>
 <li>テンポ 120 [beat/min]</li>
@@ -469,7 +492,8 @@ class="math inline">\(s_m\)</span>
 <source src="snd/NaiveSyncChange.wav" type="audio/wav">
 </audio>
 </figure>
-<h4 id="テンポの変更">テンポの変更</h4>
+<h4 id="テンポの変更"><a href="#テンポの変更" class="header-anchor"
+aria-hidden="true">テンポの変更</a></h4>
 <p>以下のパラメータでテンポシンクを行います。</p>
 <ul>
 <li>テンポ
@@ -499,9 +523,11 @@ class="math inline">\(s_m\)</span>
 <source src="snd/NaiveTempoChange.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="滑らかなテンポシンク">滑らかなテンポシンク</h2>
+<h2 id="滑らかなテンポシンク"><a href="#滑らかなテンポシンク"
+class="header-anchor" aria-hidden="true">滑らかなテンポシンク</a></h2>
 <p>同期間隔やテンポが変更されたときにポップノイズを抑えながら新しい周期に移行するような方法を調べます。</p>
-<h3 id="問題の整理">問題の整理</h3>
+<h3 id="問題の整理"><a href="#問題の整理" class="header-anchor"
+aria-hidden="true">問題の整理</a></h3>
 <p>ある時点で同期間隔が <span class="math inline">\(S_0\)</span> から
 <span class="math inline">\(S_1\)</span>
 に変わったとします。このとき、パラメータ変更前の位相の位置 <span
@@ -584,7 +610,8 @@ class="math inline">\(n_L\)</span> に変換して使います。</p>
 <p><span class="math display">\[
 n_L = t_L f_s
 \]</span></p>
-<h3 id="設計">設計</h3>
+<h3 id="設計"><a href="#設計" class="header-anchor"
+aria-hidden="true">設計</a></h3>
 <p><span class="math inline">\(v_2\)</span> は時点 <span
 class="math inline">\(\dfrac{n_L}{2}\)</span> に速度 <span
 class="math inline">\(h\)</span> の中間点を置いて、 <span
@@ -665,7 +692,8 @@ href="https://github.com/ryukau/filter_notes/blob/master/lfo_temposync/model.py"
 <figure>
 <img src="img/PythonImplementation.svg" alt="Plot of naively tempo-synced phase and smoothed phase." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="逆走の補正">逆走の補正</h3>
+<h3 id="逆走の補正"><a href="#逆走の補正" class="header-anchor"
+aria-hidden="true">逆走の補正</a></h3>
 <p>位相の逆走は <span class="math inline">\(h &lt; 0\)</span> のときに
 <span class="math inline">\(v_2\)</span>
 が負の値になるために起こります。以下は逆走が起きるときの <span
@@ -717,8 +745,10 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <figure>
 <img src="img/PythonImplementationFixed.svg" alt="Plot of smoothed phase without reverse run." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="実装">実装</h2>
-<h3 id="経過拍数の外挿">経過拍数の外挿</h3>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
+<h3 id="経過拍数の外挿"><a href="#経過拍数の外挿" class="header-anchor"
+aria-hidden="true">経過拍数の外挿</a></h3>
 <p>ここまではテンポ、同期間隔、経過拍数が 1
 サンプルごとに更新されることを前提にしていました。しかしプラグインで実装するときは
 DSP 処理の 1
@@ -727,7 +757,8 @@ href="https://en.wikipedia.org/wiki/Extrapolation">外挿</a>を行う必要が�
 <p>今回はテンポがサイクルの開始時点以外では変化しないことを前提とします。テンポが変化しないのであれば
 1
 サイクル内の経過拍数は直線を描くことが保証されるので簡単に外挿できます。</p>
-<h3 id="状態遷移">状態遷移</h3>
+<h3 id="状態遷移"><a href="#状態遷移" class="header-anchor"
+aria-hidden="true">状態遷移</a></h3>
 <p>パラメータの変化も事前にわかっている前提で話を進めてきましたが、プラグインでは次にどのような値が入力されるかは分かりません。さらに初期化の時点では
 DAW からテンポの値が送られてこないことがあります。</p>
 <p>パラメータの変化への対応は LFO に以下の 4
@@ -764,7 +795,8 @@ class="math inline">\(n\)</span> は状態遷移のたびに 0
 <figure>
 <img src="img/StateTransition.svg" alt="Image of LFO state transition diagram." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="計算式の再掲">計算式の再掲</h3>
+<h3 id="計算式の再掲"><a href="#計算式の再掲" class="header-anchor"
+aria-hidden="true">計算式の再掲</a></h3>
 <p>滑らかな遷移に使う計算式をまとめて再掲します。</p>
 <ul>
 <li><span class="math inline">\(T\)</span>: テンポ [beat/min]</li>
@@ -825,7 +857,8 @@ v_2(n) &amp;= \begin{cases}
 \end{cases}
 \end{aligned}
 \]</span></p>
-<h3 id="c-での実装">C++ での実装</h3>
+<h3 id="c-での実装"><a href="#c-での実装" class="header-anchor"
+aria-hidden="true">C++ での実装</a></h3>
 <p>実装します。</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
@@ -980,7 +1013,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a>      buffer<span class="op">[</span>idx<span class="op">++]</span> <span class="op">=</span> lfo<span class="op">.</span>process<span class="op">();</span></span>
 <span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>      elapsedBeats <span class="op">+=</span> beatsDelta<span class="op">;</span></span>
 <span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>      <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> idx <span class="op">-</span> <span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;: &quot;</span> <span class="op">&lt;&lt;</span> buffer<span class="op">[</span>idx <span class="op">-</span> <span class="dv">1</span><span class="op">]</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>      <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> idx <span class="op">-</span> <span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;: &quot;</span> <span class="op">&lt;&lt;</span> buffer<span class="op">[</span>idx <span class="op">-</span> <span class="dv">1</span><span class="op">]</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a></span>
@@ -992,8 +1025,10 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 href="https://github.com/ryukau/filter_notes/blob/master/lfo_temposync/cpp/bench/bench.cpp">C++
 実装の詳細なテストコードを読む (github.com)</a></li>
 </ul>
-<h2 id="音のサンプル">音のサンプル</h2>
-<h3 id="同期間隔の変更-1">同期間隔の変更</h3>
+<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+aria-hidden="true">音のサンプル</a></h2>
+<h3 id="同期間隔の変更-1"><a href="#同期間隔の変更-1"
+class="header-anchor" aria-hidden="true">同期間隔の変更</a></h3>
 <p>素朴なテンポシンクでは 1
 秒の時点でポップノイズが聞こえます。滑らかなテンポシンクではポップノイズは聞き取れません。</p>
 <figure>
@@ -1012,7 +1047,8 @@ href="https://github.com/ryukau/filter_notes/blob/master/lfo_temposync/cpp/bench
 <source src="snd/amout_Sync.wav" type="audio/wav">
 </audio>
 </figure>
-<h3 id="テンポの変更-1">テンポの変更</h3>
+<h3 id="テンポの変更-1"><a href="#テンポの変更-1" class="header-anchor"
+aria-hidden="true">テンポの変更</a></h3>
 <p>素朴なテンポシンク、滑らかなテンポシンクともにポップノイズは聞き取れません。滑らかなテンポシンクは位相の進み方を変えることによる癖がついているので、用途によっては素朴なテンポシンクのほうが適しているかもしれません。</p>
 <figure>
 <figcaption>
@@ -1030,8 +1066,10 @@ href="https://github.com/ryukau/filter_notes/blob/master/lfo_temposync/cpp/bench
 <source src="snd/amout_Tempo.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="その他">その他</h2>
-<h3 id="位相の計算式の変形">位相の計算式の変形</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="位相の計算式の変形"><a href="#位相の計算式の変形"
+class="header-anchor" aria-hidden="true">位相の計算式の変形</a></h3>
 <p>経過拍数 <span class="math inline">\(B\)</span> と同期間隔 <span
 class="math inline">\(S\)</span> は正の実数なので、位相 <span
 class="math inline">\(p\)</span>
@@ -1041,8 +1079,9 @@ p = \frac{B}{S} - \left\lfloor \frac{B}{S} \right\rfloor
 \]</span></p>
 <p>C++ の実装では <code>std::fmod</code> よりも <code>std::floor</code>
 のほうが高速なので、この変形が役に立ちます。</p>
-<h3
-id="テンポシンクに必要な情報の取得">テンポシンクに必要な情報の取得</h3>
+<h3 id="テンポシンクに必要な情報の取得"><a
+href="#テンポシンクに必要な情報の取得" class="header-anchor"
+aria-hidden="true">テンポシンクに必要な情報の取得</a></h3>
 <p>VST 3 では <a
 href="https://steinbergmedia.github.io/vst3_doc/vstinterfaces/structSteinberg_1_1Vst_1_1ProcessContext.html"><code>ProcessContext</code></a>
 から、テンポ、再生開始から経過した拍数、再生中かどうかの情報が提供されます。</p>
@@ -1063,7 +1102,8 @@ Plugins</a></li>
 href="https://gitlab.com/lv2/lv2/-/blob/master/plugins/eg-metro.lv2/metro.c">plugins/eg-metro.lv2/metro.c
 · master · LV2 / lv2 · GitLab</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2021/05/09
 <ul>

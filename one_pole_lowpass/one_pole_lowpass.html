@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-30" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>one_pole_lowpass</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-30
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -372,7 +391,9 @@ id="toc-プロットに使ったコード">プロットに使ったコード</a>
 </nav>
 </details>
 </header>
-<h1 id="次ローパスのバイリニア変換">1 次ローパスのバイリニア変換</h1>
+<h1 id="次ローパスのバイリニア変換"><a
+href="#次ローパスのバイリニア変換" class="header-anchor"
+aria-hidden="true">1 次ローパスのバイリニア変換</a></h1>
 <p>Exponential moving average (EMA)
 フィルタではナイキスト周波数の成分が残るので、バイリニア変換した 1
 次ローパスフィルタを作ることにしました。</p>
@@ -426,7 +447,9 @@ class="math inline">\(20 \log_{10} (1/\sqrt{2}) \approx -3.0103\
 <figure>
 <img src="img/blt_one_pole.svg" alt="Plot of frequency response of bilinear transformed 1-pole lowpass filter." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="ナイキスト周波数でのゲイン">ナイキスト周波数でのゲイン</h2>
+<h2 id="ナイキスト周波数でのゲイン"><a
+href="#ナイキスト周波数でのゲイン" class="header-anchor"
+aria-hidden="true">ナイキスト周波数でのゲイン</a></h2>
 <p>ナイキスト周波数のゲインは <span class="math inline">\(z=-1\)</span>
 を <span class="math inline">\(H(z)\)</span> に代入すると得られます。
 <span class="math inline">\(H(z)\)</span> は分母が <span
@@ -458,7 +481,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <figure>
 <img src="img/nyquist_freq_test_hann_window.svg" alt="Plot of time domain response of windowed nyquist frequency signal." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="c-による実装">C++ による実装</h2>
+<h2 id="c-による実装"><a href="#c-による実装" class="header-anchor"
+aria-hidden="true">C++ による実装</a></h2>
 <p>C++ 20 で実装します。</p>
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
@@ -481,7 +505,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setCutoff<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span></span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> pi <span class="op">=</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> pi <span class="op">=</span> <span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> k <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="bu">std::</span>tan<span class="op">(</span>pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">);</span></span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> a0 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> k<span class="op">;</span></span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    bn <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> a0<span class="op">;</span></span>
@@ -495,7 +519,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y1 <span class="op">=</span> y0<span class="op">;</span></span>
 <span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h2 id="ハイパス">ハイパス</h2>
+<h2 id="ハイパス"><a href="#ハイパス" class="header-anchor"
+aria-hidden="true">ハイパス</a></h2>
 <p>以下は 1 次ハイパスの連続系での伝達関数です。</p>
 <p><span class="math display">\[
 H(s) = \frac{s/\omega_c}{1 + s/\omega_c} = \frac{k s}{1 + k s}
@@ -545,7 +570,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setCutoff<span class="op">(</span>Sample sampleRate<span class="op">,</span> Sample cutoffHz<span class="op">)</span></span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> pi <span class="op">=</span> <span class="bu">std::</span>numbers<span class="bu">::</span>pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> pi <span class="op">=</span> <span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> k <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="bu">std::</span>tan<span class="op">(</span>pi <span class="op">*</span> cutoffHz <span class="op">/</span> sampleRate<span class="op">);</span></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> a0 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> k<span class="op">;</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    b0 <span class="op">=</span> k <span class="op">/</span> a0<span class="op">;</span></span>
@@ -559,8 +584,10 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> y1 <span class="op">=</span> y0<span class="op">;</span></span>
 <span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h2 id="その他">その他</h2>
-<h3 id="ema-フィルタの-sos">EMA フィルタの SOS</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="ema-フィルタの-sos"><a href="#ema-フィルタの-sos"
+class="header-anchor" aria-hidden="true">EMA フィルタの SOS</a></h3>
 <p>以下は EMA フィルタの伝達関数です。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -590,13 +617,15 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    kp <span class="op">=</span> np.sqrt(y <span class="op">*</span> y <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> y) <span class="op">-</span> y</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    kq <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> kp</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [[kq, <span class="op">-</span>kq, <span class="dv">0</span>, <span class="dv">1</span>, <span class="op">-</span>kq, <span class="dv">0</span>]]</span></code></pre></div>
-<h3 id="プロットに使ったコード">プロットに使ったコード</h3>
+<h3 id="プロットに使ったコード"><a href="#プロットに使ったコード"
+class="header-anchor" aria-hidden="true">プロットに使ったコード</a></h3>
 <ul>
 <li><a
 href="https://github.com/ryukau/filter_notes/blob/master/one_pole_lowpass/code/test.py">filter_notes/one_pole_lowpass/code/test.py
 at master · ryukau/filter_notes · GitHub</a></li>
 </ul>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a
 href="https://www.allaboutcircuits.com/technical-articles/understanding-transfer-functions-for-low-pass-filters/">Understanding
@@ -604,7 +633,8 @@ Low-Pass Filter Transfer Functions - Technical Articles</a></li>
 <li><a href="https://en.wikipedia.org/wiki/Bilinear_transform">Bilinear
 transform - Wikipedia</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2023/06/30
 <ul>

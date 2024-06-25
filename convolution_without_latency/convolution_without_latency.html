@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>convolution_without_latency</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -393,7 +412,9 @@ id="toc-overrun-underrun-xrun">Overrun, Underrun, Xrun</a></li>
 </nav>
 </details>
 </header>
-<h1 id="レイテンシのない畳み込み">レイテンシのない畳み込み</h1>
+<h1 id="レイテンシのない畳み込み"><a href="#レイテンシのない畳み込み"
+class="header-anchor"
+aria-hidden="true">レイテンシのない畳み込み</a></h1>
 <p><a
 href="https://ryukau.github.io/VSTPlugins/index.html#minicliffeq">MiniCliffEQ</a>
 の FIR フィルタの畳み込みに素朴な overlap-add
@@ -413,7 +434,8 @@ Convolution Without Latency”</a> という資料を見つけました。</p>
 <p>改変した一定計算コスト法は “Efficient Convolution Without Latency”
 で紹介されている一定計算コスト法 (constant demand solution)
 に基づいた方法です。</p>
-<h2 id="素朴な畳み込み">素朴な畳み込み</h2>
+<h2 id="素朴な畳み込み"><a href="#素朴な畳み込み" class="header-anchor"
+aria-hidden="true">素朴な畳み込み</a></h2>
 <p>離散信号の 1 サンプルあたりの畳み込みは以下の式で表されます。</p>
 <p><span class="math display">\[
 y[n] = \sum_{i=0}^{N-1} h[i] \, x[n - i].
@@ -459,7 +481,8 @@ FIR の畳み込みの一部を素朴に計算する必要があります。</p>
 href="https://github.com/ryukau/filter_notes/blob/master/convolution_without_latency/cpp/test.cpp#L289-L316">C++
 による素朴な畳み込みの実装 (github.com)</a></li>
 </ul>
-<h2 id="fft-による一括畳み込み">FFT による一括畳み込み</h2>
+<h2 id="fft-による一括畳み込み"><a href="#fft-による一括畳み込み"
+class="header-anchor" aria-hidden="true">FFT による一括畳み込み</a></h2>
 <p>入力信号 <span class="math inline">\(x\)</span> と FIR <span
 class="math inline">\(h\)</span> の長さが同じときは、以下の式のように
 FFT で周波数領域に変換してから畳み込むことで高速に計算できます。</p>
@@ -485,7 +508,8 @@ class="math inline">\(n\)</span>
 が小さいときは素朴な畳み込みのほうが速くなることがあります。適切な <span
 class="math inline">\(n\)</span>
 を決めるためには、対象となる環境でベンチマークを取ることを推奨します。</p>
-<h2 id="overlap-add">Overlap-Add</h2>
+<h2 id="overlap-add"><a href="#overlap-add" class="header-anchor"
+aria-hidden="true">Overlap-Add</a></h2>
 <p>FFT
 による一括畳み込みは入力信号が事前にすべて分かっていないと計算できないのでリアルタイムでは使えません。この問題を解決するために
 overlap-add と呼ばれる計算方法が使えます。 FIR
@@ -520,7 +544,8 @@ overlap-add と呼ばれる計算方法が使えます。 FIR
 を行うためには入力信号がバッファの半分まで書き込まれることを待つ必要があることが原因です。例えば
 <code>FIR * Block 0</code> が得られるのは手順 2 と 3 を表した図の左から
 2 つめの縦線の時点 (あるいは図中の FIR の終端) になります。</p>
-<h3 id="実装">実装</h3>
+<h3 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>入力バッファを 1 つ、出力バッファを 2
 つ用意します。すべてリングバッファです。また、出力バッファの読み取り位置はブロック長だけずらしておきます。</p>
 <p>2
@@ -540,7 +565,8 @@ overlap-add と呼ばれる計算方法が使えます。 FIR
 href="https://github.com/ryukau/filter_notes/blob/master/convolution_without_latency/cpp/test.cpp#L430-L535">C++
 による overlap-add の実装 (github.com)</a></li>
 </ul>
-<h2 id="overlap-save">Overlap-Save</h2>
+<h2 id="overlap-save"><a href="#overlap-save" class="header-anchor"
+aria-hidden="true">Overlap-Save</a></h2>
 <p>Overlap-save は overlap-add と比べるとブロックの長さを FIR
 の長さ以上に設定できる点が異なります。ブロックを長くするほど計算量は減りますが、トレードオフとしてレイテンシが増えます。レイテンシを最小にすると
 overlap-add と同じように振る舞います。</p>
@@ -576,7 +602,8 @@ overlap-add と同じように振る舞います。</p>
 <p>上の図ではブロック長と FIR
 長を同じにしているので少し紛らわしいですが、 overlap-save では FIR
 の長さだけレイテンシが生じます。</p>
-<h3 id="実装-1">実装</h3>
+<h3 id="実装-1"><a href="#実装-1" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>入力バッファを 2 つ、出力バッファを 1
 つ用意します。すべてリングバッファです。また、入力バッファの書き込み位置はブロック長だけずらしておきます。</p>
 <p>出力バッファからの出力が、そのまま畳み込みの出力となります。</p>
@@ -594,7 +621,8 @@ overlap-add と同じように振る舞います。</p>
 href="https://github.com/ryukau/filter_notes/blob/master/convolution_without_latency/cpp/test.cpp#L318-L428">C++
 による overlap-save の実装 (github.com)</a></li>
 </ul>
-<h3 id="overlap-add-との比較">Overlap-add との比較</h3>
+<h3 id="overlap-add-との比較"><a href="#overlap-add-との比較"
+class="header-anchor" aria-hidden="true">Overlap-add との比較</a></h3>
 <p>今回の実装かつ、私の環境では overlap-save のほうが overlap-add
 よりもわずかに高速でした。</p>
 <p>どちらも単精度の浮動小数点数で実装したのですが、倍精度の
@@ -603,9 +631,10 @@ href="https://github.com/ryukau/filter_notes/blob/master/convolution_without_lat
 <p>音のプラグインであれば無視できる差なので、 overlap-add と
 overlap-save
 を両方実装して比較する、というところまで手間をかけなくてもいいかもしれません。速さにこだわるのであれば環境や実装ごとにベンチマークを取って確認したほうがよさそうです。</p>
-<h2
-id="レイテンシのない畳み込み---最小計算コスト法">レイテンシのない畳み込み
-- 最小計算コスト法</h2>
+<h2 id="レイテンシのない畳み込み---最小計算コスト法"><a
+href="#レイテンシのない畳み込み---最小計算コスト法"
+class="header-anchor" aria-hidden="true">レイテンシのない畳み込み -
+最小計算コスト法</a></h2>
 <p>Overlap-add と overlap-save は、 FIR
 のレイテンシとは別に、ブロック長のレイテンシが導入されてしまうという問題点がありました。
 William G. Gardner さんによる “Efficient Convolution Without Latency”
@@ -650,16 +679,18 @@ class="math inline">\(h_0\)</span>
 <figure>
 <img src="img/minimum_cost_full_implementation.svg" alt="Image of FIR splitting on minimum computation cost solution." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="実装-2">実装</h3>
+<h3 id="実装-2"><a href="#実装-2" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>以下は C++ による実装へのリンクです。</p>
 <ul>
 <li><a
 href="https://github.com/ryukau/filter_notes/blob/master/convolution_without_latency/cpp/test.cpp#L590-L672">C++
 による最小計算コスト法による畳み込みの実装 (github.com)</a></li>
 </ul>
-<h2
-id="レイテンシのない畳み込み---改変した一定計算コスト法">レイテンシのない畳み込み
-- 改変した一定計算コスト法</h2>
+<h2 id="レイテンシのない畳み込み---改変した一定計算コスト法"><a
+href="#レイテンシのない畳み込み---改変した一定計算コスト法"
+class="header-anchor" aria-hidden="true">レイテンシのない畳み込み -
+改変した一定計算コスト法</a></h2>
 <p>最小計算コスト法は FFT
 を計算する時点に計算量が集中するので、オーディオバッファの長さが短いときは計算が間に合わずに音が止まる
 (underrun)
@@ -735,7 +766,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> output<span class="op">;</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h3 id="実装-3">実装</h3>
+<h3 id="実装-3"><a href="#実装-3" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>以下は C++ による実装へのリンクです。</p>
 <ul>
 <li><a
@@ -746,7 +778,8 @@ href="https://github.com/ryukau/filter_notes/blob/master/convolution_without_lat
 法による畳み込み器はディレイが不要なので省略しています。また、
 overlap-save による畳み込み器の出力が 1
 サンプル早いので、その分だけディレイ時間を調整しています。</p>
-<h3 id="パフォーマンスの検討">パフォーマンスの検討</h3>
+<h3 id="パフォーマンスの検討"><a href="#パフォーマンスの検討"
+class="header-anchor" aria-hidden="true">パフォーマンスの検討</a></h3>
 <p>以下は各サンプルにおける計算時間の比較です。上の図が最小計算コスト法、下の図が改変した一定計算コスト法による結果です。</p>
 <figure>
 <img src="img/computation_cost_comparison.svg" alt="Image of ." style="padding-bottom: 12px;"/>
@@ -757,8 +790,11 @@ distributed load
 <p>原則としてはベンチマークを取って決めるしかありません。私の環境では
 FIR の長さが <code>2^15 = 32768</code> のときに、 FFT の長さを 2048
 とするとバランスがいいパフォーマンスとなりました。</p>
-<h2 id="その他">その他</h2>
-<h3 id="overrun-underrun-xrun">Overrun, Underrun, Xrun</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="overrun-underrun-xrun"><a href="#overrun-underrun-xrun"
+class="header-anchor" aria-hidden="true">Overrun, Underrun,
+Xrun</a></h3>
 <p>Overrun 、 underrun 、 xrun
 はアプリケーションのオーディオ処理がリアルタイムの締め切りに間に合っていない状態を表す言葉です。以下はそれぞれの意味です。</p>
 <ul>
@@ -774,7 +810,8 @@ FIR の長さが <code>2^15 = 32768</code> のときに、 FFT の長さを 2048
 <li><a href="https://www.linuxjournal.com/article/6735">Introduction to
 Sound Programming with ALSA | Linux Journal</a></li>
 </ul>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li>William G. Gardner, 1993-11-11, <a
 href="http://alumni.media.mit.edu/~adamb/docs/ConvolutionPaper.pdf">“Efficient
@@ -792,7 +829,8 @@ Lecture Overheads, Music 421).
 href="https://ccrma.stanford.edu/~jos/OLA/OLA_4up.pdf">PDF</a></li>
 </ul></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2022/09/02
 <ul>

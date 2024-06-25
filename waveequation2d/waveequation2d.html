@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>waveequation2d</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -384,14 +403,18 @@ class="math inline">\(\mathbf{A}\)</span></a></li>
 </nav>
 </details>
 </header>
-<h1 id="次元のばね-ダンパ波動方程式">2次元のばね-ダンパ波動方程式</h1>
+<h1 id="次元のばね-ダンパ波動方程式"><a
+href="#次元のばね-ダンパ波動方程式" class="header-anchor"
+aria-hidden="true">2次元のばね-ダンパ波動方程式</a></h1>
 <p>2次元のばね-ダンパ<a
 href="https://en.wikipedia.org/wiki/Wave_equation">波動方程式</a>を実装します。</p>
-<h2 id="表記について">表記について</h2>
+<h2 id="表記について"><a href="#表記について" class="header-anchor"
+aria-hidden="true">表記について</a></h2>
 <p>時間のインデックスの表記を <span class="math inline">\(n\)</span>
 から <span class="math inline">\(t\)</span> に変えます。 <span
 class="math inline">\(n\)</span> は次元の数に使うことにします。</p>
-<h2 id="ラプラシアンの離散化">ラプラシアンの離散化</h2>
+<h2 id="ラプラシアンの離散化"><a href="#ラプラシアンの離散化"
+class="header-anchor" aria-hidden="true">ラプラシアンの離散化</a></h2>
 <p><span class="math inline">\(n\)</span> 次元の<a
 href="https://en.wikipedia.org/wiki/Laplace_operator">ラプラシアン</a>を<a
 href="https://en.wikipedia.org/wiki/Finite_difference">有限差分</a>の形で離散化します。</p>
@@ -411,7 +434,8 @@ href="https://en.wikipedia.org/wiki/Von_Neumann_neighborhood">近傍</a>の総�
 <span class="math inline">\(\mathtt{axis}(n)\)</span> は <span
 class="math inline">\(n\)</span>
 次元の各軸の集合を表しているつもりですが、フォーマルな書き方がよく分からないのでごまかして書いています。</p>
-<h2 id="離散化">離散化</h2>
+<h2 id="離散化"><a href="#離散化" class="header-anchor"
+aria-hidden="true">離散化</a></h2>
 <p>後で次元を変えられる形で離散化します。 <span
 class="math inline">\(n\)</span> 次元のばね-ダンパ波動方程式です。</p>
 <p><span class="math display">\[
@@ -543,9 +567,10 @@ u_{t+1} = u_{t} + \Delta_t \dot{u}_{t} + C_3 \ddot{u}_{t} + C_8
 \mathbf{u}_{t}\\
 \end{aligned}
 \]</span></p>
-<h3 id="mathbfa-と-mathbfu_t-の組み立て"><span
-class="math inline">\(\mathbf{A}\)</span> と <span
-class="math inline">\(\mathbf{u}_{t}\)</span> の組み立て</h3>
+<h3 id="mathbfa-と-mathbfu_t-の組み立て"><a
+href="#mathbfa-と-mathbfu_t-の組み立て" class="header-anchor"
+aria-hidden="true"><span class="math inline">\(\mathbf{A}\)</span> と
+<span class="math inline">\(\mathbf{u}_{t}\)</span> の組み立て</a></h3>
 <p><span class="math inline">\(\mathbf{A}\)</span> と <span
 class="math inline">\(\mathbf{u}_{t}\)</span>
 の組み立て方について2次元の例を作って見ていきます。 <span
@@ -690,7 +715,8 @@ class="math inline">\(\mathbf{B},\,\mathbf{D},\,\mathbf{0}\)</span> は
 <span class="math inline">\(n_x \times n_x\)</span> の正方行列、 <span
 class="math inline">\(\mathbf{A}\)</span> は <span
 class="math inline">\(n_y \times n_y\)</span> の正方行列になります。</p>
-<h2 id="デモと実装">デモと実装</h2>
+<h2 id="デモと実装"><a href="#デモと実装" class="header-anchor"
+aria-hidden="true">デモと実装</a></h2>
 <p>ソルバに<a
 href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method">ガウス-ザイデル法</a>を使っています。計算が重たいので反復回数の上限を8にしています。</p>
 <p>キャンバスをクリックすると波が起きます。<span
@@ -707,9 +733,12 @@ class="math inline">\(u_{t} &lt; -1.0\)</span> を表しています。</p>
 <p><a
 href="https://github.com/ryukau/filter_notes/blob/master/waveequation2d/demo/wave2d.js">実装を読む
 (github.io)</a></p>
-<h2 id="その他">その他</h2>
-<h3
-id="ガウス-ザイデル法による歪みとインデックスの振り方">ガウス-ザイデル法による歪みとインデックスの振り方</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="ガウス-ザイデル法による歪みとインデックスの振り方"><a
+href="#ガウス-ザイデル法による歪みとインデックスの振り方"
+class="header-anchor"
+aria-hidden="true">ガウス-ザイデル法による歪みとインデックスの振り方</a></h3>
 <p>ガウス-ザイデル法の反復回数が少ないときに波が歪みます。この歪みは1次元配列への変換時に蛇行するようにインデックスを振ることで改善できますが、端のノードについての例外処理が増えます。</p>
 <figure>
 <img src="img/2d_lattice_snake_index.svg" alt="Image of gibbs phenomenon." style="width: 360px;"/>
@@ -723,12 +752,14 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    u_array[index] <span class="op">=</span> u[x][y]</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h3 id="ソルバの発散を防ぐ">ソルバの発散を防ぐ</h3>
+<h3 id="ソルバの発散を防ぐ"><a href="#ソルバの発散を防ぐ"
+class="header-anchor" aria-hidden="true">ソルバの発散を防ぐ</a></h3>
 <p>2回の反復を1セットにして、1回目はインデックスを昇順、2回目は降順にたどって計算することで、反復回数が少ないときでもソルバによる発散を防げます。</p>
-<h3 id="u_t-が-5-times-3-のときの-mathbfa"><span
-class="math inline">\(u_{t}\)</span> が <span class="math inline">\(5
-\times 3\)</span> のときの <span
-class="math inline">\(\mathbf{A}\)</span></h3>
+<h3 id="u_t-が-5-times-3-のときの-mathbfa"><a
+href="#u_t-が-5-times-3-のときの-mathbfa" class="header-anchor"
+aria-hidden="true"><span class="math inline">\(u_{t}\)</span> が <span
+class="math inline">\(5 \times 3\)</span> のときの <span
+class="math inline">\(\mathbf{A}\)</span></a></h3>
 <p><span class="math inline">\(\mathbf{u}_{t}\)</span>
 にインデックスを振ります。</p>
 <figure>
@@ -809,8 +840,10 @@ b C_1 &amp; 0 &amp; 0 &amp; 0 &amp; b C_1 &amp; C_0\\
 \mathbf{0} &amp; b\mathbf{D} &amp; \mathbf{B}\\
 \end{bmatrix}
 \]</span></p>
-<h3 id="n-次元の-mathbfa"><span class="math inline">\(n\)</span> 次元の
-<span class="math inline">\(\mathbf{A}\)</span></h3>
+<h3 id="n-次元の-mathbfa"><a href="#n-次元の-mathbfa"
+class="header-anchor" aria-hidden="true"><span
+class="math inline">\(n\)</span> 次元の <span
+class="math inline">\(\mathbf{A}\)</span></a></h3>
 <p>横書き順インデックスを使うときの <span
 class="math inline">\(n\)</span> 次元の <span
 class="math inline">\(\mathbf{A}\)</span> を組み立てます。 <span

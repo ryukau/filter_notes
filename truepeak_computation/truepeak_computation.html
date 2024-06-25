@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>truepeak_computation</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -407,7 +426,8 @@ id="toc-実験に使用した音声データの一覧">実験に使用した音�
 </nav>
 </details>
 </header>
-<h1 id="トゥルーピークの計算">トゥルーピークの計算</h1>
+<h1 id="トゥルーピークの計算"><a href="#トゥルーピークの計算"
+class="header-anchor" aria-hidden="true">トゥルーピークの計算</a></h1>
 <p>トゥルーピーク (true-peak)
 は離散信号のサンプル間を考慮したピーク値のことで、インターサンプルピーク
 (inter-sample peak) と呼ばれることもあります。</p>
@@ -418,7 +438,8 @@ href="https://www.itu.int/rec/R-REC-BS.1770/en">ITU-R BS.1770</a>
 <p>離散信号を sinc 補間して得られる、連続な信号の絶対値の最大値。</p>
 </blockquote>
 <p>ここではトゥルーピークの計算に適当なフィルタとそのパラメータを調べています。また、理論上の最悪の場合にトゥルーピークの真値と近似値がどれくらい異なるのかを調べています。</p>
-<h2 id="sinc-補間">Sinc 補間</h2>
+<h2 id="sinc-補間"><a href="#sinc-補間" class="header-anchor"
+aria-hidden="true">Sinc 補間</a></h2>
 <p><a
 href="https://ccrma.stanford.edu/~jos/Interpolation/Ideal_Bandlimited_Sinc_Interpolation.html">Sinc
 補間</a>を使えば、一定の間隔でサンプリングされた離散信号から、帯域制限された連続な信号を復元できます。帯域制限された信号とは、連続系から離散系に変換したときにエイリアシングノイズが出ない信号のことです。</p>
@@ -450,7 +471,8 @@ href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve
 (fractional delay filter) を使います。例えば ITU-R BS.1770-4 の Annex 2
 にはトゥルーピークを計算する FIR
 の分数ディレイフィルタが掲載されています。</p>
-<h2 id="分数ディレイフィルタ">分数ディレイフィルタ</h2>
+<h2 id="分数ディレイフィルタ"><a href="#分数ディレイフィルタ"
+class="header-anchor" aria-hidden="true">分数ディレイフィルタ</a></h2>
 <p>分数ディレイフィルタはサンプル間の値を計算するように設計されたフィルタのことです。大まかに以下のような特徴があります。</p>
 <ul>
 <li>遅延時間のサンプル数を正の実数で指定して設計できる。</li>
@@ -500,7 +522,9 @@ href="https://ryukau.github.io/filter_notes/delay/delay.html#%E5%88%86%E6%95%B0%
 </ul>
 <p>Thiran オールパスフィルタと BS.1770 FIR
 については、ここで簡単に紹介します。</p>
-<h3 id="thiran-オールパスフィルタ">Thiran オールパスフィルタ</h3>
+<h3 id="thiran-オールパスフィルタ"><a href="#thiran-オールパスフィルタ"
+class="header-anchor" aria-hidden="true">Thiran
+オールパスフィルタ</a></h3>
 <p>Thiran オールパスフィルタは <a
 href="https://en.wikipedia.org/wiki/Infinite_impulse_response">IIR</a>
 の分数ディレイフィルタです。</p>
@@ -536,30 +560,31 @@ class="math inline">\(N\)</span> の範囲のインデックスです。</p>
 href="https://ccrma.stanford.edu/~jos/pasp/Thiran_Allpass_Interpolators.html">Thiran
 Allpass Interpolators</a></li>
 </ul>
-<h3 id="bs.1770-fir">BS.1770 FIR</h3>
+<h3 id="bs.1770-fir"><a href="#bs.1770-fir" class="header-anchor"
+aria-hidden="true">BS.1770 FIR</a></h3>
 <p>BS.1770 FIR は ITR-R BS.1770-4 の Annex 2 に掲載されている FIR
 の分数ディレイフィルタです。以下は JSON 形式にしたフィルタ係数です。</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;Phase 0&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.001708984375</span><span class="ot">,</span> <span class="fl">0.010986328125</span><span class="ot">,</span> <span class="fl">-0.0196533203125</span><span class="ot">,</span> <span class="fl">0.033203125</span><span class="ot">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.0594482421875</span><span class="ot">,</span> <span class="fl">0.1373291015625</span><span class="ot">,</span> <span class="fl">0.97216796875</span><span class="ot">,</span> <span class="fl">-0.102294921875</span><span class="ot">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.047607421875</span><span class="ot">,</span> <span class="fl">-0.026611328125</span><span class="ot">,</span> <span class="fl">0.014892578125</span><span class="ot">,</span> <span class="fl">-0.00830078125</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.001708984375</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.010986328125</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0196533203125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.033203125</span><span class="ot">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.0594482421875</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">1373291015625</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">97216796875</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">102294921875</span><span class="ot">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.047607421875</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.026611328125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.014892578125</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.00830078125</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;Phase 1&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.0291748046875</span><span class="ot">,</span> <span class="fl">0.029296875</span><span class="ot">,</span> <span class="fl">-0.0517578125</span><span class="ot">,</span> <span class="fl">0.089111328125</span><span class="ot">,</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.16650390625</span><span class="ot">,</span> <span class="fl">0.465087890625</span><span class="ot">,</span> <span class="fl">0.77978515625</span><span class="ot">,</span> <span class="fl">-0.2003173828125</span><span class="ot">,</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.1015625</span><span class="ot">,</span> <span class="fl">-0.0582275390625</span><span class="ot">,</span> <span class="fl">0.0330810546875</span><span class="ot">,</span> <span class="fl">-0.0189208984375</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.0291748046875</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.029296875</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0517578125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.089111328125</span><span class="ot">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.</span><span class="dv">16650390625</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">465087890625</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">77978515625</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">2003173828125</span><span class="ot">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.</span><span class="dv">1015625</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0582275390625</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.0330810546875</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0189208984375</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;Phase 2&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.0189208984375</span><span class="ot">,</span> <span class="fl">0.0330810546875</span><span class="ot">,</span> <span class="fl">-0.0582275390625</span><span class="ot">,</span> <span class="fl">0.1015625</span><span class="ot">,</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.2003173828125</span><span class="ot">,</span> <span class="fl">0.77978515625</span><span class="ot">,</span> <span class="fl">0.465087890625</span><span class="ot">,</span> <span class="fl">-0.16650390625</span><span class="ot">,</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.089111328125</span><span class="ot">,</span> <span class="fl">-0.0517578125</span><span class="ot">,</span> <span class="fl">0.029296875</span><span class="ot">,</span> <span class="fl">-0.0291748046875</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.0189208984375</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.0330810546875</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0582275390625</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">1015625</span><span class="ot">,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.</span><span class="dv">2003173828125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">77978515625</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">465087890625</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">16650390625</span><span class="ot">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.089111328125</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0517578125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.029296875</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0291748046875</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;Phase 3&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.00830078125</span><span class="ot">,</span> <span class="fl">0.014892578125</span><span class="ot">,</span> <span class="fl">-0.026611328125</span><span class="ot">,</span> <span class="fl">0.047607421875</span><span class="ot">,</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.102294921875</span><span class="ot">,</span> <span class="fl">0.97216796875</span><span class="ot">,</span> <span class="fl">0.1373291015625</span><span class="ot">,</span> <span class="fl">-0.0594482421875</span><span class="ot">,</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.033203125</span><span class="ot">,</span> <span class="fl">-0.0196533203125</span><span class="ot">,</span> <span class="fl">0.010986328125</span><span class="ot">,</span> <span class="fl">0.001708984375</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.00830078125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.014892578125</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.026611328125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.047607421875</span><span class="ot">,</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.</span><span class="dv">102294921875</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">97216796875</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">1373291015625</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0594482421875</span><span class="ot">,</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.033203125</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.0196533203125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.010986328125</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.001708984375</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Phase 0 の配列の前後を逆にすると Phase 3 、 Phase 1
@@ -600,8 +625,10 @@ Phase3: [
   -419/4096, 1991/2048, 1125/8192, -487/8192,
   17/512, -161/8192, 45/4096, 7/4096
 ];</code></pre>
-<h3
-id="分数ディレイフィルタによるトゥルーピークの計算方法">分数ディレイフィルタによるトゥルーピークの計算方法</h3>
+<h3 id="分数ディレイフィルタによるトゥルーピークの計算方法"><a
+href="#分数ディレイフィルタによるトゥルーピークの計算方法"
+class="header-anchor"
+aria-hidden="true">分数ディレイフィルタによるトゥルーピークの計算方法</a></h3>
 <p>分数ディレイフィルタを使ったトゥルーピークの計算方法は大まかに以下のようになります。</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode c++"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> process<span class="op">(</span><span class="dt">float</span> input<span class="op">)</span></span>
@@ -626,7 +653,8 @@ class="sourceCode c++"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/code/cpp/benchmark/bench.cpp">C++
 による分数ディレイフィルタの実装例を読む (github.com)</a></li>
 </ul>
-<h2 id="評価">評価</h2>
+<h2 id="評価"><a href="#評価" class="header-anchor"
+aria-hidden="true">評価</a></h2>
 <p>どの分数ディレイフィルタを使ってオーバーサンプリングをどのくらいにすればいいのかを決めるために評価を行います。以下の手順で絞り込みを行っています。</p>
 <ol type="1">
 <li><a href="https://tech.ebu.ch/publications/tech3341">EBU TECH
@@ -635,7 +663,8 @@ href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/co
 <li>2
 で最も速かった分数ディレイフィルタのパラメータ設定について詳細を調べる。</li>
 </ol>
-<h3 id="ebu-tech-3341-のテスト">EBU TECH 3341 のテスト</h3>
+<h3 id="ebu-tech-3341-のテスト"><a href="#ebu-tech-3341-のテスト"
+class="header-anchor" aria-hidden="true">EBU TECH 3341 のテスト</a></h3>
 <p>EBU TECH 3341 の Table 1 (pp.10-11)
 にトゥルーピークのテストがいくつか載っています。以下は EBU TECH 3341
 のダウンロードリンクです。</p>
@@ -776,7 +805,8 @@ TECH 3341 のトゥルーピークのテストコードを読む (github.com)</a
 </table>
 <p>SOCP FIR のパラメータはフィルタの長さを BS.1770 FIR と同じ 12
 に固定した上で、残りのパラメータの値を試行錯誤によって見つけました。</p>
-<h3 id="データセット">データセット</h3>
+<h3 id="データセット"><a href="#データセット" class="header-anchor"
+aria-hidden="true">データセット</a></h3>
 <p>以降では EBU TECH 3341 に加えて <a
 href="https://freesound.org/">freesound.org</a>
 で集めたデータを使って誤差などを測定しています。データは freesound.org
@@ -786,7 +816,8 @@ href="https://freesound.org/">freesound.org</a>
 <li><a href="code/data/dataset.md">実験に使った freesound.org
 のデータの一覧</a></li>
 </ul>
-<h3 id="計算速度の比較">計算速度の比較</h3>
+<h3 id="計算速度の比較"><a href="#計算速度の比較" class="header-anchor"
+aria-hidden="true">計算速度の比較</a></h3>
 <p>上で調べた EBU TECH 3341
 のテストを通るパラメータを使ったときに、どの分数ディレイフィルタが最も速く計算できるのかを調べました。</p>
 <p>以下のリンクにベンチマークのコードを掲載しています。</p>
@@ -809,10 +840,14 @@ href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/co
 はフィルタの長さが同じなので計算時間も同じでした。これら 2 つの FIR
 と比べると Thiran オールパスは 2 倍、ラグランジュ補間は 4~5
 倍ほどの計算時間がかかりました。</p>
-<h3 id="socp-fir-のパラメータ設定">SOCP FIR のパラメータ設定</h3>
+<h3 id="socp-fir-のパラメータ設定"><a href="#socp-fir-のパラメータ設定"
+class="header-anchor" aria-hidden="true">SOCP FIR
+のパラメータ設定</a></h3>
 <p>高速な SOCP FIR に注目してパラメータを設定します。</p>
-<h4
-id="オーバーサンプリングの倍率とフィルタの長さの設定">オーバーサンプリングの倍率とフィルタの長さの設定</h4>
+<h4 id="オーバーサンプリングの倍率とフィルタの長さの設定"><a
+href="#オーバーサンプリングの倍率とフィルタの長さの設定"
+class="header-anchor"
+aria-hidden="true">オーバーサンプリングの倍率とフィルタの長さの設定</a></h4>
 <p>オーバーサンプリングの倍率とフィルタの長さを変えたときに SOCP FIR
 の誤差がどう変わるかを調べました。ここでは <code>omega_max = 0.5</code>
 で固定しています。</p>
@@ -867,8 +902,9 @@ id="オーバーサンプリングの倍率とフィルタの長さの設定">�
 </ul>
 <p>オーバーサンプリングの倍率については一概には言えませんが、高いほどアンダーリードが減り、低いほどオーバーリードが減っているように見えます。フィルタの長さが偶数のときは、オーバーサンプリングの倍率が偶数になるとアンダーリードが減る傾向があるように見えます。同様にフィルタの長さが奇数のときはオーバーサンプリングの倍率が奇数のときにアンダーリードが減っているように見えます。</p>
 <p>原則としてはアンダーリードを減らしつつ、全体の誤差も少なくしたいです。この要件を満たすにはフィルタの長さを奇数にして、オーバーサンプリングの倍率をできる限り高くすると良さそうです。</p>
-<h4 id="bs.1770-fir-より効率のいいパラメータ">BS.1770 FIR
-より効率のいいパラメータ</h4>
+<h4 id="bs.1770-fir-より効率のいいパラメータ"><a
+href="#bs.1770-fir-より効率のいいパラメータ" class="header-anchor"
+aria-hidden="true">BS.1770 FIR より効率のいいパラメータ</a></h4>
 <p>以下の図は SOCP FIR のパラメータを変えて EBU TECH 3341
 のテストを通るかどうか、また BS.1770 FIR
 よりも誤差が小さいかどうかを調べた結果のプロットです。ここではオーバーサンプリングの倍率を
@@ -905,24 +941,24 @@ FIR は以下のパラメータで設計できることがわかりました。<
 <div class="sourceCode" id="cb4"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;ITU-R BS.1770 FIR&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.0011130596765247989</span><span class="fu">,</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.0005132591093803915</span><span class="fu">,</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0005998005671444072</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.0011130596765247989</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.0005132591093803915</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="dv">-0</span><span class="er">.0005998005671444072</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;SOCP FIR, Length=5, Oversample=4, omega_max=0.525&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.0010093198109477944</span><span class="fu">,</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.00011114454719077043</span><span class="fu">,</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0008981752637570242</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.0010093198109477944</span><span class="fu">,</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.00011114454719077043</span><span class="fu">,</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="dv">-0</span><span class="er">.0008981752637570242</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;SOCP FIR, Length=7, Oversample=4, omega_max=0.650&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.000835934970347886</span><span class="fu">,</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.0002524608391844861</span><span class="fu">,</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0005834741311634001</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.000835934970347886</span><span class="fu">,</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.0002524608391844861</span><span class="fu">,</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="dv">-0</span><span class="er">.0005834741311634001</span></span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;SOCP FIR, Length=7, Oversample=4, omega_max=0.675&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.0009051819175772438</span><span class="fu">,</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.0003487720212173245</span><span class="fu">,</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0005564098963599192</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.0009051819175772438</span><span class="fu">,</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.0003487720212173245</span><span class="fu">,</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="dv">-0</span><span class="er">.0005564098963599192</span></span>
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>以下はフィルタの長さを 7 、 オーバーサンプリングの倍率を 4 倍とした
@@ -947,14 +983,14 @@ SOCP FIR フィルタの特性です。</p>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;SOCP FIR, Length=7, Oversample=4, omega_max=0.650&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.000835934970347886</span><span class="fu">,</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.0002524608391844861</span><span class="fu">,</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0005834741311634001</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.000835934970347886</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.0002524608391844861</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="dv">-0</span><span class="er">.0005834741311634001</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;SOCP FIR, Length=7, Oversample=4, omega_max=0.650, without last index&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="fl">0.0008398454979237256</span><span class="fu">,</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="fl">0.00023053871198559192</span><span class="fu">,</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="fl">-0.0006093067859381339</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;truepeak&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.0008398454979237256</span><span class="fu">,</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;overread&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="er">.00023053871198559192</span><span class="fu">,</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;underread&quot;</span><span class="fu">:</span> <span class="dv">-0</span><span class="er">.0006093067859381339</span></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>このフィルタについてはインデックス 4 を省略するとアンダーリードが
@@ -964,24 +1000,26 @@ BS.1770 FIR よりも大きくなるので、省略しないほうが良さそ�
 <div class="sourceCode" id="cb6"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.03396642725330925</span><span class="ot">,</span> <span class="fl">-0.12673821137646601</span><span class="ot">,</span> <span class="fl">0.5759982312324312</span><span class="ot">,</span> <span class="fl">0.6592123095604063</span><span class="ot">,</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.19435321143573606</span><span class="ot">,</span> <span class="fl">0.0782612693103079</span><span class="ot">,</span> <span class="fl">-0.025807862651826587</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.03396642725330925</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">12673821137646601</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">5759982312324312</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">6592123095604063</span><span class="ot">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.</span><span class="dv">19435321143573606</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.0782612693103079</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.025807862651826587</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="ot">],</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.021616078095824397</span><span class="ot">,</span> <span class="fl">-0.07539816970638001</span><span class="ot">,</span> <span class="fl">0.2653441329619578</span><span class="ot">,</span> <span class="fl">0.9081714824861011</span><span class="ot">,</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.16017585860369898</span><span class="ot">,</span> <span class="fl">0.059489586593950955</span><span class="ot">,</span> <span class="fl">-0.018863293456169244</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.021616078095824397</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.07539816970638001</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">2653441329619578</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">9081714824861011</span><span class="ot">,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.</span><span class="dv">16017585860369898</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.059489586593950955</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.018863293456169244</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="ot">],</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.018863293456169286</span><span class="ot">,</span> <span class="fl">0.05948958659395098</span><span class="ot">,</span> <span class="fl">-0.16017585860369907</span><span class="ot">,</span> <span class="fl">0.908171482486101</span><span class="ot">,</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.2653441329619578</span><span class="ot">,</span> <span class="fl">-0.07539816970638011</span><span class="ot">,</span> <span class="fl">0.02161607809582444</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.018863293456169286</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.05948958659395098</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">16017585860369907</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">908171482486101</span><span class="ot">,</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.</span><span class="dv">2653441329619578</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.07539816970638011</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.02161607809582444</span></span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="ot">],</span></span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.02580786265182662</span><span class="ot">,</span> <span class="fl">0.07826126931030812</span><span class="ot">,</span> <span class="fl">-0.1943532114357363</span><span class="ot">,</span> <span class="fl">0.6592123095604064</span><span class="ot">,</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5759982312324308</span><span class="ot">,</span> <span class="fl">-0.12673821137646582</span><span class="ot">,</span> <span class="fl">0.033966427253309124</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.02580786265182662</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.07826126931030812</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">1943532114357363</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">6592123095604064</span><span class="ot">,</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.</span><span class="dv">5759982312324308</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">12673821137646582</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.033966427253309124</span></span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
-<h3 id="ebu-tech-3341-のトゥルーピークテストを通る最小の-socp-fir">EBU
-TECH 3341 のトゥルーピークテストを通る最小の SOCP FIR</h3>
+<h3 id="ebu-tech-3341-のトゥルーピークテストを通る最小の-socp-fir"><a
+href="#ebu-tech-3341-のトゥルーピークテストを通る最小の-socp-fir"
+class="header-anchor" aria-hidden="true">EBU TECH 3341
+のトゥルーピークテストを通る最小の SOCP FIR</a></h3>
 <p>ここでは BS.1770 FIR より誤差が大きいものの、 EBU TECH 3341
 のテストは通るフィルタを掲載しています。以下は SOCP FIR
 のパラメータです。</p>
@@ -995,27 +1033,28 @@ TECH 3341 のトゥルーピークテストを通る最小の SOCP FIR</h3>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.0751360050029161</span><span class="ot">,</span> <span class="fl">0.5273409465119645</span><span class="ot">,</span> <span class="fl">0.678369080642087</span><span class="ot">,</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.17854734458879204</span><span class="ot">,</span> <span class="fl">0.04698995690696311</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.0751360050029161</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">5273409465119645</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">678369080642087</span><span class="ot">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.</span><span class="dv">17854734458879204</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.04698995690696311</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="ot">],</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.04390964025848337</span><span class="ot">,</span> <span class="fl">0.23798632863349117</span><span class="ot">,</span> <span class="fl">0.9146390367695467</span><span class="ot">,</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="fl">-0.14391204608426109</span><span class="ot">,</span> <span class="fl">0.03486831203681682</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.04390964025848337</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">23798632863349117</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">9146390367695467</span><span class="ot">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="dv">-0</span><span class="er">.</span><span class="dv">14391204608426109</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.03486831203681682</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="ot">],</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.03486831203681702</span><span class="ot">,</span> <span class="fl">-0.1439120460842612</span><span class="ot">,</span> <span class="fl">0.9146390367695467</span><span class="ot">,</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.237986328633491</span><span class="ot">,</span> <span class="fl">-0.04390964025848315</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.03486831203681702</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">1439120460842612</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">9146390367695467</span><span class="ot">,</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.</span><span class="dv">237986328633491</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.04390964025848315</span></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="ot">],</span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="ot">[</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.04698995690696286</span><span class="ot">,</span> <span class="fl">-0.17854734458879132</span><span class="ot">,</span> <span class="fl">0.6783690806420861</span><span class="ot">,</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5273409465119651</span><span class="ot">,</span> <span class="fl">-0.07513600500291616</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.04698995690696286</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">17854734458879132</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">6783690806420861</span><span class="ot">,</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="er">.</span><span class="dv">5273409465119651</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.07513600500291616</span></span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
 <p>以下はフィルタの特性です。</p>
 <figure>
 <img src="img/socp_fir_length5_oversample4.png" alt="Plot of SOCP FIR filter responses. Length is 5, oversampling is 4x, and omega_max is 0.525." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="c-での実装">C++ での実装</h3>
+<h3 id="c-での実装"><a href="#c-での実装" class="header-anchor"
+aria-hidden="true">C++ での実装</a></h3>
 <p>フィルタの長さを 7 、 オーバーサンプリングを 4 倍、
 <code>omega_max</code> を 0.65 とした SOCP FIR
 によるトゥルーピークメーターの C++17 での実装です。</p>
@@ -1069,12 +1108,13 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#c
 <span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 1 サンプルだけ計算する例。</span></span>
 <span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  TruePeakMeterFIR<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> SOCPFIR<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;&gt;</span> bs1770<span class="op">;</span></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> bs1770<span class="op">.</span>process<span class="op">(</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> bs1770<span class="op">.</span>process<span class="op">(</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h2
-id="離散ピークとトゥルーピークの差の最大値">離散ピークとトゥルーピークの差の最大値</h2>
+<h2 id="離散ピークとトゥルーピークの差の最大値"><a
+href="#離散ピークとトゥルーピークの差の最大値" class="header-anchor"
+aria-hidden="true">離散ピークとトゥルーピークの差の最大値</a></h2>
 <p>理論上のトゥルーピークの最大値がどれくらいになるのかを調べます。</p>
 <p>ここでは離散信号の絶対値の最大値を離散ピークと呼びます。 <span
 class="math inline">\(x\)</span> を入力信号とすると以下の式で離散ピーク
@@ -1082,7 +1122,8 @@ class="math inline">\(x\)</span> を入力信号とすると以下の式で離�
 <p><span class="math display">\[
 P(x) = \max(|x|)
 \]</span></p>
-<h3 id="長さが無限の信号">長さが無限の信号</h3>
+<h3 id="長さが無限の信号"><a href="#長さが無限の信号"
+class="header-anchor" aria-hidden="true">長さが無限の信号</a></h3>
 <p>Sinc 補間の式を再掲します。</p>
 <p><span class="math display">\[
 x(t) = \sum_{n=-\infty}^{\infty} x[n] \mathrm{sinc} \left( t - n \right)
@@ -1214,7 +1255,8 @@ sinc 補間の式は発散します。</p>
 \end{aligned}
 \]</span></p>
 <p>よって離散ピークとトゥルーピークの差は最悪の場合、無限になります。ただし、信号の長さが有限なら差も有限になりそうです。</p>
-<h3 id="長さが有限の信号">長さが有限の信号</h3>
+<h3 id="長さが有限の信号"><a href="#長さが有限の信号"
+class="header-anchor" aria-hidden="true">長さが有限の信号</a></h3>
 <p>信号の長さが有限のときの差の最大値について調べます。 Digamma function
 による計算のコードです。</p>
 <div class="sourceCode" id="cb11"><pre
@@ -1282,7 +1324,8 @@ href="https://github.com/ryukau/filter_notes/blob/master/truepeak_computation/co
 <p>差の最大値とは、最悪の場合の信号の離散ピークとトゥルーピークの差の最大値です。
 dB はダイナミックレンジを [-1.0, 1.0]
 として、差の最大値をデシベルに変換した値です。</p>
-<h3 id="まとめ">まとめ</h3>
+<h3 id="まとめ"><a href="#まとめ" class="header-anchor"
+aria-hidden="true">まとめ</a></h3>
 <p>理論上は離散ピークとトゥルーピークの差の最大値は無限に発散します。</p>
 <p>計算上は信号の長さが有限なので、差の最大値も有限になります。差の最大値は以下の式で計算できます。</p>
 <p><span class="math display">\[
@@ -1321,8 +1364,11 @@ function</a></li>
 <p><span class="math display">\[
 D(0.5, m) = \frac{2}{\pi} (\psi(m + 1.5) - \psi(0.5)) - 1
 \]</span></p>
-<h2 id="その他">その他</h2>
-<h3 id="sinc-補間の有効なタップ数">Sinc 補間の有効なタップ数</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="sinc-補間の有効なタップ数"><a href="#sinc-補間の有効なタップ数"
+class="header-anchor" aria-hidden="true">Sinc
+補間の有効なタップ数</a></h3>
 <p>32 bit や 64 bit
 の浮動小数点数で計算するときは小さい値が丸めによって無視されるので sinc
 補間のフィルタのタップ数を有限の長さで打ち切ることができそうです。以下のようなコードを書いて調べてみました。</p>
@@ -1343,7 +1389,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>frexp<span class="op">(</span>value<span class="op">,</span> <span class="op">&amp;</span>exponent<span class="op">);</span></span>
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    i <span class="op">+=</span> step<span class="op">;</span></span>
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> i <span class="op">&lt;&lt;</span> <span class="st">&quot;: &quot;</span> <span class="op">&lt;&lt;</span> sinc<span class="op">(</span>FLOAT<span class="op">(</span>i<span class="op">))</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;, &quot;</span> <span class="op">&lt;&lt;</span> exponent <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> i <span class="op">&lt;&lt;</span> <span class="st">&quot;: &quot;</span> <span class="op">&lt;&lt;</span> sinc<span class="op">(</span>FLOAT<span class="op">(</span>i<span class="op">))</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;, &quot;</span> <span class="op">&lt;&lt;</span> exponent <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span></span>
@@ -1364,8 +1410,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#
 とすると、少なくとも <code>2 * m - 1</code>
 の長さのタップ数が必要になります。このアプローチの実用性はなさそうです。</p>
 <p>出力されたインデックス以降で浮動小数点数の丸めによって切り捨てられない大きさの値が現れないことは確認していないので注意してください。</p>
-<h2
-id="実験に使用した音声データの一覧">実験に使用した音声データの一覧</h2>
+<h2 id="実験に使用した音声データの一覧"><a
+href="#実験に使用した音声データの一覧" class="header-anchor"
+aria-hidden="true">実験に使用した音声データの一覧</a></h2>
 <ul>
 <li><a href="https://tech.ebu.ch/publications/tech3341">EBU Technology
 &amp; Innovation - ‘EBU Mode’ metering to supplement EBU R 128 loudness
@@ -1373,7 +1420,8 @@ normalisation</a></li>
 <li><a href="code/data/dataset.md">実験に使った freesound.org
 のデータの一覧</a></li>
 </ul>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a href="https://ccrma.stanford.edu/~jos/Interpolation/">MUS420
 Lecture 4A Interpolated Delay Lines, Ideal Bandlimited Interpolation,
@@ -1401,7 +1449,8 @@ href="https://www.hitachi-hightech.com/jp/products/device/semiconductor/accuracy
 href="https://www.llvm.org/docs/Vectorizers.html">Auto-Vectorization in
 LLVM — LLVM 12 documentation</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2020/11/20
 <ul>

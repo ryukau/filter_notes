@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>musicdsp_lookahead_limiter</title>
 
 <!-- MathJax -->
@@ -51,6 +51,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -62,16 +78,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -280,7 +299,7 @@ span.math.inline a {
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -301,7 +320,9 @@ id="toc-lookahead-limiter-の記事の訳">Lookahead Limiter の記事の訳</a>
 </nav>
 </details>
 </header>
-<h1 id="lookahead-limiter-の記事の訳">Lookahead Limiter の記事の訳</h1>
+<h1 id="lookahead-limiter-の記事の訳"><a
+href="#lookahead-limiter-の記事の訳" class="header-anchor"
+aria-hidden="true">Lookahead Limiter の記事の訳</a></h1>
 <p>以下は原文へのリンクです。訳文は Markdown
 のフォーマットに整形しています。</p>
 <ul>
@@ -309,8 +330,10 @@ id="toc-lookahead-limiter-の記事の訳">Lookahead Limiter の記事の訳</a>
 href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
 Limiter — Musicdsp.org documentation</a></li>
 </ul>
-<h2 id="訳">訳</h2>
-<h3 id="材料">材料:</h3>
+<h2 id="訳"><a href="#訳" class="header-anchor"
+aria-hidden="true">訳</a></h2>
+<h3 id="材料"><a href="#材料" class="header-anchor"
+aria-hidden="true">材料:</a></h3>
 <ul>
 <li>1 つのリングバッファ (先読み時間の長さ)</li>
 <li>2 つのリングバッファ (先読み時間の半分の長さ)</li>
@@ -318,7 +341,8 @@ Limiter — Musicdsp.org documentation</a></li>
 」、「出力ゲイン [dB] 」、「リリース時間 [s] 」)</li>
 <li>一握りの状態変数</li>
 </ul>
-<h3 id="レシピ">レシピ:</h3>
+<h3 id="レシピ"><a href="#レシピ" class="header-anchor"
+aria-hidden="true">レシピ:</a></h3>
 <ol start="0" type="1">
 <li>全てのバッファが適切に初期化されて 1
 つのゴミデータも含まないようにする (純粋な 0 埋めが必要) 。</li>
@@ -353,7 +377,8 @@ Limiter — Musicdsp.org documentation</a></li>
 <li><p>このゲインリダクションを手順 1 の前段「出力」に適用する</p></li>
 </ol>
 <p>全てのサンプルに上の処理 (手順 1-13) を繰り返せ！</p>
-<h2 id="訳注">訳注</h2>
+<h2 id="訳注"><a href="#訳注" class="header-anchor"
+aria-hidden="true">訳注</a></h2>
 <ul>
 <li>dirt -&gt; ゴミデータ
 <ul>
@@ -368,7 +393,8 @@ href="https://www.merriam-webster.com/dictionary/preliminary">Merriam-Webster</a
 </ul></li>
 <li>手順 6 の felt out は fell out の誤字と判断した。</li>
 </ul>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>手順 5 と 11
 は誤差が減らずにエッジケースが増えるので、実装することはお勧めしません。この誤差について調べたことを以下のリンク先に掲載しています。</p>
 <ul>

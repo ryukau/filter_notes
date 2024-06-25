@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>heat_wave_equation</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -365,8 +384,9 @@ id="toc-整数階と小数階で分けて変形">整数階と小数階で分け�
 </nav>
 </details>
 </header>
-<h1
-id="分数階微分で1次元の熱伝導-波動方程式">分数階微分で1次元の熱伝導-波動方程式</h1>
+<h1 id="分数階微分で1次元の熱伝導-波動方程式"><a
+href="#分数階微分で1次元の熱伝導-波動方程式" class="header-anchor"
+aria-hidden="true">分数階微分で1次元の熱伝導-波動方程式</a></h1>
 <p>1次元の熱伝導方程式です。</p>
 <p><span class="math display">\[
 \frac{\partial u}{\partial t} = c^2 \frac{\partial^2 u}{\partial x^2}
@@ -384,7 +404,8 @@ x^2}
 <p>ここでは、この式を熱伝導-波動方程式 (Heat-Wave Equation)
 と呼びます。拡散-波動方程式 (Diffusion-Wave Equation)
 と呼ばれることもあります。</p>
-<h2 id="連立方程式を立てる">連立方程式を立てる</h2>
+<h2 id="連立方程式を立てる"><a href="#連立方程式を立てる"
+class="header-anchor" aria-hidden="true">連立方程式を立てる</a></h2>
 <p>Implcit FDM (Finite Difference Method)
 とGrünwald–Letnikovの分数階微分を組み合わせてシミュレーションします。</p>
 <p>Grünwald–Letnikovの分数階微分を再掲します。</p>
@@ -464,7 +485,8 @@ class="math inline">\(L = R = 1\)</span> となります。</p>
 <p>立てた連立方程式を左辺の <span
 class="math inline">\(\mathbf{u}^{t}\)</span>
 について解くことでシミュレーションを1ステップ進めることができます。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>コードを実行すると1次元の熱-波のシミュレーションを行い、結果を
 <code>heat_wave1d.png</code> に画像として書き出します。</p>
 <p>連立方程式のソルバに<a
@@ -612,7 +634,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <figure>
 <img src="img/heat_wave1d.png" alt="Image of a result of 1d heat-wave simulation." style="width: 512px; padding-bottom: 12px;"/>
 </figure>
-<h2 id="デモ">デモ</h2>
+<h2 id="デモ"><a href="#デモ" class="header-anchor"
+aria-hidden="true">デモ</a></h2>
 <p><span class="math inline">\(\alpha\)</span>
 の値を変えて熱伝導-波動をシミュレーションした動画です。</p>
 <video width="640px" controls>
@@ -624,7 +647,9 @@ Video of 1 dimensional heat-wave simulation with variety of alpha.
 <p>デモのコードは次のリンクから読むこともできます。</p>
 <p><a href="https://github.com/ryukau/filter_notes/tree/master/heat_wave_equation/demo">デモのコードを見る
 (github.com)</a></p>
-<h2 id="整数階と小数階で分けて変形">整数階と小数階で分けて変形</h2>
+<h2 id="整数階と小数階で分けて変形"><a
+href="#整数階と小数階で分けて変形" class="header-anchor"
+aria-hidden="true">整数階と小数階で分けて変形</a></h2>
 <p>熱伝導-波動方程式を再掲します。</p>
 <p><span class="math display">\[
 \frac{\partial^{1 + \alpha} u}{\partial t^{1 + \alpha}} = c^2
@@ -673,7 +698,8 @@ C_1 u(x - dx, t) + C_2 u(x, t) + C_1 u(x + dx, t)
 m\,dt)
 \end{aligned}
 \]</span></p>
-<h2 id="問題点">問題点</h2>
+<h2 id="問題点"><a href="#問題点" class="header-anchor"
+aria-hidden="true">問題点</a></h2>
 <p>自由端にすると発散します。固定端でも <span class="math inline">\(0
 &lt; \alpha &lt; 1\)</span> かつ <span
 class="math inline">\(C_1\)</span>

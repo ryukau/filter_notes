@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>doublefilter</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -385,7 +404,8 @@ class="math inline">\(u_1\)</span> (ハイパス)</a></li>
 </nav>
 </details>
 </header>
-<h1 id="変な-4-pole-フィルタ">変な 4-pole フィルタ</h1>
+<h1 id="変な-4-pole-フィルタ"><a href="#変な-4-pole-フィルタ"
+class="header-anchor" aria-hidden="true">変な 4-pole フィルタ</a></h1>
 <p><a
 href="https://www.myphysicslab.com/springs/double-spring-en.html">2
 重ばねの式</a>から適当に係数などを入れ替えて次のコードを作りました。</p>
@@ -429,8 +449,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <li>カットオフ周波数から <code>k1, k2</code> の値を決める式。</li>
 <li>レゾナンスから <code>k1, k2</code> の値を決める式。</li>
 </ul>
-<h2 id="出力-u_2-の伝達関数">出力 <span
-class="math inline">\(u_2\)</span> の伝達関数</h2>
+<h2 id="出力-u_2-の伝達関数"><a href="#出力-u_2-の伝達関数"
+class="header-anchor" aria-hidden="true">出力 <span
+class="math inline">\(u_2\)</span> の伝達関数</a></h2>
 <p>コードを式に直します。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -543,8 +564,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>            <span class="dv">1</span> <span class="op">/</span> k2,                  <span class="co"># a4</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        ],</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
-<h2
-id="ローパスのカットオフ周波数のチューニング">ローパスのカットオフ周波数のチューニング</h2>
+<h2 id="ローパスのカットオフ周波数のチューニング"><a
+href="#ローパスのカットオフ周波数のチューニング" class="header-anchor"
+aria-hidden="true">ローパスのカットオフ周波数のチューニング</a></h2>
 <p>プロットに使ったコードは <a
 href="https://ryukau.github.io/filter_notes/3pole_lowpass/3pole_lowpass.html">3-pole
 ローパスフィルタ</a> と同じなので省略します。</p>
@@ -595,7 +617,9 @@ class="math inline">\(f_u = 5420.124852073862\)</span> 。</li>
 <figure>
 <img src="img/K2FrequencyPlot.png" alt="Image of k2-cutoff plot." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="レゾナンスのチューニング">レゾナンスのチューニング</h2>
+<h2 id="レゾナンスのチューニング"><a href="#レゾナンスのチューニング"
+class="header-anchor"
+aria-hidden="true">レゾナンスのチューニング</a></h2>
 <p><span class="math inline">\(k_2\)</span>
 がユーザによって決められたときに発散しない <span
 class="math inline">\(k_1\)</span> の最大値を探します。</p>
@@ -690,7 +714,8 @@ class="math inline">\(0.6295160864148501\)</span> です。</p>
 <figure>
 <img src="img/K1K2Fit.png" alt="Image of approximation of k1-k2 curve where k2 is greater or equal than xi_k2." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="発散を防ぐ">発散を防ぐ</h3>
+<h3 id="発散を防ぐ"><a href="#発散を防ぐ" class="header-anchor"
+aria-hidden="true">発散を防ぐ</a></h3>
 <p>プラグインにして試したところ <span
 class="math inline">\(\mathtt{resonance} = 1\)</span> かつ <span
 class="math inline">\(k_2\)</span> が <span
@@ -717,7 +742,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <figure>
 <img src="img/K1TuningDefault.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="出力ゲインのチューニング">出力ゲインのチューニング</h2>
+<h2 id="出力ゲインのチューニング"><a href="#出力ゲインのチューニング"
+class="header-anchor"
+aria-hidden="true">出力ゲインのチューニング</a></h2>
 <p>思いつきで <code>sqrt(k1)</code> を <code>pos2</code>
 の式に掛け合わせて出力ゲインのチューニングを変えてみました。</p>
 <div class="sourceCode" id="cb8"><pre
@@ -770,12 +797,15 @@ class="math inline">\(k_1\)</span>
 <figure>
 <img src="img/K1TuningSqrt.png" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="出力-u_1">出力 <span class="math inline">\(u_1\)</span></h2>
+<h2 id="出力-u_1"><a href="#出力-u_1" class="header-anchor"
+aria-hidden="true">出力 <span
+class="math inline">\(u_1\)</span></a></h2>
 <p>フィルタの式の <span class="math inline">\(u_1\)</span>
 を出力に使うとハイパスフィルタを通したような音になります。出力 <span
 class="math inline">\(u_2\)</span>
 のチューニングを使っても発散しなかったので流用することにしました。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>C++ による実装です。</p>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> DoubleFilter <span class="op">{</span></span>
@@ -868,7 +898,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#
 href="https://github.com/ryukau/LV2Plugins/blob/master/lv2cvport/CV_DoubleFilter/dsp/doublefilter.hpp">LV2Plugins/doublefilter.hpp
 at master · ryukau/LV2Plugins · GitHub</a></li>
 </ul>
-<h2 id="音のサンプル">音のサンプル</h2>
+<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+aria-hidden="true">音のサンプル</a></h2>
 <p>サンプルの生成に使ったコードへのリンクです。</p>
 <ul>
 <li><a
@@ -884,8 +915,9 @@ href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.sawtooth
 で生成した 45 Hz ののこぎり波です。</p>
 <p><code>altGain</code> が true のとき <code>sqrt(k1)</code> を
 <code>pos2</code> に掛け合わせています。</p>
-<h3 id="出力-u_2-ローパス">出力 <span class="math inline">\(u_2\)</span>
-(ローパス)</h3>
+<h3 id="出力-u_2-ローパス"><a href="#出力-u_2-ローパス"
+class="header-anchor" aria-hidden="true">出力 <span
+class="math inline">\(u_2\)</span> (ローパス)</a></h3>
 <p><code>altGain</code> = False としたときの出力です。</p>
 <figure>
 <figcaption>
@@ -936,8 +968,9 @@ resonance=1.0, altGain=True, isHighpass=False
 <source src="snd/exp_res1.00000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
 </audio>
 </figure>
-<h3 id="出力-u_1-ハイパス">出力 <span class="math inline">\(u_1\)</span>
-(ハイパス)</h3>
+<h3 id="出力-u_1-ハイパス"><a href="#出力-u_1-ハイパス"
+class="header-anchor" aria-hidden="true">出力 <span
+class="math inline">\(u_1\)</span> (ハイパス)</a></h3>
 <p><code>altGain</code> = False としたときの出力です。</p>
 <figure>
 <figcaption>
@@ -988,9 +1021,11 @@ resonance=1.0, altGain=True, isHighpass=True
 <source src="snd/exp_res1.00000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="その他">その他</h2>
-<h3 id="出力-u_1-の伝達関数">出力 <span
-class="math inline">\(u_1\)</span> の伝達関数</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="出力-u_1-の伝達関数"><a href="#出力-u_1-の伝達関数"
+class="header-anchor" aria-hidden="true">出力 <span
+class="math inline">\(u_1\)</span> の伝達関数</a></h3>
 <p>フィルタの式を再掲します。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -1082,7 +1117,8 @@ C_2 &amp;= \frac{- k_1 + 3}{k_2} + k_1 - 4 \\
 C_3 &amp;= \frac{- 1}{k_2} + 2 \\
 \end{aligned}
 \]</span></p>
-<h2 id="参考サイト">参考サイト</h2>
+<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+aria-hidden="true">参考サイト</a></h2>
 <ul>
 <li><a
 href="https://www.myphysicslab.com/springs/double-spring-en.html">myPhysicsLab

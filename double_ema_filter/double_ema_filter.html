@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>double_ema_filter</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -385,8 +404,9 @@ id="toc-ad-エンベロープの式の微分">AD エンベロープの式の微�
 </nav>
 </details>
 </header>
-<h1 id="二重-ema-フィルタによる-ad-エンベロープ">二重 EMA フィルタによる
-AD エンベロープ</h1>
+<h1 id="二重-ema-フィルタによる-ad-エンベロープ"><a
+href="#二重-ema-フィルタによる-ad-エンベロープ" class="header-anchor"
+aria-hidden="true">二重 EMA フィルタによる AD エンベロープ</a></h1>
 <p>Exponential moving average (EMA) フィルタを 2
 つ直列につないだフィルタを使って AD エンベロープを作ります。</p>
 <p>以下に完全なテストコードと、プロットに使ったコードを掲載しています。</p>
@@ -406,8 +426,10 @@ href="https://github.com/ryukau/VSTPlugins/blob/master/ClangSynth/source/dsp/env
 による二重 EMA フィルタを使った AD エンベロープの実装
 (github.com)</a></li>
 </ul>
-<h2 id="二重-ema-フィルタ">二重 EMA フィルタ</h2>
-<h3 id="伝達関数">伝達関数</h3>
+<h2 id="二重-ema-フィルタ"><a href="#二重-ema-フィルタ"
+class="header-anchor" aria-hidden="true">二重 EMA フィルタ</a></h2>
+<h3 id="伝達関数"><a href="#伝達関数" class="header-anchor"
+aria-hidden="true">伝達関数</a></h3>
 <p>以下は EMA フィルタの伝達関数です。 <span
 class="math inline">\(k\)</span> は範囲 <span class="math inline">\([0,
 1]\)</span> のフィルタ係数です。</p>
@@ -441,7 +463,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v0 <span class="op">+=</span> <span class="va">self</span>.k <span class="op">*</span> (x0 <span class="op">-</span> <span class="va">self</span>.v0)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v1 <span class="op">+=</span> <span class="va">self</span>.k <span class="op">*</span> (<span class="va">self</span>.v0 <span class="op">-</span> <span class="va">self</span>.v1)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.v1</span></code></pre></div>
-<h3 id="インパルス応答">インパルス応答</h3>
+<h3 id="インパルス応答"><a href="#インパルス応答" class="header-anchor"
+aria-hidden="true">インパルス応答</a></h3>
 <p>Wolfram Alpha を使って二重 EMA フィルタの伝達関数を逆 Z
 変換したところ、以下の式が得られました。逆 Z
 変換によって得られた式はインパルス応答を表しています。</p>
@@ -453,7 +476,8 @@ x[n] = k^2 (n + 1)(1 - k)^n \\
 href="https://www.wolframalpha.com/input?i=inverse+Z+transform+calculator&amp;assumption=%7B%22F%22%2C+%22InverseZTransformCalculator%22%2C+%22transformfunction%22%7D+-%3E%22k%5E2%2F%281%2B2*%28k-1%29*z%5E-1+%2B+%28k-1%29%5E2*z%5E-2%29%22&amp;assumption=%7B%22F%22%2C+%22InverseZTransformCalculator%22%2C+%22variable1%22%7D+-%3E%22z%22&amp;assumption=%7B%22F%22%2C+%22InverseZTransformCalculator%22%2C+%22variable2%22%7D+-%3E%22n%22">Wolfram
 Alpha での結果へのリンク</a></li>
 </ul>
-<h3 id="ゲート信号への応答">ゲート信号への応答</h3>
+<h3 id="ゲート信号への応答"><a href="#ゲート信号への応答"
+class="header-anchor" aria-hidden="true">ゲート信号への応答</a></h3>
 <p>ここでの目的はエンベロープへの応用なのでゲート信号への応答の形に式を変形します。ここではゲート信号を、時間が
 0 サンプルから n サンプルの区間で振幅 1 、それ以外では振幅 0
 となる信号と定義しています。以下はゲート信号の図です。</p>
@@ -485,7 +509,8 @@ x(k, V, G)[n]
   &amp;= V + G \Big( 1 - (1 - k)^{n + 1} (k n + k + 1) \Big)
 \end{aligned}
 \]</span></p>
-<h2 id="ad-エンベロープ">AD エンベロープ</h2>
+<h2 id="ad-エンベロープ"><a href="#ad-エンベロープ"
+class="header-anchor" aria-hidden="true">AD エンベロープ</a></h2>
 <p>2 つの二重 EMA フィルタを乗算して、ターゲットとなる AD エンベロープ
 <span class="math inline">\(E\)</span> の式を作ります。 <span
 class="math inline">\(k_A\)</span> はアタック、 <span
@@ -529,7 +554,8 @@ class="math inline">\(k_D\)</span>
 <figure>
 <img src="img/ad_varying_k_d.svg" alt="Plot of AD envelope using double EMA filter with varying k_D." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="ピークの探索">ピークの探索</h3>
+<h3 id="ピークの探索"><a href="#ピークの探索" class="header-anchor"
+aria-hidden="true">ピークの探索</a></h3>
 <p>エンベロープとして使いたいので <span
 class="math inline">\(k_A\)</span> と <span
 class="math inline">\(k_D\)</span> の値によらず、ピークの値が 1
@@ -580,7 +606,8 @@ class="math inline">\(k_D\)</span>
 <figure>
 <img src="img/normalized_ad_varying_k_d.svg" alt="Plot of normalized AD envelope using double EMA filter with varying k_D." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="正規化の誤差">正規化の誤差</h3>
+<h3 id="正規化の誤差"><a href="#正規化の誤差" class="header-anchor"
+aria-hidden="true">正規化の誤差</a></h3>
 <p>エンベロープの出力は <span class="math inline">\([0, 1]\)</span>
 の範囲内であることが望ましいです。また、伝達関数が表す差分方程式による計算と、
 <code>doubleEmaEnvelopeD0</code> が表す閉じた形の解 (closed-form
@@ -608,9 +635,11 @@ class="math inline">\(k_D\)</span>
 class="math inline">\(k_D\)</span>
 が小さいときは、正規化したピークも小さくなるようです。また、調べた範囲では正規化したピークが
 1 を超えるケースは見つかりませんでした。</p>
-<h2 id="その他">その他</h2>
-<h3 id="再帰のない-ema-フィルタの計算式">再帰のない EMA
-フィルタの計算式</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="再帰のない-ema-フィルタの計算式"><a
+href="#再帰のない-ema-フィルタの計算式" class="header-anchor"
+aria-hidden="true">再帰のない EMA フィルタの計算式</a></h3>
 <p>EMA フィルタの伝達関数を再掲します。</p>
 <p><span class="math display">\[
 H(z) = \frac{k}{1 + (k - 1)z^{-1}}
@@ -620,7 +649,9 @@ H(z) = \frac{k}{1 + (k - 1)z^{-1}}
 <p><span class="math display">\[
 x[n] = k(1-k)^n
 \]</span></p>
-<h3 id="二重-ema-フィルタの微分">二重 EMA フィルタの微分</h3>
+<h3 id="二重-ema-フィルタの微分"><a href="#二重-ema-フィルタの微分"
+class="header-anchor" aria-hidden="true">二重 EMA
+フィルタの微分</a></h3>
 <p><span class="math inline">\(x(k, V, G)[n]\)</span>
 の微分です。とりあえず微分したものの、用途が見当たりませんでした。</p>
 <pre><code>diff(V + G * ((k^2*(n+1) - k*n - 1)*(1-k)^n + 1), n);  // maxima
@@ -633,7 +664,9 @@ diff V + G * ((k^2*(n+1) - k*n - 1)*(1-k)^n + 1) for n // wolfram alpha</code></
 &amp;= -G (1 - k)^{n + 1} ((k n + k + 1) \log(1-k) + k) \\
 \end{aligned}
 \]</span></p>
-<h3 id="ad-エンベロープの式の微分">AD エンベロープの式の微分</h3>
+<h3 id="ad-エンベロープの式の微分"><a href="#ad-エンベロープの式の微分"
+class="header-anchor" aria-hidden="true">AD
+エンベロープの式の微分</a></h3>
 <p>AD
 エンベロープのピークの値を取得するために使えるかと思ったのですが、式の整理が困難だったので、このアプローチは諦めました。</p>
 <p>Wolfram Alpha で微分します。</p>
@@ -701,7 +734,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    D_2 <span class="op">=</span> np.log(<span class="dv">1</span> <span class="op">-</span> k_D)</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    A_2 <span class="op">=</span> np.log(<span class="dv">1</span> <span class="op">-</span> k_A)</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> D_0 <span class="op">*</span> ((k_D <span class="op">+</span> D_1 <span class="op">*</span> D_2) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> A_0 <span class="op">*</span> A_1) <span class="op">-</span> D_1 <span class="op">*</span> A_0 <span class="op">*</span> (k_A <span class="op">+</span> A_1 <span class="op">*</span> A_2))</span></code></pre></div>
-<h2 id="参考サイト">参考サイト</h2>
+<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+aria-hidden="true">参考サイト</a></h2>
 <ul>
 <li><a
 href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize_scalar.html#scipy.optimize.minimize_scalar">scipy.optimize.minimize_scalar

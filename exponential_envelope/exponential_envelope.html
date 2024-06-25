@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-05-06" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>exponential_envelope</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-05-06
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -380,9 +399,11 @@ id="toc-減衰する指数曲線とその反転の乗算">減衰する指数曲�
 </nav>
 </details>
 </header>
-<h1 id="指数曲線のエンベロープ">指数曲線のエンベロープ</h1>
+<h1 id="指数曲線のエンベロープ"><a href="#指数曲線のエンベロープ"
+class="header-anchor" aria-hidden="true">指数曲線のエンベロープ</a></h1>
 <p>指数曲線 (Exponential Curve) を使ったエンベロープを作ります。</p>
-<h2 id="減衰する指数曲線">減衰する指数曲線</h2>
+<h2 id="減衰する指数曲線"><a href="#減衰する指数曲線"
+class="header-anchor" aria-hidden="true">減衰する指数曲線</a></h2>
 <p>値が 1 から 0 に向かって減衰する指数曲線 <span
 class="math inline">\(E_d(t)\)</span> の式です。</p>
 <p><span class="math display">\[
@@ -473,7 +494,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 </figure>
 <p>値の範囲が <code>[0, 1]</code>
 かつ終端に崖を作りたくないときはルックアップテーブルが使えます。ただし、滑らかさは劣ります。</p>
-<h2 id="増加する指数曲線">増加する指数曲線</h2>
+<h2 id="増加する指数曲線"><a href="#増加する指数曲線"
+class="header-anchor" aria-hidden="true">増加する指数曲線</a></h2>
 <p>増加する指数曲線 <span class="math inline">\(E_a(t)\)</span>
 の式です。</p>
 <p><span class="math display">\[
@@ -514,7 +536,8 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#c
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  Sample alpha <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h2 id="減衰する指数曲線の反転">減衰する指数曲線の反転</h2>
+<h2 id="減衰する指数曲線の反転"><a href="#減衰する指数曲線の反転"
+class="header-anchor" aria-hidden="true">減衰する指数曲線の反転</a></h2>
 <p><span class="math inline">\(1 - E_d(t)\)</span>
 として減衰する指数曲線を上下反転して使う方法があります。</p>
 <p>実装です。</p>
@@ -547,8 +570,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  Sample alpha <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h2 id="指数曲線を使った-adsr-エンベロープ">指数曲線を使った ADSR
-エンベロープ</h2>
+<h2 id="指数曲線を使った-adsr-エンベロープ"><a
+href="#指数曲線を使った-adsr-エンベロープ" class="header-anchor"
+aria-hidden="true">指数曲線を使った ADSR エンベロープ</a></h2>
 <p>C++ での実装例です。</p>
 <p>このエンベロープは <a
 href="https://ryukau.github.io/VSTPlugins/manual/IterativeSinCluster/IterativeSinCluster_ja.html">IterativeSinCluster</a>
@@ -770,7 +794,8 @@ ChangeSustain
 <source src="snd/tone_ChangeSustain.wav" type="audio/wav">
 </audio>
 </figure>
-<h3 id="デクリック-declick">デクリック (declick)</h3>
+<h3 id="デクリック-declick"><a href="#デクリック-declick"
+class="header-anchor" aria-hidden="true">デクリック (declick)</a></h3>
 <p>エンベロープのアタック時間やディケイ時間などがとても短いときにでるプチノイズを低減することをデクリック
 (declick) と呼びます。 Image-Line の <a
 href="https://www.image-line.com/plugins/Synths/Sytrus/">Sytrus</a>
@@ -811,8 +836,10 @@ declick_off
 <source src="snd/declick_off.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="exponential-moving-average-フィルタによる実装">Exponential
-Moving Average フィルタによる実装</h2>
+<h2 id="exponential-moving-average-フィルタによる実装"><a
+href="#exponential-moving-average-フィルタによる実装"
+class="header-anchor" aria-hidden="true">Exponential Moving Average
+フィルタによる実装</a></h2>
 <p>Exponential Moving Average (EMA) フィルタについては<a
 href="../control_rate_interpolation/control_rate_interpolation.html">オーディオプラグインの
 UI から入力された値の補間</a>を参照してください。</p>
@@ -999,8 +1026,9 @@ at master · ryukau/filter_notes · GitHub</a></li>
 <figure>
 <img src="img/P_tail.png" alt="Image of tail state of envelope." style="padding-bottom: 12px;"/>
 </figure>
-<h2
-id="減衰する指数曲線とその反転の乗算">減衰する指数曲線とその反転の乗算</h2>
+<h2 id="減衰する指数曲線とその反転の乗算"><a
+href="#減衰する指数曲線とその反転の乗算" class="header-anchor"
+aria-hidden="true">減衰する指数曲線とその反転の乗算</a></h2>
 <p>減衰する指数曲線とその反転を掛け合わせて合成したエンベロープ <span
 class="math inline">\(E_{\mathtt{AD}}(t)\)</span> を作ります。</p>
 <p><span class="math display">\[
@@ -1094,7 +1122,8 @@ at master · ryukau/filter_notes · GitHub</a></li>
 <figure>
 <img src="img/ExpAD_cpp.png" alt="Image of ExpAD envelope. C++ implementation." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="別解">別解</h3>
+<h3 id="別解"><a href="#別解" class="header-anchor"
+aria-hidden="true">別解</a></h3>
 <p>この計算方法は <a
 href="https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html">EnvelopedSine</a>
 で使っています。エンベロープ <span
@@ -1154,7 +1183,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <figure>
 <img src="img/ExpAD.png" alt="Image of ExpAD envelope. Alternative implementation." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/05/06
 <ul>

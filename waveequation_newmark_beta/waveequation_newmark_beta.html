@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>waveequation_newmark_beta</title>
 
 <!-- MathJax -->
@@ -51,6 +51,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -62,16 +78,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -283,7 +302,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -309,9 +328,11 @@ id="toc-newmark-β-法によるばね-ダンパ波動方程式の離散化">Newm
 </nav>
 </details>
 </header>
-<h1 id="newmark-β-法で1次元の波動方程式">Newmark-β
-法で1次元の波動方程式</h1>
-<h2 id="微分の表記">微分の表記</h2>
+<h1 id="newmark-β-法で1次元の波動方程式"><a
+href="#newmark-β-法で1次元の波動方程式" class="header-anchor"
+aria-hidden="true">Newmark-β 法で1次元の波動方程式</a></h1>
+<h2 id="微分の表記"><a href="#微分の表記" class="header-anchor"
+aria-hidden="true">微分の表記</a></h2>
 <p>微分の表記を短く書けるものに変えます。時間の微分に<a
 href="https://en.wikipedia.org/wiki/Notation_for_differentiation#Newton&#39;s_notation">ニュートンの表記</a>を使います。</p>
 <p><span class="math display">\[
@@ -346,7 +367,8 @@ u_{n, x+1} &amp;= u(x + \Delta_x, t + n\,\Delta_t)\\
 u_{n, x-1} &amp;= u(x - \Delta_x, t + (n + 1)\,\Delta_t)\\
 \end{aligned}
 \]</span></p>
-<h2 id="波動方程式">波動方程式</h2>
+<h2 id="波動方程式"><a href="#波動方程式" class="header-anchor"
+aria-hidden="true">波動方程式</a></h2>
 <p>1次元の<a
 href="https://en.wikipedia.org/wiki/Wave_equation">波動方程式</a>です。</p>
 <p><span class="math display">\[
@@ -360,7 +382,8 @@ FDM</a> で離散化すると減衰が起こります。 Schweickart, James, Mar
 Elastic Rods with Sound”</a> に習って <a
 href="https://en.wikipedia.org/wiki/Newmark-beta_method">Newmark-β
 法</a>を使うことでエネルギーの減衰を改善します。</p>
-<h2 id="newmark-β-法">Newmark-β 法</h2>
+<h2 id="newmark-β-法"><a href="#newmark-β-法" class="header-anchor"
+aria-hidden="true">Newmark-β 法</a></h2>
 <p>Newmark-β 法では速度と位置の計算に次の式を使います。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -388,8 +411,9 @@ class="math inline">\(1/6\)</span>
 class="math inline">\(\gamma\)</span> は <span
 class="math inline">\(1/2\)</span> で固定して <span
 class="math inline">\(\beta\)</span> は調整できる形にしています。</p>
-<h2 id="newmark-β-法による波動方程式の離散化">Newmark-β
-法による波動方程式の離散化</h2>
+<h2 id="newmark-β-法による波動方程式の離散化"><a
+href="#newmark-β-法による波動方程式の離散化" class="header-anchor"
+aria-hidden="true">Newmark-β 法による波動方程式の離散化</a></h2>
 <p>位置 <span class="math inline">\(u\)</span> 、速度 <span
 class="math inline">\(\dot{u}\)</span> 、加速度 <span
 class="math inline">\(\ddot{u}\)</span>
@@ -503,8 +527,10 @@ C_3 = \frac{\Delta_t}{2}
 <p><a
 href="https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/waveequation_newmark_beta/demo/wave1d.js#L81">実装を読む
 (github.com)</a></p>
-<h2 id="newmark-β-法によるばね-ダンパ波動方程式の離散化">Newmark-β
-法によるばね-ダンパ波動方程式の離散化</h2>
+<h2 id="newmark-β-法によるばね-ダンパ波動方程式の離散化"><a
+href="#newmark-β-法によるばね-ダンパ波動方程式の離散化"
+class="header-anchor" aria-hidden="true">Newmark-β
+法によるばね-ダンパ波動方程式の離散化</a></h2>
 <p>波動方程式にばねの項 <span class="math inline">\(k u\)</span>
 とダンパの項 <span class="math inline">\(a \dot{u}\)</span>
 を加えることで波の減衰を調整できるようにします。この文章では次の式をばね-ダンパ波動方程式と呼ぶことにします。</p>
@@ -662,7 +688,8 @@ x+1})
 <p><a
 href="https://github.com/ryukau/filter_notes/blob/802084a06b9aef9ce75020d2fe69a3925736dd84/waveequation_newmark_beta/demo/wave1d.js#L207">実装を読む
 (github.com)</a></p>
-<h2 id="デモ">デモ</h2>
+<h2 id="デモ"><a href="#デモ" class="header-anchor"
+aria-hidden="true">デモ</a></h2>
 <p>キャンバスをクリックすると波が起きます。</p>
 <p><span class="math inline">\(\Delta_t = 1/60\)</span>
 で固定しています。</p>
@@ -675,7 +702,8 @@ href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Seidel_method">ガウス-ザ�
 <script src="demo/vec2.js"></script>
 <script src="demo/canvas.js"></script>
 <script src="demo/wave1d.js"></script>
-<h2 id="参考サイト">参考サイト</h2>
+<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+aria-hidden="true">参考サイト</a></h2>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Energy_drift">Energy drift -
 Wikipedia</a></li>

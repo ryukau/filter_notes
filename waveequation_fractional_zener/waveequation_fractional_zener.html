@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-10-30" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>waveequation_fractional_zener</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-10-30
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -363,7 +382,9 @@ id="toc-連立方程式を立てる">連立方程式を立てる</a></li>
 </nav>
 </details>
 </header>
-<h1 id="次元の分数階zener波動方程式">1次元の分数階Zener波動方程式</h1>
+<h1 id="次元の分数階zener波動方程式"><a
+href="#次元の分数階zener波動方程式" class="header-anchor"
+aria-hidden="true">1次元の分数階Zener波動方程式</a></h1>
 <p><strong>注意</strong>: 内容が怪しいです。</p>
 <p>HolmとNäsholmによる <a
 href="http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf">“A
@@ -380,7 +401,8 @@ wave equation) を1次元の implicit な形で実装します。</p>
 u}{\partial t^{\beta + 2}}
 = 0
 \]</span></p>
-<h2 id="連立方程式を立てる">連立方程式を立てる</h2>
+<h2 id="連立方程式を立てる"><a href="#連立方程式を立てる"
+class="header-anchor" aria-hidden="true">連立方程式を立てる</a></h2>
 <p>式の簡略化のために演算子 <span class="math inline">\(\hat{D}\)</span>
 を定義します。</p>
 <p><span class="math display">\[
@@ -523,7 +545,8 @@ u(x_{n + i -1}, t)
 class="math inline">\(n \le k\)</span> のとき <span
 class="math inline">\(u(x_k, t) = 0\)</span> としています。</p>
 <p>左右の端は固定端にしています。自由端にすると発散します。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>連立方程式のソルバに<a
 href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.linalg.solve.html">numpy.linalg.solve</a>を使っています。</p>
 <div class="sourceCode" id="cb1"><pre
@@ -671,7 +694,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a><span class="co">        &quot;&quot;&quot;</span></span>
 <span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pickX <span class="op">=</span> <span class="bu">int</span>((<span class="va">self</span>.length <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> numpy.clip(x, <span class="fl">0.0</span>, <span class="fl">1.0</span>))</span>
 <span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pickY <span class="op">=</span> y</span></code></pre></div>
-<h2 id="デモ">デモ</h2>
+<h2 id="デモ"><a href="#デモ" class="header-anchor"
+aria-hidden="true">デモ</a></h2>
 <p><span class="math inline">\(\alpha, \beta, \tau_\varepsilon\)</span>
 の値を変えて分数階Zener波動方程式をシミュレーションした動画です。その他のパラメータは
 <span class="math inline">\(c_0 = 16,\: dt = 1 / 60,\: dx = 0.0625,\:
@@ -685,7 +709,8 @@ Video of simulation of 1 dimensional fractional zener wave equation.
 <p>デモのコードは次のリンクから読むこともできます。</p>
 <p><a href="https://github.com/ryukau/filter_notes/tree/master/waveequation_fractional_zener/demo">デモのコードを見る
 (github.com)</a></p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>パラメータの組み合わせによっては発散します。参考にした論文では <span
 class="math inline">\(\alpha = \beta\)</span> かつ <span
 class="math inline">\(\tau_\varepsilon &lt; \tau_\sigma\)</span>

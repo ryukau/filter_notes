@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>downsampling</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -388,9 +407,11 @@ id="toc-適切なマルチステージの分割">適切なマルチステージ�
 </nav>
 </details>
 </header>
-<h1 id="ダウンサンプリング">ダウンサンプリング</h1>
+<h1 id="ダウンサンプリング"><a href="#ダウンサンプリング"
+class="header-anchor" aria-hidden="true">ダウンサンプリング</a></h1>
 <p>今まで適当にやっていたダウンサンプリングについて調べたことをまとめました。</p>
-<h2 id="用語">用語</h2>
+<h2 id="用語"><a href="#用語" class="header-anchor"
+aria-hidden="true">用語</a></h2>
 <p>異なる複数のサンプリング周波数の信号を扱うシステムをマルチレートシステム
 (multirate system) といいます。</p>
 <p>ここではサンプリング周波数を下げる処理のことをダウンサンプリング
@@ -430,8 +451,9 @@ href="https://authors.library.caltech.edu/6798/1/VAIprocieee90.pdf">Multirate
 Digital Filters, Filter Banks, Polyphase Networks, and Applications: A
 Tutorial</a>
 では信号を間引くだけの部品のことをデシメータと呼んでダウンサンプラと区別しているので、この文章もそれにならっています。</p>
-<h2 id="noble-identities-とポリフェイズフィルタ">Noble Identities
-とポリフェイズフィルタ</h2>
+<h2 id="noble-identities-とポリフェイズフィルタ"><a
+href="#noble-identities-とポリフェイズフィルタ" class="header-anchor"
+aria-hidden="true">Noble Identities とポリフェイズフィルタ</a></h2>
 <p>以下のブロック線図で表される <a
 href="https://ccrma.stanford.edu/~jos/sasp/Multirate_Noble_Identities.html">noble
 identities</a> と呼ばれる恒等式があります。</p>
@@ -491,7 +513,9 @@ class="math inline">\(N/L\)</span> に減らすことができます。</p>
 href="https://ccrma.stanford.edu/~jos/sasp/Multirate_Noble_Identities.html">Multirate
 Noble Identities</a></li>
 </ul>
-<h2 id="使えるローパスフィルタの種類">使えるローパスフィルタの種類</h2>
+<h2 id="使えるローパスフィルタの種類"><a
+href="#使えるローパスフィルタの種類" class="header-anchor"
+aria-hidden="true">使えるローパスフィルタの種類</a></h2>
 <p>ここでは楽器のシンセサイザの出力のダウンサンプリングが目的なので、ローパスフィルタだけについて見てきます。大まかに以下の
 4 種類のローパスフィルタがダウンサンプリングに使えそうです。</p>
 <table>
@@ -594,7 +618,8 @@ by factor of two using polyphase IIR - MATLAB</a></li>
 href="https://ieeexplore.ieee.org/abstract/document/709538">Allpass
 filter design and applications - IEEE Journals &amp; Magazine</a></li>
 </ul>
-<h3 id="オーバーラップ">オーバーラップ</h3>
+<h3 id="オーバーラップ"><a href="#オーバーラップ" class="header-anchor"
+aria-hidden="true">オーバーラップ</a></h3>
 <p>サンプリング周波数を <span class="math inline">\(f_s\)</span>
 、ダウンサンプリングの倍率を <span class="math inline">\(M\)</span>
 とすると、ローパスフィルタのストップバンド周波数 <span
@@ -625,7 +650,9 @@ thresholds for pure tones above 16kHz</a></li>
 <figure>
 <img src="img/monotonic_vs_equiripple.svg" alt="Image of ." style="padding-bottom: 12px;"/>
 </figure>
-<h2 id="fir-フィルタの設計と実装">FIR フィルタの設計と実装</h2>
+<h2 id="fir-フィルタの設計と実装"><a href="#fir-フィルタの設計と実装"
+class="header-anchor" aria-hidden="true">FIR
+フィルタの設計と実装</a></h2>
 <p>まず以下の仕様を決めます。</p>
 <ul>
 <li>出力信号のサンプリング周波数。</li>
@@ -706,7 +733,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <figure>
 <img src="img/fir_example.svg" alt="Plot of example fir filter amplitude response." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="c-による実装">C++ による実装</h3>
+<h3 id="c-による実装"><a href="#c-による実装" class="header-anchor"
+aria-hidden="true">C++ による実装</a></h3>
 <p>ポリフェイズ分解した FIR フィルタを用いた 1/2
 倍のダウンサンプリングの実装例です。</p>
 <div class="sourceCode" id="cb4"><pre
@@ -807,7 +835,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> data<span class="op">.</span>size<span class="op">();</span> i <span class="op">+=</span> <span class="dv">2</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>    input<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> data<span class="op">[</span>i<span class="op">];</span></span>
 <span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>    input<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> data<span class="op">[</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">];</span></span>
-<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> filter<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> filter<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -844,7 +872,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L863">事前に
 FIR フィルタ係数を回しておく実装を読む (github.com)</a></li>
 </ul>
-<h2 id="iir-フィルタの設計と実装">IIR フィルタの設計と実装</h2>
+<h2 id="iir-フィルタの設計と実装"><a href="#iir-フィルタの設計と実装"
+class="header-anchor" aria-hidden="true">IIR
+フィルタの設計と実装</a></h2>
 <p>まず以下の仕様を決めます。</p>
 <ul>
 <li>出力信号のサンプリング周波数。</li>
@@ -990,7 +1020,8 @@ class="math inline">\(f_s/8\)</span> は 6000 Hz です。</p>
 </figure>
 <p><span class="math inline">\(f_s/8\)</span> で -60 dB
 の低減が欲しいときは 8 次の Butterworth フィルタで十分そうです。</p>
-<h3 id="c-による実装-1">C++ による実装</h3>
+<h3 id="c-による実装-1"><a href="#c-による実装-1" class="header-anchor"
+aria-hidden="true">C++ による実装</a></h3>
 <p>IIR フィルタを用いた 1/8 倍のダウンサンプリングの実装例です。</p>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
@@ -1077,18 +1108,18 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#
 <span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> data<span class="op">(</span><span class="dv">64</span><span class="op">);</span></span>
 <span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>iota<span class="op">(</span>data<span class="op">.</span>begin<span class="op">(),</span> data<span class="op">.</span>end<span class="op">(),</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">);</span></span>
 <span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- Use `process` to process each n samples at once.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- Use `process` to process each n samples at once.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> <span class="dv">8</span><span class="op">&gt;</span> input<span class="op">;</span></span>
 <span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> data<span class="op">.</span>size<span class="op">();</span> i <span class="op">+=</span> <span class="dv">8</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> input<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>j<span class="op">)</span> input<span class="op">[</span>j<span class="op">]</span> <span class="op">=</span> data<span class="op">[</span>i <span class="op">+</span> j<span class="op">];</span></span>
-<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> filter<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> filter<span class="op">.</span>process<span class="op">(</span>input<span class="op">)</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- Use `push` and `output` to get output for each sample.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- Use `push` and `output` to get output for each sample.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>  filter<span class="op">.</span>reset<span class="op">();</span></span>
 <span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> data<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>    filter<span class="op">.</span>push<span class="op">(</span>data<span class="op">[</span>i<span class="op">]);</span></span>
-<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">%</span> <span class="dv">8</span> <span class="op">==</span> <span class="dv">7</span><span class="op">)</span> <span class="bu">std::</span>cout<span class="op"> &lt;&lt;</span> filter<span class="op">.</span>output<span class="op">()</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">%</span> <span class="dv">8</span> <span class="op">==</span> <span class="dv">7</span><span class="op">)</span> <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> filter<span class="op">.</span>output<span class="op">()</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -1119,7 +1150,8 @@ direct form I よりも少し遅かったです。</p>
 href="https://github.com/ryukau/filter_notes/blob/175fdd32163672ff1fe891c90cbb80b32218991b/downsampling/code/cpp/decimation/decimation.cpp#L269">Direct
 form II の実装を読む (github.com)</a></li>
 </ul>
-<h2 id="マルチステージ">マルチステージ</h2>
+<h2 id="マルチステージ"><a href="#マルチステージ" class="header-anchor"
+aria-hidden="true">マルチステージ</a></h2>
 <p>サンプリング周波数の変換をマルチステージにするという手法があります。例えば
 1/8 倍のダウンサンプリングであれば、1/2 倍と 1/4 倍の 2
 ステージ、あるいは 1/2 倍を 3 回繰り返す 3
@@ -1167,8 +1199,11 @@ href="https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5f
 <li><a
 href="https://ryukau.github.io/filter_notes/iir_halfband_decimator/iir_halfband_decimator.html">ハーフバンド楕円フィルタの実装</a></li>
 </ul>
-<h2 id="その他">その他</h2>
-<h3 id="適切なマルチステージの分割">適切なマルチステージの分割</h3>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
+<h3 id="適切なマルチステージの分割"><a
+href="#適切なマルチステージの分割" class="header-anchor"
+aria-hidden="true">適切なマルチステージの分割</a></h3>
 <p>適切なマルチステージの分割を求める手法として <a
 href="https://www.dsprelated.com/showarticle/1037.php">Ahmed Shahein
 さんによる記事</a>の参考文献に挙げられていた以下の論文があるようです。</p>
@@ -1184,7 +1219,8 @@ href="https://www.dsprelated.com/showarticle/1037.php">Multi-Decimation
 Stage Filtering for Sigma Delta ADCs: Design and Optimization - AHMED
 SHAHEIN</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2022/05/12
 <ul>

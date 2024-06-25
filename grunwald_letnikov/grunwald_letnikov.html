@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-10-30" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>grunwald_letnikov</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-10-30
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -373,14 +392,16 @@ id="toc-分数階微積分の実装">分数階微積分の実装</a></li>
 </nav>
 </details>
 </header>
-<h1 id="分数階微積分の数値計算">分数階微積分の数値計算</h1>
+<h1 id="分数階微積分の数値計算"><a href="#分数階微積分の数値計算"
+class="header-anchor" aria-hidden="true">分数階微積分の数値計算</a></h1>
 <p><strong>注意</strong>: 内容が怪しいです。</p>
 <p><a
 href="https://web.archive.org/web/20051029113800/http://www.nd.edu/~msen/Teaching/UnderRes/FracCalc.pdf">Loverroの
 “Fractional Calculus: History, Definitions and Applications for the
 Engineer”</a>に沿って、数値計算がしやすそうなGrünwald–Letnikovの<a
 href="https://en.wikipedia.org/wiki/Fractional_calculus">分数階微積分</a>について見ていきます。</p>
-<h2 id="分数階微積分とは">分数階微積分とは</h2>
+<h2 id="分数階微積分とは"><a href="#分数階微積分とは"
+class="header-anchor" aria-hidden="true">分数階微積分とは</a></h2>
 <p>ここではざっくりとした導入だけを行います。基本的な理論については次の資料が参考になります。</p>
 <ul>
 <li><a
@@ -440,7 +461,9 @@ class="math inline">\(q\)</span> 回繰り返すと1階積分になります。<
 \]</span></p>
 <p>分数階微積分が物理的にどういう意味を持つのかはよくわかりませんが、<a
 href="http://heim.ifi.uio.no/~sverre/papers/2011_HolmNasholm-fractZener-JournAcoustSocAm.pdf">波動方程式への応用</a>が提案されています。</p>
-<h2 id="grünwaldletnikovの分数階微分">Grünwald–Letnikovの分数階微分</h2>
+<h2 id="grünwaldletnikovの分数階微分"><a
+href="#grünwaldletnikovの分数階微分" class="header-anchor"
+aria-hidden="true">Grünwald–Letnikovの分数階微分</a></h2>
 <p><a
 href="https://en.wikipedia.org/wiki/Differential_of_a_function#Higher-order_differentials"><span
 class="math inline">\(n\)</span> 階微分の差分形</a>です。</p>
@@ -465,7 +488,8 @@ d^\alpha f(x) = \lim_{h \to 0} \frac{1}{h^\alpha}
 \,,\qquad \alpha \in \Bbb{R}
 \]</span></p>
 <p>この形がGrünwald–Letnikovの分数階微分です。</p>
-<h2 id="二項係数の計算">二項係数の計算</h2>
+<h2 id="二項係数の計算"><a href="#二項係数の計算" class="header-anchor"
+aria-hidden="true">二項係数の計算</a></h2>
 <p>実数 <span class="math inline">\(\alpha\)</span> が入力される<a
 href="https://en.wikipedia.org/wiki/Binomial_coefficient">二項係数</a>
 <span class="math inline">\(\binom{\alpha}{m}\)</span>
@@ -503,7 +527,8 @@ class="math inline">\(m &gt; 0\)</span> かつ <span
 class="math inline">\(\alpha &gt; m - 1\)</span>
 のときは問題なく計算できます。</p>
 <p>次のガンマ関数の計算と組み合わせた二項係数の計算はあまり精度が良くありません。できれば信頼できるライブラリを使ってください。</p>
-<h2 id="ガンマ関数の計算">ガンマ関数の計算</h2>
+<h2 id="ガンマ関数の計算"><a href="#ガンマ関数の計算"
+class="header-anchor" aria-hidden="true">ガンマ関数の計算</a></h2>
 <p>ガンマ関数の数値計算には<a
 href="https://en.wikipedia.org/wiki/Lanczos_approximation">Lanczos
 approximation</a>が使えます。次のコードはJavaScriptでの実装です。</p>
@@ -527,7 +552,9 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> t <span class="op">=</span> z <span class="op">+</span> p<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="fl">0.5</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sqrt</span>(<span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span>) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">pow</span>(t<span class="op">,</span> z <span class="op">+</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">exp</span>(<span class="op">-</span>t) <span class="op">*</span> a</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="grünwaldletnikovの分数階積分">Grünwald–Letnikovの分数階積分</h2>
+<h2 id="grünwaldletnikovの分数階積分"><a
+href="#grünwaldletnikovの分数階積分" class="header-anchor"
+aria-hidden="true">Grünwald–Letnikovの分数階積分</a></h2>
 <p><span class="math inline">\(\alpha\)</span>
 階の分数階積分も計算できます。 <span
 class="math inline">\(-\alpha\)</span>
@@ -564,7 +591,8 @@ d^{-\alpha} f(x)
 \frac{\Gamma(\alpha + m)}{\Gamma(m + 1)\Gamma(\alpha)} f(x - mh)
 \,, \qquad \alpha \in \Bbb{R}
 \]</span></p>
-<h2 id="分数階微積分の実装">分数階微積分の実装</h2>
+<h2 id="分数階微積分の実装"><a href="#分数階微積分の実装"
+class="header-anchor" aria-hidden="true">分数階微積分の実装</a></h2>
 <p>Grünwald–Letnikovの分数階微分と分数階積分を再掲します。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -617,7 +645,8 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-
 <span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  result<span class="op">.</span><span class="fu">push</span>([deriv<span class="op">,</span> integ])</span>
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(result)</span></code></pre></div>
-<h2 id="デモ">デモ</h2>
+<h2 id="デモ"><a href="#デモ" class="header-anchor"
+aria-hidden="true">デモ</a></h2>
 <script src="demo/fft.js"></script>
 <script src="demo/vec2.js"></script>
 <script src="demo/canvas.js"></script>
@@ -909,11 +938,13 @@ refresh()
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>func <span class="op">=</span> (x) <span class="kw">=&gt;</span> x<span class="op">**</span><span class="dv">5</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">refresh</span>()</span></code></pre></div>
-<h2 id="問題点">問題点</h2>
+<h2 id="問題点"><a href="#問題点" class="header-anchor"
+aria-hidden="true">問題点</a></h2>
 <p>分数階微分についての理解が足りていないのでテストケースが用意できていません。</p>
 <p><span class="math inline">\(0 &lt; \alpha &lt; 1\)</span>
 の範囲を超えると計算結果がおかしいように見えます。積分方向は見当違いの値がでているようにしか見えません。何とかして整数階の微分と小数階の微分で分けて計算することが考えられます。</p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a
 href="https://en.wikipedia.org/wiki/Fractional_calculus">Fractional

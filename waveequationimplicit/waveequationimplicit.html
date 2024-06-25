@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>waveequationimplicit</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -367,8 +386,10 @@ id="toc-連立方程式を立てる">連立方程式を立てる</a></li>
 </nav>
 </details>
 </header>
-<h1 id="implicit-fdm-を用いた1次元の波のシミュレーション">Implicit FDM
-を用いた1次元の波のシミュレーション</h1>
+<h1 id="implicit-fdm-を用いた1次元の波のシミュレーション"><a
+href="#implicit-fdm-を用いた1次元の波のシミュレーション"
+class="header-anchor" aria-hidden="true">Implicit FDM
+を用いた1次元の波のシミュレーション</a></h1>
 <p><a href="waveequation.html">前回のシミュレーション</a>
 では変形した式が <a
 href="https://en.wikipedia.org/wiki/Finite_difference_method#Explicit_method">Explicit
@@ -377,7 +398,9 @@ FDM</a> (Explicit Finite Difference Method)
 <a
 href="https://en.wikipedia.org/wiki/Finite_difference_method#Implicit_method">Implicit
 FDM</a> を使えば計算コストと引き換えに発散しなくなります。</p>
-<h2 id="explicit-fdm-と-implicitfdm">Explicit FDM と ImplicitFDM</h2>
+<h2 id="explicit-fdm-と-implicitfdm"><a
+href="#explicit-fdm-と-implicitfdm" class="header-anchor"
+aria-hidden="true">Explicit FDM と ImplicitFDM</a></h2>
 <p>Explicit FDM と Implicit FDM
 では空間方向の有限差分の時間ステップが変わります。</p>
 <p>例として1次元の波動方程式を変形します。ここでは時間 <span
@@ -418,7 +441,8 @@ dt)\)</span>
 の形になる項が複数出てきます。1つの式を整理しても計算できる形にはなりませんが、すべての
 <span class="math inline">\(x\)</span>
 について式を立てれば連立方程式として解くことができます。</p>
-<h2 id="連立方程式を立てる">連立方程式を立てる</h2>
+<h2 id="連立方程式を立てる"><a href="#連立方程式を立てる"
+class="header-anchor" aria-hidden="true">連立方程式を立てる</a></h2>
 <p>1次元の波動方程式を Implicit FDM
 の形に変形して連立方程式を立てます。1次元の波動方程式を再掲します。</p>
 <p><span class="math display">\[
@@ -508,7 +532,8 @@ class="math inline">\(L = R = 1\)</span> となります。</p>
 <p>立てた連立方程式を <span
 class="math inline">\(\mathbf{u}^{t+1}\)</span>
 について解くことでシミュレーションを1ステップ進めることができます。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>コードを実行すると1次元の波のシミュレーションを行い、結果を
 <code>wave1d.png</code> に画像として書き出します。</p>
 <p>連立方程式のソルバに<a
@@ -630,7 +655,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <figure>
 <img src="img/wave1d.png" alt="Image of a result of 1d wave simulation." style="width: 512px; padding-bottom: 12px;"/>
 </figure>
-<h2 id="デモ">デモ</h2>
+<h2 id="デモ"><a href="#デモ" class="header-anchor"
+aria-hidden="true">デモ</a></h2>
 <p>Implicit FDMとExplicit
 FDMによる波のシミュレーションを比較した動画です。</p>
 <video controls>
@@ -644,7 +670,8 @@ explicit method.
 <code>wave.py</code> になります。</p>
 <p><a href="https://github.com/ryukau/filter_notes/tree/master/waveequationimplicit/demo">デモのコードを見る
 (github.com)</a></p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>Implicit FDM
 のシミュレーションでは減衰係数が1のときでも時間の経過とともに波がなまっていきます。</p>
 <p>Explicit FDM と Implicit FDM では波の伝達速度も変わっています。</p>

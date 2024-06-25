@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>ptr_trapezoid</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -374,12 +393,14 @@ id="toc-音程が高いときのノイズの低減">音程が高いときのノ�
 </nav>
 </details>
 </header>
-<h1 id="ptr-台形オシレータ">PTR 台形オシレータ</h1>
+<h1 id="ptr-台形オシレータ"><a href="#ptr-台形オシレータ"
+class="header-anchor" aria-hidden="true">PTR 台形オシレータ</a></h1>
 <p><a
 href="https://ryukau.github.io/VSTPlugins/manual/TrapezoidSynth/TrapezoidSynth_ja.html">TrapezoidSynth</a>
 の<a
 href="https://github.com/ryukau/VSTPlugins/blob/91d663e7ed916bc7c5e372990ad40eb9736ad84e/TrapezoidSynth/source/dsp/oscillator.hpp#L106">オシレータのコード</a>があまりにも場当たり的で自分でも読めなくなったので整理しました。</p>
-<h2 id="ptr-台形の特性">PTR 台形の特性</h2>
+<h2 id="ptr-台形の特性"><a href="#ptr-台形の特性" class="header-anchor"
+aria-hidden="true">PTR 台形の特性</a></h2>
 <p>TrapezoidSynth の PTR 台形オシレータは 4 つの PTR <a
 href="https://en.wikipedia.org/wiki/Ramp_function">ランプ関数</a>をつぎはぎすることで台形を合成しています。このつぎはぎが複雑さの原因です。</p>
 <p>ランプ関数の定義です。</p>
@@ -407,14 +428,17 @@ x, &amp; \text{otherwise.}
 <figure>
 <img src="img/trapezoid_dc1.svg" alt="Image of trapezoid with name of parts." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="y-の値"><span class="math inline">\(y\)</span> の値</h3>
+<h3 id="y-の値"><a href="#y-の値" class="header-anchor"
+aria-hidden="true"><span class="math inline">\(y\)</span> の値</a></h3>
 <p>PTR の次数を <span class="math inline">\(N\)</span> 、 1
 サンプルあたりに進む位相を <span class="math inline">\(T\)</span>
 とすると <span class="math inline">\(y = 1 - 2 K N T\)</span> です。
 <span class="math inline">\(- 2 K N T\)</span>
 という値は試行錯誤して見つけた適当な値です。</p>
-<h3 id="a_1-と-a_2-の関係"><span class="math inline">\(A_1\)</span> と
-<span class="math inline">\(A_2\)</span> の関係</h3>
+<h3 id="a_1-と-a_2-の関係"><a href="#a_1-と-a_2-の関係"
+class="header-anchor" aria-hidden="true"><span
+class="math inline">\(A_1\)</span> と <span
+class="math inline">\(A_2\)</span> の関係</a></h3>
 <p><span class="math inline">\(A_1\)</span> と <span
 class="math inline">\(K\)</span> はユーザが決定する定数です。 <span
 class="math inline">\(A_1\)</span> は1つ目の台形の上辺の長さ、 <span
@@ -429,7 +453,9 @@ A_2 &amp;= B_1 + B_2 - A_1 - \frac{1}{K}\\
   &amp;= 1 - A_1 - \frac{1}{K} &amp; \text{(1)}
 \end{aligned}
 \]</span></p>
-<h3 id="a_1-の範囲"><span class="math inline">\(A_1\)</span> の範囲</h3>
+<h3 id="a_1-の範囲"><a href="#a_1-の範囲" class="header-anchor"
+aria-hidden="true"><span class="math inline">\(A_1\)</span>
+の範囲</a></h3>
 <p><span class="math inline">\(A_1\)</span> の最小値は <span
 class="math inline">\(0\)</span> です。</p>
 <p><span class="math inline">\(A_1\)</span> が最大となるとき、 <span
@@ -437,7 +463,9 @@ class="math inline">\(A_2 = 0\)</span> です。 <span
 class="math inline">\(A_2 = 0\)</span> を式 (1) に代入すると <span
 class="math inline">\(A_1\)</span> の最大値 <span
 class="math inline">\(1 - \dfrac{1}{K}\)</span> が得られます。</p>
-<h3 id="k-の範囲"><span class="math inline">\(K\)</span> の範囲</h3>
+<h3 id="k-の範囲"><a href="#k-の範囲" class="header-anchor"
+aria-hidden="true"><span class="math inline">\(K\)</span>
+の範囲</a></h3>
 <p><span class="math inline">\(A_1 = 0,\ A_2 = 0\)</span> のとき、式 (1)
 より <span class="math inline">\(K = 1\)</span>
 です。このとき三角波に近い波形になります。 <span class="math inline">\(K
@@ -453,7 +481,8 @@ class="math inline">\(1 - \dfrac{1}{K}\)</span> が得られます。</p>
 T}\)</span> を <span class="math inline">\(K\)</span>
 の最大値としています。 <span class="math inline">\(4 N T\)</span> は 4
 つの PTR ランプ関数の遷移領域の長さです。</p>
-<h3 id="直流補正">直流補正</h3>
+<h3 id="直流補正"><a href="#直流補正" class="header-anchor"
+aria-hidden="true">直流補正</a></h3>
 <p>図では <span class="math inline">\(h\)</span>
 を引いて直流成分を補正しています。 <span class="math inline">\(A_1,
 B_1\)</span> からなる台形 1 と、 <span class="math inline">\(A_2,
@@ -479,7 +508,9 @@ h=\frac{y^2 + A_1 K y}{2 y+K-1}
 \]</span></p>
 <p>これで直流成分の大きさ <span class="math inline">\(h\)</span>
 が分かりました。</p>
-<h2 id="音程が高いときのノイズの低減">音程が高いときのノイズの低減</h2>
+<h2 id="音程が高いときのノイズの低減"><a
+href="#音程が高いときのノイズの低減" class="header-anchor"
+aria-hidden="true">音程が高いときのノイズの低減</a></h2>
 <p>記号の定義です。</p>
 <ul>
 <li><span class="math inline">\(f\)</span> : オシレータの周波数</li>
@@ -533,7 +564,8 @@ f_u(N) &amp;= \frac{f_s}{4 N}
 <p>TrapezoidSynth では何を思ったのか <span
 class="math inline">\(N\)</span> の切り替えと 8
 倍のオーバーサンプリングの両方が実装されています。</p>
-<h2 id="実装">実装</h2>
+<h2 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h2>
 <p>C++ です。</p>
 <p>定数をキャストしているのはテンプレートで <code>float</code> と
 <code>double</code>

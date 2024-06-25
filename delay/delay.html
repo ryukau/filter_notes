@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>delay</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -375,7 +394,8 @@ id="toc-ディレイ時間の補正">ディレイ時間の補正</a></li>
 </nav>
 </details>
 </header>
-<h1 id="ディレイの実装">ディレイの実装</h1>
+<h1 id="ディレイの実装"><a href="#ディレイの実装" class="header-anchor"
+aria-hidden="true">ディレイの実装</a></h1>
 <p>ディレイは信号を遅らせる処理で、1つのリングバッファと書き込みと読み込みの2つポインタで表現できます。</p>
 <figure>
 <img src="img/ringbuffer.svg" alt="Image of ringbuffer." style="width: 640px; padding-bottom: 12px;"/>
@@ -400,7 +420,8 @@ class="math inline">\(d\)</span>
 <figure>
 <img src="img/delay_outline.svg" alt="Image of signal flow of a delay." style="width: 720px; padding-bottom: 12px;"/>
 </figure>
-<h2 id="整数ディレイ">整数ディレイ</h2>
+<h2 id="整数ディレイ"><a href="#整数ディレイ" class="header-anchor"
+aria-hidden="true">整数ディレイ</a></h2>
 <p>まずは補間のないディレイを実装します。</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IntDelay {</span>
@@ -464,7 +485,8 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]<span class="op">,</span> <span class="co">// 3 sample delay</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span>]  <span class="co">// 4 sample delay</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div>
-<h2 id="分数ディレイフィルタ">分数ディレイフィルタ</h2>
+<h2 id="分数ディレイフィルタ"><a href="#分数ディレイフィルタ"
+class="header-anchor" aria-hidden="true">分数ディレイフィルタ</a></h2>
 <p>ここでは分数ディレイフィルタの実装に、テイラー展開に基づくラグランジュ補間を使います。次の図はテイラー展開に基づくラグランジュ補間のブロック線図です。</p>
 <figure>
 <img src="img/lagrange_taylor.svg" alt="Image of a implementation of lagrange interpolation based on taylor expansion." style="width: 640px;padding-bottom: 12px;"/>
@@ -567,9 +589,10 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-
 <span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">.</span><span class="fu">at</span>(fraction)</span>
 <span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h3 id="奇数の-n-と偶数の-n">奇数の <span
+<h3 id="奇数の-n-と偶数の-n"><a href="#奇数の-n-と偶数の-n"
+class="header-anchor" aria-hidden="true">奇数の <span
 class="math inline">\(N\)</span> と偶数の <span
-class="math inline">\(N\)</span></h3>
+class="math inline">\(N\)</span></a></h3>
 <p>サンプル数で表したディレイ時間 <span class="math inline">\(d\)</span>
 を整数部 <span class="math inline">\(n\)</span> と分数部 <span
 class="math inline">\(\delta\)</span> に分けます。</p>
@@ -592,7 +615,8 @@ class="math inline">\(0.5 &lt; \delta \leq 1\)</span>
 が偶数のときは入力を1サンプルずらした2つの分数ディレイフィルタを用意して、
 <span class="math inline">\(\Delta\)</span>
 の値によって通過させるフィルタを入れ替える実装が考えられます。</p>
-<h2 id="オーバーサンプリング">オーバーサンプリング</h2>
+<h2 id="オーバーサンプリング"><a href="#オーバーサンプリング"
+class="header-anchor" aria-hidden="true">オーバーサンプリング</a></h2>
 <p>整数ディレイと分数ディレイフィルタをそのままつないだだけだと、ディレイ時間を変更したときにノイズが乗ります。ノイズはサンプル数で表されたディレイ時間の整数部が変わるときに乗るようです。</p>
 <p>いろいろ試したところ、オーバーサンプリングによってノイズを減らすことができました。オーバーサンプリングは、信号のサンプリング周波数を
 <span class="math inline">\(K\)</span>
@@ -616,7 +640,8 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> output</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="レートリミッタ">レートリミッタ</h2>
+<h2 id="レートリミッタ"><a href="#レートリミッタ" class="header-anchor"
+aria-hidden="true">レートリミッタ</a></h2>
 <p>ディレイ時間を変更したときのノイズを減らす別の方法としてレートリミッタが使えます。</p>
 <p>レートリミッタは 1
 フレームあたりでの値の変化量を制限する部品です。例えば現在値が 0
@@ -691,7 +716,8 @@ href="https://github.com/ryukau/VSTPlugins/blob/d3bc21346ee3987e0e5744086620dc5f
 <p>レートリミッタの代わりに 1 次ローパスフィルタや <a
 href="https://ryukau.github.io/filter_notes/control_rate_interpolation/control_rate_interpolation.html#p-controller">EMA
 フィルタ</a>などのオーバーシュートしないフィルタを使うことも考えられます。レートリミッタのような正確な値の変動の制限は期待できませんが、ディレイ時間に使うとそれなりに味のある音になります。</p>
-<h2 id="ディレイ時間の補正">ディレイ時間の補正</h2>
+<h2 id="ディレイ時間の補正"><a href="#ディレイ時間の補正"
+class="header-anchor" aria-hidden="true">ディレイ時間の補正</a></h2>
 <p>整数ディレイの前後に取り付けられた分数ディレイフィルタの遅延を補正します。次の図はオーバーサンプリングを追加したときのディレイの処理の流れです。</p>
 <figure>
 <img src="img/oversampling_outline.svg" alt="Image of ." style="width: 720px;padding-bottom: 12px;"/>
@@ -733,7 +759,8 @@ time in buffer
 rDelay = (rOrder - 1) / 2
 d_buf = oversampling * input_samplerate * time
 rptr = ceil(wptr - d_buf) + wDelay + rDelay</code></pre>
-<h2 id="まとめて実装">まとめて実装</h2>
+<h2 id="まとめて実装"><a href="#まとめて実装" class="header-anchor"
+aria-hidden="true">まとめて実装</a></h2>
 <p>ここまでのテクニックを一つにまとめて実装します。</p>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Delay {</span>
@@ -906,7 +933,8 @@ with low speed playback. 16x oversampling, 9th order lagrange
 interpolation. </audio></p>
 <p>レンダリングした音を聞く限りでは、高次の補間を使うときはオーバーサンプリングの倍率を補間の次数以上にするとノイズが大きく減るようです。</p>
 <p>ディレイ時間があまり変更されないときは、1次補間で2倍のオーバーサンプリングにすれば十分な気がします。テープエコーのシミュレーションなどでリングバッファ内の音を低速再生する状態を作るときは高次の補間のほうが良さそうです。</p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>1次のラグランジュ補間は線形補間です。 <span
 class="math inline">\(k\)</span> 次のラグランジュ補間の定義です。</p>
 <p><span class="math display">\[
@@ -940,13 +968,15 @@ y_0 \frac{x - x_1}{x_0 - x_1} + y_1 \frac{x - x_0}{x_1 - x_0}
 class="math inline">\(y_0\)</span> と <span
 class="math inline">\(y_1\)</span>
 の間を線形補間する式になっています。</p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a href="https://ccrma.stanford.edu/~jos/Interpolation/">MUS420
 Lecture 4A Interpolated Delay Lines, Ideal Bandlimited Interpolation,
 and Fractional Delay Filter Design</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2022/05/08
 <ul>

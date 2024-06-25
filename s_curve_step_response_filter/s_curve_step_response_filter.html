@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-04-17" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>s_curve_step_response_filter</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-04-17
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -399,8 +418,9 @@ id="toc-ステップ応答-2">ステップ応答</a></li>
 </nav>
 </details>
 </header>
-<h1 id="ステップ応答が-s-字を描くフィルタ">ステップ応答が S
-字を描くフィルタ</h1>
+<h1 id="ステップ応答が-s-字を描くフィルタ"><a
+href="#ステップ応答が-s-字を描くフィルタ" class="header-anchor"
+aria-hidden="true">ステップ応答が S 字を描くフィルタ</a></h1>
 <p>リミッタのエンベロープのスムーシングに使うためにステップ応答が S
 字を描くフィルタについて調べました。</p>
 <p>次の 3 つのフィルタを比較します。</p>
@@ -409,7 +429,9 @@ id="toc-ステップ応答-2">ステップ応答</a></li>
 <li>Bessel フィルタ</li>
 <li>Thiran ローパスフィルタ</li>
 </ul>
-<h2 id="移動平均フィルタの重ね掛け">移動平均フィルタの重ね掛け</h2>
+<h2 id="移動平均フィルタの重ね掛け"><a
+href="#移動平均フィルタの重ね掛け" class="header-anchor"
+aria-hidden="true">移動平均フィルタの重ね掛け</a></h2>
 <p><span class="math inline">\(x\)</span> を入力信号、 <span
 class="math inline">\(n\)</span> を現在時刻のサンプル数、 <span
 class="math inline">\(N\)</span> をフィルタの長さ (タップ数)
@@ -420,7 +442,9 @@ y[n] = \frac{1}{N} \sum_{i=0}^{N-1} x[n - i]
 <p>移動平均フィルタはフィルタ係数がすべて <span
 class="math inline">\(\dfrac{1}{N}\)</span> の矩形窓を畳み込む FIR
 フィルタと言い換えることができます。</p>
-<h3 id="移動平均フィルタの重ね掛け-1">移動平均フィルタの重ね掛け</h3>
+<h3 id="移動平均フィルタの重ね掛け-1"><a
+href="#移動平均フィルタの重ね掛け-1" class="header-anchor"
+aria-hidden="true">移動平均フィルタの重ね掛け</a></h3>
 <p>直列につないだ FIR フィルタは、フィルタ係数を畳み込むことで 1
 つのフィルタにまとめられます。矩形窓を畳み込んで、重ね掛けしたときのフィルタ係数がどうなるのか見てみます。</p>
 <div class="sourceCode" id="cb1"><pre
@@ -461,7 +485,8 @@ href="https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/homework/hw2_p2
 <figure>
 <img src="img/MovingAverageKernel.png" alt="Cascaded moving average filter kernel shape." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="ステップ応答">ステップ応答</h3>
+<h3 id="ステップ応答"><a href="#ステップ応答" class="header-anchor"
+aria-hidden="true">ステップ応答</a></h3>
 <p>移動平均フィルタを畳み込んだフィルタのステップ応答を確認します。</p>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
@@ -484,7 +509,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <figure>
 <img src="img/MovingAverageStepResponse.png" alt="Step responses of cascaded moving average filters." style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="実装">実装</h3>
+<h3 id="実装"><a href="#実装" class="header-anchor"
+aria-hidden="true">実装</a></h3>
 <p>移動平均フィルタは <a
 href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Musicdsp.org
 の Lookahead Limiter</a>
@@ -639,7 +665,8 @@ href="https://en.cppreference.com/w/cpp/numeric/fenv/feround"><code>fesetround</
 <li>-inf に向かう丸めが行われるときは、 <code>0.11</code>
 が切り捨てられるので、加算の結果は <code>1011</code> 。</li>
 </ul>
-<h4 id="補足">補足</h4>
+<h4 id="補足"><a href="#補足" class="header-anchor"
+aria-hidden="true">補足</a></h4>
 <p>Musicdsp.org のページでは、以下のコードのように入力で
 <code>1.0 - input</code> 、出力で <code>1.0 - output</code>
 を計算することで浮動小数点数による計算誤差を減らす手順があります。はっきりとは書いていませんが
@@ -703,7 +730,8 @@ x86) を使いました。 <code>/fp:precise</code> と <code>fp:fast</code>
 から引く手順ありだと数値誤差による問題が増えるので使わないほうが良さそうです。</p>
 <p>1 から引く手順なしでも 0
 に近い小さな値が含まれる信号のときは予期しない符号の反転が起こるおそれがあるので注意が必要です。</p>
-<h2 id="bessel-フィルタ">Bessel フィルタ</h2>
+<h2 id="bessel-フィルタ"><a href="#bessel-フィルタ"
+class="header-anchor" aria-hidden="true">Bessel フィルタ</a></h2>
 <p>Bessel フィルタは連続系で群遅延が maximally flat
 になることが特長のフィルタですが、離散化にバイリニア変換などを使うと周波数が歪むので特長が損なわれます。</p>
 <p>Maximally flat はフィルタの専門用語で次の 2 つの性質を持ちます。</p>
@@ -712,7 +740,8 @@ x86) を使いました。 <code>/fp:precise</code> と <code>fp:fast</code>
 (ローパスの場合。)</li>
 <li>通過域の特性ができる限り平坦。</li>
 </ol>
-<h3 id="ステップ応答-1">ステップ応答</h3>
+<h3 id="ステップ応答-1"><a href="#ステップ応答-1" class="header-anchor"
+aria-hidden="true">ステップ応答</a></h3>
 <p>SciPy の <a
 href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.bessel.html"><code>signal.bessel()</code></a>
 を試します。 SciPy 1.5.2 では <code>signal.bessel()</code>
@@ -742,7 +771,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <figure>
 <img src="Bessel filter step response." alt="img/BesselStepResponse.png" style="padding-bottom: 12px;"/>
 </figure>
-<h3 id="次セクションへの分割">2 次セクションへの分割</h3>
+<h3 id="次セクションへの分割"><a href="#次セクションへの分割"
+class="header-anchor" aria-hidden="true">2 次セクションへの分割</a></h3>
 <p>次数の高い伝達関数をそのまま計算すると浮動小数点数による誤差で発散することがあります。そこで
 2 次セクション (second order sections, sos) に分割して C++
 に移植します。</p>
@@ -763,7 +793,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.zpk2sos(z, p, k)</span></code></pre></div>
 <p>コードの <code>z, p, k</code> は <code>zero, pole, gain</code>
 の略です。</p>
-<h4 id="アナログプロトタイプ">アナログプロトタイプ</h4>
+<h4 id="アナログプロトタイプ"><a href="#アナログプロトタイプ"
+class="header-anchor" aria-hidden="true">アナログプロトタイプ</a></h4>
 <p>Bessel
 フィルタは極だけでゼロは一つもありません。このようなフィルタは全極フィルタ
 (all-pole filter)
@@ -785,7 +816,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
   (-2.8962106028203722-0.8672341289345038j), # p2 の複素共役
   (-2.1037893971796273-2.6574180418567526j)  # p1 の複素共役
 ]</code></pre>
-<h4 id="カットオフ周波数の設定">カットオフ周波数の設定</h4>
+<h4 id="カットオフ周波数の設定"><a href="#カットオフ周波数の設定"
+class="header-anchor" aria-hidden="true">カットオフ周波数の設定</a></h4>
 <p><a
 href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lp2lp_zpk.html#scipy.signal.lp2lp_zpk"><code>signal.lp2lp_zpk()</code></a>
 はローパスのアナログプロトタイプのカットオフ周波数を設定する関数です。以下はエラー処理などを簡略化した
@@ -801,7 +833,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a h
 <p>Bessel フィルタはゼロが無く、ゲインは別の方法で計算するので
 <code>z_lp</code> と <code>k_lp</code> は C++
 のコードでは計算していません。</p>
-<h4 id="バイリニア変換">バイリニア変換</h4>
+<h4 id="バイリニア変換"><a href="#バイリニア変換" class="header-anchor"
+aria-hidden="true">バイリニア変換</a></h4>
 <p>アナログプロトタイプからの離散化にはバイリニア変換を使います。次のバイリニア変換の式の
 <span class="math inline">\(s\)</span>
 に連続系の極を代入することで、離散フィルタの極に変換できます。</p>
@@ -829,7 +862,8 @@ class="math inline">\(K\)</span> はゲインです。</p>
 <p><span class="math display">\[
 H(z) = K \frac{(z + 1)^N}{\displaystyle \prod_{i=1}^{N} (z - p_i)}
 \]</span></p>
-<h4 id="次セクションの構築">2 次セクションの構築</h4>
+<h4 id="次セクションの構築"><a href="#次セクションの構築"
+class="header-anchor" aria-hidden="true">2 次セクションの構築</a></h4>
 <p>次数が偶数の Bessel フィルタの極は複素共役の組 (conjugated pairs)
 になります。例えば 4 次なら <span class="math inline">\((p_1, p_2,
 p_2^*, p_1^*)\)</span> という 4 つの極が出てきます。 <span
@@ -871,7 +905,8 @@ class="math inline">\(K\)</span> が計算できます。</p>
 <p><span class="math display">\[
 K = \prod_{i=1}^N K_i
 \]</span></p>
-<h4 id="c-での実装">C++ での実装</h4>
+<h4 id="c-での実装"><a href="#c-での実装" class="header-anchor"
+aria-hidden="true">C++ での実装</a></h4>
 <p>C++17 のフラグを立ててコンパイルしています。</p>
 <div class="sourceCode" id="cb13"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
@@ -950,7 +985,9 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#
 <span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gain <span class="op">*</span> y0<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
 <span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h2 id="thiran-ローパスフィルタ">Thiran ローパスフィルタ</h2>
+<h2 id="thiran-ローパスフィルタ"><a href="#thiran-ローパスフィルタ"
+class="header-anchor" aria-hidden="true">Thiran
+ローパスフィルタ</a></h2>
 <p>Thiran ローパスフィルタは群遅延が maximally flat
 になるように設計されたフィルタです。</p>
 <p>Thiran ローパスフィルタの伝達関数です。</p>
@@ -978,7 +1015,8 @@ href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tf2sos.h
 を使っています。 C++ では <a
 href="https://www.boost.org/doc/libs/1_74_0/libs/math/doc/html/root_finding.html">Boost
 の root-finding</a> が使えそうです。</p>
-<h3 id="ステップ応答-2">ステップ応答</h3>
+<h3 id="ステップ応答-2"><a href="#ステップ応答-2" class="header-anchor"
+aria-hidden="true">ステップ応答</a></h3>
 <p>ステップ応答を確認します。</p>
 <div class="sourceCode" id="cb14"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
@@ -1038,7 +1076,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    b[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> resp.real</span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (b, a)</span></code></pre></div>
-<h2 id="比較">比較</h2>
+<h2 id="比較"><a href="#比較" class="header-anchor"
+aria-hidden="true">比較</a></h2>
 <p>ここまでに紹介した 3 つのフィルタのステップ応答を比較します。</p>
 <ul>
 <li>三角窓の FIR フィルタ (移動平均を 1 回畳み込み)</li>
@@ -1057,14 +1096,16 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 <p>Thiran ローパスフィルタはバイリニア変換した Bessel
 フィルタとほとんど同じですが、 2
 次セクションに分割できないので使いどころはなさそうです。</p>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p>オーバーシュートせずにステップ応答が S
 字を描くフィルタとしては、フィルタ係数がすべて正の値となる FIR
 フィルタも使えます。ただし、遷移時間が長くなると FIR
 フィルタのタップ数が増える分だけ計算が重たくなります。フィルタ係数は
 Wikipedia の<a
 href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>の記事からいろいろな曲線が選べます。</p>
-<h2 id="参考文献">参考文献</h2>
+<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+aria-hidden="true">参考文献</a></h2>
 <ul>
 <li><a
 href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
@@ -1086,7 +1127,8 @@ delay.</a></li>
 href="https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html">Amplitude
 Response</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/04/07
 <ul>

@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-10-30" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>waveequation</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-10-30
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -372,10 +391,12 @@ id="toc-波が減衰しない">波が減衰しない</a></li>
 </nav>
 </details>
 </header>
-<h1 id="波のシミュレーション">波のシミュレーション</h1>
+<h1 id="波のシミュレーション"><a href="#波のシミュレーション"
+class="header-anchor" aria-hidden="true">波のシミュレーション</a></h1>
 <p><a
 href="https://en.wikipedia.org/wiki/Wave_equation">波動方程式</a>をコンピュータで計算できる形に変形します。</p>
-<h2 id="波動方程式">波動方程式</h2>
+<h2 id="波動方程式"><a href="#波動方程式" class="header-anchor"
+aria-hidden="true">波動方程式</a></h2>
 <p>波は波動方程式で表すことができます。</p>
 <p><span class="math display">\[
 \frac{\partial^2 u(\vec{x},\,t)}{\partial t^2} = c^2 \nabla^2
@@ -387,7 +408,8 @@ class="math inline">\(u\)</span> の地点 <span
 class="math inline">\(\vec{x}\)</span> 、時点 <span
 class="math inline">\(t\)</span> における値です。</p>
 <p><span class="math inline">\(c\)</span> は波の伝わる速度です。</p>
-<h2 id="次元の波">1次元の波</h2>
+<h2 id="次元の波"><a href="#次元の波" class="header-anchor"
+aria-hidden="true">1次元の波</a></h2>
 <p>1次元の波について考えます。</p>
 <p>波の次元が変わると<a
 href="https://en.wikipedia.org/wiki/Laplace_operator">ラプラシアン</a>
@@ -404,7 +426,8 @@ u(\vec{x},\,t)}{\partial x_i^2}
 \frac{\partial^2 u(x,\,t)}{\partial t^2} = c^2 \frac{\partial^2
 u(x,\,t)}{\partial x^2}
 \]</span></p>
-<h2 id="有限差分法">有限差分法</h2>
+<h2 id="有限差分法"><a href="#有限差分法" class="header-anchor"
+aria-hidden="true">有限差分法</a></h2>
 <p><a
 href="https://en.wikipedia.org/wiki/Finite_difference_method">有限差分法</a>は微分方程式を計算できる形にする方法の一つです。</p>
 <p><a href="http://www.sympy.org/en/index.html">SymPy</a>の <a
@@ -496,7 +519,8 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">move</span>()<span class="op">;</span></span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">requestAnimationFrame</span>(animate)<span class="op">;</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="境界条件">境界条件</h2>
+<h2 id="境界条件"><a href="#境界条件" class="header-anchor"
+aria-hidden="true">境界条件</a></h2>
 <p>固定端、自由端、輪について見ていきます。</p>
 <p>固定端のときは端を定数で固定します。</p>
 <div class="sourceCode" id="cb4"><pre
@@ -575,14 +599,17 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-
 href="http://www.cavelab.cs.tsukuba.ac.jp/nsfdtd/theory/beginner_04.html">Nonstandard
 FDTD Theory</a></li>
 </ul>
-<h2 id="デモ">デモ</h2>
+<h2 id="デモ"><a href="#デモ" class="header-anchor"
+aria-hidden="true">デモ</a></h2>
 <p>キャンバスをクリックすると左端の固定端を動かして波を起こします。</p>
 <p>1フレーム毎にシミュレーションを4ステップ進めています。</p>
 <script src="demo/vec2.js"></script>
 <script src="demo/canvas.js"></script>
 <script src="demo/wave1d.js"></script>
-<h2 id="問題">問題</h2>
-<h3 id="波が減衰しない">波が減衰しない</h3>
+<h2 id="問題"><a href="#問題" class="header-anchor"
+aria-hidden="true">問題</a></h2>
+<h3 id="波が減衰しない"><a href="#波が減衰しない" class="header-anchor"
+aria-hidden="true">波が減衰しない</a></h3>
 <p>時間が経っても波が減衰しません。最初に出てきた波動方程式にはエネルギーの減衰についての項が無いためです。</p>
 <p>波動方程式にばねとダンパの項を加えた式が使えます。</p>
 <p><span class="math display">\[
@@ -619,21 +646,24 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    )<span class="op">;</span></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h3 id="ギブス現象">ギブス現象</h3>
+<h3 id="ギブス現象"><a href="#ギブス現象" class="header-anchor"
+aria-hidden="true">ギブス現象</a></h3>
 <p>今回のデモでは無視できないほどの<a
 href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">ギブス現象</a>が起こっています。ギブス現象の低減については
 <a
 href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.386.7325&amp;rep=rep1&amp;type=pdf">On
 the Gibbs phenomenon and its resolution</a>
 でいくつか手法が紹介されています。</p>
-<h3 id="発散">発散</h3>
+<h3 id="発散"><a href="#発散" class="header-anchor"
+aria-hidden="true">発散</a></h3>
 <p><span class="math inline">\(c\)</span> 、 <span
 class="math inline">\(dt\)</span> 、 <span
 class="math inline">\(dx\)</span>
 の値によってはシミュレーションが発散します。今回のシミュレーションは
 explicit な形になっているので implicit
 な形にすることが考えられます。</p>
-<h2 id="参考サイト">参考サイト</h2>
+<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+aria-hidden="true">参考サイト</a></h2>
 <ul>
 <li><a
 href="https://en.wikipedia.org/wiki/Numerical_partial_differential_equations">Numerical
@@ -651,7 +681,8 @@ Based Modeling</a></li>
 href="http://www.cavelab.cs.tsukuba.ac.jp/nsfdtd/theory/beginner_04.html">Nonstandard
 FDTD Theory</a></li>
 </ul>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2023/10/29
 <ul>

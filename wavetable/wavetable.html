@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-05-17" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>wavetable</title>
 
 <!-- MathJax -->
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-05-17
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -373,8 +392,9 @@ id="toc-キュービック補間">キュービック補間</a></li>
 </nav>
 </details>
 </header>
-<h1
-id="ウェーブテーブルの帯域制限と位相方向の補間">ウェーブテーブルの帯域制限と位相方向の補間</h1>
+<h1 id="ウェーブテーブルの帯域制限と位相方向の補間"><a
+href="#ウェーブテーブルの帯域制限と位相方向の補間" class="header-anchor"
+aria-hidden="true">ウェーブテーブルの帯域制限と位相方向の補間</a></h1>
 <p>ウェーブテーブルの帯域制限と位相方向の補間について調べます。</p>
 <p>コードは Python3
 です。上から順にインタプリタにコピペしていけばコードが実行できるようになっています。実行には
@@ -382,7 +402,8 @@ id="ウェーブテーブルの帯域制限と位相方向の補間">ウェー�
 <a href="https://matplotlib.org/">matplotlib</a> が必要です。</p>
 <p>より完全なウェーブテーブルの実装を<a
 href="../wavetable_pitchbend/wavetable_pitchbend.html">ウェーブテーブルのピッチベンド</a>に掲載しています。</p>
-<h2 id="素朴な実装">素朴な実装</h2>
+<h2 id="素朴な実装"><a href="#素朴な実装" class="header-anchor"
+aria-hidden="true">素朴な実装</a></h2>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -464,7 +485,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <img src="img/compare_naive_zoom.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <p>赤と青の線が一致していない分だけノイズがのっています。</p>
-<h2 id="yoshimi-のウェーブテーブル">Yoshimi のウェーブテーブル</h2>
+<h2 id="yoshimi-のウェーブテーブル"><a
+href="#yoshimi-のウェーブテーブル" class="header-anchor"
+aria-hidden="true">Yoshimi のウェーブテーブル</a></h2>
 <p><a href="http://yoshimi.sourceforge.net/">Yoshimi</a> の ADDsynth
 で使われているテクニックでノイズを大幅に低減できます。Yoshimi の
 ADDsynth
@@ -499,10 +522,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <img src="img/compare_yoshimi_linterp_zoom.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
 <p>大幅にノイズが減りました。</p>
-<h2 id="補間">補間</h2>
+<h2 id="補間"><a href="#補間" class="header-anchor"
+aria-hidden="true">補間</a></h2>
 <p>ここまでは線形補間を使っていましたが、キュービック補間や sinc
 補間を使うことでさらにノイズを低減できます。</p>
-<h3 id="キュービック補間">キュービック補間</h3>
+<h3 id="キュービック補間"><a href="#キュービック補間"
+class="header-anchor" aria-hidden="true">キュービック補間</a></h3>
 <p>キュービック補間を使ったウェーブテーブルの実装です。キュービック補間の計算に
 <a
 href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html#scipy.interpolate.CubicSpline"><code>scipy.interpolate.CubicSpline</code></a>
@@ -532,7 +557,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <figure>
 <img src="img/compare_yoshimi_cubic_zoom.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="sinc-補間">Sinc 補間</h3>
+<h3 id="sinc-補間"><a href="#sinc-補間" class="header-anchor"
+aria-hidden="true">Sinc 補間</a></h3>
 <p>Sinc 補間は次の式で計算できます。</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -585,7 +611,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 </figure>
 <p>見た目ではノイズがわからないようになりました。以降では加算合成した信号のスペクトラムとウェーブテーブルで合成した信号の<a
 href="https://en.wikipedia.org/wiki/Mean_absolute_error">平均絶対誤差</a>を使って評価します。</p>
-<h3 id="評価">評価</h3>
+<h3 id="評価"><a href="#評価" class="header-anchor"
+aria-hidden="true">評価</a></h3>
 <p>2つの信号のスペクトラムの平均絶対誤差を計算する関数です。</p>
 <div class="sourceCode" id="cb6"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pprint</span>
@@ -612,7 +639,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 &#39;cubic&#39;  : 0.0005218573155090014
 &#39;sinc&#39;   : 0.0032115018908482383</code></pre>
 <p>キュービック補間の誤差が最も小さくなりました。</p>
-<h2 id="変調">変調</h2>
+<h2 id="変調"><a href="#変調" class="header-anchor"
+aria-hidden="true">変調</a></h2>
 <p>変調をかけたときの誤差を調べます。</p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_wave(samplerate, duration, frequency, <span class="bu">type</span><span class="op">=</span><span class="st">&quot;sin&quot;</span>):</span>
@@ -657,7 +685,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 &#39;cubic&#39;  : 0.028429699764866655
 &#39;sinc&#39;   : 0.0009842215677754215</code></pre>
 <p>Sinc 補間の誤差が最も小さくなっています。</p>
-<h2 id="まとめ">まとめ</h2>
+<h2 id="まとめ"><a href="#まとめ" class="header-anchor"
+aria-hidden="true">まとめ</a></h2>
 <p><code>base_freq</code> を変えたときのキュービック補間と sinc
 補間の誤差の変化を調べます。次のパラメータを使いました。</p>
 <div class="sourceCode" id="cb11"><pre
@@ -682,7 +711,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <li>200, 2000, 20000Hz に誤差のピークがある。</li>
 </ul>
 <p>耳で聞いても違いが分からないので、計算コストの差を考えるとキュービック補間で十分な気がします。</p>
-<h2 id="音のサンプル">音のサンプル</h2>
+<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+aria-hidden="true">音のサンプル</a></h2>
 <p>1000Hz、変調なし。 Naive は耳で聞き取れるノイズがのっています。</p>
 <figure>
 <figcaption>
@@ -847,7 +877,8 @@ Sinc 100Hz FM
 <source src="snd/modSinc_100Hz_fm.wav" type="audio/wav">
 </audio>
 </figure>
-<h2 id="その他">その他</h2>
+<h2 id="その他"><a href="#その他" class="header-anchor"
+aria-hidden="true">その他</a></h2>
 <p><a
 href="https://en.wikipedia.org/wiki/Cubic_Hermite_spline">キュービック補間</a>の補間関数
 <span class="math inline">\(p(t)\)</span>
@@ -937,7 +968,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    c2 <span class="op">=</span> c0 <span class="op">+</span> c1</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    c3 <span class="op">=</span> c0 <span class="op">+</span> c2 <span class="op">+</span> (y3 <span class="op">-</span> y1) <span class="op">*</span> <span class="fl">0.5</span></span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ((c3 <span class="op">*</span> t <span class="op">-</span> c2 <span class="op">-</span> c3) <span class="op">*</span> t <span class="op">+</span> c1) <span class="op">*</span> t <span class="op">+</span> y1</span></code></pre></div>
-<h2 id="変更点">変更点</h2>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
 <ul>
 <li>2024/05/17
 <ul>

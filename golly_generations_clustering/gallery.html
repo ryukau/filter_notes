@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>gallery</title>
 
 <!-- MathJax -->
@@ -51,6 +51,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -62,16 +78,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -280,7 +299,7 @@ span.math.inline a {
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -346,7 +365,8 @@ id="toc-対数スペクトログラム-4">対数スペクトログラム</a></li
 </nav>
 </details>
 </header>
-<h1 id="プロットギャラリー">プロットギャラリー</h1>
+<h1 id="プロットギャラリー"><a href="#プロットギャラリー"
+class="header-anchor" aria-hidden="true">プロットギャラリー</a></h1>
 <p>クラスタリングの特徴として試した、素朴なスペクトログラム、正規化したスペクトログラム、MFCCから得られたプロットです。</p>
 <p>素朴なスペクトログラムは <code>scipy.signal.spectrogram</code>
 をそのまま特徴に使っています。</p>
@@ -355,90 +375,118 @@ id="toc-対数スペクトログラム-4">対数スペクトログラム</a></li
 に正規化した特徴です。</p>
 <p>MFCCは <code>python_speech_features.mfcc</code> を使っています。</p>
 <p>プロットは耳以外での評価が何かできないかと思ったので作りました。どれも曖昧でこれといった正解はありません。</p>
-<h2 id="elbow-method">Elbow Method</h2>
+<h2 id="elbow-method"><a href="#elbow-method" class="header-anchor"
+aria-hidden="true">Elbow Method</a></h2>
 <p>見た目はどれも似たように見えますが、素朴なスペクトログラムだけエラーの値がやたら低いです。</p>
-<h3 id="素朴なスペクトログラム">素朴なスペクトログラム</h3>
+<h3 id="素朴なスペクトログラム"><a href="#素朴なスペクトログラム"
+class="header-anchor" aria-hidden="true">素朴なスペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_naive/elbow_method.png" alt="Image of elbow method plot from naive spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="正規化したスペクトログラム">正規化したスペクトログラム</h3>
+<h3 id="正規化したスペクトログラム"><a
+href="#正規化したスペクトログラム" class="header-anchor"
+aria-hidden="true">正規化したスペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_normalized/elbow_method.png" alt="Image of elbow method plot from normalized spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="対数スペクトログラム">対数スペクトログラム</h3>
+<h3 id="対数スペクトログラム"><a href="#対数スペクトログラム"
+class="header-anchor" aria-hidden="true">対数スペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_log/elbow_method.png" alt="Image of elbow method plot from log spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="mfcc">MFCC</h3>
+<h3 id="mfcc"><a href="#mfcc" class="header-anchor"
+aria-hidden="true">MFCC</a></h3>
 <figure>
 <img src="img/mfcc/elbow_method.png" alt="Image of elbow method plot from mfcc features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="t-sne">t-SNE</h2>
+<h2 id="t-sne"><a href="#t-sne" class="header-anchor"
+aria-hidden="true">t-SNE</a></h2>
 <p>スペクトログラムから得られたクラスタはどれもいまいちな感じがします。特徴の次元が高いときは直接K-Meansに渡すよりもt-SNEで次元を減らしてからK-Meansという手法も考えられます。</p>
 <p>対数スペクトログラムは他と雰囲気が異なっています。</p>
-<h3 id="素朴なスペクトログラム-1">素朴なスペクトログラム</h3>
+<h3 id="素朴なスペクトログラム-1"><a href="#素朴なスペクトログラム-1"
+class="header-anchor" aria-hidden="true">素朴なスペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_naive/tsne.png" alt="Image of t-SNE plot from naive spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="正規化したスペクトログラム-1">正規化したスペクトログラム</h3>
+<h3 id="正規化したスペクトログラム-1"><a
+href="#正規化したスペクトログラム-1" class="header-anchor"
+aria-hidden="true">正規化したスペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_normalized/tsne.png" alt="Image of t-SNE plot from normalized spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="対数スペクトログラム-1">対数スペクトログラム</h3>
+<h3 id="対数スペクトログラム-1"><a href="#対数スペクトログラム-1"
+class="header-anchor" aria-hidden="true">対数スペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_log/tsne.png" alt="Image of t-SNE plot from log spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="mfcc-1">MFCC</h3>
+<h3 id="mfcc-1"><a href="#mfcc-1" class="header-anchor"
+aria-hidden="true">MFCC</a></h3>
 <figure>
 <img src="img/mfcc/tsne.png" alt="Image of t-SNE plot from mfcc features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="中央値">中央値</h2>
+<h2 id="中央値"><a href="#中央値" class="header-anchor"
+aria-hidden="true">中央値</a></h2>
 <p>中央値が表すスペクトログラムとMFCCです。各画像の縦が周波数で下から上に向かって大きくなります。横は時間で左から右に向かって進んでいます。明るい部分ほど係数が大きくなります。
 <code>n</code>
 はクラスタに含まれるデータポイントの数を表しています。</p>
 <p>スペクトログラムによるクラスタはどれも <code>n=1</code> となる
 outlier
 がMFCCに比べると多いです。3つの内では正規化したスペクトログラムが一番良さそうに見えます。対数スペクトログラムは極端な値が出ているように見えます。素朴なスペクトログラムが真っ黒なのは一部の値が極端に大きいからです。</p>
-<h3 id="素朴なスペクトログラム-2">素朴なスペクトログラム</h3>
+<h3 id="素朴なスペクトログラム-2"><a href="#素朴なスペクトログラム-2"
+class="header-anchor" aria-hidden="true">素朴なスペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_naive/centers.png" alt="Image of plot of K-Means centers from naive spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="正規化したスペクトログラム-2">正規化したスペクトログラム</h3>
+<h3 id="正規化したスペクトログラム-2"><a
+href="#正規化したスペクトログラム-2" class="header-anchor"
+aria-hidden="true">正規化したスペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_normalized/centers.png" alt="Image of plot of K-Means centers from normalized spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="対数スペクトログラム-2">対数スペクトログラム</h3>
+<h3 id="対数スペクトログラム-2"><a href="#対数スペクトログラム-2"
+class="header-anchor" aria-hidden="true">対数スペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_log/centers.png" alt="Image of plot of K-Means centers from log spectrogram features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="mfcc-2">MFCC</h3>
+<h3 id="mfcc-2"><a href="#mfcc-2" class="header-anchor"
+aria-hidden="true">MFCC</a></h3>
 <figure>
 <img src="img/mfcc/centers.png" alt="Image of plot of K-Means centers from mfcc features." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="平均絶対誤差-mean-absolute-error">平均絶対誤差 (Mean Absolute
-Error)</h2>
+<h2 id="平均絶対誤差-mean-absolute-error"><a
+href="#平均絶対誤差-mean-absolute-error" class="header-anchor"
+aria-hidden="true">平均絶対誤差 (Mean Absolute Error)</a></h2>
 <p>中央値と、中央値が代表するクラスタ内のデータポイントとの平均絶対誤差です。</p>
-<h3 id="素朴なスペクトログラム-3">素朴なスペクトログラム</h3>
+<h3 id="素朴なスペクトログラム-3"><a href="#素朴なスペクトログラム-3"
+class="header-anchor" aria-hidden="true">素朴なスペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_naive/errors.png" alt="Image of plot of mean absolute errors between K-Means centers and corresponding data points from naive spectrogram." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="正規化したスペクトログラム-3">正規化したスペクトログラム</h3>
+<h3 id="正規化したスペクトログラム-3"><a
+href="#正規化したスペクトログラム-3" class="header-anchor"
+aria-hidden="true">正規化したスペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_normalized/errors.png" alt="Image of plot of mean absolute errors between K-Means centers and corresponding data points from normalized spectrogram." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="対数スペクトログラム-3">対数スペクトログラム</h3>
+<h3 id="対数スペクトログラム-3"><a href="#対数スペクトログラム-3"
+class="header-anchor" aria-hidden="true">対数スペクトログラム</a></h3>
 <figure>
 <img src="img/spectrogram_log/errors.png" alt="Image of plot of mean absolute errors between K-Means centers and corresponding data points from log spectrogram." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h3 id="mfcc-3">MFCC</h3>
+<h3 id="mfcc-3"><a href="#mfcc-3" class="header-anchor"
+aria-hidden="true">MFCC</a></h3>
 <figure>
 <img src="img/mfcc/errors.png" alt="Image of plot of mean absolute errors between K-Means centers and corresponding data points from MFCC." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<h2 id="耳で聞いた印象">耳で聞いた印象</h2>
-<h3 id="素朴なスペクトログラム-4">素朴なスペクトログラム</h3>
+<h2 id="耳で聞いた印象"><a href="#耳で聞いた印象" class="header-anchor"
+aria-hidden="true">耳で聞いた印象</a></h2>
+<h3 id="素朴なスペクトログラム-4"><a href="#素朴なスペクトログラム-4"
+class="header-anchor" aria-hidden="true">素朴なスペクトログラム</a></h3>
 <p><code>n&lt;=20</code> のクラスタは似たような音が入っている。
 <code>n</code> が大きいクラスタは何でもあり。</p>
-<h3 id="正規化したスペクトログラム-4">正規化したスペクトログラム</h3>
+<h3 id="正規化したスペクトログラム-4"><a
+href="#正規化したスペクトログラム-4" class="header-anchor"
+aria-hidden="true">正規化したスペクトログラム</a></h3>
 <ul>
 <li>0 はいろいろ混ざっていた。</li>
 <li>1 は大半がプチノイズでたまにカラーノイズ。</li>
@@ -447,7 +495,8 @@ Error)</h2>
 <li>25, 27, 28, 30 は低めのトーン。</li>
 <li>2, 10, 11, 14, 24 は高めのトーン。</li>
 </ul>
-<h3 id="対数スペクトログラム-4">対数スペクトログラム</h3>
+<h3 id="対数スペクトログラム-4"><a href="#対数スペクトログラム-4"
+class="header-anchor" aria-hidden="true">対数スペクトログラム</a></h3>
 <ul>
 <li>0 はプチノイズのみ。</li>
 <li>1 は何でもあり。</li>
@@ -455,7 +504,8 @@ Error)</h2>
 <li>25 はカラーノイズとトーンが混じった音。ノイズのほうが強め。</li>
 <li>39 はトーンが強めの音。</li>
 </ul>
-<h3 id="mfcc-4">MFCC</h3>
+<h3 id="mfcc-4"><a href="#mfcc-4" class="header-anchor"
+aria-hidden="true">MFCC</a></h3>
 <ul>
 <li>0, 2, 15, 20, 25, 28 は低めのトーン。</li>
 <li>1, 11, 21 はプチノイズ。</li>

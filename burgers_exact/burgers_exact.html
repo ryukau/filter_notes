@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2023-06-22" />
+<meta name="dcterms.date" content="2024-06-25" />
 <title>burgers_exact</title>
 
 <!-- MathJax -->
@@ -21,7 +21,7 @@ window.MathJax = {
 
 <style>
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -112,6 +112,22 @@ a {
 text-decoration: none;
 }
 
+.header-anchor {
+color: #000000;
+}
+
+.header-anchor:hover {
+color: #0000EE;
+}
+
+.header-anchor:hover::after {
+display: inline-block;
+font-size: min(1em, 1rem);
+content: '(クリックでここへリンク)';
+padding-left: 1em;
+color: #0000EE;
+}
+
 h2 {
 border-left: solid 32px #000000;
 padding-left: 24px;
@@ -123,16 +139,19 @@ padding-left: 16px;
 }
 
 h4 {
+font-size: 100%;
 border-left: solid 12px #606060;
 padding-left: 8px;
 }
 
 h5 {
+font-size: 90%;
 border-left: solid 4px #808080;
 padding-left: 4px;
 }
 
 h6 {
+font-size: 80%;
 border-left: solid 2px #a0a0a0;
 padding-left: 2px;
 }
@@ -344,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2023-06-22
+Update: 2024-06-25
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -361,7 +380,8 @@ id="toc-mdadx10の波形">mdaDX10の波形</a></li>
 </nav>
 </details>
 </header>
-<h1 id="burgers方程式でn波">Burgers方程式でN波</h1>
+<h1 id="burgers方程式でn波"><a href="#burgers方程式でn波"
+class="header-anchor" aria-hidden="true">Burgers方程式でN波</a></h1>
 <p>衝撃波が起きると<a
 href="https://en.wikipedia.org/wiki/Sonic_boom#/media/File:N-wave.png">N波</a>と呼ばれる波形が現れます。N波はBurgers方程式を解くことで近似できます。</p>
 <p>Burgers方程式です。TOURNATの<a
@@ -440,7 +460,8 @@ class="math inline">\(\Gamma = [1, 30]\)</span>
 Video of exact solution of Burgers’ equation.
 </p>
 </video>
-<h2 id="mdadx10の波形">mdaDX10の波形</h2>
+<h2 id="mdadx10の波形"><a href="#mdadx10の波形" class="header-anchor"
+aria-hidden="true">mdaDX10の波形</a></h2>
 <p>Burgers方程式の厳密解の波形を見たところ<a
 href="http://mda.smartelectronix.com/">mdaDX10</a>というVSTプラグインの波形を思い出したので調べました。</p>
 <p><a
@@ -480,7 +501,8 @@ Video of mdaDX10 oscillator waveform and power frequency.
 </p>
 </video>
 <p>それなりにBurgers方程式の厳密解と似た音が出ています。</p>
-<h2 id="ソースコード">ソースコード</h2>
+<h2 id="ソースコード"><a href="#ソースコード" class="header-anchor"
+aria-hidden="true">ソースコード</a></h2>
 <p>動画を書き出したソースコードへのリンクです。</p>
 <ul>
 <li><a href="https://github.com/ryukau/filter_notes/tree/master/burgers_exact/demo">ソースコード</a></li>
