@@ -1,6 +1,10 @@
 # お手軽なFIRフィルタのレシピ
 [FIR](https://en.wikipedia.org/wiki/Finite_impulse_response) のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。
 
+以下はプロットを含む完全な Python 3 のコードへのリンクです。
+
+- [filter_notes/basic_fir/basic_fir.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/basic_fir/basic_fir.py)
+
 ## 記号
 
 - $f_s$ : [サンプリング周波数](https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate)。
@@ -85,7 +89,7 @@ A_{HP}(\omega) =
 \end{cases}
 $$
 
-逆フーリエ変換が CAS では解けなかったので、式変形のトリックを使います。すべての周波数で振幅が 1 となる特性からローパスフィルタの特性を減算することでハイパスになります。そして、すべての周波数で振幅が 1 となる特性を持つ信号として [Dirac のデルタ関数](https://en.wikipedia.org/wiki/Dirac_delta_function)が使えます。したがって以下のように $A_{HP}$ の逆フーリエ変換ができます。
+逆フーリエ変換が Maxima と SymPy では解けなかったので、式変形のトリックを使います。すべての周波数で振幅が 1 となる特性からローパスフィルタの特性を減算することでハイパスになります。そして、すべての周波数で振幅が 1 となる特性を持つ信号として [Dirac のデルタ関数](https://en.wikipedia.org/wiki/Dirac_delta_function)が使えます。したがって以下のように $A_{HP}$ の逆フーリエ変換ができます。
 
 $$
 \begin{align}

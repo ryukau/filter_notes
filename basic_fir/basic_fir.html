@@ -403,6 +403,12 @@ aria-hidden="true">お手軽なFIRフィルタのレシピ</a></h1>
 <p><a
 href="https://en.wikipedia.org/wiki/Finite_impulse_response">FIR</a>
 のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。</p>
+<p>以下はプロットを含む完全な Python 3 のコードへのリンクです。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/basic_fir/basic_fir.py">filter_notes/basic_fir/basic_fir.py
+at master · ryukau/filter_notes · GitHub</a></li>
+</ul>
 <h2 id="記号"><a href="#記号" class="header-anchor"
 aria-hidden="true">記号</a></h2>
 <ul>
@@ -495,7 +501,7 @@ A_{HP}(\omega) =
 0, &amp; \text{otherwise}.
 \end{cases}
 \]</span></p>
-<p>逆フーリエ変換が CAS
+<p>逆フーリエ変換が Maxima と SymPy
 では解けなかったので、式変形のトリックを使います。すべての周波数で振幅が
 1
 となる特性からローパスフィルタの特性を減算することでハイパスになります。そして、すべての周波数で振幅が
