@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-06-25" />
+<meta name="dcterms.date" content="2024-07-23" />
 <title>basic_fir</title>
 
 <!-- MathJax -->
@@ -363,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-06-25
+Update: 2024-07-23
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -381,8 +381,9 @@ id="toc-ハイパスフィルタ">ハイパスフィルタ</a></li>
 id="toc-バンドパスフィルタ">バンドパスフィルタ</a></li>
 <li><a href="#バンドリジェクトフィルタ"
 id="toc-バンドリジェクトフィルタ">バンドリジェクトフィルタ</a></li>
-<li><a href="#firフィルタのかけ方"
-id="toc-firフィルタのかけ方">FIRフィルタのかけ方</a></li>
+<li><a href="#firフィルタの畳み込み方"
+id="toc-firフィルタの畳み込み方">FIRフィルタの畳み込み方</a></li>
+<li><a href="#窓関数法" id="toc-窓関数法">窓関数法</a></li>
 <li><a href="#computer-algebra-system-の利用"
 id="toc-computer-algebra-system-の利用">Computer Algebra System
 の利用</a></li>
@@ -390,6 +391,7 @@ id="toc-computer-algebra-system-の利用">Computer Algebra System
 id="toc-フィルタ係数の計算について">フィルタ係数の計算について</a></li>
 <li><a href="#その他" id="toc-その他">その他</a></li>
 <li><a href="#参考サイト" id="toc-参考サイト">参考サイト</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -398,237 +400,256 @@ id="toc-フィルタ係数の計算について">フィルタ係数の計算に�
 <h1 id="お手軽なfirフィルタのレシピ"><a
 href="#お手軽なfirフィルタのレシピ" class="header-anchor"
 aria-hidden="true">お手軽なFIRフィルタのレシピ</a></h1>
-<p><strong>注意</strong>: 内容が怪しいです。</p>
 <p><a
-href="https://en.wikipedia.org/wiki/Finite_impulse_response">FIR</a>のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。</p>
+href="https://en.wikipedia.org/wiki/Finite_impulse_response">FIR</a>
+のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。</p>
 <h2 id="記号"><a href="#記号" class="header-anchor"
 aria-hidden="true">記号</a></h2>
 <ul>
-<li><span class="math inline">\(f_{s}\)</span> : <a
-href="https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate">サンプリング周波数</a></li>
+<li><span class="math inline">\(f_s\)</span> : <a
+href="https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate">サンプリング周波数</a>。</li>
+<li><span class="math inline">\(f_c\)</span> : <a
+href="https://en.wikipedia.org/wiki/Cutoff_frequency">カットオフ周波数</a>。ここでは慣例とは異なり、カットオフ周波数でのゲインが
+<span class="math inline">\(1/\sqrt{2}\)</span> とはならない。</li>
 <li><span class="math inline">\(f_l\)</span> : 低いほうの<a
-href="https://en.wikipedia.org/wiki/Cutoff_frequency">カットオフ周波数</a></li>
+href="https://en.wikipedia.org/wiki/Cutoff_frequency">カットオフ周波数</a>。バンドパスとバンドリジェクトで使う。</li>
 <li><span class="math inline">\(f_h\)</span> :
-高いほうのカットオフ周波数</li>
-<li><span class="math inline">\(\omega_l\)</span> : <span
-class="math inline">\(2 \pi f_l\)</span></li>
-<li><span class="math inline">\(\omega_h\)</span> : <span
-class="math inline">\(2 \pi f_h\)</span></li>
+高いほうカットオフ周波数。バンドパスとバンドリジェクトで使う。</li>
+<li><span class="math inline">\(\omega_\square\)</span> : 角周波数。
+<span class="math inline">\(2 \pi f_\square / f_s\)</span> 。</li>
 </ul>
-<p><a
-href="https://en.wikipedia.org/wiki/Passband">通過域</a>の大きさ（<a
-href="https://en.wikipedia.org/wiki/Amplitude">Amplitude</a>）は1とします。</p>
+<p><span class="math inline">\(f\)</span> の単位は Hz 、 <span
+class="math inline">\(\omega\)</span> の単位は rad です。</p>
+<p><a href="https://en.wikipedia.org/wiki/Passband">通過域</a>の振幅（<a
+href="https://en.wikipedia.org/wiki/Amplitude">Amplitude</a>）は 1
+とします。</p>
 <h2 id="ローパスフィルタ"><a href="#ローパスフィルタ"
 class="header-anchor" aria-hidden="true">ローパスフィルタ</a></h2>
 <figure>
-<img src="img/fir_filter_lowpass.png" alt="Image of FIR lowpass filter." style="width: 320px;padding-bottom: 12px;"/>
+<img src="img/fir_filter_lowpass_spec.svg" alt="Image of FIR lowpass filter specification." style="padding-bottom: 12px;"/>
 </figure>
 <p><span class="math display">\[
-A(\omega) =
+A_{LP}(\omega) =
 \begin{cases}
-1, &amp; (-\omega_l \leq \omega \leq \omega_l) \\
-0, &amp; \text{otherwise}
+1, &amp; (-\omega_c \leq \omega \leq \omega_c) \\
+0, &amp; \text{otherwise}.
 \end{cases}
 \]</span></p>
-<p><span class="math inline">\(A(\omega)\)</span> を<a
-href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform">逆離散時間フーリエ変換</a>の式に入れて解きます。</p>
+<p><span class="math inline">\(A_{LP}(\omega)\)</span> を<a
+href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform">逆フーリエ変換</a>します。
+<span class="math inline">\(A_{LP}\)</span> の定義より範囲を <span
+class="math inline">\(-\omega_c\)</span> から <span
+class="math inline">\(\omega_c\)</span> に狭めることができます。この式は
+sinc 関数とも呼ばれます。また、理想ローパスフィルタ (ideal low-pass
+filter) と呼ばれることもあります。</p>
 <p><span class="math display">\[
-\begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&amp;= \frac{1}{2\pi}\int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega
+\begin{align}
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{LP}(\omega) e^{j\omega x}
+d\omega
+&amp;= \frac{1}{2\pi}\int^{\omega_c}_{-\omega_c} e^{j\omega x} d\omega
 \\
-&amp;= \frac{\sin (\omega_l n)}{n \pi}
-\end{aligned}
+&amp;= \frac{\sin(\omega_c x)}{\pi x}.
+\end{align}
 \]</span></p>
-<p>コードに変えます。</p>
+<p>式 1 は以下の <a href="https://maxima.sourceforge.io/">Maxima</a>
+のコードで解きました。</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">makeLowpassCoefficient</span>(length<span class="op">,</span> cutoff) {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cutoff の範囲は [0, 1]</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> coefficient <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(length)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> half <span class="op">=</span> (length <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span> <span class="op">?</span> length <span class="op">-</span> <span class="dv">1</span> <span class="op">:</span> length) <span class="op">/</span> <span class="dv">2</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> omegaL <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> cutoff</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i) {</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> n <span class="op">=</span> i <span class="op">-</span> half</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    coefficient[i] <span class="op">=</span> (n <span class="op">===</span> <span class="dv">0</span>) <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaL <span class="op">*</span> n) <span class="op">/</span> (<span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> n)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> coefficient</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ift</span>(<span class="cn">low</span>, <span class="cn">high</span>) := <span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * ω * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="va">%pi</span>), ω, <span class="cn">low</span>, <span class="cn">high</span>);</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">ift</span>(-ω<span class="cn">_c</span>, ω<span class="cn">_c</span>)));</span></code></pre></div>
+<p>Python 3 のコードに変えます。 NumPy には <a
+href="https://numpy.org/doc/stable/reference/generated/numpy.sinc.html"><code>numpy.sinc</code></a>
+がありますが、ここでは例として sinc 関数を実装しています。</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> modifiedSinc(x, cutoff):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> cutoff</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sin(np.pi <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> cutoff <span class="op">*</span> x) <span class="op">/</span> (np.pi <span class="op">*</span> x)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lowpassFir(length: <span class="bu">int</span>, cutoff: <span class="bu">float</span>):</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    length <span class="op">-=</span> (length <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> <span class="dv">2</span>  <span class="co"># 係数の数を奇数にする。</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> length <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> np.zeros(length)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(length):</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> i <span class="op">-</span> mid</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        fir[i] <span class="op">=</span> modifiedSinc(x, cutoff)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
+<p>以下は <code>length = 63, cutoff = 0.25</code>
+としたときの周波数特性のプロットです。</p>
+<figure>
+<img src="img/fir_filter_lowpass_response.svg" alt="Image of FIR lowpass filter responses." style="padding-bottom: 12px;"/>
+</figure>
 <h2 id="ハイパスフィルタ"><a href="#ハイパスフィルタ"
 class="header-anchor" aria-hidden="true">ハイパスフィルタ</a></h2>
 <figure>
-<img src="img/fir_filter_highpass.png" alt="Image of FIR highpass filter." style="width: 320px;padding-bottom: 12px;"/>
+<img src="img/fir_filter_highpass_spec.svg" alt="Image of FIR highpass filter specification." style="padding-bottom: 12px;"/>
 </figure>
 <p><span class="math display">\[
-A(\omega) =
+A_{HP}(\omega) =
 \begin{cases}
-1, &amp; (-\omega_s \leq \omega \leq -\omega_h) \\
-1, &amp; (\omega_h \leq \omega \leq \omega_s) \\
-0, &amp; \text{otherwise}
+1, &amp; (\omega \leq -\omega_c) \\
+1, &amp; (\omega_c \leq \omega) \\
+0, &amp; \text{otherwise}.
 \end{cases}
 \]</span></p>
-<p><span class="math inline">\(A(\omega)\)</span>
-を逆離散時間フーリエ変換の式に入れて解きます。</p>
+<p>逆フーリエ変換が CAS
+では解けなかったので、式変形のトリックを使います。すべての周波数で振幅が
+1
+となる特性からローパスフィルタの特性を減算することでハイパスになります。そして、すべての周波数で振幅が
+1 となる特性を持つ信号として <a
+href="https://en.wikipedia.org/wiki/Dirac_delta_function">Dirac
+のデルタ関数</a>が使えます。したがって以下のように <span
+class="math inline">\(A_{HP}\)</span> の逆フーリエ変換ができます。</p>
 <p><span class="math display">\[
-\begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&amp;= \frac{1}{2\pi} \biggl ( \int^{-\omega_h}_{-\pi} e^{j\omega n}
+\begin{align}
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{HP}(\omega) e^{j\omega x}
 d\omega
-+ \int^{\pi}_{\omega_h} e^{j\omega n} d\omega \biggr ) \\
-&amp;= {{\sin \left(n\,\pi\right)}\over{n\,\pi}}-{{\sin
-\left(\omega_h\,n\right)}\over{n\,\pi}}
-\end{aligned}
+&amp;= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega -
+\mathcal{F}^{-1} (A_{LP}) \\
+&amp;= \delta(x) - \frac{\sin(\omega_c x)}{\pi x}.
+\end{align}
 \]</span></p>
-<p>コードに変えます。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">makeHighpassCoefficient</span>(length<span class="op">,</span> cutoff) {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cutoff の範囲は [0, 1]</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> coefficient <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(length)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> half <span class="op">=</span> (length <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span> <span class="op">?</span> length <span class="op">-</span> <span class="dv">1</span> <span class="op">:</span> length) <span class="op">/</span> <span class="dv">2</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> omegaH <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> cutoff</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i) {</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> n <span class="op">=</span> i <span class="op">-</span> half</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    coefficient[i] <span class="op">=</span> (n <span class="op">===</span> <span class="dv">0</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="op">?</span> <span class="dv">1</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">:</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(<span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> n) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaH <span class="op">*</span> n)) <span class="op">/</span> (<span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> n)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> coefficient</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Python 3
+のコードに変えます。デルタ関数の扱いが問題になりますが、実装のトリックとして
+<span class="math inline">\(x=0\)</span>
+となる時点のフィルタ係数からフィルタ係数の総和 (<code>sum(fir)</code>)
+を減算すればうまく動きます。ローパスフィルタのコードを流用しています。</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> highpassFir(length: <span class="bu">int</span>, cutoff: <span class="bu">float</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> <span class="op">-</span>lowpassFir(length, cutoff)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> length <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    fir[mid] <span class="op">-=</span> np.<span class="bu">sum</span>(fir)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
+<p>以下は <code>length = 63, cutoff = 0.125</code>
+としたときの周波数特性のプロットです。</p>
+<figure>
+<img src="img/fir_filter_highpass_response.svg" alt="Image of FIR highpass filter responses." style="padding-bottom: 12px;"/>
+</figure>
 <h2 id="バンドパスフィルタ"><a href="#バンドパスフィルタ"
 class="header-anchor" aria-hidden="true">バンドパスフィルタ</a></h2>
 <figure>
-<img src="img/fir_filter_bandpass.png" alt="Image of FIR bandpass filter." style="width: 320px;padding-bottom: 12px;"/>
+<img src="img/fir_filter_bandpass_spec.svg" alt="Image of FIR bandpass filter specification." style="padding-bottom: 12px;"/>
 </figure>
 <p><span class="math display">\[
-A(\omega) =
+A_{BP}(\omega) =
 \begin{cases}
 1, &amp; (-\omega_h \leq \omega \leq -\omega_l) \\
 1, &amp; (\omega_l \leq \omega \leq \omega_h) \\
-0, &amp; \text{otherwise}
+0, &amp; \text{otherwise}.
 \end{cases}
 \]</span></p>
-<p><span class="math inline">\(A(\omega)\)</span>
-を逆離散時間フーリエ変換の式に入れて解きます。</p>
+<p><span class="math inline">\(A_{BP}(\omega)\)</span>
+を逆フーリエ変換します。</p>
 <p><span class="math display">\[
-\begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+\begin{align}
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BP}(\omega) e^{j\omega x}
+d\omega
 &amp;= \frac{1}{2\pi} \biggl ( \int^{-\omega_l}_{-\omega_h} e^{j\omega
-n} d\omega
-+ \int^{\omega_h}_{\omega_l} e^{j\omega n} d\omega \biggr ) \\
-&amp;= {{\sin \left(\omega_h\,n\right)}\over{n\,\pi}}-{{\sin
-\left(\omega_l\,n\right)}\over{n\,\pi}}
-\end{aligned}
+x} d\omega
++ \int^{\omega_h}_{\omega_l} e^{j\omega x} d\omega \biggr ) \\
+&amp;= \frac{\sin(\omega_h x)}{\pi x} - \frac{\sin(\omega_l x)}{\pi x}.
+\end{align}
 \]</span></p>
-<p>コードに変えます。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">makeBandpassCoefficient</span>(length<span class="op">,</span> low<span class="op">,</span> high) {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// low, high の範囲は [0, 1]</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> coefficient <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(length)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> half <span class="op">=</span> (length <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span> <span class="op">?</span> length <span class="op">-</span> <span class="dv">1</span> <span class="op">:</span> length) <span class="op">/</span> <span class="dv">2</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> twoPi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> omegaL <span class="op">=</span> twoPi <span class="op">*</span> low</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> omegaH <span class="op">=</span> twoPi <span class="op">*</span> high</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i) {</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> n <span class="op">=</span> i <span class="op">-</span> half</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    coefficient[i] <span class="op">=</span> (n <span class="op">===</span> <span class="dv">0</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="op">?</span> <span class="dv">1</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">:</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaH <span class="op">*</span> n) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaL <span class="op">*</span> n)) <span class="op">/</span> (<span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> n)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> coefficient</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>式 5 は以下の <a href="https://maxima.sourceforge.io/">Maxima</a>
+のコードで解きました。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ift</span>(<span class="cn">low</span>, <span class="cn">high</span>) := <span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * ω * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="va">%pi</span>), ω, <span class="cn">low</span>, <span class="cn">high</span>);</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">ift</span>(-ω<span class="cn">_h</span>, -ω<span class="cn">_l</span>) + <span class="fu">ift</span>(ω<span class="cn">_l</span>, ω<span class="cn">_h</span>)));</span></code></pre></div>
+<p>Python 3 のコードに変えます。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bandpassFir(length: <span class="bu">int</span>, cutoffLow: <span class="bu">float</span>, cutoffHigh: <span class="bu">float</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    length <span class="op">-=</span> (length <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> <span class="dv">2</span>  <span class="co"># 係数の数を奇数にする。</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> length <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> np.zeros(length)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(length):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> i <span class="op">-</span> mid</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        fir[i] <span class="op">=</span> modifiedSinc(x, cutoffLow) <span class="op">-</span> modifiedSinc(x, cutoffHigh)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
+<p>以下は <code>length = 63, cutoffLow = 0.125, cutoffHigh = 0.25</code>
+としたときの周波数特性のプロットです。</p>
+<figure>
+<img src="img/fir_filter_bandpass_response.svg" alt="Image of FIR bandpass filter responses." style="padding-bottom: 12px;"/>
+</figure>
 <h2 id="バンドリジェクトフィルタ"><a href="#バンドリジェクトフィルタ"
 class="header-anchor"
 aria-hidden="true">バンドリジェクトフィルタ</a></h2>
-<p>バンドストップフィルタとも呼ばれるようです。</p>
+<p>バンドストップフィルタとも呼ばれます。</p>
 <figure>
-<img src="img/fir_filter_bandreject.png" alt="Image of FIR bandreject filter." style="width: 320px;padding-bottom: 12px;"/>
+<img src="img/fir_filter_bandreject_spec.svg" alt="Image of FIR bandreject filter specification." style="padding-bottom: 12px;"/>
 </figure>
 <p><span class="math display">\[
-A(\omega) =
+A_{BR}(\omega) =
 \begin{cases}
-1, &amp;  (-\omega_s \leq \omega \leq -\omega_h) \\
+1, &amp;  (\omega \leq -\omega_h) \\
 1, &amp; (-\omega_l \leq \omega \leq \omega_l) \\
-1, &amp; (\omega_h \leq \omega \leq \omega_s) \\
-0, &amp; \text{otherwise}
+1, &amp; (\omega_h \leq \omega) \\
+0, &amp; \text{otherwise}.
 \end{cases}
 \]</span></p>
-<p><span class="math inline">\(A(\omega)\)</span>
-を逆離散時間フーリエ変換の式に入れて解きます。</p>
+<p>ハイパスと同様に、デルタ関数の振幅特性からバンドパスフィルタの振幅特性を減算すればバンドリジェクトフィルタになります。</p>
 <p><span class="math display">\[
 \begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&amp;= \frac{1}{2\pi} \biggl ( \int^{-\omega_h}_{-\pi} e^{j\omega n}
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BR}(\omega) e^{j\omega x}
 d\omega
-+ \int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega
-+ \int^{\pi}_{\omega_h} e^{j\omega n} d\omega \biggr ) \\
-&amp;= {{\sin \left(n\,\pi\right)}\over{n\,\pi}}+{{\sin
-\left(\omega_l\,n\right)}\over{n\,\pi}}-{{\sin
-\left(\omega_h\,n\right)}\over{n\,\pi}}
+&amp;= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega -
+\mathcal{F}^{-1} (A_{BP}) \\
+&amp;= \delta(x) - \left( \frac{\sin(\omega_h x)}{\pi x} -
+\frac{\sin(\omega_l x)}{\pi x} \right).
 \end{aligned}
 \]</span></p>
-<p>コードに変えます。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">makeBandrejectCoefficient</span>(length<span class="op">,</span> low<span class="op">,</span> high) {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// low, high の範囲は [0, 1]</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> coefficient <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(length)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> half <span class="op">=</span> (length <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span> <span class="op">?</span> length <span class="op">-</span> <span class="dv">1</span> <span class="op">:</span> length) <span class="op">/</span> <span class="dv">2</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> twoPi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> omegaL <span class="op">=</span> twoPi <span class="op">*</span> low</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> omegaH <span class="op">=</span> twoPi <span class="op">*</span> high</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i) {</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> n <span class="op">=</span> i <span class="op">-</span> half</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> piN <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">*</span> n</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    coefficient[i] <span class="op">=</span> (n <span class="op">===</span> <span class="dv">0</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">?</span> <span class="dv">1</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="op">:</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(piN) <span class="op">+</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaL <span class="op">*</span> n) <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">sin</span>(omegaH <span class="op">*</span> n)) <span class="op">/</span> piN</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> coefficient</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<h2 id="firフィルタのかけ方"><a href="#firフィルタのかけ方"
-class="header-anchor" aria-hidden="true">FIRフィルタのかけ方</a></h2>
-<p>まずフィルタをかけるソースを用意します。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> audioContext <span class="op">=</span> <span class="kw">new</span> <span class="bu">AudioContext</span>()</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> source <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(audioContext<span class="op">.</span><span class="at">sampleRate</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> source<span class="op">.</span><span class="at">length</span><span class="op">;</span> <span class="op">++</span>i) {</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  source[i] <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">-</span> <span class="fl">1.0</span> <span class="co">// 適当なノイズ。</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>FIRフィルタは適切な<a
-href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>をかけることで特性が改善します。ここではお手軽でそれなりに特性がいい<a
-href="https://en.wikipedia.org/wiki/Window_function#Blackman%E2%80%93Harris_window">Blackman–Harris窓</a>を使います。</p>
+<p>Python 3
+のコードに変えます。バンドパスフィルタのコードを流用しています。</p>
 <div class="sourceCode" id="cb6"><pre
-class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">blackmanHarrisWindow</span>(length) {</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> <span class="bu">window</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(length)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> a0 <span class="op">=</span> <span class="fl">0.35875</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> a1 <span class="op">=</span> <span class="fl">0.48829</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> a2 <span class="op">=</span> <span class="fl">0.14128</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> a3 <span class="op">=</span> <span class="fl">0.01168</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> pi_N1 <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="cn">PI</span> <span class="op">/</span> (<span class="bu">window</span><span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> twopi_N1 <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> pi_N1</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> fourpi_N1 <span class="op">=</span> <span class="dv">4</span> <span class="op">*</span> pi_N1</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> sixpi_N1 <span class="op">=</span> <span class="dv">6</span> <span class="op">*</span> pi_N1</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> n <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> n <span class="op">&lt;</span> <span class="bu">window</span><span class="op">.</span><span class="at">length</span><span class="op">;</span> <span class="op">++</span>n) {</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">window</span>[n] <span class="op">=</span> a0</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>      <span class="op">-</span> a1 <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(n <span class="op">*</span> twopi_N1)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>      <span class="op">+</span> a2 <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(n <span class="op">*</span> fourpi_N1)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>      <span class="op">-</span> a3 <span class="op">*</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">cos</span>(n <span class="op">*</span> sixpi_N1)</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">window</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>フィルタを用意します。</p>
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bandrejectFir(length: <span class="bu">int</span>, cutoffLow: <span class="bu">float</span>, cutoffHigh: <span class="bu">float</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> <span class="op">-</span>bandpassFir(length, cutoffLow, cutoffHigh)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> length <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    fir[mid] <span class="op">-=</span> np.<span class="bu">sum</span>(fir)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
+<p>以下は <code>length = 63, cutoffLow = 0.125, cutoffHigh = 0.25</code>
+としたときの周波数特性のプロットです。</p>
+<figure>
+<img src="img/fir_filter_bandreject_response.svg" alt="Image of FIR bandreject filter responses." style="padding-bottom: 12px;"/>
+</figure>
+<h2 id="firフィルタの畳み込み方"><a href="#firフィルタの畳み込み方"
+class="header-anchor"
+aria-hidden="true">FIRフィルタの畳み込み方</a></h2>
+<p>「<a
+href="../convolution_without_latency/convolution_without_latency.html">レイテンシのない畳み込み</a>」で畳み込みの方法について紹介しています。フィルタ係数の数が
+16
+ほどであれば素朴に畳み込めば十分に速いです。フィルタ係数の数が多いときは
+FFT を使った高速な畳み込みのアルゴリズムがあります。</p>
+<p>以下は C++ による素朴な畳み込みの例です。</p>
 <div class="sourceCode" id="cb7"><pre
-class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> filterLength <span class="op">=</span> <span class="dv">1025</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> cutoff <span class="op">=</span> <span class="dv">1000</span> <span class="co">// Hz</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> coefficient <span class="op">=</span> <span class="fu">makeLowpassCoefficient</span>(filterLength<span class="op">,</span> cutoff <span class="op">/</span> audioContext<span class="op">.</span><span class="at">sampleRate</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> filter <span class="op">=</span> <span class="fu">blackmanHarrisWindow</span>(filterLength)<span class="op">.</span><span class="fu">map</span>((v<span class="op">,</span> i) <span class="kw">=&gt;</span> v <span class="op">*</span> coefficient[i])</span></code></pre></div>
-<p><a
-href="https://en.wikipedia.org/wiki/Convolution">畳み込み（Convolution）</a>を行ってソースにFIRフィルタをかけます。</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> destination <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(source<span class="op">.</span><span class="at">length</span>)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> buffer <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(filter<span class="op">.</span><span class="at">length</span>)<span class="op">.</span><span class="fu">fill</span>(<span class="dv">0</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> source<span class="op">.</span><span class="at">length</span><span class="op">;</span> <span class="op">++</span>i) {</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  buffer<span class="op">.</span><span class="fu">push</span>(source[i])</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  buffer<span class="op">.</span><span class="fu">shift</span>()</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> filter<span class="op">.</span><span class="at">length</span><span class="op">;</span> <span class="op">++</span>j) {</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    destination[i] <span class="op">+=</span> buffer[j] <span class="op">*</span> filter[j]</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> FirFilterShort <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> <span class="dv">16</span><span class="op">&gt;</span> fir<span class="op">{</span><span class="co">/* フィルタ係数。 */</span><span class="op">};</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> <span class="dv">16</span><span class="op">&gt;</span> buffer<span class="op">{};</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">float</span> process<span class="op">(</span><span class="dt">float</span> input<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>rotate<span class="op">(</span>buffer<span class="op">.</span>begin<span class="op">(),</span> buffer<span class="op">.</span>begin<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> buffer<span class="op">.</span>end<span class="op">());</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    buffer<span class="op">.</span>back<span class="op">()</span> <span class="op">=</span> input<span class="op">;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">std::</span>inner_product<span class="op">(</span>fir<span class="op">.</span>begin<span class="op">(),</span> fir<span class="op">.</span>end<span class="op">(),</span> buffer<span class="op">.</span>begin<span class="op">(),</span> <span class="dt">float</span><span class="op">(</span><span class="dv">0</span><span class="op">));</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h2 id="窓関数法"><a href="#窓関数法" class="header-anchor"
+aria-hidden="true">窓関数法</a></h2>
+<p>上で出てきた式はフィルタ係数の数が無限です。無限に長いフィルタは計算できないので長さを切り詰めて使うことになりますが、副作用として周波数特性が歪みます。窓関数法とは長さを切り詰めたフィルタ係数に<a
+href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>を乗算することで、この周波数特性の歪みを調整する手法です。</p>
+<p>ここで紹介しているフィルタ係数の計算方法に窓関数をかけるフィルタの設計方法のことを、特に
+windowed-sinc と言います。</p>
+<p>窓関数の違いによってロールオフの急峻さとカットオフ周波数の低さの間でのトレードオフがあります。つまり、より急峻な特性にするとカットオフ周波数が高くなってしまい、カットオフ周波数をできる限り理想に近づけようとするとロールオフが緩やかになってしまうということです。</p>
+<p>カットオフ周波数を低くしたいときは切り詰めた係数をそのまま使います。このことは矩形窓をかけるとも呼ばれます。</p>
+<p>急峻なロールオフを得るときには Kaiser 窓や DPSS
+窓を使ってパラメータを調整します。</p>
+<p>他にもいろいろな窓関数がありますが、単純な用途では上記の 2
+つのケースだけ押さえておけばとりあえず何とかなります。</p>
 <h2 id="computer-algebra-system-の利用"><a
 href="#computer-algebra-system-の利用" class="header-anchor"
 aria-hidden="true">Computer Algebra System の利用</a></h2>
@@ -640,69 +661,47 @@ href="https://www.wolframalpha.com/">Wolfram
 Alpha</a>が便利です。Wolfram
 Alphaでは数字でない下付き文字が使えないようなので <span
 class="math inline">\(\omega_l\)</span> を <span
-class="math inline">\(l\)</span>
+class="math inline">\(L\)</span>
 に置き換えています。以降のCASのコードも同じ置き換えを使います。</p>
-<pre class="wolfram"><code>(integral e^(i*omega*n) for omega from -l to l) / (2pi)</code></pre>
+<pre class="wolfram"><code>(integral e^(i*omega*x) for omega from -L to L) / (2pi)</code></pre>
 <p><a
 href="http://maxima.sourceforge.net/">Maxima</a>は式の整理について指定する必要があります。コードの
-<code>demoivre</code> で <code>exp(%i*n)</code> を
-<code>%i * sin(n) + cos(n)</code> に置き換えています。</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * <span class="cn">omega</span> * <span class="cn">n</span>) / (<span class="dv">2</span> * <span class="cn">pi</span>), <span class="cn">omega</span>, -<span class="cn">l</span>, <span class="cn">l</span>)));</span></code></pre></div>
+<code>demoivre</code> で <code>exp(%i*x)</code> を
+<code>%i * sin(x) + cos(x)</code> に置き換えています。</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * <span class="cn">omega</span> * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="cn">pi</span>), <span class="cn">omega</span>, -<span class="cn">L</span>, <span class="cn">L</span>)));</span></code></pre></div>
 <p><a
 href="http://www.sympy.org/en/index.html">SymPy</a>も使えますが少し長めです。
 <code>rewrite(sin)</code> でオイラーの公式を適用しています。
 <code>n = Symbol('n', positive=True)</code> が無いとコードの
 <code>integrate(...)</code> を解いてくれません。</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SymPy 1.1.1</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sympy <span class="im">import</span> <span class="op">*</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> Symbol(<span class="st">&#39;n&#39;</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> Symbol(<span class="st">&#39;l&#39;</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>omega <span class="op">=</span> Symbol(<span class="st">&#39;omega&#39;</span>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>answer <span class="op">=</span> simplify(integrate(exp(I <span class="op">*</span> omega <span class="op">*</span> n), (omega, <span class="op">-</span>l, l)).rewrite(sin))</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>pprint(answer)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SymPy 1.1.1</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sympy <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> Symbol(<span class="st">&#39;x&#39;</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> Symbol(<span class="st">&#39;L&#39;</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>omega <span class="op">=</span> Symbol(<span class="st">&#39;omega&#39;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>answer <span class="op">=</span> simplify(integrate(exp(I <span class="op">*</span> omega <span class="op">*</span> x), (omega, <span class="op">-</span>L, L)).rewrite(sin))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>pprint(answer)</span></code></pre></div>
 <h2 id="フィルタ係数の計算について"><a
 href="#フィルタ係数の計算について" class="header-anchor"
 aria-hidden="true">フィルタ係数の計算について</a></h2>
-<p>フィルタ係数は周波数特性を逆離散時間フーリエ変換することで得られます。</p>
+<p>FIR フィルタ係数は周波数特性 <span class="math inline">\(A\)</span>
+を逆フーリエ変換することで得られます。</p>
 <p><span class="math display">\[
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A(\omega) e^{j\omega x} d\omega
 \]</span></p>
-<p>この逆離散時間フーリエ変換の式に、周波数<span
-class="math inline">\(f\)</span>を対応させて使うときは<span
-class="math inline">\(\pi{f}/{f_s}\)</span>と変換します。</p>
-<p>逆離散時間フーリエ変換をするときは<span class="math inline">\([-f_s,\
-f_s]\)</span>の範囲を考慮する必要がありますが、ここまでに出てきた周波数特性の図では<span
-class="math inline">\([-f_s,\ 0]\)</span>の範囲を省略していました。<span
-class="math inline">\([-f_s,\ 0]\)</span>の範囲での周波数特性は<span
-class="math inline">\([0,\ f_s]\)</span>の鏡像になっています。</p>
-<p>ローパスフィルタを例に見ていきます。</p>
+<p>ここまでに出てきた周波数特性の図では負の周波数の範囲を省略していました。負の周波数特性は、正の周波数特性の鏡像になっています。以下は鏡像を含めたローパスフィルタの特性の例です。</p>
 <figure>
 <img src="img/fir_filter_frequency_mirror.png" alt="Image of range [-f_s, f_s] of lowpass frequency responce." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
-<p><a
-href="https://en.wikipedia.org/wiki/Even_and_odd_functions#Calculus_properties">偶関数の積分の性質</a>を利用して式を変形できそうなので試してみます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&amp;= \frac{1}{2\pi}\int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega
-\\
-&amp;= \frac{2}{2\pi}\int^{\omega_l}_{0} e^{j\omega n} d\omega \\
-&amp;= {{\sin \left(\omega_l\,n\right)}\over{n\,\pi}}-{{i\,\cos
-\left(\omega_l\,n\right)}\over{n\,\pi}}+{{i}\over{n\,\pi}}
-\end{aligned}
-\]</span></p>
-<p>虚部が出てきました。実部は式を変形をしないときと同じになっています。</p>
-<p>念のために定義どおり計算した方がよさそうです。</p>
+<p>正と負の周波数特性が異なるフィルタの例としてはヒルベルト変換が挙げられます。ヒルベルト変換は周波数シフトなどへの応用があります。</p>
 <h2 id="その他"><a href="#その他" class="header-anchor"
 aria-hidden="true">その他</a></h2>
-<p>式を解かなくても周波数特性を逆離散フーリエ変換すればフィルタは作れます。</p>
+<p>式を解かなくても周波数特性を逆離散フーリエ変換すればフィルタは作れます。ただし、逆フーリエ変換したときとは周波数特性が変わります。</p>
 <p>フィルタ係数が固定のときは<a
 href="https://www.scipy.org/">SciPy</a>や<a
 href="https://www.gnu.org/software/octave/">Octave</a>などを使って設計するほうが楽で確実です。</p>
-<p>ここで作ったバンドパスフィルタを Banded Waveguides
-に使おうとしたのですが、切れ味が良すぎてWaveguide間の干渉がほとんど起こらず、面白い音になりませんでした。</p>
 <h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
 aria-hidden="true">参考サイト</a></h2>
 <ul>
@@ -712,6 +711,14 @@ Ideal Lowpass Filter</a></li>
 <li><a
 href="https://stackoverflow.com/questions/42454464/maxima-expand-e-to-cos-and-i-sin">Maxima:
 Expand e to cos and i sin? - Stack Overflow</a></li>
+</ul>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
+<ul>
+<li>2024/07/22
+<ul>
+<li>内容を大幅に改訂。多くの間違いを修正。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>

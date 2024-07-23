@@ -1,262 +1,259 @@
 # お手軽なFIRフィルタのレシピ
-**注意**: 内容が怪しいです。
-
-[FIR](https://en.wikipedia.org/wiki/Finite_impulse_response)のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。
+[FIR](https://en.wikipedia.org/wiki/Finite_impulse_response) のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。
 
 ## 記号
 
-- $f_{s}$ : [サンプリング周波数](https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate)
-- $f_l$ : 低いほうの[カットオフ周波数](https://en.wikipedia.org/wiki/Cutoff_frequency)
-- $f_h$ : 高いほうのカットオフ周波数
-- $\omega_l$ : $2 \pi f_l$
-- $\omega_h$ : $2 \pi f_h$
+- $f_s$ : [サンプリング周波数](https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate)。
+- $f_c$ : [カットオフ周波数](https://en.wikipedia.org/wiki/Cutoff_frequency)。ここでは慣例とは異なり、カットオフ周波数でのゲインが $1/\sqrt{2}$ とはならない。
+- $f_l$ : 低いほうの[カットオフ周波数](https://en.wikipedia.org/wiki/Cutoff_frequency)。バンドパスとバンドリジェクトで使う。
+- $f_h$ : 高いほうカットオフ周波数。バンドパスとバンドリジェクトで使う。
+- $\omega_\square$ : 角周波数。 $2 \pi f_\square / f_s$ 。
 
-[通過域](https://en.wikipedia.org/wiki/Passband)の大きさ（[Amplitude](https://en.wikipedia.org/wiki/Amplitude)）は1とします。
+$f$ の単位は Hz 、 $\omega$ の単位は rad です。
+
+[通過域](https://en.wikipedia.org/wiki/Passband)の振幅（[Amplitude](https://en.wikipedia.org/wiki/Amplitude)）は 1 とします。
 
 ## ローパスフィルタ
 <figure>
-<img src="img/fir_filter_lowpass.png" alt="Image of FIR lowpass filter." style="width: 320px;padding-bottom: 12px;"/>
+<img src="img/fir_filter_lowpass_spec.svg" alt="Image of FIR lowpass filter specification." style="padding-bottom: 12px;"/>
 </figure>
 
 $$
-A(\omega) =
+A_{LP}(\omega) =
 \begin{cases}
-1, & (-\omega_l \leq \omega \leq \omega_l) \\
-0, & \text{otherwise}
+1, & (-\omega_c \leq \omega \leq \omega_c) \\
+0, & \text{otherwise}.
 \end{cases}
 $$
 
-$A(\omega)$ を[逆離散時間フーリエ変換](https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform)の式に入れて解きます。
+$A_{LP}(\omega)$ を[逆フーリエ変換](https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform)します。 $A_{LP}$ の定義より範囲を $-\omega_c$ から $\omega_c$ に狭めることができます。この式は sinc 関数とも呼ばれます。また、理想ローパスフィルタ (ideal low-pass filter) と呼ばれることもあります。
 
 $$
-\begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&= \frac{1}{2\pi}\int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega \\
-&= \frac{\sin (\omega_l n)}{n \pi}
-\end{aligned}
+\begin{align}
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{LP}(\omega) e^{j\omega x} d\omega
+&= \frac{1}{2\pi}\int^{\omega_c}_{-\omega_c} e^{j\omega x} d\omega \\
+&= \frac{\sin(\omega_c x)}{\pi x}.
+\end{align}
 $$
 
-コードに変えます。
+式 1 は以下の [Maxima](https://maxima.sourceforge.io/) のコードで解きました。
 
-```javascript
-function makeLowpassCoefficient(length, cutoff) {
-  // cutoff の範囲は [0, 1]
-  var coefficient = new Array(length).fill(0)
-  var half = (length % 2 === 0 ? length - 1 : length) / 2
-  var omegaL = 2 * Math.PI * cutoff
-  for (var i = 0; i < length; ++i) {
-    var n = i - half
-    coefficient[i] = (n === 0) ? 1 : Math.sin(omegaL * n) / (Math.PI * n)
-  }
-  return coefficient
-}
+```maxima
+ift(low, high) := integrate(exp(%i * ω * x) / (2 * %pi), ω, low, high);
+expand(demoivre(ift(-ω_c, ω_c)));
 ```
+
+Python 3 のコードに変えます。 NumPy には [`numpy.sinc`](https://numpy.org/doc/stable/reference/generated/numpy.sinc.html) がありますが、ここでは例として sinc 関数を実装しています。
+
+```python
+import numpy as np
+
+def modifiedSinc(x, cutoff):
+    if x == 0:
+        return 2 * cutoff
+    return np.sin(np.pi * 2 * cutoff * x) / (np.pi * x)
+
+
+def lowpassFir(length: int, cutoff: float):
+    length -= (length + 1) % 2  # 係数の数を奇数にする。
+    mid = length // 2
+
+    fir = np.zeros(length)
+    for i in range(length):
+        x = i - mid
+        fir[i] = modifiedSinc(x, cutoff)
+    return fir
+```
+
+以下は `length = 63, cutoff = 0.25` としたときの周波数特性のプロットです。
+
+<figure>
+<img src="img/fir_filter_lowpass_response.svg" alt="Image of FIR lowpass filter responses." style="padding-bottom: 12px;"/>
+</figure>
 
 ## ハイパスフィルタ
 <figure>
-<img src="img/fir_filter_highpass.png" alt="Image of FIR highpass filter." style="width: 320px;padding-bottom: 12px;"/>
+<img src="img/fir_filter_highpass_spec.svg" alt="Image of FIR highpass filter specification." style="padding-bottom: 12px;"/>
 </figure>
 
 $$
-A(\omega) =
+A_{HP}(\omega) =
 \begin{cases}
-1, & (-\omega_s \leq \omega \leq -\omega_h) \\
-1, & (\omega_h \leq \omega \leq \omega_s) \\
-0, & \text{otherwise}
+1, & (\omega \leq -\omega_c) \\
+1, & (\omega_c \leq \omega) \\
+0, & \text{otherwise}.
 \end{cases}
 $$
 
-$A(\omega)$ を逆離散時間フーリエ変換の式に入れて解きます。
+逆フーリエ変換が CAS では解けなかったので、式変形のトリックを使います。すべての周波数で振幅が 1 となる特性からローパスフィルタの特性を減算することでハイパスになります。そして、すべての周波数で振幅が 1 となる特性を持つ信号として [Dirac のデルタ関数](https://en.wikipedia.org/wiki/Dirac_delta_function)が使えます。したがって以下のように $A_{HP}$ の逆フーリエ変換ができます。
 
 $$
-\begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&= \frac{1}{2\pi} \biggl ( \int^{-\omega_h}_{-\pi} e^{j\omega n} d\omega
- + \int^{\pi}_{\omega_h} e^{j\omega n} d\omega \biggr ) \\
-&= {{\sin \left(n\,\pi\right)}\over{n\,\pi}}-{{\sin \left(\omega_h\,n\right)}\over{n\,\pi}}
-\end{aligned}
+\begin{align}
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{HP}(\omega) e^{j\omega x} d\omega
+&= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega - \mathcal{F}^{-1} (A_{LP}) \\
+&= \delta(x) - \frac{\sin(\omega_c x)}{\pi x}.
+\end{align}
 $$
 
-コードに変えます。
+Python 3 のコードに変えます。デルタ関数の扱いが問題になりますが、実装のトリックとして $x=0$ となる時点のフィルタ係数からフィルタ係数の総和 (`sum(fir)`) を減算すればうまく動きます。ローパスフィルタのコードを流用しています。
 
-```javascript
-function makeHighpassCoefficient(length, cutoff) {
-  // cutoff の範囲は [0, 1]
-  var coefficient = new Array(length).fill(0)
-  var half = (length % 2 === 0 ? length - 1 : length) / 2
-  var omegaH = 2 * Math.PI * cutoff
-  for (var i = 0; i < length; ++i) {
-    var n = i - half
-    coefficient[i] = (n === 0)
-      ? 1
-      : (Math.sin(Math.PI * n) - Math.sin(omegaH * n)) / (Math.PI * n)
-  return coefficient
-}
+```python
+def highpassFir(length: int, cutoff: float):
+    fir = -lowpassFir(length, cutoff)
+    mid = length // 2
+    fir[mid] -= np.sum(fir)
+    return fir
 ```
+
+以下は `length = 63, cutoff = 0.125` としたときの周波数特性のプロットです。
+
+<figure>
+<img src="img/fir_filter_highpass_response.svg" alt="Image of FIR highpass filter responses." style="padding-bottom: 12px;"/>
+</figure>
 
 ## バンドパスフィルタ
 <figure>
-<img src="img/fir_filter_bandpass.png" alt="Image of FIR bandpass filter." style="width: 320px;padding-bottom: 12px;"/>
+<img src="img/fir_filter_bandpass_spec.svg" alt="Image of FIR bandpass filter specification." style="padding-bottom: 12px;"/>
 </figure>
 
 $$
-A(\omega) =
+A_{BP}(\omega) =
 \begin{cases}
 1, & (-\omega_h \leq \omega \leq -\omega_l) \\
 1, & (\omega_l \leq \omega \leq \omega_h) \\
-0, & \text{otherwise}
+0, & \text{otherwise}.
 \end{cases}
 $$
 
-$A(\omega)$ を逆離散時間フーリエ変換の式に入れて解きます。
+$A_{BP}(\omega)$ を逆フーリエ変換します。
 
 $$
-\begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&= \frac{1}{2\pi} \biggl ( \int^{-\omega_l}_{-\omega_h} e^{j\omega n} d\omega
- + \int^{\omega_h}_{\omega_l} e^{j\omega n} d\omega \biggr ) \\
-&= {{\sin \left(\omega_h\,n\right)}\over{n\,\pi}}-{{\sin \left(\omega_l\,n\right)}\over{n\,\pi}}
-\end{aligned}
+\begin{align}
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BP}(\omega) e^{j\omega x} d\omega
+&= \frac{1}{2\pi} \biggl ( \int^{-\omega_l}_{-\omega_h} e^{j\omega x} d\omega
+ + \int^{\omega_h}_{\omega_l} e^{j\omega x} d\omega \biggr ) \\
+&= \frac{\sin(\omega_h x)}{\pi x} - \frac{\sin(\omega_l x)}{\pi x}.
+\end{align}
 $$
 
-コードに変えます。
+式 5 は以下の [Maxima](https://maxima.sourceforge.io/) のコードで解きました。
 
-```javascript
-function makeBandpassCoefficient(length, low, high) {
-  // low, high の範囲は [0, 1]
-  var coefficient = new Array(length).fill(0)
-  var half = (length % 2 === 0 ? length - 1 : length) / 2
-  var twoPi = 2 * Math.PI
-  var omegaL = twoPi * low
-  var omegaH = twoPi * high
-  for (var i = 0; i < length; ++i) {
-    var n = i - half
-    coefficient[i] = (n === 0)
-      ? 1
-      : (Math.sin(omegaH * n) - Math.sin(omegaL * n)) / (Math.PI * n)
-  return coefficient
-}
+```maxima
+ift(low, high) := integrate(exp(%i * ω * x) / (2 * %pi), ω, low, high);
+expand(demoivre(ift(-ω_h, -ω_l) + ift(ω_l, ω_h)));
 ```
 
-## バンドリジェクトフィルタ
-バンドストップフィルタとも呼ばれるようです。
+Python 3 のコードに変えます。
+
+```python
+def bandpassFir(length: int, cutoffLow: float, cutoffHigh: float):
+    length -= (length + 1) % 2  # 係数の数を奇数にする。
+    mid = length // 2
+
+    fir = np.zeros(length)
+    for i in range(length):
+        x = i - mid
+        fir[i] = modifiedSinc(x, cutoffLow) - modifiedSinc(x, cutoffHigh)
+    return fir
+```
+
+以下は `length = 63, cutoffLow = 0.125, cutoffHigh = 0.25` としたときの周波数特性のプロットです。
 
 <figure>
-<img src="img/fir_filter_bandreject.png" alt="Image of FIR bandreject filter." style="width: 320px;padding-bottom: 12px;"/>
+<img src="img/fir_filter_bandpass_response.svg" alt="Image of FIR bandpass filter responses." style="padding-bottom: 12px;"/>
+</figure>
+
+## バンドリジェクトフィルタ
+バンドストップフィルタとも呼ばれます。
+
+<figure>
+<img src="img/fir_filter_bandreject_spec.svg" alt="Image of FIR bandreject filter specification." style="padding-bottom: 12px;"/>
 </figure>
 
 $$
-A(\omega) =
+A_{BR}(\omega) =
 \begin{cases}
-1, &  (-\omega_s \leq \omega \leq -\omega_h) \\
+1, &  (\omega \leq -\omega_h) \\
 1, & (-\omega_l \leq \omega \leq \omega_l) \\
-1, & (\omega_h \leq \omega \leq \omega_s) \\
-0, & \text{otherwise}
+1, & (\omega_h \leq \omega) \\
+0, & \text{otherwise}.
 \end{cases}
 $$
 
-$A(\omega)$ を逆離散時間フーリエ変換の式に入れて解きます。
+ハイパスと同様に、デルタ関数の振幅特性からバンドパスフィルタの振幅特性を減算すればバンドリジェクトフィルタになります。
 
 $$
 \begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&= \frac{1}{2\pi} \biggl ( \int^{-\omega_h}_{-\pi} e^{j\omega n} d\omega
- + \int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega
- + \int^{\pi}_{\omega_h} e^{j\omega n} d\omega \biggr ) \\
-&= {{\sin \left(n\,\pi\right)}\over{n\,\pi}}+{{\sin \left(\omega_l\,n\right)}\over{n\,\pi}}-{{\sin \left(\omega_h\,n\right)}\over{n\,\pi}}
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BR}(\omega) e^{j\omega x} d\omega
+&= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega - \mathcal{F}^{-1} (A_{BP}) \\
+&= \delta(x) - \left( \frac{\sin(\omega_h x)}{\pi x} - \frac{\sin(\omega_l x)}{\pi x} \right).
 \end{aligned}
 $$
 
-コードに変えます。
+Python 3 のコードに変えます。バンドパスフィルタのコードを流用しています。
 
-```javascript
-function makeBandrejectCoefficient(length, low, high) {
-  // low, high の範囲は [0, 1]
-  var coefficient = new Array(length).fill(0)
-  var half = (length % 2 === 0 ? length - 1 : length) / 2
-  var twoPi = 2 * Math.PI
-  var omegaL = twoPi * low
-  var omegaH = twoPi * high
-  for (var i = 0; i < length; ++i) {
-    var n = i - half
-    var piN = Math.PI * n
-    coefficient[i] = (n === 0)
-      ? 1
-      : (Math.sin(piN) + Math.sin(omegaL * n) - Math.sin(omegaH * n)) / piN
-  return coefficient
-}
+```python
+def bandrejectFir(length: int, cutoffLow: float, cutoffHigh: float):
+    fir = -bandpassFir(length, cutoffLow, cutoffHigh)
+    mid = length // 2
+    fir[mid] -= np.sum(fir)
+    return fir
 ```
 
-## FIRフィルタのかけ方
-まずフィルタをかけるソースを用意します。
+以下は `length = 63, cutoffLow = 0.125, cutoffHigh = 0.25` としたときの周波数特性のプロットです。
 
-```javascript
-var audioContext = new AudioContext()
-var source = new Array(audioContext.sampleRate)
-for (var i = 0; i < source.length; ++i) {
-  source[i] = 2.0 * Math.random() - 1.0 // 適当なノイズ。
-}
-```
+<figure>
+<img src="img/fir_filter_bandreject_response.svg" alt="Image of FIR bandreject filter responses." style="padding-bottom: 12px;"/>
+</figure>
 
-FIRフィルタは適切な[窓関数](https://en.wikipedia.org/wiki/Window_function)をかけることで特性が改善します。ここではお手軽でそれなりに特性がいい[Blackman–Harris窓](https://en.wikipedia.org/wiki/Window_function#Blackman%E2%80%93Harris_window)を使います。
+## FIRフィルタの畳み込み方
+「[レイテンシのない畳み込み](../convolution_without_latency/convolution_without_latency.html)」で畳み込みの方法について紹介しています。フィルタ係数の数が 16 ほどであれば素朴に畳み込めば十分に速いです。フィルタ係数の数が多いときは FFT を使った高速な畳み込みのアルゴリズムがあります。
 
-```javascript
-function blackmanHarrisWindow(length) {
-  var window = new Array(length)
-  var a0 = 0.35875
-  var a1 = 0.48829
-  var a2 = 0.14128
-  var a3 = 0.01168
-  var pi_N1 = Math.PI / (window.length - 1)
-  var twopi_N1 = 2 * pi_N1
-  var fourpi_N1 = 4 * pi_N1
-  var sixpi_N1 = 6 * pi_N1
-  for (var n = 0; n < window.length; ++n) {
-    window[n] = a0
-      - a1 * Math.cos(n * twopi_N1)
-      + a2 * Math.cos(n * fourpi_N1)
-      - a3 * Math.cos(n * sixpi_N1)
+以下は C++ による素朴な畳み込みの例です。
+
+```c++
+#include <algorithm>
+#include <array>
+#include <numeric>
+
+struct FirFilterShort {
+  std::array<float, 16> fir{/* フィルタ係数。 */};
+  std::array<float, 16> buffer{};
+
+  float process(float input) {
+    std::rotate(buffer.begin(), buffer.begin() + 1, buffer.end());
+    buffer.back() = input;
+    return std::inner_product(fir.begin(), fir.end(), buffer.begin(), float(0));
   }
-  return window
-}
+};
 ```
 
-フィルタを用意します。
+## 窓関数法
+上で出てきた式はフィルタ係数の数が無限です。無限に長いフィルタは計算できないので長さを切り詰めて使うことになりますが、副作用として周波数特性が歪みます。窓関数法とは長さを切り詰めたフィルタ係数に[窓関数](https://en.wikipedia.org/wiki/Window_function)を乗算することで、この周波数特性の歪みを調整する手法です。
 
-```javascript
-var filterLength = 1025
-var cutoff = 1000 // Hz
-var coefficient = makeLowpassCoefficient(filterLength, cutoff / audioContext.sampleRate)
-var filter = blackmanHarrisWindow(filterLength).map((v, i) => v * coefficient[i])
-```
+ここで紹介しているフィルタ係数の計算方法に窓関数をかけるフィルタの設計方法のことを、特に windowed-sinc と言います。
 
-[畳み込み（Convolution）](https://en.wikipedia.org/wiki/Convolution)を行ってソースにFIRフィルタをかけます。
+窓関数の違いによってロールオフの急峻さとカットオフ周波数の低さの間でのトレードオフがあります。つまり、より急峻な特性にするとカットオフ周波数が高くなってしまい、カットオフ周波数をできる限り理想に近づけようとするとロールオフが緩やかになってしまうということです。
 
-```javascript
-var destination = new Array(source.length).fill(0)
-var buffer = new Array(filter.length).fill(0)
-for (var i = 0; i < source.length; ++i) {
-  buffer.push(source[i])
-  buffer.shift()
-  for (var j = 0; j < filter.length; ++j) {
-    destination[i] += buffer[j] * filter[j]
-  }
-}
-```
+カットオフ周波数を低くしたいときは切り詰めた係数をそのまま使います。このことは矩形窓をかけるとも呼ばれます。
+
+急峻なロールオフを得るときには Kaiser 窓や DPSS 窓を使ってパラメータを調整します。
+
+他にもいろいろな窓関数がありますが、単純な用途では上記の 2 つのケースだけ押さえておけばとりあえず何とかなります。
 
 ## Computer Algebra System の利用
 手で式を解くと間違えることがあるので [Computer Algebra System (CAS)](https://en.wikipedia.org/wiki/Computer_algebra_system) を利用します。
 
-今回のような簡単な式であれば[Wolfram Alpha](https://www.wolframalpha.com/)が便利です。Wolfram Alphaでは数字でない下付き文字が使えないようなので $\omega_l$ を $l$ に置き換えています。以降のCASのコードも同じ置き換えを使います。
+今回のような簡単な式であれば[Wolfram Alpha](https://www.wolframalpha.com/)が便利です。Wolfram Alphaでは数字でない下付き文字が使えないようなので $\omega_l$ を $L$ に置き換えています。以降のCASのコードも同じ置き換えを使います。
 
 ```wolfram
-(integral e^(i*omega*n) for omega from -l to l) / (2pi)
+(integral e^(i*omega*x) for omega from -L to L) / (2pi)
 ```
 
-[Maxima](http://maxima.sourceforge.net/)は式の整理について指定する必要があります。コードの `demoivre` で `exp(%i*n)` を `%i * sin(n) + cos(n)` に置き換えています。
+[Maxima](http://maxima.sourceforge.net/)は式の整理について指定する必要があります。コードの `demoivre` で `exp(%i*x)` を `%i * sin(x) + cos(x)` に置き換えています。
 
 ```maxima
-expand(demoivre(integrate(exp(%i * omega * n) / (2 * pi), omega, -l, l)));
+expand(demoivre(integrate(exp(%i * omega * x) / (2 * pi), omega, -L, L)));
 ```
 
 [SymPy](http://www.sympy.org/en/index.html)も使えますが少し長めです。 `rewrite(sin)` でオイラーの公式を適用しています。 `n = Symbol('n', positive=True)` が無いとコードの `integrate(...)` を解いてくれません。
@@ -264,52 +261,37 @@ expand(demoivre(integrate(exp(%i * omega * n) / (2 * pi), omega, -l, l)));
 ```python
 # SymPy 1.1.1
 from sympy import *
-n = Symbol('n', positive=True)
-l = Symbol('l')
+x = Symbol('x', positive=True)
+L = Symbol('L')
 omega = Symbol('omega')
-answer = simplify(integrate(exp(I * omega * n), (omega, -l, l)).rewrite(sin))
+answer = simplify(integrate(exp(I * omega * x), (omega, -L, L)).rewrite(sin))
 pprint(answer)
 ```
 
 ## フィルタ係数の計算について
-フィルタ係数は周波数特性を逆離散時間フーリエ変換することで得られます。
+FIR フィルタ係数は周波数特性 $A$ を逆フーリエ変換することで得られます。
 
 $$
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
+\frac{1}{2\pi}\int^{\infty}_{-\infty} A(\omega) e^{j\omega x} d\omega
 $$
 
-この逆離散時間フーリエ変換の式に、周波数$f$を対応させて使うときは$\pi{f}/{f_s}$と変換します。
-
-逆離散時間フーリエ変換をするときは$[-f_s,\ f_s]$の範囲を考慮する必要がありますが、ここまでに出てきた周波数特性の図では$[-f_s,\ 0]$の範囲を省略していました。$[-f_s,\ 0]$の範囲での周波数特性は$[0,\ f_s]$の鏡像になっています。
-
-ローパスフィルタを例に見ていきます。
+ここまでに出てきた周波数特性の図では負の周波数の範囲を省略していました。負の周波数特性は、正の周波数特性の鏡像になっています。以下は鏡像を含めたローパスフィルタの特性の例です。
 
 <figure>
 <img src="img/fir_filter_frequency_mirror.png" alt="Image of range [-f_s, f_s] of lowpass frequency responce." style="width: 600px;padding-bottom: 12px;"/>
 </figure>
 
-[偶関数の積分の性質](https://en.wikipedia.org/wiki/Even_and_odd_functions#Calculus_properties)を利用して式を変形できそうなので試してみます。
-
-$$
-\begin{aligned}
-\frac{1}{2\pi}\int^{\pi}_{-\pi} A(\omega) e^{j\omega n} d\omega
-&= \frac{1}{2\pi}\int^{\omega_l}_{-\omega_l} e^{j\omega n} d\omega \\
-&= \frac{2}{2\pi}\int^{\omega_l}_{0} e^{j\omega n} d\omega \\
-&= {{\sin \left(\omega_l\,n\right)}\over{n\,\pi}}-{{i\,\cos \left(\omega_l\,n\right)}\over{n\,\pi}}+{{i}\over{n\,\pi}}
-\end{aligned}
-$$
-
-虚部が出てきました。実部は式を変形をしないときと同じになっています。
-
-念のために定義どおり計算した方がよさそうです。
+正と負の周波数特性が異なるフィルタの例としてはヒルベルト変換が挙げられます。ヒルベルト変換は周波数シフトなどへの応用があります。
 
 ## その他
-式を解かなくても周波数特性を逆離散フーリエ変換すればフィルタは作れます。
+式を解かなくても周波数特性を逆離散フーリエ変換すればフィルタは作れます。ただし、逆フーリエ変換したときとは周波数特性が変わります。
 
 フィルタ係数が固定のときは[SciPy](https://www.scipy.org/)や[Octave](https://www.gnu.org/software/octave/)などを使って設計するほうが楽で確実です。
-
-ここで作ったバンドパスフィルタを Banded Waveguides に使おうとしたのですが、切れ味が良すぎてWaveguide間の干渉がほとんど起こらず、面白い音になりませんでした。
 
 ## 参考サイト
 - [The Ideal Lowpass Filter](https://ccrma.stanford.edu/~jos/sasp/Ideal_Lowpass_Filter.html)
 - [Maxima: Expand e to cos and i sin? - Stack Overflow](https://stackoverflow.com/questions/42454464/maxima-expand-e-to-cos-and-i-sin)
+
+## 変更点
+- 2024/07/22
+  - 内容を大幅に改訂。多くの間違いを修正。
