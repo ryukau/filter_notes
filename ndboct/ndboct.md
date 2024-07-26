@@ -32,7 +32,7 @@ n dB/oct のスロープを持つフィルタを設計します。
 - [JavaScript による実装](https://github.com/ryukau/UhhyouWebSynthesizers/blob/9830094f6e7fb74c7b627bf10c4e5f0c384f6763/common/dsp/slopefilter.js#L57-L99) (github.com)
 - [C++ による実装](https://github.com/ryukau/UhhyouPluginsJuce/blob/9e5c2ae4e76f29b880a8409fb25e2c133012e275/SlopeFilter/dsp/filter.hpp#L86-L151) (github.com)
 
-以下は 1 次のハイシェルフフィルタで n dB/oct の傾きを近似した振幅特性です。 Exponential moving average (EMA), バイリニア変換 (bilinear) 、 整合フィルタ (matched) の 3 種類の 1 次フィルタを比較しています。参照となる赤い点線 (Ref.) と並行であるほど性能が良くなります。どれもほぼ似たような特性ですが、バイリニア変換によるフィルタは最も誤差が少なく見えます。 EMA フィルタはナイキスト周波数に近い部分で誤差が増えますが、計算量が小さいという利点があります。整合フィルタは中間的な誤差ですが、フィルタ係数の計算量が 3 つの中で最も大きいので出番はなさそうです。
+以下は 1 次のハイシェルフフィルタで n dB/oct の傾きを近似した振幅特性です。 Exponential moving average (EMA), バイリニア変換 (bilinear) 、 [整合フィルタ](../matched_iir_filter/matched_iir_filter.html#整合一次ハイシェルビングフィルタ) (matched) の 3 種類の 1 次フィルタを比較しています。参照となる赤い点線 (Ref.) と並行であるほど性能が良くなります。どれもほぼ似たような特性ですが、バイリニア変換によるフィルタは最も誤差が少なく見えます。 EMA フィルタはナイキスト周波数に近い部分で誤差が増えますが、計算量が小さいという利点があります。整合フィルタは中間的な誤差ですが、フィルタ係数の計算量が 3 つの中で最も大きいので出番はなさそうです。
 
 <figure>
 <img src="img/ndboct_iir_hs_onepole_response.svg" alt="Image of amplitude responses of n dB/oct slope filters constructed from 1-pole highshelving filters." />

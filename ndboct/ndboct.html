@@ -458,8 +458,10 @@ href="https://github.com/ryukau/UhhyouPluginsJuce/blob/9e5c2ae4e76f29b880a8409fb
 </ul>
 <p>以下は 1 次のハイシェルフフィルタで n dB/oct
 の傾きを近似した振幅特性です。 Exponential moving average (EMA),
-バイリニア変換 (bilinear) 、 整合フィルタ (matched) の 3 種類の 1
-次フィルタを比較しています。参照となる赤い点線 (Ref.)
+バイリニア変換 (bilinear) 、 <a
+href="../matched_iir_filter/matched_iir_filter.html#整合一次ハイシェルビングフィルタ">整合フィルタ</a>
+(matched) の 3 種類の 1 次フィルタを比較しています。参照となる赤い点線
+(Ref.)
 と並行であるほど性能が良くなります。どれもほぼ似たような特性ですが、バイリニア変換によるフィルタは最も誤差が少なく見えます。
 EMA
 フィルタはナイキスト周波数に近い部分で誤差が増えますが、計算量が小さいという利点があります。整合フィルタは中間的な誤差ですが、フィルタ係数の計算量が
