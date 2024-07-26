@@ -460,3 +460,7 @@ def slopeFir(length: int, k: float):
 - [Poisson Window](https://ccrma.stanford.edu/~jos/sasp/Poisson_Window.html)
 -  Gade, Svend; Herlufsen, Henrik (1987). "[Technical Review No 3-1987: Windows to FFT analysis (Part I)](http://www.bksv.com/doc/Bv0031.pdf)" (PDF). Brüel & Kjær.
 - Das, Abhranil. [Camouflage detection & signal discrimination: theory, methods & experiments](https://www.researchgate.net/publication/360401120_Camouflage_Detection_Signal_Discrimination_Theory_Methods_Experiments?channel=doi&linkId=62745d1f973bbb29cc65d5f5&showFulltext=true). Diss. 2022.
+
+## 変更点
+- 2024/07/26
+  - 「IIR のハイシェルフフィルタを使う方法」、「Exponential 窓」、「改変したピンクノイズフィルタ」の節を追加。
