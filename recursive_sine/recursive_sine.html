@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-28" />
+<meta name="dcterms.date" content="2024-07-29" />
 <title>recursive_sine</title>
 
 <!-- MathJax -->
@@ -363,7 +363,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-07-28
+Update: 2024-07-29
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -388,14 +388,15 @@ Oscillator with Staggered Update</a></li>
 id="toc-magic-circle-oscillator">Magic Circle Oscillator</a></li>
 <li><a href="#coupled-form-oscillator"
 id="toc-coupled-form-oscillator">Coupled Form Oscillator</a></li>
-<li><a href="#stable-quadrature-oscillator-vicanek"
-id="toc-stable-quadrature-oscillator-vicanek">Stable Quadrature
-Oscillator (Vicanek)</a></li>
+<li><a href="#stable-quadrature-oscillator"
+id="toc-stable-quadrature-oscillator">Stable Quadrature
+Oscillator</a></li>
 <li><a href="#周波数変調時の挙動"
 id="toc-周波数変調時の挙動">周波数変調時の挙動</a></li>
 <li><a href="#高速な周波数の変更"
 id="toc-高速な周波数の変更">高速な周波数の変更</a></li>
 <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+<li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -406,7 +407,7 @@ href="#sin-cos-を反復的に計算するアルゴリズムのレシピ"
 class="header-anchor" aria-hidden="true">sin, cos
 を反復的に計算するアルゴリズムのレシピ</a></h1>
 <p>sin と cos を反復的に計算するアルゴリズムのレシピ集です。出典は
-Martin Vicanek による “<a
+Martin Vicanek さんによる “<a
 href="https://www.vicanek.de/articles/QuadOsc.pdf">A New Recursive
 Quadrature Oscillator</a>” の appendix (pp.7-9)
 です。初期位相の設定方法については、この文章で独自に追加しています。</p>
@@ -497,6 +498,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> u0</span></code></pre></div>
 <h2 id="reinsch-oscillator"><a href="#reinsch-oscillator"
 class="header-anchor" aria-hidden="true">Reinsch Oscillator</a></h2>
+<p>Vicanek
+さんによると、周波数が固定なら理想的なオシレータだそうです。</p>
 <table>
 <colgroup>
 <col style="width: 20%" />
@@ -545,6 +548,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <h2 id="digital-waveguide-oscillator"><a
 href="#digital-waveguide-oscillator" class="header-anchor"
 aria-hidden="true">Digital Waveguide Oscillator</a></h2>
+<p>他と比べると周波数変調時の振幅の変化が大きいオシレータです。</p>
 <table>
 <colgroup>
 <col style="width: 29%" />
@@ -681,7 +685,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 class="header-anchor" aria-hidden="true">Coupled Form
 Oscillator</a></h2>
 <p>Vicenak
-の論文によると、このオシレータは不安定で、周波数が一定でも時間とともに振幅が変わるそうです。ただし、数秒程度の音の計算であればそれほど問題にはなりません。
+さんによると、このオシレータは不安定で、周波数が一定でも時間とともに振幅が変わるそうです。ただし数秒程度の音の計算であればそれほど問題にはなりません。
 <a href="https://en.wikipedia.org/wiki/Rotation_matrix">2
 次元の回転行列</a>の計算と同じ形をしています。</p>
 <table>
@@ -726,9 +730,10 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> k1 <span class="op">*</span> u0 <span class="op">-</span> k2 <span class="op">*</span> v0</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> k2 <span class="op">*</span> u0 <span class="op">+</span> k1 <span class="op">*</span> v0</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> v</span></code></pre></div>
-<h2 id="stable-quadrature-oscillator-vicanek"><a
-href="#stable-quadrature-oscillator-vicanek" class="header-anchor"
-aria-hidden="true">Stable Quadrature Oscillator (Vicanek)</a></h2>
+<h2 id="stable-quadrature-oscillator"><a
+href="#stable-quadrature-oscillator" class="header-anchor"
+aria-hidden="true">Stable Quadrature Oscillator</a></h2>
+<p>最も質のいいオシレータです。</p>
 <table>
 <colgroup>
 <col style="width: 30%" />
@@ -774,9 +779,15 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> v</span></code></pre></div>
 <h2 id="周波数変調時の挙動"><a href="#周波数変調時の挙動"
 class="header-anchor" aria-hidden="true">周波数変調時の挙動</a></h2>
-<p>反復的に計算するアルゴリズムで周波数を変えたときに振幅がどのように変わるのかを調べました。図の右下の
-<code>standardMath</code> は NumPy の <code>np.sin</code> と
-<code>np.cos</code> で計算したリファレンス信号です。</p>
+<p>反復的に計算するアルゴリズムで周波数を変えたときに振幅がどのように変わるのかを調べました。以下はプロットに使った
+Python 3 のコードへのリンクです。</p>
+<ul>
+<li><a
+href="https://github.com/ryukau/filter_notes/blob/master/recursive_sine/modulation.py">filter_notes/recursive_sine/modulation.py
+at master · ryukau/filter_notes · GitHub</a></li>
+</ul>
+<p>図の右下の <code>standardMath</code> は NumPy の <code>np.sin</code>
+と <code>np.cos</code> で計算したリファレンス信号です。</p>
 <p>以下はサンプリング周波数を 48000 Hz として、 10, 20000, 10 Hz
 と周波数を変調したときの様子です。信号の長さは 96000 サンプル = 2
 秒です。 Coupled form と stable quadrature
@@ -789,7 +800,7 @@ class="header-anchor" aria-hidden="true">周波数変調時の挙動</a></h2>
 と、上の図とは逆となるように周波数を変調したときの様子です。信号の長さは
 96000 サンプル = 2 秒です。 Coupled form と stable quadrature
 は上の図と同様に、周波数変調をかけても振幅が安定しています。 Biquad,
-Reinsch, quadrature with staggered update の 4 つは振幅のピークが 15
+Reinsch, quadrature with staggered update の 3 つは振幅のピークが 15
 を少し超えるほど大きくなっています。 Digital waveguide
 は他に比べると振幅の振れ幅が大きく、ピーク振幅は 60 を超えてます。 Magic
 circle は周波数の低下とともに振幅が下がっています。</p>
@@ -852,6 +863,14 @@ Quadrature Oscillator</a>”, 21. October 20.</li>
 <li><a
 href="https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html">Digital
 Sinusoid Generators</a></li>
+</ul>
+<h2 id="変更点"><a href="#変更点" class="header-anchor"
+aria-hidden="true">変更点</a></h2>
+<ul>
+<li>2024/07/29
+<ul>
+<li>文章の追加、整理。</li>
+</ul></li>
 </ul>
 <footer>
 <a href="../index.html">インデックスに戻る</a>
