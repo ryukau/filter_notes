@@ -3,14 +3,22 @@
 
 [Index page](https://ryukau.github.io/filter_notes)
 
-# ページのビルド
+## ページのビルド
 Python3 で書かれた `build.py` を実行すると html がビルドされます。 [Git](https://git-scm.com/) と [pandoc](https://pandoc.org/) が必要です。
 
 ```bash
 python3 build.py
 ```
 
-# License
+## オフラインでの閲覧
+`--offline` オプションを指定してビルドしてください。
+
+```bash
+python3 build.py --offline --rebuild
+```
+
+
+## License
 html、mdの文書と画像、動画についてはCC0とします。コードはMITとします。
 
 外部ライブラリから導入したコードについては原作者のライセンスに従います。 `license` ディレクトリがあるときは参照してください。
