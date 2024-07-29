@@ -31,17 +31,15 @@ def is_source_modified(md, html):
     return os.path.getmtime(md) > os.path.getmtime(html)
 
 
-def getMathjaxRelativePath(html: Path, offlineBuild=False):
-    if offlineBuild:
+def getMathjaxRelativePath(html: Path, online=False):
+    if online:
         return ""
     mathjax_path = Path("./lib/MathJax/es5/tex-chtml-full.js")
     mathjax_rel_path = os.path.relpath(mathjax_path.resolve(), html.resolve())
     return "=" + "/".join(Path(mathjax_rel_path).parts[1:])
 
 
-def pandoc_md_to_html5(
-    md: Path, template_path: Path, rebuild=False, offlineBuild=False
-):
+def pandoc_md_to_html5(md: Path, template_path: Path, rebuild=False, online=False):
     if md.suffix != ".md":
         return
 
@@ -73,7 +71,7 @@ def pandoc_md_to_html5(
             f"--template={str(template_path)}",
             "--from=markdown",
             "--to=html5",
-            f"--mathjax{getMathjaxRelativePath(html, offlineBuild)}",
+            f"--mathjax{getMathjaxRelativePath(html, online)}",
             f"--output={md.with_suffix('.html')}",
             md,
         ],
@@ -102,9 +100,9 @@ if __name__ == "__main__":
         default=[],
     )
     parser.add_argument(
-        "--offline",
-        action="store_false",
-        help="Change MathJax link to the local copy in this repository.",
+        "--online",
+        action="store_true",
+        help="Change MathJax link to default CDN link provided by pandoc.",
     )
     args = parser.parse_args()
 
@@ -115,4 +113,4 @@ if __name__ == "__main__":
 
     mds = gather_markdown(args.input)
     for md in mds:
-        pandoc_md_to_html5(md, "template.html", args.rebuild, args.offline)
+        pandoc_md_to_html5(md, "template.html", args.rebuild, args.online)

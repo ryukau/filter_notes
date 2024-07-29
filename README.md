@@ -10,14 +10,6 @@ Python3 で書かれた `build.py` を実行すると html がビルドされま
 python3 build.py
 ```
 
-## オフラインでの閲覧
-`--offline` オプションを指定してビルドしてください。
-
-```bash
-python3 build.py --offline --rebuild
-```
-
-
 ## ライセンス
 `lib` ディレクトリには [MathJax](https://docs.mathjax.org/en/latest/) が入っています。
 
