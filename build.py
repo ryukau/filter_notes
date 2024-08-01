@@ -43,7 +43,7 @@ def pandoc_md_to_html5(md: Path, template_path: Path, rebuild=False, online=Fals
     if md.suffix != ".md":
         return
 
-    if str(md).lower() == "readme.md":
+    if str(md.name).lower() == "readme.md":
         return
 
     html = md.parent / Path(md.stem + ".html")

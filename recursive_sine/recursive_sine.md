@@ -4,13 +4,11 @@ sin と cos を反復的に計算するアルゴリズムのレシピ集です�
 オシレータの質は以下の項目を満たすほど良くなります。各アルゴリズムの比較表は "A New Recursive Quadrature Oscillator" の p.10 に掲載されています。
 
 - sin と cos の振幅が等しい。 (Equal Amplitudes)
-- 同じ位相の sin と cos が同時に計算できる。 (Quadrature)
+- 同じ位相の sin と cos が同時に計算できる。 (Quadrature, 直行)
 - システムが安定。 (Stable)
 - 低周波数でも正確。 (Low frequency accurate)
 
-Equal amplitudes の性質は理論上のものです。計算上では誤差の影響で振幅が変わることがあります。
-
-ここでは加算合成シンセサイザのオシレータへの応用を考慮しています。反復的に計算するアルゴリズムでは FM や PM といった位相に関わる変調を行うと振幅が変わってしまうので、大量の sin を同時に鳴らすわけでなければ標準ライブラリの数学関数を使うほうがいいです。
+ここでは加算合成シンセサイザのオシレータへの応用を考慮しています。大量のオシレータを同時に鳴らすわけでなければ標準ライブラリの sin, cos, sincos などを使うほうがいいです。
 
 この文章では Python 3 のコード例を掲載しています。以下は JavaScript による実装へのリンクです。
 
@@ -27,9 +25,9 @@ Equal amplitudes の性質は理論上のものです。計算上では誤差の
 ## Biquad Oscillator
 出力が sin だけですが、最も高速に計算できます。低周波数で精度が落ちるそうですが、音への応用かつ 32-bit float が使えるならあまり問題にはなりません。
 
-| 反復部                      | パラメータ               | 初期化                                                                                         | 出力                   |
-|-----------------------------|---------------------|------------------------------------------------------------------------------------------------|------------------------|
-| $u_{n+1} = k u_n - u_{n-1}$ | $k = 2 \cos \omega$ | $\begin{aligned}u_{-1} &= -\sin(\phi - \omega)\\u_{-2} &= -\sin(\phi - 2 \omega)\end{aligned}$ | $u_n = \sin(n \omega)$ |
+| 反復部                      | パラメータ               | 初期化                                                                                       | 出力                   |
+|-----------------------------|---------------------|----------------------------------------------------------------------------------------------|------------------------|
+| $u_{n+1} = k u_n - u_{n-1}$ | $k = 2 \cos \omega$ | $\begin{aligned}u_{-1} &= \sin(\phi - \omega)\\u_{-2} &= \sin(\phi - 2 \omega)\end{aligned}$ | $u_n = \sin(n \omega)$ |
 
 ```python
 import numpy as np
@@ -38,6 +36,8 @@ def biquad(freqNormalized, initialPhase):
     """
     `freqNormalized` is in [0, 0.5).
     `initialPhase` is in [0, 1).
+
+    Return value is `(sin, cos)`.
     """
     omega = 2 * np.pi * freqNormalized
     phi = 2 * np.pi * initialPhase
@@ -48,7 +48,7 @@ def biquad(freqNormalized, initialPhase):
         u0 = k * u1 - u2
         u2 = u1
         u1 = u0
-        yield u0
+        yield (u0, 0)
 ```
 
 ## Reinsch Oscillator
@@ -62,16 +62,14 @@ Vicanek さんによると、周波数が固定なら理想的なオシレータ
 def reinsch(freqNormalized, initialPhase):
     omega = 2 * np.pi * freqNormalized
     phi = 2 * np.pi * initialPhase
-
     A = 2 * np.sin(omega / 2)
-
     u = np.sin(phi - omega)
     v = A * np.cos(phi - omega / 2)
     k = A * A
     while True:
         u = u + v
         v = v - k * u
-        yield u
+        yield (u, v)  # `u` is main output.
 ```
 
 ## Digital Waveguide Oscillator
@@ -93,10 +91,12 @@ def digitalWaveguide(freqNormalized, initialPhase):
         t = s + u
         u = s - v
         v = t
-        yield v
+        yield (u, v)  # `v` is main output.
 ```
 
 ## Quadrature Oscillator with Staggered Update
+出所がよくわからないオシレータです。
+
 | 反復部                                                                           | パラメータ                                                              | 初期化                                                                                       | 出力                                                                         |
 |----------------------------------------------------------------------------------|--------------------------------------------------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
 | $\begin{aligned}v_{n+1} &= u_n + k v_n\\u_{n+1} &= k v_{n+1} - v_n\end{aligned}$ | $\begin{aligned}k &= \cos \omega\\A &= -\sin(\omega)\end{aligned}$ | $\begin{aligned}u_{-1} &= A \sin(\phi - \omega)\\v_{-1} &= \cos(\phi - \omega)\end{aligned}$ | $\begin{aligned}u_n &= A \sin(n \omega)\\v_n &= \cos(n \omega)\end{aligned}$ |
@@ -112,15 +112,21 @@ def quadratureStaggered(freqNormalized, initialPhase):
         t = v
         v = u + k * v
         u = k * v - t
-        yield v
+        yield (u, v)  # `v` is main output.
 ```
 
 ## Magic Circle Oscillator
-cos の位相がずれる点を除けば質のいいオシレータです。 Modified coupled form とも呼ばれます。
+cos の位相がずれる点を除けば質のいいオシレータです。 Modified coupled form とも呼ばれます。以下はアルゴリズムのアイデアを示す資料へのリンクです。フットノートの [C.17](https://ccrma.stanford.edu/~jos/pasp/footnode.html#foot53986) に追加情報があります。
 
-| 反復部                                                                           | パラメータ                             | 初期化                                                                                                 | 出力                                                                                        |
-|----------------------------------------------------------------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| $\begin{aligned}u_{n+1} &= u_n + k v_n\\v_{n+1} &= v_n - k u_{n+1}\end{aligned}$ | $k = 2 \sin(\tfrac{1}{2} \omega)$ | $\begin{aligned}u_{-1} &= \cos(\phi - \frac{3}{2} \omega)\\v_{-1} &= \sin(\phi - \omega)\end{aligned}$ | $\begin{aligned}u_n &= \cos[(n - \tfrac{1}{2}) \omega]\\v_n &= \sin(n \omega)\end{aligned}$ |
+- [Digital Sinusoid Generators](https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html)
+
+以下の式は Vicenak さんによって紹介されている形とは異なります。 Quadrature オシレータとなるように変更を加えています。
+
+| 反復部                                                                           | パラメータ                             | 初期化                                                                                                 | 出力                                                                       |
+|----------------------------------------------------------------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| $\begin{aligned}u_{n+1} &= u_n - k v_n\\v_{n+1} &= v_n + k u_{n+1}\end{aligned}$ | $k = 2 \sin(\tfrac{1}{2} \omega)$ | $\begin{aligned}u_{-1} &= \cos(\phi - \frac{3}{2} \omega)\\v_{-1} &= \sin(\phi - \omega)\end{aligned}$ | $\begin{aligned}u_n &= \cos(n \omega)\\v_n &= \sin(n \omega)\end{aligned}$ |
+
+パラメータ $k$ は [small angle approximation](https://en.wikipedia.org/wiki/Small-angle_approximation) によって $2 \sin(\tfrac{1}{2} \omega) \approx \omega$ と近似できます。つまり、低い周波数であれば高速に周波数を変更できます。
 
 ```python
 def magicCircle(freqNormalized, initialPhase):
@@ -132,7 +138,7 @@ def magicCircle(freqNormalized, initialPhase):
     while True:
         u -= k * v
         v += k * u
-        yield v
+        yield (v, u)
 ```
 
 ## Coupled Form Oscillator
@@ -155,7 +161,7 @@ def coupledForm(freqNormalized, initialPhase):
         v0 = v
         u = k1 * u0 - k2 * v0
         v = k2 * u0 + k1 * v0
-        yield v
+        yield (v, u)
 ```
 
 ## Stable Quadrature Oscillator
@@ -177,7 +183,7 @@ def stableQuadrature(freqNormalized, initialPhase):
         w = u - k1 * v
         v += k2 * w
         u = w - k1 * v
-        yield v
+        yield (v, u)
 ```
 
 ## 周波数変調時の挙動
@@ -247,10 +253,26 @@ public:
 };
 ```
 
+## ナイキスト周波数での挙動
+ナイキスト周波数で発散するかどうかを調べました。実装では `freq = min(freq, 0.49 * samplingRate)` のように、周波数の上限をナイキスト周波数より少し低めにしておいたほうが安全です。
+
+| 種類              | ナイキスト周波数での振幅 |
+|-------------------|-----------------|
+| Biquad            | 発散              |
+| Reinsch           | 発散              |
+| Digital waveguide | 発散              |
+| Staggered Update  | 一定              |
+| Magic circle      | 発散              |
+| Coupled form      | 一定              |
+| Stable Quadrature | 一定              |
+
 ## 参考文献
 - Martin Vicanek, "[A New Recursive Quadrature Oscillator](https://www.vicanek.de/articles/QuadOsc.pdf)", 21. October 20.
 - [Digital Sinusoid Generators](https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html)
 
 ## 変更点
+- 2024/08/01
+  - Biquad と magic circle の式を修正。
+  - 「ナイキスト周波数での挙動」の節を追加。
 - 2024/07/29
   - 文章の追加、整理。

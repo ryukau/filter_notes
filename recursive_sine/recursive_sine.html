@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
+<meta name="dcterms.date" content="2024-08-01" />
 <title>recursive_sine</title>
 
 <style>
@@ -351,7 +351,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-07-29
+Update: 2024-08-01
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -383,6 +383,8 @@ Oscillator</a></li>
 id="toc-周波数変調時の挙動">周波数変調時の挙動</a></li>
 <li><a href="#高速な周波数の変更"
 id="toc-高速な周波数の変更">高速な周波数の変更</a></li>
+<li><a href="#ナイキスト周波数での挙動"
+id="toc-ナイキスト周波数での挙動">ナイキスト周波数での挙動</a></li>
 <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
 <li><a href="#変更点" id="toc-変更点">変更点</a></li>
 </ul></li>
@@ -403,16 +405,12 @@ Quadrature Oscillator</a>” の appendix (pp.7-9)
 “A New Recursive Quadrature Oscillator” の p.10 に掲載されています。</p>
 <ul>
 <li>sin と cos の振幅が等しい。 (Equal Amplitudes)</li>
-<li>同じ位相の sin と cos が同時に計算できる。 (Quadrature)</li>
+<li>同じ位相の sin と cos が同時に計算できる。 (Quadrature, 直行)</li>
 <li>システムが安定。 (Stable)</li>
 <li>低周波数でも正確。 (Low frequency accurate)</li>
 </ul>
-<p>Equal amplitudes
-の性質は理論上のものです。計算上では誤差の影響で振幅が変わることがあります。</p>
-<p>ここでは加算合成シンセサイザのオシレータへの応用を考慮しています。反復的に計算するアルゴリズムでは
-FM や PM
-といった位相に関わる変調を行うと振幅が変わってしまうので、大量の sin
-を同時に鳴らすわけでなければ標準ライブラリの数学関数を使うほうがいいです。</p>
+<p>ここでは加算合成シンセサイザのオシレータへの応用を考慮しています。大量のオシレータを同時に鳴らすわけでなければ標準ライブラリの
+sin, cos, sincos などを使うほうがいいです。</p>
 <p>この文章では Python 3 のコード例を掲載しています。以下は JavaScript
 による実装へのリンクです。</p>
 <ul>
@@ -444,7 +442,7 @@ class="header-anchor" aria-hidden="true">Biquad Oscillator</a></h2>
 <colgroup>
 <col style="width: 17%" />
 <col style="width: 12%" />
-<col style="width: 56%" />
+<col style="width: 55%" />
 <col style="width: 14%" />
 </colgroup>
 <thead>
@@ -459,9 +457,8 @@ class="header-anchor" aria-hidden="true">Biquad Oscillator</a></h2>
 <tr class="odd">
 <td><span class="math inline">\(u_{n+1} = k u_n - u_{n-1}\)</span></td>
 <td><span class="math inline">\(k = 2 \cos \omega\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= -\sin(\phi
-- \omega)\\u_{-2} &amp;= -\sin(\phi - 2
-\omega)\end{aligned}\)</span></td>
+<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \sin(\phi -
+\omega)\\u_{-2} &amp;= \sin(\phi - 2 \omega)\end{aligned}\)</span></td>
 <td><span class="math inline">\(u_n = \sin(n \omega)\)</span></td>
 </tr>
 </tbody>
@@ -473,17 +470,19 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">    `freqNormalized` is in [0, 0.5).</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    `initialPhase` is in [0, 1).</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    u1 <span class="op">=</span> np.sin(phi <span class="op">-</span> omega)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    u2 <span class="op">=</span> np.sin(phi <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> omega)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.cos(omega)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        u0 <span class="op">=</span> k <span class="op">*</span> u1 <span class="op">-</span> u2</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        u2 <span class="op">=</span> u1</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        u1 <span class="op">=</span> u0</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> u0</span></code></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Return value is `(sin, cos)`.</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    u1 <span class="op">=</span> np.sin(phi <span class="op">-</span> omega)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    u2 <span class="op">=</span> np.sin(phi <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> omega)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.cos(omega)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        u0 <span class="op">=</span> k <span class="op">*</span> u1 <span class="op">-</span> u2</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        u2 <span class="op">=</span> u1</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        u1 <span class="op">=</span> u0</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (u0, <span class="dv">0</span>)</span></code></pre></div>
 <h2 id="reinsch-oscillator"><a href="#reinsch-oscillator"
 class="header-anchor" aria-hidden="true">Reinsch Oscillator</a></h2>
 <p>Vicanek
@@ -523,16 +522,14 @@ v_n\\v_{n+1} &amp;= v_n - k u_{n+1}\end{aligned}\)</span></td>
 class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reinsch(freqNormalized, initialPhase):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.sin(omega <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.sin(phi <span class="op">-</span> omega)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> A <span class="op">*</span> np.cos(phi <span class="op">-</span> omega <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> A <span class="op">*</span> A</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> u <span class="op">+</span> v</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> v <span class="op">-</span> k <span class="op">*</span> u</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> u</span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.sin(omega <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.sin(phi <span class="op">-</span> omega)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> A <span class="op">*</span> np.cos(phi <span class="op">-</span> omega <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> A <span class="op">*</span> A</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> u <span class="op">+</span> v</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> v <span class="op">-</span> k <span class="op">*</span> u</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (u, v)  <span class="co"># `u` is main output.</span></span></code></pre></div>
 <h2 id="digital-waveguide-oscillator"><a
 href="#digital-waveguide-oscillator" class="header-anchor"
 aria-hidden="true">Digital Waveguide Oscillator</a></h2>
@@ -578,11 +575,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        t <span class="op">=</span> s <span class="op">+</span> u</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> s <span class="op">-</span> v</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> t</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> v</span></code></pre></div>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (u, v)  <span class="co"># `v` is main output.</span></span></code></pre></div>
 <h2 id="quadrature-oscillator-with-staggered-update"><a
 href="#quadrature-oscillator-with-staggered-update"
 class="header-anchor" aria-hidden="true">Quadrature Oscillator with
 Staggered Update</a></h2>
+<p>出所がよくわからないオシレータです。</p>
 <table>
 <colgroup>
 <col style="width: 25%" />
@@ -622,18 +620,29 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        t <span class="op">=</span> v</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> u <span class="op">+</span> k <span class="op">*</span> v</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> k <span class="op">*</span> v <span class="op">-</span> t</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> v</span></code></pre></div>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (u, v)  <span class="co"># `v` is main output.</span></span></code></pre></div>
 <h2 id="magic-circle-oscillator"><a href="#magic-circle-oscillator"
 class="header-anchor" aria-hidden="true">Magic Circle
 Oscillator</a></h2>
 <p>cos の位相がずれる点を除けば質のいいオシレータです。 Modified coupled
-form とも呼ばれます。</p>
+form
+とも呼ばれます。以下はアルゴリズムのアイデアを示す資料へのリンクです。フットノートの
+<a
+href="https://ccrma.stanford.edu/~jos/pasp/footnode.html#foot53986">C.17</a>
+に追加情報があります。</p>
+<ul>
+<li><a
+href="https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html">Digital
+Sinusoid Generators</a></li>
+</ul>
+<p>以下の式は Vicenak さんによって紹介されている形とは異なります。
+Quadrature オシレータとなるように変更を加えています。</p>
 <table>
 <colgroup>
-<col style="width: 26%" />
+<col style="width: 27%" />
 <col style="width: 11%" />
-<col style="width: 33%" />
-<col style="width: 29%" />
+<col style="width: 35%" />
+<col style="width: 25%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -645,19 +654,23 @@ form とも呼ばれます。</p>
 </thead>
 <tbody>
 <tr class="odd">
-<td><span class="math inline">\(\begin{aligned}u_{n+1} &amp;= u_n + k
-v_n\\v_{n+1} &amp;= v_n - k u_{n+1}\end{aligned}\)</span></td>
+<td><span class="math inline">\(\begin{aligned}u_{n+1} &amp;= u_n - k
+v_n\\v_{n+1} &amp;= v_n + k u_{n+1}\end{aligned}\)</span></td>
 <td><span class="math inline">\(k = 2 \sin(\tfrac{1}{2}
 \omega)\)</span></td>
 <td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \cos(\phi -
 \frac{3}{2} \omega)\\v_{-1} &amp;= \sin(\phi -
 \omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_n &amp;= \cos[(n -
-\tfrac{1}{2}) \omega]\\v_n &amp;= \sin(n
-\omega)\end{aligned}\)</span></td>
+<td><span class="math inline">\(\begin{aligned}u_n &amp;= \cos(n
+\omega)\\v_n &amp;= \sin(n \omega)\end{aligned}\)</span></td>
 </tr>
 </tbody>
 </table>
+<p>パラメータ <span class="math inline">\(k\)</span> は <a
+href="https://en.wikipedia.org/wiki/Small-angle_approximation">small
+angle approximation</a> によって <span class="math inline">\(2
+\sin(\tfrac{1}{2} \omega) \approx \omega\)</span>
+と近似できます。つまり、低い周波数であれば高速に周波数を変更できます。</p>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> magicCircle(freqNormalized, initialPhase):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
@@ -668,7 +681,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        u <span class="op">-=</span> k <span class="op">*</span> v</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        v <span class="op">+=</span> k <span class="op">*</span> u</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> v</span></code></pre></div>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (v, u)</span></code></pre></div>
 <h2 id="coupled-form-oscillator"><a href="#coupled-form-oscillator"
 class="header-anchor" aria-hidden="true">Coupled Form
 Oscillator</a></h2>
@@ -717,7 +730,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        v0 <span class="op">=</span> v</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> k1 <span class="op">*</span> u0 <span class="op">-</span> k2 <span class="op">*</span> v0</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> k2 <span class="op">*</span> u0 <span class="op">+</span> k1 <span class="op">*</span> v0</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> v</span></code></pre></div>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (v, u)</span></code></pre></div>
 <h2 id="stable-quadrature-oscillator"><a
 href="#stable-quadrature-oscillator" class="header-anchor"
 aria-hidden="true">Stable Quadrature Oscillator</a></h2>
@@ -764,7 +777,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        w <span class="op">=</span> u <span class="op">-</span> k1 <span class="op">*</span> v</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        v <span class="op">+=</span> k2 <span class="op">*</span> w</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> w <span class="op">-</span> k1 <span class="op">*</span> v</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> v</span></code></pre></div>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (v, u)</span></code></pre></div>
 <h2 id="周波数変調時の挙動"><a href="#周波数変調時の挙動"
 class="header-anchor" aria-hidden="true">周波数変調時の挙動</a></h2>
 <p>反復的に計算するアルゴリズムで周波数を変えたときに振幅がどのように変わるのかを調べました。以下はプロットに使った
@@ -842,6 +855,50 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#c
 <span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">std::</span>accumulate<span class="op">(</span>v<span class="op">.</span>begin<span class="op">(),</span> v<span class="op">.</span>end<span class="op">(),</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">));</span></span>
 <span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h2 id="ナイキスト周波数での挙動"><a href="#ナイキスト周波数での挙動"
+class="header-anchor"
+aria-hidden="true">ナイキスト周波数での挙動</a></h2>
+<p>ナイキスト周波数で発散するかどうかを調べました。実装では
+<code>freq = min(freq, 0.49 * samplingRate)</code>
+のように、周波数の上限をナイキスト周波数より少し低めにしておいたほうが安全です。</p>
+<table>
+<thead>
+<tr class="header">
+<th>種類</th>
+<th>ナイキスト周波数での振幅</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Biquad</td>
+<td>発散</td>
+</tr>
+<tr class="even">
+<td>Reinsch</td>
+<td>発散</td>
+</tr>
+<tr class="odd">
+<td>Digital waveguide</td>
+<td>発散</td>
+</tr>
+<tr class="even">
+<td>Staggered Update</td>
+<td>一定</td>
+</tr>
+<tr class="odd">
+<td>Magic circle</td>
+<td>発散</td>
+</tr>
+<tr class="even">
+<td>Coupled form</td>
+<td>一定</td>
+</tr>
+<tr class="odd">
+<td>Stable Quadrature</td>
+<td>一定</td>
+</tr>
+</tbody>
+</table>
 <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
 aria-hidden="true">参考文献</a></h2>
 <ul>
@@ -855,6 +912,11 @@ Sinusoid Generators</a></li>
 <h2 id="変更点"><a href="#変更点" class="header-anchor"
 aria-hidden="true">変更点</a></h2>
 <ul>
+<li>2024/08/01
+<ul>
+<li>Biquad と magic circle の式を修正。</li>
+<li>「ナイキスト周波数での挙動」の節を追加。</li>
+</ul></li>
 <li>2024/07/29
 <ul>
 <li>文章の追加、整理。</li>

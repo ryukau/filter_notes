@@ -226,5 +226,5 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.show()
 
-    # Path.mkdir("img", parents=True, exist_ok=True)
+    # Path("img").mkdir(exist_ok=True)
     # plt.savefig(f"img/recursive_sine_fm_{startHz}_{peakHz}.svg")
