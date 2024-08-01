@@ -116,17 +116,15 @@ def quadratureStaggered(freqNormalized, initialPhase):
 ```
 
 ## Magic Circle Oscillator
-cos の位相がずれる点を除けば質のいいオシレータです。 Modified coupled form とも呼ばれます。以下はアルゴリズムのアイデアを示す資料へのリンクです。フットノートの [C.17](https://ccrma.stanford.edu/~jos/pasp/footnode.html#foot53986) に追加情報があります。
+Modified coupled form とも呼ばれます。以下はアルゴリズムのアイデアを示す資料へのリンクです。フットノートの [C.17](https://ccrma.stanford.edu/~jos/pasp/footnode.html#foot53986) に追加情報があります。
 
 - [Digital Sinusoid Generators](https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html)
 
-以下の式は Vicenak さんによって紹介されている形とは異なります。 Quadrature オシレータとなるように変更を加えています。
+以下の式は Vicenak さんによって紹介されている形とは異なります。 Quadrature オシレータとなるように変更を加えています。パラメータ $k$ は [small angle approximation](https://en.wikipedia.org/wiki/Small-angle_approximation) によって $2 \sin(\tfrac{1}{2} \omega) \approx \omega$ と近似できます。つまり、低い周波数であれば高速に周波数を変更できます。
 
 | 反復部                                                                           | パラメータ                             | 初期化                                                                                                 | 出力                                                                       |
 |----------------------------------------------------------------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
 | $\begin{aligned}u_{n+1} &= u_n - k v_n\\v_{n+1} &= v_n + k u_{n+1}\end{aligned}$ | $k = 2 \sin(\tfrac{1}{2} \omega)$ | $\begin{aligned}u_{-1} &= \cos(\phi - \frac{3}{2} \omega)\\v_{-1} &= \sin(\phi - \omega)\end{aligned}$ | $\begin{aligned}u_n &= \cos(n \omega)\\v_n &= \sin(n \omega)\end{aligned}$ |
-
-パラメータ $k$ は [small angle approximation](https://en.wikipedia.org/wiki/Small-angle_approximation) によって $2 \sin(\tfrac{1}{2} \omega) \approx \omega$ と近似できます。つまり、低い周波数であれば高速に周波数を変更できます。
 
 ```python
 def magicCircle(freqNormalized, initialPhase):

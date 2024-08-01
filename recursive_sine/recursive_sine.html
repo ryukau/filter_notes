@@ -624,8 +624,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <h2 id="magic-circle-oscillator"><a href="#magic-circle-oscillator"
 class="header-anchor" aria-hidden="true">Magic Circle
 Oscillator</a></h2>
-<p>cos の位相がずれる点を除けば質のいいオシレータです。 Modified coupled
-form
+<p>Modified coupled form
 とも呼ばれます。以下はアルゴリズムのアイデアを示す資料へのリンクです。フットノートの
 <a
 href="https://ccrma.stanford.edu/~jos/pasp/footnode.html#foot53986">C.17</a>
@@ -636,7 +635,12 @@ href="https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html">Dig
 Sinusoid Generators</a></li>
 </ul>
 <p>以下の式は Vicenak さんによって紹介されている形とは異なります。
-Quadrature オシレータとなるように変更を加えています。</p>
+Quadrature オシレータとなるように変更を加えています。パラメータ <span
+class="math inline">\(k\)</span> は <a
+href="https://en.wikipedia.org/wiki/Small-angle_approximation">small
+angle approximation</a> によって <span class="math inline">\(2
+\sin(\tfrac{1}{2} \omega) \approx \omega\)</span>
+と近似できます。つまり、低い周波数であれば高速に周波数を変更できます。</p>
 <table>
 <colgroup>
 <col style="width: 27%" />
@@ -666,11 +670,6 @@ v_n\\v_{n+1} &amp;= v_n + k u_{n+1}\end{aligned}\)</span></td>
 </tr>
 </tbody>
 </table>
-<p>パラメータ <span class="math inline">\(k\)</span> は <a
-href="https://en.wikipedia.org/wiki/Small-angle_approximation">small
-angle approximation</a> によって <span class="math inline">\(2
-\sin(\tfrac{1}{2} \omega) \approx \omega\)</span>
-と近似できます。つまり、低い周波数であれば高速に周波数を変更できます。</p>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> magicCircle(freqNormalized, initialPhase):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
