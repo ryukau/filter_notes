@@ -10,7 +10,8 @@
 #include <string>
 
 /**
-If `length` is too long, compiler might silently fail to allocate stack.
+At least on older version of `cl.exe`, the size of `matrix` may be truncated if `length`
+is too long.
 */
 template<typename Sample, size_t length> struct FeedbackMatrix {
   std::array<std::array<Sample, length>, length> matrix{};

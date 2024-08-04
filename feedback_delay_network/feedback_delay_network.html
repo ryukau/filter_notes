@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
+<meta name="dcterms.date" content="2024-08-04" />
 <title>feedback_delay_network</title>
 
 <style>
@@ -351,7 +351,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-07-29
+Update: 2024-08-04
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -1288,17 +1288,6 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#
 を大きく超えると対角成分が他の成分に比べて小さくなります。負の値も使えますが、
 <code>dist(rng)</code> は 0
 で対称な正規分布から値を引いてくるので特に意味はないです。</p>
-<p>この方法を調べたきっかけは、以下の式のように FDN フィードバック行列
-<span class="math inline">\(M\)</span> を回転行列 <span
-class="math inline">\(R\)</span> で 1
-サンプルごとに変更するとどうなるかということが気になったからです。 <span
-class="math inline">\(n\)</span> は現在処理中のサンプル、 <span
-class="math inline">\(n-1\)</span> は 1
-サンプル前の結果を表しています。</p>
-<p><span class="math display">\[
-M_n = R M_{n-1}
-\]</span></p>
-<p>なぜ単位行列に近づけたかったのかというと、乗算による値の変化が大きいときに出るポップノイズを抑えたかったからです。特殊直交行列は回転を表しています。そして単位行列に近いということは、一回当たりの乗算による回転量が少ないと考えられます。結果としては単にトレモロのような音になるだけで、計算コストに効果が見合っていないと感じました。また、乗算のたびに誤差の影響で特殊直交行列からかけ離れていくという問題もあります。</p>
 <h3 id="ランダムな直交行列のソート"><a
 href="#ランダムな直交行列のソート" class="header-anchor"
 aria-hidden="true">ランダムな直交行列のソート</a></h3>
@@ -1405,6 +1394,10 @@ Residues</a></li>
 <h2 id="変更点"><a href="#変更点" class="header-anchor"
 aria-hidden="true">変更点</a></h2>
 <ul>
+<li>2024/08/04
+<ul>
+<li>「単位行列に近いランダムな特殊直交行列の生成」の誤っていた個所を削除。直行行列と別の行列を乗算して、別の新しい直行行列を得ようとしていたが、以前に記述していた方針は誤り。</li>
+</ul></li>
 <li>2024/06/25
 <ul>
 <li>実装の節の <code>std::array</code>
