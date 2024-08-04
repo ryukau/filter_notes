@@ -308,7 +308,7 @@ M &= {{\,n}\over{20}}\log_2 10
 \end{aligned}
 $$
 
-$A(\omega)$ を[逆DTFT](https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform#Inverse_transform)の式に入れてMaximaで解きます。
+$A(\omega)$ を逆フーリエ変換の式に入れてMaximaで解きます。 `S` の区間積分の上限は `infinity` としてもいいです。
 
 ```maxima
 /* Maxima */
@@ -462,5 +462,7 @@ def slopeFir(length: int, k: float):
 - Das, Abhranil. [Camouflage detection & signal discrimination: theory, methods & experiments](https://www.researchgate.net/publication/360401120_Camouflage_Detection_Signal_Discrimination_Theory_Methods_Experiments?channel=doi&linkId=62745d1f973bbb29cc65d5f5&showFulltext=true). Diss. 2022.
 
 ## 変更点
+- 2024/08/04
+  - 「式を途中まで解く」の項で逆 DTFT (逆離散時間フーリエ変換) としていた誤りを逆フーリエ変換に修正。
 - 2024/07/26
   - 「IIR のハイシェルフフィルタを使う方法」、「Exponential 窓」、「改変したピンクノイズフィルタ」の節を追加。

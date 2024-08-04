@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
+<meta name="dcterms.date" content="2024-08-04" />
 <title>ndboct</title>
 
 <style>
@@ -351,7 +351,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-07-29
+Update: 2024-08-04
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -719,8 +719,9 @@ A(\omega) &amp;=
 M &amp;= {{\,n}\over{20}}\log_2 10
 \end{aligned}
 \]</span></p>
-<p><span class="math inline">\(A(\omega)\)</span> を<a
-href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform#Inverse_transform">逆DTFT</a>の式に入れてMaximaで解きます。</p>
+<p><span class="math inline">\(A(\omega)\)</span>
+を逆フーリエ変換の式に入れてMaximaで解きます。 <code>S</code>
+の区間積分の上限は <code>infinity</code> としてもいいです。</p>
 <div class="sourceCode" id="cb9"><pre
 class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* Maxima */</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cn">expintrep</span>: <span class="kw">true</span>;</span>
@@ -893,6 +894,11 @@ experiments</a>. Diss. 2022.</li>
 <h2 id="変更点"><a href="#変更点" class="header-anchor"
 aria-hidden="true">変更点</a></h2>
 <ul>
+<li>2024/08/04
+<ul>
+<li>「式を途中まで解く」の項で逆 DTFT (逆離散時間フーリエ変換)
+としていた誤りを逆フーリエ変換に修正。</li>
+</ul></li>
 <li>2024/07/26
 <ul>
 <li>「IIR のハイシェルフフィルタを使う方法」、「Exponential
