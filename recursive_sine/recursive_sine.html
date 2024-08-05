@@ -5,7 +5,7 @@
 <meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-08-01" />
+<meta name="dcterms.date" content="2024-08-05" />
 <title>recursive_sine</title>
 
 <style>
@@ -351,7 +351,7 @@ type="text/javascript"></script>
 <hr>
 <a href="../index.html">インデックスに戻る</a>
 <p>
-Update: 2024-08-01
+Update: 2024-08-05
 </p>
 <details>
 <summary translate="yes">Table of Contents</summary>
@@ -552,7 +552,7 @@ aria-hidden="true">Digital Waveguide Oscillator</a></h2>
 <tbody>
 <tr class="odd">
 <td><span class="math inline">\(\begin{aligned}s_n &amp;= k (u_n +
-v_n)\\t_n &amp;= s_n + v_n\\v_{n+1} &amp;= s_n - v_n\\v_{n+1} &amp;=
+v_n)\\t_n &amp;= s_n + u_n\\v_{n+1} &amp;= s_n - v_n\\v_{n+1} &amp;=
 t_n\end{aligned}\)</span></td>
 <td><span class="math inline">\(\begin{aligned}k &amp;= \cos \omega\\A
 &amp;= -\tan(\tfrac{1}{2} \omega)\end{aligned}\)</span></td>
@@ -911,6 +911,13 @@ Sinusoid Generators</a></li>
 <h2 id="変更点"><a href="#変更点" class="header-anchor"
 aria-hidden="true">変更点</a></h2>
 <ul>
+<li>2024/08/05
+<ul>
+<li>Digital Waveguide Oscillator の <span
+class="math inline">\(t_n\)</span> 式の <span
+class="math inline">\(u_n\)</span> が <span
+class="math inline">\(v_n\)</span> になっていた誤りを修正。</li>
+</ul></li>
 <li>2024/08/01
 <ul>
 <li>Biquad と magic circle の式を修正。</li>
