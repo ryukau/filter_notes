@@ -2,650 +2,716 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>ptr_oscillator</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>ptr_oscillator</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#ptr-オシレータ" id="toc-ptr-オシレータ">PTR オシレータ</a>
-<ul>
-<li><a href="#概要" id="toc-概要">概要</a></li>
-<li><a href="#鋸歯波" id="toc-鋸歯波">鋸歯波</a></li>
-<li><a href="#三角波" id="toc-三角波">三角波</a></li>
-<li><a href="#ランプ関数" id="toc-ランプ関数">ランプ関数</a></li>
-<li><a href="#ステップ関数" id="toc-ステップ関数">ステップ関数</a></li>
-<li><a href="#レンダリングと結果"
-id="toc-レンダリングと結果">レンダリングと結果</a>
-<ul>
-<li><a href="#鋸歯波-1" id="toc-鋸歯波-1">鋸歯波</a></li>
-<li><a href="#三角波-1" id="toc-三角波-1">三角波</a></li>
-<li><a href="#ランプ関数-1" id="toc-ランプ関数-1">ランプ関数</a></li>
-<li><a href="#ステップ関数-1"
-id="toc-ステップ関数-1">ステップ関数</a></li>
-</ul></li>
-<li><a href="#その他" id="toc-その他">その他</a></li>
-<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="ptr-オシレータ"><a href="#ptr-オシレータ" class="header-anchor"
-aria-hidden="true">PTR オシレータ</a></h1>
-<p>Kleimola と Valimaki による <a
-href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing
-aliasing from synthetic audio signals using polynomial transition
-regions</a> で紹介されていた PTR
-という方法を使ったオシレータを試します。</p>
-<h2 id="概要"><a href="#概要" class="header-anchor"
-aria-hidden="true">概要</a></h2>
-<p>PTR (Polynomial Transition Regions) は DPW (Differenciated Polynomial
-Waveform) という方法に基づいたオシレータの計算方法です。</p>
-<p>DPW と PTR
-では、まず波形関数に連続領域でローパスフィルタをかけた式を求めます。そして離散領域でローパスフィルタがかかった波形の式を計算して離散ハイパスフィルタに通すことでエイリアシングが低減された出力が得られるという手法です。
-DPW と PTR では 1 次のローパスフィルタと 1
-次の離散ハイパスフィルタを使っているので、計算式の次数が 1
-増えるごとにエイリアシングによる折り返しノイズが 6dB 低減されます。</p>
-<p>PTR の論文では 3 次までの鋸歯波の計算式が掲載されています。ここでは 4
-次以降の計算式と、鋸歯波以外の計算式を求めています。</p>
-<p>Python3 のコードでは <a href="https://numpy.org/">NumPy</a> 、 <a
-href="https://matplotlib.org/">matplotlib</a> 、 <a
-href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a>
-を使っています。</p>
-<p><a href="http://maxima.sourceforge.net/">Maxima</a> のコードは
-wxMaxima にコピペすれば動きます。</p>
-<h2 id="鋸歯波"><a href="#鋸歯波" class="header-anchor"
-aria-hidden="true">鋸歯波</a></h2>
-<p>次の図は鋸歯波の <span class="math inline">\(f(x)\)</span> と PTR
-で計算する遷移領域のイメージ図です。</p>
-<figure>
-<img src="img/ptr_saw_fx.svg" alt="Image of where are polynomial transition regions." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>式の導出の手順は次のようになります。</p>
-<ol type="1">
-<li>DPW の式を導出。
-<ol type="1">
-<li>波形 1 周期分の関数 <span class="math inline">\(f(x)\)</span> を
-<span class="math inline">\(N\)</span> 回積分する。</li>
-<li>積分定数を決める。</li>
-<li>音量を補正する係数を決める。</li>
-</ol></li>
-<li>PTR の式を導出。
-<ol type="1">
-<li><span class="math inline">\(N\)</span> 階差分の式に DPW
-の式を代入する。</li>
-<li>遷移領域での位置によって DPW の式中の時間を表す変数を決める。</li>
-<li>不要な項を消す。</li>
-</ol></li>
-</ol>
-<p>一般的な DPW の式です。 <span class="math inline">\(N\)</span>
-は任意の次数、 <span class="math inline">\(f(x)\)</span>
-は波形関数です。</p>
-<p><span class="math display">\[
-\mathtt{DPW}(N, f(x)) = J^{N - 1} f(x)
-\]</span></p>
-<p>ここでは <span class="math inline">\(J\)</span>
-を積分演算子として定義しています。</p>
-<p><span class="math display">\[
-\begin{aligned}
-J f(x) &amp;= \int f(x) \,dx\\
-J^2 f(x) &amp;= \iint f(x) \,d^2x\\
-J^3 f(x) &amp;= \iiint f(x) \,d^3x\\
-&amp;\vdots
-\end{aligned}
-\]</span></p>
-<p>鋸歯波では <span class="math inline">\(f(x) = x\)</span>
-とします。この式は <span class="math inline">\([-1, 1]\)</span> の範囲で
-1 周期分の鋸歯波になります。 wxMaxima でプロットします。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2d</span>(<span class="cn">x</span>, [<span class="cn">x</span>, <span class="dv">-1</span>, <span class="dv">1</span>])$</span></code></pre></div>
-<figure>
-<img src="img/saw_f_x.svg" alt="Image of a plot of sawtooth f(x)." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p><span class="math inline">\(f(x) = x\)</span> としたときの DPW
-の式です。</p>
-<p><span class="math display">\[
-\begin{alignedat}{2}
-\mathtt{DPWSaw}(2, x)
-  &amp;= J^1 f(x)
-  &amp;&amp;= \frac{x^2}{2} + C_1\\
-\mathtt{DPWSaw}(3, x)
-  &amp;= J^2 f(x)
-  = J \left( \frac{x^2}{2} + C_1 \right)
-  &amp;&amp;= \frac{x^3}{6} + C_1 x + C_2\\
-\mathtt{DPWSaw}(4, x)
-  &amp;= J^3 f(x)
-  = J \left( \frac{x^3}{6} + C_1 x + C_2 \right)
-  &amp;&amp;= \frac{x^4}{24} + C_1 \frac{x^2}{2} + C_2 x + C_3\\
-&amp;\vdots
-\end{alignedat}
-\]</span></p>
-<p>出てきた積分定数 <span class="math inline">\(C_i\)</span>
-に値を代入します。まず <span class="math inline">\(x\)</span>
-が乗じられていない積分定数を <span class="math inline">\(0\)</span>
-にします。次に波形関数 <span class="math inline">\(f\)</span>
-の性質から適当な値を見つけて <span class="math inline">\(x\)</span>
-に代入して解くことで適切な値を求めることができます。鋸歯波では <span
-class="math inline">\(\mathtt{DPWSaw}(N, 1) = \mathtt{DPWSaw}(N,
--1)\)</span> と置くといいようです。この手続きを <span
-class="math inline">\(N = 1\)</span> から順に繰り返すことで高次の DPW
-の積分定数を求めることができます。</p>
-<p><span class="math display">\[
-\begin{alignedat}{2}
-\mathtt{DPWSaw}(2, x) &amp;= \frac{x^2}{2} + 0\\
-\\
-\mathtt{DPWSaw}(3, 1) &amp;= \mathtt{DPWSaw}(3, -1)\\
-\frac{(1)^3}{6} + C_1 (1) + 0 &amp;= \frac{(-1)^3}{6} + C_1 (-1) + 0\\
-C_1 &amp;= -\frac{1}{6}\\
-\\
-\mathtt{DPWSaw}(4, 1) &amp;= \mathtt{DPWSaw}(4, -1)\\
-\frac{(1)^4}{24} + \frac{1}{6} \frac{(1)^2}{2} + C_2 (1) + 0
-  &amp;= \frac{(-1)^4}{24} + \frac{1}{6} \frac{(-1)^2}{2} + C_2 (-1) +
-0\\
-C_2 &amp;= 0\\
-\\
-&amp;\vdots
-\end{alignedat}
-\]</span></p>
-<p>積分定数 <span class="math inline">\(C_i\)</span> は <span
-class="math inline">\(i\)</span> が偶数のときは 0 になるようです。</p>
-<p>得られた <span class="math inline">\(C_i\)</span> を <span
-class="math inline">\(\mathtt{DPWSaw}(N, x)\)</span>
-に代入します。このとき、 <span class="math inline">\(C_{N-1}\)</span> は
-0 にします。</p>
-<p><span class="math display">\[
-\begin{alignedat}{2}
-\mathtt{DPWSaw}(2, x)
-  &amp;= \frac{x^2}{2} + 0
-  &amp;&amp;= \frac{x^2}{2}\\
-\mathtt{DPWSaw}(3, x)
-  &amp;= \frac{x^3}{6} + \left( -\frac{1}{6} \right) x + 0
-  &amp;&amp;= \frac{x^3}{6} - \frac{x}{6}\\
-\mathtt{DPWSaw}(4, x)
-  &amp;= \frac{x^4}{24} + \left( -\frac{1}{6} \right) \frac{x^2}{2} +
-(0) x + 0
-  &amp;&amp;= \frac{x^4}{24} - \frac{x^2}{12}\\
-&amp;\vdots
-\end{alignedat}
-\]</span></p>
-<p>後で音量を補正するので、最も次数の高い項の係数が 1
-になるように正規化します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\mathtt{DPWSaw}(2, x) &amp;= x^2\\
-\mathtt{DPWSaw}(3, x) &amp;= x^3 - x\\
-\mathtt{DPWSaw}(4, x) &amp;= x^4 - 2 x^2\\
-&amp;\vdots
-\end{aligned}
-\]</span></p>
-<p>この式は <a
-href="http://mac.kaist.ac.kr/pubs/ValimakiNamSmithAbel-taslp2010.pdf">DPW
-論文</a>の Table I で紹介されている式にあたります。</p>
-<p><span class="math inline">\(x\)</span> に素朴な鋸歯波 <span
-class="math inline">\(s(n)\)</span> を代入して、 1 次差分を <span
-class="math inline">\(N\)</span>
-回繰り返し、適切な音量になるようにスケーリング係数 <span
-class="math inline">\(c(N)\)</span>
-をかけ合わせることで出力信号が得られます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-T &amp;= \frac{f_0}{f_s}\\
-\phi(n) &amp;= n T \bmod 1.0\\
-s(n) &amp;= 2 \phi(n) - 1\\
-c(N) &amp;= \frac{1}{(2T)^{N - 1} N!}\\
-\mathtt{output}(N, n) &amp;= c(N) \nabla^{N - 1} \mathtt{DPWSaw}(N,
-s(n))
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(n\)</span> は経過したサンプル数、 <span
-class="math inline">\(f_0\)</span> は生成する信号の周波数、 <span
-class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
-<p>ここでの <span class="math inline">\(\nabla\)</span> は 1
-サンプル前の信号との差分を計算する演算子です。 PTR
-論文で定義されています。</p>
-<p><span class="math display">\[
-\nabla x(n) = x(n) - x(n - 1)
-\]</span></p>
-<p>2 次の差分は次のようになります。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\nabla^2 x(n)
-  &amp;= \nabla (x(n) - x(n - 1))\\
-  &amp;= \nabla x(n) - \nabla x(n - 1)\\
-  &amp;= (x(n) - x(n - 1)) - (x(n - 1) - x(n - 2))\\
-  &amp;= x(n) - 2 x(n - 1) + x(n - 2)\\
-\end{aligned}
-\]</span></p>
-<p>3 次の差分です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\nabla^3 x(n)
-  &amp;= \nabla (\nabla^2 x(n))\\
-  &amp;= \nabla (x(n) - 2 x(n - 1) + x(n - 2)\\
-  &amp;= x(n) - 3 x(n - 1) + 3(n - 2) - x(n - 3)\\
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(\nabla^N\)</span> の係数は<a
-href="https://en.wikipedia.org/wiki/Pascal%27s_triangle">パスカルの三角形</a>の
-<span class="math inline">\(N\)</span>
-行目と一致します。また、正負の符号は前の項から順に反転を繰り返しています。これらの性質を使って
-<span class="math inline">\(\nabla^N x(n)\)</span>
-は次のように書けます。</p>
-<p><span class="math display">\[
-\nabla^N x(n) = \sum_{k=0}^{N} (-1)^{N} \binom{N}{k} x(n - k)
-\]</span></p>
-<p>DPW と PTR では <span class="math inline">\(\nabla\)</span>
-の計算方法が異なります。 DPW では過去の計算結果を使いますが、 PTR
-では過去の計算結果に依存せずに計算できるように、さらに式を変形します。</p>
-<p>例として <span class="math inline">\(\mathtt{output}(3, n)\)</span>
-から PTR の式を求めます。 <span class="math inline">\(\mathtt{output}(3,
-n)\)</span> を展開します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\mathtt{output}(3, n)
-  &amp;= \frac{1}{(2 T)^2 3!} \nabla^2 \mathtt{DPWSaw}(3, s(n))\\
-  &amp;= \frac{\nabla^2 (s^3(n) - s(n))}{24T^2}\\
-  &amp;= \frac{(s^3(n) - 2 s^3(n - 1) + s^3(n - 2)) - (s(n) - 2 s(n - 1)
-+ s(n - 2))}{24T}\\
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(s(n),\ s(n - 1),\ s(n - 2)\)</span>
-に含まれる <span class="math inline">\(\phi(n)\)</span> には <span
-class="math inline">\(\bmod\)</span>
-が含まれているので場合分けが出てきます。ここでは <span
-class="math inline">\(n T &lt; 0\)</span> のとき <span
-class="math inline">\(\phi(n) = n T + h\)</span> 、 <span
-class="math inline">\(n T \geq 0\)</span> のとき <span
-class="math inline">\(\phi(n) = n T\)</span> としています。 <span
-class="math inline">\(h\)</span>
-は遷移領域の高さです。ハードシンクをかけるときは 1
-以外の値になることがあります。</p>
-<p><span class="math display">\[
-\begin{matrix}
-\begin{aligned}
-\text{if}\enspace 0 \leq \phi(n) &amp;&lt; T:\\
-s(n) &amp;= 2 n T - 1\\
-s(n - 1) &amp;= 2 ((n - 1) T + h) - 1\\
-s(n - 2) &amp;= 2 ((n - 2) T + h) - 1\\
-\end{aligned}
-&amp;\quad
-\begin{aligned}
-\text{if}\enspace T \leq \phi(n) &amp;&lt; 2T:\\
-s(n) &amp;= 2 n T - 1\\
-s(n - 1) &amp;= 2 (n - 1) T - 1\\
-s(n - 2) &amp;= 2 ((n - 2) T + h) - 1\\
-\end{aligned}
-&amp;\quad
-\begin{aligned}
-\text{if}\enspace 2T \leq \phi(n) &amp;:\\
-s(n) &amp;= 2 n T - 1\\
-s(n - 1) &amp;= 2 (n - 1) T - 1\\
-s(n - 2) &amp;= 2 (n - 2) T - 1\\
-\end{aligned}
-\end{matrix}
-\]</span></p>
-<p><span class="math inline">\(\phi(n)\)</span> は範囲が <span
-class="math inline">\([0, 1)\)</span> に正規化された位相、 <span
-class="math inline">\(T\)</span> は 1
-サンプルの間に進む位相を表しています。</p>
-<p>次の図は遷移領域の場合分けの範囲を表しています。</p>
-<figure>
-<img src="img/ptr_saw_phi_region.svg" alt="Image of relation of polynomial transition regions and phi." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>これらの式を代入することで遷移領域内の計算式が得られます。 Maxima
-を使います。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cn">N</span>: <span class="dv">3</span>;</span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#ptr-オシレータ" id="toc-ptr-オシレータ">PTR
+        オシレータ</a>
+        <ul>
+        <li><a href="#概要" id="toc-概要">概要</a></li>
+        <li><a href="#鋸歯波" id="toc-鋸歯波">鋸歯波</a></li>
+        <li><a href="#三角波" id="toc-三角波">三角波</a></li>
+        <li><a href="#ランプ関数"
+        id="toc-ランプ関数">ランプ関数</a></li>
+        <li><a href="#ステップ関数"
+        id="toc-ステップ関数">ステップ関数</a></li>
+        <li><a href="#レンダリングと結果"
+        id="toc-レンダリングと結果">レンダリングと結果</a>
+        <ul>
+        <li><a href="#鋸歯波-1" id="toc-鋸歯波-1">鋸歯波</a></li>
+        <li><a href="#三角波-1" id="toc-三角波-1">三角波</a></li>
+        <li><a href="#ランプ関数-1"
+        id="toc-ランプ関数-1">ランプ関数</a></li>
+        <li><a href="#ステップ関数-1"
+        id="toc-ステップ関数-1">ステップ関数</a></li>
+        </ul></li>
+        <li><a href="#その他" id="toc-その他">その他</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="ptr-オシレータ"><a href="#ptr-オシレータ"
+  class="header-anchor" aria-hidden="true">PTR オシレータ</a></h1>
+  <p>Kleimola と Valimaki による <a
+  href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing
+  aliasing from synthetic audio signals using polynomial transition
+  regions</a> で紹介されていた PTR
+  という方法を使ったオシレータを試します。</p>
+  <h2 id="概要"><a href="#概要" class="header-anchor"
+  aria-hidden="true">概要</a></h2>
+  <p>PTR (Polynomial Transition Regions) は DPW (Differenciated
+  Polynomial Waveform)
+  という方法に基づいたオシレータの計算方法です。</p>
+  <p>DPW と PTR
+  では、まず波形関数に連続領域でローパスフィルタをかけた式を求めます。そして離散領域でローパスフィルタがかかった波形の式を計算して離散ハイパスフィルタに通すことでエイリアシングが低減された出力が得られるという手法です。
+  DPW と PTR では 1 次のローパスフィルタと 1
+  次の離散ハイパスフィルタを使っているので、計算式の次数が 1
+  増えるごとにエイリアシングによる折り返しノイズが 6dB
+  低減されます。</p>
+  <p>PTR の論文では 3 次までの鋸歯波の計算式が掲載されています。ここでは
+  4 次以降の計算式と、鋸歯波以外の計算式を求めています。</p>
+  <p>Python3 のコードでは <a href="https://numpy.org/">NumPy</a> 、 <a
+  href="https://matplotlib.org/">matplotlib</a> 、 <a
+  href="https://pysoundfile.readthedocs.io/en/0.9.0/">PySoundFile</a>
+  を使っています。</p>
+  <p><a href="http://maxima.sourceforge.net/">Maxima</a> のコードは
+  wxMaxima にコピペすれば動きます。</p>
+  <h2 id="鋸歯波"><a href="#鋸歯波" class="header-anchor"
+  aria-hidden="true">鋸歯波</a></h2>
+  <p>次の図は鋸歯波の <span class="math inline">\(f(x)\)</span> と PTR
+  で計算する遷移領域のイメージ図です。</p>
+  <figure>
+  <img src="img/ptr_saw_fx.svg" alt="Image of where are polynomial transition regions." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>式の導出の手順は次のようになります。</p>
+  <ol type="1">
+  <li>DPW の式を導出。
+  <ol type="1">
+  <li>波形 1 周期分の関数 <span class="math inline">\(f(x)\)</span> を
+  <span class="math inline">\(N\)</span> 回積分する。</li>
+  <li>積分定数を決める。</li>
+  <li>音量を補正する係数を決める。</li>
+  </ol></li>
+  <li>PTR の式を導出。
+  <ol type="1">
+  <li><span class="math inline">\(N\)</span> 階差分の式に DPW
+  の式を代入する。</li>
+  <li>遷移領域での位置によって DPW の式中の時間を表す変数を決める。</li>
+  <li>不要な項を消す。</li>
+  </ol></li>
+  </ol>
+  <p>一般的な DPW の式です。 <span class="math inline">\(N\)</span>
+  は任意の次数、 <span class="math inline">\(f(x)\)</span>
+  は波形関数です。</p>
+  <p><span class="math display">\[
+  \mathtt{DPW}(N, f(x)) = J^{N - 1} f(x)
+  \]</span></p>
+  <p>ここでは <span class="math inline">\(J\)</span>
+  を積分演算子として定義しています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  J f(x) &amp;= \int f(x) \,dx\\
+  J^2 f(x) &amp;= \iint f(x) \,d^2x\\
+  J^3 f(x) &amp;= \iiint f(x) \,d^3x\\
+  &amp;\vdots
+  \end{aligned}
+  \]</span></p>
+  <p>鋸歯波では <span class="math inline">\(f(x) = x\)</span>
+  とします。この式は <span class="math inline">\([-1, 1]\)</span>
+  の範囲で 1 周期分の鋸歯波になります。 wxMaxima でプロットします。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2d</span>(<span class="cn">x</span>, [<span class="cn">x</span>, <span class="dv">-1</span>, <span class="dv">1</span>])$</span></code></pre></div>
+  <figure>
+  <img src="img/saw_f_x.svg" alt="Image of a plot of sawtooth f(x)." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math inline">\(f(x) = x\)</span> としたときの DPW
+  の式です。</p>
+  <p><span class="math display">\[
+  \begin{alignedat}{2}
+  \mathtt{DPWSaw}(2, x)
+    &amp;= J^1 f(x)
+    &amp;&amp;= \frac{x^2}{2} + C_1\\
+  \mathtt{DPWSaw}(3, x)
+    &amp;= J^2 f(x)
+    = J \left( \frac{x^2}{2} + C_1 \right)
+    &amp;&amp;= \frac{x^3}{6} + C_1 x + C_2\\
+  \mathtt{DPWSaw}(4, x)
+    &amp;= J^3 f(x)
+    = J \left( \frac{x^3}{6} + C_1 x + C_2 \right)
+    &amp;&amp;= \frac{x^4}{24} + C_1 \frac{x^2}{2} + C_2 x + C_3\\
+  &amp;\vdots
+  \end{alignedat}
+  \]</span></p>
+  <p>出てきた積分定数 <span class="math inline">\(C_i\)</span>
+  に値を代入します。まず <span class="math inline">\(x\)</span>
+  が乗じられていない積分定数を <span class="math inline">\(0\)</span>
+  にします。次に波形関数 <span class="math inline">\(f\)</span>
+  の性質から適当な値を見つけて <span class="math inline">\(x\)</span>
+  に代入して解くことで適切な値を求めることができます。鋸歯波では <span
+  class="math inline">\(\mathtt{DPWSaw}(N, 1) = \mathtt{DPWSaw}(N,
+  -1)\)</span> と置くといいようです。この手続きを <span
+  class="math inline">\(N = 1\)</span> から順に繰り返すことで高次の DPW
+  の積分定数を求めることができます。</p>
+  <p><span class="math display">\[
+  \begin{alignedat}{2}
+  \mathtt{DPWSaw}(2, x) &amp;= \frac{x^2}{2} + 0\\
+  \\
+  \mathtt{DPWSaw}(3, 1) &amp;= \mathtt{DPWSaw}(3, -1)\\
+  \frac{(1)^3}{6} + C_1 (1) + 0 &amp;= \frac{(-1)^3}{6} + C_1 (-1) + 0\\
+  C_1 &amp;= -\frac{1}{6}\\
+  \\
+  \mathtt{DPWSaw}(4, 1) &amp;= \mathtt{DPWSaw}(4, -1)\\
+  \frac{(1)^4}{24} + \frac{1}{6} \frac{(1)^2}{2} + C_2 (1) + 0
+    &amp;= \frac{(-1)^4}{24} + \frac{1}{6} \frac{(-1)^2}{2} + C_2 (-1) +
+  0\\
+  C_2 &amp;= 0\\
+  \\
+  &amp;\vdots
+  \end{alignedat}
+  \]</span></p>
+  <p>積分定数 <span class="math inline">\(C_i\)</span> は <span
+  class="math inline">\(i\)</span> が偶数のときは 0 になるようです。</p>
+  <p>得られた <span class="math inline">\(C_i\)</span> を <span
+  class="math inline">\(\mathtt{DPWSaw}(N, x)\)</span>
+  に代入します。このとき、 <span class="math inline">\(C_{N-1}\)</span>
+  は 0 にします。</p>
+  <p><span class="math display">\[
+  \begin{alignedat}{2}
+  \mathtt{DPWSaw}(2, x)
+    &amp;= \frac{x^2}{2} + 0
+    &amp;&amp;= \frac{x^2}{2}\\
+  \mathtt{DPWSaw}(3, x)
+    &amp;= \frac{x^3}{6} + \left( -\frac{1}{6} \right) x + 0
+    &amp;&amp;= \frac{x^3}{6} - \frac{x}{6}\\
+  \mathtt{DPWSaw}(4, x)
+    &amp;= \frac{x^4}{24} + \left( -\frac{1}{6} \right) \frac{x^2}{2} +
+  (0) x + 0
+    &amp;&amp;= \frac{x^4}{24} - \frac{x^2}{12}\\
+  &amp;\vdots
+  \end{alignedat}
+  \]</span></p>
+  <p>後で音量を補正するので、最も次数の高い項の係数が 1
+  になるように正規化します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \mathtt{DPWSaw}(2, x) &amp;= x^2\\
+  \mathtt{DPWSaw}(3, x) &amp;= x^3 - x\\
+  \mathtt{DPWSaw}(4, x) &amp;= x^4 - 2 x^2\\
+  &amp;\vdots
+  \end{aligned}
+  \]</span></p>
+  <p>この式は <a
+  href="http://mac.kaist.ac.kr/pubs/ValimakiNamSmithAbel-taslp2010.pdf">DPW
+  論文</a>の Table I で紹介されている式にあたります。</p>
+  <p><span class="math inline">\(x\)</span> に素朴な鋸歯波 <span
+  class="math inline">\(s(n)\)</span> を代入して、 1 次差分を <span
+  class="math inline">\(N\)</span>
+  回繰り返し、適切な音量になるようにスケーリング係数 <span
+  class="math inline">\(c(N)\)</span>
+  をかけ合わせることで出力信号が得られます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  T &amp;= \frac{f_0}{f_s}\\
+  \phi(n) &amp;= n T \bmod 1.0\\
+  s(n) &amp;= 2 \phi(n) - 1\\
+  c(N) &amp;= \frac{1}{(2T)^{N - 1} N!}\\
+  \mathtt{output}(N, n) &amp;= c(N) \nabla^{N - 1} \mathtt{DPWSaw}(N,
+  s(n))
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(n\)</span> は経過したサンプル数、 <span
+  class="math inline">\(f_0\)</span> は生成する信号の周波数、 <span
+  class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
+  <p>ここでの <span class="math inline">\(\nabla\)</span> は 1
+  サンプル前の信号との差分を計算する演算子です。 PTR
+  論文で定義されています。</p>
+  <p><span class="math display">\[
+  \nabla x(n) = x(n) - x(n - 1)
+  \]</span></p>
+  <p>2 次の差分は次のようになります。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \nabla^2 x(n)
+    &amp;= \nabla (x(n) - x(n - 1))\\
+    &amp;= \nabla x(n) - \nabla x(n - 1)\\
+    &amp;= (x(n) - x(n - 1)) - (x(n - 1) - x(n - 2))\\
+    &amp;= x(n) - 2 x(n - 1) + x(n - 2)\\
+  \end{aligned}
+  \]</span></p>
+  <p>3 次の差分です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \nabla^3 x(n)
+    &amp;= \nabla (\nabla^2 x(n))\\
+    &amp;= \nabla (x(n) - 2 x(n - 1) + x(n - 2)\\
+    &amp;= x(n) - 3 x(n - 1) + 3(n - 2) - x(n - 3)\\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(\nabla^N\)</span> の係数は<a
+  href="https://en.wikipedia.org/wiki/Pascal%27s_triangle">パスカルの三角形</a>の
+  <span class="math inline">\(N\)</span>
+  行目と一致します。また、正負の符号は前の項から順に反転を繰り返しています。これらの性質を使って
+  <span class="math inline">\(\nabla^N x(n)\)</span>
+  は次のように書けます。</p>
+  <p><span class="math display">\[
+  \nabla^N x(n) = \sum_{k=0}^{N} (-1)^{N} \binom{N}{k} x(n - k)
+  \]</span></p>
+  <p>DPW と PTR では <span class="math inline">\(\nabla\)</span>
+  の計算方法が異なります。 DPW では過去の計算結果を使いますが、 PTR
+  では過去の計算結果に依存せずに計算できるように、さらに式を変形します。</p>
+  <p>例として <span class="math inline">\(\mathtt{output}(3, n)\)</span>
+  から PTR の式を求めます。 <span
+  class="math inline">\(\mathtt{output}(3, n)\)</span>
+  を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \mathtt{output}(3, n)
+    &amp;= \frac{1}{(2 T)^2 3!} \nabla^2 \mathtt{DPWSaw}(3, s(n))\\
+    &amp;= \frac{\nabla^2 (s^3(n) - s(n))}{24T^2}\\
+    &amp;= \frac{(s^3(n) - 2 s^3(n - 1) + s^3(n - 2)) - (s(n) - 2 s(n -
+  1) + s(n - 2))}{24T}\\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(s(n),\ s(n - 1),\ s(n - 2)\)</span>
+  に含まれる <span class="math inline">\(\phi(n)\)</span> には <span
+  class="math inline">\(\bmod\)</span>
+  が含まれているので場合分けが出てきます。ここでは <span
+  class="math inline">\(n T &lt; 0\)</span> のとき <span
+  class="math inline">\(\phi(n) = n T + h\)</span> 、 <span
+  class="math inline">\(n T \geq 0\)</span> のとき <span
+  class="math inline">\(\phi(n) = n T\)</span> としています。 <span
+  class="math inline">\(h\)</span>
+  は遷移領域の高さです。ハードシンクをかけるときは 1
+  以外の値になることがあります。</p>
+  <p><span class="math display">\[
+  \begin{matrix}
+  \begin{aligned}
+  \text{if}\enspace 0 \leq \phi(n) &amp;&lt; T:\\
+  s(n) &amp;= 2 n T - 1\\
+  s(n - 1) &amp;= 2 ((n - 1) T + h) - 1\\
+  s(n - 2) &amp;= 2 ((n - 2) T + h) - 1\\
+  \end{aligned}
+  &amp;\quad
+  \begin{aligned}
+  \text{if}\enspace T \leq \phi(n) &amp;&lt; 2T:\\
+  s(n) &amp;= 2 n T - 1\\
+  s(n - 1) &amp;= 2 (n - 1) T - 1\\
+  s(n - 2) &amp;= 2 ((n - 2) T + h) - 1\\
+  \end{aligned}
+  &amp;\quad
+  \begin{aligned}
+  \text{if}\enspace 2T \leq \phi(n) &amp;:\\
+  s(n) &amp;= 2 n T - 1\\
+  s(n - 1) &amp;= 2 (n - 1) T - 1\\
+  s(n - 2) &amp;= 2 (n - 2) T - 1\\
+  \end{aligned}
+  \end{matrix}
+  \]</span></p>
+  <p><span class="math inline">\(\phi(n)\)</span> は範囲が <span
+  class="math inline">\([0, 1)\)</span> に正規化された位相、 <span
+  class="math inline">\(T\)</span> は 1
+  サンプルの間に進む位相を表しています。</p>
+  <p>次の図は遷移領域の場合分けの範囲を表しています。</p>
+  <figure>
+  <img src="img/ptr_saw_phi_region.svg" alt="Image of relation of polynomial transition regions and phi." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>これらの式を代入することで遷移領域内の計算式が得られます。 Maxima
+  を使います。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cn">N</span>: <span class="dv">3</span>;</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">for</span> <span class="cn">k</span>: <span class="dv">1</span> <span class="kw">thru</span> <span class="cn">N</span> <span class="kw">do</span> (</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cn">phi</span>(<span class="cn">n</span>) := <span class="kw">if</span> <span class="cn">n</span> &gt; <span class="do">&#39;</span><span class="cn">n</span> - <span class="cn">k</span> <span class="kw">then</span> <span class="cn">n</span> * <span class="cn">T</span> <span class="kw">else</span> <span class="cn">n</span> * <span class="cn">T</span> + <span class="cn">h</span>,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -662,820 +728,823 @@ class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a hr
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">disp</span>([<span class="cn">condition</span>, <span class="fu">expand</span>(<span class="cn">eq</span>)])</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
-<p>整形した出力です。</p>
-<p><span class="math display">\[
-\mathtt{PTRSaw}(3, n) =
-\begin{cases}
-\text{if}\enspace 0 \leq \phi(n) &lt; T, &amp;\quad -h
-{{n}^{2}}-\dfrac{{{h}^{2}} n}{T}+\dfrac{h n}{T}+2 T
-n-\dfrac{{{h}^{3}}}{3 {{T}^{2}}}+\dfrac{{{h}^{2}}}{2
-{{T}^{2}}}-\dfrac{h}{6 {{T}^{2}}}+2 h-2 T-1\\\\
-\text{if}\enspace T \leq \phi(n) &lt; 2 T, &amp;\quad h
-{{n}^{2}}+\dfrac{{{h}^{2}} n}{T}-\dfrac{h n}{T}-4 h n+2 T
-n+\dfrac{{{h}^{3}}}{3 {{T}^{2}}}-\dfrac{2
-{{h}^{2}}}{T}-\dfrac{{{h}^{2}}}{2 {{T}^{2}}}+\dfrac{2 h}{T}+\dfrac{h}{6
-{{T}^{2}}}+4 h-2 T-1\\\\
-\text{if}\enspace 2 T \leq \phi(n), &amp;\quad 2 T n-2 T-1
-\end{cases}
-\]</span></p>
-<p>PTR の論文で紹介されている式は <span class="math inline">\(h /
-T\)</span> を含む項がすべて取り除かれた式になっています。</p>
-<p><span class="math display">\[
-\mathtt{PTRSaw}(3, n) = \begin{cases}
-\text{if}\ \ 0 \leq \phi(n) &lt; T,\quad&amp;-h\, {{n}^{2}}+2 T n+2 h-2
-T-1\\\\
-\text{if}\ \ T \leq \phi(n) &lt; 2 T,\quad&amp;h\, {{n}^{2}}-4 h n+2 T
-n+4 h-2 T-1\\\\
-\text{if}\ \ 2 T \leq \phi(n),\quad&amp;2 T n-2 T-1
-\end{cases}
-\]</span></p>
-<p><span class="math inline">\(h / T\)</span>
-を含む式を使うと遷移領域の値が大きくなりすぎるようです。実用上は <span
-class="math inline">\(h / T\)</span>
-を含まない式を使うほうが良さそうです。
-次のリンクから実装したコードが読めます。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/ptr_exact.py"><span
-class="math inline">\(h / T\)</span> を含む式を計算するコードを読む
-(github.com)</a></li>
-</ul>
-<p>ここまでの式変形を Maxima で実装して、より高次の PTR
-の式を導出しました。また、導出した式を Python3
-のコードにしました。コードは量が多くなったので別ページに分けました。</p>
-<ul>
-<li><a href="ptr_maxima.html#saw">Maxima で式を求めるコードを読む
-(github.io)</a></li>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_saw.py">Python3
-で音をレンダリングするコードを読む (github.com)</a></li>
-</ul>
-<h2 id="三角波"><a href="#三角波" class="header-anchor"
-aria-hidden="true">三角波</a></h2>
-<p><span class="math inline">\([-1, 1]\)</span> の範囲で 1
-周期分の三角波を生成する波形関数です。</p>
-<p><span class="math display">\[
-f_{t}(x) = 1 - 2 |x|
-\]</span></p>
-<p>wxMaxima でプロットします。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2d</span>(<span class="dv">1</span> - <span class="dv">2</span> * <span class="fu">abs</span>(<span class="cn">x</span>), [<span class="cn">x</span>, <span class="dv">-1</span>, <span class="dv">1</span>])$</span></code></pre></div>
-<figure>
-<img src="img/tri_f_x.svg" alt="Image of a plot of triangle f(x)." style="width: 400px;padding-bottom: 12px;"/>
-</figure>
-<p>DPW 論文によると、三角波の波形関数を積分した関数 <span
-class="math inline">\(\mathtt{DPWTri}(N, x)\)</span>
-は次のようになっています。 <span class="math inline">\(N\)</span>
-は積分した回数です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\mathtt{DPWTri}(N, x) &amp;= \left( \sum_{i \geq 1,\,i\ \text{is
-odd}}^{N-1} a_i x^i \right) + g(N, x)\\
-g(i, x) &amp;= \begin{cases}
-  x^i, &amp;\quad \text{if}\enspace i \ \ \text{is odd},\\
-  x^{i-1} |x|, &amp;\quad \text{if}\enspace i \ \ \text{is even}.\\
-\end{cases}
-\end{aligned}
-\]</span></p>
-<p>定数 <span class="math inline">\(a_i\)</span>
-が決まれば計算できる式になります。例として <span
-class="math inline">\(\mathtt{DPWTri}(4, x)\)</span> のときの定数 <span
-class="math inline">\(a_i\)</span> を求めます。</p>
-<p><span class="math display">\[
-\mathtt{DPWTri}(4, x) = a_1 x + a_3 x^3 + x^3 |x|
-\]</span></p>
-<p><span class="math inline">\(N-1\)</span> 回まで微分した式を求めます。
-<span class="math inline">\(x^{i - 1} |x|\)</span> の項は <span
-class="math inline">\(x^i\)</span> と置き換えていいようです。 <span
-class="math inline">\(D\)</span> は微分の演算を表しています。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\mathtt{DPWTri}(4, x) &amp;= a_1 x + a_3 x^3 + x^4\\
-D f_{t}(4, x) &amp;= a_1 + 3 a_3 x^2  + 4 x^3\\
-D^2 f_{t}(4, x) &amp;= 6 a_3 x + 12 x^2\\
-D^3 f_{t}(4, x) &amp;= 6 a_3 + 24 x\\
-\end{aligned}
-\]</span></p>
-<p>方程式 <span class="math inline">\(D^i f_{t}(N, 0.5) = 0\)</span>
-を微分した回数が大きい式から順に解いていきます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-D^3 f_{t}(4, 0.5) &amp;= 0\\
-6 a_3 + 24 (0.5) &amp;= 0\\
-a_3 &amp;= -2\\
-\\
-D f_{t}(4, x) &amp;= 0\\
-a_1 + 3 (-2) (0.5)^2  + 4 (0.5)^3 &amp;= 0\\
-a_1 &amp;= 1\\
-\\
-\mathtt{DPWTri}(4, x) &amp;= x - 2 x^3 + x^3 |x|
-\end{aligned}
-\]</span></p>
-<p>鋸歯波の PTR の式を流用して三角波の PTR の式が書けます。 <span
-class="math inline">\(N\)</span>
-が偶数のときと奇数のときで場合分けがあります。</p>
-<p><span class="math display">\[
-\begin{aligned}
-s_{t}(N, n) &amp;= \begin{cases}
-  1/2 - |1 - 2 nT|&amp; \text{if}\ N\ \text{is odd.}\\
-  1 - 2 n T&amp; \text{if}\ N\ \text{is even.}
-\end{cases}\\
-c_{t}(N) &amp;= \frac{2}{(2T)^{N - 1} N!}\\
-\mathtt{PTRTri}(N, n) &amp;= c_{t}(N) \nabla^{N - 1} \mathtt{DPWTri}(N,
-s_{t}(N, n))
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(s_{t}(N, n)\)</span> は DPW の論文の
-Table III を参考にして少し変更しています。 <span class="math inline">\(1
-- 2 nT\)</span> を <span class="math inline">\(2 nT - 1\)</span>
-にすると波形の符号が反転します。</p>
-<p>DPW 論文によると、三角波のスケーリング係数 <span
-class="math inline">\(c_{t}(N)\)</span> は <span class="math inline">\(2
-c(N)\)</span> となるようです。</p>
-<p>あとは鋸歯波と同様に <span class="math inline">\(\nabla\)</span>
-を展開して場合分けを行うことで PTR
-の式が得られます。実装は長いので別ページに掲載しています。</p>
-<ul>
-<li><a href="ptr_maxima.html#triangle">Maxima のコードを読む
-(github.io)</a></li>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_tri.py">Python3
-で音をレンダリングするコードを読む (github.com)</a></li>
-</ul>
-<h2 id="ランプ関数"><a href="#ランプ関数" class="header-anchor"
-aria-hidden="true">ランプ関数</a></h2>
-<p>積分定数を決められるように、少しずらした<a
-href="https://en.wikipedia.org/wiki/Ramp_function">ランプ関数</a>を使います。</p>
-<p><span class="math display">\[
-f_{tpz}(x) = \begin{cases}
-  0,      &amp; \text{if}\ x &lt; -1,\\
-  x + 1, &amp; \text{if}\ x \geq -1.
-\end{cases}
-\]</span></p>
-<p>Maxima でプロットします。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2d</span>(<span class="kw">if</span> <span class="cn">x</span> &lt; <span class="dv">-1</span> <span class="kw">then</span> <span class="dv">0</span> <span class="kw">else</span> <span class="cn">x</span> + <span class="dv">1</span>, [<span class="cn">x</span>, <span class="dv">-2</span>, <span class="dv">2</span>])$</span></code></pre></div>
-<figure>
-<img src="img/ramp_f_x.svg" alt="Image of ramp function." style="width: 400px;padding-bottom: 12px;"/>
-</figure>
-<p>式変形は鋸歯波とほとんど同じです。 <span
-class="math inline">\(f_{r}(x) = x + 1\)</span> として積分します。</p>
-<p><span class="math display">\[
-\begin{alignedat}{2}
-\mathtt{DPWRamp}(2, x)
-  &amp;= J^1 f_{r}(x)
-  &amp;&amp;= \frac{x^2}{2} + x + C_1\\
-\mathtt{DPWRamp}(3, x)
-  &amp;= J^2 f_{r}(x)
-  &amp;&amp;= \frac{x^3}{6} + \frac{x^2}{2} + C_1 x + C_2\\
-\mathtt{DPWRamp}(4, x)
-  &amp;= J^3 f_{r}(x)
-  &amp;&amp;= \frac{x^4}{24} + \frac{x^3}{6} + C_1 \frac{x^2}{2} + C_2 x
-+ C_3\\
-&amp;\vdots
-\end{alignedat}
-\]</span></p>
-<p>積分定数を決めるときの方程式を <span
-class="math inline">\(\mathtt{DPWRamp}(N, -1) = 0\)</span>
-に変えます。</p>
-<p><span class="math display">\[
-\begin{alignedat}{2}
-\mathtt{DPWRamp}(2, x) &amp;= \frac{x^2}{2} + x  + 0\\
-\\
-\mathtt{DPWRamp}(3, -1) &amp;= 0\\
-\frac{(-1)^3}{6} + \frac{(-1)^2}{2} + C_1 (-1) + 0 &amp;= 0\\
-C_1 &amp;= \frac{1}{3}\\
-\\
-\mathtt{DPWRamp}(4, -1) &amp;= 0\\
-\frac{(-1)^4}{24} + \frac{(-1)^3}{6} + \frac{1}{3} \frac{(-1)^2}{2} +
-C_2 (-1) + 0 &amp;= 0\\
-C_2 &amp;= \frac{1}{24}\\
-\\
-&amp;\vdots
-\end{alignedat}
-\]</span></p>
-<p>積分定数を <span class="math inline">\(\mathtt{DPWRamp}(N,
-x)\)</span> に代入して、最も次数の高い項の係数が 1
-になるように正規化します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\mathtt{DPWRamp}(2, x) &amp;= x^2 + 2 x\\
-\mathtt{DPWRamp}(3, x) &amp;= x^3 + 3 x^2 + 2 x\\
-\mathtt{DPWRamp}(4, x) &amp;= x^4 + 4 x^3 + 4 x^2 + x\\
-&amp;\vdots
-\end{aligned}
-\]</span></p>
-<p>得られた <span class="math inline">\(\mathtt{DPWRamp}\)</span>
-を使って出力信号の式を立てます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-s_{r}(n) &amp;= \begin{cases}
-  0 &amp; \text{if}\ n &lt; 0,\\
-  2 n T - 1&amp; \text{if}\ n \geq 0.
-\end{cases}\\
-c(N) &amp;= \frac{1}{(2T)^{N - 1} N!}\\
-\mathtt{output}(N, n) &amp;= c(N) \nabla^{N - 1} \mathtt{DPWRamp}(N,
-s_{r}(n))
-\end{aligned}
-\]</span></p>
-<p>スケーリング係数は鋸歯波と同じ <span
-class="math inline">\(c(N)\)</span> を使います。</p>
-<p>Maxima と Python3 のコードへのリンクです。</p>
-<ul>
-<li><a href="ptr_maxima.html#ramp">Maxima のコードを読む
-(github.io)</a></li>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_ramp.py">Python3
-で音をレンダリングするコードを読む (github.com)</a></li>
-</ul>
-<h2 id="ステップ関数"><a href="#ステップ関数" class="header-anchor"
-aria-hidden="true">ステップ関数</a></h2>
-<p>ランプ関数を 1 階微分するとステップ関数になります。</p>
-<p><span class="math display">\[
-\begin{alignedat}{2}
-\mathtt{DPWStep}(2, x) &amp;= D(\mathtt{DPWRamp}(2, x)) &amp;&amp;= 2 x
-+ 2\\
-\mathtt{DPWStep}(3, x) &amp;= D(\mathtt{DPWRamp}(3, x)) &amp;&amp;= 3
-x^2 + 6 x + 2\\
-\mathtt{DPWStep}(4, x) &amp;= D(\mathtt{DPWRamp}(4, x)) &amp;&amp;= 4
-x^3 + 12 x^2 + 8 x + 1\\
-&amp;\vdots
-\end{alignedat}
-\]</span></p>
-<p>残りの式変形はランプ関数と同じです。</p>
-<p>Maxima と Python3 のコードへのリンクです。</p>
-<ul>
-<li><a href="ptr_maxima.html#step">Maxima のコードを読む
-(github.io)</a></li>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_step.py">Python3
-で音をレンダリングするコードを読む (github.com)</a></li>
-</ul>
-<h2 id="レンダリングと結果"><a href="#レンダリングと結果"
-class="header-anchor" aria-hidden="true">レンダリングと結果</a></h2>
-<p>PTR 論文では次数の区別に、 <span
-class="math inline">\(\nabla\)</span> による差分の回数 <span
-class="math inline">\(W = N - 1\)</span> を使っています。以下で使う
-PTR[波形][番号] という名前の番号は <span
-class="math inline">\(W\)</span> です。</p>
-<p>プロットに使ったコードへのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/plot.py">プロットに使ったコード
-(github.com)</a></li>
-</ul>
-<h3 id="鋸歯波-1"><a href="#鋸歯波-1" class="header-anchor"
-aria-hidden="true">鋸歯波</a></h3>
-<p>波形の比較です。</p>
-<figure>
-<img src="img/saw_waveform.png" alt="Image of PTR sawtooth waveform." style="width: 960px;padding-bottom: 12px;"/>
-</figure>
-<p>スペクトラムの比較です。横軸は周波数、縦軸はゲイン [dB] です。</p>
-<figure>
-<img src="img/saw_spectrum.png" alt="Image of PTR sawtooth spectrum." style="width: 1280px;padding-bottom: 12px;"/>
-</figure>
-<p>1000 Hz でレンダリングした音です。</p>
-<figure>
-<figcaption>
-Saw W = 0
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw00.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 1
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw01.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 2
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw02.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 3
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw03.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 4
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw04.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 5
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw05.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 6
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw06.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 7
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw07.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 8
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw08.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 9
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw09.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Saw W = 10
-</figcaption>
-<audio controls>
-<source src="snd/PTRSaw10.wav" type="audio/wav">
-</audio>
-</figure>
-<p>鋸歯波にハードシンクをかけた音です。次数が上がったときのオーバーシュートが面白いです。</p>
-<figure>
-<figcaption>
-Synced Saw W = 0
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync00.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 1
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync01.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 2
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync02.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 3
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync03.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 4
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync04.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 5
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync05.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 6
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync06.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 7
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync07.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 8
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync08.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 9
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync09.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Synced Saw W = 10
-</figcaption>
-<audio controls>
-<source src="snd/PTRSawSync10.wav" type="audio/wav">
-</audio>
-</figure>
-<h3 id="三角波-1"><a href="#三角波-1" class="header-anchor"
-aria-hidden="true">三角波</a></h3>
-<p>三角波のレンダリングは、次の図のように上りと下りの 2
-つの区間に分けて行いました。図の下側の矢印は位相を進める方向を表しています。</p>
-<figure>
-<img src="img/tri_patch.svg" alt="Image of concatnation of triangle PTR." style="width: 260px;padding-bottom: 12px;"/>
-</figure>
-<p>波形の比較です。</p>
-<figure>
-<img src="img/tri_waveform.png" alt="Image of PTR sawtooth waveform." style="width: 960px;padding-bottom: 12px;"/>
-</figure>
-<p>スペクトラムの比較です。横軸は周波数、縦軸はゲイン [dB] です。</p>
-<figure>
-<img src="img/tri_spectrum.png" alt="Image of PTR triangle spectrum." style="width: 1280px;padding-bottom: 12px;"/>
-</figure>
-<p>1000 Hz でレンダリングした音です。 <span class="math inline">\(W =
-3\)</span> 以降は耳で聞いても違いが分かりません。</p>
-<figure>
-<figcaption>
-Tri W = 0
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri00.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 1
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri01.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 2
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri02.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 3
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri03.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 4
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri04.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 5
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri05.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 6
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri06.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 7
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri07.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 8
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri08.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 9
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri09.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Tri W = 10
-</figcaption>
-<audio controls>
-<source src="snd/PTRTri10.wav" type="audio/wav">
-</audio>
-</figure>
-<h3 id="ランプ関数-1"><a href="#ランプ関数-1" class="header-anchor"
-aria-hidden="true">ランプ関数</a></h3>
-<p>ランプ関数は 4 つの区間に分けてレンダリングしました。</p>
-<figure>
-<img src="img/ramp_patch.svg" alt="Image of concatnation of ramp function PTR." style="width: 400px;padding-bottom: 12px;"/>
-</figure>
-<p>波形の比較です。 <span class="math inline">\(N \leq 1\)</span> では
-Maxima で求めた式がそのまま使えないようです。</p>
-<figure>
-<img src="img/ramp_waveform.png" alt="Image of PTR ramp function waveform." style="width: 960px;padding-bottom: 12px;"/>
-</figure>
-<p>スペクトラムの比較です。横軸は周波数、縦軸はゲイン [dB] です。 <span
-class="math inline">\(N\)</span>
-の値によって波形が別物になっているので、あまり意味のあるデータではないです。</p>
-<figure>
-<img src="img/ramp_spectrum.png" alt="Image of PTR ramp function spectrum." style="width: 1280px;padding-bottom: 12px;"/>
-</figure>
-<p>1000 Hz でレンダリングした音です。</p>
-<figure>
-<figcaption>
-Ramp W = 0
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp00.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 1
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp01.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 2
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp02.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 3
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp03.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 4
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp04.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 5
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp05.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 6
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp06.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 7
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp07.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 8
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp08.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 9
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp09.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Ramp W = 10
-</figcaption>
-<audio controls>
-<source src="snd/PTRRamp10.wav" type="audio/wav">
-</audio>
-</figure>
-<h3 id="ステップ関数-1"><a href="#ステップ関数-1" class="header-anchor"
-aria-hidden="true">ステップ関数</a></h3>
-<p>ステップ関数のレンダリングは三角波と同様です。</p>
-<figure>
-<img src="img/step_patch.svg" alt="Image of concatnation of step function PTR." style="width: 260px;padding-bottom: 12px;"/>
-</figure>
-<p>波形の比較です。</p>
-<figure>
-<img src="img/step_waveform.png" alt="Image of PTR step functioin waveform." style="width: 960px;padding-bottom: 12px;"/>
-</figure>
-<p>スペクトラムの比較です。横軸は周波数、縦軸はゲイン [dB] です。</p>
-<figure>
-<img src="img/step_spectrum.png" alt="Image of PTR step function spectrum." style="width: 1280px;padding-bottom: 12px;"/>
-</figure>
-<p>1000 Hz でレンダリングした音です。</p>
-<figure>
-<figcaption>
-Step W = 0
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep00.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 1
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep01.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 2
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep02.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 3
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep03.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 4
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep04.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 5
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep05.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 6
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep06.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 7
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep07.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 8
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep08.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 9
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep09.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-Step W = 10
-</figcaption>
-<audio controls>
-<source src="snd/PTRStep10.wav" type="audio/wav">
-</audio>
-</figure>
-<h2 id="その他"><a href="#その他" class="header-anchor"
-aria-hidden="true">その他</a></h2>
-<p>三角波、ランプ関数、ステップ関数のレンダリングのように、波形の 1
-周期で <span class="math inline">\(M\)</span> 個の PTR
-をつなぎ合わせると、周波数を高くしたときに 1 つの PTR
-の遷移領域を通り抜けないうちに次の区間に移動してしまうのでノイズが乗ります。ノイズが乗らずに出力できる周波数の上限は
-<span class="math inline">\(\dfrac{f_s}{MN}\)</span> です。</p>
-<p>鋸歯波の式はハードシンクを使わないときは <span
-class="math inline">\(h = 1\)</span> を代入して式を簡略化できます。</p>
-<p>鋸歯波のスケーリング係数 <span class="math inline">\(c(N)\)</span> は
-PTR 論文の係数を使っています。 DPW
-論文では鋸歯波について改良されたスケーリング係数 <span
-class="math inline">\(\hat{c}(N)\)</span> が紹介されています。</p>
-<p><span class="math display">\[
-\hat{c}(N) = \frac{
-  \pi^{N-1}
-}{
-  N! \left(2 \sin \left(\pi f_0 T\right)\right)^{N-1}
-}
-\]</span></p>
-<p>Maxima
-から得られた式と、式をフォーマットするコードへのリンクです。</p>
-<ul>
-<li><a href="maxima_equations/saw">鋸歯波の式</a></li>
-<li><a href="maxima_equations/tri">三角波の式</a></li>
-<li><a href="maxima_equations/ramp">ランプ関数の式</a></li>
-<li><a href="maxima_equations/step">ステップ関数の式</a></li>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/format.py">式を
-Python3 と C++ のコードにフォーマットするコード (github.com)</a></li>
-</ul>
-<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
-aria-hidden="true">参考文献</a></h2>
-<ul>
-<li>Jari Kleimola, and Vesa Valimaki. “<a
-href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing
-aliasing from synthetic audio signals using polynomial transition
-regions</a>.” IEEE Signal Processing Letters 19.2 (2011): 67-70.</li>
-<li>Vesa Valimaki, et al. “<a
-href="http://mac.kaist.ac.kr/pubs/ValimakiNamSmithAbel-taslp2010.pdf">Alias-suppressed
-oscillators based on differentiated polynomial waveforms.</a>” IEEE
-Transactions on audio, speech, and language processing 18.4 (2009):
-786-798.</li>
-<li><a
-href="http://research.spa.aalto.fi/publications/papers/spl-ptr/">Polynomial
-Transition Regions (PTR)</a></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <p>整形した出力です。</p>
+  <p><span class="math display">\[
+  \mathtt{PTRSaw}(3, n) =
+  \begin{cases}
+  \text{if}\enspace 0 \leq \phi(n) &lt; T, &amp;\quad -h
+  {{n}^{2}}-\dfrac{{{h}^{2}} n}{T}+\dfrac{h n}{T}+2 T
+  n-\dfrac{{{h}^{3}}}{3 {{T}^{2}}}+\dfrac{{{h}^{2}}}{2
+  {{T}^{2}}}-\dfrac{h}{6 {{T}^{2}}}+2 h-2 T-1\\\\
+  \text{if}\enspace T \leq \phi(n) &lt; 2 T, &amp;\quad h
+  {{n}^{2}}+\dfrac{{{h}^{2}} n}{T}-\dfrac{h n}{T}-4 h n+2 T
+  n+\dfrac{{{h}^{3}}}{3 {{T}^{2}}}-\dfrac{2
+  {{h}^{2}}}{T}-\dfrac{{{h}^{2}}}{2 {{T}^{2}}}+\dfrac{2
+  h}{T}+\dfrac{h}{6 {{T}^{2}}}+4 h-2 T-1\\\\
+  \text{if}\enspace 2 T \leq \phi(n), &amp;\quad 2 T n-2 T-1
+  \end{cases}
+  \]</span></p>
+  <p>PTR の論文で紹介されている式は <span class="math inline">\(h /
+  T\)</span> を含む項がすべて取り除かれた式になっています。</p>
+  <p><span class="math display">\[
+  \mathtt{PTRSaw}(3, n) = \begin{cases}
+  \text{if}\ \ 0 \leq \phi(n) &lt; T,\quad&amp;-h\, {{n}^{2}}+2 T n+2
+  h-2 T-1\\\\
+  \text{if}\ \ T \leq \phi(n) &lt; 2 T,\quad&amp;h\, {{n}^{2}}-4 h n+2 T
+  n+4 h-2 T-1\\\\
+  \text{if}\ \ 2 T \leq \phi(n),\quad&amp;2 T n-2 T-1
+  \end{cases}
+  \]</span></p>
+  <p><span class="math inline">\(h / T\)</span>
+  を含む式を使うと遷移領域の値が大きくなりすぎるようです。実用上は <span
+  class="math inline">\(h / T\)</span>
+  を含まない式を使うほうが良さそうです。
+  次のリンクから実装したコードが読めます。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/ptr_exact.py"><span
+  class="math inline">\(h / T\)</span> を含む式を計算するコードを読む
+  (github.com)</a></li>
+  </ul>
+  <p>ここまでの式変形を Maxima で実装して、より高次の PTR
+  の式を導出しました。また、導出した式を Python3
+  のコードにしました。コードは量が多くなったので別ページに分けました。</p>
+  <ul>
+  <li><a href="ptr_maxima.html#saw">Maxima で式を求めるコードを読む
+  (github.io)</a></li>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_saw.py">Python3
+  で音をレンダリングするコードを読む (github.com)</a></li>
+  </ul>
+  <h2 id="三角波"><a href="#三角波" class="header-anchor"
+  aria-hidden="true">三角波</a></h2>
+  <p><span class="math inline">\([-1, 1]\)</span> の範囲で 1
+  周期分の三角波を生成する波形関数です。</p>
+  <p><span class="math display">\[
+  f_{t}(x) = 1 - 2 |x|
+  \]</span></p>
+  <p>wxMaxima でプロットします。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2d</span>(<span class="dv">1</span> - <span class="dv">2</span> * <span class="fu">abs</span>(<span class="cn">x</span>), [<span class="cn">x</span>, <span class="dv">-1</span>, <span class="dv">1</span>])$</span></code></pre></div>
+  <figure>
+  <img src="img/tri_f_x.svg" alt="Image of a plot of triangle f(x)." style="width: 400px;padding-bottom: 12px;"/>
+  </figure>
+  <p>DPW 論文によると、三角波の波形関数を積分した関数 <span
+  class="math inline">\(\mathtt{DPWTri}(N, x)\)</span>
+  は次のようになっています。 <span class="math inline">\(N\)</span>
+  は積分した回数です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \mathtt{DPWTri}(N, x) &amp;= \left( \sum_{i \geq 1,\,i\ \text{is
+  odd}}^{N-1} a_i x^i \right) + g(N, x)\\
+  g(i, x) &amp;= \begin{cases}
+    x^i, &amp;\quad \text{if}\enspace i \ \ \text{is odd},\\
+    x^{i-1} |x|, &amp;\quad \text{if}\enspace i \ \ \text{is even}.\\
+  \end{cases}
+  \end{aligned}
+  \]</span></p>
+  <p>定数 <span class="math inline">\(a_i\)</span>
+  が決まれば計算できる式になります。例として <span
+  class="math inline">\(\mathtt{DPWTri}(4, x)\)</span> のときの定数
+  <span class="math inline">\(a_i\)</span> を求めます。</p>
+  <p><span class="math display">\[
+  \mathtt{DPWTri}(4, x) = a_1 x + a_3 x^3 + x^3 |x|
+  \]</span></p>
+  <p><span class="math inline">\(N-1\)</span>
+  回まで微分した式を求めます。 <span class="math inline">\(x^{i - 1}
+  |x|\)</span> の項は <span class="math inline">\(x^i\)</span>
+  と置き換えていいようです。 <span class="math inline">\(D\)</span>
+  は微分の演算を表しています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \mathtt{DPWTri}(4, x) &amp;= a_1 x + a_3 x^3 + x^4\\
+  D f_{t}(4, x) &amp;= a_1 + 3 a_3 x^2  + 4 x^3\\
+  D^2 f_{t}(4, x) &amp;= 6 a_3 x + 12 x^2\\
+  D^3 f_{t}(4, x) &amp;= 6 a_3 + 24 x\\
+  \end{aligned}
+  \]</span></p>
+  <p>方程式 <span class="math inline">\(D^i f_{t}(N, 0.5) = 0\)</span>
+  を微分した回数が大きい式から順に解いていきます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  D^3 f_{t}(4, 0.5) &amp;= 0\\
+  6 a_3 + 24 (0.5) &amp;= 0\\
+  a_3 &amp;= -2\\
+  \\
+  D f_{t}(4, x) &amp;= 0\\
+  a_1 + 3 (-2) (0.5)^2  + 4 (0.5)^3 &amp;= 0\\
+  a_1 &amp;= 1\\
+  \\
+  \mathtt{DPWTri}(4, x) &amp;= x - 2 x^3 + x^3 |x|
+  \end{aligned}
+  \]</span></p>
+  <p>鋸歯波の PTR の式を流用して三角波の PTR の式が書けます。 <span
+  class="math inline">\(N\)</span>
+  が偶数のときと奇数のときで場合分けがあります。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  s_{t}(N, n) &amp;= \begin{cases}
+    1/2 - |1 - 2 nT|&amp; \text{if}\ N\ \text{is odd.}\\
+    1 - 2 n T&amp; \text{if}\ N\ \text{is even.}
+  \end{cases}\\
+  c_{t}(N) &amp;= \frac{2}{(2T)^{N - 1} N!}\\
+  \mathtt{PTRTri}(N, n) &amp;= c_{t}(N) \nabla^{N - 1}
+  \mathtt{DPWTri}(N, s_{t}(N, n))
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(s_{t}(N, n)\)</span> は DPW の論文の
+  Table III を参考にして少し変更しています。 <span
+  class="math inline">\(1 - 2 nT\)</span> を <span
+  class="math inline">\(2 nT - 1\)</span>
+  にすると波形の符号が反転します。</p>
+  <p>DPW 論文によると、三角波のスケーリング係数 <span
+  class="math inline">\(c_{t}(N)\)</span> は <span
+  class="math inline">\(2 c(N)\)</span> となるようです。</p>
+  <p>あとは鋸歯波と同様に <span class="math inline">\(\nabla\)</span>
+  を展開して場合分けを行うことで PTR
+  の式が得られます。実装は長いので別ページに掲載しています。</p>
+  <ul>
+  <li><a href="ptr_maxima.html#triangle">Maxima のコードを読む
+  (github.io)</a></li>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_tri.py">Python3
+  で音をレンダリングするコードを読む (github.com)</a></li>
+  </ul>
+  <h2 id="ランプ関数"><a href="#ランプ関数" class="header-anchor"
+  aria-hidden="true">ランプ関数</a></h2>
+  <p>積分定数を決められるように、少しずらした<a
+  href="https://en.wikipedia.org/wiki/Ramp_function">ランプ関数</a>を使います。</p>
+  <p><span class="math display">\[
+  f_{tpz}(x) = \begin{cases}
+    0,      &amp; \text{if}\ x &lt; -1,\\
+    x + 1, &amp; \text{if}\ x \geq -1.
+  \end{cases}
+  \]</span></p>
+  <p>Maxima でプロットします。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2d</span>(<span class="kw">if</span> <span class="cn">x</span> &lt; <span class="dv">-1</span> <span class="kw">then</span> <span class="dv">0</span> <span class="kw">else</span> <span class="cn">x</span> + <span class="dv">1</span>, [<span class="cn">x</span>, <span class="dv">-2</span>, <span class="dv">2</span>])$</span></code></pre></div>
+  <figure>
+  <img src="img/ramp_f_x.svg" alt="Image of ramp function." style="width: 400px;padding-bottom: 12px;"/>
+  </figure>
+  <p>式変形は鋸歯波とほとんど同じです。 <span
+  class="math inline">\(f_{r}(x) = x + 1\)</span> として積分します。</p>
+  <p><span class="math display">\[
+  \begin{alignedat}{2}
+  \mathtt{DPWRamp}(2, x)
+    &amp;= J^1 f_{r}(x)
+    &amp;&amp;= \frac{x^2}{2} + x + C_1\\
+  \mathtt{DPWRamp}(3, x)
+    &amp;= J^2 f_{r}(x)
+    &amp;&amp;= \frac{x^3}{6} + \frac{x^2}{2} + C_1 x + C_2\\
+  \mathtt{DPWRamp}(4, x)
+    &amp;= J^3 f_{r}(x)
+    &amp;&amp;= \frac{x^4}{24} + \frac{x^3}{6} + C_1 \frac{x^2}{2} + C_2
+  x + C_3\\
+  &amp;\vdots
+  \end{alignedat}
+  \]</span></p>
+  <p>積分定数を決めるときの方程式を <span
+  class="math inline">\(\mathtt{DPWRamp}(N, -1) = 0\)</span>
+  に変えます。</p>
+  <p><span class="math display">\[
+  \begin{alignedat}{2}
+  \mathtt{DPWRamp}(2, x) &amp;= \frac{x^2}{2} + x  + 0\\
+  \\
+  \mathtt{DPWRamp}(3, -1) &amp;= 0\\
+  \frac{(-1)^3}{6} + \frac{(-1)^2}{2} + C_1 (-1) + 0 &amp;= 0\\
+  C_1 &amp;= \frac{1}{3}\\
+  \\
+  \mathtt{DPWRamp}(4, -1) &amp;= 0\\
+  \frac{(-1)^4}{24} + \frac{(-1)^3}{6} + \frac{1}{3} \frac{(-1)^2}{2} +
+  C_2 (-1) + 0 &amp;= 0\\
+  C_2 &amp;= \frac{1}{24}\\
+  \\
+  &amp;\vdots
+  \end{alignedat}
+  \]</span></p>
+  <p>積分定数を <span class="math inline">\(\mathtt{DPWRamp}(N,
+  x)\)</span> に代入して、最も次数の高い項の係数が 1
+  になるように正規化します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \mathtt{DPWRamp}(2, x) &amp;= x^2 + 2 x\\
+  \mathtt{DPWRamp}(3, x) &amp;= x^3 + 3 x^2 + 2 x\\
+  \mathtt{DPWRamp}(4, x) &amp;= x^4 + 4 x^3 + 4 x^2 + x\\
+  &amp;\vdots
+  \end{aligned}
+  \]</span></p>
+  <p>得られた <span class="math inline">\(\mathtt{DPWRamp}\)</span>
+  を使って出力信号の式を立てます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  s_{r}(n) &amp;= \begin{cases}
+    0 &amp; \text{if}\ n &lt; 0,\\
+    2 n T - 1&amp; \text{if}\ n \geq 0.
+  \end{cases}\\
+  c(N) &amp;= \frac{1}{(2T)^{N - 1} N!}\\
+  \mathtt{output}(N, n) &amp;= c(N) \nabla^{N - 1} \mathtt{DPWRamp}(N,
+  s_{r}(n))
+  \end{aligned}
+  \]</span></p>
+  <p>スケーリング係数は鋸歯波と同じ <span
+  class="math inline">\(c(N)\)</span> を使います。</p>
+  <p>Maxima と Python3 のコードへのリンクです。</p>
+  <ul>
+  <li><a href="ptr_maxima.html#ramp">Maxima のコードを読む
+  (github.io)</a></li>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_ramp.py">Python3
+  で音をレンダリングするコードを読む (github.com)</a></li>
+  </ul>
+  <h2 id="ステップ関数"><a href="#ステップ関数" class="header-anchor"
+  aria-hidden="true">ステップ関数</a></h2>
+  <p>ランプ関数を 1 階微分するとステップ関数になります。</p>
+  <p><span class="math display">\[
+  \begin{alignedat}{2}
+  \mathtt{DPWStep}(2, x) &amp;= D(\mathtt{DPWRamp}(2, x)) &amp;&amp;= 2
+  x + 2\\
+  \mathtt{DPWStep}(3, x) &amp;= D(\mathtt{DPWRamp}(3, x)) &amp;&amp;= 3
+  x^2 + 6 x + 2\\
+  \mathtt{DPWStep}(4, x) &amp;= D(\mathtt{DPWRamp}(4, x)) &amp;&amp;= 4
+  x^3 + 12 x^2 + 8 x + 1\\
+  &amp;\vdots
+  \end{alignedat}
+  \]</span></p>
+  <p>残りの式変形はランプ関数と同じです。</p>
+  <p>Maxima と Python3 のコードへのリンクです。</p>
+  <ul>
+  <li><a href="ptr_maxima.html#step">Maxima のコードを読む
+  (github.io)</a></li>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/render_step.py">Python3
+  で音をレンダリングするコードを読む (github.com)</a></li>
+  </ul>
+  <h2 id="レンダリングと結果"><a href="#レンダリングと結果"
+  class="header-anchor" aria-hidden="true">レンダリングと結果</a></h2>
+  <p>PTR 論文では次数の区別に、 <span
+  class="math inline">\(\nabla\)</span> による差分の回数 <span
+  class="math inline">\(W = N - 1\)</span> を使っています。以下で使う
+  PTR[波形][番号] という名前の番号は <span
+  class="math inline">\(W\)</span> です。</p>
+  <p>プロットに使ったコードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/plot.py">プロットに使ったコード
+  (github.com)</a></li>
+  </ul>
+  <h3 id="鋸歯波-1"><a href="#鋸歯波-1" class="header-anchor"
+  aria-hidden="true">鋸歯波</a></h3>
+  <p>波形の比較です。</p>
+  <figure>
+  <img src="img/saw_waveform.png" alt="Image of PTR sawtooth waveform." style="width: 960px;padding-bottom: 12px;"/>
+  </figure>
+  <p>スペクトラムの比較です。横軸は周波数、縦軸はゲイン [dB] です。</p>
+  <figure>
+  <img src="img/saw_spectrum.png" alt="Image of PTR sawtooth spectrum." style="width: 1280px;padding-bottom: 12px;"/>
+  </figure>
+  <p>1000 Hz でレンダリングした音です。</p>
+  <figure>
+  <figcaption>
+  Saw W = 0
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw00.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw01.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 2
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw02.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 3
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw03.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 4
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw04.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 5
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw05.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 6
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw06.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 7
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw07.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 8
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw08.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 9
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw09.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Saw W = 10
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSaw10.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <p>鋸歯波にハードシンクをかけた音です。次数が上がったときのオーバーシュートが面白いです。</p>
+  <figure>
+  <figcaption>
+  Synced Saw W = 0
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync00.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync01.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 2
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync02.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 3
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync03.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 4
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync04.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 5
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync05.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 6
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync06.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 7
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync07.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 8
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync08.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 9
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync09.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Synced Saw W = 10
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRSawSync10.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <h3 id="三角波-1"><a href="#三角波-1" class="header-anchor"
+  aria-hidden="true">三角波</a></h3>
+  <p>三角波のレンダリングは、次の図のように上りと下りの 2
+  つの区間に分けて行いました。図の下側の矢印は位相を進める方向を表しています。</p>
+  <figure>
+  <img src="img/tri_patch.svg" alt="Image of concatnation of triangle PTR." style="width: 260px;padding-bottom: 12px;"/>
+  </figure>
+  <p>波形の比較です。</p>
+  <figure>
+  <img src="img/tri_waveform.png" alt="Image of PTR sawtooth waveform." style="width: 960px;padding-bottom: 12px;"/>
+  </figure>
+  <p>スペクトラムの比較です。横軸は周波数、縦軸はゲイン [dB] です。</p>
+  <figure>
+  <img src="img/tri_spectrum.png" alt="Image of PTR triangle spectrum." style="width: 1280px;padding-bottom: 12px;"/>
+  </figure>
+  <p>1000 Hz でレンダリングした音です。 <span class="math inline">\(W =
+  3\)</span> 以降は耳で聞いても違いが分かりません。</p>
+  <figure>
+  <figcaption>
+  Tri W = 0
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri00.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri01.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 2
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri02.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 3
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri03.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 4
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri04.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 5
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri05.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 6
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri06.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 7
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri07.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 8
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri08.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 9
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri09.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Tri W = 10
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRTri10.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <h3 id="ランプ関数-1"><a href="#ランプ関数-1" class="header-anchor"
+  aria-hidden="true">ランプ関数</a></h3>
+  <p>ランプ関数は 4 つの区間に分けてレンダリングしました。</p>
+  <figure>
+  <img src="img/ramp_patch.svg" alt="Image of concatnation of ramp function PTR." style="width: 400px;padding-bottom: 12px;"/>
+  </figure>
+  <p>波形の比較です。 <span class="math inline">\(N \leq 1\)</span> では
+  Maxima で求めた式がそのまま使えないようです。</p>
+  <figure>
+  <img src="img/ramp_waveform.png" alt="Image of PTR ramp function waveform." style="width: 960px;padding-bottom: 12px;"/>
+  </figure>
+  <p>スペクトラムの比較です。横軸は周波数、縦軸はゲイン [dB] です。
+  <span class="math inline">\(N\)</span>
+  の値によって波形が別物になっているので、あまり意味のあるデータではないです。</p>
+  <figure>
+  <img src="img/ramp_spectrum.png" alt="Image of PTR ramp function spectrum." style="width: 1280px;padding-bottom: 12px;"/>
+  </figure>
+  <p>1000 Hz でレンダリングした音です。</p>
+  <figure>
+  <figcaption>
+  Ramp W = 0
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp00.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp01.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 2
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp02.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 3
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp03.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 4
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp04.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 5
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp05.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 6
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp06.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 7
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp07.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 8
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp08.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 9
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp09.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Ramp W = 10
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRRamp10.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <h3 id="ステップ関数-1"><a href="#ステップ関数-1"
+  class="header-anchor" aria-hidden="true">ステップ関数</a></h3>
+  <p>ステップ関数のレンダリングは三角波と同様です。</p>
+  <figure>
+  <img src="img/step_patch.svg" alt="Image of concatnation of step function PTR." style="width: 260px;padding-bottom: 12px;"/>
+  </figure>
+  <p>波形の比較です。</p>
+  <figure>
+  <img src="img/step_waveform.png" alt="Image of PTR step functioin waveform." style="width: 960px;padding-bottom: 12px;"/>
+  </figure>
+  <p>スペクトラムの比較です。横軸は周波数、縦軸はゲイン [dB] です。</p>
+  <figure>
+  <img src="img/step_spectrum.png" alt="Image of PTR step function spectrum." style="width: 1280px;padding-bottom: 12px;"/>
+  </figure>
+  <p>1000 Hz でレンダリングした音です。</p>
+  <figure>
+  <figcaption>
+  Step W = 0
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep00.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep01.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 2
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep02.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 3
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep03.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 4
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep04.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 5
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep05.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 6
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep06.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 7
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep07.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 8
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep08.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 9
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep09.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  Step W = 10
+  </figcaption>
+  <audio controls>
+  <source src="snd/PTRStep10.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <p>三角波、ランプ関数、ステップ関数のレンダリングのように、波形の 1
+  周期で <span class="math inline">\(M\)</span> 個の PTR
+  をつなぎ合わせると、周波数を高くしたときに 1 つの PTR
+  の遷移領域を通り抜けないうちに次の区間に移動してしまうのでノイズが乗ります。ノイズが乗らずに出力できる周波数の上限は
+  <span class="math inline">\(\dfrac{f_s}{MN}\)</span> です。</p>
+  <p>鋸歯波の式はハードシンクを使わないときは <span
+  class="math inline">\(h = 1\)</span>
+  を代入して式を簡略化できます。</p>
+  <p>鋸歯波のスケーリング係数 <span class="math inline">\(c(N)\)</span>
+  は PTR 論文の係数を使っています。 DPW
+  論文では鋸歯波について改良されたスケーリング係数 <span
+  class="math inline">\(\hat{c}(N)\)</span> が紹介されています。</p>
+  <p><span class="math display">\[
+  \hat{c}(N) = \frac{
+    \pi^{N-1}
+  }{
+    N! \left(2 \sin \left(\pi f_0 T\right)\right)^{N-1}
+  }
+  \]</span></p>
+  <p>Maxima
+  から得られた式と、式をフォーマットするコードへのリンクです。</p>
+  <ul>
+  <li><a href="maxima_equations/saw">鋸歯波の式</a></li>
+  <li><a href="maxima_equations/tri">三角波の式</a></li>
+  <li><a href="maxima_equations/ramp">ランプ関数の式</a></li>
+  <li><a href="maxima_equations/step">ステップ関数の式</a></li>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/ptr_oscillator/demo/format.py">式を
+  Python3 と C++ のコードにフォーマットするコード (github.com)</a></li>
+  </ul>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li>Jari Kleimola, and Vesa Valimaki. “<a
+  href="https://aaltodoc.aalto.fi/bitstream/handle/123456789/7747/publication6.pdf?sequence=9&amp;isAllowed=y">Reducing
+  aliasing from synthetic audio signals using polynomial transition
+  regions</a>.” IEEE Signal Processing Letters 19.2 (2011): 67-70.</li>
+  <li>Vesa Valimaki, et al. “<a
+  href="http://mac.kaist.ac.kr/pubs/ValimakiNamSmithAbel-taslp2010.pdf">Alias-suppressed
+  oscillators based on differentiated polynomial waveforms.</a>” IEEE
+  Transactions on audio, speech, and language processing 18.4 (2009):
+  786-798.</li>
+  <li><a
+  href="http://research.spa.aalto.fi/publications/papers/spl-ptr/">Polynomial
+  Transition Regions (PTR)</a></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

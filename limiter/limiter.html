@@ -2,588 +2,651 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>limiter</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>limiter</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#リミッタの実装" id="toc-リミッタの実装">リミッタの実装</a>
-<ul>
-<li><a href="#ブロック線図" id="toc-ブロック線図">ブロック線図</a>
-<ul>
-<li><a href="#特性曲線" id="toc-特性曲線">特性曲線</a>
-<ul>
-<li><a href="#ソフトクリップ"
-id="toc-ソフトクリップ">ソフトクリップ</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#実装" id="toc-実装">実装</a>
-<ul>
-<li><a href="#二重移動平均フィルタ"
-id="toc-二重移動平均フィルタ">二重移動平均フィルタ</a></li>
-<li><a href="#リリース用のフィルタ"
-id="toc-リリース用のフィルタ">リリース用のフィルタ</a></li>
-<li><a href="#リミッタの実装-1"
-id="toc-リミッタの実装-1">リミッタの実装</a>
-<ul>
-<li><a href="#アタック時間の変更"
-id="toc-アタック時間の変更">アタック時間の変更</a></li>
-<li><a href="#サステイン時間の設定"
-id="toc-サステイン時間の設定">サステイン時間の設定</a></li>
-<li><a href="#特性曲線とゲインの計算"
-id="toc-特性曲線とゲインの計算">特性曲線とゲインの計算</a></li>
-<li><a href="#リリースの計算"
-id="toc-リリースの計算">リリースの計算</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#トゥルーピークモード"
-id="toc-トゥルーピークモード">トゥルーピークモード</a>
-<ul>
-<li><a href="#fir-フィルタによるアップサンプリングの限界"
-id="toc-fir-フィルタによるアップサンプリングの限界">FIR
-フィルタによるアップサンプリングの限界</a></li>
-<li><a href="#簡易な性能の測定"
-id="toc-簡易な性能の測定">簡易な性能の測定</a></li>
-<li><a href="#軽量なトゥルーピークモード"
-id="toc-軽量なトゥルーピークモード">軽量なトゥルーピークモード</a></li>
-<li><a href="#プリフィルタの設計"
-id="toc-プリフィルタの設計">プリフィルタの設計</a></li>
-</ul></li>
-<li><a href="#その他" id="toc-その他">その他</a>
-<ul>
-<li><a href="#継時マスキング"
-id="toc-継時マスキング">継時マスキング</a></li>
-<li><a href="#スムーシングフィルタの選定"
-id="toc-スムーシングフィルタの選定">スムーシングフィルタの選定</a></li>
-<li><a href="#matlab-のリミッタ" id="toc-matlab-のリミッタ">MATLAB
-のリミッタ</a></li>
-</ul></li>
-<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
-<li><a href="#参考にしたプラグイン"
-id="toc-参考にしたプラグイン">参考にしたプラグイン</a></li>
-<li><a href="#変更点" id="toc-変更点">変更点</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="リミッタの実装"><a href="#リミッタの実装" class="header-anchor"
-aria-hidden="true">リミッタの実装</a></h1>
-<p>シンセサイザやエフェクタの部品として使えるような簡易なリミッタを作ります。ここで作るリミッタはどんな入力があっても、振幅を必ずしきい値以下に制限することを目的とします。</p>
-<p>Waves の L1 が発表されてから <a
-href="https://en.wikipedia.org/wiki/Waves_Audio#History">25
-年以上経っている</a>ので既存の実装と解説が 1
-つくらい見つかるだろうと思っていたのですが、 “dynamic range limiter
-algorithm” でグーグル検索しても 1
-次ローパスを使った振幅を完全に制限できない実装ばかり出てきました。そこで既存のプラグインを調べていたところ、
-FL 付属の <a
-href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm">Fruity
-Limiter</a> のマニュアルに <a
-href="https://www.musicdsp.org/en/latest/index.html">musicdsp.org</a>
-へのクレジットがありました。この記事で紹介している実装は musicdsp.org の
-<a
-href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
-Limiter</a> とほとんど同じです。ただし、ピークホールドについては
-Lookahead Limiter の記事には詳細が書いていなかったので<a
-href="../peak_hold_envelope/peak_hold_envelope.html">試行錯誤して作りました</a>。</p>
-<p>Lookahead Limiter の記事の訳を別ページに掲載しています。</p>
-<ul>
-<li><a href="./musicdsp_lookahead_limiter.html">Lookahead Limiter
-の記事の訳を読む (github.io)</a></li>
-</ul>
-<p>以下は実際に動作する実装へのリンクです。</p>
-<ul>
-<li>C++ による実装: <a
-href="https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiterAutoMake/source/dsp/limiter.hpp#L339">VSTPlugins/BasicLimiterAutoMake/source/dsp/limiter.hpp
-at master · ryukau/VSTPlugins · GitHub</a></li>
-<li>JavaScript による実装: <a
-href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/main/common/dsp/limiter.js">UhhyouWebSynthesizers/common/dsp/limiter.js
-at main · ryukau/UhhyouWebSynthesizers · GitHub</a></li>
-</ul>
-<h2 id="ブロック線図"><a href="#ブロック線図" class="header-anchor"
-aria-hidden="true">ブロック線図</a></h2>
-<p>今回実装するリミッタのブロック線図です。</p>
-<figure>
-<img src="img/limiter_block_diagram.svg" alt="Block diagram of limiter." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下の 4
-つの部品が必要です。詳細はリンク先を参照してください。特性曲線については下で簡単に紹介します。</p>
-<ul>
-<li><a
-href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールド</a>
-(Peak Hold)</li>
-<li>特性曲線 (Characteristic Curve)</li>
-<li><a
-href="../s_curve_step_response_filter/s_curve_step_response_filter.html">スムーシングフィルタ</a>
-(Smoothing Filter)</li>
-<li><a href="../delay/delay.html">ディレイ</a> (Delay)</li>
-</ul>
-<h3 id="特性曲線"><a href="#特性曲線" class="header-anchor"
-aria-hidden="true">特性曲線</a></h3>
-<p>特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を
-<span class="math inline">\(x\)</span> 、リミッタのしきい値を <span
-class="math inline">\(T\)</span>
-とすると以下の式でハードクリップの特性曲線 <span
-class="math inline">\(C\)</span> を計算できます。</p>
-<p><span class="math display">\[
-C(x) = \begin{cases}
-  x &amp; \text{if}\ |x| &lt; T \\
-  T &amp; \text{if}\ |x| \geq T
-\end{cases}
-\]</span></p>
-<p>実装では <span class="math inline">\(x \to |x|\)</span>
-と置き換えて、 <span class="math inline">\(C\)</span> を <span
-class="math inline">\(|x|\)</span>
-で除算すればゲインへの変換もまとめてしまえるので、以下のように書けます。</p>
-<p><span class="math display">\[
-G(x) = \begin{cases}
-  1 &amp; \text{if}\ |x| &lt; T \\
-  T / |x| &amp; \text{if}\ |x| \geq T
-\end{cases}
-\]</span></p>
-<p>上の式について <span class="math inline">\(|x| \geq T\)</span>
-のときに <span class="math inline">\(\dfrac{R^{-1}(|x| - T) +
-T}{|x|}\)</span> とすれば、レシオ <span class="math inline">\(R\)</span>
-のコンプレッサになります。</p>
-<p>振幅の制限だけが目的であれば <span class="math inline">\(|x| &lt;
-T\)</span> のときに <span class="math inline">\(T\)</span>
-を超える値さえ出てこなければ、どんな曲線でも使えます。例えば味付けとして、以下のように歪みを加えた曲線が考えられます。
-<span class="math inline">\(\epsilon\)</span>
-はマシンイプシロンです。</p>
-<p><span class="math display">\[
-\begin{aligned}
-G_{\tanh}(x) &amp;= \begin{cases}
-  1 &amp; \text{if}\ |x| &lt; \epsilon &amp;&amp; \quad \text{(to avoid
-division by 0)}\\\\
-  \dfrac{\tanh(|x|)}{|x|} &amp; \text{if}\ \epsilon \leq |x| &lt; T \\\\
-  \tanh(T) &amp; \text{if}\ |x| \geq T
-\end{cases}
-\end{aligned}
-\]</span></p>
-<h4 id="ソフトクリップ"><a href="#ソフトクリップ" class="header-anchor"
-aria-hidden="true">ソフトクリップ</a></h4>
-<p>この節で出てくる式とコードはゲインへの変換を行っていないので注意してください。ゲインへと変換するには
-<span class="math inline">\(x \to |x|\)</span> と置き換えて、 <span
-class="math inline">\(|x|\)</span> で除算してください。</p>
-<p>以下のソフトクリップ曲線を紹介します。</p>
-<figure>
-<img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下はソフトクリップ曲線 <span class="math inline">\(S\)</span>
-の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。<a
-href="https://en.wikipedia.org/wiki/Monotonic_function">単調</a>かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。
-<span class="math inline">\(\mathrm{sgn}\)</span> は<a
-href="https://en.wikipedia.org/wiki/Sign_function">符号関数</a>です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-S(x) &amp;= \begin{cases}
-  x &amp; \text{if}\ |x| &lt; a_1
-    &amp;&amp; \text{(linear region)}\\
-  h + \mathrm{sgn}(x) \dfrac{0.25 (a_2 - |x|)^2}{a_1 - h}  &amp;
-\text{if}\ a_1 \leq|x| &lt; a_2
-    &amp;&amp; \text{(2nd order region)}\\
-  h &amp; \text{if}\ a_2 \leq |x|
-    &amp;&amp; \text{(clipping region)}\\
-\end{cases}
-\\
-a_1 &amp;= rh\\
-a_2 &amp;= 2h - a_1
-\end{aligned}
-\]</span></p>
-<p>変数の一覧です。</p>
-<ul>
-<li><span class="math inline">\(x\)</span>: 入力信号</li>
-<li><span class="math inline">\(h\)</span>: リミッタのしきい値</li>
-<li><span class="math inline">\(r\)</span>:
-しきい値以下の非線形領域の割合。</li>
-</ul>
-<p>2 次曲線領域 (2nd order region)
-の両端の傾きが、前後の領域の傾きと一致することを確認します。まず <span
-class="math inline">\(L = h - a_1 = a_2 - h\)</span>
-と置きます。このとき 2 次曲線領域は入力に対して <span
-class="math inline">\(a_1 \text{--} a_2\)</span> 間で <span
-class="math inline">\(2L\)</span> 、出力に対して <span
-class="math inline">\(a_1 \text{--} h\)</span> 間で <span
-class="math inline">\(L\)</span> の幅を持っています。</p>
-<p><span class="math inline">\(\xi = a_2 - |x|\)</span> とすると、曲線
-<span class="math inline">\(S\)</span> の 2 次曲線領域の式 <span
-class="math inline">\(S_2\)</span> は以下のように変形できます。</p>
-<p><span class="math display">\[
-S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
-\]</span></p>
-<p><span class="math inline">\(\xi\)</span> について微分します。</p>
-<p><span class="math display">\[
-\frac{d S_2}{d \xi} = - \mathrm{sgn}(x) \frac{0.5}{L} \xi
-\]</span></p>
-<ul>
-<li><span class="math inline">\(|x| = a_1\)</span> のとき <span
-class="math inline">\(\xi = a_2 - a_1 = 2L\)</span> なので、傾きは <span
-class="math inline">\(-\mathrm{sgn}(x)\)</span> 。</li>
-<li><span class="math inline">\(|x| = a_2\)</span> のとき <span
-class="math inline">\(\xi = 0\)</span> なので、傾きは 0 。</li>
-</ul>
-<p><span class="math inline">\(-\mathrm{sgn}(x)\)</span> は <span
-class="math inline">\(x\)</span> の符号が - のときに 1 、 + のときに -1
-になります。下の図で言うと <span class="math inline">\(x\)</span>
-が負のときは左から右、 <span class="math inline">\(x\)</span>
-が正のときは右から左に向かって <span class="math inline">\(\xi\)</span>
-が増えるので線形領域と傾きが一致します。</p>
-<figure>
-<img src="img/softclip_smoothness.svg" alt="Image of soft-clipping curve with the direction of ξ depending on the sign of x." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下はソフトクリッピングのコードです。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> T<span class="op">&gt;</span> <span class="kw">inline</span> T softClip<span class="op">(</span>T x0<span class="op">,</span> T ratio<span class="op">)</span></span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#リミッタの実装"
+        id="toc-リミッタの実装">リミッタの実装</a>
+        <ul>
+        <li><a href="#ブロック線図"
+        id="toc-ブロック線図">ブロック線図</a>
+        <ul>
+        <li><a href="#特性曲線" id="toc-特性曲線">特性曲線</a>
+        <ul>
+        <li><a href="#ソフトクリップ"
+        id="toc-ソフトクリップ">ソフトクリップ</a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#実装" id="toc-実装">実装</a>
+        <ul>
+        <li><a href="#二重移動平均フィルタ"
+        id="toc-二重移動平均フィルタ">二重移動平均フィルタ</a></li>
+        <li><a href="#リリース用のフィルタ"
+        id="toc-リリース用のフィルタ">リリース用のフィルタ</a></li>
+        <li><a href="#リミッタの実装-1"
+        id="toc-リミッタの実装-1">リミッタの実装</a>
+        <ul>
+        <li><a href="#アタック時間の変更"
+        id="toc-アタック時間の変更">アタック時間の変更</a></li>
+        <li><a href="#サステイン時間の設定"
+        id="toc-サステイン時間の設定">サステイン時間の設定</a></li>
+        <li><a href="#特性曲線とゲインの計算"
+        id="toc-特性曲線とゲインの計算">特性曲線とゲインの計算</a></li>
+        <li><a href="#リリースの計算"
+        id="toc-リリースの計算">リリースの計算</a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#トゥルーピークモード"
+        id="toc-トゥルーピークモード">トゥルーピークモード</a>
+        <ul>
+        <li><a href="#fir-フィルタによるアップサンプリングの限界"
+        id="toc-fir-フィルタによるアップサンプリングの限界">FIR
+        フィルタによるアップサンプリングの限界</a></li>
+        <li><a href="#簡易な性能の測定"
+        id="toc-簡易な性能の測定">簡易な性能の測定</a></li>
+        <li><a href="#軽量なトゥルーピークモード"
+        id="toc-軽量なトゥルーピークモード">軽量なトゥルーピークモード</a></li>
+        <li><a href="#プリフィルタの設計"
+        id="toc-プリフィルタの設計">プリフィルタの設計</a></li>
+        </ul></li>
+        <li><a href="#その他" id="toc-その他">その他</a>
+        <ul>
+        <li><a href="#継時マスキング"
+        id="toc-継時マスキング">継時マスキング</a></li>
+        <li><a href="#スムーシングフィルタの選定"
+        id="toc-スムーシングフィルタの選定">スムーシングフィルタの選定</a></li>
+        <li><a href="#matlab-のリミッタ"
+        id="toc-matlab-のリミッタ">MATLAB のリミッタ</a></li>
+        </ul></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        <li><a href="#参考にしたプラグイン"
+        id="toc-参考にしたプラグイン">参考にしたプラグイン</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="リミッタの実装"><a href="#リミッタの実装"
+  class="header-anchor" aria-hidden="true">リミッタの実装</a></h1>
+  <p>シンセサイザやエフェクタの部品として使えるような簡易なリミッタを作ります。ここで作るリミッタはどんな入力があっても、振幅を必ずしきい値以下に制限することを目的とします。</p>
+  <p>Waves の L1 が発表されてから <a
+  href="https://en.wikipedia.org/wiki/Waves_Audio#History">25
+  年以上経っている</a>ので既存の実装と解説が 1
+  つくらい見つかるだろうと思っていたのですが、 “dynamic range limiter
+  algorithm” でグーグル検索しても 1
+  次ローパスを使った振幅を完全に制限できない実装ばかり出てきました。そこで既存のプラグインを調べていたところ、
+  FL 付属の <a
+  href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm">Fruity
+  Limiter</a> のマニュアルに <a
+  href="https://www.musicdsp.org/en/latest/index.html">musicdsp.org</a>
+  へのクレジットがありました。この記事で紹介している実装は musicdsp.org
+  の <a
+  href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
+  Limiter</a> とほとんど同じです。ただし、ピークホールドについては
+  Lookahead Limiter の記事には詳細が書いていなかったので<a
+  href="../peak_hold_envelope/peak_hold_envelope.html">試行錯誤して作りました</a>。</p>
+  <p>Lookahead Limiter の記事の訳を別ページに掲載しています。</p>
+  <ul>
+  <li><a href="./musicdsp_lookahead_limiter.html">Lookahead Limiter
+  の記事の訳を読む (github.io)</a></li>
+  </ul>
+  <p>以下は実際に動作する実装へのリンクです。</p>
+  <ul>
+  <li>C++ による実装: <a
+  href="https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiterAutoMake/source/dsp/limiter.hpp#L339">VSTPlugins/BasicLimiterAutoMake/source/dsp/limiter.hpp
+  at master · ryukau/VSTPlugins · GitHub</a></li>
+  <li>JavaScript による実装: <a
+  href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/main/common/dsp/limiter.js">UhhyouWebSynthesizers/common/dsp/limiter.js
+  at main · ryukau/UhhyouWebSynthesizers · GitHub</a></li>
+  </ul>
+  <h2 id="ブロック線図"><a href="#ブロック線図" class="header-anchor"
+  aria-hidden="true">ブロック線図</a></h2>
+  <p>今回実装するリミッタのブロック線図です。</p>
+  <figure>
+  <img src="img/limiter_block_diagram.svg" alt="Block diagram of limiter." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下の 4
+  つの部品が必要です。詳細はリンク先を参照してください。特性曲線については下で簡単に紹介します。</p>
+  <ul>
+  <li><a
+  href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールド</a>
+  (Peak Hold)</li>
+  <li>特性曲線 (Characteristic Curve)</li>
+  <li><a
+  href="../s_curve_step_response_filter/s_curve_step_response_filter.html">スムーシングフィルタ</a>
+  (Smoothing Filter)</li>
+  <li><a href="../delay/delay.html">ディレイ</a> (Delay)</li>
+  </ul>
+  <h3 id="特性曲線"><a href="#特性曲線" class="header-anchor"
+  aria-hidden="true">特性曲線</a></h3>
+  <p>特性曲線は直流を一定時間入力したときの出力をプロットした曲線です。ここでは計算が簡単なハードクリップの特性を使います。入力を
+  <span class="math inline">\(x\)</span> 、リミッタのしきい値を <span
+  class="math inline">\(T\)</span>
+  とすると以下の式でハードクリップの特性曲線 <span
+  class="math inline">\(C\)</span> を計算できます。</p>
+  <p><span class="math display">\[
+  C(x) = \begin{cases}
+    x &amp; \text{if}\ |x| &lt; T \\
+    T &amp; \text{if}\ |x| \geq T
+  \end{cases}
+  \]</span></p>
+  <p>実装では <span class="math inline">\(x \to |x|\)</span>
+  と置き換えて、 <span class="math inline">\(C\)</span> を <span
+  class="math inline">\(|x|\)</span>
+  で除算すればゲインへの変換もまとめてしまえるので、以下のように書けます。</p>
+  <p><span class="math display">\[
+  G(x) = \begin{cases}
+    1 &amp; \text{if}\ |x| &lt; T \\
+    T / |x| &amp; \text{if}\ |x| \geq T
+  \end{cases}
+  \]</span></p>
+  <p>上の式について <span class="math inline">\(|x| \geq T\)</span>
+  のときに <span class="math inline">\(\dfrac{R^{-1}(|x| - T) +
+  T}{|x|}\)</span> とすれば、レシオ <span
+  class="math inline">\(R\)</span> のコンプレッサになります。</p>
+  <p>振幅の制限だけが目的であれば <span class="math inline">\(|x| &lt;
+  T\)</span> のときに <span class="math inline">\(T\)</span>
+  を超える値さえ出てこなければ、どんな曲線でも使えます。例えば味付けとして、以下のように歪みを加えた曲線が考えられます。
+  <span class="math inline">\(\epsilon\)</span>
+  はマシンイプシロンです。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G_{\tanh}(x) &amp;= \begin{cases}
+    1 &amp; \text{if}\ |x| &lt; \epsilon &amp;&amp; \quad \text{(to
+  avoid division by 0)}\\\\
+    \dfrac{\tanh(|x|)}{|x|} &amp; \text{if}\ \epsilon \leq |x| &lt; T
+  \\\\
+    \tanh(T) &amp; \text{if}\ |x| \geq T
+  \end{cases}
+  \end{aligned}
+  \]</span></p>
+  <h4 id="ソフトクリップ"><a href="#ソフトクリップ"
+  class="header-anchor" aria-hidden="true">ソフトクリップ</a></h4>
+  <p>この節で出てくる式とコードはゲインへの変換を行っていないので注意してください。ゲインへと変換するには
+  <span class="math inline">\(x \to |x|\)</span> と置き換えて、 <span
+  class="math inline">\(|x|\)</span> で除算してください。</p>
+  <p>以下のソフトクリップ曲線を紹介します。</p>
+  <figure>
+  <img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はソフトクリップ曲線 <span class="math inline">\(S\)</span>
+  の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。<a
+  href="https://en.wikipedia.org/wiki/Monotonic_function">単調</a>かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。
+  <span class="math inline">\(\mathrm{sgn}\)</span> は<a
+  href="https://en.wikipedia.org/wiki/Sign_function">符号関数</a>です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  S(x) &amp;= \begin{cases}
+    x &amp; \text{if}\ |x| &lt; a_1
+      &amp;&amp; \text{(linear region)}\\
+    h + \mathrm{sgn}(x) \dfrac{0.25 (a_2 - |x|)^2}{a_1 - h}  &amp;
+  \text{if}\ a_1 \leq|x| &lt; a_2
+      &amp;&amp; \text{(2nd order region)}\\
+    h &amp; \text{if}\ a_2 \leq |x|
+      &amp;&amp; \text{(clipping region)}\\
+  \end{cases}
+  \\
+  a_1 &amp;= rh\\
+  a_2 &amp;= 2h - a_1
+  \end{aligned}
+  \]</span></p>
+  <p>変数の一覧です。</p>
+  <ul>
+  <li><span class="math inline">\(x\)</span>: 入力信号</li>
+  <li><span class="math inline">\(h\)</span>: リミッタのしきい値</li>
+  <li><span class="math inline">\(r\)</span>:
+  しきい値以下の非線形領域の割合。</li>
+  </ul>
+  <p>2 次曲線領域 (2nd order region)
+  の両端の傾きが、前後の領域の傾きと一致することを確認します。まず <span
+  class="math inline">\(L = h - a_1 = a_2 - h\)</span>
+  と置きます。このとき 2 次曲線領域は入力に対して <span
+  class="math inline">\(a_1 \text{--} a_2\)</span> 間で <span
+  class="math inline">\(2L\)</span> 、出力に対して <span
+  class="math inline">\(a_1 \text{--} h\)</span> 間で <span
+  class="math inline">\(L\)</span> の幅を持っています。</p>
+  <p><span class="math inline">\(\xi = a_2 - |x|\)</span> とすると、曲線
+  <span class="math inline">\(S\)</span> の 2 次曲線領域の式 <span
+  class="math inline">\(S_2\)</span> は以下のように変形できます。</p>
+  <p><span class="math display">\[
+  S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
+  \]</span></p>
+  <p><span class="math inline">\(\xi\)</span> について微分します。</p>
+  <p><span class="math display">\[
+  \frac{d S_2}{d \xi} = - \mathrm{sgn}(x) \frac{0.5}{L} \xi
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(|x| = a_1\)</span> のとき <span
+  class="math inline">\(\xi = a_2 - a_1 = 2L\)</span> なので、傾きは
+  <span class="math inline">\(-\mathrm{sgn}(x)\)</span> 。</li>
+  <li><span class="math inline">\(|x| = a_2\)</span> のとき <span
+  class="math inline">\(\xi = 0\)</span> なので、傾きは 0 。</li>
+  </ul>
+  <p><span class="math inline">\(-\mathrm{sgn}(x)\)</span> は <span
+  class="math inline">\(x\)</span> の符号が - のときに 1 、 + のときに
+  -1 になります。下の図で言うと <span class="math inline">\(x\)</span>
+  が負のときは左から右、 <span class="math inline">\(x\)</span>
+  が正のときは右から左に向かって <span
+  class="math inline">\(\xi\)</span>
+  が増えるので線形領域と傾きが一致します。</p>
+  <figure>
+  <img src="img/softclip_smoothness.svg" alt="Image of soft-clipping curve with the direction of ξ depending on the sign of x." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はソフトクリッピングのコードです。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> T<span class="op">&gt;</span> <span class="kw">inline</span> T softClip<span class="op">(</span>T x0<span class="op">,</span> T ratio<span class="op">)</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">const</span> <span class="kw">auto</span> absed <span class="op">=</span> <span class="bu">std::</span>fabs<span class="op">(</span>x0<span class="op">);</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -596,48 +659,48 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="bu">std::</span>copysign<span class="op">(</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    threshold <span class="op">+</span> <span class="op">(</span>a2 <span class="op">-</span> absed<span class="op">)</span> <span class="op">*</span> <span class="op">(</span>a2 <span class="op">-</span> absed<span class="op">)</span> <span class="op">/</span> T<span class="op">(</span><span class="dv">4</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>a1 <span class="op">-</span> threshold<span class="op">),</span> x0<span class="op">);</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h2 id="実装"><a href="#実装" class="header-anchor"
-aria-hidden="true">実装</a></h2>
-<p>C++17
-で実装します。コンパイルして実行できる完全なコードを以下のリンクに掲載しています。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/limiter/cpp/example/example.cpp">完全なリミッタの実装を読む
-(github.com)</a></li>
-</ul>
-<p>VST 3 プラグインとしての実装した BasicLimiter
-のコードも以下から読むことができます。トゥルーピークモードもついています。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/VSTPlugins/tree/master/BasicLimiter/source/dsp">BasicLimiter
-の実装を読む (github.com)</a></li>
-</ul>
-<p>アタックとサステインの時間を固定することで <code>std::array</code>
-を使ってメモリ使用量を減らした実装を以下のリンクに掲載しています。この実装はシンセサイザやエフェクタの内部に組み込んで使うことを想定しています。ベンチマークをとってみないとわかりませんが、スムーシング用の
-FIR フィルタはバッファ長を 64 から 256
-サンプル程度で固定した二重移動平均フィルタを使うほうが速いかもしれません。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/VSTPlugins/blob/master/common/dsp/lightlimiter.hpp">メモリ使用量を減らしたリミッタの実装を読む
-(github.com)</a></li>
-</ul>
-<p>この記事で掲載しているコードは以下のインクルードを省略しています。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+  <h2 id="実装"><a href="#実装" class="header-anchor"
+  aria-hidden="true">実装</a></h2>
+  <p>C++17
+  で実装します。コンパイルして実行できる完全なコードを以下のリンクに掲載しています。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/limiter/cpp/example/example.cpp">完全なリミッタの実装を読む
+  (github.com)</a></li>
+  </ul>
+  <p>VST 3 プラグインとしての実装した BasicLimiter
+  のコードも以下から読むことができます。トゥルーピークモードもついています。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/VSTPlugins/tree/master/BasicLimiter/source/dsp">BasicLimiter
+  の実装を読む (github.com)</a></li>
+  </ul>
+  <p>アタックとサステインの時間を固定することで <code>std::array</code>
+  を使ってメモリ使用量を減らした実装を以下のリンクに掲載しています。この実装はシンセサイザやエフェクタの内部に組み込んで使うことを想定しています。ベンチマークをとってみないとわかりませんが、スムーシング用の
+  FIR フィルタはバッファ長を 64 から 256
+  サンプル程度で固定した二重移動平均フィルタを使うほうが速いかもしれません。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/VSTPlugins/blob/master/common/dsp/lightlimiter.hpp">メモリ使用量を減らしたリミッタの実装を読む
+  (github.com)</a></li>
+  </ul>
+  <p>この記事で掲載しているコードは以下のインクルードを省略しています。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits&gt;</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span></code></pre></div>
-<h3 id="二重移動平均フィルタ"><a href="#二重移動平均フィルタ"
-class="header-anchor" aria-hidden="true">二重移動平均フィルタ</a></h3>
-<p>二重移動平均フィルタは<a
-href="../s_curve_step_response_filter/s_curve_step_response_filter.html">ステップ応答が
-S 字になるフィルタ</a>です。フィルタ係数が<a
-href="https://en.wikipedia.org/wiki/Window_function#Triangular_window">三角窓</a>の形をしています。</p>
-<p>以下の実装は単純な畳み込みよりも出力がやや大きくなることがあります。</p>
-<p><code>IntDelay</code> の実装は「<a
-href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールドによるエンベロープ</a>」に掲載しています。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> DoubleAverageFilter <span class="op">{</span></span>
+  <h3 id="二重移動平均フィルタ"><a href="#二重移動平均フィルタ"
+  class="header-anchor" aria-hidden="true">二重移動平均フィルタ</a></h3>
+  <p>二重移動平均フィルタは<a
+  href="../s_curve_step_response_filter/s_curve_step_response_filter.html">ステップ応答が
+  S 字になるフィルタ</a>です。フィルタ係数が<a
+  href="https://en.wikipedia.org/wiki/Window_function#Triangular_window">三角窓</a>の形をしています。</p>
+  <p>以下の実装は単純な畳み込みよりも出力がやや大きくなることがあります。</p>
+  <p><code>IntDelay</code> の実装は「<a
+  href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールドによるエンベロープ</a>」に掲載しています。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> DoubleAverageFilter <span class="op">{</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  Sample denom <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  Sample sum1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -700,12 +763,12 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output<span class="op">;</span></span>
 <span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h3 id="リリース用のフィルタ"><a href="#リリース用のフィルタ"
-class="header-anchor" aria-hidden="true">リリース用のフィルタ</a></h3>
-<p>以下はリリース用のフィルタの実装例です。 Exponential moving average
-(EMA) フィルタを 2 つ直列につないでいます。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> DoubleEMAFilter <span class="op">{</span></span>
+  <h3 id="リリース用のフィルタ"><a href="#リリース用のフィルタ"
+  class="header-anchor" aria-hidden="true">リリース用のフィルタ</a></h3>
+  <p>以下はリリース用のフィルタの実装例です。 Exponential moving average
+  (EMA) フィルタを 2 つ直列につないでいます。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> DoubleEMAFilter <span class="op">{</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  Sample kp <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  Sample v1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -745,13 +808,13 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> v2<span class="op">;</span></span>
 <span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h3 id="リミッタの実装-1"><a href="#リミッタの実装-1"
-class="header-anchor" aria-hidden="true">リミッタの実装</a></h3>
-<p>リミッタの実装です。アタック、リリース、サステインの時間を設定できます。アタックと呼んでいるのは二重移動平均フィルタによる遅延なので、実際はリリースにも影響します。リリース時間はどれだけゲインを下げたかで変わるので、あくまでも目安です。</p>
-<p><code>Delay</code> と <code>PeakHold</code> の実装は「<a
-href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールドによるエンベロープ</a>」に掲載しています。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> Limiter <span class="op">{</span></span>
+  <h3 id="リミッタの実装-1"><a href="#リミッタの実装-1"
+  class="header-anchor" aria-hidden="true">リミッタの実装</a></h3>
+  <p>リミッタの実装です。アタック、リリース、サステインの時間を設定できます。アタックと呼んでいるのは二重移動平均フィルタによる遅延なので、実際はリリースにも影響します。リリース時間はどれだけゲインを下げたかで変わるので、あくまでも目安です。</p>
+  <p><code>Delay</code> と <code>PeakHold</code> の実装は「<a
+  href="../peak_hold_envelope/peak_hold_envelope.html">ピークホールドによるエンベロープ</a>」に掲載しています。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> Limiter <span class="op">{</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span> <span class="co">// デバッグ用にすべて public 。</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> attackFrames <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> sustainFrames <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -879,12 +942,12 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>              <span class="op">&lt;&lt;</span> <span class="st">&quot;max      : &quot;</span> <span class="op">&lt;&lt;</span> max <span class="op">&lt;&lt;</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">;</span></span>
 <span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="アタック時間の変更"><a href="#アタック時間の変更"
-class="header-anchor" aria-hidden="true">アタック時間の変更</a></h4>
-<p><code>prepare</code> について見ていきます。</p>
-<p>今回の実装では、ピークホールドに前から順にすべてのサンプルを入力しないと、リミッタが正しく動作しません。そこでアタック時間あるいはサステイン時間が変更されたときは、以下のコードのようにバッファをいったんリセットしています。リセットによってポップノイズが出てしまいますが、フィードバック経路で使うような場面ではリミッタのしきい値を超える振幅が出力されるよりは安全だと判断しています。</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> prevAttack <span class="op">=</span> attackFrames<span class="op">;</span></span>
+  <h4 id="アタック時間の変更"><a href="#アタック時間の変更"
+  class="header-anchor" aria-hidden="true">アタック時間の変更</a></h4>
+  <p><code>prepare</code> について見ていきます。</p>
+  <p>今回の実装では、ピークホールドに前から順にすべてのサンプルを入力しないと、リミッタが正しく動作しません。そこでアタック時間あるいはサステイン時間が変更されたときは、以下のコードのようにバッファをいったんリセットしています。リセットによってポップノイズが出てしまいますが、フィードバック経路で使うような場面ではリミッタのしきい値を超える振幅が出力されるよりは安全だと判断しています。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> prevAttack <span class="op">=</span> attackFrames<span class="op">;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>attackFrames <span class="op">=</span> <span class="dt">size_t</span><span class="op">(</span>sampleRate <span class="op">*</span> attackSeconds<span class="op">);</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>attackFrames <span class="op">+=</span> attackFrames <span class="op">%</span> <span class="dv">2</span><span class="op">;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -892,23 +955,24 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>sustainFrames <span class="op">=</span> <span class="dt">size_t</span><span class="op">(</span>sampleRate <span class="op">*</span> sustainSeconds<span class="op">);</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>prevAttack <span class="op">!=</span> attackFrames <span class="op">||</span> prevSustain <span class="op">!=</span> sustainFrames<span class="op">)</span> reset<span class="op">();</span></span></code></pre></div>
-<h4 id="サステイン時間の設定"><a href="#サステイン時間の設定"
-class="header-anchor" aria-hidden="true">サステイン時間の設定</a></h4>
-<p>ホールド時間だけを長くすることでサステインを加えられます。</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>hold<span class="op">.</span>setFrames<span class="op">(</span>attackFrames <span class="op">+</span> <span class="dt">size_t</span><span class="op">(</span>sampleRate <span class="op">*</span> sustainSeconds<span class="op">));</span></span>
+  <h4 id="サステイン時間の設定"><a href="#サステイン時間の設定"
+  class="header-anchor" aria-hidden="true">サステイン時間の設定</a></h4>
+  <p>ホールド時間だけを長くすることでサステインを加えられます。</p>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>hold<span class="op">.</span>setFrames<span class="op">(</span>attackFrames <span class="op">+</span> <span class="dt">size_t</span><span class="op">(</span>sampleRate <span class="op">*</span> sustainSeconds<span class="op">));</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>smoother<span class="op">.</span>setFrames<span class="op">(</span>attackFrames<span class="op">);</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>lookaheadDelay<span class="op">.</span>setFrames<span class="op">(</span>attackFrames<span class="op">);</span></span></code></pre></div>
-<h4 id="特性曲線とゲインの計算"><a href="#特性曲線とゲインの計算"
-class="header-anchor" aria-hidden="true">特性曲線とゲインの計算</a></h4>
-<p><code>process</code> について見ていきます。</p>
-<p>リミッタでは音量を下げたいので、特性曲線を計算するついでに入力の絶対値の逆数
-<code>thresholdAmp / x0</code> を計算してゲインとしています。
-<code>thresholdAmp</code> を 0 より大きい値に制限すれば 0
-除算も防げます。リミッタでは <code>applyCharacteristicCurve</code>
-の出力は必ず <code>[0, 1]</code> の範囲に収まります。</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">inline</span> Sample applyCharacteristicCurve<span class="op">(</span>Sample peakAmp<span class="op">)</span></span>
+  <h4 id="特性曲線とゲインの計算"><a href="#特性曲線とゲインの計算"
+  class="header-anchor"
+  aria-hidden="true">特性曲線とゲインの計算</a></h4>
+  <p><code>process</code> について見ていきます。</p>
+  <p>リミッタでは音量を下げたいので、特性曲線を計算するついでに入力の絶対値の逆数
+  <code>thresholdAmp / x0</code> を計算してゲインとしています。
+  <code>thresholdAmp</code> を 0 より大きい値に制限すれば 0
+  除算も防げます。リミッタでは <code>applyCharacteristicCurve</code>
+  の出力は必ず <code>[0, 1]</code> の範囲に収まります。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">inline</span> Sample applyCharacteristicCurve<span class="op">(</span>Sample peakAmp<span class="op">)</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> peakAmp <span class="op">&gt;</span> thresholdAmp <span class="op">?</span> thresholdAmp <span class="op">/</span> peakAmp <span class="op">:</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
@@ -919,16 +983,16 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#c
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> candidate <span class="op">=</span> applyCharacteristicCurve<span class="op">(</span>peakAmp<span class="op">);</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h4 id="リリースの計算"><a href="#リリースの計算" class="header-anchor"
-aria-hidden="true">リリースの計算</a></h4>
-<p>リリース中に大きなピークが入力されたときはゲインが下がるので
-<code>std::min</code> によってリリースが中断されます。言い換えると
-<code>processRelease</code> の引数 <code>gain</code>
-は入力信号の絶対値が大きいほど 0 に近づきます。</p>
-<p><code>v1</code> と <code>v2</code> は EMA
-フィルタの出力値かつ状態変数です。</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
+  <h4 id="リリースの計算"><a href="#リリースの計算"
+  class="header-anchor" aria-hidden="true">リリースの計算</a></h4>
+  <p>リリース中に大きなピークが入力されたときはゲインが下がるので
+  <code>std::min</code> によってリリースが中断されます。言い換えると
+  <code>processRelease</code> の引数 <code>gain</code>
+  は入力信号の絶対値が大きいほど 0 に近づきます。</p>
+  <p><code>v1</code> と <code>v2</code> は EMA
+  フィルタの出力値かつ状態変数です。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> DoubleEMAFilter <span class="op">{</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -946,73 +1010,76 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#c
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  releaseFilter<span class="op">.</span>setMin<span class="op">(</span>gain<span class="op">);</span></span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> releaseFilter<span class="op">.</span>process<span class="op">(</span>gain<span class="op">);</span></span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h2 id="トゥルーピークモード"><a href="#トゥルーピークモード"
-class="header-anchor" aria-hidden="true">トゥルーピークモード</a></h2>
-<p>トゥルーピークを考慮したリミッタを作るときは以下のようなマルチレート処理が必要です。
-<code>upfold</code> はオーバーサンプリングの倍率です。</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> sig <span class="op">=</span> preLowpass<span class="op">(</span>input<span class="op">);</span> <span class="co">// プリフィルタ。</span></span>
+  <h2 id="トゥルーピークモード"><a href="#トゥルーピークモード"
+  class="header-anchor" aria-hidden="true">トゥルーピークモード</a></h2>
+  <p>トゥルーピークを考慮したリミッタを作るときは以下のようなマルチレート処理が必要です。
+  <code>upfold</code> はオーバーサンプリングの倍率です。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> sig <span class="op">=</span> preLowpass<span class="op">(</span>input<span class="op">);</span> <span class="co">// プリフィルタ。</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>array<span class="op">&lt;</span><span class="dt">float</span><span class="op">,</span> upfold<span class="op">&gt;</span> upsampled <span class="op">=</span> upsample<span class="op">(</span>sig<span class="op">);</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> upsampled<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">&gt;)</span> <span class="op">{</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  upsampled<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> limiter<span class="op">.</span>process<span class="op">(</span>upsampled<span class="op">[</span>i<span class="op">]);</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> output <span class="op">=</span> downsample<span class="op">(</span>upsampled<span class="op">);</span></span></code></pre></div>
-<p>以下は同じ処理のブロック線図です。</p>
-<figure>
-<img src="img/truepeak_block_diagram.svg" alt="Image of a block diagram of multirate processing for true-peak." style="padding-bottom: 12px;"/>
-</figure>
-<p>リアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。そこでアップサンプリングの前にプリフィルタを通して、ピークの復元が困難な周波数成分を
-0
-にしてしまうことが考えられます。ピークの復元が困難な周波数成分は、サンプリング周波数が十分に高ければ可聴域外になるので
-0 にしても聴覚上の影響は少ないと考えられます。</p>
-<p>ダウンサンプリングには <a
-href="https://ryukau.github.io/filter_notes/downsampling/downsampling.html#noble-identities-とポリフェイズフィルタ">FIR
-ポリフェイズフィルタ</a>を使います。 IIR
-フィルタを使うと位相が変わるので、フィルタを通った時点でピークが変わってしまいます。トゥルーピークの検出にはアップサンプリングを行うしかないので、ダウンサンプリングの時点で位相が変わると手の施しようがなくなります。</p>
-<p>ダウンサンプリング後の信号はサンプルピークがしきい値を超えることがあります。この問題を避けることは難しいので、あきらめてユーザにしきい値を下げるように促すか、ダウンサンプリング後にさらにリミッタをかけるということが考えられます。</p>
-<h3 id="fir-フィルタによるアップサンプリングの限界"><a
-href="#fir-フィルタによるアップサンプリングの限界" class="header-anchor"
-aria-hidden="true">FIR フィルタによるアップサンプリングの限界</a></h3>
-<p>オフライン処理であれば信号が事前にすべてわかっているので、
-<code>scipy.signal.resample</code>
-のような離散フーリエ変換を使ったリサンプリングを使うことで正確にトゥルーピークを復元できます。しかしリアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。以下は
-FIR
-ポリフェイズフィルタによるアップサンプリングの限界を示した図です。</p>
-<figure>
-<img src="img/upsampling_method_comparison.svg" alt="Image of comparison of upsampling method." style="padding-bottom: 12px;"/>
-</figure>
-<p>サンプリング周波数は 48000 Hz 、入力信号 <code>Input</code> は 23998
-Hz のコサイン波です。上のプロットは FFT
-によるほぼ正確なアップサンプリング、下のプロットはタップ数 64 × 8
-フェイズの FIR ポリフェイズフィルタによるアップサンプリングです。 FIR
-ポリフェイズフィルタによるアップサンプリング結果は入力信号とほぼ重なっています。</p>
-<p>FFT アップサンプリングによる波形では立ち上がり (transient)
-のピークが確認できますが、 FIR
-ポリフェイズではピークがほとんど復元できていません。また FIR
-ポリフェイズは 0.2 、 0.5 、 0.8
-秒付近にある、入力信号の振幅が下がる部分の復元にも失敗しています。なぜこんなことになるのかというと
-FIR フィルタのタップ数が足りないからです。厳密にピークを復元するには <a
-href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#sinc-%E8%A3%9C%E9%96%93">sinc
-補間</a>を使う必要があるのですが、 sinc
-補間は理論上、無限の長さの畳み込みが必要なので計算できません。</p>
-<p>アップサンプラの FIR フィルタの長さを決める目安としては、 D/A
-コンバータ (DAC) で使われる FIR フィルタのタップ数が使えます。例えば <a
-href="https://www.esstech.com/wp-content/uploads/2021/03/ES9038Q2M-Datasheet-v1.4.pdf">ES9038Q2M
-という DAC のデータシート</a>をみると p.9 にアップサンプリングの倍率は 8
-、 2 ステージでタップ数は 128 と 16
-ということが書いてあります。素朴に捉えると実質的なタップ数は 128 + 16 =
-144 なので、リミッタのアップサンプラで使う FIR フィルタのタップ数を 144
-以上にすればよさそうです。可能であればターゲットとする DAC
-のフィルタ係数を吸いだして直接使うことも考えられます。</p>
-<h3 id="簡易な性能の測定"><a href="#簡易な性能の測定"
-class="header-anchor" aria-hidden="true">簡易な性能の測定</a></h3>
-<p>トゥルーピークモードの性能を測るには、すべてのサンプルの値が +1.0
-あるいは -1.0 となる信号を作って FFT
-リサンプリングによるピーク値と比較することが考えられます。以下は測定コードの例です。
-<code>processTruePeakLimiter</code>
-が定義されていないので、そのままでは動きません。</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+  <p>以下は同じ処理のブロック線図です。</p>
+  <figure>
+  <img src="img/truepeak_block_diagram.svg" alt="Image of a block diagram of multirate processing for true-peak." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>リアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。そこでアップサンプリングの前にプリフィルタを通して、ピークの復元が困難な周波数成分を
+  0
+  にしてしまうことが考えられます。ピークの復元が困難な周波数成分は、サンプリング周波数が十分に高ければ可聴域外になるので
+  0 にしても聴覚上の影響は少ないと考えられます。</p>
+  <p>ダウンサンプリングには <a
+  href="https://ryukau.github.io/filter_notes/downsampling/downsampling.html#noble-identities-とポリフェイズフィルタ">FIR
+  ポリフェイズフィルタ</a>を使います。 IIR
+  フィルタを使うと位相が変わるので、フィルタを通った時点でピークが変わってしまいます。トゥルーピークの検出にはアップサンプリングを行うしかないので、ダウンサンプリングの時点で位相が変わると手の施しようがなくなります。</p>
+  <p>ダウンサンプリング後の信号はサンプルピークがしきい値を超えることがあります。この問題を避けることは難しいので、あきらめてユーザにしきい値を下げるように促すか、ダウンサンプリング後にさらにリミッタをかけるということが考えられます。</p>
+  <h3 id="fir-フィルタによるアップサンプリングの限界"><a
+  href="#fir-フィルタによるアップサンプリングの限界"
+  class="header-anchor" aria-hidden="true">FIR
+  フィルタによるアップサンプリングの限界</a></h3>
+  <p>オフライン処理であれば信号が事前にすべてわかっているので、
+  <code>scipy.signal.resample</code>
+  のような離散フーリエ変換を使ったリサンプリングを使うことで正確にトゥルーピークを復元できます。しかしリアルタイム処理で使えるアップサンプリングの手法はナイキスト周波数付近の成分によるピークの復元に限界があります。以下は
+  FIR
+  ポリフェイズフィルタによるアップサンプリングの限界を示した図です。</p>
+  <figure>
+  <img src="img/upsampling_method_comparison.svg" alt="Image of comparison of upsampling method." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>サンプリング周波数は 48000 Hz 、入力信号 <code>Input</code> は
+  23998 Hz のコサイン波です。上のプロットは FFT
+  によるほぼ正確なアップサンプリング、下のプロットはタップ数 64 × 8
+  フェイズの FIR ポリフェイズフィルタによるアップサンプリングです。 FIR
+  ポリフェイズフィルタによるアップサンプリング結果は入力信号とほぼ重なっています。</p>
+  <p>FFT アップサンプリングによる波形では立ち上がり (transient)
+  のピークが確認できますが、 FIR
+  ポリフェイズではピークがほとんど復元できていません。また FIR
+  ポリフェイズは 0.2 、 0.5 、 0.8
+  秒付近にある、入力信号の振幅が下がる部分の復元にも失敗しています。なぜこんなことになるのかというと
+  FIR フィルタのタップ数が足りないからです。厳密にピークを復元するには
+  <a
+  href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#sinc-%E8%A3%9C%E9%96%93">sinc
+  補間</a>を使う必要があるのですが、 sinc
+  補間は理論上、無限の長さの畳み込みが必要なので計算できません。</p>
+  <p>アップサンプラの FIR フィルタの長さを決める目安としては、 D/A
+  コンバータ (DAC) で使われる FIR フィルタのタップ数が使えます。例えば
+  <a
+  href="https://www.esstech.com/wp-content/uploads/2021/03/ES9038Q2M-Datasheet-v1.4.pdf">ES9038Q2M
+  という DAC のデータシート</a>をみると p.9 にアップサンプリングの倍率は
+  8 、 2 ステージでタップ数は 128 と 16
+  ということが書いてあります。素朴に捉えると実質的なタップ数は 128 + 16
+  = 144 なので、リミッタのアップサンプラで使う FIR フィルタのタップ数を
+  144 以上にすればよさそうです。可能であればターゲットとする DAC
+  のフィルタ係数を吸いだして直接使うことも考えられます。</p>
+  <h3 id="簡易な性能の測定"><a href="#簡易な性能の測定"
+  class="header-anchor" aria-hidden="true">簡易な性能の測定</a></h3>
+  <p>トゥルーピークモードの性能を測るには、すべてのサンプルの値が +1.0
+  あるいは -1.0 となる信号を作って FFT
+  リサンプリングによるピーク値と比較することが考えられます。以下は測定コードの例です。
+  <code>processTruePeakLimiter</code>
+  が定義されていないので、そのままでは動きません。</p>
+  <div class="sourceCode" id="cb11"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1028,233 +1095,236 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>upSig <span class="op">=</span> signal.resample(ch, upfold <span class="op">*</span> length)</span>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>upLimited <span class="op">=</span> signal.resample(limited, upfold <span class="op">*</span> length)</span>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(upSig)), np.<span class="bu">max</span>(np.<span class="bu">abs</span>(upLimited)))</span></code></pre></div>
-<p>完全なコードは以下のリンク先を参照してください。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/limiter/generatebadsignal.py">測定用の信号を生成するコードを読む
-(github.com)</a></li>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/limiter/plottruepeak.py">測定結果をプロットするコードを読む
-(github.com)</a></li>
-</ul>
-<p>以下は VST 3 プラグインとして実装した BasicLimiter
-のトゥルーピークモードの測定結果です。しきい値は振幅 1.0
-に設定しています。図を見ると明らかですが、何もないよりかはましです。</p>
-<figure>
-<img src="img/truepeak_limiter_measurement_full.svg" alt="Image of the result of true-peak measurement of BasicLimiter." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下は最初の 512
-サンプルを拡大した図です。オーバーシュートが確認できます。</p>
-<figure>
-<img src="img/truepeak_limiter_measurement_part.svg" alt="Image of the first 512 samples of the result of true-peak measurement." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下はオーバーシュートを拡大した図です。</p>
-<figure>
-<img src="img/truepeak_limiter_measurement_zoom.png" alt="Image of the zoomed result of true-peak measurement." style="padding-bottom: 12px; height: 224px;"/>
-</figure>
-<p>以下に BasicLimiter
-で使ったトゥルーピークモードに関するコードを掲載しています。 FIR
-のタップ数はプリフィルタ 64 、アップサンプラとダウンサンプラはどちらも
-64 * 8 = 512
-です。リンク先のコードの性能としては、上のコードで生成したテスト信号の
-FFT アップサンプリング後のピークがリミッタなしで +8.9 dB 、
-トゥルーピークモードのリミッタありで +0.05 dB
-という結果になりました。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiter/source/dsp/polyphase.hpp">BasicLimiter
-の FIR ポリフェイズフィルタのコードを読む (github.com)</a></li>
-</ul>
-<h3 id="軽量なトゥルーピークモード"><a
-href="#軽量なトゥルーピークモード" class="header-anchor"
-aria-hidden="true">軽量なトゥルーピークモード</a></h3>
-<p>リミッタによるエイリアシングノイズを低減しないなら、以下のブロック線図の構成でもトゥルーピークを抑えられます。</p>
-<figure>
-<img src="img/truepeak_light_block_diagram.svg" alt="Image of a block diagram of true-peak limiter without multirate processing." style="padding-bottom: 12px;"/>
-</figure>
-<p>上のブロック線図はリミッタをオーバーサンプリングしないので軽量です。トゥルーピークメーターの計算量はアップサンプラとほとんど同じです。</p>
-<p>トゥルーピーク・メーターの実装は以下のリンク先に掲載しています。</p>
-<ul>
-<li><a
-href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#c-%E3%81%A7%E3%81%AE%E5%AE%9F%E8%A3%85">トゥルーピークの計算
-- 評価 - C++ での実装 (github.io)</a></li>
-</ul>
-<p>以下に Python 3 で動作を検証したコードがあります。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/limiter/lighttruepeaklimiter.py">軽量なトゥルーピークモードのコードを読む
-(github.com)</a></li>
-</ul>
-<h3 id="プリフィルタの設計"><a href="#プリフィルタの設計"
-class="header-anchor" aria-hidden="true">プリフィルタの設計</a></h3>
-<p>この設計は BasicLimiter に関する以下の issue
-の解決策として提示したものです。</p>
-<ul>
-<li><a href="https://github.com/ryukau/VSTPlugins/issues/46">Move
-UpSampling Cutoff Frequency into BasicLimiter at Nyquist · Issue #46 ·
-ryukau/VSTPlugins · GitHub</a></li>
-</ul>
-<p>アップサンプリング前のローパスフィルタ (プリフィルタ)
-の設計の一例として <a
-href="https://www.itu.int/rec/R-REC-BS.1770/en">ITU-R BS.1770-5</a> の
-Attachment 1 to Annex 2 (p.21) に記載された maximum under-read
-の式を使う方法が考えられます。</p>
-<p>Maximum under-read は、任意の周波数 <span
-class="math inline">\(f\)</span>
-についてサンプルピークとトゥルーピークの差の最大値です。 ITU-R BS.1770-5
-では周波数 <span class="math inline">\(f\)</span> の sin あるいは cos
-のピークがサンプルとサンプルの中間点に位置したときに under-read
-が最大となると書いてありますが、証明はないので本当かどうかはわかりません。以下は
-maximum under-read のアイデアを示した図です。</p>
-<figure>
-<img src="img/maximum_underread.svg" alt="Image of an example of maximum under-read condition at f=f_s/4, according to ITU-R BS.1770 definition. First half of sine wave goes through 2 samples at the same height, and the peak of half sine is exactly in between those 2 samples." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下は maximum under-read (<span class="math inline">\(u\)</span>)
-の式です。 <span class="math inline">\(f\)</span> はナイキスト周波数が
-0.5 となるように正規化されています。 <span
-class="math inline">\(f\)</span> の単位は [rad/2π] です。</p>
-<p><span class="math display">\[
-u(f) = 20 \log(\cos(\pi f)).
-\]</span></p>
-<p>以下はプリフィルタを設計する Python 3 のコードです。</p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+  <p>完全なコードは以下のリンク先を参照してください。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/limiter/generatebadsignal.py">測定用の信号を生成するコードを読む
+  (github.com)</a></li>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/limiter/plottruepeak.py">測定結果をプロットするコードを読む
+  (github.com)</a></li>
+  </ul>
+  <p>以下は VST 3 プラグインとして実装した BasicLimiter
+  のトゥルーピークモードの測定結果です。しきい値は振幅 1.0
+  に設定しています。図を見ると明らかですが、何もないよりかはましです。</p>
+  <figure>
+  <img src="img/truepeak_limiter_measurement_full.svg" alt="Image of the result of true-peak measurement of BasicLimiter." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は最初の 512
+  サンプルを拡大した図です。オーバーシュートが確認できます。</p>
+  <figure>
+  <img src="img/truepeak_limiter_measurement_part.svg" alt="Image of the first 512 samples of the result of true-peak measurement." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はオーバーシュートを拡大した図です。</p>
+  <figure>
+  <img src="img/truepeak_limiter_measurement_zoom.png" alt="Image of the zoomed result of true-peak measurement." style="padding-bottom: 12px; height: 224px;"/>
+  </figure>
+  <p>以下に BasicLimiter
+  で使ったトゥルーピークモードに関するコードを掲載しています。 FIR
+  のタップ数はプリフィルタ 64 、アップサンプラとダウンサンプラはどちらも
+  64 * 8 = 512
+  です。リンク先のコードの性能としては、上のコードで生成したテスト信号の
+  FFT アップサンプリング後のピークがリミッタなしで +8.9 dB 、
+  トゥルーピークモードのリミッタありで +0.05 dB
+  という結果になりました。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/VSTPlugins/blob/master/BasicLimiter/source/dsp/polyphase.hpp">BasicLimiter
+  の FIR ポリフェイズフィルタのコードを読む (github.com)</a></li>
+  </ul>
+  <h3 id="軽量なトゥルーピークモード"><a
+  href="#軽量なトゥルーピークモード" class="header-anchor"
+  aria-hidden="true">軽量なトゥルーピークモード</a></h3>
+  <p>リミッタによるエイリアシングノイズを低減しないなら、以下のブロック線図の構成でもトゥルーピークを抑えられます。</p>
+  <figure>
+  <img src="img/truepeak_light_block_diagram.svg" alt="Image of a block diagram of true-peak limiter without multirate processing." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>上のブロック線図はリミッタをオーバーサンプリングしないので軽量です。トゥルーピークメーターの計算量はアップサンプラとほとんど同じです。</p>
+  <p>トゥルーピーク・メーターの実装は以下のリンク先に掲載しています。</p>
+  <ul>
+  <li><a
+  href="https://ryukau.github.io/filter_notes/truepeak_computation/truepeak_computation.html#c-%E3%81%A7%E3%81%AE%E5%AE%9F%E8%A3%85">トゥルーピークの計算
+  - 評価 - C++ での実装 (github.io)</a></li>
+  </ul>
+  <p>以下に Python 3 で動作を検証したコードがあります。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/limiter/lighttruepeaklimiter.py">軽量なトゥルーピークモードのコードを読む
+  (github.com)</a></li>
+  </ul>
+  <h3 id="プリフィルタの設計"><a href="#プリフィルタの設計"
+  class="header-anchor" aria-hidden="true">プリフィルタの設計</a></h3>
+  <p>この設計は BasicLimiter に関する以下の issue
+  の解決策として提示したものです。</p>
+  <ul>
+  <li><a href="https://github.com/ryukau/VSTPlugins/issues/46">Move
+  UpSampling Cutoff Frequency into BasicLimiter at Nyquist · Issue #46 ·
+  ryukau/VSTPlugins · GitHub</a></li>
+  </ul>
+  <p>アップサンプリング前のローパスフィルタ (プリフィルタ)
+  の設計の一例として <a
+  href="https://www.itu.int/rec/R-REC-BS.1770/en">ITU-R BS.1770-5</a> の
+  Attachment 1 to Annex 2 (p.21) に記載された maximum under-read
+  の式を使う方法が考えられます。</p>
+  <p>Maximum under-read は、任意の周波数 <span
+  class="math inline">\(f\)</span>
+  についてサンプルピークとトゥルーピークの差の最大値です。 ITU-R
+  BS.1770-5 では周波数 <span class="math inline">\(f\)</span> の sin
+  あるいは cos のピークがサンプルとサンプルの中間点に位置したときに
+  under-read
+  が最大となると書いてありますが、証明はないので本当かどうかはわかりません。以下は
+  maximum under-read のアイデアを示した図です。</p>
+  <figure>
+  <img src="img/maximum_underread.svg" alt="Image of an example of maximum under-read condition at f=f_s/4, according to ITU-R BS.1770 definition. First half of sine wave goes through 2 samples at the same height, and the peak of half sine is exactly in between those 2 samples." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は maximum under-read (<span class="math inline">\(u\)</span>)
+  の式です。 <span class="math inline">\(f\)</span> はナイキスト周波数が
+  0.5 となるように正規化されています。 <span
+  class="math inline">\(f\)</span> の単位は [rad/2π] です。</p>
+  <p><span class="math display">\[
+  u(f) = 20 \log(\cos(\pi f)).
+  \]</span></p>
+  <p>以下はプリフィルタを設計する Python 3 のコードです。</p>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>firLength <span class="op">=</span> <span class="dv">64</span>  <span class="co"># Should be even.</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>normalizedFreq <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="fl">0.5</span>, firLength <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span>, endpoint<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>invMaxTruepeak <span class="op">=</span> np.cos(np.pi <span class="op">*</span> normalizedFreq)</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> np.fft.irfft(invMaxTruepeak.astype(np.complex128))</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>fir <span class="op">=</span> np.roll(fir, <span class="bu">len</span>(fir) <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span>)</span></code></pre></div>
-<p>以下はプリフィルタの周波数特性です。今回設計した maximum under-read
-に基づくプリフィルタと、適当に設計した BasicLimiter
-のプリフィルタを比較しています。上 2
-つのプロットはどちらも振幅特性ですが、縦軸のスケールを変えています。 FIR
-フィルタの長さが同じであれば、パスバンドが平坦なほどカットオフ周波数を低く設定しなければならないトレードオフがあります。</p>
-<figure>
-<img src="img/prefilter.svg" alt="Image of frequency response of pre-filter." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="その他"><a href="#その他" class="header-anchor"
-aria-hidden="true">その他</a></h2>
-<h3 id="継時マスキング"><a href="#継時マスキング" class="header-anchor"
-aria-hidden="true">継時マスキング</a></h3>
-<p><a
-href="https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0">継時マスキング</a>
-(<a
-href="https://en.wikipedia.org/wiki/Auditory_masking#Temporal_masking">temporal
-masking</a>)
-は、突然大きな音がしたときは前後にある小さな音が聞こえにくくなるという人間の聴覚の性質です。リミッタはピークの前後をエンベロープで歪ませて振幅を制限します。ピークの前後は継時マスキングによってもともと聞こえていないので、歪ませても違和感が少ないと考えることができます。</p>
-<p>継時マスキングは、<a
-href="https://ccrma.stanford.edu/~bosse/proj/node21.html">突然の大きい音の前では
-20 ms 以下、後では 200 ms
-以下の長さにわたって起こる</a>そうです。よってリミッタを耳で評価するときはアタック時間を
-20 ms 以下、リリース時間を 200 ms
-以下に設定してドラムなどの音を入力したときに違和感を感じないことが一つの目安になります。アタックが遅い音は継時マスキングの条件から外れるので、より長いアタック時間やリリース時間が使えるかもしれません。</p>
-<h3 id="スムーシングフィルタの選定"><a
-href="#スムーシングフィルタの選定" class="header-anchor"
-aria-hidden="true">スムーシングフィルタの選定</a></h3>
-<p>ピークホールドのスムーシングを行うときに正面から FIR
-フィルタを畳み込むのであれば任意のフィルタ係数が使えます。オーバーシュートしない係数として<a
-href="%5BWindow%20function%20-%20Wikipedia%5D(https://en.wikipedia.org/wiki/Window_function)">窓関数</a>が使えますが、数があるので選定が必要です。</p>
-<p>選定の際は、まず Kaiser 窓の <code>β = 0.5 * π</code> と
-<code>β = 1.5 * π</code>
-を比較することをお勧めします。今回使ったテスト信号では
-<code>β = 0.5 * π</code>
-のほうが低域に入り込むノイズが少ない分だけ違和感が少なく聞こえました。どちらかというと、ストップバンドでの低減率よりも、カットオフ周波数が低めになることのほうが低域に出てくるノイズを抑える点では優れているようです。</p>
-<p>低域のノイズの確認に使ったテスト信号は以下のリンク先の
-<code>sincrack.wav</code> です。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/tree/master/limiter/cpp/limiter/data">リミッタのテスト信号を見る
-(github.com)</a></li>
-</ul>
-<p>他の選択肢としては DPSS や exponential window が挙げられます。 DPSS
-は Kaiser 、 exponential は三角窓に近い特性が作れます。</p>
-<h3 id="matlab-のリミッタ"><a href="#matlab-のリミッタ"
-class="header-anchor" aria-hidden="true">MATLAB のリミッタ</a></h3>
-<p>既存のリミッタの実装を探していた時に MATLAB
-のリミッタを見つけました。下のほうにアルゴリズムが載っています。</p>
-<ul>
-<li><a
-href="https://www.mathworks.com/help/audio/ref/limiter-system-object.html">Dynamic
-range limiter - MATLAB</a></li>
-</ul>
-<p>実装して試してみたのですが入力信号によっては振幅がしきい値を超えるケースがありました。フィルタ出力がピーク振幅に到達するまでピークホールドを行っておらず、また入力にディレイをかけてピークを合わせてもいません。スムーシングには
-1 次ローパス (exponential moving average フィルタ) が使われています。 1
-次ローパスの出力は指数曲線を描くので、振幅を確実に制限するときには使えないです。</p>
-<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
-aria-hidden="true">参考文献</a></h2>
-<ul>
-<li><a
-href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
-Limiter — Musicdsp.org documentation</a></li>
-<li><a
-href="https://www.mathworks.com/help/audio/ref/limiter-system-object.html">Dynamic
-range limiter - MATLAB</a></li>
-<li><a href="http://iem.at/~zmoelnig/publications/limiter/">how to make
-a DIGITAL LIMITER</a></li>
-</ul>
-<h2 id="参考にしたプラグイン"><a href="#参考にしたプラグイン"
-class="header-anchor" aria-hidden="true">参考にしたプラグイン</a></h2>
-<ul>
-<li><a href="http://www.yohng.com/software/w1limit.html">yohng.com · W1
-Limiter</a></li>
-<li><a
-href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm">Fruity
-Limiter - Effect Plugin</a></li>
-</ul>
-<h2 id="変更点"><a href="#変更点" class="header-anchor"
-aria-hidden="true">変更点</a></h2>
-<ul>
-<li>2024/05/20
-<ul>
-<li>特性曲線の項を追加。</li>
-<li>ソフトクリップの項を特性曲線に移動。</li>
-<li><code>auto &amp;&amp;</code> を <code>auto</code> に置換。</li>
-</ul></li>
-<li>2024/04/17
-<ul>
-<li>文章の整理。</li>
-</ul></li>
-<li>2024/02/18
-<ul>
-<li>プリフィルタの設計の項を追加。</li>
-</ul></li>
-<li>2022/05/20
-<ul>
-<li>軽量なトゥルーピークモードの項を追加。</li>
-</ul></li>
-<li>2022/05/11
-<ul>
-<li>冒頭のリミッタのブロック線図を変更。</li>
-<li>特性曲線の説明を追加。</li>
-<li>トゥルーピークモードの測定結果を追加。</li>
-</ul></li>
-<li>2022/05/08
-<ul>
-<li>リミッタの実装を改善。
-<ul>
-<li>リリース方法を指数関数的増加から EMA フィルタに変更。</li>
-<li><code>DoubleAverageFilter</code>
-での丸め誤差によって振幅の制限に失敗する問題を修正。</li>
-<li>ソフトクリッピングの廃止。</li>
-</ul></li>
-<li>トゥルーピークモードの節を追加。</li>
-<li>スムーシングフィルタの選定の項を追加。</li>
-<li>文章の整理。</li>
-</ul></li>
-<li>2021/01/09
-<ul>
-<li>Lookahead Limiter
-の記事の訳へのリンクを文脈に沿った位置に変更。</li>
-<li>文章の整理。</li>
-</ul></li>
-<li>2021/01/18
-<ul>
-<li>文章の整理。</li>
-</ul></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <p>以下はプリフィルタの周波数特性です。今回設計した maximum under-read
+  に基づくプリフィルタと、適当に設計した BasicLimiter
+  のプリフィルタを比較しています。上 2
+  つのプロットはどちらも振幅特性ですが、縦軸のスケールを変えています。
+  FIR
+  フィルタの長さが同じであれば、パスバンドが平坦なほどカットオフ周波数を低く設定しなければならないトレードオフがあります。</p>
+  <figure>
+  <img src="img/prefilter.svg" alt="Image of frequency response of pre-filter." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <h3 id="継時マスキング"><a href="#継時マスキング"
+  class="header-anchor" aria-hidden="true">継時マスキング</a></h3>
+  <p><a
+  href="https://ja.wikipedia.org/wiki/%E7%B5%8C%E6%99%82%E3%83%9E%E3%82%B9%E3%82%AD%E3%83%B3%E3%82%B0">継時マスキング</a>
+  (<a
+  href="https://en.wikipedia.org/wiki/Auditory_masking#Temporal_masking">temporal
+  masking</a>)
+  は、突然大きな音がしたときは前後にある小さな音が聞こえにくくなるという人間の聴覚の性質です。リミッタはピークの前後をエンベロープで歪ませて振幅を制限します。ピークの前後は継時マスキングによってもともと聞こえていないので、歪ませても違和感が少ないと考えることができます。</p>
+  <p>継時マスキングは、<a
+  href="https://ccrma.stanford.edu/~bosse/proj/node21.html">突然の大きい音の前では
+  20 ms 以下、後では 200 ms
+  以下の長さにわたって起こる</a>そうです。よってリミッタを耳で評価するときはアタック時間を
+  20 ms 以下、リリース時間を 200 ms
+  以下に設定してドラムなどの音を入力したときに違和感を感じないことが一つの目安になります。アタックが遅い音は継時マスキングの条件から外れるので、より長いアタック時間やリリース時間が使えるかもしれません。</p>
+  <h3 id="スムーシングフィルタの選定"><a
+  href="#スムーシングフィルタの選定" class="header-anchor"
+  aria-hidden="true">スムーシングフィルタの選定</a></h3>
+  <p>ピークホールドのスムーシングを行うときに正面から FIR
+  フィルタを畳み込むのであれば任意のフィルタ係数が使えます。オーバーシュートしない係数として<a
+  href="%5BWindow%20function%20-%20Wikipedia%5D(https://en.wikipedia.org/wiki/Window_function)">窓関数</a>が使えますが、数があるので選定が必要です。</p>
+  <p>選定の際は、まず Kaiser 窓の <code>β = 0.5 * π</code> と
+  <code>β = 1.5 * π</code>
+  を比較することをお勧めします。今回使ったテスト信号では
+  <code>β = 0.5 * π</code>
+  のほうが低域に入り込むノイズが少ない分だけ違和感が少なく聞こえました。どちらかというと、ストップバンドでの低減率よりも、カットオフ周波数が低めになることのほうが低域に出てくるノイズを抑える点では優れているようです。</p>
+  <p>低域のノイズの確認に使ったテスト信号は以下のリンク先の
+  <code>sincrack.wav</code> です。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/tree/master/limiter/cpp/limiter/data">リミッタのテスト信号を見る
+  (github.com)</a></li>
+  </ul>
+  <p>他の選択肢としては DPSS や exponential window が挙げられます。 DPSS
+  は Kaiser 、 exponential は三角窓に近い特性が作れます。</p>
+  <h3 id="matlab-のリミッタ"><a href="#matlab-のリミッタ"
+  class="header-anchor" aria-hidden="true">MATLAB のリミッタ</a></h3>
+  <p>既存のリミッタの実装を探していた時に MATLAB
+  のリミッタを見つけました。下のほうにアルゴリズムが載っています。</p>
+  <ul>
+  <li><a
+  href="https://www.mathworks.com/help/audio/ref/limiter-system-object.html">Dynamic
+  range limiter - MATLAB</a></li>
+  </ul>
+  <p>実装して試してみたのですが入力信号によっては振幅がしきい値を超えるケースがありました。フィルタ出力がピーク振幅に到達するまでピークホールドを行っておらず、また入力にディレイをかけてピークを合わせてもいません。スムーシングには
+  1 次ローパス (exponential moving average フィルタ) が使われています。
+  1
+  次ローパスの出力は指数曲線を描くので、振幅を確実に制限するときには使えないです。</p>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
+  Limiter — Musicdsp.org documentation</a></li>
+  <li><a
+  href="https://www.mathworks.com/help/audio/ref/limiter-system-object.html">Dynamic
+  range limiter - MATLAB</a></li>
+  <li><a href="http://iem.at/~zmoelnig/publications/limiter/">how to
+  make a DIGITAL LIMITER</a></li>
+  </ul>
+  <h2 id="参考にしたプラグイン"><a href="#参考にしたプラグイン"
+  class="header-anchor" aria-hidden="true">参考にしたプラグイン</a></h2>
+  <ul>
+  <li><a href="http://www.yohng.com/software/w1limit.html">yohng.com ·
+  W1 Limiter</a></li>
+  <li><a
+  href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm">Fruity
+  Limiter - Effect Plugin</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/05/20
+  <ul>
+  <li>特性曲線の項を追加。</li>
+  <li>ソフトクリップの項を特性曲線に移動。</li>
+  <li><code>auto &amp;&amp;</code> を <code>auto</code> に置換。</li>
+  </ul></li>
+  <li>2024/04/17
+  <ul>
+  <li>文章の整理。</li>
+  </ul></li>
+  <li>2024/02/18
+  <ul>
+  <li>プリフィルタの設計の項を追加。</li>
+  </ul></li>
+  <li>2022/05/20
+  <ul>
+  <li>軽量なトゥルーピークモードの項を追加。</li>
+  </ul></li>
+  <li>2022/05/11
+  <ul>
+  <li>冒頭のリミッタのブロック線図を変更。</li>
+  <li>特性曲線の説明を追加。</li>
+  <li>トゥルーピークモードの測定結果を追加。</li>
+  </ul></li>
+  <li>2022/05/08
+  <ul>
+  <li>リミッタの実装を改善。
+  <ul>
+  <li>リリース方法を指数関数的増加から EMA フィルタに変更。</li>
+  <li><code>DoubleAverageFilter</code>
+  での丸め誤差によって振幅の制限に失敗する問題を修正。</li>
+  <li>ソフトクリッピングの廃止。</li>
+  </ul></li>
+  <li>トゥルーピークモードの節を追加。</li>
+  <li>スムーシングフィルタの選定の項を追加。</li>
+  <li>文章の整理。</li>
+  </ul></li>
+  <li>2021/01/09
+  <ul>
+  <li>Lookahead Limiter
+  の記事の訳へのリンクを文脈に沿った位置に変更。</li>
+  <li>文章の整理。</li>
+  </ul></li>
+  <li>2021/01/18
+  <ul>
+  <li>文章の整理。</li>
+  </ul></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

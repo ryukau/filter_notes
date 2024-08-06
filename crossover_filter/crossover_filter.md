@@ -49,7 +49,7 @@ $$
 
 $$
 \begin{equation}
-w_n = \frac{\cosh \left[ \alpha \sqrt{1-\left(\dfrac{n-K}{N_{\mathrm{FIR}}}\right)^2} \right]}{\cosh(\alpha)}
+w_n = \frac{\cosh \left[ \alpha \sqrt{1-\left(\dfrac{n-K}{N_{\mathrm{FIR}}}\right)^2} \right]}{\cosh(\alpha)}.
 \label{Kaiser}
 \end{equation}
 $$

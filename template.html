@@ -2,329 +2,388 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$" $if(dir)$ dir="$dir$" $endif$>
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-$for(author-meta)$
-<meta name="author" content="$author-meta$" />
-$endfor$
-$if(date-meta)$
-<meta name="dcterms.date" content="$date-meta$" />
-$endif$
-$if(keywords)$
-<meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
-$endif$
-<title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  $for(author-meta)$
+  <meta name="author" content="$author-meta$" />
+  $endfor$
+  $if(date-meta)$
+  <meta name="dcterms.date" content="$date-meta$" />
+  $endif$
+  $if(keywords)$
+  <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+  $endif$
+  <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
 
-<style>
-$highlighting-css$
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-$if(math)$
-$math$
-$endif$
-$for(header-includes)$
-$header-includes$
-$endfor$
+    $highlighting-css$
+  </style>
+
+  $if(math)$
+  <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  $math$
+  $endif$
+  $for(header-includes)$
+  $header-includes$
+  $endfor$
 </head>
 
 <body>
-$for(include-before)$
-$include-before$
-$endfor$
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-$if(date-meta)$
-<p>
-Update: $date-meta$
-</p>
-$endif$
-$if(toc)$
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="$idprefix$TOC" role="doc-toc">
-$table-of-contents$
-</nav>
-</details>
-$endif$
-</header>
-$body$
-$for(include-after)$
-$include-after$
-$endfor$
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  $for(include-before)$
+  $include-before$
+  $endfor$
+  <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+    $if(date-meta)$
+    <p>
+      Update: $date-meta$
+    </p>
+    $endif$
+    $if(toc)$
+    <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="$idprefix$TOC" role="doc-toc">
+        $table-of-contents$
+      </nav>
+    </details>
+    $endif$
+  </header>
+  $body$
+  $for(include-after)$
+  $include-after$
+  $endfor$
+  <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

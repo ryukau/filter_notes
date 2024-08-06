@@ -2,441 +2,502 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>s_curve_step_response_filter</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>s_curve_step_response_filter</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#ステップ応答が-s-字を描くフィルタ"
-id="toc-ステップ応答が-s-字を描くフィルタ">ステップ応答が S
-字を描くフィルタ</a>
-<ul>
-<li><a href="#移動平均フィルタの重ね掛け"
-id="toc-移動平均フィルタの重ね掛け">移動平均フィルタの重ね掛け</a>
-<ul>
-<li><a href="#移動平均フィルタの重ね掛け-1"
-id="toc-移動平均フィルタの重ね掛け-1">移動平均フィルタの重ね掛け</a></li>
-<li><a href="#ステップ応答" id="toc-ステップ応答">ステップ応答</a></li>
-<li><a href="#実装" id="toc-実装">実装</a>
-<ul>
-<li><a href="#補足" id="toc-補足">補足</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#bessel-フィルタ" id="toc-bessel-フィルタ">Bessel
-フィルタ</a>
-<ul>
-<li><a href="#ステップ応答-1"
-id="toc-ステップ応答-1">ステップ応答</a></li>
-<li><a href="#次セクションへの分割" id="toc-次セクションへの分割">2
-次セクションへの分割</a>
-<ul>
-<li><a href="#アナログプロトタイプ"
-id="toc-アナログプロトタイプ">アナログプロトタイプ</a></li>
-<li><a href="#カットオフ周波数の設定"
-id="toc-カットオフ周波数の設定">カットオフ周波数の設定</a></li>
-<li><a href="#バイリニア変換"
-id="toc-バイリニア変換">バイリニア変換</a></li>
-<li><a href="#次セクションの構築" id="toc-次セクションの構築">2
-次セクションの構築</a></li>
-<li><a href="#c-での実装" id="toc-c-での実装">C++ での実装</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#thiran-ローパスフィルタ"
-id="toc-thiran-ローパスフィルタ">Thiran ローパスフィルタ</a>
-<ul>
-<li><a href="#ステップ応答-2"
-id="toc-ステップ応答-2">ステップ応答</a></li>
-</ul></li>
-<li><a href="#比較" id="toc-比較">比較</a></li>
-<li><a href="#その他" id="toc-その他">その他</a></li>
-<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
-<li><a href="#変更点" id="toc-変更点">変更点</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="ステップ応答が-s-字を描くフィルタ"><a
-href="#ステップ応答が-s-字を描くフィルタ" class="header-anchor"
-aria-hidden="true">ステップ応答が S 字を描くフィルタ</a></h1>
-<p>リミッタのエンベロープのスムーシングに使うためにステップ応答が S
-字を描くフィルタについて調べました。</p>
-<p>次の 3 つのフィルタを比較します。</p>
-<ul>
-<li>移動平均フィルタの重ね掛け</li>
-<li>Bessel フィルタ</li>
-<li>Thiran ローパスフィルタ</li>
-</ul>
-<h2 id="移動平均フィルタの重ね掛け"><a
-href="#移動平均フィルタの重ね掛け" class="header-anchor"
-aria-hidden="true">移動平均フィルタの重ね掛け</a></h2>
-<p><span class="math inline">\(x\)</span> を入力信号、 <span
-class="math inline">\(n\)</span> を現在時刻のサンプル数、 <span
-class="math inline">\(N\)</span> をフィルタの長さ (タップ数)
-とすると、移動平均フィルタは次の式で計算できます。</p>
-<p><span class="math display">\[
-y[n] = \frac{1}{N} \sum_{i=0}^{N-1} x[n - i]
-\]</span></p>
-<p>移動平均フィルタはフィルタ係数がすべて <span
-class="math inline">\(\dfrac{1}{N}\)</span> の矩形窓を畳み込む FIR
-フィルタと言い換えることができます。</p>
-<h3 id="移動平均フィルタの重ね掛け-1"><a
-href="#移動平均フィルタの重ね掛け-1" class="header-anchor"
-aria-hidden="true">移動平均フィルタの重ね掛け</a></h3>
-<p>直列につないだ FIR フィルタは、フィルタ係数を畳み込むことで 1
-つのフィルタにまとめられます。矩形窓を畳み込んで、重ね掛けしたときのフィルタ係数がどうなるのか見てみます。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#ステップ応答が-s-字を描くフィルタ"
+        id="toc-ステップ応答が-s-字を描くフィルタ">ステップ応答が S
+        字を描くフィルタ</a>
+        <ul>
+        <li><a href="#移動平均フィルタの重ね掛け"
+        id="toc-移動平均フィルタの重ね掛け">移動平均フィルタの重ね掛け</a>
+        <ul>
+        <li><a href="#移動平均フィルタの重ね掛け-1"
+        id="toc-移動平均フィルタの重ね掛け-1">移動平均フィルタの重ね掛け</a></li>
+        <li><a href="#ステップ応答"
+        id="toc-ステップ応答">ステップ応答</a></li>
+        <li><a href="#実装" id="toc-実装">実装</a>
+        <ul>
+        <li><a href="#補足" id="toc-補足">補足</a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#bessel-フィルタ" id="toc-bessel-フィルタ">Bessel
+        フィルタ</a>
+        <ul>
+        <li><a href="#ステップ応答-1"
+        id="toc-ステップ応答-1">ステップ応答</a></li>
+        <li><a href="#次セクションへの分割"
+        id="toc-次セクションへの分割">2 次セクションへの分割</a>
+        <ul>
+        <li><a href="#アナログプロトタイプ"
+        id="toc-アナログプロトタイプ">アナログプロトタイプ</a></li>
+        <li><a href="#カットオフ周波数の設定"
+        id="toc-カットオフ周波数の設定">カットオフ周波数の設定</a></li>
+        <li><a href="#バイリニア変換"
+        id="toc-バイリニア変換">バイリニア変換</a></li>
+        <li><a href="#次セクションの構築" id="toc-次セクションの構築">2
+        次セクションの構築</a></li>
+        <li><a href="#c-での実装" id="toc-c-での実装">C++
+        での実装</a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#thiran-ローパスフィルタ"
+        id="toc-thiran-ローパスフィルタ">Thiran ローパスフィルタ</a>
+        <ul>
+        <li><a href="#ステップ応答-2"
+        id="toc-ステップ応答-2">ステップ応答</a></li>
+        </ul></li>
+        <li><a href="#比較" id="toc-比較">比較</a></li>
+        <li><a href="#その他" id="toc-その他">その他</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="ステップ応答が-s-字を描くフィルタ"><a
+  href="#ステップ応答が-s-字を描くフィルタ" class="header-anchor"
+  aria-hidden="true">ステップ応答が S 字を描くフィルタ</a></h1>
+  <p>リミッタのエンベロープのスムーシングに使うためにステップ応答が S
+  字を描くフィルタについて調べました。</p>
+  <p>次の 3 つのフィルタを比較します。</p>
+  <ul>
+  <li>移動平均フィルタの重ね掛け</li>
+  <li>Bessel フィルタ</li>
+  <li>Thiran ローパスフィルタ</li>
+  </ul>
+  <h2 id="移動平均フィルタの重ね掛け"><a
+  href="#移動平均フィルタの重ね掛け" class="header-anchor"
+  aria-hidden="true">移動平均フィルタの重ね掛け</a></h2>
+  <p><span class="math inline">\(x\)</span> を入力信号、 <span
+  class="math inline">\(n\)</span> を現在時刻のサンプル数、 <span
+  class="math inline">\(N\)</span> をフィルタの長さ (タップ数)
+  とすると、移動平均フィルタは次の式で計算できます。</p>
+  <p><span class="math display">\[
+  y[n] = \frac{1}{N} \sum_{i=0}^{N-1} x[n - i]
+  \]</span></p>
+  <p>移動平均フィルタはフィルタ係数がすべて <span
+  class="math inline">\(\dfrac{1}{N}\)</span> の矩形窓を畳み込む FIR
+  フィルタと言い換えることができます。</p>
+  <h3 id="移動平均フィルタの重ね掛け-1"><a
+  href="#移動平均フィルタの重ね掛け-1" class="header-anchor"
+  aria-hidden="true">移動平均フィルタの重ね掛け</a></h3>
+  <p>直列につないだ FIR フィルタは、フィルタ係数を畳み込むことで 1
+  つのフィルタにまとめられます。矩形窓を畳み込んで、重ね掛けしたときのフィルタ係数がどうなるのか見てみます。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
@@ -466,18 +527,18 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>plotFilter()</span></code></pre></div>
-<p>出力です。 1 回畳み込んだときに三角窓になっています。 2
-回目以降の畳み込みでは<a
-href="https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/homework/hw2_p2_sol.pdf">区間ごとに変わる多項式
-(piecewise polynomial) になる</a>ようです。</p>
-<figure>
-<img src="img/MovingAverageKernel.png" alt="Cascaded moving average filter kernel shape." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="ステップ応答"><a href="#ステップ応答" class="header-anchor"
-aria-hidden="true">ステップ応答</a></h3>
-<p>移動平均フィルタを畳み込んだフィルタのステップ応答を確認します。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+  <p>出力です。 1 回畳み込んだときに三角窓になっています。 2
+  回目以降の畳み込みでは<a
+  href="https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/homework/hw2_p2_sol.pdf">区間ごとに変わる多項式
+  (piecewise polynomial) になる</a>ようです。</p>
+  <figure>
+  <img src="img/MovingAverageKernel.png" alt="Cascaded moving average filter kernel shape." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="ステップ応答"><a href="#ステップ応答" class="header-anchor"
+  aria-hidden="true">ステップ応答</a></h3>
+  <p>移動平均フィルタを畳み込んだフィルタのステップ応答を確認します。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plotStep(nPlot<span class="op">=</span><span class="dv">4</span>, nTaps <span class="op">=</span> <span class="dv">512</span>):</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    sig <span class="op">=</span> np.hstack((np.zeros(nTaps), np.ones(<span class="dv">2</span> <span class="op">*</span> nTaps)))</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    cmap <span class="op">=</span> plt.get_cmap(<span class="st">&quot;viridis&quot;</span>)</span>
@@ -492,35 +553,35 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>plotStep()</span></code></pre></div>
-<p>出力です。 1 回以上畳み込んだフィルタはステップ応答が S
-字になっています。</p>
-<figure>
-<img src="img/MovingAverageStepResponse.png" alt="Step responses of cascaded moving average filters." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="実装"><a href="#実装" class="header-anchor"
-aria-hidden="true">実装</a></h3>
-<p>移動平均フィルタは <a
-href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Musicdsp.org
-の Lookahead Limiter</a>
-のページで紹介されている手法を使えば効率よく計算できます。このページでは移動平均の重ね掛けを
-1 回行って、フィルタ係数を矩形窓から三角窓の形に変えています。</p>
-<p>状態変数 <span class="math inline">\(s\)</span> を用意します。時点
-<span class="math inline">\(n\)</span>
-の移動平均フィルタの出力は次の式で計算できます。</p>
-<p><span class="math display">\[
-s[n] = s[n - 1] + \frac{x[n] - x[n - N]}{N}
-\]</span></p>
-<p>移動平均フィルタを冒頭で紹介した定義から直接計算するとフィルタのタップ数
-<span class="math inline">\(N\)</span> より 1 サンプルあたりの計算量は
-<span class="math inline">\(O(N)\)</span> です。
-ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので
-1 サンプルあたりの計算量が <span class="math inline">\(O(1)\)</span>
-に減ります。</p>
-<p><span class="math inline">\(N\)</span>
-サンプルの遅延を加えるディレイを用意します。 <span
-class="math inline">\(N\)</span> は整数です。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
+  <p>出力です。 1 回以上畳み込んだフィルタはステップ応答が S
+  字になっています。</p>
+  <figure>
+  <img src="img/MovingAverageStepResponse.png" alt="Step responses of cascaded moving average filters." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="実装"><a href="#実装" class="header-anchor"
+  aria-hidden="true">実装</a></h3>
+  <p>移動平均フィルタは <a
+  href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Musicdsp.org
+  の Lookahead Limiter</a>
+  のページで紹介されている手法を使えば効率よく計算できます。このページでは移動平均の重ね掛けを
+  1 回行って、フィルタ係数を矩形窓から三角窓の形に変えています。</p>
+  <p>状態変数 <span class="math inline">\(s\)</span> を用意します。時点
+  <span class="math inline">\(n\)</span>
+  の移動平均フィルタの出力は次の式で計算できます。</p>
+  <p><span class="math display">\[
+  s[n] = s[n - 1] + \frac{x[n] - x[n - N]}{N}
+  \]</span></p>
+  <p>移動平均フィルタを冒頭で紹介した定義から直接計算するとフィルタのタップ数
+  <span class="math inline">\(N\)</span> より 1 サンプルあたりの計算量は
+  <span class="math inline">\(O(N)\)</span> です。
+  ディレイを使う方法ならタップ数によらず定数回の計算で畳み込みができるので
+  1 サンプルあたりの計算量が <span class="math inline">\(O(1)\)</span>
+  に減ります。</p>
+  <p><span class="math inline">\(N\)</span>
+  サンプルの遅延を加えるディレイを用意します。 <span
+  class="math inline">\(N\)</span> は整数です。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -558,13 +619,13 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#c
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> buf<span class="op">[</span>rptr<span class="op">];</span></span>
 <span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<p>以下の <code>MovingAverageFilter</code> の実装では、状態変数
-<code>sum</code>
-を用意して、各サンプルでディレイへの入力を加算、ディレイからの出力を減算します。
-<code>sum</code>
-をフィルタのタップ数で割った値がフィルタの出力です。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
+  <p>以下の <code>MovingAverageFilter</code> の実装では、状態変数
+  <code>sum</code>
+  を用意して、各サンプルでディレイへの入力を加算、ディレイからの出力を減算します。
+  <code>sum</code>
+  をフィルタのタップ数で割った値がフィルタの出力です。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> MovingAverageFilter <span class="op">{</span></span>
@@ -622,45 +683,45 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#c
 <span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum<span class="op">;</span></span>
 <span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<p>素朴な実装とリミッタ向けの実装をまとめて掲載しています。</p>
-<p>素朴な実装では、浮動小数点数の丸めモードが最も近い偶数への丸めになるときに、誤差によってオーバーシュートが起こります。
-C++ では
-<code>std::numeric_limits&lt;float&gt;::round_style == std::round_to_nearest</code>
-が true のときに最も近い偶数への丸めが行われます。</p>
-<p>リミッタ向けの実装では <code>add</code> メソッドで無理やり 0
-にむかって丸めることでオーバーシュートを防いでいます。 <code>add</code>
-メソッドでは、加算時に 2
-つの値の小さいほうについて仮数部に乗り切らない部分を切り捨てることで 0
-に向かう丸めを実装しています。</p>
-<p>C の標準ライブラリ <code>&lt;fenv.h&gt;</code> 、または C++
-の標準ライブラリ <code>&lt;cfenv&gt;</code> に丸めのモードを切り替える
-<a
-href="https://en.cppreference.com/w/cpp/numeric/fenv/feround"><code>fesetround</code></a>
-が用意されています。ターゲットの環境が -inf あるいは 0
-に向かう丸めをサポートしているときは、上の <code>add</code> ではなく、
-<code>fesetround</code> の使用を推奨します。</p>
-<p>丸めについての例として、以下のような 4 ビットの浮動小数点数
-<code>1000</code> と <code>11.11</code> の加算を挙げておきます。数字は 2
-進数です。</p>
-<pre><code>  1000
+  <p>素朴な実装とリミッタ向けの実装をまとめて掲載しています。</p>
+  <p>素朴な実装では、浮動小数点数の丸めモードが最も近い偶数への丸めになるときに、誤差によってオーバーシュートが起こります。
+  C++ では
+  <code>std::numeric_limits&lt;float&gt;::round_style == std::round_to_nearest</code>
+  が true のときに最も近い偶数への丸めが行われます。</p>
+  <p>リミッタ向けの実装では <code>add</code> メソッドで無理やり 0
+  にむかって丸めることでオーバーシュートを防いでいます。
+  <code>add</code> メソッドでは、加算時に 2
+  つの値の小さいほうについて仮数部に乗り切らない部分を切り捨てることで 0
+  に向かう丸めを実装しています。</p>
+  <p>C の標準ライブラリ <code>&lt;fenv.h&gt;</code> 、または C++
+  の標準ライブラリ <code>&lt;cfenv&gt;</code> に丸めのモードを切り替える
+  <a
+  href="https://en.cppreference.com/w/cpp/numeric/fenv/feround"><code>fesetround</code></a>
+  が用意されています。ターゲットの環境が -inf あるいは 0
+  に向かう丸めをサポートしているときは、上の <code>add</code> ではなく、
+  <code>fesetround</code> の使用を推奨します。</p>
+  <p>丸めについての例として、以下のような 4 ビットの浮動小数点数
+  <code>1000</code> と <code>11.11</code> の加算を挙げておきます。数字は
+  2 進数です。</p>
+  <pre><code>  1000
 + 0011.11 // 0.11 が 4 ビットに乗り切らないので丸められる。
 ---------
   1???</code></pre>
-<ul>
-<li>最も近い偶数への丸めが行われるとき、 <code>11.11</code>
-に最も近い偶数は <code>100</code> なので、加算の結果は <code>1100</code>
-。</li>
-<li>-inf に向かう丸めが行われるときは、 <code>0.11</code>
-が切り捨てられるので、加算の結果は <code>1011</code> 。</li>
-</ul>
-<h4 id="補足"><a href="#補足" class="header-anchor"
-aria-hidden="true">補足</a></h4>
-<p>Musicdsp.org のページでは、以下のコードのように入力で
-<code>1.0 - input</code> 、出力で <code>1.0 - output</code>
-を計算することで浮動小数点数による計算誤差を減らす手順があります。はっきりとは書いていませんが
-<code>input</code> の範囲は <code>[0.0, 1.0]</code> のようです。</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
+  <ul>
+  <li>最も近い偶数への丸めが行われるとき、 <code>11.11</code>
+  に最も近い偶数は <code>100</code> なので、加算の結果は
+  <code>1100</code> 。</li>
+  <li>-inf に向かう丸めが行われるときは、 <code>0.11</code>
+  が切り捨てられるので、加算の結果は <code>1011</code> 。</li>
+  </ul>
+  <h4 id="補足"><a href="#補足" class="header-anchor"
+  aria-hidden="true">補足</a></h4>
+  <p>Musicdsp.org のページでは、以下のコードのように入力で
+  <code>1.0 - input</code> 、出力で <code>1.0 - output</code>
+  を計算することで浮動小数点数による計算誤差を減らす手順があります。はっきりとは書いていませんが
+  <code>input</code> の範囲は <code>[0.0, 1.0]</code> のようです。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> MovingAverage <span class="op">{</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
@@ -671,14 +732,14 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#c
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> sum <span class="op">/</span> delay<span class="op">.</span>buffer<span class="op">.</span>size<span class="op">();</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<p>次のようなコードを書いて素朴な実装と比べました。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/s_curve_step_response_filter/cpp/roundingerror.cpp">テストコードへのリンク
-(github.com)</a></li>
-</ul>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">size_t</span> nLoop <span class="op">=</span> <span class="dv">300</span><span class="op">;</span></span>
+  <p>次のようなコードを書いて素朴な実装と比べました。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/s_curve_step_response_filter/cpp/roundingerror.cpp">テストコードへのリンク
+  (github.com)</a></li>
+  </ul>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">size_t</span> nLoop <span class="op">=</span> <span class="dv">300</span><span class="op">;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">uint32_t</span> size <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>MovingAverage<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> av1<span class="op">;</span></span>
@@ -696,46 +757,47 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#c
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  av1<span class="op">.</span>process1<span class="op">(</span>input<span class="op">);</span> <span class="co">// 1 から引く手順なし。</span></span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  av2<span class="op">.</span>process2<span class="op">(</span>input<span class="op">);</span> <span class="co">// 1 から引く手順あり。</span></span>
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>テスト時のコンパイラは Microsoft の cl.exe (Version 19.27.29111 for
-x86) を使いました。 <code>/fp:precise</code> と <code>fp:fast</code>
-を試しましたが、どちらも同じ値が出ました。</p>
-<p>テストでは <code>big</code> と <code>small</code> が 100
-サンプルごとに切り替わる信号を移動平均フィルタに入力しています。</p>
-<p>テストによって分かった 1 から引く手順ありのときの問題点です。</p>
-<ul>
-<li><code>sum = 0</code> のときに正しくスムーシングされない。</li>
-<li>出力の最大値の仮数部が <code>big</code> より 1
-大きくなることがある。</li>
-<li>入力がすべて正の値でも、出力が負の値になることがある。
-(<code>big = 0.9f</code> で確認。)</li>
-</ul>
-<p>1 から引く手順なしのときの問題点です。</p>
-<ul>
-<li>入力がすべて正の値でも、出力が負の値になることがある。
-(<code>big = 0.7f</code> と <code>0.9f</code> で確認。)</li>
-</ul>
-<p>1
-から引く手順ありだと数値誤差による問題が増えるので使わないほうが良さそうです。</p>
-<p>1 から引く手順なしでも 0
-に近い小さな値が含まれる信号のときは予期しない符号の反転が起こるおそれがあるので注意が必要です。</p>
-<h2 id="bessel-フィルタ"><a href="#bessel-フィルタ"
-class="header-anchor" aria-hidden="true">Bessel フィルタ</a></h2>
-<p>Bessel フィルタは連続系で群遅延が maximally flat
-になることが特長のフィルタですが、離散化にバイリニア変換などを使うと周波数が歪むので特長が損なわれます。</p>
-<p>Maximally flat はフィルタの専門用語で次の 2 つの性質を持ちます。</p>
-<ol type="1">
-<li>周波数が 0 のときに振幅や位相などの特性が所望の値となる。
-(ローパスの場合。)</li>
-<li>通過域の特性ができる限り平坦。</li>
-</ol>
-<h3 id="ステップ応答-1"><a href="#ステップ応答-1" class="header-anchor"
-aria-hidden="true">ステップ応答</a></h3>
-<p>SciPy の <a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.bessel.html"><code>signal.bessel()</code></a>
-を試します。 SciPy 1.5.2 では <code>signal.bessel()</code>
-はバイリニア変換を使っています。</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+  <p>テスト時のコンパイラは Microsoft の cl.exe (Version 19.27.29111 for
+  x86) を使いました。 <code>/fp:precise</code> と <code>fp:fast</code>
+  を試しましたが、どちらも同じ値が出ました。</p>
+  <p>テストでは <code>big</code> と <code>small</code> が 100
+  サンプルごとに切り替わる信号を移動平均フィルタに入力しています。</p>
+  <p>テストによって分かった 1 から引く手順ありのときの問題点です。</p>
+  <ul>
+  <li><code>sum = 0</code> のときに正しくスムーシングされない。</li>
+  <li>出力の最大値の仮数部が <code>big</code> より 1
+  大きくなることがある。</li>
+  <li>入力がすべて正の値でも、出力が負の値になることがある。
+  (<code>big = 0.9f</code> で確認。)</li>
+  </ul>
+  <p>1 から引く手順なしのときの問題点です。</p>
+  <ul>
+  <li>入力がすべて正の値でも、出力が負の値になることがある。
+  (<code>big = 0.7f</code> と <code>0.9f</code> で確認。)</li>
+  </ul>
+  <p>1
+  から引く手順ありだと数値誤差による問題が増えるので使わないほうが良さそうです。</p>
+  <p>1 から引く手順なしでも 0
+  に近い小さな値が含まれる信号のときは予期しない符号の反転が起こるおそれがあるので注意が必要です。</p>
+  <h2 id="bessel-フィルタ"><a href="#bessel-フィルタ"
+  class="header-anchor" aria-hidden="true">Bessel フィルタ</a></h2>
+  <p>Bessel フィルタは連続系で群遅延が maximally flat
+  になることが特長のフィルタですが、離散化にバイリニア変換などを使うと周波数が歪むので特長が損なわれます。</p>
+  <p>Maximally flat はフィルタの専門用語で次の 2
+  つの性質を持ちます。</p>
+  <ol type="1">
+  <li>周波数が 0 のときに振幅や位相などの特性が所望の値となる。
+  (ローパスの場合。)</li>
+  <li>通過域の特性ができる限り平坦。</li>
+  </ol>
+  <h3 id="ステップ応答-1"><a href="#ステップ応答-1"
+  class="header-anchor" aria-hidden="true">ステップ応答</a></h3>
+  <p>SciPy の <a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.bessel.html"><code>signal.bessel()</code></a>
+  を試します。 SciPy 1.5.2 では <code>signal.bessel()</code>
+  はバイリニア変換を使っています。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
@@ -754,23 +816,24 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
 <span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
-<p>出力です。ステップ応答は S
-字になりますがオーバーシュートが出ます。</p>
-<figure>
-<img src="Bessel filter step response." alt="img/BesselStepResponse.png" style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="次セクションへの分割"><a href="#次セクションへの分割"
-class="header-anchor" aria-hidden="true">2 次セクションへの分割</a></h3>
-<p>次数の高い伝達関数をそのまま計算すると浮動小数点数による誤差で発散することがあります。そこで
-2 次セクション (second order sections, sos) に分割して C++
-に移植します。</p>
-<p>カットオフ周波数を自由に変更するために、以下の Python3 のコードと、
-Neil Robertson さんによる <a
-href="https://www.dsprelated.com/showarticle/1137.php">Design IIR
-Filters Using Cascaded Biquads</a>
-で紹介されていた手法を組み合わせています。</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+  <p>出力です。ステップ応答は S
+  字になりますがオーバーシュートが出ます。</p>
+  <figure>
+  <img src="Bessel filter step response." alt="img/BesselStepResponse.png" style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="次セクションへの分割"><a href="#次セクションへの分割"
+  class="header-anchor" aria-hidden="true">2
+  次セクションへの分割</a></h3>
+  <p>次数の高い伝達関数をそのまま計算すると浮動小数点数による誤差で発散することがあります。そこで
+  2 次セクション (second order sections, sos) に分割して C++
+  に移植します。</p>
+  <p>カットオフ周波数を自由に変更するために、以下の Python3 のコードと、
+  Neil Robertson さんによる <a
+  href="https://www.dsprelated.com/showarticle/1137.php">Design IIR
+  Filters Using Cascaded Biquads</a>
+  で紹介されていた手法を組み合わせています。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -779,125 +842,128 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    z, p, k <span class="op">=</span> signal.lp2lp_zpk(z, p, k, delay)</span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    z, p, k, _ <span class="op">=</span> signal.cont2discrete([z, p, k], <span class="dv">1</span>, method<span class="op">=</span><span class="st">&quot;bilinear&quot;</span>)</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal.zpk2sos(z, p, k)</span></code></pre></div>
-<p>コードの <code>z, p, k</code> は <code>zero, pole, gain</code>
-の略です。</p>
-<h4 id="アナログプロトタイプ"><a href="#アナログプロトタイプ"
-class="header-anchor" aria-hidden="true">アナログプロトタイプ</a></h4>
-<p>Bessel
-フィルタは極だけでゼロは一つもありません。このようなフィルタは全極フィルタ
-(all-pole filter)
-と呼ばれています。極は伝達関数の分母の多項式の根を求めることで計算できます。</p>
-<p>今回は root-finding
-アルゴリズムを評価、実装する手間を省きたかったので <a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.besselap.html#scipy.signal.besselap"><code>signal.besselap()</code></a>
-から得られた極をそのまま定数として使うことにしました。</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+  <p>コードの <code>z, p, k</code> は <code>zero, pole, gain</code>
+  の略です。</p>
+  <h4 id="アナログプロトタイプ"><a href="#アナログプロトタイプ"
+  class="header-anchor" aria-hidden="true">アナログプロトタイプ</a></h4>
+  <p>Bessel
+  フィルタは極だけでゼロは一つもありません。このようなフィルタは全極フィルタ
+  (all-pole filter)
+  と呼ばれています。極は伝達関数の分母の多項式の根を求めることで計算できます。</p>
+  <p>今回は root-finding
+  アルゴリズムを評価、実装する手間を省きたかったので <a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.besselap.html#scipy.signal.besselap"><code>signal.besselap()</code></a>
+  から得られた極をそのまま定数として使うことにしました。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>z, p, k <span class="op">=</span> signal.besselap(<span class="dv">4</span>, norm<span class="op">=</span><span class="st">&quot;delay&quot;</span>) <span class="co"># 4 次。</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(p.tolist())</span></code></pre></div>
-<p>整形した出力です。</p>
-<pre><code>[
+  <p>整形した出力です。</p>
+  <pre><code>[
   (-2.1037893971796273+2.6574180418567526j), # p1
   (-2.8962106028203722+0.8672341289345038j), # p2
   (-2.8962106028203722-0.8672341289345038j), # p2 の複素共役
   (-2.1037893971796273-2.6574180418567526j)  # p1 の複素共役
 ]</code></pre>
-<h4 id="カットオフ周波数の設定"><a href="#カットオフ周波数の設定"
-class="header-anchor" aria-hidden="true">カットオフ周波数の設定</a></h4>
-<p><a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lp2lp_zpk.html#scipy.signal.lp2lp_zpk"><code>signal.lp2lp_zpk()</code></a>
-はローパスのアナログプロトタイプのカットオフ周波数を設定する関数です。以下はエラー処理などを簡略化した
-SciPy 1.5.2 での実装の写しです。</p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+  <h4 id="カットオフ周波数の設定"><a href="#カットオフ周波数の設定"
+  class="header-anchor"
+  aria-hidden="true">カットオフ周波数の設定</a></h4>
+  <p><a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.lp2lp_zpk.html#scipy.signal.lp2lp_zpk"><code>signal.lp2lp_zpk()</code></a>
+  はローパスのアナログプロトタイプのカットオフ周波数を設定する関数です。以下はエラー処理などを簡略化した
+  SciPy 1.5.2 での実装の写しです。</p>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lp2lp_zpk(z, p, k, wo<span class="op">=</span><span class="fl">1.0</span>):</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    degree <span class="op">=</span> <span class="bu">len</span>(p) <span class="op">-</span> <span class="bu">len</span>(z)</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    z_lp <span class="op">=</span> wo <span class="op">*</span> z</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    p_lp <span class="op">=</span> wo <span class="op">*</span> p</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    k_lp <span class="op">=</span> k <span class="op">*</span> wo<span class="op">**</span>degree</span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> z_lp, p_lp, k_lp</span></code></pre></div>
-<p>Bessel フィルタはゼロが無く、ゲインは別の方法で計算するので
-<code>z_lp</code> と <code>k_lp</code> は C++
-のコードでは計算していません。</p>
-<h4 id="バイリニア変換"><a href="#バイリニア変換" class="header-anchor"
-aria-hidden="true">バイリニア変換</a></h4>
-<p>アナログプロトタイプからの離散化にはバイリニア変換を使います。次のバイリニア変換の式の
-<span class="math inline">\(s\)</span>
-に連続系の極を代入することで、離散フィルタの極に変換できます。</p>
-<p><span class="math display">\[
-z = \frac{2 f_s + s}{2 f_s - s}
-\]</span></p>
-<p><code>signal.besselap()</code> から得られた極は <span
-class="math inline">\(f_s = 1\)</span>
-とすると正しく変換できました。</p>
-<p><span class="math inline">\(N\)</span>
-次の全極フィルタの伝達関数は次の形になります。 <span
-class="math inline">\(\hat{p}\)</span> はアナログフィルタの極です。</p>
-<p><span class="math display">\[
-H(z) = \frac{1}{\displaystyle \prod_{i=1}^{N} (s - \hat{p}_i)}
-\]</span></p>
-<p><span class="math inline">\(s\)</span>
-について解いたバイリニア変換の式です。</p>
-<p><span class="math display">\[
-s = 2 f_s \frac{1 - z^{-1}}{1 + z^{-1}}
-\]</span></p>
-<p><span class="math inline">\(s\)</span>
-について解いたバイリニア変換の式を全極フィルタの伝達関数に代入してまとめると次の形になります。
-<span class="math inline">\(p\)</span> は離散フィルタの極、 <span
-class="math inline">\(K\)</span> はゲインです。</p>
-<p><span class="math display">\[
-H(z) = K \frac{(z + 1)^N}{\displaystyle \prod_{i=1}^{N} (z - p_i)}
-\]</span></p>
-<h4 id="次セクションの構築"><a href="#次セクションの構築"
-class="header-anchor" aria-hidden="true">2 次セクションの構築</a></h4>
-<p>次数が偶数の Bessel フィルタの極は複素共役の組 (conjugated pairs)
-になります。例えば 4 次なら <span class="math inline">\((p_1, p_2,
-p_2^*, p_1^*)\)</span> という 4 つの極が出てきます。 <span
-class="math inline">\(^*\)</span> は複素共役の演算子です。 2
-次セクションを作るときは複素共役の組となる極を使うことで計算を簡略化できます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-H(z)
-  &amp;= \prod_{i=1}^{N / 2} K_i \frac{(z + 1)^2}{(z - p_i)(z - p_i^*)}
-\\
-  &amp;= \prod_{i=1}^{N / 2} K_i \frac{1 + 2 z^{-1} + z^{-2}}{
-    1 - 2\,\mathrm{Re}(p_i) z^{-1} + |p_i|^2 z^{-2}
-  }
-\end{aligned}
-\]</span></p>
-<p>ゲインの計算式を出すために 2 次セクションを一つだけ取り出します。</p>
-<p><span class="math display">\[
-H(z) = K_i \frac{1 + 2 z^{-1} + z^{-2}}{1 - 2\,\mathrm{Re}(p_i) z^{-1} +
-|p_i|^2 z^{-2}}
-\]</span></p>
-<p><span class="math inline">\(\omega = 0\)</span> のときに<a
-href="https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html">振幅特性</a>
-が 1 となるゲイン <span class="math inline">\(K_i\)</span>
-を求めます。振幅特性は <span class="math inline">\(z = e^{j
-\omega}\)</span> と代入すると計算できますが、ここでは <span
-class="math inline">\(\omega = 0\)</span> なので <span
-class="math inline">\(z = 1\)</span> と簡略化できます。</p>
-<p><span class="math display">\[
-H(1) = 1 = K_i \frac{1 + 2 + 1}{1 - 2\,\mathrm{Re}(p_i) + |p_i|^2}
-\]</span></p>
-<p><span class="math inline">\(K_i\)</span> について解きます。</p>
-<p><span class="math display">\[
-K_i = \frac{1 - 2\,\mathrm{Re}(p_i) + |p_i|^2}{4}
-\]</span></p>
-<p>すべての 2 次セクションのゲイン <span
-class="math inline">\(K_i\)</span>
-を掛け合わせることで、フィルタ全体のゲイン <span
-class="math inline">\(K\)</span> が計算できます。</p>
-<p><span class="math display">\[
-K = \prod_{i=1}^N K_i
-\]</span></p>
-<h4 id="c-での実装"><a href="#c-での実装" class="header-anchor"
-aria-hidden="true">C++ での実装</a></h4>
-<p>C++17 のフラグを立ててコンパイルしています。</p>
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
+  <p>Bessel フィルタはゼロが無く、ゲインは別の方法で計算するので
+  <code>z_lp</code> と <code>k_lp</code> は C++
+  のコードでは計算していません。</p>
+  <h4 id="バイリニア変換"><a href="#バイリニア変換"
+  class="header-anchor" aria-hidden="true">バイリニア変換</a></h4>
+  <p>アナログプロトタイプからの離散化にはバイリニア変換を使います。次のバイリニア変換の式の
+  <span class="math inline">\(s\)</span>
+  に連続系の極を代入することで、離散フィルタの極に変換できます。</p>
+  <p><span class="math display">\[
+  z = \frac{2 f_s + s}{2 f_s - s}
+  \]</span></p>
+  <p><code>signal.besselap()</code> から得られた極は <span
+  class="math inline">\(f_s = 1\)</span>
+  とすると正しく変換できました。</p>
+  <p><span class="math inline">\(N\)</span>
+  次の全極フィルタの伝達関数は次の形になります。 <span
+  class="math inline">\(\hat{p}\)</span>
+  はアナログフィルタの極です。</p>
+  <p><span class="math display">\[
+  H(z) = \frac{1}{\displaystyle \prod_{i=1}^{N} (s - \hat{p}_i)}
+  \]</span></p>
+  <p><span class="math inline">\(s\)</span>
+  について解いたバイリニア変換の式です。</p>
+  <p><span class="math display">\[
+  s = 2 f_s \frac{1 - z^{-1}}{1 + z^{-1}}
+  \]</span></p>
+  <p><span class="math inline">\(s\)</span>
+  について解いたバイリニア変換の式を全極フィルタの伝達関数に代入してまとめると次の形になります。
+  <span class="math inline">\(p\)</span> は離散フィルタの極、 <span
+  class="math inline">\(K\)</span> はゲインです。</p>
+  <p><span class="math display">\[
+  H(z) = K \frac{(z + 1)^N}{\displaystyle \prod_{i=1}^{N} (z - p_i)}
+  \]</span></p>
+  <h4 id="次セクションの構築"><a href="#次セクションの構築"
+  class="header-anchor" aria-hidden="true">2 次セクションの構築</a></h4>
+  <p>次数が偶数の Bessel フィルタの極は複素共役の組 (conjugated pairs)
+  になります。例えば 4 次なら <span class="math inline">\((p_1, p_2,
+  p_2^*, p_1^*)\)</span> という 4 つの極が出てきます。 <span
+  class="math inline">\(^*\)</span> は複素共役の演算子です。 2
+  次セクションを作るときは複素共役の組となる極を使うことで計算を簡略化できます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  H(z)
+    &amp;= \prod_{i=1}^{N / 2} K_i \frac{(z + 1)^2}{(z - p_i)(z -
+  p_i^*)} \\
+    &amp;= \prod_{i=1}^{N / 2} K_i \frac{1 + 2 z^{-1} + z^{-2}}{
+      1 - 2\,\mathrm{Re}(p_i) z^{-1} + |p_i|^2 z^{-2}
+    }
+  \end{aligned}
+  \]</span></p>
+  <p>ゲインの計算式を出すために 2
+  次セクションを一つだけ取り出します。</p>
+  <p><span class="math display">\[
+  H(z) = K_i \frac{1 + 2 z^{-1} + z^{-2}}{1 - 2\,\mathrm{Re}(p_i) z^{-1}
+  + |p_i|^2 z^{-2}}
+  \]</span></p>
+  <p><span class="math inline">\(\omega = 0\)</span> のときに<a
+  href="https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html">振幅特性</a>
+  が 1 となるゲイン <span class="math inline">\(K_i\)</span>
+  を求めます。振幅特性は <span class="math inline">\(z = e^{j
+  \omega}\)</span> と代入すると計算できますが、ここでは <span
+  class="math inline">\(\omega = 0\)</span> なので <span
+  class="math inline">\(z = 1\)</span> と簡略化できます。</p>
+  <p><span class="math display">\[
+  H(1) = 1 = K_i \frac{1 + 2 + 1}{1 - 2\,\mathrm{Re}(p_i) + |p_i|^2}
+  \]</span></p>
+  <p><span class="math inline">\(K_i\)</span> について解きます。</p>
+  <p><span class="math display">\[
+  K_i = \frac{1 - 2\,\mathrm{Re}(p_i) + |p_i|^2}{4}
+  \]</span></p>
+  <p>すべての 2 次セクションのゲイン <span
+  class="math inline">\(K_i\)</span>
+  を掛け合わせることで、フィルタ全体のゲイン <span
+  class="math inline">\(K\)</span> が計算できます。</p>
+  <p><span class="math display">\[
+  K = \prod_{i=1}^N K_i
+  \]</span></p>
+  <h4 id="c-での実装"><a href="#c-での実装" class="header-anchor"
+  aria-hidden="true">C++ での実装</a></h4>
+  <p>C++17 のフラグを立ててコンパイルしています。</p>
+  <div class="sourceCode" id="cb13"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C++</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;complex&gt;</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -973,41 +1039,41 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#
 <span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gain <span class="op">*</span> y0<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
 <span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h2 id="thiran-ローパスフィルタ"><a href="#thiran-ローパスフィルタ"
-class="header-anchor" aria-hidden="true">Thiran
-ローパスフィルタ</a></h2>
-<p>Thiran ローパスフィルタは群遅延が maximally flat
-になるように設計されたフィルタです。</p>
-<p>Thiran ローパスフィルタの伝達関数です。</p>
-<p><span class="math display">\[
-H(z) = \frac{2n!}{n!} \,
-\frac{1}{\displaystyle \prod_{i = n + 1}^{2n} (2 \tau + i)} \,
-\frac{1}{\displaystyle
-  \sum_{k=0}^n \left(
-    (-1)^k \binom{n}{k}
-    \prod_{i=0}^n \dfrac{2 \tau + i}{2 \tau + k + i}
-  \right)
-  z^{-k}
-}
-\]</span></p>
-<ul>
-<li><span class="math inline">\(n\)</span>: フィルタの次数。</li>
-<li><span class="math inline">\(\tau\)</span>: 所望の遅延 (desired
-delay) 。</li>
-</ul>
-<p>分母の因数分解は無理そうなので、 2
-次セクションに分割するなら多項式の根を探す (root-finding)
-アルゴリズムを使って数値的に計算するしかなさそうです。ここでは SciPy の
-<a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tf2sos.html#scipy.signal.tf2sos"><code>signal.tf2sos()</code></a>
-を使っています。 C++ では <a
-href="https://www.boost.org/doc/libs/1_74_0/libs/math/doc/html/root_finding.html">Boost
-の root-finding</a> が使えそうです。</p>
-<h3 id="ステップ応答-2"><a href="#ステップ応答-2" class="header-anchor"
-aria-hidden="true">ステップ応答</a></h3>
-<p>ステップ応答を確認します。</p>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+  <h2 id="thiran-ローパスフィルタ"><a href="#thiran-ローパスフィルタ"
+  class="header-anchor" aria-hidden="true">Thiran
+  ローパスフィルタ</a></h2>
+  <p>Thiran ローパスフィルタは群遅延が maximally flat
+  になるように設計されたフィルタです。</p>
+  <p>Thiran ローパスフィルタの伝達関数です。</p>
+  <p><span class="math display">\[
+  H(z) = \frac{2n!}{n!} \,
+  \frac{1}{\displaystyle \prod_{i = n + 1}^{2n} (2 \tau + i)} \,
+  \frac{1}{\displaystyle
+    \sum_{k=0}^n \left(
+      (-1)^k \binom{n}{k}
+      \prod_{i=0}^n \dfrac{2 \tau + i}{2 \tau + k + i}
+    \right)
+    z^{-k}
+  }
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(n\)</span>: フィルタの次数。</li>
+  <li><span class="math inline">\(\tau\)</span>: 所望の遅延 (desired
+  delay) 。</li>
+  </ul>
+  <p>分母の因数分解は無理そうなので、 2
+  次セクションに分割するなら多項式の根を探す (root-finding)
+  アルゴリズムを使って数値的に計算するしかなさそうです。ここでは SciPy
+  の <a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tf2sos.html#scipy.signal.tf2sos"><code>signal.tf2sos()</code></a>
+  を使っています。 C++ では <a
+  href="https://www.boost.org/doc/libs/1_74_0/libs/math/doc/html/root_finding.html">Boost
+  の root-finding</a> が使えそうです。</p>
+  <h3 id="ステップ応答-2"><a href="#ステップ応答-2"
+  class="header-anchor" aria-hidden="true">ステップ応答</a></h3>
+  <p>ステップ応答を確認します。</p>
+  <div class="sourceCode" id="cb14"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.special <span class="im">as</span> special</span>
@@ -1043,18 +1109,18 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a h
 <span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>plt.grid()</span>
 <span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
 <span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
-<p>出力です。オーバーシュートが出ています。バイリニア変換した Bessel
-フィルタと同じに見えます。</p>
-<figure>
-<img src="img/ThiranStepResponse.png" alt="Thiran lowpass filter step response." style="padding-bottom: 12px;"/>
-</figure>
-<p>ゲインの値を定義通りに計算すると <code>delay</code>
-の値によってはステップ応答が 1
-から少しずれた値に収束することがあります。 1 に収束させるときは <a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.freqz.html#scipy.signal.freqz"><code>signal.freqz()</code></a>
-の値からゲインを計算できます。</p>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
+  <p>出力です。オーバーシュートが出ています。バイリニア変換した Bessel
+  フィルタと同じに見えます。</p>
+  <figure>
+  <img src="img/ThiranStepResponse.png" alt="Thiran lowpass filter step response." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>ゲインの値を定義通りに計算すると <code>delay</code>
+  の値によってはステップ応答が 1
+  から少しずれた値に収束することがあります。 1 に収束させるときは <a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.freqz.html#scipy.signal.freqz"><code>signal.freqz()</code></a>
+  の値からゲインを計算できます。</p>
+  <div class="sourceCode" id="cb15"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python3</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> thiranLowpassFixedGain(n, τ):</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> np.empty(n <span class="op">+</span> <span class="dv">1</span>)</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(n <span class="op">+</span> <span class="dv">1</span>):</span>
@@ -1064,98 +1130,99 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> np.zeros_like(a)</span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    b[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> resp.real</span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (b, a)</span></code></pre></div>
-<h2 id="比較"><a href="#比較" class="header-anchor"
-aria-hidden="true">比較</a></h2>
-<p>ここまでに紹介した 3 つのフィルタのステップ応答を比較します。</p>
-<ul>
-<li>三角窓の FIR フィルタ (移動平均を 1 回畳み込み)</li>
-<li>バイリニア変換した Bessel フィルタ</li>
-<li>Thiran ローパスフィルタ</li>
-</ul>
-<p>Bessel フィルタと Thiran
-ローパスフィルタのステップ応答はほとんど同じで重なっています。</p>
-<figure>
-<img src="img/StepResponseComparison.png" alt="Comparison of step responase of triangular, Bessel and Thiran filter." style="padding-bottom: 12px;"/>
-</figure>
-<p>離散系で S
-字のステップ応答が欲しいときは、オーバーシュートがなく、計算も速くて簡単な移動平均の重ね掛けを使えばよさそうです。</p>
-<p>バイリニア変換した Bessel
-フィルタは、オーバーシュートがあり、移動平均の重ね掛けと比べると計算が重いですが、メモリの使用量が少ないという利点があります。移動平均の重ね掛けは遷移時間と同じサンプル数のメモリが必要です。</p>
-<p>Thiran ローパスフィルタはバイリニア変換した Bessel
-フィルタとほとんど同じですが、 2
-次セクションに分割できないので使いどころはなさそうです。</p>
-<h2 id="その他"><a href="#その他" class="header-anchor"
-aria-hidden="true">その他</a></h2>
-<p>オーバーシュートせずにステップ応答が S
-字を描くフィルタとしては、フィルタ係数がすべて正の値となる FIR
-フィルタも使えます。ただし、遷移時間が長くなると FIR
-フィルタのタップ数が増える分だけ計算が重たくなります。フィルタ係数は
-Wikipedia の<a
-href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>の記事からいろいろな曲線が選べます。</p>
-<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
-aria-hidden="true">参考文献</a></h2>
-<ul>
-<li><a
-href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
-Limiter — Musicdsp.org documentation</a></li>
-<li><a
-href="https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/homework/hw2_p2_sol.pdf">hw2_p2_sol.pdf
-- 矩形窓と三角窓の畳み込み (www.cs.cmu.edu)</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Bessel_filter">Bessel filter
-- Wikipedia</a></li>
-<li><a href="https://www.dsprelated.com/showarticle/1119.php">Design IIR
-Butterworth Filters Using 12 Lines of Code - Neil Robertson</a></li>
-<li><a href="https://www.dsprelated.com/showarticle/1137.php">Design IIR
-Filters Using Cascaded Biquads - Neil Robertson</a></li>
-<li><a
-href="https://pdfs.semanticscholar.org/cd84/b18a454fd04a7bfcd1995ddb8c4c6927cc87.pdf">Thiran,
-J. P. (1971). Recursive digital filters with maximally flat group
-delay.</a></li>
-<li><a
-href="https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html">Amplitude
-Response</a></li>
-</ul>
-<h2 id="変更点"><a href="#変更点" class="header-anchor"
-aria-hidden="true">変更点</a></h2>
-<ul>
-<li>2024/04/07
-<ul>
-<li>Typo の修正。</li>
-<li>その他の節に「フィルタ係数がすべて正の値」という条件を追加。</li>
-<li>代替テキストをデフォルトで非表示にするため、画像を Markdown 表記
-<code>![]()</code> から <code>&lt;image&gt;</code> タグに変更。</li>
-</ul></li>
-<li>2024/04/06
-<ul>
-<li>浮動小数点数の丸めについて <code>&lt;cfenv&gt;</code>
-に関する記載を追加。</li>
-</ul></li>
-<li>2022/05/07
-<ul>
-<li>移動平均フィルタにリミッタ向けの実装を追加。</li>
-</ul></li>
-<li>2020/10/16
-<ul>
-<li>ローパスの場合の Maximally flat の定義を追加。</li>
-<li>2 次セクションのゲインの導出を変更。</li>
-<li>移動平均フィルタの説明を追加。</li>
-<li>移動平均フィルタの C++ のコードを修正。</li>
-<li>移動平均フィルタの誤差補正の検証を追加。</li>
-<li>その他の節を追加。</li>
-</ul></li>
-<li>2020/10/17
-<ul>
-<li>文章の整理。</li>
-<li>SciPy の関数にリファレンスへのリンクを追加。</li>
-</ul></li>
-<li>2022/02/09
-<ul>
-<li>Bessel4 の実装の間違いを修正。</li>
-</ul></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <h2 id="比較"><a href="#比較" class="header-anchor"
+  aria-hidden="true">比較</a></h2>
+  <p>ここまでに紹介した 3 つのフィルタのステップ応答を比較します。</p>
+  <ul>
+  <li>三角窓の FIR フィルタ (移動平均を 1 回畳み込み)</li>
+  <li>バイリニア変換した Bessel フィルタ</li>
+  <li>Thiran ローパスフィルタ</li>
+  </ul>
+  <p>Bessel フィルタと Thiran
+  ローパスフィルタのステップ応答はほとんど同じで重なっています。</p>
+  <figure>
+  <img src="img/StepResponseComparison.png" alt="Comparison of step responase of triangular, Bessel and Thiran filter." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>離散系で S
+  字のステップ応答が欲しいときは、オーバーシュートがなく、計算も速くて簡単な移動平均の重ね掛けを使えばよさそうです。</p>
+  <p>バイリニア変換した Bessel
+  フィルタは、オーバーシュートがあり、移動平均の重ね掛けと比べると計算が重いですが、メモリの使用量が少ないという利点があります。移動平均の重ね掛けは遷移時間と同じサンプル数のメモリが必要です。</p>
+  <p>Thiran ローパスフィルタはバイリニア変換した Bessel
+  フィルタとほとんど同じですが、 2
+  次セクションに分割できないので使いどころはなさそうです。</p>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <p>オーバーシュートせずにステップ応答が S
+  字を描くフィルタとしては、フィルタ係数がすべて正の値となる FIR
+  フィルタも使えます。ただし、遷移時間が長くなると FIR
+  フィルタのタップ数が増える分だけ計算が重たくなります。フィルタ係数は
+  Wikipedia の<a
+  href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>の記事からいろいろな曲線が選べます。</p>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
+  Limiter — Musicdsp.org documentation</a></li>
+  <li><a
+  href="https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/homework/hw2_p2_sol.pdf">hw2_p2_sol.pdf
+  - 矩形窓と三角窓の畳み込み (www.cs.cmu.edu)</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Bessel_filter">Bessel
+  filter - Wikipedia</a></li>
+  <li><a href="https://www.dsprelated.com/showarticle/1119.php">Design
+  IIR Butterworth Filters Using 12 Lines of Code - Neil
+  Robertson</a></li>
+  <li><a href="https://www.dsprelated.com/showarticle/1137.php">Design
+  IIR Filters Using Cascaded Biquads - Neil Robertson</a></li>
+  <li><a
+  href="https://pdfs.semanticscholar.org/cd84/b18a454fd04a7bfcd1995ddb8c4c6927cc87.pdf">Thiran,
+  J. P. (1971). Recursive digital filters with maximally flat group
+  delay.</a></li>
+  <li><a
+  href="https://ccrma.stanford.edu/~jos/filters/Amplitude_Response_I_I.html">Amplitude
+  Response</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/04/07
+  <ul>
+  <li>Typo の修正。</li>
+  <li>その他の節に「フィルタ係数がすべて正の値」という条件を追加。</li>
+  <li>代替テキストをデフォルトで非表示にするため、画像を Markdown 表記
+  <code>![]()</code> から <code>&lt;image&gt;</code> タグに変更。</li>
+  </ul></li>
+  <li>2024/04/06
+  <ul>
+  <li>浮動小数点数の丸めについて <code>&lt;cfenv&gt;</code>
+  に関する記載を追加。</li>
+  </ul></li>
+  <li>2022/05/07
+  <ul>
+  <li>移動平均フィルタにリミッタ向けの実装を追加。</li>
+  </ul></li>
+  <li>2020/10/16
+  <ul>
+  <li>ローパスの場合の Maximally flat の定義を追加。</li>
+  <li>2 次セクションのゲインの導出を変更。</li>
+  <li>移動平均フィルタの説明を追加。</li>
+  <li>移動平均フィルタの C++ のコードを修正。</li>
+  <li>移動平均フィルタの誤差補正の検証を追加。</li>
+  <li>その他の節を追加。</li>
+  </ul></li>
+  <li>2020/10/17
+  <ul>
+  <li>文章の整理。</li>
+  <li>SciPy の関数にリファレンスへのリンクを追加。</li>
+  </ul></li>
+  <li>2022/02/09
+  <ul>
+  <li>Bessel4 の実装の間違いを修正。</li>
+  </ul></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

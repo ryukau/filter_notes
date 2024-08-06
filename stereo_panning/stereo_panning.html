@@ -2,669 +2,736 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>stereo_panning</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>stereo_panning</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#ステレオパンニング"
-id="toc-ステレオパンニング">ステレオパンニング</a>
-<ul>
-<li><a href="#モノラル-ステレオのパンニング"
-id="toc-モノラル-ステレオのパンニング">モノラル →
-ステレオのパンニング</a>
-<ul>
-<li><a href="#線形パンニング"
-id="toc-線形パンニング">線形パンニング</a></li>
-<li><a href="#等パワーパンニング"
-id="toc-等パワーパンニング">等パワーパンニング</a></li>
-<li><a href="#db-パンニング" id="toc-db-パンニング">-4.5 dB
-パンニング</a></li>
-</ul></li>
-<li><a href="#ステレオ-ステレオのパンニング"
-id="toc-ステレオ-ステレオのパンニング">ステレオ →
-ステレオのパンニング</a>
-<ul>
-<li><a href="#直線的なフェード"
-id="toc-直線的なフェード">直線的なフェード</a></li>
-<li><a href="#部分的に-2-次曲線を使うフェード"
-id="toc-部分的に-2-次曲線を使うフェード">部分的に 2
-次曲線を使うフェード</a></li>
-<li><a href="#部分的に-sin-を使うフェード"
-id="toc-部分的に-sin-を使うフェード">部分的に <span
-class="math inline">\(\sin\)</span> を使うフェード</a></li>
-<li><a href="#円形フェード" id="toc-円形フェード">円形フェード</a></li>
-<li><a href="#n-次曲線フェード" id="toc-n-次曲線フェード"><span
-class="math inline">\(n\)</span> 次曲線フェード</a></li>
-<li><a href="#sin-を使うフェード" id="toc-sin-を使うフェード"><span
-class="math inline">\(\sin\)</span> を使うフェード</a></li>
-<li><a href="#s-字のフェード" id="toc-s-字のフェード">S
-字のフェード</a></li>
-<li><a href="#漏れのあるフェード-softplus"
-id="toc-漏れのあるフェード-softplus">漏れのあるフェード
-(Softplus)</a></li>
-<li><a href="#波打つフェード-sinc"
-id="toc-波打つフェード-sinc">波打つフェード (Sinc)</a></li>
-</ul></li>
-<li><a href="#音のサンプル" id="toc-音のサンプル">音のサンプル</a>
-<ul>
-<li><a href="#モノラル-ステレオパンニング"
-id="toc-モノラル-ステレオパンニング">モノラル →
-ステレオパンニング</a></li>
-<li><a href="#ステレオ-ステレオパンニング"
-id="toc-ステレオ-ステレオパンニング">ステレオ → ステレオパンニング</a>
-<ul>
-<li><a href="#線形パンニング-1"
-id="toc-線形パンニング-1">線形パンニング</a></li>
-<li><a href="#等パワーパンニング-1"
-id="toc-等パワーパンニング-1">等パワーパンニング</a></li>
-<li><a href="#db-パンニング-1" id="toc-db-パンニング-1">-4.5 dB
-パンニング</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
-<li><a href="#変更点" id="toc-変更点">変更点</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="ステレオパンニング"><a href="#ステレオパンニング"
-class="header-anchor" aria-hidden="true">ステレオパンニング</a></h1>
-<p><a
-href="http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/">Loudness
-Concepts &amp; Panning Laws</a> で紹介されているモノラル →
-ステレオのパンニング法 (panning law) を基にして、ステレオ →
-ステレオのパンニングの計算式をいくつか作ります。</p>
-<h2 id="モノラル-ステレオのパンニング"><a
-href="#モノラル-ステレオのパンニング" class="header-anchor"
-aria-hidden="true">モノラル → ステレオのパンニング</a></h2>
-<p>以下はモノラル → ステレオパンニングのブロック線図です。</p>
-<figure>
-<img src="img/mono_panning_block_diagram.svg" alt="Block diagram of mono to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下の記号を使います。</p>
-<ul>
-<li><span class="math inline">\(p\)</span>: ユーザが指定したパンの値。
-<span class="math inline">\([0, 1]\)</span> の範囲。 0 で左いっぱい、
-0.5 でセンター、 1 で右いっぱい。</li>
-<li><span class="math inline">\(L\)</span>: 左チャンネルのゲイン。</li>
-<li><span class="math inline">\(R\)</span>: 右チャンネルのゲイン。</li>
-</ul>
-<p>入力信号を <span class="math inline">\(x\)</span> 、出力信号を <span
-class="math inline">\(y_L, y_R\)</span> とすると、モノラル →
-ステレオのパンニングは以下の式で計算できます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-y_L &amp;= L \cdot x\\
-y_R &amp;= R \cdot x\\
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(L^2 + R^2\)</span>
-で音のパワーを計算できます。パワーは、スピーカから人間の耳に至るまでの反響や位相のずれなどを加味した、大まかな音量を表しています。</p>
-<h3 id="線形パンニング"><a href="#線形パンニング" class="header-anchor"
-aria-hidden="true">線形パンニング</a></h3>
-<p>線形パンニングは <span class="math inline">\(p\)</span>
-の値をそのまま使って直線的にゲインを変えるパンニングです。利点はパンを振った後でも左右のチャンネルを足し合わせると元のモノラル信号に戻ることです。欠点は中央にパンを振ると左右にパンを振ったときよりも音が小さく聞こえることです。</p>
-<p>線形パンニングの計算式です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-L &amp;= 1 - p\\
-R &amp;= p
-\end{aligned}
-\]</span></p>
-<p>コードにします。 <code>pan == 0.0</code> で左いっぱい、
-<code>pan == 0.5</code> でセンター、 <code>pan == 1.0</code>
-で右いっぱいです。戻り値は
-<code>(左チャンネルのゲイン, 右チャンネルのゲイン)</code>
-となっています。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panMonoLinear(pan):</span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#ステレオパンニング"
+        id="toc-ステレオパンニング">ステレオパンニング</a>
+        <ul>
+        <li><a href="#モノラル-ステレオのパンニング"
+        id="toc-モノラル-ステレオのパンニング">モノラル →
+        ステレオのパンニング</a>
+        <ul>
+        <li><a href="#線形パンニング"
+        id="toc-線形パンニング">線形パンニング</a></li>
+        <li><a href="#等パワーパンニング"
+        id="toc-等パワーパンニング">等パワーパンニング</a></li>
+        <li><a href="#db-パンニング" id="toc-db-パンニング">-4.5 dB
+        パンニング</a></li>
+        </ul></li>
+        <li><a href="#ステレオ-ステレオのパンニング"
+        id="toc-ステレオ-ステレオのパンニング">ステレオ →
+        ステレオのパンニング</a>
+        <ul>
+        <li><a href="#直線的なフェード"
+        id="toc-直線的なフェード">直線的なフェード</a></li>
+        <li><a href="#部分的に-2-次曲線を使うフェード"
+        id="toc-部分的に-2-次曲線を使うフェード">部分的に 2
+        次曲線を使うフェード</a></li>
+        <li><a href="#部分的に-sin-を使うフェード"
+        id="toc-部分的に-sin-を使うフェード">部分的に <span
+        class="math inline">\(\sin\)</span> を使うフェード</a></li>
+        <li><a href="#円形フェード"
+        id="toc-円形フェード">円形フェード</a></li>
+        <li><a href="#n-次曲線フェード" id="toc-n-次曲線フェード"><span
+        class="math inline">\(n\)</span> 次曲線フェード</a></li>
+        <li><a href="#sin-を使うフェード"
+        id="toc-sin-を使うフェード"><span
+        class="math inline">\(\sin\)</span> を使うフェード</a></li>
+        <li><a href="#s-字のフェード" id="toc-s-字のフェード">S
+        字のフェード</a></li>
+        <li><a href="#漏れのあるフェード-softplus"
+        id="toc-漏れのあるフェード-softplus">漏れのあるフェード
+        (Softplus)</a></li>
+        <li><a href="#波打つフェード-sinc"
+        id="toc-波打つフェード-sinc">波打つフェード (Sinc)</a></li>
+        </ul></li>
+        <li><a href="#音のサンプル"
+        id="toc-音のサンプル">音のサンプル</a>
+        <ul>
+        <li><a href="#モノラル-ステレオパンニング"
+        id="toc-モノラル-ステレオパンニング">モノラル →
+        ステレオパンニング</a></li>
+        <li><a href="#ステレオ-ステレオパンニング"
+        id="toc-ステレオ-ステレオパンニング">ステレオ →
+        ステレオパンニング</a>
+        <ul>
+        <li><a href="#線形パンニング-1"
+        id="toc-線形パンニング-1">線形パンニング</a></li>
+        <li><a href="#等パワーパンニング-1"
+        id="toc-等パワーパンニング-1">等パワーパンニング</a></li>
+        <li><a href="#db-パンニング-1" id="toc-db-パンニング-1">-4.5 dB
+        パンニング</a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="ステレオパンニング"><a href="#ステレオパンニング"
+  class="header-anchor" aria-hidden="true">ステレオパンニング</a></h1>
+  <p><a
+  href="http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/">Loudness
+  Concepts &amp; Panning Laws</a> で紹介されているモノラル →
+  ステレオのパンニング法 (panning law) を基にして、ステレオ →
+  ステレオのパンニングの計算式をいくつか作ります。</p>
+  <h2 id="モノラル-ステレオのパンニング"><a
+  href="#モノラル-ステレオのパンニング" class="header-anchor"
+  aria-hidden="true">モノラル → ステレオのパンニング</a></h2>
+  <p>以下はモノラル → ステレオパンニングのブロック線図です。</p>
+  <figure>
+  <img src="img/mono_panning_block_diagram.svg" alt="Block diagram of mono to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下の記号を使います。</p>
+  <ul>
+  <li><span class="math inline">\(p\)</span>: ユーザが指定したパンの値。
+  <span class="math inline">\([0, 1]\)</span> の範囲。 0 で左いっぱい、
+  0.5 でセンター、 1 で右いっぱい。</li>
+  <li><span class="math inline">\(L\)</span>:
+  左チャンネルのゲイン。</li>
+  <li><span class="math inline">\(R\)</span>:
+  右チャンネルのゲイン。</li>
+  </ul>
+  <p>入力信号を <span class="math inline">\(x\)</span> 、出力信号を
+  <span class="math inline">\(y_L, y_R\)</span> とすると、モノラル →
+  ステレオのパンニングは以下の式で計算できます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  y_L &amp;= L \cdot x\\
+  y_R &amp;= R \cdot x\\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(L^2 + R^2\)</span>
+  で音のパワーを計算できます。パワーは、スピーカから人間の耳に至るまでの反響や位相のずれなどを加味した、大まかな音量を表しています。</p>
+  <h3 id="線形パンニング"><a href="#線形パンニング"
+  class="header-anchor" aria-hidden="true">線形パンニング</a></h3>
+  <p>線形パンニングは <span class="math inline">\(p\)</span>
+  の値をそのまま使って直線的にゲインを変えるパンニングです。利点はパンを振った後でも左右のチャンネルを足し合わせると元のモノラル信号に戻ることです。欠点は中央にパンを振ると左右にパンを振ったときよりも音が小さく聞こえることです。</p>
+  <p>線形パンニングの計算式です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  L &amp;= 1 - p\\
+  R &amp;= p
+  \end{aligned}
+  \]</span></p>
+  <p>コードにします。 <code>pan == 0.0</code> で左いっぱい、
+  <code>pan == 0.5</code> でセンター、 <code>pan == 1.0</code>
+  で右いっぱいです。戻り値は
+  <code>(左チャンネルのゲイン, 右チャンネルのゲイン)</code>
+  となっています。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panMonoLinear(pan):</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">-</span> pan, pan)</span></code></pre></div>
-<p>以下の図は線形パンニングのゲイン特性のプロットです。左から順に各チャンネルのゲイン、左右を足し合わせたときのゲイン、パワーを表しています。パンが
-0.5
-のときパワーが下がっているので再生環境によっては音が小さくなることが確認できます。</p>
-<figure>
-<img src="img/panMonoLinear.svg" alt="Plot of linear panning gain curve." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="等パワーパンニング"><a href="#等パワーパンニング"
-class="header-anchor" aria-hidden="true">等パワーパンニング</a></h3>
-<p>等パワーパンニングは音の大きさがパンによらず均一に聞こえるようにしたパンニングです。欠点は左右のチャンネルを足し合わせたときに最大で
-3 dB 振幅が大きくなることです。</p>
-<p>等パワーパンニングの計算式です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\theta &amp;= \frac{\pi}{2} p\\
-L &amp;= \cos(\theta)\\
-R &amp;= \sin(\theta)
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(L^2 + R^2 = \cos^2(\theta) +
-\sin^2(\theta)\)</span> となるので三角関数の <a
-href="https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Pythagorean_identities">Pythagorean
-identity</a> よりパワーは常に <span class="math inline">\(1\)</span>
-です。</p>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panMonoConstantPower(pan):</span>
+  <p>以下の図は線形パンニングのゲイン特性のプロットです。左から順に各チャンネルのゲイン、左右を足し合わせたときのゲイン、パワーを表しています。パンが
+  0.5
+  のときパワーが下がっているので再生環境によっては音が小さくなることが確認できます。</p>
+  <figure>
+  <img src="img/panMonoLinear.svg" alt="Plot of linear panning gain curve." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="等パワーパンニング"><a href="#等パワーパンニング"
+  class="header-anchor" aria-hidden="true">等パワーパンニング</a></h3>
+  <p>等パワーパンニングは音の大きさがパンによらず均一に聞こえるようにしたパンニングです。欠点は左右のチャンネルを足し合わせたときに最大で
+  3 dB 振幅が大きくなることです。</p>
+  <p>等パワーパンニングの計算式です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \theta &amp;= \frac{\pi}{2} p\\
+  L &amp;= \cos(\theta)\\
+  R &amp;= \sin(\theta)
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(L^2 + R^2 = \cos^2(\theta) +
+  \sin^2(\theta)\)</span> となるので三角関数の <a
+  href="https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Pythagorean_identities">Pythagorean
+  identity</a> よりパワーは常に <span class="math inline">\(1\)</span>
+  です。</p>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panMonoConstantPower(pan):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> (<span class="fl">0.5</span> <span class="op">*</span> np.pi) <span class="op">*</span> pan</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (np.cos(theta), np.sin(theta))</span></code></pre></div>
-<p>以下の図は等パワーパンニングのゲイン特性のプロットです。パンが 0.5
-のとき <span class="math inline">\(L + R\)</span>
-が上がっていることが確認できます。</p>
-<figure>
-<img src="img/panMonoConstantPower.svg" alt="Plot of constant power panning gain curve." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="db-パンニング"><a href="#db-パンニング" class="header-anchor"
-aria-hidden="true">-4.5 dB パンニング</a></h3>
-<p>-4.5 dB
-パンニングは線形パンニングと等パワーパンニングの中間的なパンニングです。左右のスピーカの間隔が狭いテレビなどでは等パワーパンニングよりも自然に聞こえることがあるそうです。</p>
-<p>-4.5 dB パンニングの計算式です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\theta &amp;= \frac{\pi}{2} p\\
-L &amp;= \sqrt{(1 - p)\cos(\theta)}\\
-R &amp;= \sqrt{p \sin(\theta)}
-\end{aligned}
-\]</span></p>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panMonoIntermediatePower(pan):</span>
+  <p>以下の図は等パワーパンニングのゲイン特性のプロットです。パンが 0.5
+  のとき <span class="math inline">\(L + R\)</span>
+  が上がっていることが確認できます。</p>
+  <figure>
+  <img src="img/panMonoConstantPower.svg" alt="Plot of constant power panning gain curve." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="db-パンニング"><a href="#db-パンニング" class="header-anchor"
+  aria-hidden="true">-4.5 dB パンニング</a></h3>
+  <p>-4.5 dB
+  パンニングは線形パンニングと等パワーパンニングの中間的なパンニングです。左右のスピーカの間隔が狭いテレビなどでは等パワーパンニングよりも自然に聞こえることがあるそうです。</p>
+  <p>-4.5 dB パンニングの計算式です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \theta &amp;= \frac{\pi}{2} p\\
+  L &amp;= \sqrt{(1 - p)\cos(\theta)}\\
+  R &amp;= \sqrt{p \sin(\theta)}
+  \end{aligned}
+  \]</span></p>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panMonoIntermediatePower(pan):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    theta <span class="op">=</span> (<span class="fl">0.5</span> <span class="op">*</span> np.pi) <span class="op">*</span> pan</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        np.sqrt((<span class="dv">1</span> <span class="op">-</span> pan) <span class="op">*</span> np.cos(theta)),</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        np.sqrt(pan <span class="op">*</span> np.sin(theta)),</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
-<p>以下の図は -4.5 dB パンニングのゲイン特性のプロットです。 <span
-class="math inline">\(L + R\)</span>
-は等パワーパンニングの半分、パワーは線形パンニングの半分の値になっています。</p>
-<figure>
-<img src="img/panMonoIntermediatePower.svg" alt="Plot of -4.5 dB panning gain curve." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="ステレオ-ステレオのパンニング"><a
-href="#ステレオ-ステレオのパンニング" class="header-anchor"
-aria-hidden="true">ステレオ → ステレオのパンニング</a></h2>
-<p>以下はステレオ → ステレオパンニングのブロック線図です。</p>
-<figure>
-<img src="img/stereo_panning_block_diagram.svg" alt="Block diagram of stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<p>ステレオ → ステレオパンニングでは、モノラル →
-ステレオパンニングのゲイン <span class="math inline">\(L, R\)</span>
-に加えて、入力と出力のチャンネル数を掛け合わせた 4
-つのゲインを計算します。それぞれのゲインに記号を割り当てます。</p>
-<ul>
-<li><span class="math inline">\(G_{LL}\)</span>: 左 → 左のゲイン</li>
-<li><span class="math inline">\(G_{RL}\)</span>: 右 → 左のゲイン</li>
-<li><span class="math inline">\(G_{LR}\)</span>: 左 → 右のゲイン</li>
-<li><span class="math inline">\(G_{RR}\)</span>: 右 → 右のゲイン</li>
-</ul>
-<p>入力信号を <span class="math inline">\(x\)</span> 、出力信号を <span
-class="math inline">\(y\)</span> とします。チャンネルは下付き文字で
-<span class="math inline">\(x_L\)</span> や <span
-class="math inline">\(y_R\)</span>
-のように表すことにします。このとき出力信号は以下の式で計算できます。中点
-<span class="math inline">\(\cdot\)</span> は乗算を表しています。</p>
-<p><span class="math display">\[
-\begin{aligned}
-y_L &amp;= L \cdot (G_{LL} \cdot x_L + G_{RL} \cdot x_R)\\
-y_R &amp;= R \cdot (G_{LR} \cdot x_L + G_{RR} \cdot x_R)\\
-\end{aligned}
-\]</span></p>
-<p>左右で同じ信号が入力されたときにモノラル →
-ステレオパンニングと同じ振る舞いをさせたいので、 <span
-class="math inline">\(L, R\)</span> をかける前のゲインの和が 1
-になるようにします。</p>
-<p><span class="math display">\[
-\begin{aligned}
-G_{LL} + G_{RL} &amp;= 1\\
-G_{LR} + G_{RR} &amp;= 1\\
-\end{aligned}
-\]</span></p>
-<p>すると左右で同じ信号 <span class="math inline">\(x\)</span>
-が入力されたとき、出力信号の式を以下のように変形できます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-y_L = L \cdot x\\
-y_R = R \cdot x\\
-\end{aligned}
-\]</span></p>
-<p>モノラル → ステレオパンニングの計算式と同じになっています。ゲイン
-<span class="math inline">\(L, R\)</span> はモノラル →
-ステレオパンニングの式がそのまま使えます。</p>
-<h3 id="直線的なフェード"><a href="#直線的なフェード"
-class="header-anchor" aria-hidden="true">直線的なフェード</a></h3>
-<p>ステレオ → ステレオパンニングで導入された 4 つのゲイン <span
-class="math inline">\(G_{LL}, G_{LR}, G_{RR}, G_{RL}\)</span>
-をどう決めればいいのか見ていきます。</p>
-<p>出力の計算式を再掲します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-y_L &amp;= L \cdot (G_{LL} \cdot x_L + G_{RL} \cdot x_R)
-,\qquad G_{LL} + G_{RL} = 1\\
-y_R &amp;= R \cdot (G_{LR} \cdot x_L + G_{RR} \cdot x_R)
-,\qquad G_{LR} + G_{RR} = 1\\
-\end{aligned}
-\]</span></p>
-<p>和を 1 以下にする条件から <span class="math inline">\(G_{RL}\)</span>
-と <span class="math inline">\(G_{LR}\)</span>
-は以下のように計算できます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-G_{RL} &amp;= 1 - G_{LL}\\
-G_{LR} &amp;= 1 - G_{RR}\\
-\end{aligned}
-\]</span></p>
-<p>つまり <span class="math inline">\(G_{LL}\)</span> と <span
-class="math inline">\(G_{RR}\)</span>
-のゲインだけを決めればいいわけです。</p>
-<p>また、パンの位置 <span class="math inline">\(p\)</span> によって
-<span class="math inline">\(G_{LL}\)</span> に以下の条件をつけます。</p>
-<ul>
-<li>パンが中央のとき (<span class="math inline">\(p = 0.5\)</span>)
-、入力をバイパスしたいので <span class="math inline">\(G_{LL}\)</span>
-は 1 。</li>
-<li>パンが右に振れているとき (<span class="math inline">\(p &gt;
-0.5\)</span>) 、左出力 <span class="math inline">\(y_L\)</span> に右入力
-<span class="math inline">\(x_R\)</span> を混ぜたくないので、 <span
-class="math inline">\(G_{LL}\)</span> は 1 。</li>
-<li>パンが左いっぱいに振れたとき (<span class="math inline">\(p =
-0\)</span>) 、左出力 <span class="math inline">\(y_L\)</span>
-で左右の入力を均等に混ぜたいので、 <span
-class="math inline">\(G_{LL}\)</span> は 0.5 。</li>
-</ul>
-<p>同様に <span class="math inline">\(G_{RR}\)</span>
-に以下の条件をつけます。</p>
-<ul>
-<li>パンが中央のとき (<span class="math inline">\(p = 0.5\)</span>)
-、入力をバイパスしたいので <span class="math inline">\(G_{RR}\)</span>
-は 1 。</li>
-<li>パンが左に振れているとき (<span class="math inline">\(p &lt;
-0.5\)</span>) 、右出力 <span class="math inline">\(y_R\)</span> に左入力
-<span class="math inline">\(x_L\)</span> を混ぜたくないので、 <span
-class="math inline">\(G_{RR}\)</span> は 1 。</li>
-<li>パンが右いっぱいに振れたとき (<span class="math inline">\(p =
-1\)</span>) 、右出力 <span class="math inline">\(y_R\)</span>
-で左右の入力を均等に混ぜたいので、 <span
-class="math inline">\(G_{RR}\)</span> は 0.5 。</li>
-</ul>
-<p>上の条件を直線でつなぐと直線的なフェードになります。以下は直線的なフェードの図です。</p>
-<figure>
-<img src="img/stereo_panning_gain.svg" alt="Example plot of stereo to stereo panning gain." style="padding-bottom: 12px;"/>
-</figure>
-<p>式にします。</p>
-<p><span class="math display">\[
-\begin{aligned}
-G_{LL} &amp;= \begin{cases}
-  0.5 + p &amp; \text{if} \enspace p &lt; 0.5\\
-  1           &amp; \text{if} \enspace p \geq 0.5\\
-\end{cases}\\
-G_{RR} &amp;= \begin{cases}
-  1          &amp; \text{if} \enspace p \leq 0.5\\
-  1.5 - p &amp; \text{if} \enspace p &gt; 0.5\\
-\end{cases}\\
-G_{RL} &amp;= 1 - G_{LL}\\
-G_{LR} &amp;= 1 - G_{RR}\\
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(G_{LL}\)</span> と <span
-class="math inline">\(G_{RR}\)</span> は 0.5
-を境に線対称になっているので <span class="math inline">\(G_{RR}(p) =
-G_{LL}(1 - p)\)</span>
-と書くこともできます。以降では同様の対称性があるものとして <span
-class="math inline">\(G_{LL}\)</span> だけを求めます。</p>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> getStereoGain(gainFunc, param):</span>
+  <p>以下の図は -4.5 dB パンニングのゲイン特性のプロットです。 <span
+  class="math inline">\(L + R\)</span>
+  は等パワーパンニングの半分、パワーは線形パンニングの半分の値になっています。</p>
+  <figure>
+  <img src="img/panMonoIntermediatePower.svg" alt="Plot of -4.5 dB panning gain curve." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="ステレオ-ステレオのパンニング"><a
+  href="#ステレオ-ステレオのパンニング" class="header-anchor"
+  aria-hidden="true">ステレオ → ステレオのパンニング</a></h2>
+  <p>以下はステレオ → ステレオパンニングのブロック線図です。</p>
+  <figure>
+  <img src="img/stereo_panning_block_diagram.svg" alt="Block diagram of stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>ステレオ → ステレオパンニングでは、モノラル →
+  ステレオパンニングのゲイン <span class="math inline">\(L, R\)</span>
+  に加えて、入力と出力のチャンネル数を掛け合わせた 4
+  つのゲインを計算します。それぞれのゲインに記号を割り当てます。</p>
+  <ul>
+  <li><span class="math inline">\(G_{LL}\)</span>: 左 → 左のゲイン</li>
+  <li><span class="math inline">\(G_{RL}\)</span>: 右 → 左のゲイン</li>
+  <li><span class="math inline">\(G_{LR}\)</span>: 左 → 右のゲイン</li>
+  <li><span class="math inline">\(G_{RR}\)</span>: 右 → 右のゲイン</li>
+  </ul>
+  <p>入力信号を <span class="math inline">\(x\)</span> 、出力信号を
+  <span class="math inline">\(y\)</span>
+  とします。チャンネルは下付き文字で <span
+  class="math inline">\(x_L\)</span> や <span
+  class="math inline">\(y_R\)</span>
+  のように表すことにします。このとき出力信号は以下の式で計算できます。中点
+  <span class="math inline">\(\cdot\)</span> は乗算を表しています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  y_L &amp;= L \cdot (G_{LL} \cdot x_L + G_{RL} \cdot x_R)\\
+  y_R &amp;= R \cdot (G_{LR} \cdot x_L + G_{RR} \cdot x_R)\\
+  \end{aligned}
+  \]</span></p>
+  <p>左右で同じ信号が入力されたときにモノラル →
+  ステレオパンニングと同じ振る舞いをさせたいので、 <span
+  class="math inline">\(L, R\)</span> をかける前のゲインの和が 1
+  になるようにします。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G_{LL} + G_{RL} &amp;= 1\\
+  G_{LR} + G_{RR} &amp;= 1\\
+  \end{aligned}
+  \]</span></p>
+  <p>すると左右で同じ信号 <span class="math inline">\(x\)</span>
+  が入力されたとき、出力信号の式を以下のように変形できます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  y_L = L \cdot x\\
+  y_R = R \cdot x\\
+  \end{aligned}
+  \]</span></p>
+  <p>モノラル → ステレオパンニングの計算式と同じになっています。ゲイン
+  <span class="math inline">\(L, R\)</span> はモノラル →
+  ステレオパンニングの式がそのまま使えます。</p>
+  <h3 id="直線的なフェード"><a href="#直線的なフェード"
+  class="header-anchor" aria-hidden="true">直線的なフェード</a></h3>
+  <p>ステレオ → ステレオパンニングで導入された 4 つのゲイン <span
+  class="math inline">\(G_{LL}, G_{LR}, G_{RR}, G_{RL}\)</span>
+  をどう決めればいいのか見ていきます。</p>
+  <p>出力の計算式を再掲します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  y_L &amp;= L \cdot (G_{LL} \cdot x_L + G_{RL} \cdot x_R)
+  ,\qquad G_{LL} + G_{RL} = 1\\
+  y_R &amp;= R \cdot (G_{LR} \cdot x_L + G_{RR} \cdot x_R)
+  ,\qquad G_{LR} + G_{RR} = 1\\
+  \end{aligned}
+  \]</span></p>
+  <p>和を 1 以下にする条件から <span
+  class="math inline">\(G_{RL}\)</span> と <span
+  class="math inline">\(G_{LR}\)</span> は以下のように計算できます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G_{RL} &amp;= 1 - G_{LL}\\
+  G_{LR} &amp;= 1 - G_{RR}\\
+  \end{aligned}
+  \]</span></p>
+  <p>つまり <span class="math inline">\(G_{LL}\)</span> と <span
+  class="math inline">\(G_{RR}\)</span>
+  のゲインだけを決めればいいわけです。</p>
+  <p>また、パンの位置 <span class="math inline">\(p\)</span> によって
+  <span class="math inline">\(G_{LL}\)</span>
+  に以下の条件をつけます。</p>
+  <ul>
+  <li>パンが中央のとき (<span class="math inline">\(p = 0.5\)</span>)
+  、入力をバイパスしたいので <span class="math inline">\(G_{LL}\)</span>
+  は 1 。</li>
+  <li>パンが右に振れているとき (<span class="math inline">\(p &gt;
+  0.5\)</span>) 、左出力 <span class="math inline">\(y_L\)</span>
+  に右入力 <span class="math inline">\(x_R\)</span> を混ぜたくないので、
+  <span class="math inline">\(G_{LL}\)</span> は 1 。</li>
+  <li>パンが左いっぱいに振れたとき (<span class="math inline">\(p =
+  0\)</span>) 、左出力 <span class="math inline">\(y_L\)</span>
+  で左右の入力を均等に混ぜたいので、 <span
+  class="math inline">\(G_{LL}\)</span> は 0.5 。</li>
+  </ul>
+  <p>同様に <span class="math inline">\(G_{RR}\)</span>
+  に以下の条件をつけます。</p>
+  <ul>
+  <li>パンが中央のとき (<span class="math inline">\(p = 0.5\)</span>)
+  、入力をバイパスしたいので <span class="math inline">\(G_{RR}\)</span>
+  は 1 。</li>
+  <li>パンが左に振れているとき (<span class="math inline">\(p &lt;
+  0.5\)</span>) 、右出力 <span class="math inline">\(y_R\)</span>
+  に左入力 <span class="math inline">\(x_L\)</span> を混ぜたくないので、
+  <span class="math inline">\(G_{RR}\)</span> は 1 。</li>
+  <li>パンが右いっぱいに振れたとき (<span class="math inline">\(p =
+  1\)</span>) 、右出力 <span class="math inline">\(y_R\)</span>
+  で左右の入力を均等に混ぜたいので、 <span
+  class="math inline">\(G_{RR}\)</span> は 0.5 。</li>
+  </ul>
+  <p>上の条件を直線でつなぐと直線的なフェードになります。以下は直線的なフェードの図です。</p>
+  <figure>
+  <img src="img/stereo_panning_gain.svg" alt="Example plot of stereo to stereo panning gain." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>式にします。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G_{LL} &amp;= \begin{cases}
+    0.5 + p &amp; \text{if} \enspace p &lt; 0.5\\
+    1           &amp; \text{if} \enspace p \geq 0.5\\
+  \end{cases}\\
+  G_{RR} &amp;= \begin{cases}
+    1          &amp; \text{if} \enspace p \leq 0.5\\
+    1.5 - p &amp; \text{if} \enspace p &gt; 0.5\\
+  \end{cases}\\
+  G_{RL} &amp;= 1 - G_{LL}\\
+  G_{LR} &amp;= 1 - G_{RR}\\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(G_{LL}\)</span> と <span
+  class="math inline">\(G_{RR}\)</span> は 0.5
+  を境に線対称になっているので <span class="math inline">\(G_{RR}(p) =
+  G_{LL}(1 - p)\)</span>
+  と書くこともできます。以降では同様の対称性があるものとして <span
+  class="math inline">\(G_{LL}\)</span> だけを求めます。</p>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> getStereoGain(gainFunc, param):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    LL <span class="op">=</span> gainFunc(pan, param)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    RR <span class="op">=</span> gainFunc(<span class="dv">1</span> <span class="op">-</span> pan, param)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    RL <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> LL</span>
@@ -676,86 +743,86 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.where(pan <span class="op">&gt;=</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="fl">0.5</span> <span class="op">+</span> pan)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, param)</span></code></pre></div>
-<p><code>np.where(a, b, c)</code> は C++ の <code>a ? b : c</code>
-に訳せます。 <code>getStereoGain</code>
-は後で繰り返し使うので分けています。</p>
-<p>以下は <code>panStereoLinear</code> の使用例です。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># source は [左チャンネル, 右チャンネル] の 2 次元配列。</span></span>
+  <p><code>np.where(a, b, c)</code> は C++ の <code>a ? b : c</code>
+  に訳せます。 <code>getStereoGain</code>
+  は後で繰り返し使うので分けています。</p>
+  <p>以下は <code>panStereoLinear</code> の使用例です。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># source は [左チャンネル, 右チャンネル] の 2 次元配列。</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>LL, RL, LR, RR <span class="op">=</span> panStereoLinear(pan)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>gainL, gainR <span class="op">=</span> panMonoConstantPower(pan)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>sigL <span class="op">=</span> gainL <span class="op">*</span> (LL <span class="op">*</span> source[<span class="dv">0</span>] <span class="op">+</span> RL <span class="op">*</span> source[<span class="dv">1</span>])</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>sigR <span class="op">=</span> gainR <span class="op">*</span> (LR <span class="op">*</span> source[<span class="dv">0</span>] <span class="op">+</span> RR <span class="op">*</span> source[<span class="dv">1</span>])</span></code></pre></div>
-<p>以下の図は直線的なフェード曲線のプロットです。</p>
-<figure>
-<img src="img/panStereoLinear.svg" alt="Plot of linear curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="部分的に-2-次曲線を使うフェード"><a
-href="#部分的に-2-次曲線を使うフェード" class="header-anchor"
-aria-hidden="true">部分的に 2 次曲線を使うフェード</a></h3>
-<p>以下の図のような <span class="math inline">\(G_{LL}\)</span>
-の式を作ります。黒い部分は直線、オレンジの部分は 2 次曲線です。</p>
-<figure>
-<img src="img/stereo_panning_partial_2nd_order.svg" alt="Plot of G_LL curve with partial 2nd order region." style="padding-bottom: 12px;"/>
-</figure>
-<p>上の図の <span class="math inline">\(G_{LL}\)</span> を <span
-class="math inline">\(p\)</span>
-について微分すると以下のような形になります。</p>
-<figure>
-<img src="img/stereo_panning_partial_2nd_order_diff1.svg" alt="Plot of differentiation of G_LL respect to p." style="padding-bottom: 12px;"/>
-</figure>
-<p><span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
-の図の斜線の領域の面積は 0.5 です。これは横軸 <span
-class="math inline">\(p\)</span> の 0 から 0.5 の区間での <span
-class="math inline">\(G_{LL}\)</span>
-の増分です。台形の面積の式から以下の等式が立ちます。</p>
-<p><span class="math display">\[
-\frac{(a + 0.5)}{2} h = 0.5
-\]</span></p>
-<p><span class="math inline">\(h\)</span> について解きます。</p>
-<p><span class="math display">\[
-h = \frac{1}{a + 0.5}
-\]</span></p>
-<p>これで <span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
-が計算できます。</p>
-<p><span class="math display">\[
-\frac{dG_{LL}}{dp} = \begin{cases}
-  h                             &amp; \text{if} \enspace p \leq a\\
-  \dfrac{h\,(p - 0.5)}{a - 0.5} &amp; \text{if} \enspace a &lt; p &lt;
-0.5\\
-  0                             &amp; \text{if} \enspace 0.5 \leq p\\
-\end{cases}
-\]</span></p>
-<p><span class="math inline">\(p\)</span> について積分すると <span
-class="math inline">\(dG_{LL}\)</span> の計算式が得られます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-G_{LL}(p) &amp;= \begin{cases}
-  hp + 0.5
-    &amp; \text{if} \enspace p \leq a
-    &amp; \text{(linear region)}\\
-  \dfrac{h(p - 0.5)^2}{2a - 1} + 1
-    &amp; \text{if} \enspace a &lt; p &lt; 0.5
-    &amp; \text{(2nd order region)}\\
-  1
-    &amp; \text{if} \enspace 0.5 \leq p
-    &amp; \text{(constant region)}\\
-\end{cases}\\
-h &amp;= \frac{1}{a + 0.5}
-\end{aligned}
-\]</span></p>
-<p>2 次領域の式は以下の Maxima のコードの出力を整形したものです。
-<code>-C + 1</code> が積分定数です。</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cn">G</span>: <span class="fu">integrate</span>(<span class="cn">h</span>*(<span class="cn">p</span><span class="fl">-0.5</span>)/(<span class="cn">a</span><span class="fl">-0.5</span>), <span class="cn">p</span>);</span>
+  <p>以下の図は直線的なフェード曲線のプロットです。</p>
+  <figure>
+  <img src="img/panStereoLinear.svg" alt="Plot of linear curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="部分的に-2-次曲線を使うフェード"><a
+  href="#部分的に-2-次曲線を使うフェード" class="header-anchor"
+  aria-hidden="true">部分的に 2 次曲線を使うフェード</a></h3>
+  <p>以下の図のような <span class="math inline">\(G_{LL}\)</span>
+  の式を作ります。黒い部分は直線、オレンジの部分は 2 次曲線です。</p>
+  <figure>
+  <img src="img/stereo_panning_partial_2nd_order.svg" alt="Plot of G_LL curve with partial 2nd order region." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>上の図の <span class="math inline">\(G_{LL}\)</span> を <span
+  class="math inline">\(p\)</span>
+  について微分すると以下のような形になります。</p>
+  <figure>
+  <img src="img/stereo_panning_partial_2nd_order_diff1.svg" alt="Plot of differentiation of G_LL respect to p." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
+  の図の斜線の領域の面積は 0.5 です。これは横軸 <span
+  class="math inline">\(p\)</span> の 0 から 0.5 の区間での <span
+  class="math inline">\(G_{LL}\)</span>
+  の増分です。台形の面積の式から以下の等式が立ちます。</p>
+  <p><span class="math display">\[
+  \frac{(a + 0.5)}{2} h = 0.5
+  \]</span></p>
+  <p><span class="math inline">\(h\)</span> について解きます。</p>
+  <p><span class="math display">\[
+  h = \frac{1}{a + 0.5}
+  \]</span></p>
+  <p>これで <span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
+  が計算できます。</p>
+  <p><span class="math display">\[
+  \frac{dG_{LL}}{dp} = \begin{cases}
+    h                             &amp; \text{if} \enspace p \leq a\\
+    \dfrac{h\,(p - 0.5)}{a - 0.5} &amp; \text{if} \enspace a &lt; p &lt;
+  0.5\\
+    0                             &amp; \text{if} \enspace 0.5 \leq p\\
+  \end{cases}
+  \]</span></p>
+  <p><span class="math inline">\(p\)</span> について積分すると <span
+  class="math inline">\(dG_{LL}\)</span> の計算式が得られます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G_{LL}(p) &amp;= \begin{cases}
+    hp + 0.5
+      &amp; \text{if} \enspace p \leq a
+      &amp; \text{(linear region)}\\
+    \dfrac{h(p - 0.5)^2}{2a - 1} + 1
+      &amp; \text{if} \enspace a &lt; p &lt; 0.5
+      &amp; \text{(2nd order region)}\\
+    1
+      &amp; \text{if} \enspace 0.5 \leq p
+      &amp; \text{(constant region)}\\
+  \end{cases}\\
+  h &amp;= \frac{1}{a + 0.5}
+  \end{aligned}
+  \]</span></p>
+  <p>2 次領域の式は以下の Maxima のコードの出力を整形したものです。
+  <code>-C + 1</code> が積分定数です。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cn">G</span>: <span class="fu">integrate</span>(<span class="cn">h</span>*(<span class="cn">p</span><span class="fl">-0.5</span>)/(<span class="cn">a</span><span class="fl">-0.5</span>), <span class="cn">p</span>);</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cn">C</span>: <span class="fu">subst</span>(<span class="fl">0.5</span>, <span class="cn">p</span>, <span class="cn">G</span>);</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">factorout</span>(<span class="cn">G</span> - <span class="cn">C</span> + <span class="dv">1</span>, <span class="cn">p</span>);</span></code></pre></div>
-<p>コードにします。 <code>param</code> は値が <code>[0.0, 1.0]</code>
-で正規化されたパラメータで、デフォルト値は適当に決めています。</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoPartial2ndOrder(pan, param<span class="op">=</span><span class="fl">0.8</span>):</span>
+  <p>コードにします。 <code>param</code> は値が <code>[0.0, 1.0]</code>
+  で正規化されたパラメータで、デフォルト値は適当に決めています。</p>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoPartial2ndOrder(pan, param<span class="op">=</span><span class="fl">0.8</span>):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;`param` is in [0.0, 1.0].&quot;&quot;&quot;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> gain(p, a):</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (a <span class="op">+</span> <span class="fl">0.5</span>)</span>
@@ -770,77 +837,79 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        )</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, <span class="fl">0.5</span> <span class="op">*</span> param)</span></code></pre></div>
-<p>以下の図は部分的に 2 次曲線を使ったフェード曲線のプロットです。 <span
-class="math inline">\(a = 0.4\)</span> です。</p>
-<figure>
-<img src="img/panStereoPartial2ndOrder.svg" alt="Plot of partial 2nd order curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="部分的に-sin-を使うフェード"><a
-href="#部分的に-sin-を使うフェード" class="header-anchor"
-aria-hidden="true">部分的に <span class="math inline">\(\sin\)</span>
-を使うフェード</a></h3>
-<p>部分的に 2 次曲線を使うフェードの 2 次曲線を <span
-class="math inline">\(\sin\)</span> に置き換えたフェードを作ります。</p>
-<p>以下のような <span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
-の曲線を使います。オレンジの線の部分には <span
-class="math inline">\(\cos\)</span> を使います。</p>
-<figure>
-<img src="img/stereo_panning_partial_sin_diff1.svg" alt="Plot of differentiation of G_LL respect to p." style="padding-bottom: 12px;"/>
-</figure>
-<p><span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
-の式を立てます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\frac{dG_{LL}}{dp} &amp;= \begin{cases}
-  h
-    &amp; \text{if} \enspace p \leq a\\
-  \displaystyle \frac{h}{2} \left( \cos \left( \frac{p - a}{0.5 - a} \pi
-\right) + 1 \right)
-    &amp; \text{if} \enspace a &lt; p &lt; 0.5\\
-  0
-    &amp; \text{if} \enspace 0.5 \leq p\\
-\end{cases}\\
-h &amp;= \frac{2} {2a + 1}
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(h\)</span> は以下の Maxima
-のコードで求めました。</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cn">S</span>: <span class="fu">integrate</span>(<span class="cn">h</span>/<span class="dv">2</span> * (<span class="fu">cos</span>((<span class="cn">p</span> - <span class="cn">a</span>) / (<span class="dv">1</span>/<span class="dv">2</span> - <span class="cn">a</span>) * <span class="va">%pi</span>) + <span class="dv">1</span>), <span class="cn">p</span>, <span class="cn">a</span>, <span class="dv">1</span>/<span class="dv">2</span>);</span>
+  <p>以下の図は部分的に 2 次曲線を使ったフェード曲線のプロットです。
+  <span class="math inline">\(a = 0.4\)</span> です。</p>
+  <figure>
+  <img src="img/panStereoPartial2ndOrder.svg" alt="Plot of partial 2nd order curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="部分的に-sin-を使うフェード"><a
+  href="#部分的に-sin-を使うフェード" class="header-anchor"
+  aria-hidden="true">部分的に <span class="math inline">\(\sin\)</span>
+  を使うフェード</a></h3>
+  <p>部分的に 2 次曲線を使うフェードの 2 次曲線を <span
+  class="math inline">\(\sin\)</span>
+  に置き換えたフェードを作ります。</p>
+  <p>以下のような <span
+  class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
+  の曲線を使います。オレンジの線の部分には <span
+  class="math inline">\(\cos\)</span> を使います。</p>
+  <figure>
+  <img src="img/stereo_panning_partial_sin_diff1.svg" alt="Plot of differentiation of G_LL respect to p." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
+  の式を立てます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \frac{dG_{LL}}{dp} &amp;= \begin{cases}
+    h
+      &amp; \text{if} \enspace p \leq a\\
+    \displaystyle \frac{h}{2} \left( \cos \left( \frac{p - a}{0.5 - a}
+  \pi \right) + 1 \right)
+      &amp; \text{if} \enspace a &lt; p &lt; 0.5\\
+    0
+      &amp; \text{if} \enspace 0.5 \leq p\\
+  \end{cases}\\
+  h &amp;= \frac{2} {2a + 1}
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(h\)</span> は以下の Maxima
+  のコードで求めました。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cn">S</span>: <span class="fu">integrate</span>(<span class="cn">h</span>/<span class="dv">2</span> * (<span class="fu">cos</span>((<span class="cn">p</span> - <span class="cn">a</span>) / (<span class="dv">1</span>/<span class="dv">2</span> - <span class="cn">a</span>) * <span class="va">%pi</span>) + <span class="dv">1</span>), <span class="cn">p</span>, <span class="cn">a</span>, <span class="dv">1</span>/<span class="dv">2</span>);</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cn">A</span>: <span class="fu">ratsimp</span>(<span class="cn">a</span> * <span class="cn">h</span> + <span class="cn">S</span>);</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="dv">1</span>/<span class="dv">2</span> = <span class="cn">A</span>, <span class="cn">h</span>);</span></code></pre></div>
-<p><span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
-の式を積分します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-G_{LL}(p) &amp;= \begin{cases}
-  hp + 0.5
-    &amp; \text{if} \enspace p \leq a
-    &amp; \text{(linear region)}\\
-  \displaystyle
-  0.5 h \left(
-    \frac{0.5 - a}{\pi} \sin \left( \frac{p - a}{0.5 - a} \pi \right)
-    + p
-    - 0.5
-  \right) + 1
-    &amp; \text{if} \enspace a &lt; p &lt; 0.5
-    &amp; \text{(sin region)}\\
-  1
-    &amp; \text{if} \enspace 0.5 \leq p
-    &amp; \text{(constant region)}\\
-\end{cases}\\
-h &amp;= \frac{2} {2a + 1}
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(\sin\)</span> 領域の式は以下の Maxima
-のコードの <code>expr</code> を整形したものです。</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cn">S</span>: <span class="fu">integrate</span>(<span class="cn">h</span>/<span class="dv">2</span> * (<span class="fu">cos</span>((<span class="cn">p</span> - <span class="cn">a</span>) / (<span class="dv">1</span>/<span class="dv">2</span> - <span class="cn">a</span>) * <span class="va">%pi</span>) + <span class="dv">1</span>), <span class="cn">p</span>);</span>
+  <p><span class="math inline">\(\dfrac{dG_{LL}}{dp}\)</span>
+  の式を積分します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G_{LL}(p) &amp;= \begin{cases}
+    hp + 0.5
+      &amp; \text{if} \enspace p \leq a
+      &amp; \text{(linear region)}\\
+    \displaystyle
+    0.5 h \left(
+      \frac{0.5 - a}{\pi} \sin \left( \frac{p - a}{0.5 - a} \pi \right)
+      + p
+      - 0.5
+    \right) + 1
+      &amp; \text{if} \enspace a &lt; p &lt; 0.5
+      &amp; \text{(sin region)}\\
+    1
+      &amp; \text{if} \enspace 0.5 \leq p
+      &amp; \text{(constant region)}\\
+  \end{cases}\\
+  h &amp;= \frac{2} {2a + 1}
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(\sin\)</span> 領域の式は以下の Maxima
+  のコードの <code>expr</code> を整形したものです。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cn">S</span>: <span class="fu">integrate</span>(<span class="cn">h</span>/<span class="dv">2</span> * (<span class="fu">cos</span>((<span class="cn">p</span> - <span class="cn">a</span>) / (<span class="dv">1</span>/<span class="dv">2</span> - <span class="cn">a</span>) * <span class="va">%pi</span>) + <span class="dv">1</span>), <span class="cn">p</span>);</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cn">C</span>: <span class="fu">subst</span>(<span class="dv">1</span>/<span class="dv">2</span>, <span class="cn">p</span>, <span class="cn">S</span>);</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cn">expr</span>: <span class="cn">S</span> - <span class="cn">C</span> + <span class="dv">1</span>;</span></code></pre></div>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoPartialSin(pan, param<span class="op">=</span><span class="fl">0.8</span>):</span>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoPartialSin(pan, param<span class="op">=</span><span class="fl">0.8</span>):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;`param` is in [0.0, 1.0].&quot;&quot;&quot;</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> gain(p, a):</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> <span class="dv">2</span> <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> a <span class="op">+</span> <span class="dv">1</span>)</span>
@@ -856,49 +925,49 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        )</span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, <span class="fl">0.5</span> <span class="op">*</span> param)</span></code></pre></div>
-<p>以下の図は部分的に <span class="math inline">\(\sin\)</span>
-を使ったフェード曲線のプロットです。 <span class="math inline">\(a =
-0.4\)</span> です。</p>
-<figure>
-<img src="img/panStereoPartialSin.svg" alt="Plot of partial sin curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="円形フェード"><a href="#円形フェード" class="header-anchor"
-aria-hidden="true">円形フェード</a></h3>
-<p>円の式です。</p>
-<p><span class="math display">\[
-x^2 + y^2 = r^2
-\]</span></p>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Circle">Circle -
-Wikipedia</a></li>
-</ul>
-<p><span class="math inline">\(r\)</span> を 1 として <span
-class="math inline">\(y\)</span>
-について解きます。値が正になる解だけを使います。</p>
-<p><span class="math display">\[
-y = \sqrt{1 - x^2}\\
-\]</span></p>
-<p><span class="math inline">\(x\)</span> は範囲 <span
-class="math inline">\((0, 1]\)</span>
-のパラメータにして、フェードに使う弧の長さを変えられるようにします。
-<span class="math inline">\(x = 0\)</span> のときは <span
-class="math inline">\(G_{LL}\)</span> の式で 0
-除算が起こるので範囲に含めません。</p>
-<figure>
-<img src="img/half_circle.svg" alt="Image of the interval of arc which corresponds to parameter x." style="padding-bottom: 12px;"/>
-</figure>
-<p><span class="math inline">\(G_{LL}\)</span> の計算式です。</p>
-<p><span class="math display">\[
-G_{LL}(p) = \begin{cases}
-  0.5 + 0.5 \dfrac{\sqrt{1 - (x - 2xp)^2} - y}{1 - y}
-    &amp; \text{if} \enspace p \leq 0.5\\
-  1
-    &amp; \text{if} \enspace 0.5 \leq p\\
-\end{cases}\\
-\]</span></p>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoCircle(pan, param<span class="op">=</span><span class="dv">1</span>):</span>
+  <p>以下の図は部分的に <span class="math inline">\(\sin\)</span>
+  を使ったフェード曲線のプロットです。 <span class="math inline">\(a =
+  0.4\)</span> です。</p>
+  <figure>
+  <img src="img/panStereoPartialSin.svg" alt="Plot of partial sin curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="円形フェード"><a href="#円形フェード" class="header-anchor"
+  aria-hidden="true">円形フェード</a></h3>
+  <p>円の式です。</p>
+  <p><span class="math display">\[
+  x^2 + y^2 = r^2
+  \]</span></p>
+  <ul>
+  <li><a href="https://en.wikipedia.org/wiki/Circle">Circle -
+  Wikipedia</a></li>
+  </ul>
+  <p><span class="math inline">\(r\)</span> を 1 として <span
+  class="math inline">\(y\)</span>
+  について解きます。値が正になる解だけを使います。</p>
+  <p><span class="math display">\[
+  y = \sqrt{1 - x^2}\\
+  \]</span></p>
+  <p><span class="math inline">\(x\)</span> は範囲 <span
+  class="math inline">\((0, 1]\)</span>
+  のパラメータにして、フェードに使う弧の長さを変えられるようにします。
+  <span class="math inline">\(x = 0\)</span> のときは <span
+  class="math inline">\(G_{LL}\)</span> の式で 0
+  除算が起こるので範囲に含めません。</p>
+  <figure>
+  <img src="img/half_circle.svg" alt="Image of the interval of arc which corresponds to parameter x." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math inline">\(G_{LL}\)</span> の計算式です。</p>
+  <p><span class="math display">\[
+  G_{LL}(p) = \begin{cases}
+    0.5 + 0.5 \dfrac{\sqrt{1 - (x - 2xp)^2} - y}{1 - y}
+      &amp; \text{if} \enspace p \leq 0.5\\
+    1
+      &amp; \text{if} \enspace 0.5 \leq p\\
+  \end{cases}\\
+  \]</span></p>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb11"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoCircle(pan, param<span class="op">=</span><span class="dv">1</span>):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;`param` is in (0.0, 1.0].&quot;&quot;&quot;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> gain(p, x):</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> np.sqrt(<span class="dv">1</span> <span class="op">-</span> x <span class="op">*</span> x)</span>
@@ -909,28 +978,28 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        )</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, param)</span></code></pre></div>
-<p>以下の図は円の式を使ったフェード曲線のプロットです。 <span
-class="math inline">\(x = 1\)</span> です。</p>
-<figure>
-<img src="img/panStereoCircle.svg" alt="Plot of half circle curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="n-次曲線フェード"><a href="#n-次曲線フェード"
-class="header-anchor" aria-hidden="true"><span
-class="math inline">\(n\)</span> 次曲線フェード</a></h3>
-<p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
-class="math inline">\(n\)</span>
-はフェード曲線を変えるパラメータで、曲線の次数です。</p>
-<p><span class="math display">\[
-G_{LL}(p) = \begin{cases}
-  1 - 0.5(1 - 2p)^n
-    &amp; \text{if} \enspace p \leq 0.5\\
-  1
-    &amp; \text{if} \enspace 0.5 \leq p\\
-\end{cases}\\
-\]</span></p>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoPoly(pan, param<span class="op">=</span><span class="fl">0.25</span>):</span>
+  <p>以下の図は円の式を使ったフェード曲線のプロットです。 <span
+  class="math inline">\(x = 1\)</span> です。</p>
+  <figure>
+  <img src="img/panStereoCircle.svg" alt="Plot of half circle curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="n-次曲線フェード"><a href="#n-次曲線フェード"
+  class="header-anchor" aria-hidden="true"><span
+  class="math inline">\(n\)</span> 次曲線フェード</a></h3>
+  <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
+  class="math inline">\(n\)</span>
+  はフェード曲線を変えるパラメータで、曲線の次数です。</p>
+  <p><span class="math display">\[
+  G_{LL}(p) = \begin{cases}
+    1 - 0.5(1 - 2p)^n
+      &amp; \text{if} \enspace p \leq 0.5\\
+    1
+      &amp; \text{if} \enspace 0.5 \leq p\\
+  \end{cases}\\
+  \]</span></p>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoPoly(pan, param<span class="op">=</span><span class="fl">0.25</span>):</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;`param` is in [0.0, 1.0].&quot;&quot;&quot;</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> gain(p, n):</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.where(</span>
@@ -941,27 +1010,27 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a h
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    order <span class="op">=</span> (<span class="dv">1</span> <span class="op">+</span> <span class="dv">4</span> <span class="op">*</span> param)</span>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, order)</span></code></pre></div>
-<p>以下の図は <span class="math inline">\(n\)</span>
-次曲線を使ったフェード曲線のプロットです。 <span class="math inline">\(n
-= 2\)</span> です。</p>
-<figure>
-<img src="img/panStereoPoly.svg" alt="Plot of polynomial curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="sin-を使うフェード"><a href="#sin-を使うフェード"
-class="header-anchor" aria-hidden="true"><span
-class="math inline">\(\sin\)</span> を使うフェード</a></h3>
-<p><span class="math inline">\(G_{LL}\)</span> の式を立てます。</p>
-<p><span class="math display">\[
-G_{LL}(p) = \begin{cases}
-  0.5 + 0.5\sin(\pi p)
-    &amp; \text{if} \enspace p \leq 0.5\\
-  1
-    &amp; \text{if} \enspace 0.5 \leq p\\
-\end{cases}\\
-\]</span></p>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoSin(pan, param<span class="op">=</span><span class="va">None</span>):</span>
+  <p>以下の図は <span class="math inline">\(n\)</span>
+  次曲線を使ったフェード曲線のプロットです。 <span
+  class="math inline">\(n = 2\)</span> です。</p>
+  <figure>
+  <img src="img/panStereoPoly.svg" alt="Plot of polynomial curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="sin-を使うフェード"><a href="#sin-を使うフェード"
+  class="header-anchor" aria-hidden="true"><span
+  class="math inline">\(\sin\)</span> を使うフェード</a></h3>
+  <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。</p>
+  <p><span class="math display">\[
+  G_{LL}(p) = \begin{cases}
+    0.5 + 0.5\sin(\pi p)
+      &amp; \text{if} \enspace p \leq 0.5\\
+    1
+      &amp; \text{if} \enspace 0.5 \leq p\\
+  \end{cases}\\
+  \]</span></p>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb13"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoSin(pan, param<span class="op">=</span><span class="va">None</span>):</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> gain(p, unused):</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.where(</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>            p <span class="op">&lt;=</span> <span class="fl">0.5</span>,</span>
@@ -970,29 +1039,29 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        )</span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, param)</span></code></pre></div>
-<p>以下の図は <span class="math inline">\(\sin\)</span>
-を使ったフェード曲線のプロットです。</p>
-<figure>
-<img src="img/panStereoSin.svg" alt="Plot of sin curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="s-字のフェード"><a href="#s-字のフェード" class="header-anchor"
-aria-hidden="true">S 字のフェード</a></h3>
-<p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
-class="math inline">\(n\)</span>
-はフェード曲線を変えるパラメータで、曲線の次数です。</p>
-<p><span class="math display">\[
-G_{LL}(p) = \begin{cases}
-  0.75 - 0.25\cos^n(2 \pi p)
-    &amp; \text{if} \enspace p \leq 0.5\\
-  1
-    &amp; \text{if} \enspace 0.5 \leq p\\
-\end{cases}\\
-\]</span></p>
-<p>コードにします。 <span class="math inline">\(n\)</span>
-の範囲は適当に <span class="math inline">\([1, 4]\)</span>
-としています。</p>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoSCurve(pan, param<span class="op">=</span><span class="dv">0</span>):</span>
+  <p>以下の図は <span class="math inline">\(\sin\)</span>
+  を使ったフェード曲線のプロットです。</p>
+  <figure>
+  <img src="img/panStereoSin.svg" alt="Plot of sin curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="s-字のフェード"><a href="#s-字のフェード"
+  class="header-anchor" aria-hidden="true">S 字のフェード</a></h3>
+  <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
+  class="math inline">\(n\)</span>
+  はフェード曲線を変えるパラメータで、曲線の次数です。</p>
+  <p><span class="math display">\[
+  G_{LL}(p) = \begin{cases}
+    0.75 - 0.25\cos^n(2 \pi p)
+      &amp; \text{if} \enspace p \leq 0.5\\
+    1
+      &amp; \text{if} \enspace 0.5 \leq p\\
+  \end{cases}\\
+  \]</span></p>
+  <p>コードにします。 <span class="math inline">\(n\)</span>
+  の範囲は適当に <span class="math inline">\([1, 4]\)</span>
+  としています。</p>
+  <div class="sourceCode" id="cb14"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoSCurve(pan, param<span class="op">=</span><span class="dv">0</span>):</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> gain(p, n):</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.where(</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>            p <span class="op">&lt;=</span> <span class="fl">0.5</span>,</span>
@@ -1002,31 +1071,31 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a h
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    order <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> param</span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, order)</span></code></pre></div>
-<p>以下の図は S 字のフェード曲線のプロットです。 <span
-class="math inline">\(n = 1\)</span> です。</p>
-<figure>
-<img src="img/panStereoSCurve.svg" alt="Plot of S-shaped curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="漏れのあるフェード-softplus"><a
-href="#漏れのあるフェード-softplus" class="header-anchor"
-aria-hidden="true">漏れのあるフェード (Softplus)</a></h3>
-<p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
-class="math inline">\(k\)</span>
-はフェード曲線を変えるパラメータです。範囲は <span
-class="math inline">\([1, 100]\)</span>
-くらいで指数スケールを使うと良さそうです。</p>
-<p><span class="math display">\[
-\begin{aligned}
-G_{LL}(p) &amp;= 0.5 + 0.5 \, \frac{v_{\max} -
-\mathrm{softplus}(k\,(0.5-p))}{v_{\max} - v_{\min}}\\
-\mathrm{softplus}(x) &amp;= \ln (1 + \exp(x))\\
-v_{\min} &amp;= \mathrm{softplus}(-0.5 k)\\
-v_{\max} &amp;= \mathrm{softplus}(0.5 k)\\
-\end{aligned}
-\]</span></p>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoSoftplus(pan, param<span class="op">=</span><span class="fl">0.5</span>):</span>
+  <p>以下の図は S 字のフェード曲線のプロットです。 <span
+  class="math inline">\(n = 1\)</span> です。</p>
+  <figure>
+  <img src="img/panStereoSCurve.svg" alt="Plot of S-shaped curve for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="漏れのあるフェード-softplus"><a
+  href="#漏れのあるフェード-softplus" class="header-anchor"
+  aria-hidden="true">漏れのあるフェード (Softplus)</a></h3>
+  <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。 <span
+  class="math inline">\(k\)</span>
+  はフェード曲線を変えるパラメータです。範囲は <span
+  class="math inline">\([1, 100]\)</span>
+  くらいで指数スケールを使うと良さそうです。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G_{LL}(p) &amp;= 0.5 + 0.5 \, \frac{v_{\max} -
+  \mathrm{softplus}(k\,(0.5-p))}{v_{\max} - v_{\min}}\\
+  \mathrm{softplus}(x) &amp;= \ln (1 + \exp(x))\\
+  v_{\min} &amp;= \mathrm{softplus}(-0.5 k)\\
+  v_{\max} &amp;= \mathrm{softplus}(0.5 k)\\
+  \end{aligned}
+  \]</span></p>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb15"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoSoftplus(pan, param<span class="op">=</span><span class="fl">0.5</span>):</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;`param` is in [0.0, 1.0].&quot;&quot;&quot;</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> softplus(x):</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.log(<span class="dv">1</span> <span class="op">+</span> np.exp(x))</span>
@@ -1038,30 +1107,31 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    saturation <span class="op">=</span> np.power(<span class="dv">10</span>, <span class="dv">2</span> <span class="op">*</span> param)</span>
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, saturation)</span></code></pre></div>
-<p>以下の図は softplus による漏れのあるフェード曲線のプロットです。
-<span class="math inline">\(k = 10\)</span> です。</p>
-<figure>
-<img src="img/panStereoSoftplus.svg" alt="Plot of leaky curve using softplus function for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<ul>
-<li><a
-href="https://en.wikipedia.org/wiki/Rectifier_(neural_networks)#Softplus">Rectifier
-(neural networks) - Wikipedia</a></li>
-</ul>
-<h3 id="波打つフェード-sinc"><a href="#波打つフェード-sinc"
-class="header-anchor" aria-hidden="true">波打つフェード (Sinc)</a></h3>
-<p><span class="math inline">\(G_{LL}\)</span> の式を立てます。</p>
-<p><span class="math display">\[
-G_{LL}(p) = \begin{cases}
-  0.5 + 0.5 \, \mathrm{sinc}(k (1 - 2p))
-    &amp; \text{if} \enspace p \leq 0.5\\
-  1
-    &amp; \text{if} \enspace 0.5 \leq p\\
-\end{cases}\\
-\]</span></p>
-<p>コードにします。</p>
-<div class="sourceCode" id="cb16"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoSinc(pan, param<span class="op">=</span><span class="fl">0.5</span>):</span>
+  <p>以下の図は softplus による漏れのあるフェード曲線のプロットです。
+  <span class="math inline">\(k = 10\)</span> です。</p>
+  <figure>
+  <img src="img/panStereoSoftplus.svg" alt="Plot of leaky curve using softplus function for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <ul>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Rectifier_(neural_networks)#Softplus">Rectifier
+  (neural networks) - Wikipedia</a></li>
+  </ul>
+  <h3 id="波打つフェード-sinc"><a href="#波打つフェード-sinc"
+  class="header-anchor" aria-hidden="true">波打つフェード
+  (Sinc)</a></h3>
+  <p><span class="math inline">\(G_{LL}\)</span> の式を立てます。</p>
+  <p><span class="math display">\[
+  G_{LL}(p) = \begin{cases}
+    0.5 + 0.5 \, \mathrm{sinc}(k (1 - 2p))
+      &amp; \text{if} \enspace p \leq 0.5\\
+    1
+      &amp; \text{if} \enspace 0.5 \leq p\\
+  \end{cases}\\
+  \]</span></p>
+  <p>コードにします。</p>
+  <div class="sourceCode" id="cb16"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> panStereoSinc(pan, param<span class="op">=</span><span class="fl">0.5</span>):</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;`param` is in [0.0, 1.0].&quot;&quot;&quot;</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> gain(p, k):</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.where(</span>
@@ -1072,299 +1142,299 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a h
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    zeroCross <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> np.floor(<span class="dv">16</span> <span class="op">*</span> param)</span>
 <span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> getStereoGain(gain, zeroCross)</span></code></pre></div>
-<p>以下の図は波打つフェード曲線のプロットです。 <span
-class="math inline">\(k = 9\)</span> です。</p>
-<figure>
-<img src="img/panStereoSinc.svg" alt="Plot of bouncing curve using sinc function for stereo to stereo panning." style="padding-bottom: 12px;"/>
-</figure>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Sinc_function">Sinc function
-- Wikipedia</a></li>
-</ul>
-<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
-aria-hidden="true">音のサンプル</a></h2>
-<p>データ量を減らすため圧縮に <a href="https://opus-codec.org/">opus</a>
-を使っています。</p>
-<h3 id="モノラル-ステレオパンニング"><a
-href="#モノラル-ステレオパンニング" class="header-anchor"
-aria-hidden="true">モノラル → ステレオパンニング</a></h3>
-<figure>
-<figcaption>
-線形パンニング
-</figcaption>
-<audio controls>
-<source src="snd/opus/panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-等パワーパンニング
-</figcaption>
-<audio controls>
-<source src="snd/opus/panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
--4.5 dB パンニング
-</figcaption>
-<audio controls>
-<source src="snd/opus/panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<h3 id="ステレオ-ステレオパンニング"><a
-href="#ステレオ-ステレオパンニング" class="header-anchor"
-aria-hidden="true">ステレオ → ステレオパンニング</a></h3>
-<h4 id="線形パンニング-1"><a href="#線形パンニング-1"
-class="header-anchor" aria-hidden="true">線形パンニング</a></h4>
-<figure>
-<figcaption>
-直線的なフェード
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoLinear_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-部分的に 2 次曲線を使うフェード, a = 0.4
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPartial2ndOrder_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-部分的に sin を使うフェード, a = 0.4
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPartialSin_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-円形フェード, x = 1
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoCircle_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-n 次曲線フェード, n = 2
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPoly_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-sin を使うフェード
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSin_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-S 字のフェード, n = 1
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSCurve_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-漏れのあるフェード (Softplus), k = 10
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSoftplus_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-波打つフェード (Sinc), k = 9
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSinc_panMonoLinear.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<h4 id="等パワーパンニング-1"><a href="#等パワーパンニング-1"
-class="header-anchor" aria-hidden="true">等パワーパンニング</a></h4>
-<figure>
-<figcaption>
-直線的なフェード
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoLinear_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-部分的に 2 次曲線を使うフェード, a = 0.4
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPartial2ndOrder_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-部分的に sin を使うフェード, a = 0.4
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPartialSin_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-円形フェード, x = 1
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoCircle_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-n 次曲線フェード, n = 2
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPoly_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-sin を使うフェード
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSin_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-S 字のフェード, n = 1
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSCurve_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-漏れのあるフェード (Softplus), k = 10
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSoftplus_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-波打つフェード (Sinc), k = 9
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSinc_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<h4 id="db-パンニング-1"><a href="#db-パンニング-1"
-class="header-anchor" aria-hidden="true">-4.5 dB パンニング</a></h4>
-<figure>
-<figcaption>
-直線的なフェード
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoLinear_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-部分的に 2 次曲線を使うフェード, a = 0.4
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPartial2ndOrder_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-部分的に sin を使うフェード, a = 0.4
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPartialSin_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-円形フェード, x = 1
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoCircle_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-n 次曲線フェード, n = 2
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoPoly_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-sin を使うフェード
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSin_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-S 字のフェード, n = 1
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSCurve_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-漏れのあるフェード (Softplus), k = 10
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSoftplus_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<figure>
-<figcaption>
-波打つフェード (Sinc), k = 9
-</figcaption>
-<audio controls>
-<source src="snd/opus/panStereoSinc_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
-</audio>
-</figure>
-<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
-aria-hidden="true">参考文献</a></h2>
-<ul>
-<li><a
-href="http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/">Loudness
-Concepts &amp; Panning Laws</a></li>
-</ul>
-<h2 id="変更点"><a href="#変更点" class="header-anchor"
-aria-hidden="true">変更点</a></h2>
-<ul>
-<li>2021/01/13
-<ul>
-<li>記号の間違いを修正。</li>
-<li>文章の整理。</li>
-<li>Softplus と sinc 関数のリンクを追加</li>
-</ul></li>
-<li>2021/01/18
-<ul>
-<li>文章の整理。</li>
-</ul></li>
-<li>2021/01/21
-<ul>
-<li>等パワーパンニングが線形パンニングになっていた間違いを修正。</li>
-</ul></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <p>以下の図は波打つフェード曲線のプロットです。 <span
+  class="math inline">\(k = 9\)</span> です。</p>
+  <figure>
+  <img src="img/panStereoSinc.svg" alt="Plot of bouncing curve using sinc function for stereo to stereo panning." style="padding-bottom: 12px;"/>
+  </figure>
+  <ul>
+  <li><a href="https://en.wikipedia.org/wiki/Sinc_function">Sinc
+  function - Wikipedia</a></li>
+  </ul>
+  <h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+  aria-hidden="true">音のサンプル</a></h2>
+  <p>データ量を減らすため圧縮に <a
+  href="https://opus-codec.org/">opus</a> を使っています。</p>
+  <h3 id="モノラル-ステレオパンニング"><a
+  href="#モノラル-ステレオパンニング" class="header-anchor"
+  aria-hidden="true">モノラル → ステレオパンニング</a></h3>
+  <figure>
+  <figcaption>
+  線形パンニング
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  等パワーパンニング
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  -4.5 dB パンニング
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <h3 id="ステレオ-ステレオパンニング"><a
+  href="#ステレオ-ステレオパンニング" class="header-anchor"
+  aria-hidden="true">ステレオ → ステレオパンニング</a></h3>
+  <h4 id="線形パンニング-1"><a href="#線形パンニング-1"
+  class="header-anchor" aria-hidden="true">線形パンニング</a></h4>
+  <figure>
+  <figcaption>
+  直線的なフェード
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoLinear_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  部分的に 2 次曲線を使うフェード, a = 0.4
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPartial2ndOrder_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  部分的に sin を使うフェード, a = 0.4
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPartialSin_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  円形フェード, x = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoCircle_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  n 次曲線フェード, n = 2
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPoly_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  sin を使うフェード
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSin_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  S 字のフェード, n = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSCurve_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  漏れのあるフェード (Softplus), k = 10
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSoftplus_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  波打つフェード (Sinc), k = 9
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSinc_panMonoLinear.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <h4 id="等パワーパンニング-1"><a href="#等パワーパンニング-1"
+  class="header-anchor" aria-hidden="true">等パワーパンニング</a></h4>
+  <figure>
+  <figcaption>
+  直線的なフェード
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoLinear_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  部分的に 2 次曲線を使うフェード, a = 0.4
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPartial2ndOrder_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  部分的に sin を使うフェード, a = 0.4
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPartialSin_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  円形フェード, x = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoCircle_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  n 次曲線フェード, n = 2
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPoly_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  sin を使うフェード
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSin_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  S 字のフェード, n = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSCurve_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  漏れのあるフェード (Softplus), k = 10
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSoftplus_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  波打つフェード (Sinc), k = 9
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSinc_panMonoConstantPower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <h4 id="db-パンニング-1"><a href="#db-パンニング-1"
+  class="header-anchor" aria-hidden="true">-4.5 dB パンニング</a></h4>
+  <figure>
+  <figcaption>
+  直線的なフェード
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoLinear_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  部分的に 2 次曲線を使うフェード, a = 0.4
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPartial2ndOrder_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  部分的に sin を使うフェード, a = 0.4
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPartialSin_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  円形フェード, x = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoCircle_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  n 次曲線フェード, n = 2
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoPoly_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  sin を使うフェード
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSin_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  S 字のフェード, n = 1
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSCurve_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  漏れのあるフェード (Softplus), k = 10
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSoftplus_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  波打つフェード (Sinc), k = 9
+  </figcaption>
+  <audio controls>
+  <source src="snd/opus/panStereoSinc_panMonoIntermediatePower.opus" type="audio/ogg; codecs=opus">
+  </audio>
+  </figure>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/">Loudness
+  Concepts &amp; Panning Laws</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2021/01/13
+  <ul>
+  <li>記号の間違いを修正。</li>
+  <li>文章の整理。</li>
+  <li>Softplus と sinc 関数のリンクを追加</li>
+  </ul></li>
+  <li>2021/01/18
+  <ul>
+  <li>文章の整理。</li>
+  </ul></li>
+  <li>2021/01/21
+  <ul>
+  <li>等パワーパンニングが線形パンニングになっていた間違いを修正。</li>
+  </ul></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

@@ -2,403 +2,467 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>doublefilter</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>doublefilter</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#変な-4-pole-フィルタ" id="toc-変な-4-pole-フィルタ">変な
-4-pole フィルタ</a>
-<ul>
-<li><a href="#出力-u_2-の伝達関数" id="toc-出力-u_2-の伝達関数">出力
-<span class="math inline">\(u_2\)</span> の伝達関数</a></li>
-<li><a href="#ローパスのカットオフ周波数のチューニング"
-id="toc-ローパスのカットオフ周波数のチューニング">ローパスのカットオフ周波数のチューニング</a></li>
-<li><a href="#レゾナンスのチューニング"
-id="toc-レゾナンスのチューニング">レゾナンスのチューニング</a>
-<ul>
-<li><a href="#発散を防ぐ" id="toc-発散を防ぐ">発散を防ぐ</a></li>
-</ul></li>
-<li><a href="#出力ゲインのチューニング"
-id="toc-出力ゲインのチューニング">出力ゲインのチューニング</a></li>
-<li><a href="#出力-u_1" id="toc-出力-u_1">出力 <span
-class="math inline">\(u_1\)</span></a></li>
-<li><a href="#実装" id="toc-実装">実装</a></li>
-<li><a href="#音のサンプル" id="toc-音のサンプル">音のサンプル</a>
-<ul>
-<li><a href="#出力-u_2-ローパス" id="toc-出力-u_2-ローパス">出力 <span
-class="math inline">\(u_2\)</span> (ローパス)</a></li>
-<li><a href="#出力-u_1-ハイパス" id="toc-出力-u_1-ハイパス">出力 <span
-class="math inline">\(u_1\)</span> (ハイパス)</a></li>
-</ul></li>
-<li><a href="#その他" id="toc-その他">その他</a>
-<ul>
-<li><a href="#出力-u_1-の伝達関数" id="toc-出力-u_1-の伝達関数">出力
-<span class="math inline">\(u_1\)</span> の伝達関数</a></li>
-</ul></li>
-<li><a href="#参考サイト" id="toc-参考サイト">参考サイト</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="変な-4-pole-フィルタ"><a href="#変な-4-pole-フィルタ"
-class="header-anchor" aria-hidden="true">変な 4-pole フィルタ</a></h1>
-<p><a
-href="https://www.myphysicslab.com/springs/double-spring-en.html">2
-重ばねの式</a>から適当に係数などを入れ替えて次のコードを作りました。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#変な-4-pole-フィルタ"
+        id="toc-変な-4-pole-フィルタ">変な 4-pole フィルタ</a>
+        <ul>
+        <li><a href="#出力-u_2-の伝達関数"
+        id="toc-出力-u_2-の伝達関数">出力 <span
+        class="math inline">\(u_2\)</span> の伝達関数</a></li>
+        <li><a href="#ローパスのカットオフ周波数のチューニング"
+        id="toc-ローパスのカットオフ周波数のチューニング">ローパスのカットオフ周波数のチューニング</a></li>
+        <li><a href="#レゾナンスのチューニング"
+        id="toc-レゾナンスのチューニング">レゾナンスのチューニング</a>
+        <ul>
+        <li><a href="#発散を防ぐ"
+        id="toc-発散を防ぐ">発散を防ぐ</a></li>
+        </ul></li>
+        <li><a href="#出力ゲインのチューニング"
+        id="toc-出力ゲインのチューニング">出力ゲインのチューニング</a></li>
+        <li><a href="#出力-u_1" id="toc-出力-u_1">出力 <span
+        class="math inline">\(u_1\)</span></a></li>
+        <li><a href="#実装" id="toc-実装">実装</a></li>
+        <li><a href="#音のサンプル"
+        id="toc-音のサンプル">音のサンプル</a>
+        <ul>
+        <li><a href="#出力-u_2-ローパス" id="toc-出力-u_2-ローパス">出力
+        <span class="math inline">\(u_2\)</span> (ローパス)</a></li>
+        <li><a href="#出力-u_1-ハイパス" id="toc-出力-u_1-ハイパス">出力
+        <span class="math inline">\(u_1\)</span> (ハイパス)</a></li>
+        </ul></li>
+        <li><a href="#その他" id="toc-その他">その他</a>
+        <ul>
+        <li><a href="#出力-u_1-の伝達関数"
+        id="toc-出力-u_1-の伝達関数">出力 <span
+        class="math inline">\(u_1\)</span> の伝達関数</a></li>
+        </ul></li>
+        <li><a href="#参考サイト"
+        id="toc-参考サイト">参考サイト</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="変な-4-pole-フィルタ"><a href="#変な-4-pole-フィルタ"
+  class="header-anchor" aria-hidden="true">変な 4-pole フィルタ</a></h1>
+  <p><a
+  href="https://www.myphysicslab.com/springs/double-spring-en.html">2
+  重ばねの式</a>から適当に係数などを入れ替えて次のコードを作りました。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, k1, k2):</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.k1 <span class="op">=</span> k1</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.k2 <span class="op">=</span> k2</span>
@@ -424,61 +488,62 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x1 <span class="op">=</span> x0</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.pos2</span></code></pre></div>
-<p>この文章では上のコードのフィルタのことを DoubleFilter
-と呼ぶことにします。</p>
-<p><code>pos1</code> からはハイパス、 <code>pos2</code>
-からはローパスに近い出力が出力が得られました。ローパスフィルタのほうが好きなので
-<code>pos2</code> について <code>k1</code> と <code>k2</code>
-をチューニングします。</p>
-<p><code>k1</code> と <code>k2</code>
-について次のことが知りたいです。</p>
-<ul>
-<li>出力が発散しない値の範囲。</li>
-<li>カットオフ周波数から <code>k1, k2</code> の値を決める式。</li>
-<li>レゾナンスから <code>k1, k2</code> の値を決める式。</li>
-</ul>
-<h2 id="出力-u_2-の伝達関数"><a href="#出力-u_2-の伝達関数"
-class="header-anchor" aria-hidden="true">出力 <span
-class="math inline">\(u_2\)</span> の伝達関数</a></h2>
-<p>コードを式に直します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\ddot{u_2}[n] &amp;= k_2 (\dot{u_1}[n-1] - \dot{u_2}[n-1]) \\
-\dot{u_2}[n] &amp;= \dot{u_2}[n-1] + \ddot{u_2}[n] + x[n] - x[n - 1] \\
-u_2[n] &amp;= u_2[n-1] + k_2 \dot{u_2}[n] \\
-\\
-\ddot{u_1}[n] &amp;= -k_1 u_1[n-1] - \ddot{u_2}[n] \\
-\dot{u_1}[n] &amp;= \dot{u_1}[n-1] + \ddot{u_1}[n] \\
-u_1[n] &amp;= u_1[n-1] + \dot{u_1}[n] \\
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(u_2\)</span>
-の項だけが残るようにフィルタの式を変形します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\dot{u_1}[n] &amp;= \frac{1}{k_2} \ddot{u_2}[n+1] -
-\dot{u_2}[n]   &amp;(1) \\
-\ddot{u_2}[n] &amp;= \dot{u_2}[n] - \dot{u_2}[n-1] - x[n] + x[n-1]
-&amp;(2) \\
-\dot{u_2}[n] &amp;= \frac{1}{k_2} (u_2[n] -
-u_2[n-1])                              &amp;(3) \\
-\\
-u_1[n] &amp;= \frac{1}{k_1} \left( - \ddot{u_1}[n+1] - \ddot{u_2}[n+1]
-\right) &amp;(4) \\
-\ddot{u_1}[n] &amp;= \dot{u_1}[n] - \dot{u_1}[n-1] &amp;(5) \\
-\dot{u_1}[n] &amp;= u_1[n] - u_1[n-1]              &amp;(6)\\
-\end{aligned}
-\]</span></p>
-<p>次の手順で代入すると <span class="math inline">\(x\)</span> と <span
-class="math inline">\(u_2\)</span> の項だけの式になります。</p>
-<ul>
-<li>3 -&gt; 2 -&gt; 1</li>
-<li>5 -&gt; 4 -&gt; 6</li>
-<li>(3 -&gt; 2 -&gt; 1) -&gt; (5 -&gt; 4 -&gt; 6)</li>
-</ul>
-<p>Maxima で代入します。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cn">d1_u1</span>(<span class="cn">n</span>) := <span class="cn">d2_u2</span>(<span class="cn">n</span> + <span class="dv">1</span>) / <span class="cn">k_2</span> - <span class="cn">d1_u2</span>(<span class="cn">n</span>);             <span class="co">/* (1) */</span></span>
+  <p>この文章では上のコードのフィルタのことを DoubleFilter
+  と呼ぶことにします。</p>
+  <p><code>pos1</code> からはハイパス、 <code>pos2</code>
+  からはローパスに近い出力が出力が得られました。ローパスフィルタのほうが好きなので
+  <code>pos2</code> について <code>k1</code> と <code>k2</code>
+  をチューニングします。</p>
+  <p><code>k1</code> と <code>k2</code>
+  について次のことが知りたいです。</p>
+  <ul>
+  <li>出力が発散しない値の範囲。</li>
+  <li>カットオフ周波数から <code>k1, k2</code> の値を決める式。</li>
+  <li>レゾナンスから <code>k1, k2</code> の値を決める式。</li>
+  </ul>
+  <h2 id="出力-u_2-の伝達関数"><a href="#出力-u_2-の伝達関数"
+  class="header-anchor" aria-hidden="true">出力 <span
+  class="math inline">\(u_2\)</span> の伝達関数</a></h2>
+  <p>コードを式に直します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \ddot{u_2}[n] &amp;= k_2 (\dot{u_1}[n-1] - \dot{u_2}[n-1]) \\
+  \dot{u_2}[n] &amp;= \dot{u_2}[n-1] + \ddot{u_2}[n] + x[n] - x[n - 1]
+  \\
+  u_2[n] &amp;= u_2[n-1] + k_2 \dot{u_2}[n] \\
+  \\
+  \ddot{u_1}[n] &amp;= -k_1 u_1[n-1] - \ddot{u_2}[n] \\
+  \dot{u_1}[n] &amp;= \dot{u_1}[n-1] + \ddot{u_1}[n] \\
+  u_1[n] &amp;= u_1[n-1] + \dot{u_1}[n] \\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(u_2\)</span>
+  の項だけが残るようにフィルタの式を変形します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \dot{u_1}[n] &amp;= \frac{1}{k_2} \ddot{u_2}[n+1] -
+  \dot{u_2}[n]   &amp;(1) \\
+  \ddot{u_2}[n] &amp;= \dot{u_2}[n] - \dot{u_2}[n-1] - x[n] + x[n-1]
+  &amp;(2) \\
+  \dot{u_2}[n] &amp;= \frac{1}{k_2} (u_2[n] -
+  u_2[n-1])                              &amp;(3) \\
+  \\
+  u_1[n] &amp;= \frac{1}{k_1} \left( - \ddot{u_1}[n+1] - \ddot{u_2}[n+1]
+  \right) &amp;(4) \\
+  \ddot{u_1}[n] &amp;= \dot{u_1}[n] - \dot{u_1}[n-1] &amp;(5) \\
+  \dot{u_1}[n] &amp;= u_1[n] - u_1[n-1]              &amp;(6)\\
+  \end{aligned}
+  \]</span></p>
+  <p>次の手順で代入すると <span class="math inline">\(x\)</span> と
+  <span class="math inline">\(u_2\)</span> の項だけの式になります。</p>
+  <ul>
+  <li>3 -&gt; 2 -&gt; 1</li>
+  <li>5 -&gt; 4 -&gt; 6</li>
+  <li>(3 -&gt; 2 -&gt; 1) -&gt; (5 -&gt; 4 -&gt; 6)</li>
+  </ul>
+  <p>Maxima で代入します。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cn">d1_u1</span>(<span class="cn">n</span>) := <span class="cn">d2_u2</span>(<span class="cn">n</span> + <span class="dv">1</span>) / <span class="cn">k_2</span> - <span class="cn">d1_u2</span>(<span class="cn">n</span>);             <span class="co">/* (1) */</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cn">d2_u2</span>(<span class="cn">n</span>) := <span class="cn">d1_u2</span>(<span class="cn">n</span>) - <span class="cn">d1_u2</span>(<span class="cn">n</span> - <span class="dv">1</span>) - <span class="cn">x</span>(<span class="cn">n</span>) + <span class="cn">x</span>(<span class="cn">n</span> - <span class="dv">1</span>); <span class="co">/* (2) */</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cn">d1_u2</span>(<span class="cn">n</span>) := (<span class="cn">u_2</span>(<span class="cn">n</span>) - <span class="cn">u_2</span>(<span class="cn">n</span> - <span class="dv">1</span>)) / <span class="cn">k_2</span>;               <span class="co">/* (3) */</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cn">u_1</span>(<span class="cn">n</span>) := (-<span class="cn">d2_u1</span>(<span class="cn">n</span> + <span class="dv">1</span>) - <span class="cn">d2_u2</span>(<span class="cn">n</span> + <span class="dv">1</span>)) / <span class="cn">k_1</span>;        <span class="co">/* (4) */</span></span>
@@ -488,54 +553,54 @@ class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a hr
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ratvars</span>(<span class="cn">u</span>(<span class="cn">n</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-1</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-2</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-3</span>), <span class="cn">x</span>(<span class="cn">n</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-1</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-2</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-3</span>));</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ratexpand</span>(<span class="dv">0</span> = <span class="fu">rhs</span>(<span class="cn">result</span>) - <span class="fu">lhs</span>(<span class="cn">result</span>));</span></code></pre></div>
-<p>出力に <span class="math inline">\(k_1 k_2\)</span>
-を掛けて整理した式です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-&amp;
-x[n]
-\ +\ (k_2 + k_1 - 3) x[n-1]
-\ +\ (- 2 k_2 - k_1 + 3) x[n-2]
-\ +\ ( k_2 - 1) x[n-3]
-\\&amp;\quad=
-\frac{1}{k_2} u_2[n]
-\ +\ \frac{k_1 - 4}{k_2} u_2[n-1]
-\ -\ \left( \frac{2 k_1 - 6}{k_2} + k_1 \right) u_2[n-2]
-\\&amp;\qquad
-\ +\ \left( \frac{k_1 - 4}{k_2} + k_1 \right) u_2[n-3]
-\ +\ \frac{1}{k_2} u_2[n-4]
-\end{aligned}
-\]</span></p>
-<p>伝達関数です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-&amp;H(z) = \frac{
-  b_0 + b_1 z^{-1} + b_2 z^{-2} + b_3 z^{-3}
-}{
-  a_0 + a_1 z^{-1} + a_2 z^{-2} + a_3 z^{-3} + a_4 z^{-4}
-}
-\\&amp;
-\\&amp;
-\begin{aligned}
-b_0 &amp;= 1 \\
-b_1 &amp;= k_2 + k_1 - 3 \\
-b_2 &amp;= - 2 k_2 - k_1 + 3 \\
-b_3 &amp;= k_2 - 1 \\
-\end{aligned}
-\qquad \qquad
-\begin{aligned}
-a_0 &amp;= \frac{1}{k_2} \\
-a_1 &amp;= \frac{k_1 - 4}{k_2} \\
-a_2 &amp;= \frac{- 2 k_1 + 6}{k_2} - k_1 \\
-a_3 &amp;= \frac{k_1 - 4}{k_2} + k_1 \\
-a_4 &amp;= \frac{1}{k_2} \\
-\end{aligned}
-\end{aligned}
-\]</span></p>
-<p>次のコードは <code>scipy.signal</code>
-で使える形にした伝達関数です。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> transferFunctionU2(k1, k2):</span>
+  <p>出力に <span class="math inline">\(k_1 k_2\)</span>
+  を掛けて整理した式です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  &amp;
+  x[n]
+  \ +\ (k_2 + k_1 - 3) x[n-1]
+  \ +\ (- 2 k_2 - k_1 + 3) x[n-2]
+  \ +\ ( k_2 - 1) x[n-3]
+  \\&amp;\quad=
+  \frac{1}{k_2} u_2[n]
+  \ +\ \frac{k_1 - 4}{k_2} u_2[n-1]
+  \ -\ \left( \frac{2 k_1 - 6}{k_2} + k_1 \right) u_2[n-2]
+  \\&amp;\qquad
+  \ +\ \left( \frac{k_1 - 4}{k_2} + k_1 \right) u_2[n-3]
+  \ +\ \frac{1}{k_2} u_2[n-4]
+  \end{aligned}
+  \]</span></p>
+  <p>伝達関数です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  &amp;H(z) = \frac{
+    b_0 + b_1 z^{-1} + b_2 z^{-2} + b_3 z^{-3}
+  }{
+    a_0 + a_1 z^{-1} + a_2 z^{-2} + a_3 z^{-3} + a_4 z^{-4}
+  }
+  \\&amp;
+  \\&amp;
+  \begin{aligned}
+  b_0 &amp;= 1 \\
+  b_1 &amp;= k_2 + k_1 - 3 \\
+  b_2 &amp;= - 2 k_2 - k_1 + 3 \\
+  b_3 &amp;= k_2 - 1 \\
+  \end{aligned}
+  \qquad \qquad
+  \begin{aligned}
+  a_0 &amp;= \frac{1}{k_2} \\
+  a_1 &amp;= \frac{k_1 - 4}{k_2} \\
+  a_2 &amp;= \frac{- 2 k_1 + 6}{k_2} - k_1 \\
+  a_3 &amp;= \frac{k_1 - 4}{k_2} + k_1 \\
+  a_4 &amp;= \frac{1}{k_2} \\
+  \end{aligned}
+  \end{aligned}
+  \]</span></p>
+  <p>次のコードは <code>scipy.signal</code>
+  で使える形にした伝達関数です。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> transferFunctionU2(k1, k2):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        [</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="dv">1</span>,                <span class="co"># b0</span></span>
@@ -552,71 +617,71 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>            <span class="dv">1</span> <span class="op">/</span> k2,                  <span class="co"># a4</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        ],</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
-<h2 id="ローパスのカットオフ周波数のチューニング"><a
-href="#ローパスのカットオフ周波数のチューニング" class="header-anchor"
-aria-hidden="true">ローパスのカットオフ周波数のチューニング</a></h2>
-<p>プロットに使ったコードは <a
-href="https://ryukau.github.io/filter_notes/3pole_lowpass/3pole_lowpass.html">3-pole
-ローパスフィルタ</a> と同じなので省略します。</p>
-<p>次の図は <span class="math inline">\(k_1\)</span> を <span
-class="math inline">\(\pi\)</span> に固定して <span
-class="math inline">\(k_2\)</span> を動かしたときの振幅特性です。 <span
-class="math inline">\(k_1\)</span> が <span
-class="math inline">\(\pi\)</span>
-を超えても振幅特性は計算できますが、実際に信号を入力すると発散しました。
-プロットの丸い点は -3 dB の位置です。</p>
-<figure>
-<img src="img/GainFrequencyPlot.png" alt="Image of gain response plot." style="padding-bottom: 12px;"/>
-</figure>
-<p>ローパスのような特性ですが、ナイキスト周波数の近くに変なピークがあります。
-<span class="math inline">\(k_1\)</span> を 0 に近づけるとピークの位置が
-0 Hz に近づきます。</p>
-<p>カットオフ周波数 <span class="math inline">\(\omega_c\)</span> から
-<span class="math inline">\(k_2\)</span> を求める近似曲線を <a
-href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.polyfit.html"><code>numpy.polyfit</code></a>
-を使って求めたところ、次の式が見つかりました。中点 <span
-class="math inline">\(\cdot\)</span> は乗算を表しています。</p>
-<p><span class="math display">\[
-k_2 = 6.5451144600705975 \cdot x + 20.46391326872472 \cdot x^2, \qquad x
-= \frac{\omega_c}{2 \pi}.
-\]</span></p>
-<p><span class="math inline">\(k_2\)</span> が 1.0
-を超えると発散するので、 <span class="math inline">\(k_2\)</span> が 1.0
-を超えないようなカットオフ周波数の上限を探します。 Maxima の
-<code>solve</code> を使います。 <code>numer</code>
-は実数で結果を表示するオプションです。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="dv">1</span> = <span class="fl">6.5451144600705975</span> * <span class="cn">x</span> + <span class="fl">20.46391326872472</span> * <span class="cn">x</span>^<span class="dv">2</span>, <span class="cn">x</span>), <span class="cn">numer</span>;</span></code></pre></div>
-<p><span class="math inline">\(k_2 = 1\)</span> のときの <span
-class="math inline">\(x\)</span> の値は 0.1129192677515388
-になりました。サンプリング周波数 <span
-class="math inline">\(f_s\)</span> に応じたカットオフ周波数の上限 <span
-class="math inline">\(f_u\)</span> は次の式で計算できます。</p>
-<p><span class="math display">\[
-f_u = 0.1129192677515388 \cdot f_s
-\]</span></p>
-<ul>
-<li><span class="math inline">\(f_s = 44100\)</span> のとき <span
-class="math inline">\(f_u = 4979.739707842861\)</span> 。</li>
-<li><span class="math inline">\(f_s = 48000\)</span> のとき <span
-class="math inline">\(f_u = 5420.124852073862\)</span> 。</li>
-</ul>
-<p>カットオフ周波数と近似曲線のプロットです。丸い点が振幅特性から求めたカットオフ周波数、青い線が近似曲線です。</p>
-<figure>
-<img src="img/K2FrequencyPlot.png" alt="Image of k2-cutoff plot." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="レゾナンスのチューニング"><a href="#レゾナンスのチューニング"
-class="header-anchor"
-aria-hidden="true">レゾナンスのチューニング</a></h2>
-<p><span class="math inline">\(k_2\)</span>
-がユーザによって決められたときに発散しない <span
-class="math inline">\(k_1\)</span> の最大値を探します。</p>
-<p><a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tf2zpk.html#scipy.signal.tf2zpk"><code>scipy.signal.tf2zpk</code></a>
-から得られる伝達関数の極の絶対値の最大値が 1 になるような <span
-class="math inline">\(k_1\)</span> の値を探します。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+  <h2 id="ローパスのカットオフ周波数のチューニング"><a
+  href="#ローパスのカットオフ周波数のチューニング" class="header-anchor"
+  aria-hidden="true">ローパスのカットオフ周波数のチューニング</a></h2>
+  <p>プロットに使ったコードは <a
+  href="https://ryukau.github.io/filter_notes/3pole_lowpass/3pole_lowpass.html">3-pole
+  ローパスフィルタ</a> と同じなので省略します。</p>
+  <p>次の図は <span class="math inline">\(k_1\)</span> を <span
+  class="math inline">\(\pi\)</span> に固定して <span
+  class="math inline">\(k_2\)</span> を動かしたときの振幅特性です。
+  <span class="math inline">\(k_1\)</span> が <span
+  class="math inline">\(\pi\)</span>
+  を超えても振幅特性は計算できますが、実際に信号を入力すると発散しました。
+  プロットの丸い点は -3 dB の位置です。</p>
+  <figure>
+  <img src="img/GainFrequencyPlot.png" alt="Image of gain response plot." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>ローパスのような特性ですが、ナイキスト周波数の近くに変なピークがあります。
+  <span class="math inline">\(k_1\)</span> を 0
+  に近づけるとピークの位置が 0 Hz に近づきます。</p>
+  <p>カットオフ周波数 <span class="math inline">\(\omega_c\)</span> から
+  <span class="math inline">\(k_2\)</span> を求める近似曲線を <a
+  href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.polyfit.html"><code>numpy.polyfit</code></a>
+  を使って求めたところ、次の式が見つかりました。中点 <span
+  class="math inline">\(\cdot\)</span> は乗算を表しています。</p>
+  <p><span class="math display">\[
+  k_2 = 6.5451144600705975 \cdot x + 20.46391326872472 \cdot x^2, \qquad
+  x = \frac{\omega_c}{2 \pi}.
+  \]</span></p>
+  <p><span class="math inline">\(k_2\)</span> が 1.0
+  を超えると発散するので、 <span class="math inline">\(k_2\)</span> が
+  1.0 を超えないようなカットオフ周波数の上限を探します。 Maxima の
+  <code>solve</code> を使います。 <code>numer</code>
+  は実数で結果を表示するオプションです。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="dv">1</span> = <span class="fl">6.5451144600705975</span> * <span class="cn">x</span> + <span class="fl">20.46391326872472</span> * <span class="cn">x</span>^<span class="dv">2</span>, <span class="cn">x</span>), <span class="cn">numer</span>;</span></code></pre></div>
+  <p><span class="math inline">\(k_2 = 1\)</span> のときの <span
+  class="math inline">\(x\)</span> の値は 0.1129192677515388
+  になりました。サンプリング周波数 <span
+  class="math inline">\(f_s\)</span> に応じたカットオフ周波数の上限
+  <span class="math inline">\(f_u\)</span> は次の式で計算できます。</p>
+  <p><span class="math display">\[
+  f_u = 0.1129192677515388 \cdot f_s
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(f_s = 44100\)</span> のとき <span
+  class="math inline">\(f_u = 4979.739707842861\)</span> 。</li>
+  <li><span class="math inline">\(f_s = 48000\)</span> のとき <span
+  class="math inline">\(f_u = 5420.124852073862\)</span> 。</li>
+  </ul>
+  <p>カットオフ周波数と近似曲線のプロットです。丸い点が振幅特性から求めたカットオフ周波数、青い線が近似曲線です。</p>
+  <figure>
+  <img src="img/K2FrequencyPlot.png" alt="Image of k2-cutoff plot." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="レゾナンスのチューニング"><a href="#レゾナンスのチューニング"
+  class="header-anchor"
+  aria-hidden="true">レゾナンスのチューニング</a></h2>
+  <p><span class="math inline">\(k_2\)</span>
+  がユーザによって決められたときに発散しない <span
+  class="math inline">\(k_1\)</span> の最大値を探します。</p>
+  <p><a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tf2zpk.html#scipy.signal.tf2zpk"><code>scipy.signal.tf2zpk</code></a>
+  から得られる伝達関数の極の絶対値の最大値が 1 になるような <span
+  class="math inline">\(k_1\)</span> の値を探します。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal <span class="im">as</span> signal</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -643,78 +708,79 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    pyplot.scatter(k2, k1, s<span class="op">=</span><span class="dv">4</span>, zorder<span class="op">=</span><span class="dv">2</span>)</span>
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    pyplot.grid(zorder<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    pyplot.show()</span></code></pre></div>
-<p>出力されたプロットです。</p>
-<figure>
-<img src="img/K1K2Plot.png" alt="Image of k1-k2 plot." style="padding-bottom: 12px;"/>
-</figure>
-<p><span class="math inline">\(k_2\)</span> が 0.6
-を超えたあたりで異なる曲線がつなぎ合わされているように見えます。曲線が変わる点での
-<span class="math inline">\(k_2\)</span> の値を <span
-class="math inline">\(\xi_{k_2}\)</span> とします。 <span
-class="math inline">\(\xi_{k_2}\)</span> の値は <span
-class="math inline">\(2 \pi\)</span>
-に近いですが、はっきりしないので近似曲線を探すときは 0.63
-を使っています。</p>
-<p><span class="math inline">\(k_2\)</span> が <span
-class="math inline">\(\xi_{k_2}\)</span> 以下のときに対応する <span
-class="math inline">\(k_1\)</span> をそのまま使うと発散しました。そこで
-<span class="math inline">\(k_2\)</span> が <span
-class="math inline">\(\xi_{k_2}\)</span> 以下のときは <span
-class="math inline">\(k_1\)</span> の上限を <span
-class="math inline">\(\pi\)</span> にします。</p>
-<p><span class="math inline">\(k_2\)</span> が <span
-class="math inline">\(\xi_{k_2}\)</span> 以上のときに <span
-class="math inline">\(k_2\)</span> から <span
-class="math inline">\(k_1\)</span>
-を求める近似曲線を探します。いろいろ試したところ <a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html"><code>scipy.optimize.curve_fit</code></a>
-に次の関数を渡すと近似できました。</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> curve_func(x, a0, a1, a2, a3, a4):</span>
+  <p>出力されたプロットです。</p>
+  <figure>
+  <img src="img/K1K2Plot.png" alt="Image of k1-k2 plot." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math inline">\(k_2\)</span> が 0.6
+  を超えたあたりで異なる曲線がつなぎ合わされているように見えます。曲線が変わる点での
+  <span class="math inline">\(k_2\)</span> の値を <span
+  class="math inline">\(\xi_{k_2}\)</span> とします。 <span
+  class="math inline">\(\xi_{k_2}\)</span> の値は <span
+  class="math inline">\(2 \pi\)</span>
+  に近いですが、はっきりしないので近似曲線を探すときは 0.63
+  を使っています。</p>
+  <p><span class="math inline">\(k_2\)</span> が <span
+  class="math inline">\(\xi_{k_2}\)</span> 以下のときに対応する <span
+  class="math inline">\(k_1\)</span>
+  をそのまま使うと発散しました。そこで <span
+  class="math inline">\(k_2\)</span> が <span
+  class="math inline">\(\xi_{k_2}\)</span> 以下のときは <span
+  class="math inline">\(k_1\)</span> の上限を <span
+  class="math inline">\(\pi\)</span> にします。</p>
+  <p><span class="math inline">\(k_2\)</span> が <span
+  class="math inline">\(\xi_{k_2}\)</span> 以上のときに <span
+  class="math inline">\(k_2\)</span> から <span
+  class="math inline">\(k_1\)</span>
+  を求める近似曲線を探します。いろいろ試したところ <a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html"><code>scipy.optimize.curve_fit</code></a>
+  に次の関数を渡すと近似できました。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> curve_func(x, a0, a1, a2, a3, a4):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (a0 <span class="op">+</span> a1 <span class="op">*</span> x <span class="op">+</span> a2 <span class="op">*</span> x <span class="op">*</span> x <span class="op">+</span> a3 <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x <span class="op">+</span> a4 <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x <span class="op">*</span> x)</span></code></pre></div>
-<p>得られた近似曲線の式です。 <span class="math inline">\(C_0\)</span>
-は <span class="math inline">\(k_2 = 0\)</span> のとき <span
-class="math inline">\(k_1 = 0\)</span> となるように調整しました。</p>
-<p><span class="math display">\[
-\begin{aligned}
-k_1 &amp;\approx \begin{cases}
-  \mathtt{resonance} \cdot \pi &amp;, \quad k_2 &lt; \xi_{k_2} \\
-  \mathtt{resonance} \cdot
-  \left(C_0 + \dfrac{1}{C_1 + C_2 k_2 + C_3 (k_2)^2 + C_4 (k_2)^3 + C_5
-(k_2)^4} \right)
-  &amp;, \quad \xi_{k_2} \leq k_2.
-\end{cases} \\
-\\
-C_0 &amp;= -0.0049691265927442885\\
-C_1 &amp;= -471.738128187657\\
-C_2 &amp;= 1432.5662635997667\\
-C_3 &amp;= 345.2853784111966\\
-C_4 &amp;= -4454.40786711102\\
-C_5 &amp;= 3468.062963176107\\
-\end{aligned}
-\]</span></p>
-<p>近似曲線が <span class="math inline">\(k_2 = \xi_{k_2}\)</span>
-のときに <span class="math inline">\(\pi\)</span> となる <span
-class="math inline">\(\xi_{k_2}\)</span> は <span
-class="math inline">\(0.6295160864148501\)</span> です。</p>
-<p><span class="math inline">\(k_2 \geq \xi_{k_2}\)</span>
-のときの実データと近似曲線のプロットです。</p>
-<figure>
-<img src="img/K1K2Fit.png" alt="Image of approximation of k1-k2 curve where k2 is greater or equal than xi_k2." style="padding-bottom: 12px;"/>
-</figure>
-<h3 id="発散を防ぐ"><a href="#発散を防ぐ" class="header-anchor"
-aria-hidden="true">発散を防ぐ</a></h3>
-<p>プラグインにして試したところ <span
-class="math inline">\(\mathtt{resonance} = 1\)</span> かつ <span
-class="math inline">\(k_2\)</span> が <span
-class="math inline">\(\xi_{k_2}\)</span>
-より小さいときに発散することが分かりました。試行錯誤を重ねた結果、 <span
-class="math inline">\(k_1\)</span> に 0.69
-を掛け合わせると発散しなくなりました。次のようなコードで <span
-class="math inline">\(k_2 &lt; \xi_{k_2}\)</span> のときの <span
-class="math inline">\(k_1\)</span> の値を小さくします。</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> shelveK1(k1, k2):</span>
+  <p>得られた近似曲線の式です。 <span class="math inline">\(C_0\)</span>
+  は <span class="math inline">\(k_2 = 0\)</span> のとき <span
+  class="math inline">\(k_1 = 0\)</span> となるように調整しました。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  k_1 &amp;\approx \begin{cases}
+    \mathtt{resonance} \cdot \pi &amp;, \quad k_2 &lt; \xi_{k_2} \\
+    \mathtt{resonance} \cdot
+    \left(C_0 + \dfrac{1}{C_1 + C_2 k_2 + C_3 (k_2)^2 + C_4 (k_2)^3 +
+  C_5 (k_2)^4} \right)
+    &amp;, \quad \xi_{k_2} \leq k_2.
+  \end{cases} \\
+  \\
+  C_0 &amp;= -0.0049691265927442885\\
+  C_1 &amp;= -471.738128187657\\
+  C_2 &amp;= 1432.5662635997667\\
+  C_3 &amp;= 345.2853784111966\\
+  C_4 &amp;= -4454.40786711102\\
+  C_5 &amp;= 3468.062963176107\\
+  \end{aligned}
+  \]</span></p>
+  <p>近似曲線が <span class="math inline">\(k_2 = \xi_{k_2}\)</span>
+  のときに <span class="math inline">\(\pi\)</span> となる <span
+  class="math inline">\(\xi_{k_2}\)</span> は <span
+  class="math inline">\(0.6295160864148501\)</span> です。</p>
+  <p><span class="math inline">\(k_2 \geq \xi_{k_2}\)</span>
+  のときの実データと近似曲線のプロットです。</p>
+  <figure>
+  <img src="img/K1K2Fit.png" alt="Image of approximation of k1-k2 curve where k2 is greater or equal than xi_k2." style="padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="発散を防ぐ"><a href="#発散を防ぐ" class="header-anchor"
+  aria-hidden="true">発散を防ぐ</a></h3>
+  <p>プラグインにして試したところ <span
+  class="math inline">\(\mathtt{resonance} = 1\)</span> かつ <span
+  class="math inline">\(k_2\)</span> が <span
+  class="math inline">\(\xi_{k_2}\)</span>
+  より小さいときに発散することが分かりました。試行錯誤を重ねた結果、
+  <span class="math inline">\(k_1\)</span> に 0.69
+  を掛け合わせると発散しなくなりました。次のようなコードで <span
+  class="math inline">\(k_2 &lt; \xi_{k_2}\)</span> のときの <span
+  class="math inline">\(k_1\)</span> の値を小さくします。</p>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> shelveK1(k1, k2):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    k1Gain <span class="op">=</span> <span class="fl">0.69</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    k1Delta <span class="op">=</span> <span class="fl">0.31</span>  <span class="co"># 1 - k1Gain.</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    B_2 <span class="op">=</span> <span class="fl">0.63</span>      <span class="co"># Tuning boundary (xi_{k_2}).</span></span>
@@ -725,18 +791,18 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> k2 <span class="op">&gt;=</span> B_2 <span class="kw">and</span> k2 <span class="op">&lt;</span> B_3:</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        k1 <span class="op">*=</span> k1Gain <span class="op">+</span> k1Delta <span class="op">*</span> (k2 <span class="op">-</span> B_2) <span class="op">/</span> (B_3 <span class="op">-</span> B_2)</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> k1</span></code></pre></div>
-<p>最終的な <span class="math inline">\(k_1\)</span>
-のチューニング曲線のプロットです。</p>
-<figure>
-<img src="img/K1TuningDefault.png" alt="Image of ." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="出力ゲインのチューニング"><a href="#出力ゲインのチューニング"
-class="header-anchor"
-aria-hidden="true">出力ゲインのチューニング</a></h2>
-<p>思いつきで <code>sqrt(k1)</code> を <code>pos2</code>
-の式に掛け合わせて出力ゲインのチューニングを変えてみました。</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+  <p>最終的な <span class="math inline">\(k_1\)</span>
+  のチューニング曲線のプロットです。</p>
+  <figure>
+  <img src="img/K1TuningDefault.png" alt="Image of ." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="出力ゲインのチューニング"><a href="#出力ゲインのチューニング"
+  class="header-anchor"
+  aria-hidden="true">出力ゲインのチューニング</a></h2>
+  <p>思いつきで <code>sqrt(k1)</code> を <code>pos2</code>
+  の式に掛け合わせて出力ゲインのチューニングを変えてみました。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
@@ -751,19 +817,20 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x1 <span class="op">=</span> x0</span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.pos2</span></code></pre></div>
-<p>出力ゲインのチューニングを変えると <span
-class="math inline">\(k_1\)</span> の上限が変わります。</p>
-<p><span class="math inline">\(k_1\)</span> が <span
-class="math inline">\(0.7 \pi\)</span>
-よりも大きいと発散するので、近似曲線から得られた値に 0.7
-を掛け合わせます。</p>
-<p>0.7 を掛け合わせても <span class="math inline">\(k_2\)</span> が
-<span class="math inline">\(\xi_{k_2}\)</span> より小さく <span
-class="math inline">\(\xi_{k_2}\)</span> に近いときに発散します。そこで
-<span class="math inline">\(\xi_{k_2}\)</span>
-の周りにチューニングの凹みを作ります。</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dentK1(k1, k2):</span>
+  <p>出力ゲインのチューニングを変えると <span
+  class="math inline">\(k_1\)</span> の上限が変わります。</p>
+  <p><span class="math inline">\(k_1\)</span> が <span
+  class="math inline">\(0.7 \pi\)</span>
+  よりも大きいと発散するので、近似曲線から得られた値に 0.7
+  を掛け合わせます。</p>
+  <p>0.7 を掛け合わせても <span class="math inline">\(k_2\)</span> が
+  <span class="math inline">\(\xi_{k_2}\)</span> より小さく <span
+  class="math inline">\(\xi_{k_2}\)</span>
+  に近いときに発散します。そこで <span
+  class="math inline">\(\xi_{k_2}\)</span>
+  の周りにチューニングの凹みを作ります。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dentK1(k1, k2):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    k1Gain <span class="op">=</span> <span class="fl">0.69</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    k1Delta <span class="op">=</span> <span class="fl">0.31</span>  <span class="co"># 1 - k1Gain.</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    B_0 <span class="op">=</span> <span class="fl">0.61</span></span>
@@ -779,24 +846,24 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        k1 <span class="op">*=</span> k1Gain <span class="op">+</span> k1Delta <span class="op">*</span> (k2 <span class="op">-</span> B_2) <span class="op">/</span> (B_3 <span class="op">-</span> B_2)</span>
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> k1 <span class="op">*</span> <span class="fl">0.7</span></span></code></pre></div>
-<p><code>sqrt(k1)</code> を <code>pos2</code> の式に掛けたときの <span
-class="math inline">\(k_1\)</span>
-のチューニング曲線のプロットです。</p>
-<figure>
-<img src="img/K1TuningSqrt.png" alt="Image of ." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="出力-u_1"><a href="#出力-u_1" class="header-anchor"
-aria-hidden="true">出力 <span
-class="math inline">\(u_1\)</span></a></h2>
-<p>フィルタの式の <span class="math inline">\(u_1\)</span>
-を出力に使うとハイパスフィルタを通したような音になります。出力 <span
-class="math inline">\(u_2\)</span>
-のチューニングを使っても発散しなかったので流用することにしました。</p>
-<h2 id="実装"><a href="#実装" class="header-anchor"
-aria-hidden="true">実装</a></h2>
-<p>C++ による実装です。</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> DoubleFilter <span class="op">{</span></span>
+  <p><code>sqrt(k1)</code> を <code>pos2</code> の式に掛けたときの <span
+  class="math inline">\(k_1\)</span>
+  のチューニング曲線のプロットです。</p>
+  <figure>
+  <img src="img/K1TuningSqrt.png" alt="Image of ." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="出力-u_1"><a href="#出力-u_1" class="header-anchor"
+  aria-hidden="true">出力 <span
+  class="math inline">\(u_1\)</span></a></h2>
+  <p>フィルタの式の <span class="math inline">\(u_1\)</span>
+  を出力に使うとハイパスフィルタを通したような音になります。出力 <span
+  class="math inline">\(u_2\)</span>
+  のチューニングを使っても発散しなかったので流用することにしました。</p>
+  <h2 id="実装"><a href="#実装" class="header-anchor"
+  aria-hidden="true">実装</a></h2>
+  <p>C++ による実装です。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">&gt;</span> <span class="kw">class</span> DoubleFilter <span class="op">{</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
@@ -881,177 +948,178 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#
 <span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>  Sample x1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<ul>
-<li><a
-href="https://github.com/ryukau/LV2Plugins/blob/master/lv2cvport/CV_DoubleFilter/dsp/doublefilter.hpp">LV2Plugins/doublefilter.hpp
-at master · ryukau/LV2Plugins · GitHub</a></li>
-</ul>
-<h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
-aria-hidden="true">音のサンプル</a></h2>
-<p>サンプルの生成に使ったコードへのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/doublefilter/demo/sound.py">filter_notes/sound.py
-at master · ryukau/filter_notes · GitHub</a></li>
-</ul>
-<p>カットオフ周波数の変調には <a
-href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.geomspace.html"><code>numpy.geomspace</code></a>
-を使っています。</p>
-<pre><code>cutoff = 5000 * numpy.geomspace(1e-5, 1, nSample)</code></pre>
-<p>入力信号は <a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.sawtooth.html"><code>scipy.signal.sawtooth</code></a>
-で生成した 45 Hz ののこぎり波です。</p>
-<p><code>altGain</code> が true のとき <code>sqrt(k1)</code> を
-<code>pos2</code> に掛け合わせています。</p>
-<h3 id="出力-u_2-ローパス"><a href="#出力-u_2-ローパス"
-class="header-anchor" aria-hidden="true">出力 <span
-class="math inline">\(u_2\)</span> (ローパス)</a></h3>
-<p><code>altGain</code> = False としたときの出力です。</p>
-<figure>
-<figcaption>
-resonance=0.001, altGain=False, isHighpass=False
-</figcaption>
-<audio controls>
-<source src="snd/exp_res0.00100_altGainFalse_isHighpassFalse.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-resonance=0.1, altGain=False, isHighpass=False
-</figcaption>
-<audio controls>
-<source src="snd/exp_res0.10000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-resonance=1.0, altGain=False, isHighpass=False
-</figcaption>
-<audio controls>
-<source src="snd/exp_res1.00000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
-</audio>
-</figure>
-<p><code>altGain</code> = True としたときの出力です。</p>
-<figure>
-<figcaption>
-resonance=0.001, altGain=True, isHighpass=False
-</figcaption>
-<audio controls>
-<source src="snd/exp_res0.00100_altGainTrue_isHighpassFalse.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-resonance=0.1, altGain=True, isHighpass=False
-</figcaption>
-<audio controls>
-<source src="snd/exp_res0.10000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-resonance=1.0, altGain=True, isHighpass=False
-</figcaption>
-<audio controls>
-<source src="snd/exp_res1.00000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
-</audio>
-</figure>
-<h3 id="出力-u_1-ハイパス"><a href="#出力-u_1-ハイパス"
-class="header-anchor" aria-hidden="true">出力 <span
-class="math inline">\(u_1\)</span> (ハイパス)</a></h3>
-<p><code>altGain</code> = False としたときの出力です。</p>
-<figure>
-<figcaption>
-resonance=0.001, altGain=False, isHighpass=True
-</figcaption>
-<audio controls>
-<source src="snd/exp_res0.00100_altGainFalse_isHighpassTrue.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-resonance=0.1, altGain=False, isHighpass=True
-</figcaption>
-<audio controls>
-<source src="snd/exp_res0.10000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-resonance=1.0, altGain=False, isHighpass=True
-</figcaption>
-<audio controls>
-<source src="snd/exp_res1.00000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
-</audio>
-</figure>
-<p><code>altGain</code> = True としたときの出力です。</p>
-<figure>
-<figcaption>
-resonance=0.001, altGain=True, isHighpass=True
-</figcaption>
-<audio controls>
-<source src="snd/exp_res0.00100_altGainTrue_isHighpassTrue.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-resonance=0.1, altGain=True, isHighpass=True
-</figcaption>
-<audio controls>
-<source src="snd/exp_res0.10000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-resonance=1.0, altGain=True, isHighpass=True
-</figcaption>
-<audio controls>
-<source src="snd/exp_res1.00000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
-</audio>
-</figure>
-<h2 id="その他"><a href="#その他" class="header-anchor"
-aria-hidden="true">その他</a></h2>
-<h3 id="出力-u_1-の伝達関数"><a href="#出力-u_1-の伝達関数"
-class="header-anchor" aria-hidden="true">出力 <span
-class="math inline">\(u_1\)</span> の伝達関数</a></h3>
-<p>フィルタの式を再掲します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\ddot{u_2}[n] &amp;= k_2 (\dot{u_1}[n-1] - \dot{u_2}[n-1]) \\
-\dot{u_2}[n] &amp;= \dot{u_2}[n-1] + \ddot{u_2}[n] + x[n] - x[n - 1] \\
-u_2[n] &amp;= u_2[n-1] + k_2 \dot{u_2}[n] \\
-\\
-\ddot{u_1}[n] &amp;= -k_1 u_1[n-1] - \ddot{u_2}[n] \\
-\dot{u_1}[n] &amp;= \dot{u_1}[n-1] + \ddot{u_1}[n] \\
-u_1[n] &amp;= u_1[n-1] + \dot{u_1}[n] \\
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(u_1\)</span>
-の項だけが残るようにフィルタの式を変形します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\dot{u_2}[n] &amp;= \dot{u_1}[n] - \frac{1}{k_2}
-\ddot{u_2}[n+1]     &amp;(1) \\
-\ddot{u_2}[n] &amp;= \dot{u_2}[n] - \dot{u_2}[n-1] - x[n] + x[n - 1]
-&amp;(2) \\
-\\
-\ddot{u_2}[n] &amp;= - \ddot{u_1}[n] - k_1
-u_1[n-1]                  &amp;(3) \\
-\ddot{u_1}[n] &amp;= \dot{u_1}[n] -
-\dot{u_1}[n-1]                   &amp;(4) \\
-\dot{u_1}[n] &amp;= u_1[n] -
-u_1[n-1]                                &amp;(5) \\
-\end{aligned}
-\]</span></p>
-<p>次の手順で代入して <span class="math inline">\(u_1\)</span>
-の項だけにします。</p>
-<ul>
-<li>5 -&gt; 4 -&gt; 3</li>
-<li>1 -&gt; 2</li>
-<li>(5 -&gt; 4 -&gt; 3) を (1 -&gt; 2) に代入。</li>
-</ul>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cn">d1_u2</span>(<span class="cn">n</span>) := <span class="cn">d1_u1</span>(<span class="cn">n</span>) - <span class="cn">d2_u2</span>(<span class="cn">n</span> + <span class="dv">1</span>) / <span class="cn">k_2</span>;                    <span class="co">/* (1) */</span></span>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/LV2Plugins/blob/master/lv2cvport/CV_DoubleFilter/dsp/doublefilter.hpp">LV2Plugins/doublefilter.hpp
+  at master · ryukau/LV2Plugins · GitHub</a></li>
+  </ul>
+  <h2 id="音のサンプル"><a href="#音のサンプル" class="header-anchor"
+  aria-hidden="true">音のサンプル</a></h2>
+  <p>サンプルの生成に使ったコードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/doublefilter/demo/sound.py">filter_notes/sound.py
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <p>カットオフ周波数の変調には <a
+  href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.geomspace.html"><code>numpy.geomspace</code></a>
+  を使っています。</p>
+  <pre><code>cutoff = 5000 * numpy.geomspace(1e-5, 1, nSample)</code></pre>
+  <p>入力信号は <a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.sawtooth.html"><code>scipy.signal.sawtooth</code></a>
+  で生成した 45 Hz ののこぎり波です。</p>
+  <p><code>altGain</code> が true のとき <code>sqrt(k1)</code> を
+  <code>pos2</code> に掛け合わせています。</p>
+  <h3 id="出力-u_2-ローパス"><a href="#出力-u_2-ローパス"
+  class="header-anchor" aria-hidden="true">出力 <span
+  class="math inline">\(u_2\)</span> (ローパス)</a></h3>
+  <p><code>altGain</code> = False としたときの出力です。</p>
+  <figure>
+  <figcaption>
+  resonance=0.001, altGain=False, isHighpass=False
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res0.00100_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  resonance=0.1, altGain=False, isHighpass=False
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res0.10000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  resonance=1.0, altGain=False, isHighpass=False
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res1.00000_altGainFalse_isHighpassFalse.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <p><code>altGain</code> = True としたときの出力です。</p>
+  <figure>
+  <figcaption>
+  resonance=0.001, altGain=True, isHighpass=False
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res0.00100_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  resonance=0.1, altGain=True, isHighpass=False
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res0.10000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  resonance=1.0, altGain=True, isHighpass=False
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res1.00000_altGainTrue_isHighpassFalse.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <h3 id="出力-u_1-ハイパス"><a href="#出力-u_1-ハイパス"
+  class="header-anchor" aria-hidden="true">出力 <span
+  class="math inline">\(u_1\)</span> (ハイパス)</a></h3>
+  <p><code>altGain</code> = False としたときの出力です。</p>
+  <figure>
+  <figcaption>
+  resonance=0.001, altGain=False, isHighpass=True
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res0.00100_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  resonance=0.1, altGain=False, isHighpass=True
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res0.10000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  resonance=1.0, altGain=False, isHighpass=True
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res1.00000_altGainFalse_isHighpassTrue.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <p><code>altGain</code> = True としたときの出力です。</p>
+  <figure>
+  <figcaption>
+  resonance=0.001, altGain=True, isHighpass=True
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res0.00100_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  resonance=0.1, altGain=True, isHighpass=True
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res0.10000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  resonance=1.0, altGain=True, isHighpass=True
+  </figcaption>
+  <audio controls>
+  <source src="snd/exp_res1.00000_altGainTrue_isHighpassTrue.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <h3 id="出力-u_1-の伝達関数"><a href="#出力-u_1-の伝達関数"
+  class="header-anchor" aria-hidden="true">出力 <span
+  class="math inline">\(u_1\)</span> の伝達関数</a></h3>
+  <p>フィルタの式を再掲します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \ddot{u_2}[n] &amp;= k_2 (\dot{u_1}[n-1] - \dot{u_2}[n-1]) \\
+  \dot{u_2}[n] &amp;= \dot{u_2}[n-1] + \ddot{u_2}[n] + x[n] - x[n - 1]
+  \\
+  u_2[n] &amp;= u_2[n-1] + k_2 \dot{u_2}[n] \\
+  \\
+  \ddot{u_1}[n] &amp;= -k_1 u_1[n-1] - \ddot{u_2}[n] \\
+  \dot{u_1}[n] &amp;= \dot{u_1}[n-1] + \ddot{u_1}[n] \\
+  u_1[n] &amp;= u_1[n-1] + \dot{u_1}[n] \\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(u_1\)</span>
+  の項だけが残るようにフィルタの式を変形します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \dot{u_2}[n] &amp;= \dot{u_1}[n] - \frac{1}{k_2}
+  \ddot{u_2}[n+1]     &amp;(1) \\
+  \ddot{u_2}[n] &amp;= \dot{u_2}[n] - \dot{u_2}[n-1] - x[n] + x[n - 1]
+  &amp;(2) \\
+  \\
+  \ddot{u_2}[n] &amp;= - \ddot{u_1}[n] - k_1
+  u_1[n-1]                  &amp;(3) \\
+  \ddot{u_1}[n] &amp;= \dot{u_1}[n] -
+  \dot{u_1}[n-1]                   &amp;(4) \\
+  \dot{u_1}[n] &amp;= u_1[n] -
+  u_1[n-1]                                &amp;(5) \\
+  \end{aligned}
+  \]</span></p>
+  <p>次の手順で代入して <span class="math inline">\(u_1\)</span>
+  の項だけにします。</p>
+  <ul>
+  <li>5 -&gt; 4 -&gt; 3</li>
+  <li>1 -&gt; 2</li>
+  <li>(5 -&gt; 4 -&gt; 3) を (1 -&gt; 2) に代入。</li>
+  </ul>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cn">d1_u2</span>(<span class="cn">n</span>) := <span class="cn">d1_u1</span>(<span class="cn">n</span>) - <span class="cn">d2_u2</span>(<span class="cn">n</span> + <span class="dv">1</span>) / <span class="cn">k_2</span>;                    <span class="co">/* (1) */</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cn">d2_u2</span>(<span class="cn">n</span>) := -<span class="cn">d2_u1</span>(<span class="cn">n</span>) - <span class="cn">k_1</span> * <span class="cn">u_1</span>(<span class="cn">n</span> - <span class="dv">1</span>);  <span class="co">/* (3) */</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cn">d2_u1</span>(<span class="cn">n</span>) := <span class="cn">d1_u1</span>(<span class="cn">n</span>) - <span class="cn">d1_u1</span>(<span class="cn">n</span> - <span class="dv">1</span>);                          <span class="co">/* (4) */</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cn">d1_u1</span>(<span class="cn">n</span>) := <span class="cn">u_1</span>(<span class="cn">n</span>) - <span class="cn">u_1</span>(<span class="cn">n</span> - <span class="dv">1</span>);                              <span class="co">/* (5) */</span></span>
@@ -1060,64 +1128,64 @@ class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb12-1"><a h
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ratvars</span>(<span class="cn">u</span>(<span class="cn">n</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-1</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-2</span>), <span class="cn">u</span>(<span class="cn">n</span><span class="dv">-3</span>), <span class="cn">x</span>(<span class="cn">n</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-1</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-2</span>), <span class="cn">x</span>(<span class="cn">n</span><span class="dv">-3</span>));</span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ratexpand</span>(<span class="dv">0</span> = <span class="fu">rhs</span>(<span class="cn">result</span>) - <span class="fu">lhs</span>(<span class="cn">result</span>));</span></code></pre></div>
-<p>出力です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-0=&amp;
-- x(n)
-\\&amp;
-+ x(n-1)
-\\&amp;
-+ \frac{u_1(n+1)}{k_2}
-\\&amp;
-+ \frac{k_1 u_1(n)}{k_2}
-- \frac{3 u_1(n)}{k_2}
-+ 2 u_1(n)
-\\&amp;
-- \frac{k_1 u_1(n-1)}{k_2}
-+ \frac{3 u_1(n-1)}{k_2}
-+ k_1 u_1(n-1)
-- 4 u_1(n-1)
-\\&amp;
-- \frac{u_1(n-2)}{k_2}
-+ 2 u_1(n-2)
-\end{aligned}
-\]</span></p>
-<p>整理します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-x[n-1] - x[n-2] =&amp; \frac{1}{k_2} u_1[n]
-+ \left( \frac{k_1 - 3}{k_2} + 2 \right) u_1[n-1]
-\\&amp;
-+ \left( \frac{- k_1 + 3}{k_2} + k_1 - 4 \right) u_1[n-2]
-+ \left( \frac{- 1}{k_2}  + 2 \right) u_1[n-3]
-\end{aligned}
-\]</span></p>
-<p>伝達関数が得られました。</p>
-<p><span class="math display">\[
-H(z) = \frac{z^{-1} - z^{-2}}{C_0 + C_1 z^{-1} + C_2 z^{-2} + C_3
-z^{-3}}
-,\qquad
-\begin{aligned}
-C_0 &amp;= \frac{1}{k_2} \\
-C_1 &amp;= \frac{k_1 - 3}{k_2} + 2 \\
-C_2 &amp;= \frac{- k_1 + 3}{k_2} + k_1 - 4 \\
-C_3 &amp;= \frac{- 1}{k_2} + 2 \\
-\end{aligned}
-\]</span></p>
-<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
-aria-hidden="true">参考サイト</a></h2>
-<ul>
-<li><a
-href="https://www.myphysicslab.com/springs/double-spring-en.html">myPhysicsLab
-Double Spring</a></li>
-<li><a
-href="https://ccrma.stanford.edu/~jos/filters/Stability_Revisited.html">Stability
-Revisited</a></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <p>出力です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  0=&amp;
+  - x(n)
+  \\&amp;
+  + x(n-1)
+  \\&amp;
+  + \frac{u_1(n+1)}{k_2}
+  \\&amp;
+  + \frac{k_1 u_1(n)}{k_2}
+  - \frac{3 u_1(n)}{k_2}
+  + 2 u_1(n)
+  \\&amp;
+  - \frac{k_1 u_1(n-1)}{k_2}
+  + \frac{3 u_1(n-1)}{k_2}
+  + k_1 u_1(n-1)
+  - 4 u_1(n-1)
+  \\&amp;
+  - \frac{u_1(n-2)}{k_2}
+  + 2 u_1(n-2)
+  \end{aligned}
+  \]</span></p>
+  <p>整理します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  x[n-1] - x[n-2] =&amp; \frac{1}{k_2} u_1[n]
+  + \left( \frac{k_1 - 3}{k_2} + 2 \right) u_1[n-1]
+  \\&amp;
+  + \left( \frac{- k_1 + 3}{k_2} + k_1 - 4 \right) u_1[n-2]
+  + \left( \frac{- 1}{k_2}  + 2 \right) u_1[n-3]
+  \end{aligned}
+  \]</span></p>
+  <p>伝達関数が得られました。</p>
+  <p><span class="math display">\[
+  H(z) = \frac{z^{-1} - z^{-2}}{C_0 + C_1 z^{-1} + C_2 z^{-2} + C_3
+  z^{-3}}
+  ,\qquad
+  \begin{aligned}
+  C_0 &amp;= \frac{1}{k_2} \\
+  C_1 &amp;= \frac{k_1 - 3}{k_2} + 2 \\
+  C_2 &amp;= \frac{- k_1 + 3}{k_2} + k_1 - 4 \\
+  C_3 &amp;= \frac{- 1}{k_2} + 2 \\
+  \end{aligned}
+  \]</span></p>
+  <h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+  aria-hidden="true">参考サイト</a></h2>
+  <ul>
+  <li><a
+  href="https://www.myphysicslab.com/springs/double-spring-en.html">myPhysicsLab
+  Double Spring</a></li>
+  <li><a
+  href="https://ccrma.stanford.edu/~jos/filters/Stability_Revisited.html">Stability
+  Revisited</a></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

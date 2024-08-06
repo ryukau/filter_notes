@@ -2,525 +2,589 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>pitch_estimation</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>pitch_estimation</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#単音からのピッチ推定"
-id="toc-単音からのピッチ推定">単音からのピッチ推定</a>
-<ul>
-<li><a href="#yin" id="toc-yin">YIN</a>
-<ul>
-<li><a href="#cumulative-mean-normalized-difference-function-の定義"
-id="toc-cumulative-mean-normalized-difference-function-の定義">Cumulative
-Mean Normalized Difference Function の定義</a></li>
-<li><a href="#自己相関の計算"
-id="toc-自己相関の計算">自己相関の計算</a></li>
-<li><a href="#difference-function-の変形"
-id="toc-difference-function-の変形">Difference Function の変形</a></li>
-<li><a href="#周期の探索とピッチの計算"
-id="toc-周期の探索とピッチの計算">周期の探索とピッチの計算</a></li>
-</ul></li>
-<li><a href="#mcleod-pitch-method" id="toc-mcleod-pitch-method">McLeod
-Pitch Method</a>
-<ul>
-<li><a href="#normalized-square-difference-function-の計算"
-id="toc-normalized-square-difference-function-の計算">Normalized Square
-Difference Function の計算</a></li>
-<li><a href="#周期の探索" id="toc-周期の探索">周期の探索</a></li>
-</ul></li>
-<li><a href="#yinとmpmの組み合わせ"
-id="toc-yinとmpmの組み合わせ">YINとMPMの組み合わせ</a>
-<ul>
-<li><a href="#yin-nsd" id="toc-yin-nsd">YIN-NSD</a></li>
-<li><a href="#mpm-cmnd" id="toc-mpm-cmnd">MPM-CMND</a></li>
-</ul></li>
-<li><a href="#評価" id="toc-評価">評価</a>
-<ul>
-<li><a href="#サイン波" id="toc-サイン波">サイン波</a></li>
-<li><a href="#ノイズを加えたサイン波"
-id="toc-ノイズを加えたサイン波">ノイズを加えたサイン波</a></li>
-<li><a href="#am変調とfm変調"
-id="toc-am変調とfm変調">AM変調とFM変調</a></li>
-</ul></li>
-<li><a href="#どの手法がいいのか"
-id="toc-どの手法がいいのか">どの手法がいいのか</a></li>
-<li><a href="#その他" id="toc-その他">その他</a></li>
-<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="単音からのピッチ推定"><a href="#単音からのピッチ推定"
-class="header-anchor" aria-hidden="true">単音からのピッチ推定</a></h1>
-<p>クラスタリングの特徴量として使うために単音からのピッチ推定を実装します。ここでのピッチとは音の<a
-href="https://en.wikipedia.org/wiki/Fundamental_frequency">基本周波数</a>を指しています。</p>
-<p>Python3のライブラリを探したところ、<a
-href="https://essentia.upf.edu/documentation/index.html">Essentia</a>に含まれていた<a
-href="http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf">YIN</a>というピッチ推定のアルゴリズムを見つけました。そこからさらに調べると
-<a href="https://github.com/sevagh/pitch-detection">sevagh
-さんのリポジトリ</a> を見つけて <a
-href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">McLeod
-pitch method (MPM)</a> を見つけました。</p>
-<p>ここでは YIN と MPM を実装して評価します。 MPM という呼び方は sevagh
-さんにならっています。</p>
-<h2 id="yin"><a href="#yin" class="header-anchor"
-aria-hidden="true">YIN</a></h2>
-<p>YINの処理の流れは次のようになります。</p>
-<ol type="1">
-<li>Cumulative mean normalized difference の計算。</li>
-<li>配列の頭からしきい値以下の局所最小点を探してインデックスを取得。</li>
-<li>取得したインデックスからピッチを計算。</li>
-</ol>
-<h3 id="cumulative-mean-normalized-difference-function-の定義"><a
-href="#cumulative-mean-normalized-difference-function-の定義"
-class="header-anchor" aria-hidden="true">Cumulative Mean Normalized
-Difference Function の定義</a></h3>
-<p>Cumulative mean normalized difference
-は次のように定義されています。式中の <span
-class="math inline">\(x[i]\)</span> は配列 <span
-class="math inline">\(x\)</span> のインデックス <span
-class="math inline">\(i\)</span> の値を意味します。 <span
-class="math inline">\(t\)</span>
-は入力信号の区間のインデックスです。</p>
-<p><span class="math display">\[
-d&#39;_t[\tau] = \begin{cases}
-  1, &amp;\text{if }\tau = 0,\\
-  \dfrac{d_t[\tau]}{(1/\tau) \sum_{j=0}^{\tau-1}d_t[j]},
-&amp;\text{otherwise.}
-\end{cases}
-\]</span></p>
-<p><span class="math inline">\(d\)</span> はYINの論文で difference
-function と呼ばれている関数で、次のように定義されています。式中の <span
-class="math inline">\(N\)</span> は入力信号のサンプル数です。論文では
-<span class="math inline">\(N\)</span> ではなく <span
-class="math inline">\(W\)</span> を使っています。</p>
-<p><span class="math display">\[
-\begin{aligned}
-d_t[\tau]
-&amp;=\sum_{j=t}^{t + N - 1} (x[j] - x[j+\tau])^2\\
-&amp;=r_t[0] + r_{t + \tau}[0] - 2r_t[\tau]
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(r\)</span> は自己相関関数
-(autocorrelation function)
-で、YINの論文では2つの定義が紹介されています。Type I, type II
-という名前はMPMの論文に従っています。</p>
-<p><span class="math display">\[
-\begin{aligned}
-r_t[\tau] &amp;= \sum_{j=t}^{t + N - 1} x[j] x[j +
-\tau],\qquad\text{Type I}\\
-r&#39;_t[\tau] &amp;= \sum_{j=t}^{t + N - \tau - 1} x[j] x[j +
-\tau],\quad\text{Type II}
-\end{aligned}
-\]</span></p>
-<p>これらの式を見たとき <span class="math inline">\(t\)</span> と <span
-class="math inline">\(\tau\)</span> について混乱したのでまとめます。</p>
-<p><span class="math inline">\(t\)</span>
-は今からピッチを推定したい信号の、自己相関を計算する区間の開始時点を表しています。
-FFT を用いるときによくあるのですが、信号を <span
-class="math inline">\(2^n\)</span>
-サンプルごとなどに分割して処理することを想定しているようです。後で出てくる
-<code>python_speech_features.sigproc.framesig</code>
-はこの分割を行う関数です。信号全体から一つのピッチの値を取り出したいときは、信号の開始時点を
-<span class="math inline">\(t=0\)</span>
-と考えることができます。以降では 1
-区間での計算だけを扱うので簡略化のために常に <span
-class="math inline">\(t=0\)</span> とします。</p>
-<p><span class="math inline">\(\tau\)</span>
-は自己相関を計算する区間のインデックスを表しています。信号全体の自己相関を計算するとき
-<span class="math inline">\(\tau\)</span> の範囲は <span
-class="math inline">\([0, N -1]\)</span> になります。</p>
-<p>またYINの論文の fig. 1. (c) を見ると type I の自己相関の計算では
-<span class="math inline">\(x\)</span> が周期 <span
-class="math inline">\(N\)</span> で反復することを仮定しているようです。
-type II の自己相関の計算では <span class="math inline">\(x\)</span>
-のインデックスが <span class="math inline">\([0, N - 1]\)</span>
-の範囲外のとき <span class="math inline">\(x\)</span>
-の値を0としています。</p>
-<h3 id="自己相関の計算"><a href="#自己相関の計算" class="header-anchor"
-aria-hidden="true">自己相関の計算</a></h3>
-<p>自己相関は相互相関の特殊な場合です。相互相関関数 <span
-class="math inline">\(C\)</span> は次のように定義できます。</p>
-<p><span class="math display">\[
-C_(x,y)[\tau] = \sum_{j=0}^{N - \tau - 1} x[j] y[j + \tau]
-\]</span></p>
-<p>相互相関関数はFFTを使って高速に計算することができます。 <span
-class="math inline">\(^{*}\)</span> は複素共役を表しています。</p>
-<p><span class="math display">\[
-C(x, y) \iff \mathtt{ifft}(\mathtt{fft}(x)(\mathtt{fft}(y))^{*})
-\]</span></p>
-<p>自己相関関数 <span class="math inline">\(r&#39;_t\)</span> は <span
-class="math inline">\(C\)</span> を使って次のように書けます。</p>
-<p><span class="math display">\[
-r&#39; = C(x, x) \iff
-\mathtt{ifft}(\mathtt{fft}(x)(\mathtt{fft}(x))^{*})
-\]</span></p>
-<p>FFTでは入力信号が無限に反復する信号の1周期ということを仮定しています。つまり
-<span class="math inline">\(x\)</span> をそのまま使うと type I
-の自己相関の計算になります。 Type II の自己相関を計算するときは <span
-class="math inline">\(x\)</span> の後に、 <span
-class="math inline">\(x\)</span>
-以上に長い0ベクトルをつなげてから計算すればいいようです。</p>
-<p><span class="math display">\[
-x&#39; = (x[0], x[1],...,x[N-1],0,0,...,0),
-\quad\mathtt{len}(x&#39;) \geq 2N
-\]</span></p>
-<p>実装します。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#単音からのピッチ推定"
+        id="toc-単音からのピッチ推定">単音からのピッチ推定</a>
+        <ul>
+        <li><a href="#yin" id="toc-yin">YIN</a>
+        <ul>
+        <li><a
+        href="#cumulative-mean-normalized-difference-function-の定義"
+        id="toc-cumulative-mean-normalized-difference-function-の定義">Cumulative
+        Mean Normalized Difference Function の定義</a></li>
+        <li><a href="#自己相関の計算"
+        id="toc-自己相関の計算">自己相関の計算</a></li>
+        <li><a href="#difference-function-の変形"
+        id="toc-difference-function-の変形">Difference Function
+        の変形</a></li>
+        <li><a href="#周期の探索とピッチの計算"
+        id="toc-周期の探索とピッチの計算">周期の探索とピッチの計算</a></li>
+        </ul></li>
+        <li><a href="#mcleod-pitch-method"
+        id="toc-mcleod-pitch-method">McLeod Pitch Method</a>
+        <ul>
+        <li><a href="#normalized-square-difference-function-の計算"
+        id="toc-normalized-square-difference-function-の計算">Normalized
+        Square Difference Function の計算</a></li>
+        <li><a href="#周期の探索"
+        id="toc-周期の探索">周期の探索</a></li>
+        </ul></li>
+        <li><a href="#yinとmpmの組み合わせ"
+        id="toc-yinとmpmの組み合わせ">YINとMPMの組み合わせ</a>
+        <ul>
+        <li><a href="#yin-nsd" id="toc-yin-nsd">YIN-NSD</a></li>
+        <li><a href="#mpm-cmnd" id="toc-mpm-cmnd">MPM-CMND</a></li>
+        </ul></li>
+        <li><a href="#評価" id="toc-評価">評価</a>
+        <ul>
+        <li><a href="#サイン波" id="toc-サイン波">サイン波</a></li>
+        <li><a href="#ノイズを加えたサイン波"
+        id="toc-ノイズを加えたサイン波">ノイズを加えたサイン波</a></li>
+        <li><a href="#am変調とfm変調"
+        id="toc-am変調とfm変調">AM変調とFM変調</a></li>
+        </ul></li>
+        <li><a href="#どの手法がいいのか"
+        id="toc-どの手法がいいのか">どの手法がいいのか</a></li>
+        <li><a href="#その他" id="toc-その他">その他</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="単音からのピッチ推定"><a href="#単音からのピッチ推定"
+  class="header-anchor" aria-hidden="true">単音からのピッチ推定</a></h1>
+  <p>クラスタリングの特徴量として使うために単音からのピッチ推定を実装します。ここでのピッチとは音の<a
+  href="https://en.wikipedia.org/wiki/Fundamental_frequency">基本周波数</a>を指しています。</p>
+  <p>Python3のライブラリを探したところ、<a
+  href="https://essentia.upf.edu/documentation/index.html">Essentia</a>に含まれていた<a
+  href="http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf">YIN</a>というピッチ推定のアルゴリズムを見つけました。そこからさらに調べると
+  <a href="https://github.com/sevagh/pitch-detection">sevagh
+  さんのリポジトリ</a> を見つけて <a
+  href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">McLeod
+  pitch method (MPM)</a> を見つけました。</p>
+  <p>ここでは YIN と MPM を実装して評価します。 MPM という呼び方は
+  sevagh さんにならっています。</p>
+  <h2 id="yin"><a href="#yin" class="header-anchor"
+  aria-hidden="true">YIN</a></h2>
+  <p>YINの処理の流れは次のようになります。</p>
+  <ol type="1">
+  <li>Cumulative mean normalized difference の計算。</li>
+  <li>配列の頭からしきい値以下の局所最小点を探してインデックスを取得。</li>
+  <li>取得したインデックスからピッチを計算。</li>
+  </ol>
+  <h3 id="cumulative-mean-normalized-difference-function-の定義"><a
+  href="#cumulative-mean-normalized-difference-function-の定義"
+  class="header-anchor" aria-hidden="true">Cumulative Mean Normalized
+  Difference Function の定義</a></h3>
+  <p>Cumulative mean normalized difference
+  は次のように定義されています。式中の <span
+  class="math inline">\(x[i]\)</span> は配列 <span
+  class="math inline">\(x\)</span> のインデックス <span
+  class="math inline">\(i\)</span> の値を意味します。 <span
+  class="math inline">\(t\)</span>
+  は入力信号の区間のインデックスです。</p>
+  <p><span class="math display">\[
+  d&#39;_t[\tau] = \begin{cases}
+    1, &amp;\text{if }\tau = 0,\\
+    \dfrac{d_t[\tau]}{(1/\tau) \sum_{j=0}^{\tau-1}d_t[j]},
+  &amp;\text{otherwise.}
+  \end{cases}
+  \]</span></p>
+  <p><span class="math inline">\(d\)</span> はYINの論文で difference
+  function と呼ばれている関数で、次のように定義されています。式中の
+  <span class="math inline">\(N\)</span>
+  は入力信号のサンプル数です。論文では <span
+  class="math inline">\(N\)</span> ではなく <span
+  class="math inline">\(W\)</span> を使っています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  d_t[\tau]
+  &amp;=\sum_{j=t}^{t + N - 1} (x[j] - x[j+\tau])^2\\
+  &amp;=r_t[0] + r_{t + \tau}[0] - 2r_t[\tau]
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(r\)</span> は自己相関関数
+  (autocorrelation function)
+  で、YINの論文では2つの定義が紹介されています。Type I, type II
+  という名前はMPMの論文に従っています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  r_t[\tau] &amp;= \sum_{j=t}^{t + N - 1} x[j] x[j +
+  \tau],\qquad\text{Type I}\\
+  r&#39;_t[\tau] &amp;= \sum_{j=t}^{t + N - \tau - 1} x[j] x[j +
+  \tau],\quad\text{Type II}
+  \end{aligned}
+  \]</span></p>
+  <p>これらの式を見たとき <span class="math inline">\(t\)</span> と
+  <span class="math inline">\(\tau\)</span>
+  について混乱したのでまとめます。</p>
+  <p><span class="math inline">\(t\)</span>
+  は今からピッチを推定したい信号の、自己相関を計算する区間の開始時点を表しています。
+  FFT を用いるときによくあるのですが、信号を <span
+  class="math inline">\(2^n\)</span>
+  サンプルごとなどに分割して処理することを想定しているようです。後で出てくる
+  <code>python_speech_features.sigproc.framesig</code>
+  はこの分割を行う関数です。信号全体から一つのピッチの値を取り出したいときは、信号の開始時点を
+  <span class="math inline">\(t=0\)</span>
+  と考えることができます。以降では 1
+  区間での計算だけを扱うので簡略化のために常に <span
+  class="math inline">\(t=0\)</span> とします。</p>
+  <p><span class="math inline">\(\tau\)</span>
+  は自己相関を計算する区間のインデックスを表しています。信号全体の自己相関を計算するとき
+  <span class="math inline">\(\tau\)</span> の範囲は <span
+  class="math inline">\([0, N -1]\)</span> になります。</p>
+  <p>またYINの論文の fig. 1. (c) を見ると type I の自己相関の計算では
+  <span class="math inline">\(x\)</span> が周期 <span
+  class="math inline">\(N\)</span>
+  で反復することを仮定しているようです。 type II の自己相関の計算では
+  <span class="math inline">\(x\)</span> のインデックスが <span
+  class="math inline">\([0, N - 1]\)</span> の範囲外のとき <span
+  class="math inline">\(x\)</span> の値を0としています。</p>
+  <h3 id="自己相関の計算"><a href="#自己相関の計算"
+  class="header-anchor" aria-hidden="true">自己相関の計算</a></h3>
+  <p>自己相関は相互相関の特殊な場合です。相互相関関数 <span
+  class="math inline">\(C\)</span> は次のように定義できます。</p>
+  <p><span class="math display">\[
+  C_(x,y)[\tau] = \sum_{j=0}^{N - \tau - 1} x[j] y[j + \tau]
+  \]</span></p>
+  <p>相互相関関数はFFTを使って高速に計算することができます。 <span
+  class="math inline">\(^{*}\)</span> は複素共役を表しています。</p>
+  <p><span class="math display">\[
+  C(x, y) \iff \mathtt{ifft}(\mathtt{fft}(x)(\mathtt{fft}(y))^{*})
+  \]</span></p>
+  <p>自己相関関数 <span class="math inline">\(r&#39;_t\)</span> は <span
+  class="math inline">\(C\)</span> を使って次のように書けます。</p>
+  <p><span class="math display">\[
+  r&#39; = C(x, x) \iff
+  \mathtt{ifft}(\mathtt{fft}(x)(\mathtt{fft}(x))^{*})
+  \]</span></p>
+  <p>FFTでは入力信号が無限に反復する信号の1周期ということを仮定しています。つまり
+  <span class="math inline">\(x\)</span> をそのまま使うと type I
+  の自己相関の計算になります。 Type II の自己相関を計算するときは <span
+  class="math inline">\(x\)</span> の後に、 <span
+  class="math inline">\(x\)</span>
+  以上に長い0ベクトルをつなげてから計算すればいいようです。</p>
+  <p><span class="math display">\[
+  x&#39; = (x[0], x[1],...,x[N-1],0,0,...,0),
+  \quad\mathtt{len}(x&#39;) \geq 2N
+  \]</span></p>
+  <p>実装します。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyfftw.interfaces.numpy_fft <span class="im">import</span> fft, ifft</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> autocorrelation_type1(sig):</span>
@@ -533,93 +597,95 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    sig <span class="op">=</span> numpy.pad(sig, (<span class="dv">0</span>, len_sig), <span class="st">&quot;constant&quot;</span>)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    spec <span class="op">=</span> fft(sig)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ifft(spec <span class="op">*</span> spec.conj()).real[:len_sig]</span></code></pre></div>
-<p>66Hz、0.1秒のサイン波の自己相関のプロットです。横軸は時間で縦軸は信号の大きさです。</p>
-<figure>
-<img src="img/autocorr.png" alt="Image of plot of autocorrelation of sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<ul>
-<li><a
-href="https://stackoverflow.com/questions/47850760/using-scipy-fft-to-calculate-autocorrelation-of-a-signal-gives-different-answer?rq=1">python
-- Using scipy fft to calculate autocorrelation of a signal gives
-different answer from the direct calculation - Stack Overflow</a></li>
-<li><a
-href="http://www.aip.de/groups/soe/local/numres/bookcpdf/c13-2.pdf">NUMERICAL
-RECIPES IN C, c13-2 Correlation and Autocorrelation Using the
-FFT</a></li>
-</ul>
-<h3 id="difference-function-の変形"><a
-href="#difference-function-の変形" class="header-anchor"
-aria-hidden="true">Difference Function の変形</a></h3>
-<p>YINの論文では type I の自己相関関数を使った difference function
-だけを扱っています。ここでは type II も試します。</p>
-<p>Difference function を再掲します。</p>
-<p><span class="math display">\[
-d_t[\tau]=r_t[0] + r_{t + \tau}[0] - 2r_t[\tau]
-\]</span></p>
-<p><span class="math inline">\(t=0\)</span> として type I
-の自己相関について <span class="math inline">\(r_{t + \tau}[0]\)</span>
-と <span class="math inline">\(r_t[0]\)</span> を展開します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-r_{\tau}[0] &amp;= \sum_{j=\tau}^{\tau + N - 1} x^2[j]\\
-r[0] &amp;= \sum_{j=0}^{N - 1} x^2[j]
-\end{aligned}
-\]</span></p>
-<p>Type I の自己相関では <span class="math inline">\(x\)</span> の周期が
-<span class="math inline">\(N\)</span> なので <span
-class="math inline">\(r_{\tau}[0] = r[0]\)</span> となります。例として
-<span class="math inline">\(N = 3, \tau = 2\)</span>
-のときを考えます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-r_{2}[0]
-&amp;= \sum_{j=2}^{2 + 3 - 1} x^2[j]\\
-&amp;= x^2[2] + x^2[3] + x^2[4]\\
-&amp;= x^2[2] + x^2[0] + x^2[1]\\
-&amp;= \sum_{j=0}^{3 - 1} x^2[j]\\
-&amp;= r[0]\\
-\end{aligned}
-\]</span></p>
-<p>よって type I の自己相関を使う difference function
-を次のように変形できます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-d[\tau]
-&amp;= r[0] + r_{\tau}[0] - 2r[\tau]\\
-&amp;= 2 (r[0] - r[\tau])
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(d\)</span> を <span
-class="math inline">\(\tau &gt; 0\)</span> のときの cumulative mean
-normalized difference function に展開します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-d&#39;[\tau]
-&amp;= \dfrac{d[\tau]}{(1/\tau) \sum_{j=0}^{\tau-1}d[j]}\\
-&amp;= \dfrac{2 (r[0] - r[\tau])}{(1/\tau) \sum_{j=0}^{\tau-1}2 (r[0] -
-r[j])}\\
-&amp;= \dfrac{(r[0] - r[\tau])}{(1/\tau) \sum_{j=0}^{\tau-1}(r[0] -
-r[j])}
-\end{aligned}
-\]</span></p>
-<p>係数の2を消すことができました。最終的に type I の自己相関を使う
-difference function は次のように簡略化できます。</p>
-<p><span class="math display">\[
-d[\tau] = r[0] - r[\tau]
-\]</span></p>
-<p><span class="math inline">\(t=0\)</span> として type II
-の自己相関について <span class="math inline">\(r_{t + \tau}[0]\)</span>
-と <span class="math inline">\(r_t[0]\)</span> を展開します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-r&#39;_{\tau}[0] &amp;= \sum_{j=\tau}^{N - 1} x^2[j]\\
-r&#39;[0] &amp;= \sum_{j=0}^{N - 1} x^2[j]
-\end{aligned}
-\]</span></p>
-<p>Type II の自己相関を使うときは特に変形できなさそうです。</p>
-<p>実装します。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> difference_type1(sig):</span>
+  <p>66Hz、0.1秒のサイン波の自己相関のプロットです。横軸は時間で縦軸は信号の大きさです。</p>
+  <figure>
+  <img src="img/autocorr.png" alt="Image of plot of autocorrelation of sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <ul>
+  <li><a
+  href="https://stackoverflow.com/questions/47850760/using-scipy-fft-to-calculate-autocorrelation-of-a-signal-gives-different-answer?rq=1">python
+  - Using scipy fft to calculate autocorrelation of a signal gives
+  different answer from the direct calculation - Stack Overflow</a></li>
+  <li><a
+  href="http://www.aip.de/groups/soe/local/numres/bookcpdf/c13-2.pdf">NUMERICAL
+  RECIPES IN C, c13-2 Correlation and Autocorrelation Using the
+  FFT</a></li>
+  </ul>
+  <h3 id="difference-function-の変形"><a
+  href="#difference-function-の変形" class="header-anchor"
+  aria-hidden="true">Difference Function の変形</a></h3>
+  <p>YINの論文では type I の自己相関関数を使った difference function
+  だけを扱っています。ここでは type II も試します。</p>
+  <p>Difference function を再掲します。</p>
+  <p><span class="math display">\[
+  d_t[\tau]=r_t[0] + r_{t + \tau}[0] - 2r_t[\tau]
+  \]</span></p>
+  <p><span class="math inline">\(t=0\)</span> として type I
+  の自己相関について <span class="math inline">\(r_{t +
+  \tau}[0]\)</span> と <span class="math inline">\(r_t[0]\)</span>
+  を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  r_{\tau}[0] &amp;= \sum_{j=\tau}^{\tau + N - 1} x^2[j]\\
+  r[0] &amp;= \sum_{j=0}^{N - 1} x^2[j]
+  \end{aligned}
+  \]</span></p>
+  <p>Type I の自己相関では <span class="math inline">\(x\)</span>
+  の周期が <span class="math inline">\(N\)</span> なので <span
+  class="math inline">\(r_{\tau}[0] = r[0]\)</span> となります。例として
+  <span class="math inline">\(N = 3, \tau = 2\)</span>
+  のときを考えます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  r_{2}[0]
+  &amp;= \sum_{j=2}^{2 + 3 - 1} x^2[j]\\
+  &amp;= x^2[2] + x^2[3] + x^2[4]\\
+  &amp;= x^2[2] + x^2[0] + x^2[1]\\
+  &amp;= \sum_{j=0}^{3 - 1} x^2[j]\\
+  &amp;= r[0]\\
+  \end{aligned}
+  \]</span></p>
+  <p>よって type I の自己相関を使う difference function
+  を次のように変形できます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  d[\tau]
+  &amp;= r[0] + r_{\tau}[0] - 2r[\tau]\\
+  &amp;= 2 (r[0] - r[\tau])
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(d\)</span> を <span
+  class="math inline">\(\tau &gt; 0\)</span> のときの cumulative mean
+  normalized difference function に展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  d&#39;[\tau]
+  &amp;= \dfrac{d[\tau]}{(1/\tau) \sum_{j=0}^{\tau-1}d[j]}\\
+  &amp;= \dfrac{2 (r[0] - r[\tau])}{(1/\tau) \sum_{j=0}^{\tau-1}2 (r[0]
+  - r[j])}\\
+  &amp;= \dfrac{(r[0] - r[\tau])}{(1/\tau) \sum_{j=0}^{\tau-1}(r[0] -
+  r[j])}
+  \end{aligned}
+  \]</span></p>
+  <p>係数の2を消すことができました。最終的に type I の自己相関を使う
+  difference function は次のように簡略化できます。</p>
+  <p><span class="math display">\[
+  d[\tau] = r[0] - r[\tau]
+  \]</span></p>
+  <p><span class="math inline">\(t=0\)</span> として type II
+  の自己相関について <span class="math inline">\(r_{t +
+  \tau}[0]\)</span> と <span class="math inline">\(r_t[0]\)</span>
+  を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  r&#39;_{\tau}[0] &amp;= \sum_{j=\tau}^{N - 1} x^2[j]\\
+  r&#39;[0] &amp;= \sum_{j=0}^{N - 1} x^2[j]
+  \end{aligned}
+  \]</span></p>
+  <p>Type II の自己相関を使うときは特に変形できなさそうです。</p>
+  <p>実装します。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> difference_type1(sig):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    autocorr <span class="op">=</span> autocorrelation_type1(sig)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> autocorr[<span class="dv">0</span>] <span class="op">-</span> autocorr</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -639,51 +705,51 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>sig <span class="op">=</span> get_some_signal() <span class="co"># 任意の入力信号を取得。</span></span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>diff <span class="op">=</span> difference_type1(sig)</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</span></code></pre></div>
-<p>66Hz、0.1秒のサイン波の自己相関のプロットです。横軸は時間で縦軸は信号の大きさです。</p>
-<figure>
-<img src="img/diff.png" alt="Image of plot of difference and cumulative mean normalized difference of sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h3 id="周期の探索とピッチの計算"><a href="#周期の探索とピッチの計算"
-class="header-anchor"
-aria-hidden="true">周期の探索とピッチの計算</a></h3>
-<p>論文ではしきい値以下の局所最小点のインデックスを探すステップを
-absolute threshold と呼んでいます。探索は cumulative mean normalized
-difference
-のインデックス0から行います。探索で見つけたインデックスは信号の1周期にかかる時間の推定値です。</p>
-<p>Absolute threshold のステップで得られたインデックスを使って <a
-href="http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html">parabolic
-interpolation</a>
-で離散化される前の信号の局所最小点のインデックスを推定します。</p>
-<p>Parabolic interpolation は次の式で計算できます。 <span
-class="math inline">\(i_1\)</span> が absolute threshold
-のステップで得られたインデックスです。</p>
-<p><span class="math display">\[
-i_{min} = i_1 + \frac{1}{2} \frac{
-  (x[i_0] - x[i_1])(i_2 - i_1)^2 - (x[i_2] - x[i_1])(i_1 - i_0)^2
-}{
-  (x[i_0] - x[i_1])(i_2 - i_1) + (x[i_2] - x[i_1])(i_1 - i_0)
-}
-\]</span></p>
-<p><span class="math inline">\(i_0, i_1\)</span>
-は配列の隣り合うインデックスなので <span class="math inline">\(i_1 - i_0
-= 1\)</span> となります。 <span class="math inline">\(i_2, i_1\)</span>
-についても同様に <span class="math inline">\(i_2 - i_1 = 1\)</span>
-です。 Parabolic interpolation の式に代入します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-i_{min}
-&amp;= i_1 + \frac{1}{2} \frac{
-  (x[i_0] - x[i_1]) - (x[i_2] - x[i_1])
-}{
-  (x[i_0] - x[i_1]) + (x[i_2] - x[i_1])
-}\\
-&amp;= i_1 + \frac{1}{2} \frac{x[i_0] - x[i_2]}{x[i_0] + x[i_2] -
-2x[i_1]}
-\end{aligned}
-\]</span></p>
-<p>得られたインデックスでサンプリング周波数を割ると周波数が推定できます。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>YIN_THRESHOLD <span class="op">=</span> <span class="fl">0.3</span> <span class="co"># 任意の正の値のしきい値。</span></span>
+  <p>66Hz、0.1秒のサイン波の自己相関のプロットです。横軸は時間で縦軸は信号の大きさです。</p>
+  <figure>
+  <img src="img/diff.png" alt="Image of plot of difference and cumulative mean normalized difference of sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="周期の探索とピッチの計算"><a href="#周期の探索とピッチの計算"
+  class="header-anchor"
+  aria-hidden="true">周期の探索とピッチの計算</a></h3>
+  <p>論文ではしきい値以下の局所最小点のインデックスを探すステップを
+  absolute threshold と呼んでいます。探索は cumulative mean normalized
+  difference
+  のインデックス0から行います。探索で見つけたインデックスは信号の1周期にかかる時間の推定値です。</p>
+  <p>Absolute threshold のステップで得られたインデックスを使って <a
+  href="http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html">parabolic
+  interpolation</a>
+  で離散化される前の信号の局所最小点のインデックスを推定します。</p>
+  <p>Parabolic interpolation は次の式で計算できます。 <span
+  class="math inline">\(i_1\)</span> が absolute threshold
+  のステップで得られたインデックスです。</p>
+  <p><span class="math display">\[
+  i_{min} = i_1 + \frac{1}{2} \frac{
+    (x[i_0] - x[i_1])(i_2 - i_1)^2 - (x[i_2] - x[i_1])(i_1 - i_0)^2
+  }{
+    (x[i_0] - x[i_1])(i_2 - i_1) + (x[i_2] - x[i_1])(i_1 - i_0)
+  }
+  \]</span></p>
+  <p><span class="math inline">\(i_0, i_1\)</span>
+  は配列の隣り合うインデックスなので <span class="math inline">\(i_1 -
+  i_0 = 1\)</span> となります。 <span class="math inline">\(i_2,
+  i_1\)</span> についても同様に <span class="math inline">\(i_2 - i_1 =
+  1\)</span> です。 Parabolic interpolation の式に代入します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  i_{min}
+  &amp;= i_1 + \frac{1}{2} \frac{
+    (x[i_0] - x[i_1]) - (x[i_2] - x[i_1])
+  }{
+    (x[i_0] - x[i_1]) + (x[i_2] - x[i_1])
+  }\\
+  &amp;= i_1 + \frac{1}{2} \frac{x[i_0] - x[i_2]}{x[i_0] + x[i_2] -
+  2x[i_1]}
+  \end{aligned}
+  \]</span></p>
+  <p>得られたインデックスでサンプリング周波数を割ると周波数が推定できます。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>YIN_THRESHOLD <span class="op">=</span> <span class="fl">0.3</span> <span class="co"># 任意の正の値のしきい値。</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> absolute_threshold(diff, threshold<span class="op">=</span>YIN_THRESHOLD):</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    tau <span class="op">=</span> <span class="dv">2</span></span>
@@ -724,76 +790,77 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> numpy.nan</span>
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, tau)</span></code></pre></div>
-<p>66Hz、0.1秒のサイン波の cumulative mean normalized difference
-の局所最小点のプロットです。横軸は時間で縦軸は信号の大きさです。推定したピッチは
-type I で 67.9Hz 、 type II で 66.3Hz となりました。</p>
-<figure>
-<img src="img/yin.png" alt="Image of plot of YIN pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<ul>
-<li><a
-href="http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html">Parabolic
-Interpolation</a></li>
-</ul>
-<h2 id="mcleod-pitch-method"><a href="#mcleod-pitch-method"
-class="header-anchor" aria-hidden="true">McLeod Pitch Method</a></h2>
-<p><a
-href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">McLeod
-Pitch Method (MPM)</a> は type II
-の自己相関関数を使ったYINの変形です。</p>
-<p>処理の流れは次のようになります。</p>
-<ol type="1">
-<li>Normalized square difference function (NSDF) の計算。</li>
-<li>NSDF から周期を表す局所最大点のインデックスを推定。</li>
-<li>取得したインデックスからピッチを計算。</li>
-</ol>
-<h3 id="normalized-square-difference-function-の計算"><a
-href="#normalized-square-difference-function-の計算"
-class="header-anchor" aria-hidden="true">Normalized Square Difference
-Function の計算</a></h3>
-<p>MPM の square difference function はYINの difference function
-と同じです。</p>
-<p><span class="math display">\[
-\begin{alignedat}{3}
-d[\tau]
-&amp;= \sum_{j=0}^{N-1} (x[j] - x[j + \tau])^2
-&amp;&amp;= 2 (r[0] - r[\tau])
-&amp;&amp;\qquad\text{Type I}\\
-d&#39;[\tau]
-&amp;= \sum_{j=0}^{N-\tau-1} (x[j] - x[j + \tau])^2
-&amp;&amp;= r&#39;[0] + r&#39;_\tau[0] - 2r[\tau]
-&amp;&amp;\qquad\text{Type II}
-\end{alignedat}
-\]</span></p>
-<p>MPMの論文では type II に注目して <span
-class="math inline">\(m&#39;[\tau] = r&#39;[0] +
-r&#39;_{\tau}[0]\)</span> と置き換えています。</p>
-<p><span class="math display">\[
-\begin{aligned}
-d&#39;[\tau] &amp;= m&#39;[\tau] - 2r&#39;[\tau]\\
-m&#39;[\tau]
-&amp;= \sum_{j=0}^{N-\tau-1} (x^2[j] + x^2[j + \tau])\\
-&amp;= r&#39;[0] + r&#39;_{\tau}[0]\\
-&amp;= r&#39;[0] +  \sum_{j=\tau}^{N - 1} x^2[j]
-\end{aligned}
-\]</span></p>
-<p>Type II の normalized square difference function
-は次のように定義されています。</p>
-<p><span class="math display">\[
-n&#39;[\tau]
-= 1 - \frac{m&#39;[\tau] - 2r&#39;[\tau]}{m&#39;[\tau]}
-= \frac{2r&#39;[\tau]}{m&#39;[\tau]}
-\]</span></p>
-<p>Type I の normalized square difference function を考えてみます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-m[\tau] &amp;= 2r[0]\\
-n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
-\end{aligned}
-\]</span></p>
-<p>実装します。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normalized_square_difference_type1(sig):</span>
+  <p>66Hz、0.1秒のサイン波の cumulative mean normalized difference
+  の局所最小点のプロットです。横軸は時間で縦軸は信号の大きさです。推定したピッチは
+  type I で 67.9Hz 、 type II で 66.3Hz となりました。</p>
+  <figure>
+  <img src="img/yin.png" alt="Image of plot of YIN pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <ul>
+  <li><a
+  href="http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html">Parabolic
+  Interpolation</a></li>
+  </ul>
+  <h2 id="mcleod-pitch-method"><a href="#mcleod-pitch-method"
+  class="header-anchor" aria-hidden="true">McLeod Pitch Method</a></h2>
+  <p><a
+  href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">McLeod
+  Pitch Method (MPM)</a> は type II
+  の自己相関関数を使ったYINの変形です。</p>
+  <p>処理の流れは次のようになります。</p>
+  <ol type="1">
+  <li>Normalized square difference function (NSDF) の計算。</li>
+  <li>NSDF から周期を表す局所最大点のインデックスを推定。</li>
+  <li>取得したインデックスからピッチを計算。</li>
+  </ol>
+  <h3 id="normalized-square-difference-function-の計算"><a
+  href="#normalized-square-difference-function-の計算"
+  class="header-anchor" aria-hidden="true">Normalized Square Difference
+  Function の計算</a></h3>
+  <p>MPM の square difference function はYINの difference function
+  と同じです。</p>
+  <p><span class="math display">\[
+  \begin{alignedat}{3}
+  d[\tau]
+  &amp;= \sum_{j=0}^{N-1} (x[j] - x[j + \tau])^2
+  &amp;&amp;= 2 (r[0] - r[\tau])
+  &amp;&amp;\qquad\text{Type I}\\
+  d&#39;[\tau]
+  &amp;= \sum_{j=0}^{N-\tau-1} (x[j] - x[j + \tau])^2
+  &amp;&amp;= r&#39;[0] + r&#39;_\tau[0] - 2r[\tau]
+  &amp;&amp;\qquad\text{Type II}
+  \end{alignedat}
+  \]</span></p>
+  <p>MPMの論文では type II に注目して <span
+  class="math inline">\(m&#39;[\tau] = r&#39;[0] +
+  r&#39;_{\tau}[0]\)</span> と置き換えています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  d&#39;[\tau] &amp;= m&#39;[\tau] - 2r&#39;[\tau]\\
+  m&#39;[\tau]
+  &amp;= \sum_{j=0}^{N-\tau-1} (x^2[j] + x^2[j + \tau])\\
+  &amp;= r&#39;[0] + r&#39;_{\tau}[0]\\
+  &amp;= r&#39;[0] +  \sum_{j=\tau}^{N - 1} x^2[j]
+  \end{aligned}
+  \]</span></p>
+  <p>Type II の normalized square difference function
+  は次のように定義されています。</p>
+  <p><span class="math display">\[
+  n&#39;[\tau]
+  = 1 - \frac{m&#39;[\tau] - 2r&#39;[\tau]}{m&#39;[\tau]}
+  = \frac{2r&#39;[\tau]}{m&#39;[\tau]}
+  \]</span></p>
+  <p>Type I の normalized square difference function
+  を考えてみます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  m[\tau] &amp;= 2r[0]\\
+  n[\tau] &amp;= \frac{2r[\tau]}{m[\tau]} = \frac{r[\tau]}{r[0]}
+  \end{aligned}
+  \]</span></p>
+  <p>実装します。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normalized_square_difference_type1(sig):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    corr <span class="op">=</span> autocorrelation_type1(sig)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> corr <span class="op">/</span> corr[<span class="dv">0</span>] <span class="cf">if</span> corr[<span class="dv">0</span>] <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> corr</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -802,21 +869,22 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    cumsum <span class="op">=</span> (sig <span class="op">*</span> sig)[::<span class="op">-</span><span class="dv">1</span>].cumsum()[::<span class="op">-</span><span class="dv">1</span>]</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    cumsum[cumsum <span class="op">&lt;</span> <span class="dv">1</span>] <span class="op">=</span> <span class="dv">1</span>  <span class="co"># 発散を防ぐ。</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> corr <span class="op">/</span> (corr[<span class="dv">0</span>] <span class="op">+</span> cumsum)  <span class="co"># 後で値の比率しか使わないので係数2を省略。</span></span></code></pre></div>
-<h3 id="周期の探索"><a href="#周期の探索" class="header-anchor"
-aria-hidden="true">周期の探索</a></h3>
-<p>MPM では normalized square difference の局所最大点を探索します。 MPM
-での局所最大点とは、負から正になる一つのゼロクロス点と、それに続く正から負になるゼロクロス点の間の区間で、信号が最大になる点のことをいいます。</p>
-<p>以下は探索の手順です。</p>
-<ol type="1">
-<li>最初の局所最大点をスキップ。</li>
-<li>残りの局所最大点の中で最大の値と任意の値 <span
-class="math inline">\(k \in (0, 1]\)</span>
-をかけあわせてしきい値を設定。</li>
-<li>しきい値以上でインデックスが最も小さい局所最大点を選択。</li>
-</ol>
-<p>実装します。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>MPM_K <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># Type I NSD では後半に大きなピークができるので小さめに設定。</span></span>
+  <h3 id="周期の探索"><a href="#周期の探索" class="header-anchor"
+  aria-hidden="true">周期の探索</a></h3>
+  <p>MPM では normalized square difference の局所最大点を探索します。
+  MPM
+  での局所最大点とは、負から正になる一つのゼロクロス点と、それに続く正から負になるゼロクロス点の間の区間で、信号が最大になる点のことをいいます。</p>
+  <p>以下は探索の手順です。</p>
+  <ol type="1">
+  <li>最初の局所最大点をスキップ。</li>
+  <li>残りの局所最大点の中で最大の値と任意の値 <span
+  class="math inline">\(k \in (0, 1]\)</span>
+  をかけあわせてしきい値を設定。</li>
+  <li>しきい値以上でインデックスが最も小さい局所最大点を選択。</li>
+  </ol>
+  <p>実装します。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>MPM_K <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># Type I NSD では後半に大きなピークができるので小さめに設定。</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate_period(diff):</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> <span class="dv">0</span></span>
@@ -855,91 +923,91 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> numpy.nan</span>
 <span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(nsd, index)</span></code></pre></div>
-<p>66Hz、0.1秒のサイン波と、その normalized square difference
-の局所最大点のプロットです。横軸は時間で縦軸は信号の大きさです。推定したピッチは
-type I で 67.5Hz 、 type II で 66.1Hz となりました。</p>
-<figure>
-<img src="img/mpm.png" alt="Image of plot of MPM pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h2 id="yinとmpmの組み合わせ"><a href="#yinとmpmの組み合わせ"
-class="header-anchor" aria-hidden="true">YINとMPMの組み合わせ</a></h2>
-<p>8通りの手法の組み合わせが考えられます。名前が長いので cumulative mean
-normalized difference を CMND 、 normalized square difference を NSD
-と省略します。</p>
-<table>
-<thead>
-<tr class="header">
-<th>周期の探索</th>
-<th>差分関数</th>
-<th>自己相関関数</th>
-<th>備考</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>YIN</td>
-<td>CMND</td>
-<td>Type I</td>
-<td>オリジナルYIN</td>
-</tr>
-<tr class="even">
-<td>YIN</td>
-<td>CMND</td>
-<td>Type II</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>YIN</td>
-<td>NSD</td>
-<td>Type I</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>YIN</td>
-<td>NSD</td>
-<td>Type II</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>MPM</td>
-<td>CMND</td>
-<td>Type I</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>MPM</td>
-<td>CMND</td>
-<td>Type II</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>MPM</td>
-<td>NSD</td>
-<td>Type I</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>MPM</td>
-<td>NSD</td>
-<td>Type II</td>
-<td>オリジナルMPM</td>
-</tr>
-</tbody>
-</table>
-<h3 id="yin-nsd"><a href="#yin-nsd" class="header-anchor"
-aria-hidden="true">YIN-NSD</a></h3>
-<p>YIN の周期の探索でピッチを推定できるように NSD を加工します。</p>
-<p>NSD では信号のピッチが局所最大点として表されていますが YIN
-の周期の探索では局所最小点を見つけます。そこでまずは NSD
-を反転します。</p>
-<p>反転した NSD
-の最初に現れる局所最小点はインデックス0になります。そこで NSD
-のインデックス0から最初のゼロクロス点までの信号の値を0に置き換えます。</p>
-<p>YIN の周期の探索で使うしきい値は0にします。 MPM
-のように負の最大値を探して適当な係数をかけたしきい値も使えそうですが、ここではパラメータを増やしたくなかったので定数にしました。</p>
-<p>実装します。</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> invert_nsd(nsd):</span>
+  <p>66Hz、0.1秒のサイン波と、その normalized square difference
+  の局所最大点のプロットです。横軸は時間で縦軸は信号の大きさです。推定したピッチは
+  type I で 67.5Hz 、 type II で 66.1Hz となりました。</p>
+  <figure>
+  <img src="img/mpm.png" alt="Image of plot of MPM pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="yinとmpmの組み合わせ"><a href="#yinとmpmの組み合わせ"
+  class="header-anchor" aria-hidden="true">YINとMPMの組み合わせ</a></h2>
+  <p>8通りの手法の組み合わせが考えられます。名前が長いので cumulative
+  mean normalized difference を CMND 、 normalized square difference を
+  NSD と省略します。</p>
+  <table>
+  <thead>
+  <tr class="header">
+  <th>周期の探索</th>
+  <th>差分関数</th>
+  <th>自己相関関数</th>
+  <th>備考</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td>YIN</td>
+  <td>CMND</td>
+  <td>Type I</td>
+  <td>オリジナルYIN</td>
+  </tr>
+  <tr class="even">
+  <td>YIN</td>
+  <td>CMND</td>
+  <td>Type II</td>
+  <td></td>
+  </tr>
+  <tr class="odd">
+  <td>YIN</td>
+  <td>NSD</td>
+  <td>Type I</td>
+  <td></td>
+  </tr>
+  <tr class="even">
+  <td>YIN</td>
+  <td>NSD</td>
+  <td>Type II</td>
+  <td></td>
+  </tr>
+  <tr class="odd">
+  <td>MPM</td>
+  <td>CMND</td>
+  <td>Type I</td>
+  <td></td>
+  </tr>
+  <tr class="even">
+  <td>MPM</td>
+  <td>CMND</td>
+  <td>Type II</td>
+  <td></td>
+  </tr>
+  <tr class="odd">
+  <td>MPM</td>
+  <td>NSD</td>
+  <td>Type I</td>
+  <td></td>
+  </tr>
+  <tr class="even">
+  <td>MPM</td>
+  <td>NSD</td>
+  <td>Type II</td>
+  <td>オリジナルMPM</td>
+  </tr>
+  </tbody>
+  </table>
+  <h3 id="yin-nsd"><a href="#yin-nsd" class="header-anchor"
+  aria-hidden="true">YIN-NSD</a></h3>
+  <p>YIN の周期の探索でピッチを推定できるように NSD を加工します。</p>
+  <p>NSD では信号のピッチが局所最大点として表されていますが YIN
+  の周期の探索では局所最小点を見つけます。そこでまずは NSD
+  を反転します。</p>
+  <p>反転した NSD
+  の最初に現れる局所最小点はインデックス0になります。そこで NSD
+  のインデックス0から最初のゼロクロス点までの信号の値を0に置き換えます。</p>
+  <p>YIN の周期の探索で使うしきい値は0にします。 MPM
+  のように負の最大値を探して適当な係数をかけたしきい値も使えそうですが、ここではパラメータを増やしたくなかったので定数にしました。</p>
+  <p>実装します。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> invert_nsd(nsd):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    tau <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> nsd[tau] <span class="op">&gt;</span> <span class="dv">0</span>:</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        nsd[tau] <span class="op">=</span> <span class="dv">0</span></span>
@@ -967,24 +1035,24 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> tau <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> numpy.nan</span>
 <span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> samplerate <span class="op">/</span> tau</span></code></pre></div>
-<p>YIN-NSD で加工した NSD
-と局所最小点のプロットです。元の信号は66Hz、0.1秒のサイン波です。横軸は時間で縦軸は信号の大きさです。推定したピッチは
-type I で 67.5Hz 、 type II で 66.1Hz となりました。</p>
-<figure>
-<img src="img/yin_nsd.png" alt="Image of plot of YIN-NSD pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h3 id="mpm-cmnd"><a href="#mpm-cmnd" class="header-anchor"
-aria-hidden="true">MPM-CMND</a></h3>
-<p>MPM の周期の探索でピッチを推定できるように CMND を加工します。</p>
-<p>CMND では信号のピッチが局所最小点として表されていますが MPM
-の周期の探索では局所最大点を見つけます。そこでまずは CMND
-を反転します。</p>
-<p>CMND の値はすべて0以上ですが MPM
-の周期の探索ではゼロクロス点が必要です。そこで反転した CMND
-に、反転する前の CMND の最大値の半分の値を足します。</p>
-<p>実装します。</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mpm_cmnd_type1(sig, samplerate):</span>
+  <p>YIN-NSD で加工した NSD
+  と局所最小点のプロットです。元の信号は66Hz、0.1秒のサイン波です。横軸は時間で縦軸は信号の大きさです。推定したピッチは
+  type I で 67.5Hz 、 type II で 66.1Hz となりました。</p>
+  <figure>
+  <img src="img/yin_nsd.png" alt="Image of plot of YIN-NSD pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h3 id="mpm-cmnd"><a href="#mpm-cmnd" class="header-anchor"
+  aria-hidden="true">MPM-CMND</a></h3>
+  <p>MPM の周期の探索でピッチを推定できるように CMND を加工します。</p>
+  <p>CMND では信号のピッチが局所最小点として表されていますが MPM
+  の周期の探索では局所最大点を見つけます。そこでまずは CMND
+  を反転します。</p>
+  <p>CMND の値はすべて0以上ですが MPM
+  の周期の探索ではゼロクロス点が必要です。そこで反転した CMND
+  に、反転する前の CMND の最大値の半分の値を足します。</p>
+  <p>実装します。</p>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mpm_cmnd_type1(sig, samplerate):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    diff <span class="op">=</span> difference_type1(sig)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    cmnd <span class="op">=</span> cumulative_mean_normalized_difference(diff)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    cmnd <span class="op">=</span> numpy.<span class="bu">max</span>(cmnd) <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> cmnd</span>
@@ -1001,30 +1069,30 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> index <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> numpy.nan</span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> samplerate <span class="op">/</span> parabolic_interpolation(cmnd, index)</span></code></pre></div>
-<p>MPM-CMND で加工した CMND
-と局所最大点のプロットです。元の信号は66Hz、0.1秒のサイン波です。横軸は時間で縦軸は信号の大きさです。推定したピッチは
-type I で 67.9Hz 、 type II で 66.3Hz となりました。</p>
-<figure>
-<img src="img/mpm_cmnd.png" alt="Image of plot of MPM-CMND pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<h2 id="評価"><a href="#評価" class="header-anchor"
-aria-hidden="true">評価</a></h2>
-<p>ここまでは一つの信号から一つのピッチを推定していました。ここから行うピッチ推定の評価では一つの信号を複数のフレームに分割して、それぞれのフレームから一つずつピッチを推定します。</p>
-<p>実装では <code>python_speech_features.sigproc.framesig</code>
-を使っています。フレームはオーバーラップすることがあります。信号の長さを超えることはありません。</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pitch_frame(data, samplerate, winlen, winstep, pitch_func<span class="op">=</span>yin_cmnd_type2):</span>
+  <p>MPM-CMND で加工した CMND
+  と局所最大点のプロットです。元の信号は66Hz、0.1秒のサイン波です。横軸は時間で縦軸は信号の大きさです。推定したピッチは
+  type I で 67.9Hz 、 type II で 66.3Hz となりました。</p>
+  <figure>
+  <img src="img/mpm_cmnd.png" alt="Image of plot of MPM-CMND pitch estimation." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="評価"><a href="#評価" class="header-anchor"
+  aria-hidden="true">評価</a></h2>
+  <p>ここまでは一つの信号から一つのピッチを推定していました。ここから行うピッチ推定の評価では一つの信号を複数のフレームに分割して、それぞれのフレームから一つずつピッチを推定します。</p>
+  <p>実装では <code>python_speech_features.sigproc.framesig</code>
+  を使っています。フレームはオーバーラップすることがあります。信号の長さを超えることはありません。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pitch_frame(data, samplerate, winlen, winstep, pitch_func<span class="op">=</span>yin_cmnd_type2):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    frame <span class="op">=</span> python_speech_features.sigproc.framesig(</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        data,</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        frame_len<span class="op">=</span><span class="bu">int</span>(samplerate <span class="op">*</span> winlen),</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        frame_step<span class="op">=</span><span class="bu">int</span>(samplerate <span class="op">*</span> winstep),</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> numpy.array([pitch_func(sig, samplerate) <span class="cf">for</span> sig <span class="kw">in</span> frame])</span></code></pre></div>
-<p>真のピッチと比較できるときは周波数を<a
-href="https://en.wikipedia.org/wiki/Cent_(music)">セント値</a>に変換して<a
-href="https://en.wikipedia.org/wiki/Mean_absolute_error">平均絶対誤差</a>を計算します。</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> hz_to_cent(frequency):</span>
+  <p>真のピッチと比較できるときは周波数を<a
+  href="https://en.wikipedia.org/wiki/Cent_(music)">セント値</a>に変換して<a
+  href="https://en.wikipedia.org/wiki/Mean_absolute_error">平均絶対誤差</a>を計算します。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> hz_to_cent(frequency):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1200</span> <span class="op">*</span> numpy.log2(frequency <span class="op">/</span> <span class="dv">440</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mean_absolute_error(true_value, data_value):</span>
@@ -1034,12 +1102,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>true_cent <span class="op">=</span> hz_to_cent(true_value)</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>data_cent <span class="op">=</span> hz_to_cent(data)</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>mae <span class="op">=</span> mean_absolute_error(true_cent, data_cent)</span></code></pre></div>
-<h3 id="サイン波"><a href="#サイン波" class="header-anchor"
-aria-hidden="true">サイン波</a></h3>
-<p>周波数が一定のサイン波を入力信号としたときの平均絶対誤差です。</p>
-<p>サイン波は次の条件で生成しました。</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_sin(duration, samplerate, frequency):</span>
+  <h3 id="サイン波"><a href="#サイン波" class="header-anchor"
+  aria-hidden="true">サイン波</a></h3>
+  <p>周波数が一定のサイン波を入力信号としたときの平均絶対誤差です。</p>
+  <p>サイン波は次の条件で生成しました。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_sin(duration, samplerate, frequency):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> duration, length)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> numpy.sin(phase)</span>
@@ -1060,32 +1128,33 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
 <span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>freq_high <span class="op">=</span> <span class="dv">8000</span>    <span class="co"># 最も高い周波数 [Hz]</span></span>
 <span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>test_sin_wave(samplerate, duration, winlen, winstep, freq_low, freq_high, num)</span></code></pre></div>
-<p>手法ごとの平均絶対誤差です。</p>
-<figure>
-<img src="img/error_sin_wave.png" alt="Image of plot of mean absolute error to constant frequency sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>この他に作ったプロットは別ページにまとめました。</p>
-<ul>
-<li><a
-href="plot_gallery_pitch_estimation.html#サイン波">プロットギャラリー
-(サイン波)</a></li>
-</ul>
-<p>誤差が最小となったのは YIN-NSD type II です。</p>
-<p>YIN-CMND type I
-は低周波域での誤差が大きく、全体の平均を押し上げています。</p>
-<p>全体的に type I よりも type II のほうが誤差が低くなっています。</p>
-<h3 id="ノイズを加えたサイン波"><a href="#ノイズを加えたサイン波"
-class="header-anchor" aria-hidden="true">ノイズを加えたサイン波</a></h3>
-<p>サイン波にノイズを加えたときでもピッチが推定できるか試します。</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_sin_with_noise(duration, samplerate, frequency, noise_ratio):</span>
+  <p>手法ごとの平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_sin_wave.png" alt="Image of plot of mean absolute error to constant frequency sine wave signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>この他に作ったプロットは別ページにまとめました。</p>
+  <ul>
+  <li><a
+  href="plot_gallery_pitch_estimation.html#サイン波">プロットギャラリー
+  (サイン波)</a></li>
+  </ul>
+  <p>誤差が最小となったのは YIN-NSD type II です。</p>
+  <p>YIN-CMND type I
+  は低周波域での誤差が大きく、全体の平均を押し上げています。</p>
+  <p>全体的に type I よりも type II のほうが誤差が低くなっています。</p>
+  <h3 id="ノイズを加えたサイン波"><a href="#ノイズを加えたサイン波"
+  class="header-anchor"
+  aria-hidden="true">ノイズを加えたサイン波</a></h3>
+  <p>サイン波にノイズを加えたときでもピッチが推定できるか試します。</p>
+  <div class="sourceCode" id="cb11"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_sin_with_noise(duration, samplerate, frequency, noise_ratio):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> frequency <span class="op">*</span> duration, length)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    signal <span class="op">=</span> numpy.sin(phase) <span class="op">+</span> noise_ratio <span class="op">*</span> numpy.random.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> signal <span class="op">/</span> (noise_ratio <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div>
-<p>パラメータです。</p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>samplerate <span class="op">=</span> <span class="dv">16000</span></span>
+  <p>パラメータです。</p>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>samplerate <span class="op">=</span> <span class="dv">16000</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>duration <span class="op">=</span> <span class="fl">0.8</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>num <span class="op">=</span> <span class="dv">32</span> <span class="co"># 32の周波数 * 32のノイズの比率 = 1024サンプル</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>winlen <span class="op">=</span> <span class="fl">0.1</span></span>
@@ -1100,28 +1169,28 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a h
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">for ratio in numpy.geomspace(freq_low, freq_high, num):</span></span>
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">    signal = (sin_wave + ratio * noise) / (ratio + 1)</span></span>
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
-<p>手法ごとの平均絶対誤差です。</p>
-<figure>
-<img src="img/error_sin_with_noise.png" alt="Image of plot of mean absolute error to sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>この他に作ったプロットは別ページにまとめました。</p>
-<ul>
-<li><a
-href="plot_gallery_pitch_estimation.html#ノイズを加えたサイン波">プロットギャラリー
-(ノイズを加えたサイン波)</a></li>
-</ul>
-<p>CMND type I の手法はノイズの比率が大きくなっても <code>nan</code>
-が出ませんが誤差は大きめです。</p>
-<p>NSD type II
-の手法はノイズの比率が3より大きいときに出る大きな誤差に引きずられて、全体の平均も悪くなっています。</p>
-<p>それ以外の手法ではノイズの比率が大きいときでは <code>nan</code>
-が出ますが NSD type II
-のように全体の平均を大きく変えるような誤差は出ていません。</p>
-<h3 id="am変調とfm変調"><a href="#am変調とfm変調" class="header-anchor"
-aria-hidden="true">AM変調とFM変調</a></h3>
-<p>信号は次のように生成しました。</p>
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_sin_am(duration, samplerate, car_freq, mod_freq):</span>
+  <p>手法ごとの平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_sin_with_noise.png" alt="Image of plot of mean absolute error to sin with noise signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>この他に作ったプロットは別ページにまとめました。</p>
+  <ul>
+  <li><a
+  href="plot_gallery_pitch_estimation.html#ノイズを加えたサイン波">プロットギャラリー
+  (ノイズを加えたサイン波)</a></li>
+  </ul>
+  <p>CMND type I の手法はノイズの比率が大きくなっても <code>nan</code>
+  が出ませんが誤差は大きめです。</p>
+  <p>NSD type II
+  の手法はノイズの比率が3より大きいときに出る大きな誤差に引きずられて、全体の平均も悪くなっています。</p>
+  <p>それ以外の手法ではノイズの比率が大きいときでは <code>nan</code>
+  が出ますが NSD type II
+  のように全体の平均を大きく変えるような誤差は出ていません。</p>
+  <h3 id="am変調とfm変調"><a href="#am変調とfm変調"
+  class="header-anchor" aria-hidden="true">AM変調とFM変調</a></h3>
+  <p>信号は次のように生成しました。</p>
+  <div class="sourceCode" id="cb13"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_sin_am(duration, samplerate, car_freq, mod_freq):</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    length <span class="op">=</span> <span class="bu">int</span>(duration <span class="op">*</span> samplerate)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    car_phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> car_freq <span class="op">*</span> duration, length)</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    mod_phase <span class="op">=</span> numpy.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> mod_freq <span class="op">*</span> duration, length)</span>
@@ -1133,9 +1202,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    car_phase <span class="op">=</span> numpy.full(length, <span class="dv">2</span> <span class="op">*</span> numpy.pi <span class="op">*</span> car_freq <span class="op">*</span> duration <span class="op">/</span> length)</span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">=</span> (car_phase <span class="op">+</span> numpy.sin(mod_phase)).cumsum()</span>
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> numpy.sin(phase)</span></code></pre></div>
-<p>パラメータです。</p>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>samplerate <span class="op">=</span> <span class="dv">16000</span></span>
+  <p>パラメータです。</p>
+  <div class="sourceCode" id="cb14"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>samplerate <span class="op">=</span> <span class="dv">16000</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>duration <span class="op">=</span> <span class="fl">0.8</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>num <span class="op">=</span> <span class="dv">32</span> <span class="co"># 32のキャリア周波数 * 32のモジュレータ周波数 = 1024サンプル</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>winlen <span class="op">=</span> <span class="fl">0.1</span></span>
@@ -1144,86 +1213,86 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a h
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>car_freq_high <span class="op">=</span> <span class="dv">8000</span> <span class="co"># 最も大きいキャリアの周波数</span></span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>mod_freq_low <span class="op">=</span> <span class="fl">0.1</span>   <span class="co"># 最も小さいモジュレータの周波数</span></span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>mod_freq_high <span class="op">=</span> <span class="dv">800</span>  <span class="co"># 最も大きいモジュレータの周波数</span></span></code></pre></div>
-<p>AM変調をかけたサイン波に対する平均絶対誤差です。</p>
-<figure>
-<img src="img/error_sin_am.png" alt="Image of plot of mean absolute error to sin AM signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>FM変調をかけたサイン波に対する平均絶対誤差です。</p>
-<figure>
-<img src="img/error_sin_fm.png" alt="Image of plot of mean absolute error to sin FM signal." style="width: 640px;padding-bottom: 12px;"/>
-</figure>
-<p>この他に作ったプロットは別ページにまとめました。</p>
-<ul>
-<li><a
-href="plot_gallery_pitch_estimation.html#am変調">プロットギャラリー
-(AM変調)</a></li>
-<li><a
-href="plot_gallery_pitch_estimation.html#fm変調">プロットギャラリー
-(FM変調)</a></li>
-</ul>
-<p>誤差からはどう間違っているかがわからないので、推定されたピッチを動画にしました。</p>
-<p>AM変調をかけたサイン波から推定されたピッチです。</p>
-<video controls>
-<source src="img/sin_am.mp4" type="video/mp4">
-<p>
-Video of pitch estimation to sin AM signal.
-</p>
-</video>
-<p>FM変調をかけたサイン波から推定されたピッチです。</p>
-<video controls>
-<source src="img/sin_fm.mp4" type="video/mp4">
-<p>
-Video of pitch estimation to sin FM signal.
-</p>
-</video>
-<h2 id="どの手法がいいのか"><a href="#どの手法がいいのか"
-class="header-anchor" aria-hidden="true">どの手法がいいのか</a></h2>
-<p>評価が適当なので、この手法がいいというはっきりした結果は出ませんでした。</p>
-<p>YIN-CMND type I
-はピッチの推定に失敗するとフレームの長さと同じ周期を推定する癖があるようです。</p>
-<p>YIN-CMND type II 、 MPM-CMND type I 、 MPM-CMND type II
-はフレーム内のピッチが低いか変化が激しいときに推定に失敗するようです。3つの中では
-MPM-CMND type II が推定に失敗することが少ないように見えます。</p>
-<p>YIN-NSD type I と YIN-NSD type II
-は適当に設定したしきい値のおかげで、どんな状況でも何らかのピッチを推定しています。ピッチが高めに推定されるのは
-YIN の周期の探索が原因だと思われます。</p>
-<p>MPM-NSD type II は YIN-NSD type I と YIN-NSD type II
-よりも低周波域での推定に失敗しやすいようですが、ピッチが高めに推定されることが少ないように見えます。</p>
-<p>MPM-NSD type I
-は動画では目立たかなったので特徴がつかめませんでした。</p>
-<h2 id="その他"><a href="#その他" class="header-anchor"
-aria-hidden="true">その他</a></h2>
-<p>条件の良いときは CMND type II
-の誤差がもっとも少なくなります。クラスタリングの特徴としてはとりあえずこれを使うことにします。</p>
-<p>実用的なピッチ推定については YIN-NSD type II か MPM-NSD type II
-がいいと思います。入力信号のフィルタリング、 NSD
-に窓をかける、しきい値や定数 <span class="math inline">\(k\)</span>
-の調整といったところで改善が見込めます。</p>
-<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
-aria-hidden="true">参考文献</a></h2>
-<ul>
-<li><a
-href="http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf">2002_JASA_YIN.pdf</a></li>
-<li><a
-href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">A_Smarter_Way_to_Find_Pitch.pdf</a></li>
-<li><a href="https://github.com/sevagh/pitch-detection">GitHub -
-sevagh/pitch-detection: autocorrelation-based pitch detection algorithms
-in C++ - YIN and McLeod Pitch Method</a></li>
-<li><a
-href="http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html">Parabolic
-Interpolation</a></li>
-<li><a
-href="https://stackoverflow.com/questions/47850760/using-scipy-fft-to-calculate-autocorrelation-of-a-signal-gives-different-answer?rq=1">python
-- Using scipy fft to calculate autocorrelation of a signal gives
-different answer from the direct calculation - Stack Overflow</a></li>
-<li><a
-href="http://www.aip.de/groups/soe/local/numres/bookcpdf/c13-2.pdf">NUMERICAL
-RECIPES IN C, c13-2 Correlation and Autocorrelation Using the
-FFT</a></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <p>AM変調をかけたサイン波に対する平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_sin_am.png" alt="Image of plot of mean absolute error to sin AM signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>FM変調をかけたサイン波に対する平均絶対誤差です。</p>
+  <figure>
+  <img src="img/error_sin_fm.png" alt="Image of plot of mean absolute error to sin FM signal." style="width: 640px;padding-bottom: 12px;"/>
+  </figure>
+  <p>この他に作ったプロットは別ページにまとめました。</p>
+  <ul>
+  <li><a
+  href="plot_gallery_pitch_estimation.html#am変調">プロットギャラリー
+  (AM変調)</a></li>
+  <li><a
+  href="plot_gallery_pitch_estimation.html#fm変調">プロットギャラリー
+  (FM変調)</a></li>
+  </ul>
+  <p>誤差からはどう間違っているかがわからないので、推定されたピッチを動画にしました。</p>
+  <p>AM変調をかけたサイン波から推定されたピッチです。</p>
+  <video controls>
+  <source src="img/sin_am.mp4" type="video/mp4">
+  <p>
+  Video of pitch estimation to sin AM signal.
+  </p>
+  </video>
+  <p>FM変調をかけたサイン波から推定されたピッチです。</p>
+  <video controls>
+  <source src="img/sin_fm.mp4" type="video/mp4">
+  <p>
+  Video of pitch estimation to sin FM signal.
+  </p>
+  </video>
+  <h2 id="どの手法がいいのか"><a href="#どの手法がいいのか"
+  class="header-anchor" aria-hidden="true">どの手法がいいのか</a></h2>
+  <p>評価が適当なので、この手法がいいというはっきりした結果は出ませんでした。</p>
+  <p>YIN-CMND type I
+  はピッチの推定に失敗するとフレームの長さと同じ周期を推定する癖があるようです。</p>
+  <p>YIN-CMND type II 、 MPM-CMND type I 、 MPM-CMND type II
+  はフレーム内のピッチが低いか変化が激しいときに推定に失敗するようです。3つの中では
+  MPM-CMND type II が推定に失敗することが少ないように見えます。</p>
+  <p>YIN-NSD type I と YIN-NSD type II
+  は適当に設定したしきい値のおかげで、どんな状況でも何らかのピッチを推定しています。ピッチが高めに推定されるのは
+  YIN の周期の探索が原因だと思われます。</p>
+  <p>MPM-NSD type II は YIN-NSD type I と YIN-NSD type II
+  よりも低周波域での推定に失敗しやすいようですが、ピッチが高めに推定されることが少ないように見えます。</p>
+  <p>MPM-NSD type I
+  は動画では目立たかなったので特徴がつかめませんでした。</p>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <p>条件の良いときは CMND type II
+  の誤差がもっとも少なくなります。クラスタリングの特徴としてはとりあえずこれを使うことにします。</p>
+  <p>実用的なピッチ推定については YIN-NSD type II か MPM-NSD type II
+  がいいと思います。入力信号のフィルタリング、 NSD
+  に窓をかける、しきい値や定数 <span class="math inline">\(k\)</span>
+  の調整といったところで改善が見込めます。</p>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf">2002_JASA_YIN.pdf</a></li>
+  <li><a
+  href="http://miracle.otago.ac.nz/tartini/papers/A_Smarter_Way_to_Find_Pitch.pdf">A_Smarter_Way_to_Find_Pitch.pdf</a></li>
+  <li><a href="https://github.com/sevagh/pitch-detection">GitHub -
+  sevagh/pitch-detection: autocorrelation-based pitch detection
+  algorithms in C++ - YIN and McLeod Pitch Method</a></li>
+  <li><a
+  href="http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html">Parabolic
+  Interpolation</a></li>
+  <li><a
+  href="https://stackoverflow.com/questions/47850760/using-scipy-fft-to-calculate-autocorrelation-of-a-signal-gives-different-answer?rq=1">python
+  - Using scipy fft to calculate autocorrelation of a signal gives
+  different answer from the direct calculation - Stack Overflow</a></li>
+  <li><a
+  href="http://www.aip.de/groups/soe/local/numres/bookcpdf/c13-2.pdf">NUMERICAL
+  RECIPES IN C, c13-2 Correlation and Autocorrelation Using the
+  FFT</a></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

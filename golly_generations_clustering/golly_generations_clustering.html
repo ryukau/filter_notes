@@ -2,418 +2,473 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>golly_generations_clustering</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>golly_generations_clustering</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#golly-の-generations-で作った音のクラスタリング"
-id="toc-golly-の-generations-で作った音のクラスタリング">Golly の
-Generations で作った音のクラスタリング</a>
-<ul>
-<li><a href="#データセット" id="toc-データセット">データセット</a></li>
-<li><a href="#プロトタイプ" id="toc-プロトタイプ">プロトタイプ</a></li>
-<li><a href="#クラスタリング手法の選定"
-id="toc-クラスタリング手法の選定">クラスタリング手法の選定</a></li>
-<li><a href="#mfcc" id="toc-mfcc">MFCC</a></li>
-<li><a href="#elbow-method" id="toc-elbow-method">Elbow Method</a></li>
-<li><a href="#t-sne-で視覚化" id="toc-t-sne-で視覚化">t-SNE
-で視覚化</a></li>
-<li><a href="#適当なプロット"
-id="toc-適当なプロット">適当なプロット</a></li>
-<li><a href="#プロットギャラリー"
-id="toc-プロットギャラリー">プロットギャラリー</a></li>
-<li><a href="#その他" id="toc-その他">その他</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="golly-の-generations-で作った音のクラスタリング"><a
-href="#golly-の-generations-で作った音のクラスタリング"
-class="header-anchor" aria-hidden="true">Golly の Generations
-で作った音のクラスタリング</a></h1>
-<p><a href="http://golly.sourceforge.net/">Golly</a> の <a
-href="http://golly.sourceforge.net/Help/Algorithms/Generations.html">Genrations</a>
-という<a
-href="https://ja.wikipedia.org/wiki/%E3%82%BB%E3%83%AB%E3%83%BB%E3%82%AA%E3%83%BC%E3%83%88%E3%83%9E%E3%83%88%E3%83%B3">セルオートマトン</a>のルールを使って音を作りました。</p>
-<iframe width="640" height="360" src="https://www.youtube.com/embed/zlPi7BwqFwo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-</iframe>
-<p>似たような音に分類したくなったので、音の<a
-href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">MFCC</a>を特徴として<a
-href="https://en.wikipedia.org/wiki/K-means_clustering">K-Means</a>でクラスタリングしました。</p>
-<h2 id="データセット"><a href="#データセット" class="header-anchor"
-aria-hidden="true">データセット</a></h2>
-<p>Golly の generations
-から生成した音のデータセットを次のリンクからダウンロードできます。</p>
-<ul>
-<li><a
-href="https://drive.google.com/file/d/1wbyGz6bbGULksH3vOchL7za1bPzNSNHs/view?usp=sharing">Golly
-generations data set (76MB)</a></li>
-</ul>
-<p><a href="https://www.7-zip.org/">7zip</a>で解凍できます。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> 7z x golly_generations_cluster.7z</span></code></pre></div>
-<p>解凍してできる <code>cluster</code> 内の <code>generations</code>
-がデータセットです。その他のディレクトリはクラスタリングの結果です。</p>
-<h2 id="プロトタイプ"><a href="#プロトタイプ" class="header-anchor"
-aria-hidden="true">プロトタイプ</a></h2>
-<p>手始めに次のようなコードを書きました。</p>
-<p><code>scipy.signal.spectrogram</code> から得たスペクトログラムを
-<code>numpy.ravel</code> で1次元にして
-<code>sklearn.cluster.KMeans</code> でクラスタリングしています。</p>
-<p>計算に時間がかかるので <code>numpy.save</code>
-で計算結果を保存しています。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#golly-の-generations-で作った音のクラスタリング"
+        id="toc-golly-の-generations-で作った音のクラスタリング">Golly
+        の Generations で作った音のクラスタリング</a>
+        <ul>
+        <li><a href="#データセット"
+        id="toc-データセット">データセット</a></li>
+        <li><a href="#プロトタイプ"
+        id="toc-プロトタイプ">プロトタイプ</a></li>
+        <li><a href="#クラスタリング手法の選定"
+        id="toc-クラスタリング手法の選定">クラスタリング手法の選定</a></li>
+        <li><a href="#mfcc" id="toc-mfcc">MFCC</a></li>
+        <li><a href="#elbow-method" id="toc-elbow-method">Elbow
+        Method</a></li>
+        <li><a href="#t-sne-で視覚化" id="toc-t-sne-で視覚化">t-SNE
+        で視覚化</a></li>
+        <li><a href="#適当なプロット"
+        id="toc-適当なプロット">適当なプロット</a></li>
+        <li><a href="#プロットギャラリー"
+        id="toc-プロットギャラリー">プロットギャラリー</a></li>
+        <li><a href="#その他" id="toc-その他">その他</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="golly-の-generations-で作った音のクラスタリング"><a
+  href="#golly-の-generations-で作った音のクラスタリング"
+  class="header-anchor" aria-hidden="true">Golly の Generations
+  で作った音のクラスタリング</a></h1>
+  <p><a href="http://golly.sourceforge.net/">Golly</a> の <a
+  href="http://golly.sourceforge.net/Help/Algorithms/Generations.html">Genrations</a>
+  という<a
+  href="https://ja.wikipedia.org/wiki/%E3%82%BB%E3%83%AB%E3%83%BB%E3%82%AA%E3%83%BC%E3%83%88%E3%83%9E%E3%83%88%E3%83%B3">セルオートマトン</a>のルールを使って音を作りました。</p>
+  <iframe width="640" height="360" src="https://www.youtube.com/embed/zlPi7BwqFwo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+  </iframe>
+  <p>似たような音に分類したくなったので、音の<a
+  href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">MFCC</a>を特徴として<a
+  href="https://en.wikipedia.org/wiki/K-means_clustering">K-Means</a>でクラスタリングしました。</p>
+  <h2 id="データセット"><a href="#データセット" class="header-anchor"
+  aria-hidden="true">データセット</a></h2>
+  <p>Golly の generations
+  から生成した音のデータセットを次のリンクからダウンロードできます。</p>
+  <ul>
+  <li><a
+  href="https://drive.google.com/file/d/1wbyGz6bbGULksH3vOchL7za1bPzNSNHs/view?usp=sharing">Golly
+  generations data set (76MB)</a></li>
+  </ul>
+  <p><a href="https://www.7-zip.org/">7zip</a>で解凍できます。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> 7z x golly_generations_cluster.7z</span></code></pre></div>
+  <p>解凍してできる <code>cluster</code> 内の <code>generations</code>
+  がデータセットです。その他のディレクトリはクラスタリングの結果です。</p>
+  <h2 id="プロトタイプ"><a href="#プロトタイプ" class="header-anchor"
+  aria-hidden="true">プロトタイプ</a></h2>
+  <p>手始めに次のようなコードを書きました。</p>
+  <p><code>scipy.signal.spectrogram</code> から得たスペクトログラムを
+  <code>numpy.ravel</code> で1次元にして
+  <code>sklearn.cluster.KMeans</code> でクラスタリングしています。</p>
+  <p>計算に時間がかかるので <code>numpy.save</code>
+  で計算結果を保存しています。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.signal</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sklearn.cluster</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
@@ -476,58 +531,58 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    numpy.save(<span class="st">&quot;data/features_shape.npy&quot;</span>, (<span class="dv">39</span>, <span class="dv">129</span>))</span>
 <span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    numpy.save(<span class="st">&quot;data/labels.npy&quot;</span>, cluster.labels_)</span>
 <span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    numpy.save(<span class="st">&quot;data/centers.npy&quot;</span>, cluster.cluster_centers_)</span></code></pre></div>
-<ul>
-<li><a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.spectrogram.html">scipy.signal.spectrogram
-— SciPy v1.1.0 Reference Guide</a></li>
-<li><a
-href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ravel.html">numpy.ravel
-— NumPy v1.15 Manual</a></li>
-<li><a
-href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">sklearn.cluster.KMeans
-— scikit-learn 0.20.1 documentation</a></li>
-</ul>
-<h2 id="クラスタリング手法の選定"><a href="#クラスタリング手法の選定"
-class="header-anchor"
-aria-hidden="true">クラスタリング手法の選定</a></h2>
-<p>耳で聞いた印象がいまいちだったので <a
-href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.cluster"><code>sklearn.cluster</code></a>
-の中から次のクラスタリング手法を試しました。</p>
-<ul>
-<li><code>KMeans</code></li>
-<li><code>AffinityPropagation</code></li>
-<li><code>AgglomerativeClustering</code></li>
-<li><code>SpectralClustering</code></li>
-<li><code>DBSCAN</code></li>
-</ul>
-<p><code>Agglomerative</code> と <code>KMeans</code>
-は似たような結果が出ました。</p>
-<p><code>AffinityPropagation</code>
-はアルゴリズム側でクラスタの数を自動的に決めてくれます。
-<code>damping</code>
-をデフォルトの0.5にするとクラスタの数が多くなりすぎたので、適当に0.6としたところ119のサンプルに対して60ほどあったクラスタが15まで減りました。</p>
-<p><code>SpectralClustering</code> の結果は良くなかったです。</p>
-<p><code>DBSCAN</code>
-はサンプルの数と同じだけのクラスタができる結果となりました。<a
-href="https://www.naftaliharris.com/blog/visualizing-dbscan-clustering/">Visualizing
-DBSCAN Clustering</a>
-を見ると空間を格子に区切って、格子内のデータポイントの数に応じてクラスタを作っています。今回のデータでは次元の高さに対してデータポイントの数が少なすぎるためにクラスタが形成されにくいのかもしれません。</p>
-<p>ここでは Golly の generations で作った音のクラスタリングには
-<code>KMeans</code> で十分と判断しました。</p>
-<p>クラスタリング手法では結果が改善しないこともわかったので特徴抽出を変えることにしました。</p>
-<h2 id="mfcc"><a href="#mfcc" class="header-anchor"
-aria-hidden="true">MFCC</a></h2>
-<p><a
-href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.spectrogram.html"><code>numpy.spectrogram</code></a>
-を使ったクラスタリングの結果に満足できなかったので <a
-href="https://python-speech-features.readthedocs.io/en/latest/"><code>python_speech_features</code></a>
-をインストールして <a
-href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">MFCC</a>
-を使うことにしました。</p>
-<p>プロトタイプの <code>extract_feature</code>
-を次のように変更しました。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> python_speech_features</span>
+  <ul>
+  <li><a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.spectrogram.html">scipy.signal.spectrogram
+  — SciPy v1.1.0 Reference Guide</a></li>
+  <li><a
+  href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ravel.html">numpy.ravel
+  — NumPy v1.15 Manual</a></li>
+  <li><a
+  href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">sklearn.cluster.KMeans
+  — scikit-learn 0.20.1 documentation</a></li>
+  </ul>
+  <h2 id="クラスタリング手法の選定"><a href="#クラスタリング手法の選定"
+  class="header-anchor"
+  aria-hidden="true">クラスタリング手法の選定</a></h2>
+  <p>耳で聞いた印象がいまいちだったので <a
+  href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.cluster"><code>sklearn.cluster</code></a>
+  の中から次のクラスタリング手法を試しました。</p>
+  <ul>
+  <li><code>KMeans</code></li>
+  <li><code>AffinityPropagation</code></li>
+  <li><code>AgglomerativeClustering</code></li>
+  <li><code>SpectralClustering</code></li>
+  <li><code>DBSCAN</code></li>
+  </ul>
+  <p><code>Agglomerative</code> と <code>KMeans</code>
+  は似たような結果が出ました。</p>
+  <p><code>AffinityPropagation</code>
+  はアルゴリズム側でクラスタの数を自動的に決めてくれます。
+  <code>damping</code>
+  をデフォルトの0.5にするとクラスタの数が多くなりすぎたので、適当に0.6としたところ119のサンプルに対して60ほどあったクラスタが15まで減りました。</p>
+  <p><code>SpectralClustering</code> の結果は良くなかったです。</p>
+  <p><code>DBSCAN</code>
+  はサンプルの数と同じだけのクラスタができる結果となりました。<a
+  href="https://www.naftaliharris.com/blog/visualizing-dbscan-clustering/">Visualizing
+  DBSCAN Clustering</a>
+  を見ると空間を格子に区切って、格子内のデータポイントの数に応じてクラスタを作っています。今回のデータでは次元の高さに対してデータポイントの数が少なすぎるためにクラスタが形成されにくいのかもしれません。</p>
+  <p>ここでは Golly の generations で作った音のクラスタリングには
+  <code>KMeans</code> で十分と判断しました。</p>
+  <p>クラスタリング手法では結果が改善しないこともわかったので特徴抽出を変えることにしました。</p>
+  <h2 id="mfcc"><a href="#mfcc" class="header-anchor"
+  aria-hidden="true">MFCC</a></h2>
+  <p><a
+  href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.spectrogram.html"><code>numpy.spectrogram</code></a>
+  を使ったクラスタリングの結果に満足できなかったので <a
+  href="https://python-speech-features.readthedocs.io/en/latest/"><code>python_speech_features</code></a>
+  をインストールして <a
+  href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">MFCC</a>
+  を使うことにしました。</p>
+  <p>プロトタイプの <code>extract_feature</code>
+  を次のように変更しました。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> python_speech_features</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_feature(path, n_frame<span class="op">=</span><span class="dv">19</span>):</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
@@ -554,45 +609,45 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        mfcc <span class="op">=</span> mfcc[<span class="dv">0</span>:n_frame]</span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> numpy.ravel(mfcc)</span></code></pre></div>
-<p><code>winlen * samplerate &gt; nfft</code> のときにエラーが出るので
-<code>winlen</code> は <code>nfft</code> の値から決めています。</p>
-<p><code>numcep</code> と <code>nfilt</code>
-は適当にデフォルトの2倍にしました。</p>
-<p>Golly の generations
-で作った音は低周波成分がそれなりに含まれるので、ルールと音の関係を調べるなら
-<code>preemph</code>
-は0でいいかもしれません。ここでは耳での聞こえ方で分類したかったのでデフォルト値を使っています。</p>
-<p>Golly の generations
-で作った音のクラスタリングについては、MFCCを使うことでスペクトログラムを使うよりも私の主観では良い結果が出ました。データポイントの次元が減るので計算も早くなります。</p>
-<ul>
-<li><a
-href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">Practical
-Cryptography - Mel Frequency Cepstral Coefficient (MFCC)
-tutorial</a></li>
-<li><a
-href="https://dsp.stackexchange.com/questions/45786/pre-emphasis-filter-for-speech-recognition">fir
-- Pre-emphasis filter for speech recognition - Signal Processing Stack
-Exchange</a></li>
-<li><a
-href="https://www.quora.com/Why-is-pre-emphasis-i-e-passing-the-speech-signal-through-a-first-order-high-pass-filter-required-in-speech-processing-and-how-does-it-work">Why
-is pre-emphasis (i.e. passing the speech signal through a first order
-high pass filter) required in speech processing and how does it work? -
-Quora</a></li>
-</ul>
-<h2 id="elbow-method"><a href="#elbow-method" class="header-anchor"
-aria-hidden="true">Elbow Method</a></h2>
-<p><code>KMeans</code> のパラメータ <code>n_clusters</code>
-を決めるために <a
-href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b">elbow method</a>
-を試しました。</p>
-<p><code>KMeans</code>
-の誤差はクラスタの数を増やすと小さくなります。また、クラスタの数が増えると誤差の減り方が緩やかになってきます。
-Elbow method
-では誤差の減り方が十分に緩やかな範囲で最も小さいクラスタの数を使います。誤差の減り方が緩やかかどうかの判断はデータセットに応じて人間が適当に行うようです。</p>
-<p>実装では <code>sklearn.cluster.KMeans.inertia_</code>
-がそのまま使えます。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
+  <p><code>winlen * samplerate &gt; nfft</code> のときにエラーが出るので
+  <code>winlen</code> は <code>nfft</code> の値から決めています。</p>
+  <p><code>numcep</code> と <code>nfilt</code>
+  は適当にデフォルトの2倍にしました。</p>
+  <p>Golly の generations
+  で作った音は低周波成分がそれなりに含まれるので、ルールと音の関係を調べるなら
+  <code>preemph</code>
+  は0でいいかもしれません。ここでは耳での聞こえ方で分類したかったのでデフォルト値を使っています。</p>
+  <p>Golly の generations
+  で作った音のクラスタリングについては、MFCCを使うことでスペクトログラムを使うよりも私の主観では良い結果が出ました。データポイントの次元が減るので計算も早くなります。</p>
+  <ul>
+  <li><a
+  href="http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/">Practical
+  Cryptography - Mel Frequency Cepstral Coefficient (MFCC)
+  tutorial</a></li>
+  <li><a
+  href="https://dsp.stackexchange.com/questions/45786/pre-emphasis-filter-for-speech-recognition">fir
+  - Pre-emphasis filter for speech recognition - Signal Processing Stack
+  Exchange</a></li>
+  <li><a
+  href="https://www.quora.com/Why-is-pre-emphasis-i-e-passing-the-speech-signal-through-a-first-order-high-pass-filter-required-in-speech-processing-and-how-does-it-work">Why
+  is pre-emphasis (i.e. passing the speech signal through a first order
+  high pass filter) required in speech processing and how does it work?
+  - Quora</a></li>
+  </ul>
+  <h2 id="elbow-method"><a href="#elbow-method" class="header-anchor"
+  aria-hidden="true">Elbow Method</a></h2>
+  <p><code>KMeans</code> のパラメータ <code>n_clusters</code>
+  を決めるために <a
+  href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b">elbow
+  method</a> を試しました。</p>
+  <p><code>KMeans</code>
+  の誤差はクラスタの数を増やすと小さくなります。また、クラスタの数が増えると誤差の減り方が緩やかになってきます。
+  Elbow method
+  では誤差の減り方が十分に緩やかな範囲で最も小さいクラスタの数を使います。誤差の減り方が緩やかかどうかの判断はデータセットに応じて人間が適当に行うようです。</p>
+  <p>実装では <code>sklearn.cluster.KMeans.inertia_</code>
+  がそのまま使えます。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> python_speech_features</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sklearn.cluster</span>
@@ -617,87 +672,87 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    pyplot.xlim((x_range[<span class="dv">0</span>], x_range[<span class="dv">1</span>] <span class="op">-</span> <span class="dv">1</span>))</span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    pyplot.grid()</span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    pyplot.show()</span></code></pre></div>
-<p>出力されたプロットです。</p>
-<figure>
-<img src="img/mfcc/elbow_method.png" alt="Image of plot used for elbow method." style="width: 600px;padding-bottom: 12px;"/>
-</figure>
-<p>滑らかで elbow
-となる傾きが急に変わる箇所がないように見えます。今回は特に目的も正解もなくクラスタリングしているので
-<code>k=40</code> くらいでいい気がします。</p>
-<ul>
-<li><a href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b">Using the
-elbow method to determine the optimal number of clusters for k-means
-clustering - bl.ocks.org</a></li>
-<li><a
-href="https://www.quora.com/How-can-we-choose-a-good-K-for-K-means-clustering">How
-can we choose a ‘good’ K for K-means clustering? - Quora</a></li>
-</ul>
-<h2 id="t-sne-で視覚化"><a href="#t-sne-で視覚化" class="header-anchor"
-aria-hidden="true">t-SNE で視覚化</a></h2>
-<p>いい評価方法が思いつかないので、とりあえず <a
-href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">t-SNE</a>
-で視覚化しました。</p>
-<p><a
-href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html"><code>sklearn.manifold.TSNE</code></a>
-を使います。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+  <p>出力されたプロットです。</p>
+  <figure>
+  <img src="img/mfcc/elbow_method.png" alt="Image of plot used for elbow method." style="width: 600px;padding-bottom: 12px;"/>
+  </figure>
+  <p>滑らかで elbow
+  となる傾きが急に変わる箇所がないように見えます。今回は特に目的も正解もなくクラスタリングしているので
+  <code>k=40</code> くらいでいい気がします。</p>
+  <ul>
+  <li><a href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b">Using
+  the elbow method to determine the optimal number of clusters for
+  k-means clustering - bl.ocks.org</a></li>
+  <li><a
+  href="https://www.quora.com/How-can-we-choose-a-good-K-for-K-means-clustering">How
+  can we choose a ‘good’ K for K-means clustering? - Quora</a></li>
+  </ul>
+  <h2 id="t-sne-で視覚化"><a href="#t-sne-で視覚化"
+  class="header-anchor" aria-hidden="true">t-SNE で視覚化</a></h2>
+  <p>いい評価方法が思いつかないので、とりあえず <a
+  href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">t-SNE</a>
+  で視覚化しました。</p>
+  <p><a
+  href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html"><code>sklearn.manifold.TSNE</code></a>
+  を使います。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sklearn.manifold</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>features <span class="op">=</span> numpy.load(<span class="st">&quot;data/features.npy&quot;</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> sklearn.manifold.TSNE(n_components<span class="op">=</span><span class="dv">2</span>).fit(features)</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>numpy.save(<span class="st">&quot;data/embedding.npy&quot;</span>, tsne.embedding_)</span></code></pre></div>
-<p>計算結果のプロットです。図の数字はデータポイントの属するクラスタの番号と対応しています。</p>
-<figure>
-<img src="img/mfcc/tsne.png" alt="Image of ." style="width: 600px;padding-bottom: 12px;"/>
-</figure>
-<h2 id="適当なプロット"><a href="#適当なプロット" class="header-anchor"
-aria-hidden="true">適当なプロット</a></h2>
-<p>クラスタの内容を調べるために適当に思いついたパラメータをプロットします。</p>
-<p>中央値が表すMFCCです。各画像の縦が周波数で下から上に向かって大きくなります。横は時間で左から右に向かって進んでいます。明るい部分ほど係数が大きくなります。
-<code>n</code>
-はクラスタに含まれるデータポイントの数を表しています。</p>
-<figure>
-<img src="img/mfcc/centers.png" alt="Image of plot of K-Means centers from mfcc features." style="width: 600px;padding-bottom: 12px;"/>
-</figure>
-<p>K-Meansの中央値と対応するデータポイントとの間での平均絶対誤差 (<a
-href="https://en.wikipedia.org/wiki/Mean_absolute_error">mean absolute
-error</a>) です。</p>
-<figure>
-<img src="img/mfcc/errors.png" alt="Image of plot of mean absolute errors between K-Means centers and corresponding data points." style="width: 600px;padding-bottom: 12px;"/>
-</figure>
-<p>以下は耳で聞いた印象です。</p>
-<ul>
-<li>0, 2, 15, 20, 25, 28 は低めのトーン。</li>
-<li>1, 11, 21 はプチノイズ。</li>
-<li>4, 7, 16 はカラーノイズ。</li>
-<li>3, 8, 9, 12, 13, 14, 19, 29, 31, 35, 39 は高いトーン。</li>
-<li>17, 18, 30, 34, 36
-は高めのカラーノイズと高めのトーンの中間のような音。</li>
-<li>22, 23, 24, 26, 37, 38 はプチノイズと高いトーン。</li>
-<li>32, 33 は低めのカラーノイズと低めのトーンの中間のような音。</li>
-</ul>
-<h2 id="プロットギャラリー"><a href="#プロットギャラリー"
-class="header-anchor" aria-hidden="true">プロットギャラリー</a></h2>
-<p>特徴ベクトルを変えて出力したプロットを別ページにまとめました。</p>
-<p><a href="gallery.html">プロットギャラリーを見る</a></p>
-<h2 id="その他"><a href="#その他" class="header-anchor"
-aria-hidden="true">その他</a></h2>
-<p>ここではクラスタリングの結果について、ざっくり耳で聞いた判断しか行っていません。</p>
-<p>MFCCを試した後でスペクトログラムを改善できないか試しました。</p>
-<ul>
-<li>データポイントの最小値、最大値の範囲を [0, 1] に正規化。</li>
-<li>データポイントの最小値、最大値の範囲を [0, 1] に正規化してから
-<code>numpy.log</code> で対数に変換。</li>
-</ul>
-<p>どちらもMFCCと比べて良くなったとは感じませんでした。</p>
-<p>Elbow method
-はヒューリスティックのわりに計算に時間がかかります。今回のような正解となるデータセットがない状態でのクラスタリングでは
-<code>KMeans</code> よりも、自動的にクラスタの数を決めてくれる
-<code>AffinityPropagation</code> を使ったほうが楽かもしれません。</p>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <p>計算結果のプロットです。図の数字はデータポイントの属するクラスタの番号と対応しています。</p>
+  <figure>
+  <img src="img/mfcc/tsne.png" alt="Image of ." style="width: 600px;padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="適当なプロット"><a href="#適当なプロット"
+  class="header-anchor" aria-hidden="true">適当なプロット</a></h2>
+  <p>クラスタの内容を調べるために適当に思いついたパラメータをプロットします。</p>
+  <p>中央値が表すMFCCです。各画像の縦が周波数で下から上に向かって大きくなります。横は時間で左から右に向かって進んでいます。明るい部分ほど係数が大きくなります。
+  <code>n</code>
+  はクラスタに含まれるデータポイントの数を表しています。</p>
+  <figure>
+  <img src="img/mfcc/centers.png" alt="Image of plot of K-Means centers from mfcc features." style="width: 600px;padding-bottom: 12px;"/>
+  </figure>
+  <p>K-Meansの中央値と対応するデータポイントとの間での平均絶対誤差 (<a
+  href="https://en.wikipedia.org/wiki/Mean_absolute_error">mean absolute
+  error</a>) です。</p>
+  <figure>
+  <img src="img/mfcc/errors.png" alt="Image of plot of mean absolute errors between K-Means centers and corresponding data points." style="width: 600px;padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は耳で聞いた印象です。</p>
+  <ul>
+  <li>0, 2, 15, 20, 25, 28 は低めのトーン。</li>
+  <li>1, 11, 21 はプチノイズ。</li>
+  <li>4, 7, 16 はカラーノイズ。</li>
+  <li>3, 8, 9, 12, 13, 14, 19, 29, 31, 35, 39 は高いトーン。</li>
+  <li>17, 18, 30, 34, 36
+  は高めのカラーノイズと高めのトーンの中間のような音。</li>
+  <li>22, 23, 24, 26, 37, 38 はプチノイズと高いトーン。</li>
+  <li>32, 33 は低めのカラーノイズと低めのトーンの中間のような音。</li>
+  </ul>
+  <h2 id="プロットギャラリー"><a href="#プロットギャラリー"
+  class="header-anchor" aria-hidden="true">プロットギャラリー</a></h2>
+  <p>特徴ベクトルを変えて出力したプロットを別ページにまとめました。</p>
+  <p><a href="gallery.html">プロットギャラリーを見る</a></p>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <p>ここではクラスタリングの結果について、ざっくり耳で聞いた判断しか行っていません。</p>
+  <p>MFCCを試した後でスペクトログラムを改善できないか試しました。</p>
+  <ul>
+  <li>データポイントの最小値、最大値の範囲を [0, 1] に正規化。</li>
+  <li>データポイントの最小値、最大値の範囲を [0, 1] に正規化してから
+  <code>numpy.log</code> で対数に変換。</li>
+  </ul>
+  <p>どちらもMFCCと比べて良くなったとは感じませんでした。</p>
+  <p>Elbow method
+  はヒューリスティックのわりに計算に時間がかかります。今回のような正解となるデータセットがない状態でのクラスタリングでは
+  <code>KMeans</code> よりも、自動的にクラスタの数を決めてくれる
+  <code>AffinityPropagation</code> を使ったほうが楽かもしれません。</p>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

@@ -2,459 +2,521 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>basic_fir</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>basic_fir</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#お手軽なfirフィルタのレシピ"
-id="toc-お手軽なfirフィルタのレシピ">お手軽なFIRフィルタのレシピ</a>
-<ul>
-<li><a href="#記号" id="toc-記号">記号</a></li>
-<li><a href="#ローパスフィルタ"
-id="toc-ローパスフィルタ">ローパスフィルタ</a></li>
-<li><a href="#ハイパスフィルタ"
-id="toc-ハイパスフィルタ">ハイパスフィルタ</a></li>
-<li><a href="#バンドパスフィルタ"
-id="toc-バンドパスフィルタ">バンドパスフィルタ</a></li>
-<li><a href="#バンドリジェクトフィルタ"
-id="toc-バンドリジェクトフィルタ">バンドリジェクトフィルタ</a></li>
-<li><a href="#firフィルタの畳み込み方"
-id="toc-firフィルタの畳み込み方">FIRフィルタの畳み込み方</a></li>
-<li><a href="#窓関数法" id="toc-窓関数法">窓関数法</a></li>
-<li><a href="#computer-algebra-system-の利用"
-id="toc-computer-algebra-system-の利用">Computer Algebra System
-の利用</a></li>
-<li><a href="#フィルタ係数の計算について"
-id="toc-フィルタ係数の計算について">フィルタ係数の計算について</a></li>
-<li><a href="#その他" id="toc-その他">その他</a></li>
-<li><a href="#参考サイト" id="toc-参考サイト">参考サイト</a></li>
-<li><a href="#変更点" id="toc-変更点">変更点</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="お手軽なfirフィルタのレシピ"><a
-href="#お手軽なfirフィルタのレシピ" class="header-anchor"
-aria-hidden="true">お手軽なFIRフィルタのレシピ</a></h1>
-<p><a
-href="https://en.wikipedia.org/wiki/Finite_impulse_response">FIR</a>
-のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。</p>
-<p>以下はプロットを含む完全な Python 3 のコードへのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/basic_fir/basic_fir.py">filter_notes/basic_fir/basic_fir.py
-at master · ryukau/filter_notes · GitHub</a></li>
-</ul>
-<h2 id="記号"><a href="#記号" class="header-anchor"
-aria-hidden="true">記号</a></h2>
-<ul>
-<li><span class="math inline">\(f_s\)</span> : <a
-href="https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate">サンプリング周波数</a>。</li>
-<li><span class="math inline">\(f_c\)</span> : <a
-href="https://en.wikipedia.org/wiki/Cutoff_frequency">カットオフ周波数</a>。ここでは慣例とは異なり、カットオフ周波数でのゲインが
-<span class="math inline">\(1/\sqrt{2}\)</span> とはならない。</li>
-<li><span class="math inline">\(f_l\)</span> : 低いほうの<a
-href="https://en.wikipedia.org/wiki/Cutoff_frequency">カットオフ周波数</a>。バンドパスとバンドリジェクトで使う。</li>
-<li><span class="math inline">\(f_h\)</span> :
-高いほうカットオフ周波数。バンドパスとバンドリジェクトで使う。</li>
-<li><span class="math inline">\(\omega_\square\)</span> : 角周波数。
-<span class="math inline">\(2 \pi f_\square / f_s\)</span> 。</li>
-</ul>
-<p><span class="math inline">\(f\)</span> の単位は Hz 、 <span
-class="math inline">\(\omega\)</span> の単位は rad です。</p>
-<p><a href="https://en.wikipedia.org/wiki/Passband">通過域</a>の振幅（<a
-href="https://en.wikipedia.org/wiki/Amplitude">Amplitude</a>）は 1
-とします。</p>
-<h2 id="ローパスフィルタ"><a href="#ローパスフィルタ"
-class="header-anchor" aria-hidden="true">ローパスフィルタ</a></h2>
-<figure>
-<img src="img/fir_filter_lowpass_spec.svg" alt="Image of FIR lowpass filter specification." style="padding-bottom: 12px;"/>
-</figure>
-<p><span class="math display">\[
-A_{LP}(\omega) =
-\begin{cases}
-1, &amp; (-\omega_c \leq \omega \leq \omega_c) \\
-0, &amp; \text{otherwise}.
-\end{cases}
-\]</span></p>
-<p><span class="math inline">\(A_{LP}(\omega)\)</span> を<a
-href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform">逆フーリエ変換</a>します。
-<span class="math inline">\(A_{LP}\)</span> の定義より範囲を <span
-class="math inline">\(-\omega_c\)</span> から <span
-class="math inline">\(\omega_c\)</span> に狭めることができます。この式は
-sinc 関数とも呼ばれます。また、理想ローパスフィルタ (ideal low-pass
-filter) と呼ばれることもあります。</p>
-<p><span class="math display">\[
-\begin{align}
-\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{LP}(\omega) e^{j\omega x}
-d\omega
-&amp;= \frac{1}{2\pi}\int^{\omega_c}_{-\omega_c} e^{j\omega x} d\omega
-\\
-&amp;= \frac{\sin(\omega_c x)}{\pi x}.
-\end{align}
-\]</span></p>
-<p>式 1 は以下の <a href="https://maxima.sourceforge.io/">Maxima</a>
-のコードで解きました。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ift</span>(<span class="cn">low</span>, <span class="cn">high</span>) := <span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * ω * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="va">%pi</span>), ω, <span class="cn">low</span>, <span class="cn">high</span>);</span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#お手軽なfirフィルタのレシピ"
+        id="toc-お手軽なfirフィルタのレシピ">お手軽なFIRフィルタのレシピ</a>
+        <ul>
+        <li><a href="#記号" id="toc-記号">記号</a></li>
+        <li><a href="#ローパスフィルタ"
+        id="toc-ローパスフィルタ">ローパスフィルタ</a></li>
+        <li><a href="#ハイパスフィルタ"
+        id="toc-ハイパスフィルタ">ハイパスフィルタ</a></li>
+        <li><a href="#バンドパスフィルタ"
+        id="toc-バンドパスフィルタ">バンドパスフィルタ</a></li>
+        <li><a href="#バンドリジェクトフィルタ"
+        id="toc-バンドリジェクトフィルタ">バンドリジェクトフィルタ</a></li>
+        <li><a href="#firフィルタの畳み込み方"
+        id="toc-firフィルタの畳み込み方">FIRフィルタの畳み込み方</a></li>
+        <li><a href="#窓関数法" id="toc-窓関数法">窓関数法</a></li>
+        <li><a href="#computer-algebra-system-の利用"
+        id="toc-computer-algebra-system-の利用">Computer Algebra System
+        の利用</a></li>
+        <li><a href="#フィルタ係数の計算について"
+        id="toc-フィルタ係数の計算について">フィルタ係数の計算について</a></li>
+        <li><a href="#その他" id="toc-その他">その他</a></li>
+        <li><a href="#参考サイト"
+        id="toc-参考サイト">参考サイト</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="お手軽なfirフィルタのレシピ"><a
+  href="#お手軽なfirフィルタのレシピ" class="header-anchor"
+  aria-hidden="true">お手軽なFIRフィルタのレシピ</a></h1>
+  <p><a
+  href="https://en.wikipedia.org/wiki/Finite_impulse_response">FIR</a>
+  のローパス、ハイパス、バンドパス、バンドリジェクトフィルタを作ります。</p>
+  <p>以下はプロットを含む完全な Python 3 のコードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/basic_fir/basic_fir.py">filter_notes/basic_fir/basic_fir.py
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <h2 id="記号"><a href="#記号" class="header-anchor"
+  aria-hidden="true">記号</a></h2>
+  <ul>
+  <li><span class="math inline">\(f_s\)</span> : <a
+  href="https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate">サンプリング周波数</a>。</li>
+  <li><span class="math inline">\(f_c\)</span> : <a
+  href="https://en.wikipedia.org/wiki/Cutoff_frequency">カットオフ周波数</a>。ここでは慣例とは異なり、カットオフ周波数でのゲインが
+  <span class="math inline">\(1/\sqrt{2}\)</span> とはならない。</li>
+  <li><span class="math inline">\(f_l\)</span> : 低いほうの<a
+  href="https://en.wikipedia.org/wiki/Cutoff_frequency">カットオフ周波数</a>。バンドパスとバンドリジェクトで使う。</li>
+  <li><span class="math inline">\(f_h\)</span> :
+  高いほうカットオフ周波数。バンドパスとバンドリジェクトで使う。</li>
+  <li><span class="math inline">\(\omega_\square\)</span> : 角周波数。
+  <span class="math inline">\(2 \pi f_\square / f_s\)</span> 。</li>
+  </ul>
+  <p><span class="math inline">\(f\)</span> の単位は Hz 、 <span
+  class="math inline">\(\omega\)</span> の単位は rad です。</p>
+  <p><a
+  href="https://en.wikipedia.org/wiki/Passband">通過域</a>の振幅（<a
+  href="https://en.wikipedia.org/wiki/Amplitude">Amplitude</a>）は 1
+  とします。</p>
+  <h2 id="ローパスフィルタ"><a href="#ローパスフィルタ"
+  class="header-anchor" aria-hidden="true">ローパスフィルタ</a></h2>
+  <figure>
+  <img src="img/fir_filter_lowpass_spec.svg" alt="Image of FIR lowpass filter specification." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math display">\[
+  A_{LP}(\omega) =
+  \begin{cases}
+  1, &amp; (-\omega_c \leq \omega \leq \omega_c) \\
+  0, &amp; \text{otherwise}.
+  \end{cases}
+  \]</span></p>
+  <p><span class="math inline">\(A_{LP}(\omega)\)</span> を<a
+  href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform">逆フーリエ変換</a>します。
+  <span class="math inline">\(A_{LP}\)</span> の定義より範囲を <span
+  class="math inline">\(-\omega_c\)</span> から <span
+  class="math inline">\(\omega_c\)</span>
+  に狭めることができます。この式は sinc
+  関数とも呼ばれます。また、理想ローパスフィルタ (ideal low-pass filter)
+  と呼ばれることもあります。</p>
+  <p><span class="math display">\[
+  \begin{align}
+  \frac{1}{2\pi}\int^{\infty}_{-\infty} A_{LP}(\omega) e^{j\omega x}
+  d\omega
+  &amp;= \frac{1}{2\pi}\int^{\omega_c}_{-\omega_c} e^{j\omega x} d\omega
+  \\
+  &amp;= \frac{\sin(\omega_c x)}{\pi x}.
+  \end{align}
+  \]</span></p>
+  <p>式 1 は以下の <a href="https://maxima.sourceforge.io/">Maxima</a>
+  のコードで解きました。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ift</span>(<span class="cn">low</span>, <span class="cn">high</span>) := <span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * ω * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="va">%pi</span>), ω, <span class="cn">low</span>, <span class="cn">high</span>);</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">ift</span>(-ω<span class="cn">_c</span>, ω<span class="cn">_c</span>)));</span></code></pre></div>
-<p>Python 3 のコードに変えます。 NumPy には <a
-href="https://numpy.org/doc/stable/reference/generated/numpy.sinc.html"><code>numpy.sinc</code></a>
-がありますが、ここでは例として sinc 関数を実装しています。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+  <p>Python 3 のコードに変えます。 NumPy には <a
+  href="https://numpy.org/doc/stable/reference/generated/numpy.sinc.html"><code>numpy.sinc</code></a>
+  がありますが、ここでは例として sinc 関数を実装しています。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> modifiedSinc(x, cutoff):</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">==</span> <span class="dv">0</span>:</span>
@@ -471,90 +533,91 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> i <span class="op">-</span> mid</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        fir[i] <span class="op">=</span> modifiedSinc(x, cutoff)</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
-<p>以下は <code>length = 63, cutoff = 0.25</code>
-としたときの周波数特性のプロットです。</p>
-<figure>
-<img src="img/fir_filter_lowpass_response.svg" alt="Image of FIR lowpass filter responses." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="ハイパスフィルタ"><a href="#ハイパスフィルタ"
-class="header-anchor" aria-hidden="true">ハイパスフィルタ</a></h2>
-<figure>
-<img src="img/fir_filter_highpass_spec.svg" alt="Image of FIR highpass filter specification." style="padding-bottom: 12px;"/>
-</figure>
-<p><span class="math display">\[
-A_{HP}(\omega) =
-\begin{cases}
-1, &amp; (\omega \leq -\omega_c) \\
-1, &amp; (\omega_c \leq \omega) \\
-0, &amp; \text{otherwise}.
-\end{cases}
-\]</span></p>
-<p>逆フーリエ変換が Maxima と SymPy
-では解けなかったので、式変形のトリックを使います。すべての周波数で振幅が
-1
-となる特性からローパスフィルタの特性を減算することでハイパスになります。そして、すべての周波数で振幅が
-1 となる特性を持つ信号として <a
-href="https://en.wikipedia.org/wiki/Dirac_delta_function">Dirac
-のデルタ関数</a>が使えます。したがって以下のように <span
-class="math inline">\(A_{HP}\)</span> の逆フーリエ変換ができます。</p>
-<p><span class="math display">\[
-\begin{align}
-\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{HP}(\omega) e^{j\omega x}
-d\omega
-&amp;= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega -
-\mathcal{F}^{-1} (A_{LP}) \\
-&amp;= \delta(x) - \frac{\sin(\omega_c x)}{\pi x}.
-\end{align}
-\]</span></p>
-<p>Python 3
-のコードに変えます。デルタ関数の扱いが問題になりますが、実装のトリックとして
-<span class="math inline">\(x=0\)</span>
-となる時点のフィルタ係数からフィルタ係数の総和 (<code>sum(fir)</code>)
-を減算すればうまく動きます。ローパスフィルタのコードを流用しています。</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> highpassFir(length: <span class="bu">int</span>, cutoff: <span class="bu">float</span>):</span>
+  <p>以下は <code>length = 63, cutoff = 0.25</code>
+  としたときの周波数特性のプロットです。</p>
+  <figure>
+  <img src="img/fir_filter_lowpass_response.svg" alt="Image of FIR lowpass filter responses." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="ハイパスフィルタ"><a href="#ハイパスフィルタ"
+  class="header-anchor" aria-hidden="true">ハイパスフィルタ</a></h2>
+  <figure>
+  <img src="img/fir_filter_highpass_spec.svg" alt="Image of FIR highpass filter specification." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math display">\[
+  A_{HP}(\omega) =
+  \begin{cases}
+  1, &amp; (\omega \leq -\omega_c) \\
+  1, &amp; (\omega_c \leq \omega) \\
+  0, &amp; \text{otherwise}.
+  \end{cases}
+  \]</span></p>
+  <p>逆フーリエ変換が Maxima と SymPy
+  では解けなかったので、式変形のトリックを使います。すべての周波数で振幅が
+  1
+  となる特性からローパスフィルタの特性を減算することでハイパスになります。そして、すべての周波数で振幅が
+  1 となる特性を持つ信号として <a
+  href="https://en.wikipedia.org/wiki/Dirac_delta_function">Dirac
+  のデルタ関数</a>が使えます。したがって以下のように <span
+  class="math inline">\(A_{HP}\)</span> の逆フーリエ変換ができます。</p>
+  <p><span class="math display">\[
+  \begin{align}
+  \frac{1}{2\pi}\int^{\infty}_{-\infty} A_{HP}(\omega) e^{j\omega x}
+  d\omega
+  &amp;= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega -
+  \mathcal{F}^{-1} (A_{LP}) \\
+  &amp;= \delta(x) - \frac{\sin(\omega_c x)}{\pi x}.
+  \end{align}
+  \]</span></p>
+  <p>Python 3
+  のコードに変えます。デルタ関数の扱いが問題になりますが、実装のトリックとして
+  <span class="math inline">\(x=0\)</span>
+  となる時点のフィルタ係数からフィルタ係数の総和 (<code>sum(fir)</code>)
+  を減算すればうまく動きます。ローパスフィルタのコードを流用しています。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> highpassFir(length: <span class="bu">int</span>, cutoff: <span class="bu">float</span>):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> <span class="op">-</span>lowpassFir(length, cutoff)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> length <span class="op">//</span> <span class="dv">2</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    fir[mid] <span class="op">-=</span> np.<span class="bu">sum</span>(fir)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
-<p>以下は <code>length = 63, cutoff = 0.125</code>
-としたときの周波数特性のプロットです。</p>
-<figure>
-<img src="img/fir_filter_highpass_response.svg" alt="Image of FIR highpass filter responses." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="バンドパスフィルタ"><a href="#バンドパスフィルタ"
-class="header-anchor" aria-hidden="true">バンドパスフィルタ</a></h2>
-<figure>
-<img src="img/fir_filter_bandpass_spec.svg" alt="Image of FIR bandpass filter specification." style="padding-bottom: 12px;"/>
-</figure>
-<p><span class="math display">\[
-A_{BP}(\omega) =
-\begin{cases}
-1, &amp; (-\omega_h \leq \omega \leq -\omega_l) \\
-1, &amp; (\omega_l \leq \omega \leq \omega_h) \\
-0, &amp; \text{otherwise}.
-\end{cases}
-\]</span></p>
-<p><span class="math inline">\(A_{BP}(\omega)\)</span>
-を逆フーリエ変換します。</p>
-<p><span class="math display">\[
-\begin{align}
-\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BP}(\omega) e^{j\omega x}
-d\omega
-&amp;= \frac{1}{2\pi} \biggl ( \int^{-\omega_l}_{-\omega_h} e^{j\omega
-x} d\omega
-+ \int^{\omega_h}_{\omega_l} e^{j\omega x} d\omega \biggr ) \\
-&amp;= \frac{\sin(\omega_h x)}{\pi x} - \frac{\sin(\omega_l x)}{\pi x}.
-\end{align}
-\]</span></p>
-<p>式 5 は以下の <a href="https://maxima.sourceforge.io/">Maxima</a>
-のコードで解きました。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ift</span>(<span class="cn">low</span>, <span class="cn">high</span>) := <span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * ω * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="va">%pi</span>), ω, <span class="cn">low</span>, <span class="cn">high</span>);</span>
+  <p>以下は <code>length = 63, cutoff = 0.125</code>
+  としたときの周波数特性のプロットです。</p>
+  <figure>
+  <img src="img/fir_filter_highpass_response.svg" alt="Image of FIR highpass filter responses." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="バンドパスフィルタ"><a href="#バンドパスフィルタ"
+  class="header-anchor" aria-hidden="true">バンドパスフィルタ</a></h2>
+  <figure>
+  <img src="img/fir_filter_bandpass_spec.svg" alt="Image of FIR bandpass filter specification." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math display">\[
+  A_{BP}(\omega) =
+  \begin{cases}
+  1, &amp; (-\omega_h \leq \omega \leq -\omega_l) \\
+  1, &amp; (\omega_l \leq \omega \leq \omega_h) \\
+  0, &amp; \text{otherwise}.
+  \end{cases}
+  \]</span></p>
+  <p><span class="math inline">\(A_{BP}(\omega)\)</span>
+  を逆フーリエ変換します。</p>
+  <p><span class="math display">\[
+  \begin{align}
+  \frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BP}(\omega) e^{j\omega x}
+  d\omega
+  &amp;= \frac{1}{2\pi} \biggl ( \int^{-\omega_l}_{-\omega_h} e^{j\omega
+  x} d\omega
+  + \int^{\omega_h}_{\omega_l} e^{j\omega x} d\omega \biggr ) \\
+  &amp;= \frac{\sin(\omega_h x)}{\pi x} - \frac{\sin(\omega_l x)}{\pi
+  x}.
+  \end{align}
+  \]</span></p>
+  <p>式 5 は以下の <a href="https://maxima.sourceforge.io/">Maxima</a>
+  のコードで解きました。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ift</span>(<span class="cn">low</span>, <span class="cn">high</span>) := <span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * ω * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="va">%pi</span>), ω, <span class="cn">low</span>, <span class="cn">high</span>);</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">ift</span>(-ω<span class="cn">_h</span>, -ω<span class="cn">_l</span>) + <span class="fu">ift</span>(ω<span class="cn">_l</span>, ω<span class="cn">_h</span>)));</span></code></pre></div>
-<p>Python 3 のコードに変えます。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bandpassFir(length: <span class="bu">int</span>, cutoffLow: <span class="bu">float</span>, cutoffHigh: <span class="bu">float</span>):</span>
+  <p>Python 3 のコードに変えます。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bandpassFir(length: <span class="bu">int</span>, cutoffLow: <span class="bu">float</span>, cutoffHigh: <span class="bu">float</span>):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    length <span class="op">-=</span> (length <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> <span class="dv">2</span>  <span class="co"># 係数の数を奇数にする。</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> length <span class="op">//</span> <span class="dv">2</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -563,62 +626,64 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> i <span class="op">-</span> mid</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        fir[i] <span class="op">=</span> modifiedSinc(x, cutoffLow) <span class="op">-</span> modifiedSinc(x, cutoffHigh)</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
-<p>以下は <code>length = 63, cutoffLow = 0.125, cutoffHigh = 0.25</code>
-としたときの周波数特性のプロットです。</p>
-<figure>
-<img src="img/fir_filter_bandpass_response.svg" alt="Image of FIR bandpass filter responses." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="バンドリジェクトフィルタ"><a href="#バンドリジェクトフィルタ"
-class="header-anchor"
-aria-hidden="true">バンドリジェクトフィルタ</a></h2>
-<p>バンドストップフィルタとも呼ばれます。</p>
-<figure>
-<img src="img/fir_filter_bandreject_spec.svg" alt="Image of FIR bandreject filter specification." style="padding-bottom: 12px;"/>
-</figure>
-<p><span class="math display">\[
-A_{BR}(\omega) =
-\begin{cases}
-1, &amp;  (\omega \leq -\omega_h) \\
-1, &amp; (-\omega_l \leq \omega \leq \omega_l) \\
-1, &amp; (\omega_h \leq \omega) \\
-0, &amp; \text{otherwise}.
-\end{cases}
-\]</span></p>
-<p>ハイパスと同様に、デルタ関数の振幅特性からバンドパスフィルタの振幅特性を減算すればバンドリジェクトフィルタになります。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BR}(\omega) e^{j\omega x}
-d\omega
-&amp;= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega -
-\mathcal{F}^{-1} (A_{BP}) \\
-&amp;= \delta(x) - \left( \frac{\sin(\omega_h x)}{\pi x} -
-\frac{\sin(\omega_l x)}{\pi x} \right).
-\end{aligned}
-\]</span></p>
-<p>Python 3
-のコードに変えます。バンドパスフィルタのコードを流用しています。</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bandrejectFir(length: <span class="bu">int</span>, cutoffLow: <span class="bu">float</span>, cutoffHigh: <span class="bu">float</span>):</span>
+  <p>以下は
+  <code>length = 63, cutoffLow = 0.125, cutoffHigh = 0.25</code>
+  としたときの周波数特性のプロットです。</p>
+  <figure>
+  <img src="img/fir_filter_bandpass_response.svg" alt="Image of FIR bandpass filter responses." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="バンドリジェクトフィルタ"><a href="#バンドリジェクトフィルタ"
+  class="header-anchor"
+  aria-hidden="true">バンドリジェクトフィルタ</a></h2>
+  <p>バンドストップフィルタとも呼ばれます。</p>
+  <figure>
+  <img src="img/fir_filter_bandreject_spec.svg" alt="Image of FIR bandreject filter specification." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><span class="math display">\[
+  A_{BR}(\omega) =
+  \begin{cases}
+  1, &amp;  (\omega \leq -\omega_h) \\
+  1, &amp; (-\omega_l \leq \omega \leq \omega_l) \\
+  1, &amp; (\omega_h \leq \omega) \\
+  0, &amp; \text{otherwise}.
+  \end{cases}
+  \]</span></p>
+  <p>ハイパスと同様に、デルタ関数の振幅特性からバンドパスフィルタの振幅特性を減算すればバンドリジェクトフィルタになります。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BR}(\omega) e^{j\omega x}
+  d\omega
+  &amp;= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega -
+  \mathcal{F}^{-1} (A_{BP}) \\
+  &amp;= \delta(x) - \left( \frac{\sin(\omega_h x)}{\pi x} -
+  \frac{\sin(\omega_l x)}{\pi x} \right).
+  \end{aligned}
+  \]</span></p>
+  <p>Python 3
+  のコードに変えます。バンドパスフィルタのコードを流用しています。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bandrejectFir(length: <span class="bu">int</span>, cutoffLow: <span class="bu">float</span>, cutoffHigh: <span class="bu">float</span>):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> <span class="op">-</span>bandpassFir(length, cutoffLow, cutoffHigh)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> length <span class="op">//</span> <span class="dv">2</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    fir[mid] <span class="op">-=</span> np.<span class="bu">sum</span>(fir)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
-<p>以下は <code>length = 63, cutoffLow = 0.125, cutoffHigh = 0.25</code>
-としたときの周波数特性のプロットです。</p>
-<figure>
-<img src="img/fir_filter_bandreject_response.svg" alt="Image of FIR bandreject filter responses." style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="firフィルタの畳み込み方"><a href="#firフィルタの畳み込み方"
-class="header-anchor"
-aria-hidden="true">FIRフィルタの畳み込み方</a></h2>
-<p>「<a
-href="../convolution_without_latency/convolution_without_latency.html">レイテンシのない畳み込み</a>」で畳み込みの方法について紹介しています。フィルタ係数の数が
-16
-ほどであれば素朴に畳み込めば十分に速いです。フィルタ係数の数が多いときは
-FFT を使った高速な畳み込みのアルゴリズムがあります。</p>
-<p>以下は C++ による素朴な畳み込みの例です。</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+  <p>以下は
+  <code>length = 63, cutoffLow = 0.125, cutoffHigh = 0.25</code>
+  としたときの周波数特性のプロットです。</p>
+  <figure>
+  <img src="img/fir_filter_bandreject_response.svg" alt="Image of FIR bandreject filter responses." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="firフィルタの畳み込み方"><a href="#firフィルタの畳み込み方"
+  class="header-anchor"
+  aria-hidden="true">FIRフィルタの畳み込み方</a></h2>
+  <p>「<a
+  href="../convolution_without_latency/convolution_without_latency.html">レイテンシのない畳み込み</a>」で畳み込みの方法について紹介しています。フィルタ係数の数が
+  16
+  ほどであれば素朴に畳み込めば十分に速いです。フィルタ係数の数が多いときは
+  FFT を使った高速な畳み込みのアルゴリズムがあります。</p>
+  <p>以下は C++ による素朴な畳み込みの例です。</p>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -632,91 +697,91 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#c
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">std::</span>inner_product<span class="op">(</span>fir<span class="op">.</span>begin<span class="op">(),</span> fir<span class="op">.</span>end<span class="op">(),</span> buffer<span class="op">.</span>begin<span class="op">(),</span> <span class="dt">float</span><span class="op">(</span><span class="dv">0</span><span class="op">));</span></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h2 id="窓関数法"><a href="#窓関数法" class="header-anchor"
-aria-hidden="true">窓関数法</a></h2>
-<p>上で出てきた式はフィルタ係数の数が無限です。無限に長いフィルタは計算できないので長さを切り詰めて使うことになりますが、副作用として周波数特性が歪みます。窓関数法とは長さを切り詰めたフィルタ係数に<a
-href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>を乗算することで、この周波数特性の歪みを調整する手法です。</p>
-<p>ここで紹介しているフィルタ係数の計算方法に窓関数をかけるフィルタの設計方法のことを、特に
-windowed-sinc と言います。</p>
-<p>窓関数の違いによってロールオフの急峻さとカットオフ周波数の低さの間でのトレードオフがあります。つまり、より急峻な特性にするとカットオフ周波数が高くなってしまい、カットオフ周波数をできる限り理想に近づけようとするとロールオフが緩やかになってしまうということです。</p>
-<p>カットオフ周波数を低くしたいときは切り詰めた係数をそのまま使います。このことは矩形窓をかけるとも呼ばれます。</p>
-<p>急峻なロールオフを得るときには Kaiser 窓や DPSS
-窓を使ってパラメータを調整します。</p>
-<p>他にもいろいろな窓関数がありますが、単純な用途では上記の 2
-つのケースだけ押さえておけばとりあえず何とかなります。</p>
-<h2 id="computer-algebra-system-の利用"><a
-href="#computer-algebra-system-の利用" class="header-anchor"
-aria-hidden="true">Computer Algebra System の利用</a></h2>
-<p>手で式を解くと間違えることがあるので <a
-href="https://en.wikipedia.org/wiki/Computer_algebra_system">Computer
-Algebra System (CAS)</a> を利用します。</p>
-<p>今回のような簡単な式であれば<a
-href="https://www.wolframalpha.com/">Wolfram
-Alpha</a>が便利です。Wolfram
-Alphaでは数字でない下付き文字が使えないようなので <span
-class="math inline">\(\omega_l\)</span> を <span
-class="math inline">\(L\)</span>
-に置き換えています。以降のCASのコードも同じ置き換えを使います。</p>
-<pre class="wolfram"><code>(integral e^(i*omega*x) for omega from -L to L) / (2pi)</code></pre>
-<p><a
-href="http://maxima.sourceforge.net/">Maxima</a>は式の整理について指定する必要があります。コードの
-<code>demoivre</code> で <code>exp(%i*x)</code> を
-<code>%i * sin(x) + cos(x)</code> に置き換えています。</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * <span class="cn">omega</span> * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="cn">pi</span>), <span class="cn">omega</span>, -<span class="cn">L</span>, <span class="cn">L</span>)));</span></code></pre></div>
-<p><a
-href="http://www.sympy.org/en/index.html">SymPy</a>も使えますが少し長めです。
-<code>rewrite(sin)</code> でオイラーの公式を適用しています。
-<code>n = Symbol('n', positive=True)</code> が無いとコードの
-<code>integrate(...)</code> を解いてくれません。</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SymPy 1.1.1</span></span>
+  <h2 id="窓関数法"><a href="#窓関数法" class="header-anchor"
+  aria-hidden="true">窓関数法</a></h2>
+  <p>上で出てきた式はフィルタ係数の数が無限です。無限に長いフィルタは計算できないので長さを切り詰めて使うことになりますが、副作用として周波数特性が歪みます。窓関数法とは長さを切り詰めたフィルタ係数に<a
+  href="https://en.wikipedia.org/wiki/Window_function">窓関数</a>を乗算することで、この周波数特性の歪みを調整する手法です。</p>
+  <p>ここで紹介しているフィルタ係数の計算方法に窓関数をかけるフィルタの設計方法のことを、特に
+  windowed-sinc と言います。</p>
+  <p>窓関数の違いによってロールオフの急峻さとカットオフ周波数の低さの間でのトレードオフがあります。つまり、より急峻な特性にするとカットオフ周波数が高くなってしまい、カットオフ周波数をできる限り理想に近づけようとするとロールオフが緩やかになってしまうということです。</p>
+  <p>カットオフ周波数を低くしたいときは切り詰めた係数をそのまま使います。このことは矩形窓をかけるとも呼ばれます。</p>
+  <p>急峻なロールオフを得るときには Kaiser 窓や DPSS
+  窓を使ってパラメータを調整します。</p>
+  <p>他にもいろいろな窓関数がありますが、単純な用途では上記の 2
+  つのケースだけ押さえておけばとりあえず何とかなります。</p>
+  <h2 id="computer-algebra-system-の利用"><a
+  href="#computer-algebra-system-の利用" class="header-anchor"
+  aria-hidden="true">Computer Algebra System の利用</a></h2>
+  <p>手で式を解くと間違えることがあるので <a
+  href="https://en.wikipedia.org/wiki/Computer_algebra_system">Computer
+  Algebra System (CAS)</a> を利用します。</p>
+  <p>今回のような簡単な式であれば<a
+  href="https://www.wolframalpha.com/">Wolfram
+  Alpha</a>が便利です。Wolfram
+  Alphaでは数字でない下付き文字が使えないようなので <span
+  class="math inline">\(\omega_l\)</span> を <span
+  class="math inline">\(L\)</span>
+  に置き換えています。以降のCASのコードも同じ置き換えを使います。</p>
+  <pre class="wolfram"><code>(integral e^(i*omega*x) for omega from -L to L) / (2pi)</code></pre>
+  <p><a
+  href="http://maxima.sourceforge.net/">Maxima</a>は式の整理について指定する必要があります。コードの
+  <code>demoivre</code> で <code>exp(%i*x)</code> を
+  <code>%i * sin(x) + cos(x)</code> に置き換えています。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expand</span>(<span class="fu">demoivre</span>(<span class="fu">integrate</span>(<span class="fu">exp</span>(<span class="va">%i</span> * <span class="cn">omega</span> * <span class="cn">x</span>) / (<span class="dv">2</span> * <span class="cn">pi</span>), <span class="cn">omega</span>, -<span class="cn">L</span>, <span class="cn">L</span>)));</span></code></pre></div>
+  <p><a
+  href="http://www.sympy.org/en/index.html">SymPy</a>も使えますが少し長めです。
+  <code>rewrite(sin)</code> でオイラーの公式を適用しています。
+  <code>n = Symbol('n', positive=True)</code> が無いとコードの
+  <code>integrate(...)</code> を解いてくれません。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SymPy 1.1.1</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sympy <span class="im">import</span> <span class="op">*</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> Symbol(<span class="st">&#39;x&#39;</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> Symbol(<span class="st">&#39;L&#39;</span>)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>omega <span class="op">=</span> Symbol(<span class="st">&#39;omega&#39;</span>)</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>answer <span class="op">=</span> simplify(integrate(exp(I <span class="op">*</span> omega <span class="op">*</span> x), (omega, <span class="op">-</span>L, L)).rewrite(sin))</span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>pprint(answer)</span></code></pre></div>
-<h2 id="フィルタ係数の計算について"><a
-href="#フィルタ係数の計算について" class="header-anchor"
-aria-hidden="true">フィルタ係数の計算について</a></h2>
-<p>FIR フィルタ係数は周波数特性 <span class="math inline">\(A\)</span>
-を逆フーリエ変換することで得られます。</p>
-<p><span class="math display">\[
-\frac{1}{2\pi}\int^{\infty}_{-\infty} A(\omega) e^{j\omega x} d\omega
-\]</span></p>
-<p>ここまでに出てきた周波数特性の図では負の周波数の範囲を省略していました。負の周波数特性は、正の周波数特性の鏡像になっています。以下は鏡像を含めたローパスフィルタの特性の例です。</p>
-<figure>
-<img src="img/fir_filter_frequency_mirror.png" alt="Image of range [-f_s, f_s] of lowpass frequency responce." style="width: 600px;padding-bottom: 12px;"/>
-</figure>
-<p>正と負の周波数特性が異なるフィルタの例としてはヒルベルト変換が挙げられます。ヒルベルト変換は周波数シフトなどへの応用があります。</p>
-<h2 id="その他"><a href="#その他" class="header-anchor"
-aria-hidden="true">その他</a></h2>
-<p>式を解かなくても周波数特性を逆離散フーリエ変換すればフィルタは作れます。ただし、逆フーリエ変換したときとは周波数特性が変わります。</p>
-<p>フィルタ係数が固定のときは<a
-href="https://www.scipy.org/">SciPy</a>や<a
-href="https://www.gnu.org/software/octave/">Octave</a>などを使って設計するほうが楽で確実です。</p>
-<h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
-aria-hidden="true">参考サイト</a></h2>
-<ul>
-<li><a
-href="https://ccrma.stanford.edu/~jos/sasp/Ideal_Lowpass_Filter.html">The
-Ideal Lowpass Filter</a></li>
-<li><a
-href="https://stackoverflow.com/questions/42454464/maxima-expand-e-to-cos-and-i-sin">Maxima:
-Expand e to cos and i sin? - Stack Overflow</a></li>
-</ul>
-<h2 id="変更点"><a href="#変更点" class="header-anchor"
-aria-hidden="true">変更点</a></h2>
-<ul>
-<li>2024/07/22
-<ul>
-<li>内容を大幅に改訂。多くの間違いを修正。</li>
-</ul></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <h2 id="フィルタ係数の計算について"><a
+  href="#フィルタ係数の計算について" class="header-anchor"
+  aria-hidden="true">フィルタ係数の計算について</a></h2>
+  <p>FIR フィルタ係数は周波数特性 <span class="math inline">\(A\)</span>
+  を逆フーリエ変換することで得られます。</p>
+  <p><span class="math display">\[
+  \frac{1}{2\pi}\int^{\infty}_{-\infty} A(\omega) e^{j\omega x} d\omega
+  \]</span></p>
+  <p>ここまでに出てきた周波数特性の図では負の周波数の範囲を省略していました。負の周波数特性は、正の周波数特性の鏡像になっています。以下は鏡像を含めたローパスフィルタの特性の例です。</p>
+  <figure>
+  <img src="img/fir_filter_frequency_mirror.png" alt="Image of range [-f_s, f_s] of lowpass frequency responce." style="width: 600px;padding-bottom: 12px;"/>
+  </figure>
+  <p>正と負の周波数特性が異なるフィルタの例としてはヒルベルト変換が挙げられます。ヒルベルト変換は周波数シフトなどへの応用があります。</p>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <p>式を解かなくても周波数特性を逆離散フーリエ変換すればフィルタは作れます。ただし、逆フーリエ変換したときとは周波数特性が変わります。</p>
+  <p>フィルタ係数が固定のときは<a
+  href="https://www.scipy.org/">SciPy</a>や<a
+  href="https://www.gnu.org/software/octave/">Octave</a>などを使って設計するほうが楽で確実です。</p>
+  <h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+  aria-hidden="true">参考サイト</a></h2>
+  <ul>
+  <li><a
+  href="https://ccrma.stanford.edu/~jos/sasp/Ideal_Lowpass_Filter.html">The
+  Ideal Lowpass Filter</a></li>
+  <li><a
+  href="https://stackoverflow.com/questions/42454464/maxima-expand-e-to-cos-and-i-sin">Maxima:
+  Expand e to cos and i sin? - Stack Overflow</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/07/22
+  <ul>
+  <li>内容を大幅に改訂。多くの間違いを修正。</li>
+  </ul></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

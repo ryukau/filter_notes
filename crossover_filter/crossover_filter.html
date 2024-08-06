@@ -2,1089 +2,1161 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>crossover_filter</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>crossover_filter</title>
 
-<style>
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-img {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-video {
-max-width: 100%;
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-a {
-text-decoration: none;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor {
-color: #000000;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#クロスオーバーフィルタの実装"
-id="toc-クロスオーバーフィルタの実装">クロスオーバーフィルタの実装</a>
-<ul>
-<li><a href="#概要" id="toc-概要">概要</a></li>
-<li><a href="#素朴な-fir-フィルタ" id="toc-素朴な-fir-フィルタ">素朴な
-FIR フィルタ</a>
-<ul>
-<li><a href="#実装" id="toc-実装">実装</a></li>
-</ul></li>
-<li><a href="#iir-の-linkwitz-riley-フィルタ"
-id="toc-iir-の-linkwitz-riley-フィルタ">IIR の Linkwitz-Riley
-フィルタ</a>
-<ul>
-<li><a href="#実装-1" id="toc-実装-1">実装</a>
-<ul>
-<li><a href="#つ直列につないだ-butterworth-フィルタ"
-id="toc-つ直列につないだ-butterworth-フィルタ">2 つ直列につないだ
-Butterworth フィルタ</a></li>
-<li><a href="#補正オールパスフィルタ"
-id="toc-補正オールパスフィルタ">補正オールパスフィルタ</a>
-<ul>
-<li><a href="#m-4n" id="toc-m-4n"><span class="math inline">\(M =
-4n\)</span></a></li>
-<li><a href="#m-4n-2" id="toc-m-4n-2"><span class="math inline">\(M = 4n
-+ 2\)</span></a>
-<ul>
-<li><a href="#次オールパス" id="toc-次オールパス">1
-次オールパス</a></li>
-<li><a href="#次セクションの-q" id="toc-次セクションの-q">2
-次セクションの <span class="math inline">\(Q\)</span></a></li>
-</ul></li>
-</ul></li>
-<li><a href="#分割と併合" id="toc-分割と併合">分割と併合</a>
-<ul>
-<li><a href="#汎用的な実装" id="toc-汎用的な実装">汎用的な実装</a></li>
-<li><a href="#効率のいい実装"
-id="toc-効率のいい実装">効率のいい実装</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-<li><a href="#fir-の-linkwitz-riley-フィルタ"
-id="toc-fir-の-linkwitz-riley-フィルタ">FIR の Linkwitz-Riley
-フィルタ</a>
-<ul>
-<li><a href="#実装-2" id="toc-実装-2">実装</a>
-<ul>
-<li><a href="#次の複素数フィルタの-fir-近似"
-id="toc-次の複素数フィルタの-fir-近似">1 次の複素数フィルタの FIR
-近似</a></li>
-<li><a href="#次の複素共役フィルタの-fir-近似"
-id="toc-次の複素共役フィルタの-fir-近似">2 次の複素共役フィルタの FIR
-近似</a></li>
-<li><a href="#butterworth-フィルタ-の-fir-近似"
-id="toc-butterworth-フィルタ-の-fir-近似">Butterworth フィルタ の FIR
-近似</a></li>
-<li><a href="#線形位相-fir-linkwitz-riley"
-id="toc-線形位相-fir-linkwitz-riley">線形位相 FIR
-Linkwitz-Riley</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#比較" id="toc-比較">比較</a>
-<ul>
-<li><a href="#バンドのベンチマーク" id="toc-バンドのベンチマーク">2
-バンドのベンチマーク</a></li>
-</ul></li>
-<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
-<li><a href="#変更点" id="toc-変更点">変更点</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="クロスオーバーフィルタの実装"><a
-href="#クロスオーバーフィルタの実装" class="header-anchor"
-aria-hidden="true">クロスオーバーフィルタの実装</a></h1>
-<p>周波数帯域の分割に用いるクロスオーバーフィルタを実装します。</p>
-<h2 id="概要"><a href="#概要" class="header-anchor"
-aria-hidden="true">概要</a></h2>
-<p>かなりややこしいので概要を設けました。ページ上部の Table of Contents
-も多少は役に立つかと思います。</p>
-<p>以下の 3 つのフィルタを実装します。</p>
-<ul>
-<li>素朴な FIR フィルタ</li>
-<li>IIR の Linkwitz-Riley フィルタ</li>
-<li>FIR の Linkwitz-Riley フィルタ</li>
-</ul>
-<p>IIR の Linkwitz-Riley
-フィルタは以下の属性の組み合わせによって実装の詳細が 6
-つに分かれます。</p>
-<ul>
-<li>フィルタが偶数次あるいは奇数次。</li>
-<li>2 バンド、 3 バンド以上かつ汎用的、 3 バンド以上かつ効率重視。</li>
-</ul>
-<p>偶数次、奇数次によってフィルタ係数の計算が変わります。偶数次は 2
-次セクションだけで構築できますが、奇数次では 1
-次のフィルタが現れます。</p>
-<p>2 バンドでは補正オールパスフィルタが不要ですが、 3
-バンド以上では補正オールパスフィルタが必要となってきます。また補正オールパスフィルタを計算するタイミングで汎用性と計算効率のトレードオフがあります。</p>
-<p>FIR の Linkwitz-Riley
-フィルタの節では小さい部品から順にクロスオーバーフィルタを組み立てています。つまり:</p>
-<ul>
-<li>1 次の複素数フィルタの FIR 近似から 2 次の複素共役フィルタの FIR
-近似が組み立てられる。</li>
-<li>2 次の複素共役フィルタの FIR 近似から Butterworth フィルタ の FIR
-近似が組み立てられる。</li>
-<li>Butterworth フィルタ の FIR 近似から線形位相 FIR Linkwitz-Riley
-フィルタが組み立てられる。</li>
-</ul>
-<p>という流れになっています。</p>
-<h2 id="素朴な-fir-フィルタ"><a href="#素朴な-fir-フィルタ"
-class="header-anchor" aria-hidden="true">素朴な FIR フィルタ</a></h2>
-<p>フィルタ係数が左右対称な線形位相の FIR
-フィルタはクロスオーバーフィルタとして使えます。</p>
-<p>素朴な線形位相 FIR
-フィルタの利点は多様な設計方法が確立していることと実装が簡単なことです。欠点はカットオフ周波数の変更時の計算量が多く、レイテンシが生じることです。カットオフ周波数を変更するとフィルタ係数をすべて書き換える必要があります。また線形位相フィルタは出力の遅れを補正するためにレイテンシが生じます。</p>
-<p>窓関数法 (windowed sinc) で使うローパスの線形位相 FIR
-フィルタ係数は以下の式で計算できます。</p>
-<p><span class="math display">\[
-\begin{equation}
-\mathtt{fir\_lp}(n) = \frac{\sin(2\pi n f_0 / f_s)}{\pi n},
-\quad n \in [-\mathtt{ceil}(N_{\mathrm{FIR}}/2),
-\mathtt{floor}(N_{\mathrm{FIR}}/2)].
-\end{equation}
-\]</span></p>
-<ul>
-<li><span class="math inline">\(f_s\)</span>: サンプリング周波数 Hz
-。</li>
-<li><span class="math inline">\(f_0\)</span>: カットオフ周波数 Hz
-。</li>
-<li><span class="math inline">\(N_{\mathrm{FIR}}\)</span>:
-フィルタ係数の数。タップ数。</li>
-</ul>
-<p>さらに窓関数をかけることで周波数特性を変更できます。以下はパラメータ
-<span class="math inline">\(\alpha\)</span> で手軽に特性を変更できる <a
-href="https://en.wikipedia.org/wiki/Kaiser_window">Kaiser
-窓</a>の近似計算式です。</p>
-<p><span class="math display">\[
-\begin{equation}
-w_n = \frac{\cosh \left[ \alpha
-\sqrt{1-\left(\dfrac{n-K}{N_{\mathrm{FIR}}}\right)^2}
-\right]}{\cosh(\alpha)}
-\label{Kaiser}
-\end{equation}
-\]</span></p>
-<p>式 <span class="math inline">\(\ref{Kaiser}\)</span> は <a
-href="https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWindow.h">Oboe
-の Resampler</a> で参照されている <a
-href="https://dsp.stackexchange.com/a/37720">dsp.stackexchange.com
-の回答</a>に掲載されていました。 Windows の VC++ か、 Linux の GCC
-環境なら、式 <span class="math inline">\(\ref{Kaiser}\)</span>
-の近似を使わなくても C++ 17 で追加された <code>&lt;cmath&gt;</code> の
-<a
-href="https://en.cppreference.com/w/cpp/numeric/special_functions"><code>cyl_bessel_k</code></a>
-で直接 Kaiser
-窓を実装することができます。しかし、この記事を書いた時点では Mac の
-Xcode (Apple Clang) では数学特殊関数が使えなかったので式 <span
-class="math inline">\(\ref{Kaiser}\)</span> の近似を掲載しています。</p>
-<p>FIR の畳み込みの計算については「<a
-href="https://ryukau.github.io/filter_notes/convolution_without_latency/convolution_without_latency.html">レイテンシのない畳み込み</a>」に詳細を掲載しています。ここでは省略します。</p>
-<h3 id="実装"><a href="#実装" class="header-anchor"
-aria-hidden="true">実装</a></h3>
-<p>以下は C++ 20 による実装へのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L359-L406">C++
-による素朴な FIR の実装を読む (github.com)</a></li>
-</ul>
-<p>フィルタ係数が短いときは上のリンク先のように
-<code>std::inner_product</code> や単純な <code>for</code>
-によって簡単に実装できます。フィルタ係数が長いときは「レイテンシのない畳み込み」で紹介しているような
-FFT
-を用いた畳み込みで効率よく計算しなければリアルタイムの締め切りに間に合いません。</p>
-<h2 id="iir-の-linkwitz-riley-フィルタ"><a
-href="#iir-の-linkwitz-riley-フィルタ" class="header-anchor"
-aria-hidden="true">IIR の Linkwitz-Riley フィルタ</a></h2>
-<p>Linkwitz-Riley フィルタは Butterworth を 2 つ直列につないだ IIR
-フィルタです。以下は Linkwitz-Riley フィルタのブロック線図です。</p>
-<figure>
-<img src="img/linkwitz_riley_overview.svg" alt="Block diagram of Linkwitz-Riley filter." style="padding-bottom: 12px;"/>
-</figure>
-<p>任意の次数の Butterworth フィルタについて、ローパスを <code>LP</code>
-、ハイパスを <code>HP</code> とすると Linkwitz-Riley
-フィルタによるクロスオーバーは
-<code>(LP -&gt; LP) + (HP -&gt; HP) = AP</code> と表せます。ここで
-<code>-&gt;</code> は直列接続、 <code>AP</code>
-はオールパスです。つまり、分割した <code>(LP -&gt; LP)</code> と
-<code>(HP -&gt; HP)</code>
-を足し合わせても振幅特性が平坦なまま、ということです。</p>
-<p>Linkwitz-Riley フィルタの次数は内部で使われる Butterworth フィルタの
-2 倍となります。以降では Linkwitz-Riley フィルタの次数を <span
-class="math inline">\(M\)</span> 、内部で使われる Butterworth
-フィルタの次数を <span class="math inline">\(N = M/2\)</span> とします。
-2 つの Butterworth を直列につなぐため <span
-class="math inline">\(M\)</span> は常に偶数です。</p>
-<p>3 バンド以上の Linkwitz-Riley フィルタの実装は <span
-class="math inline">\(M = 4n\)</span> のときと <span
-class="math inline">\(M = 4n + 2\)</span>
-で場合分けされます。これは位相の補正に使うオールパスフィルタの実装が奇数次と偶数次で変わるためです。</p>
-<p>分割した信号を投げっぱなしにせず、併合時に再び処理を行えるときは補正オールパスフィルタの数を減らして効率よく計算できます。</p>
-<h3 id="実装-1"><a href="#実装-1" class="header-anchor"
-aria-hidden="true">実装</a></h3>
-<h4 id="つ直列につないだ-butterworth-フィルタ"><a
-href="#つ直列につないだ-butterworth-フィルタ" class="header-anchor"
-aria-hidden="true">2 つ直列につないだ Butterworth フィルタ</a></h4>
-<p><span class="math inline">\(N\)</span> 個の 2 次セクション (second
-order sections, sos) を直列につなぐことで 2 つ直列につないだ Butterworth
-フィルタを実装できます。すべてのセクションのカットオフ周波数はクロスオーバー周波数をそのまま使います。
-<span class="math inline">\(Q\)</span> 値は <a
-href="https://www.earlevel.com/main/2016/09/29/cascading-filters/">earlevel.com
-の “Cascading filters”</a>
-という記事で紹介されていた以下の式で計算します。</p>
-<p><span class="math display">\[
-\begin{equation}
-Q_k
-= \frac{1}{2 \sin \left((k + 0.5)\dfrac{\pi}{N} \right)}
-= \frac{1}{2 \cos \left(\dfrac{k\pi}{2N} \right)}
-, \quad k \in [0, N).
-\end{equation}
-\]</span></p>
-<p>2 次セクションは biquad フィルタのローパスとハイパスが使えます。「<a
-href="https://ryukau.github.io/filter_notes/biquad_filter_comparison/biquad_filter_comparison.html">Biquad
-フィルタの比較</a>」で実装を紹介しています。</p>
-<p>以下は C++ による実装へのリンクです。テンプレートパラメータの
-<code>filterType</code> を <code>lowpass</code> あるいは
-<code>highpass</code> とすると 2 つ直列につないだ Butterworth
-フィルタとなります。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L68-L107">C++
-による 2 つ直列につないだ Butterworth フィルタの実装を読む
-(github.com)</a></li>
-</ul>
-<h4 id="補正オールパスフィルタ"><a href="#補正オールパスフィルタ"
-class="header-anchor" aria-hidden="true">補正オールパスフィルタ</a></h4>
-<p><span class="math inline">\(M = 4n\)</span> と <span
-class="math inline">\(M = 4n + 2\)</span>
-の場合で実装が変わります。どちらの場合でも、すべてのカットオフ周波数にはクロスオーバー周波数を使います。</p>
-<p>2 次セクションは biquad オールパスを使います。 TPT
-(topology-preserving transform) という離散化に基づいた biquad
-オールパスの実装を以下のリンク先に掲載しています。 <a
-href="https://www.w3.org/TR/audio-eq-cookbook/">Audio EQ Cookbook</a>
-のレシピでも動きます。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L15-L66">C++
-による TPT biquad フィルタの実装を読む (github.com)</a></li>
-</ul>
-<h5 id="m-4n"><a href="#m-4n" class="header-anchor"
-aria-hidden="true"><span class="math inline">\(M = 4n\)</span></a></h5>
-<p>2 次セクションの数は <span class="math inline">\(N_{\mathrm{AP}} =
-N/2\)</span> 個です。 <span class="math inline">\(Q\)</span> 値は 2
-つ直列につないだ Butterworth フィルタと同じ式が使えますが、 <span
-class="math inline">\(N\)</span> が <span
-class="math inline">\(N_{\mathrm{AP}}\)</span> に置き換わります。以下は
-<span class="math inline">\(Q\)</span> 値を計算する式の再掲です。</p>
-<p><span class="math display">\[
-\begin{equation}
-Q_k
-= \frac{1}{2 \sin \left((k + 0.5)\dfrac{\pi}{N_{\mathrm{AP}}} \right)}
-= \frac{1}{2 \cos \left(\dfrac{k\pi}{2 N_{\mathrm{AP}}} \right)}
-, \quad k \in [0, N_{\mathrm{AP}}).
-\end{equation}
-\]</span></p>
-<p>以下は C++ による実装へのリンクです。テンプレートパラメータの
-<code>filterType</code> を <code>allpass</code> とすると <span
-class="math inline">\(M = 4n\)</span>
-のときの補正オールパスフィルタとなります。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L68-L107">C++
-による <span class="math inline">\(M = 4n\)</span>
-のときの補正オールパスフィルタの実装を読む (github.com)</a></li>
-</ul>
-<h5 id="m-4n-2"><a href="#m-4n-2" class="header-anchor"
-aria-hidden="true"><span class="math inline">\(M = 4n +
-2\)</span></a></h5>
-<p>1 つの 1 次オールパスと <span
-class="math inline">\(\mathtt{floor}(N/2)\)</span> 個の 2
-次セクションの組み合わせとなります。 <span class="math inline">\(M =
-2\)</span> のとき 2 次セクションは 0 個です。</p>
-<h6 id="次オールパス"><a href="#次オールパス" class="header-anchor"
-aria-hidden="true">1 次オールパス</a></h6>
-<p>1 次オールパスは以下の伝達関数で表されます。</p>
-<p><span class="math display">\[
-\begin{equation}
-H_{\mathrm{AP}1} (z) = \frac{a + z^{-1}}{1 + z^{-1}}.
-\end{equation}
-\]</span></p>
-<p><span class="math inline">\(a\)</span> はカットオフ周波数 <span
-class="math inline">\(f_c\)</span> とサンプリング周波数 <span
-class="math inline">\(f_s\)</span>
-から以下の式で計算できます。厳密にはオールパスの場合はカットオフ周波数とは言わず、ブレーク周波数
-(break frequency)
-と言うそうです。ブレーク周波数は位相シフトの量が最大の半分となる周波数のことです。</p>
-<p><span class="math display">\[
-\begin{equation}
-a = \frac{t - 1}{t + 1}, \quad t = \tan(\pi f_c / f_s).
-\end{equation}
-\]</span></p>
-<p>差分方程式にします。</p>
-<pre><code>y0 = a * (x0 - y1) + x1;</code></pre>
-<ul>
-<li><code>x0</code>: 現在の入力値。</li>
-<li><code>x1</code>: 1 サンプル前の入力値。</li>
-<li><code>y0</code>: 現在の出力値。</li>
-<li><code>y1</code>: 1 サンプル前の出力値。</li>
-</ul>
-<p>これで計算できる形になりました。</p>
-<h6 id="次セクションの-q"><a href="#次セクションの-q"
-class="header-anchor" aria-hidden="true">2 次セクションの <span
-class="math inline">\(Q\)</span></a></h6>
-<p>2 次セクションの <span class="math inline">\(Q\)</span> 値は以下の<a
-href="https://en.wikipedia.org/wiki/Butterworth_filter">正規化された
-Butterworth 多項式</a> (normalzied Butterworth polynomial)
-で計算します。</p>
-<p><span class="math display">\[
-\begin{equation}
-Q = -2 \cos \left( \frac{2 k + N - 1}{2 N} \pi \right), \quad k \in [1,
-N_{\mathrm{AP}}].
-\end{equation}
-\]</span></p>
-<p><span class="math inline">\(k\)</span> の範囲が 1
-から始まり、終端は含めていることに注意してください。</p>
-<p>以下は Python 3 による実装へのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L98-L104">Python
-3 による <span class="math inline">\(M = 4n + 2\)</span>
-のときの補正オールパスフィルタの実装を読む (github.com)</a></li>
-</ul>
-<h4 id="分割と併合"><a href="#分割と併合" class="header-anchor"
-aria-hidden="true">分割と併合</a></h4>
-<p>3 バンド以上の分割と併合について 2
-つの方法を紹介します。原則としては汎用的な実装を行い、クロスオーバーがボトルネックとなっていれば効率のいい実装を使うことが考えられます。</p>
-<p>2
-バンドでは補正オールパスフィルタが不要なので以下の処理は実装しなくていいです。</p>
-<h5 id="汎用的な実装"><a href="#汎用的な実装" class="header-anchor"
-aria-hidden="true">汎用的な実装</a></h5>
-<p>汎用的な帯域分割は補正オールパスの総数が分割するバンド数に応じた<a
-href="https://en.wikipedia.org/wiki/Triangular_number">三角数</a>
-(triangular number)
-となりますが、単純な加算で併合を行える特長があります。つまりバンド数が多いと分割の計算が重たくなりますが、分割後の使い勝手はこちらのほうがいいです。</p>
-<figure>
-<img src="img/4band_crossover.svg" alt="Block diagram of 4 band crossover using Linkwitz-Riley filter (LR). Input first goes to LR, then splits to high and low. High goes to Butterworth allpass, and low goes to another LR. Repeat this until desired number of bands are obtained." style="padding-bottom: 12px;"/>
-</figure>
-<p>処理を書き下します。</p>
-<ol start="0" type="1">
-<li>入力を Linkwitz-Riley に通過させて high と low に分割。</li>
-<li>ここまでで得られた high
-をそれぞれ新たなオールパスに通過させる。</li>
-<li>Low を Linkwitz-Riley に通過させて high と low に分割。</li>
-<li>所望のバンド数が得られるまで 1 に戻って分割を繰り返す。</li>
-<li>所望のバンド数が得られたら、ここまでで得られたすべての high
-について以下の係数を乗算する。
-<ul>
-<li>Linkwitz-Riley の次数が <span class="math inline">\(4m + 0\)</span>
-なら <span class="math inline">\(+1\)</span> を乗算。 (何もしない)</li>
-<li>Linkwitz-Riley の次数が <span class="math inline">\(4m + 2\)</span>
-なら <span class="math inline">\(-1\)</span> を乗算。</li>
-</ul></li>
-</ol>
-<p>以下は Python 3
-による実装へのリンクです。クロスオーバー周波数のリスト
-<code>cutoffsHz</code> の長さがバンド数となります。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L554-L568">Python
-3 による汎用的な Linkwitz-Riley クロスオーバーの分割と併合の実装を読む
-(github.com)</a></li>
-</ul>
-<h5 id="効率のいい実装"><a href="#効率のいい実装" class="header-anchor"
-aria-hidden="true">効率のいい実装</a></h5>
-<p>分割後の信号を再取得できるときは以下のブロック線図のようにオールパスの数を
-<code>(バンド数) - 1</code> に減らすことができます。例えば 1
-つの音のプラグインの内部で分割と併合の処理を両方行うときに使えます。この方法は出力を投げっぱなしにできないため汎用性は落ちます。</p>
-<figure>
-<img src="img/efficient_4band_crossover.svg" alt="Block diagram of efficient 4 band crossover." style="padding-bottom: 12px;"/>
-</figure>
-<p>処理を書き下します。まずは分割します。</p>
-<ol start="0" type="1">
-<li>Low に入力を代入する。</li>
-<li>Low を Linkwitz-Riley に通過させて high と low に分割。</li>
-<li>High を出力のキューに加える。</li>
-<li>現在の出力のキューの長さに low の 1
-を加えた数が所望のバンド数でなければ手順 1 に戻る。</li>
-</ol>
-<p>キューに格納された各帯域に任意の処理を施したあと、以下の併合の処理を行います。</p>
-<ol start="0" type="1">
-<li>変数 <code>y</code> を用意して 0 に初期化。</li>
-<li>キューの先頭を取り出し、新たなオールパスに通過させ、出力を
-<code>y</code> に加算。</li>
-<li>キューの長さが 1 で無ければ手順 1 に戻る。</li>
-<li><code>y</code> に以下の係数を乗算。
-<ul>
-<li>Linkwitz-Riley の次数が <span class="math inline">\(4m + 0\)</span>
-なら <span class="math inline">\(+1\)</span> を乗算。 (何もしない)</li>
-<li>Linkwitz-Riley の次数が <span class="math inline">\(4m + 2\)</span>
-なら <span class="math inline">\(-1\)</span> を乗算。</li>
-</ul></li>
-<li>キューの最後の要素を取り出し、 <code>y</code>
-に加算して出力とする。</li>
-</ol>
-<h2 id="fir-の-linkwitz-riley-フィルタ"><a
-href="#fir-の-linkwitz-riley-フィルタ" class="header-anchor"
-aria-hidden="true">FIR の Linkwitz-Riley フィルタ</a></h2>
-<p>Martin Vicanek さんによる <a
-href="https://vicanek.de/articles/ReverseIIR.pdf">“A New Reverse IIR
-Filtering Algorithm”</a> で Linkwitz-Riley フィルタを線形位相の FIR
-フィルタとして効率よく近似する方法が紹介されています。</p>
-<p>Vicanek の論文では 2 次の複素共役フィルタの FIR
-を効率よく近似して、時間反転フィルタに変換する方法が紹介されています。ここで時間反転
-(time reversal)
-とはインパルス応答の前後を逆向きにすることです。元の前向きフィルタと時間反転フィルタを直列につなぎ合わせることで線形位相フィルタを構築することができます。</p>
-<p>Linkwitz-Riley フィルタは、次数の同じ 2 つの Butterworth
-フィルタを直列につないだフィルタです。つまり 2 つの Butterworth
-フィルタの片方を前向きフィルタ、もう片方を逆向きフィルタとすることで線形位相
-FIR にできます。また Butterworth フィルタは 2
-次の複素共役フィルタの組み合わせとして実装できます。</p>
-<h3 id="実装-2"><a href="#実装-2" class="header-anchor"
-aria-hidden="true">実装</a></h3>
-<h4 id="次の複素数フィルタの-fir-近似"><a
-href="#次の複素数フィルタの-fir-近似" class="header-anchor"
-aria-hidden="true">1 次の複素数フィルタの FIR 近似</a></h4>
-<p>まずは以降で部品として使う 1 次の複素数フィルタの FIR
-近似を実装します。以下は “A New Reverse IIR Filtering Algorithm” の式 1
-として記載されている、 1 次の複素数フィルタの伝達関数です。 <span
-class="math inline">\(c\)</span> は複素数です。</p>
-<p><span class="math display">\[
-\begin{align}
-H_{\mathrm{c}}(z) = \frac{1}{1 - cz^{-1}} &amp;= 1 + c z^{-1} + c^2
-z^{-2} + c^3 z^{-3} \dots
-\label{LR-FIR-expanded}
-\\
-&amp;= (1 + cz^{-1})(1 + c^2 z^{-2})(1 + c^4 z^{-4})(1 + c^8 z^{-8})
-\dots
-\label{LR-FIR-factorized}
-\end{align}
-\]</span></p>
-<p>何をしているのかというと、 <span class="math inline">\(\dfrac{1}{1 -
-cz^{-1}}\)</span> という IIR フィルタの伝達関数を式 <span
-class="math inline">\(\ref{LR-FIR-expanded}\)</span>
-でインパルス応答に変形して、式 <span
-class="math inline">\(\ref{LR-FIR-factorized}\)</span>
-で多項式の因数分解を行っています。式 <span
-class="math inline">\(\ref{LR-FIR-expanded}\)</span> の IIR
-(無限インパルス応答) を適当に打ち切れば FIR
-フィルタとして計算できます。それだけだと嬉しくありませんが、式 <span
-class="math inline">\(\ref{LR-FIR-factorized}\)</span>
-のように因数分解することで計算量を圧縮するというのがアイデアです。</p>
-<p>時間反転を行うときは式 <span
-class="math inline">\(\ref{LR-FIR-factorized}\)</span> の <span
-class="math inline">\((1 + c^n z^{-n})\)</span> を <span
-class="math inline">\((c^n + z^{-n})\)</span> に置き換えます。</p>
-<p><span class="math display">\[
-\begin{equation}
-\mathrm{reverse}(H_{\mathrm{c}}(z)) = (c + z^{-1})(c^2 + z^{-2})(c^4 +
-z^{-4})(c^8 + z^{-8}) \dots
-\label{LR-FIR-factorized-reversed}
-\end{equation}
-\]</span></p>
-<p>以下は式 <span class="math inline">\(\ref{LR-FIR-factorized},
-\ref{LR-FIR-factorized-reversed}\)</span> で示された 1
-次の複素数フィルタの FIR 近似のブロック線図です。</p>
-<figure>
-<img src="img/complex_1pole.svg" alt="Block diagram of complex 1-pole filter. Time forward and time reversed variants are shown." style="padding-bottom: 12px;"/>
-</figure>
-<p>この節の式やブロック線図では <span class="math inline">\(8 =
-2^3\)</span> 次の因数 (factor)
-までしか計算していませんが、より高い次数を計算することで精度が上がります。以降では
-<span class="math inline">\(2^N\)</span> 次まで計算することを <span
-class="math inline">\(N - 1\)</span>
-ステージの計算と呼ぶことにします。</p>
-<h4 id="次の複素共役フィルタの-fir-近似"><a
-href="#次の複素共役フィルタの-fir-近似" class="header-anchor"
-aria-hidden="true">2 次の複素共役フィルタの FIR 近似</a></h4>
-<p>2 次の複素共役フィルタの FIR 近似は 1 次の複素数フィルタの FIR
-近似を使って効率よく実装できます。以下は 2
-次の複素共役フィルタの伝達関数です。 <span
-class="math inline">\(c\)</span> は複素数、 <span
-class="math inline">\(\bar{c}\)</span> は複素数 <span
-class="math inline">\(c\)</span> の複素共役です。</p>
-<p><span class="math display">\[
-\begin{equation}
-H_{\mathrm{c.c.}}(z) = \frac{1}{(1 - cz^{-1}) (1 - \bar{c}z^{-1})}.
-\end{equation}
-\]</span></p>
-<p><span class="math inline">\(\bar{c} = a - ib\)</span>
-とすると、適当な入力サンプル <span class="math inline">\(x\)</span>
-について以下のように伝達関数を変形できます。</p>
-<p><span class="math display">\[
-\begin{equation}
-H_{\mathrm{c}} x = (1 - a z^{-1} + i b z^{-1}) H_{\mathrm{c.c.}} x.
-\end{equation}
-\]</span></p>
-<p>ここで 1 次の複素数フィルタの出力を <span
-class="math inline">\(H_{\mathrm{c}} x = u + iv\)</span> として実部
-<span class="math inline">\(u\)</span> と虚部 <span
-class="math inline">\(v\)</span> に分解すると以下の式が得られます。</p>
-<p><span class="math display">\[
-\begin{equation}
-u = (1 - a z^{-1}) H_{\mathrm{c.c.}} x, \quad v = b z^{-1}
-H_{\mathrm{c.c.}} x.
-\end{equation}
-\]</span></p>
-<p><span class="math inline">\(v\)</span> の式を <span
-class="math inline">\(z^{-1}\)</span> について解き、 <span
-class="math inline">\(u\)</span>
-の式に代入すると以下の式が得られます。</p>
-<p><span class="math display">\[
-\begin{equation}
-H_{\mathrm{c.c.}} x = u + \frac{a}{b} v.
-\end{equation}
-\]</span></p>
-<p>上の式は “A New Reverse IIR Filtering Algorithm” の式 11
-で示されている 2 次の複素共役フィルタの FIR
-近似の効率のいい計算方法です。以下はこの計算のブロック線図です。</p>
-<figure>
-<img src="img/complex_conjugate_2pole.svg" alt="Block diagram of complex conjugate 2-pole filter." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下は C++ と Python 3 による実装へのリンクです。
-<code>ComplexIIR</code> クラスの <code>process1PoleForward</code> と
-<code>process1PoleReversed</code> が 1 次の複素数フィルタの FIR
-近似の計算、 <code>process2PoleForward</code> と
-<code>process2PoleReversed</code> が 2 次の複素共役フィルタの FIR
-近似の計算です。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L177-L262">C++
-による複素数フィルタの FIR 近似の実装を読む (github.com)</a></li>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L150-L194">Python
-3 による複素数フィルタの FIR 近似の実装を読む (github.com)</a></li>
-</ul>
-<p>C++ の実装はステージ数をテンプレートパラメータ <code>stage</code>
-として指定するために、<a
-href="https://stackoverflow.com/a/8992939">テンプレートの再帰</a>を使っています。理由はよくわかりませんが、再帰を展開した実装よりも、テンプレートの再帰を使った実装のほうが
-<code>cl.exe</code> (Version 19.36.32532 for x64)
-では速くなりました。</p>
-<h4 id="butterworth-フィルタ-の-fir-近似"><a
-href="#butterworth-フィルタ-の-fir-近似" class="header-anchor"
-aria-hidden="true">Butterworth フィルタ の FIR 近似</a></h4>
-<p>2 次の複素共役フィルタの FIR 近似を用いて Butterworth フィルタの FIR
-近似を行います。この節では「<a
-href="https://ryukau.github.io/filter_notes/s_curve_step_response_filter/s_curve_step_response_filter.html#%E6%AC%A1%E3%82%BB%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%B8%E3%81%AE%E5%88%86%E5%89%B2">ステップ応答が
-S 字を描くフィルタ</a>」に掲載した Bessel フィルタを 2
-次セクションに分割する手法を流用しています。 Butterworth フィルタも
-Bessel フィルタと同様に全極フィルタなので同じ手法で 2
-次セクションに分割できます。</p>
-<p>バイリニア変換した離散系の <span class="math inline">\(N\)</span>
-次の Butterworth フィルタは以下の 2 次セクションで表されます。</p>
-<p><span class="math display">\[
-\begin{align}
-H_{\mathrm{Butter.} N}(z) &amp;= G \prod_{k=1}^{N/2} \frac{1 + 2 z^{-1}
-+ z^{-2}}{1 - 2 \mathrm{Re}(p_k) z^{-1} + |p_k|^2 z^{-2}}, \\
-G &amp;= \prod_{k=1}^{N/2} \frac{1 - 2 \mathrm{Re}(p_k) + |p_k|^2}{4}.
-\label{allpole-sos-gain}
-\end{align}
-\]</span></p>
-<p><span class="math inline">\(p_k\)</span> は 2
-次セクションの極の片方、 <span class="math inline">\(G\)</span>
-はフィルタ全体のゲインです。 Butterworth フィルタの 2
-次セクションの極は複素共役となるので、 2
-次の複素共役フィルタの伝達関数の分母と一致します。以下は 2
-次の複素共役フィルタの伝達関数の再掲です。</p>
-<p><span class="math display">\[
-\begin{equation}
-H_{\mathrm{c.c.}}(z) = \frac{1}{(1 - cz^{-1}) (1 - \bar{c}z^{-1})}.
-\end{equation}
-\]</span></p>
-<p>ここで Butterworth の 2 次セクションと 2
-次の複素共役フィルタに違いがあります。 Butterworth の 2
-次セクションは分子が <span class="math inline">\(1 + 2 z^{-1} +
-z^{-2}\)</span> ですが、 2 次の複素共役フィルタの分子は <span
-class="math inline">\(1\)</span> です。つまり <span
-class="math inline">\(1 + 2 z^{-1} + z^{-2}\)</span>
-の部分を追加で計算する必要があります。</p>
-<p>Butterworth フィルタの複素共役を除いた極 <span
-class="math inline">\(p_k\)</span> は以下の式で計算できます。 <span
-class="math inline">\(f_c\)</span> はカットオフ周波数、 <span
-class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
-<p><span class="math display">\[
-p_k = - 2 \pi \frac{f_c}{f_s} \exp \left( i \frac{\pi (2 k - N + 1)}{2
-N} \right), \quad k \in [0, N/2).
-\]</span></p>
-<p>さらに数値計算の安定性を高めるために <span
-class="math inline">\(G\)</span> を以下の式で各セクションのゲイン <span
-class="math inline">\(g\)</span> に分割します。</p>
-<p><span class="math display">\[
-g = G^{\frac{1}{N/2}}.
-\]</span></p>
-<p>式 <span class="math inline">\(\ref{allpole-sos-gain}\)</span>
-を変形して 2
-次セクションごとに適切なゲインを設定することもできますが、保持する変数が増えます。</p>
-<p>ここまでをまとめると以下のブロック線図となります。フィルタは線形なので
-<span class="math inline">\(g\)</span> の位置を <code>Output</code>
-の直前に動かしても動作します。</p>
-<figure>
-<img src="img/fir_butterworth.svg" alt="Block diagram of FIR Butterworth lowpass and highpass." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下は C++ による実装へのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L264-L331">C++
-による Butterworth フィルタ の FIR 近似の実装を読む
-(github.com)</a></li>
-</ul>
-<h4 id="線形位相-fir-linkwitz-riley"><a
-href="#線形位相-fir-linkwitz-riley" class="header-anchor"
-aria-hidden="true">線形位相 FIR Linkwitz-Riley</a></h4>
-<p>線形位相なのでハイパスは遅延した入力からローパスを減算すれば得られます。つまりハイパスの計算は省略できます。分割と併合についても
-IIR の Linkwitz-Riley のような補正オールパスは不要です。</p>
-<figure>
-<img src="img/fir_linkwitz_riley.svg" alt="Block diagram of FIR Linkwitz-Riley crossover." style="padding-bottom: 12px;"/>
-</figure>
-<p>以下は C++ による実装へのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L333-L357">C++
-による FIR Linkwitz-Riley の実装を読む (github.com)</a></li>
-</ul>
-<h2 id="比較"><a href="#比較" class="header-anchor"
-aria-hidden="true">比較</a></h2>
-<p>😀 は良、 👹 は悪を表しています。</p>
-<table>
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 15%" />
-<col style="width: 34%" />
-<col style="width: 27%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: center;"></th>
-<th style="text-align: center;">素朴な FIR</th>
-<th style="text-align: center;">Linkwitz-Riley IIR</th>
-<th style="text-align: center;">Linkwitz-Riley FIR</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">線形位相</td>
-<td style="text-align: center;">😀</td>
-<td style="text-align: center;">👹</td>
-<td style="text-align: center;">😀</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">レイテンシ</td>
-<td style="text-align: center;">👹</td>
-<td style="text-align: center;">😀</td>
-<td style="text-align: center;">👹</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">実装の容易さ</td>
-<td style="text-align: center;">😀</td>
-<td style="text-align: center;">2 バンド 😀 / 3 バンド以上 👹</td>
-<td style="text-align: center;">👹</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">クロスオーバーの対称性</td>
-<td style="text-align: center;">👹</td>
-<td style="text-align: center;">😀</td>
-<td style="text-align: center;">😀</td>
-</tr>
-</tbody>
-</table>
-<p>低レイテンシが要件なら Linkwitz-Riley IIR
-が適しています。線形位相が要件かつ手軽に実装したいなら素朴な FIR
-、実装に手間をかけてもいいなら Linkwitz-Riley FIR が適しています。</p>
-<p>クロスオーバーの対称性はフィルタの振幅特性のスロープやストップバンドでの低減率などがローパスとハイパスで対称かということです。非対称を
-👹 としています。</p>
-<h3 id="バンドのベンチマーク"><a href="#バンドのベンチマーク"
-class="header-anchor" aria-hidden="true">2 バンドのベンチマーク</a></h3>
-<p>素朴な FIR 、 Linkwitz-Riley IIR 、 FIR Linkwitz-Riley の 3
-つについて、 2 バンドの場合の簡単なベンチマークを取りました。</p>
-<table>
-<thead>
-<tr class="header">
-<th>Name</th>
-<th style="text-align: right;">Elapsed [ms]</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>LinkwitzRileyIIR2Band4n</td>
-<td style="text-align: right;">1.4590</td>
-</tr>
-<tr class="even">
-<td>LinkwitzRileyFIR2Band4n</td>
-<td style="text-align: right;">2.4562</td>
-</tr>
-<tr class="odd">
-<td>WindowedFIR2Band</td>
-<td style="text-align: right;">2.8668</td>
-</tr>
-</tbody>
-</table>
-<p>以下はベンチマークに使ったコードへのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/crossover_filter/code/cpp/benchmark.cpp">filter_notes/crossover_filter/code/cpp/benchmark.cpp
-at master · ryukau/filter_notes · GitHub</a></li>
-</ul>
-<p>以下はパラメータの設定です。</p>
-<ul>
-<li>Linkwitz-Riley IIR
-<ul>
-<li>4 次</li>
-</ul></li>
-<li>Linkwitz-Riley FIR
-<ul>
-<li>4 次</li>
-<li>8 ステージ (2^8 サンプルの FIR と等価)</li>
-</ul></li>
-<li>素朴な FIR
-<ul>
-<li>255 サンプル</li>
-</ul></li>
-</ul>
-<p>結果を見ると IIR の Linkwitz-Riley が速く、 FIR
-の実装はあまり差がありません。ただし、素朴な FIR
-は畳み込みの計算について大いに改善の余地があります。また Linkwitz-Riley
-FIR のステージ数や、素朴な FIR
-のフィルタ係数の数によって結果が変わることが予想されます。</p>
-<p>このベンチマークは実は素朴な FIR
-で十分ではないか、という疑問を解消するために行ったのでパラメータを細かく変えてトレンドを調べていません。クロスオーバー周波数をリアルタイムで変更する用途であれば、素朴な
-FIR のフィルタ係数の更新がかなりの負荷になるので、 Linkwitz-Riley FIR
-の利用価値はあるように見えます。クロスオーバー周波数が固定なら素朴な FIR
-でも十分な気がします。</p>
-<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
-aria-hidden="true">参考文献</a></h2>
-<ul>
-<li><a
-href="https://en.wikipedia.org/wiki/Linkwitz%E2%80%93Riley_filter">Linkwitz–Riley
-filter - Wikipedia</a></li>
-<li><a href="https://linkwitzlab.com/filters.htm">Active
-Filters</a></li>
-<li><a
-href="https://github.com/HEnquist/camilladsp/blob/master/filterfunctions.md">Building
-higher order filters with Biquads | CamillaDSP</a></li>
-<li><a
-href="https://www.earlevel.com/main/2016/09/29/cascading-filters/">Cascading
-filters | EarLevel Engineering</a></li>
-<li><a
-href="https://dsp.stackexchange.com/questions/7830/bessel-filter-second-order-sections-q-and-fc-multiplier-derivation">Bessel
-filter second-order sections Q and Fc multiplier derivation - Signal
-Processing Stack Exchange</a></li>
-<li>Martin Vicanek, <a
-href="https://vicanek.de/articles/ReverseIIR.pdf">“A New Reverse IIR
-Filtering Algorithm”</a>, revised 2022-01-05. Obtained from <a
-href="https://vicanek.de/articles.htm">MV’s Plugins Articles</a> in
-2023-06-16.</li>
-<li><a
-href="https://dsp.stackexchange.com/questions/37714/kaiser-window-approximation/37720#37720">Kaiser
-window approximation - Signal Processing Stack Exchange</a></li>
-<li><a
-href="https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWindow.h">oboe/src/flowgraph/resampler/KaiserWindow.h
-at main · google/oboe · GitHub</a></li>
-<li><a href="https://thewolfsound.com/allpass-filter/">Allpass Filter:
-All You Need To Know - WolfSound</a></li>
-</ul>
-<h2 id="変更点"><a href="#変更点" class="header-anchor"
-aria-hidden="true">変更点</a></h2>
-<ul>
-<li>2024/05/17
-<ul>
-<li>「2 つ直列につないだ Butterworth
-フィルタ」と「補正オールパスフィルタ」の <span
-class="math inline">\(Q_k\)</span> の式を修正。</li>
-</ul></li>
-<li>2024/05/06
-<ul>
-<li>線形位相 FIR Linkwitz-Riley の下の図の High と Low
-が入れ替わっていた誤りを修正。</li>
-</ul></li>
-<li>2024/04/30
-<ul>
-<li>分子とするべきところで分母と書いていた誤りを修正。</li>
-</ul></li>
-<li>2023/10/30
-<ul>
-<li>概要の追加。</li>
-<li>「2 つ直列につないだ Butterworth
-フィルタ」の式の出典を文中に追加。</li>
-<li>文章の整理。</li>
-</ul></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#クロスオーバーフィルタの実装"
+        id="toc-クロスオーバーフィルタの実装">クロスオーバーフィルタの実装</a>
+        <ul>
+        <li><a href="#概要" id="toc-概要">概要</a></li>
+        <li><a href="#素朴な-fir-フィルタ"
+        id="toc-素朴な-fir-フィルタ">素朴な FIR フィルタ</a>
+        <ul>
+        <li><a href="#実装" id="toc-実装">実装</a></li>
+        </ul></li>
+        <li><a href="#iir-の-linkwitz-riley-フィルタ"
+        id="toc-iir-の-linkwitz-riley-フィルタ">IIR の Linkwitz-Riley
+        フィルタ</a>
+        <ul>
+        <li><a href="#実装-1" id="toc-実装-1">実装</a>
+        <ul>
+        <li><a href="#つ直列につないだ-butterworth-フィルタ"
+        id="toc-つ直列につないだ-butterworth-フィルタ">2
+        つ直列につないだ Butterworth フィルタ</a></li>
+        <li><a href="#補正オールパスフィルタ"
+        id="toc-補正オールパスフィルタ">補正オールパスフィルタ</a>
+        <ul>
+        <li><a href="#m-4n" id="toc-m-4n"><span class="math inline">\(M
+        = 4n\)</span></a></li>
+        <li><a href="#m-4n-2" id="toc-m-4n-2"><span
+        class="math inline">\(M = 4n + 2\)</span></a>
+        <ul>
+        <li><a href="#次オールパス" id="toc-次オールパス">1
+        次オールパス</a></li>
+        <li><a href="#次セクションの-q" id="toc-次セクションの-q">2
+        次セクションの <span class="math inline">\(Q\)</span></a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#分割と併合" id="toc-分割と併合">分割と併合</a>
+        <ul>
+        <li><a href="#汎用的な実装"
+        id="toc-汎用的な実装">汎用的な実装</a></li>
+        <li><a href="#効率のいい実装"
+        id="toc-効率のいい実装">効率のいい実装</a></li>
+        </ul></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#fir-の-linkwitz-riley-フィルタ"
+        id="toc-fir-の-linkwitz-riley-フィルタ">FIR の Linkwitz-Riley
+        フィルタ</a>
+        <ul>
+        <li><a href="#実装-2" id="toc-実装-2">実装</a>
+        <ul>
+        <li><a href="#次の複素数フィルタの-fir-近似"
+        id="toc-次の複素数フィルタの-fir-近似">1 次の複素数フィルタの
+        FIR 近似</a></li>
+        <li><a href="#次の複素共役フィルタの-fir-近似"
+        id="toc-次の複素共役フィルタの-fir-近似">2
+        次の複素共役フィルタの FIR 近似</a></li>
+        <li><a href="#butterworth-フィルタ-の-fir-近似"
+        id="toc-butterworth-フィルタ-の-fir-近似">Butterworth フィルタ
+        の FIR 近似</a></li>
+        <li><a href="#線形位相-fir-linkwitz-riley"
+        id="toc-線形位相-fir-linkwitz-riley">線形位相 FIR
+        Linkwitz-Riley</a></li>
+        </ul></li>
+        </ul></li>
+        <li><a href="#比較" id="toc-比較">比較</a>
+        <ul>
+        <li><a href="#バンドのベンチマーク"
+        id="toc-バンドのベンチマーク">2 バンドのベンチマーク</a></li>
+        </ul></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="クロスオーバーフィルタの実装"><a
+  href="#クロスオーバーフィルタの実装" class="header-anchor"
+  aria-hidden="true">クロスオーバーフィルタの実装</a></h1>
+  <p>周波数帯域の分割に用いるクロスオーバーフィルタを実装します。</p>
+  <h2 id="概要"><a href="#概要" class="header-anchor"
+  aria-hidden="true">概要</a></h2>
+  <p>かなりややこしいので概要を設けました。ページ上部の Table of
+  Contents も多少は役に立つかと思います。</p>
+  <p>以下の 3 つのフィルタを実装します。</p>
+  <ul>
+  <li>素朴な FIR フィルタ</li>
+  <li>IIR の Linkwitz-Riley フィルタ</li>
+  <li>FIR の Linkwitz-Riley フィルタ</li>
+  </ul>
+  <p>IIR の Linkwitz-Riley
+  フィルタは以下の属性の組み合わせによって実装の詳細が 6
+  つに分かれます。</p>
+  <ul>
+  <li>フィルタが偶数次あるいは奇数次。</li>
+  <li>2 バンド、 3 バンド以上かつ汎用的、 3
+  バンド以上かつ効率重視。</li>
+  </ul>
+  <p>偶数次、奇数次によってフィルタ係数の計算が変わります。偶数次は 2
+  次セクションだけで構築できますが、奇数次では 1
+  次のフィルタが現れます。</p>
+  <p>2 バンドでは補正オールパスフィルタが不要ですが、 3
+  バンド以上では補正オールパスフィルタが必要となってきます。また補正オールパスフィルタを計算するタイミングで汎用性と計算効率のトレードオフがあります。</p>
+  <p>FIR の Linkwitz-Riley
+  フィルタの節では小さい部品から順にクロスオーバーフィルタを組み立てています。つまり:</p>
+  <ul>
+  <li>1 次の複素数フィルタの FIR 近似から 2 次の複素共役フィルタの FIR
+  近似が組み立てられる。</li>
+  <li>2 次の複素共役フィルタの FIR 近似から Butterworth フィルタ の FIR
+  近似が組み立てられる。</li>
+  <li>Butterworth フィルタ の FIR 近似から線形位相 FIR Linkwitz-Riley
+  フィルタが組み立てられる。</li>
+  </ul>
+  <p>という流れになっています。</p>
+  <h2 id="素朴な-fir-フィルタ"><a href="#素朴な-fir-フィルタ"
+  class="header-anchor" aria-hidden="true">素朴な FIR フィルタ</a></h2>
+  <p>フィルタ係数が左右対称な線形位相の FIR
+  フィルタはクロスオーバーフィルタとして使えます。</p>
+  <p>素朴な線形位相 FIR
+  フィルタの利点は多様な設計方法が確立していることと実装が簡単なことです。欠点はカットオフ周波数の変更時の計算量が多く、レイテンシが生じることです。カットオフ周波数を変更するとフィルタ係数をすべて書き換える必要があります。また線形位相フィルタは出力の遅れを補正するためにレイテンシが生じます。</p>
+  <p>窓関数法 (windowed sinc) で使うローパスの線形位相 FIR
+  フィルタ係数は以下の式で計算できます。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  \mathtt{fir\_lp}(n) = \frac{\sin(2\pi n f_0 / f_s)}{\pi n},
+  \quad n \in [-\mathtt{ceil}(N_{\mathrm{FIR}}/2),
+  \mathtt{floor}(N_{\mathrm{FIR}}/2)].
+  \end{equation}
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(f_s\)</span>: サンプリング周波数 Hz
+  。</li>
+  <li><span class="math inline">\(f_0\)</span>: カットオフ周波数 Hz
+  。</li>
+  <li><span class="math inline">\(N_{\mathrm{FIR}}\)</span>:
+  フィルタ係数の数。タップ数。</li>
+  </ul>
+  <p>さらに窓関数をかけることで周波数特性を変更できます。以下はパラメータ
+  <span class="math inline">\(\alpha\)</span> で手軽に特性を変更できる
+  <a href="https://en.wikipedia.org/wiki/Kaiser_window">Kaiser
+  窓</a>の近似計算式です。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  w_n = \frac{\cosh \left[ \alpha
+  \sqrt{1-\left(\dfrac{n-K}{N_{\mathrm{FIR}}}\right)^2}
+  \right]}{\cosh(\alpha)}.
+  \label{Kaiser}
+  \end{equation}
+  \]</span></p>
+  <p>式 <span class="math inline">\(\ref{Kaiser}\)</span> は <a
+  href="https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWindow.h">Oboe
+  の Resampler</a> で参照されている <a
+  href="https://dsp.stackexchange.com/a/37720">dsp.stackexchange.com
+  の回答</a>に掲載されていました。 Windows の VC++ か、 Linux の GCC
+  環境なら、式 <span class="math inline">\(\ref{Kaiser}\)</span>
+  の近似を使わなくても C++ 17 で追加された <code>&lt;cmath&gt;</code> の
+  <a
+  href="https://en.cppreference.com/w/cpp/numeric/special_functions"><code>cyl_bessel_k</code></a>
+  で直接 Kaiser
+  窓を実装することができます。しかし、この記事を書いた時点では Mac の
+  Xcode (Apple Clang) では数学特殊関数が使えなかったので式 <span
+  class="math inline">\(\ref{Kaiser}\)</span>
+  の近似を掲載しています。</p>
+  <p>FIR の畳み込みの計算については「<a
+  href="https://ryukau.github.io/filter_notes/convolution_without_latency/convolution_without_latency.html">レイテンシのない畳み込み</a>」に詳細を掲載しています。ここでは省略します。</p>
+  <h3 id="実装"><a href="#実装" class="header-anchor"
+  aria-hidden="true">実装</a></h3>
+  <p>以下は C++ 20 による実装へのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L359-L406">C++
+  による素朴な FIR の実装を読む (github.com)</a></li>
+  </ul>
+  <p>フィルタ係数が短いときは上のリンク先のように
+  <code>std::inner_product</code> や単純な <code>for</code>
+  によって簡単に実装できます。フィルタ係数が長いときは「レイテンシのない畳み込み」で紹介しているような
+  FFT
+  を用いた畳み込みで効率よく計算しなければリアルタイムの締め切りに間に合いません。</p>
+  <h2 id="iir-の-linkwitz-riley-フィルタ"><a
+  href="#iir-の-linkwitz-riley-フィルタ" class="header-anchor"
+  aria-hidden="true">IIR の Linkwitz-Riley フィルタ</a></h2>
+  <p>Linkwitz-Riley フィルタは Butterworth を 2 つ直列につないだ IIR
+  フィルタです。以下は Linkwitz-Riley フィルタのブロック線図です。</p>
+  <figure>
+  <img src="img/linkwitz_riley_overview.svg" alt="Block diagram of Linkwitz-Riley filter." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>任意の次数の Butterworth フィルタについて、ローパスを
+  <code>LP</code> 、ハイパスを <code>HP</code> とすると Linkwitz-Riley
+  フィルタによるクロスオーバーは
+  <code>(LP -&gt; LP) + (HP -&gt; HP) = AP</code> と表せます。ここで
+  <code>-&gt;</code> は直列接続、 <code>AP</code>
+  はオールパスです。つまり、分割した <code>(LP -&gt; LP)</code> と
+  <code>(HP -&gt; HP)</code>
+  を足し合わせても振幅特性が平坦なまま、ということです。</p>
+  <p>Linkwitz-Riley フィルタの次数は内部で使われる Butterworth
+  フィルタの 2 倍となります。以降では Linkwitz-Riley フィルタの次数を
+  <span class="math inline">\(M\)</span> 、内部で使われる Butterworth
+  フィルタの次数を <span class="math inline">\(N = M/2\)</span>
+  とします。 2 つの Butterworth を直列につなぐため <span
+  class="math inline">\(M\)</span> は常に偶数です。</p>
+  <p>3 バンド以上の Linkwitz-Riley フィルタの実装は <span
+  class="math inline">\(M = 4n\)</span> のときと <span
+  class="math inline">\(M = 4n + 2\)</span>
+  で場合分けされます。これは位相の補正に使うオールパスフィルタの実装が奇数次と偶数次で変わるためです。</p>
+  <p>分割した信号を投げっぱなしにせず、併合時に再び処理を行えるときは補正オールパスフィルタの数を減らして効率よく計算できます。</p>
+  <h3 id="実装-1"><a href="#実装-1" class="header-anchor"
+  aria-hidden="true">実装</a></h3>
+  <h4 id="つ直列につないだ-butterworth-フィルタ"><a
+  href="#つ直列につないだ-butterworth-フィルタ" class="header-anchor"
+  aria-hidden="true">2 つ直列につないだ Butterworth フィルタ</a></h4>
+  <p><span class="math inline">\(N\)</span> 個の 2 次セクション (second
+  order sections, sos) を直列につなぐことで 2 つ直列につないだ
+  Butterworth
+  フィルタを実装できます。すべてのセクションのカットオフ周波数はクロスオーバー周波数をそのまま使います。
+  <span class="math inline">\(Q\)</span> 値は <a
+  href="https://www.earlevel.com/main/2016/09/29/cascading-filters/">earlevel.com
+  の “Cascading filters”</a>
+  という記事で紹介されていた以下の式で計算します。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  Q_k
+  = \frac{1}{2 \sin \left((k + 0.5)\dfrac{\pi}{N} \right)}
+  = \frac{1}{2 \cos \left(\dfrac{k\pi}{2N} \right)}
+  , \quad k \in [0, N).
+  \end{equation}
+  \]</span></p>
+  <p>2 次セクションは biquad
+  フィルタのローパスとハイパスが使えます。「<a
+  href="https://ryukau.github.io/filter_notes/biquad_filter_comparison/biquad_filter_comparison.html">Biquad
+  フィルタの比較</a>」で実装を紹介しています。</p>
+  <p>以下は C++ による実装へのリンクです。テンプレートパラメータの
+  <code>filterType</code> を <code>lowpass</code> あるいは
+  <code>highpass</code> とすると 2 つ直列につないだ Butterworth
+  フィルタとなります。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L68-L107">C++
+  による 2 つ直列につないだ Butterworth フィルタの実装を読む
+  (github.com)</a></li>
+  </ul>
+  <h4 id="補正オールパスフィルタ"><a href="#補正オールパスフィルタ"
+  class="header-anchor"
+  aria-hidden="true">補正オールパスフィルタ</a></h4>
+  <p><span class="math inline">\(M = 4n\)</span> と <span
+  class="math inline">\(M = 4n + 2\)</span>
+  の場合で実装が変わります。どちらの場合でも、すべてのカットオフ周波数にはクロスオーバー周波数を使います。</p>
+  <p>2 次セクションは biquad オールパスを使います。 TPT
+  (topology-preserving transform) という離散化に基づいた biquad
+  オールパスの実装を以下のリンク先に掲載しています。 <a
+  href="https://www.w3.org/TR/audio-eq-cookbook/">Audio EQ Cookbook</a>
+  のレシピでも動きます。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L15-L66">C++
+  による TPT biquad フィルタの実装を読む (github.com)</a></li>
+  </ul>
+  <h5 id="m-4n"><a href="#m-4n" class="header-anchor"
+  aria-hidden="true"><span class="math inline">\(M =
+  4n\)</span></a></h5>
+  <p>2 次セクションの数は <span class="math inline">\(N_{\mathrm{AP}} =
+  N/2\)</span> 個です。 <span class="math inline">\(Q\)</span> 値は 2
+  つ直列につないだ Butterworth フィルタと同じ式が使えますが、 <span
+  class="math inline">\(N\)</span> が <span
+  class="math inline">\(N_{\mathrm{AP}}\)</span>
+  に置き換わります。以下は <span class="math inline">\(Q\)</span>
+  値を計算する式の再掲です。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  Q_k
+  = \frac{1}{2 \sin \left((k + 0.5)\dfrac{\pi}{N_{\mathrm{AP}}} \right)}
+  = \frac{1}{2 \cos \left(\dfrac{k\pi}{2 N_{\mathrm{AP}}} \right)}
+  , \quad k \in [0, N_{\mathrm{AP}}).
+  \end{equation}
+  \]</span></p>
+  <p>以下は C++ による実装へのリンクです。テンプレートパラメータの
+  <code>filterType</code> を <code>allpass</code> とすると <span
+  class="math inline">\(M = 4n\)</span>
+  のときの補正オールパスフィルタとなります。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L68-L107">C++
+  による <span class="math inline">\(M = 4n\)</span>
+  のときの補正オールパスフィルタの実装を読む (github.com)</a></li>
+  </ul>
+  <h5 id="m-4n-2"><a href="#m-4n-2" class="header-anchor"
+  aria-hidden="true"><span class="math inline">\(M = 4n +
+  2\)</span></a></h5>
+  <p>1 つの 1 次オールパスと <span
+  class="math inline">\(\mathtt{floor}(N/2)\)</span> 個の 2
+  次セクションの組み合わせとなります。 <span class="math inline">\(M =
+  2\)</span> のとき 2 次セクションは 0 個です。</p>
+  <h6 id="次オールパス"><a href="#次オールパス" class="header-anchor"
+  aria-hidden="true">1 次オールパス</a></h6>
+  <p>1 次オールパスは以下の伝達関数で表されます。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  H_{\mathrm{AP}1} (z) = \frac{a + z^{-1}}{1 + z^{-1}}.
+  \end{equation}
+  \]</span></p>
+  <p><span class="math inline">\(a\)</span> はカットオフ周波数 <span
+  class="math inline">\(f_c\)</span> とサンプリング周波数 <span
+  class="math inline">\(f_s\)</span>
+  から以下の式で計算できます。厳密にはオールパスの場合はカットオフ周波数とは言わず、ブレーク周波数
+  (break frequency)
+  と言うそうです。ブレーク周波数は位相シフトの量が最大の半分となる周波数のことです。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  a = \frac{t - 1}{t + 1}, \quad t = \tan(\pi f_c / f_s).
+  \end{equation}
+  \]</span></p>
+  <p>差分方程式にします。</p>
+  <pre><code>y0 = a * (x0 - y1) + x1;</code></pre>
+  <ul>
+  <li><code>x0</code>: 現在の入力値。</li>
+  <li><code>x1</code>: 1 サンプル前の入力値。</li>
+  <li><code>y0</code>: 現在の出力値。</li>
+  <li><code>y1</code>: 1 サンプル前の出力値。</li>
+  </ul>
+  <p>これで計算できる形になりました。</p>
+  <h6 id="次セクションの-q"><a href="#次セクションの-q"
+  class="header-anchor" aria-hidden="true">2 次セクションの <span
+  class="math inline">\(Q\)</span></a></h6>
+  <p>2 次セクションの <span class="math inline">\(Q\)</span>
+  値は以下の<a
+  href="https://en.wikipedia.org/wiki/Butterworth_filter">正規化された
+  Butterworth 多項式</a> (normalzied Butterworth polynomial)
+  で計算します。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  Q = -2 \cos \left( \frac{2 k + N - 1}{2 N} \pi \right), \quad k \in
+  [1, N_{\mathrm{AP}}].
+  \end{equation}
+  \]</span></p>
+  <p><span class="math inline">\(k\)</span> の範囲が 1
+  から始まり、終端は含めていることに注意してください。</p>
+  <p>以下は Python 3 による実装へのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L98-L104">Python
+  3 による <span class="math inline">\(M = 4n + 2\)</span>
+  のときの補正オールパスフィルタの実装を読む (github.com)</a></li>
+  </ul>
+  <h4 id="分割と併合"><a href="#分割と併合" class="header-anchor"
+  aria-hidden="true">分割と併合</a></h4>
+  <p>3 バンド以上の分割と併合について 2
+  つの方法を紹介します。原則としては汎用的な実装を行い、クロスオーバーがボトルネックとなっていれば効率のいい実装を使うことが考えられます。</p>
+  <p>2
+  バンドでは補正オールパスフィルタが不要なので以下の処理は実装しなくていいです。</p>
+  <h5 id="汎用的な実装"><a href="#汎用的な実装" class="header-anchor"
+  aria-hidden="true">汎用的な実装</a></h5>
+  <p>汎用的な帯域分割は補正オールパスの総数が分割するバンド数に応じた<a
+  href="https://en.wikipedia.org/wiki/Triangular_number">三角数</a>
+  (triangular number)
+  となりますが、単純な加算で併合を行える特長があります。つまりバンド数が多いと分割の計算が重たくなりますが、分割後の使い勝手はこちらのほうがいいです。</p>
+  <figure>
+  <img src="img/4band_crossover.svg" alt="Block diagram of 4 band crossover using Linkwitz-Riley filter (LR). Input first goes to LR, then splits to high and low. High goes to Butterworth allpass, and low goes to another LR. Repeat this until desired number of bands are obtained." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>処理を書き下します。</p>
+  <ol start="0" type="1">
+  <li>入力を Linkwitz-Riley に通過させて high と low に分割。</li>
+  <li>ここまでで得られた high
+  をそれぞれ新たなオールパスに通過させる。</li>
+  <li>Low を Linkwitz-Riley に通過させて high と low に分割。</li>
+  <li>所望のバンド数が得られるまで 1 に戻って分割を繰り返す。</li>
+  <li>所望のバンド数が得られたら、ここまでで得られたすべての high
+  について以下の係数を乗算する。
+  <ul>
+  <li>Linkwitz-Riley の次数が <span class="math inline">\(4m +
+  0\)</span> なら <span class="math inline">\(+1\)</span> を乗算。
+  (何もしない)</li>
+  <li>Linkwitz-Riley の次数が <span class="math inline">\(4m +
+  2\)</span> なら <span class="math inline">\(-1\)</span> を乗算。</li>
+  </ul></li>
+  </ol>
+  <p>以下は Python 3
+  による実装へのリンクです。クロスオーバー周波数のリスト
+  <code>cutoffsHz</code> の長さがバンド数となります。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L554-L568">Python
+  3 による汎用的な Linkwitz-Riley クロスオーバーの分割と併合の実装を読む
+  (github.com)</a></li>
+  </ul>
+  <h5 id="効率のいい実装"><a href="#効率のいい実装"
+  class="header-anchor" aria-hidden="true">効率のいい実装</a></h5>
+  <p>分割後の信号を再取得できるときは以下のブロック線図のようにオールパスの数を
+  <code>(バンド数) - 1</code> に減らすことができます。例えば 1
+  つの音のプラグインの内部で分割と併合の処理を両方行うときに使えます。この方法は出力を投げっぱなしにできないため汎用性は落ちます。</p>
+  <figure>
+  <img src="img/efficient_4band_crossover.svg" alt="Block diagram of efficient 4 band crossover." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>処理を書き下します。まずは分割します。</p>
+  <ol start="0" type="1">
+  <li>Low に入力を代入する。</li>
+  <li>Low を Linkwitz-Riley に通過させて high と low に分割。</li>
+  <li>High を出力のキューに加える。</li>
+  <li>現在の出力のキューの長さに low の 1
+  を加えた数が所望のバンド数でなければ手順 1 に戻る。</li>
+  </ol>
+  <p>キューに格納された各帯域に任意の処理を施したあと、以下の併合の処理を行います。</p>
+  <ol start="0" type="1">
+  <li>変数 <code>y</code> を用意して 0 に初期化。</li>
+  <li>キューの先頭を取り出し、新たなオールパスに通過させ、出力を
+  <code>y</code> に加算。</li>
+  <li>キューの長さが 1 で無ければ手順 1 に戻る。</li>
+  <li><code>y</code> に以下の係数を乗算。
+  <ul>
+  <li>Linkwitz-Riley の次数が <span class="math inline">\(4m +
+  0\)</span> なら <span class="math inline">\(+1\)</span> を乗算。
+  (何もしない)</li>
+  <li>Linkwitz-Riley の次数が <span class="math inline">\(4m +
+  2\)</span> なら <span class="math inline">\(-1\)</span> を乗算。</li>
+  </ul></li>
+  <li>キューの最後の要素を取り出し、 <code>y</code>
+  に加算して出力とする。</li>
+  </ol>
+  <h2 id="fir-の-linkwitz-riley-フィルタ"><a
+  href="#fir-の-linkwitz-riley-フィルタ" class="header-anchor"
+  aria-hidden="true">FIR の Linkwitz-Riley フィルタ</a></h2>
+  <p>Martin Vicanek さんによる <a
+  href="https://vicanek.de/articles/ReverseIIR.pdf">“A New Reverse IIR
+  Filtering Algorithm”</a> で Linkwitz-Riley フィルタを線形位相の FIR
+  フィルタとして効率よく近似する方法が紹介されています。</p>
+  <p>Vicanek の論文では 2 次の複素共役フィルタの FIR
+  を効率よく近似して、時間反転フィルタに変換する方法が紹介されています。ここで時間反転
+  (time reversal)
+  とはインパルス応答の前後を逆向きにすることです。元の前向きフィルタと時間反転フィルタを直列につなぎ合わせることで線形位相フィルタを構築することができます。</p>
+  <p>Linkwitz-Riley フィルタは、次数の同じ 2 つの Butterworth
+  フィルタを直列につないだフィルタです。つまり 2 つの Butterworth
+  フィルタの片方を前向きフィルタ、もう片方を逆向きフィルタとすることで線形位相
+  FIR にできます。また Butterworth フィルタは 2
+  次の複素共役フィルタの組み合わせとして実装できます。</p>
+  <h3 id="実装-2"><a href="#実装-2" class="header-anchor"
+  aria-hidden="true">実装</a></h3>
+  <h4 id="次の複素数フィルタの-fir-近似"><a
+  href="#次の複素数フィルタの-fir-近似" class="header-anchor"
+  aria-hidden="true">1 次の複素数フィルタの FIR 近似</a></h4>
+  <p>まずは以降で部品として使う 1 次の複素数フィルタの FIR
+  近似を実装します。以下は “A New Reverse IIR Filtering Algorithm” の式
+  1 として記載されている、 1 次の複素数フィルタの伝達関数です。 <span
+  class="math inline">\(c\)</span> は複素数です。</p>
+  <p><span class="math display">\[
+  \begin{align}
+  H_{\mathrm{c}}(z) = \frac{1}{1 - cz^{-1}} &amp;= 1 + c z^{-1} + c^2
+  z^{-2} + c^3 z^{-3} \dots
+  \label{LR-FIR-expanded}
+  \\
+  &amp;= (1 + cz^{-1})(1 + c^2 z^{-2})(1 + c^4 z^{-4})(1 + c^8 z^{-8})
+  \dots
+  \label{LR-FIR-factorized}
+  \end{align}
+  \]</span></p>
+  <p>何をしているのかというと、 <span class="math inline">\(\dfrac{1}{1
+  - cz^{-1}}\)</span> という IIR フィルタの伝達関数を式 <span
+  class="math inline">\(\ref{LR-FIR-expanded}\)</span>
+  でインパルス応答に変形して、式 <span
+  class="math inline">\(\ref{LR-FIR-factorized}\)</span>
+  で多項式の因数分解を行っています。式 <span
+  class="math inline">\(\ref{LR-FIR-expanded}\)</span> の IIR
+  (無限インパルス応答) を適当に打ち切れば FIR
+  フィルタとして計算できます。それだけだと嬉しくありませんが、式 <span
+  class="math inline">\(\ref{LR-FIR-factorized}\)</span>
+  のように因数分解することで計算量を圧縮するというのがアイデアです。</p>
+  <p>時間反転を行うときは式 <span
+  class="math inline">\(\ref{LR-FIR-factorized}\)</span> の <span
+  class="math inline">\((1 + c^n z^{-n})\)</span> を <span
+  class="math inline">\((c^n + z^{-n})\)</span> に置き換えます。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  \mathrm{reverse}(H_{\mathrm{c}}(z)) = (c + z^{-1})(c^2 + z^{-2})(c^4 +
+  z^{-4})(c^8 + z^{-8}) \dots
+  \label{LR-FIR-factorized-reversed}
+  \end{equation}
+  \]</span></p>
+  <p>以下は式 <span class="math inline">\(\ref{LR-FIR-factorized},
+  \ref{LR-FIR-factorized-reversed}\)</span> で示された 1
+  次の複素数フィルタの FIR 近似のブロック線図です。</p>
+  <figure>
+  <img src="img/complex_1pole.svg" alt="Block diagram of complex 1-pole filter. Time forward and time reversed variants are shown." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>この節の式やブロック線図では <span class="math inline">\(8 =
+  2^3\)</span> 次の因数 (factor)
+  までしか計算していませんが、より高い次数を計算することで精度が上がります。以降では
+  <span class="math inline">\(2^N\)</span> 次まで計算することを <span
+  class="math inline">\(N - 1\)</span>
+  ステージの計算と呼ぶことにします。</p>
+  <h4 id="次の複素共役フィルタの-fir-近似"><a
+  href="#次の複素共役フィルタの-fir-近似" class="header-anchor"
+  aria-hidden="true">2 次の複素共役フィルタの FIR 近似</a></h4>
+  <p>2 次の複素共役フィルタの FIR 近似は 1 次の複素数フィルタの FIR
+  近似を使って効率よく実装できます。以下は 2
+  次の複素共役フィルタの伝達関数です。 <span
+  class="math inline">\(c\)</span> は複素数、 <span
+  class="math inline">\(\bar{c}\)</span> は複素数 <span
+  class="math inline">\(c\)</span> の複素共役です。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  H_{\mathrm{c.c.}}(z) = \frac{1}{(1 - cz^{-1}) (1 - \bar{c}z^{-1})}.
+  \end{equation}
+  \]</span></p>
+  <p><span class="math inline">\(\bar{c} = a - ib\)</span>
+  とすると、適当な入力サンプル <span class="math inline">\(x\)</span>
+  について以下のように伝達関数を変形できます。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  H_{\mathrm{c}} x = (1 - a z^{-1} + i b z^{-1}) H_{\mathrm{c.c.}} x.
+  \end{equation}
+  \]</span></p>
+  <p>ここで 1 次の複素数フィルタの出力を <span
+  class="math inline">\(H_{\mathrm{c}} x = u + iv\)</span> として実部
+  <span class="math inline">\(u\)</span> と虚部 <span
+  class="math inline">\(v\)</span>
+  に分解すると以下の式が得られます。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  u = (1 - a z^{-1}) H_{\mathrm{c.c.}} x, \quad v = b z^{-1}
+  H_{\mathrm{c.c.}} x.
+  \end{equation}
+  \]</span></p>
+  <p><span class="math inline">\(v\)</span> の式を <span
+  class="math inline">\(z^{-1}\)</span> について解き、 <span
+  class="math inline">\(u\)</span>
+  の式に代入すると以下の式が得られます。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  H_{\mathrm{c.c.}} x = u + \frac{a}{b} v.
+  \end{equation}
+  \]</span></p>
+  <p>上の式は “A New Reverse IIR Filtering Algorithm” の式 11
+  で示されている 2 次の複素共役フィルタの FIR
+  近似の効率のいい計算方法です。以下はこの計算のブロック線図です。</p>
+  <figure>
+  <img src="img/complex_conjugate_2pole.svg" alt="Block diagram of complex conjugate 2-pole filter." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は C++ と Python 3 による実装へのリンクです。
+  <code>ComplexIIR</code> クラスの <code>process1PoleForward</code> と
+  <code>process1PoleReversed</code> が 1 次の複素数フィルタの FIR
+  近似の計算、 <code>process2PoleForward</code> と
+  <code>process2PoleReversed</code> が 2 次の複素共役フィルタの FIR
+  近似の計算です。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L177-L262">C++
+  による複素数フィルタの FIR 近似の実装を読む (github.com)</a></li>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/linkwitzriley.py#L150-L194">Python
+  3 による複素数フィルタの FIR 近似の実装を読む (github.com)</a></li>
+  </ul>
+  <p>C++ の実装はステージ数をテンプレートパラメータ <code>stage</code>
+  として指定するために、<a
+  href="https://stackoverflow.com/a/8992939">テンプレートの再帰</a>を使っています。理由はよくわかりませんが、再帰を展開した実装よりも、テンプレートの再帰を使った実装のほうが
+  <code>cl.exe</code> (Version 19.36.32532 for x64)
+  では速くなりました。</p>
+  <h4 id="butterworth-フィルタ-の-fir-近似"><a
+  href="#butterworth-フィルタ-の-fir-近似" class="header-anchor"
+  aria-hidden="true">Butterworth フィルタ の FIR 近似</a></h4>
+  <p>2 次の複素共役フィルタの FIR 近似を用いて Butterworth フィルタの
+  FIR 近似を行います。この節では「<a
+  href="https://ryukau.github.io/filter_notes/s_curve_step_response_filter/s_curve_step_response_filter.html#%E6%AC%A1%E3%82%BB%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%B8%E3%81%AE%E5%88%86%E5%89%B2">ステップ応答が
+  S 字を描くフィルタ</a>」に掲載した Bessel フィルタを 2
+  次セクションに分割する手法を流用しています。 Butterworth フィルタも
+  Bessel フィルタと同様に全極フィルタなので同じ手法で 2
+  次セクションに分割できます。</p>
+  <p>バイリニア変換した離散系の <span class="math inline">\(N\)</span>
+  次の Butterworth フィルタは以下の 2 次セクションで表されます。</p>
+  <p><span class="math display">\[
+  \begin{align}
+  H_{\mathrm{Butter.} N}(z) &amp;= G \prod_{k=1}^{N/2} \frac{1 + 2
+  z^{-1} + z^{-2}}{1 - 2 \mathrm{Re}(p_k) z^{-1} + |p_k|^2 z^{-2}}, \\
+  G &amp;= \prod_{k=1}^{N/2} \frac{1 - 2 \mathrm{Re}(p_k) + |p_k|^2}{4}.
+  \label{allpole-sos-gain}
+  \end{align}
+  \]</span></p>
+  <p><span class="math inline">\(p_k\)</span> は 2
+  次セクションの極の片方、 <span class="math inline">\(G\)</span>
+  はフィルタ全体のゲインです。 Butterworth フィルタの 2
+  次セクションの極は複素共役となるので、 2
+  次の複素共役フィルタの伝達関数の分母と一致します。以下は 2
+  次の複素共役フィルタの伝達関数の再掲です。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  H_{\mathrm{c.c.}}(z) = \frac{1}{(1 - cz^{-1}) (1 - \bar{c}z^{-1})}.
+  \end{equation}
+  \]</span></p>
+  <p>ここで Butterworth の 2 次セクションと 2
+  次の複素共役フィルタに違いがあります。 Butterworth の 2
+  次セクションは分子が <span class="math inline">\(1 + 2 z^{-1} +
+  z^{-2}\)</span> ですが、 2 次の複素共役フィルタの分子は <span
+  class="math inline">\(1\)</span> です。つまり <span
+  class="math inline">\(1 + 2 z^{-1} + z^{-2}\)</span>
+  の部分を追加で計算する必要があります。</p>
+  <p>Butterworth フィルタの複素共役を除いた極 <span
+  class="math inline">\(p_k\)</span> は以下の式で計算できます。 <span
+  class="math inline">\(f_c\)</span> はカットオフ周波数、 <span
+  class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
+  <p><span class="math display">\[
+  p_k = - 2 \pi \frac{f_c}{f_s} \exp \left( i \frac{\pi (2 k - N + 1)}{2
+  N} \right), \quad k \in [0, N/2).
+  \]</span></p>
+  <p>さらに数値計算の安定性を高めるために <span
+  class="math inline">\(G\)</span> を以下の式で各セクションのゲイン
+  <span class="math inline">\(g\)</span> に分割します。</p>
+  <p><span class="math display">\[
+  g = G^{\frac{1}{N/2}}.
+  \]</span></p>
+  <p>式 <span class="math inline">\(\ref{allpole-sos-gain}\)</span>
+  を変形して 2
+  次セクションごとに適切なゲインを設定することもできますが、保持する変数が増えます。</p>
+  <p>ここまでをまとめると以下のブロック線図となります。フィルタは線形なので
+  <span class="math inline">\(g\)</span> の位置を <code>Output</code>
+  の直前に動かしても動作します。</p>
+  <figure>
+  <img src="img/fir_butterworth.svg" alt="Block diagram of FIR Butterworth lowpass and highpass." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は C++ による実装へのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L264-L331">C++
+  による Butterworth フィルタ の FIR 近似の実装を読む
+  (github.com)</a></li>
+  </ul>
+  <h4 id="線形位相-fir-linkwitz-riley"><a
+  href="#線形位相-fir-linkwitz-riley" class="header-anchor"
+  aria-hidden="true">線形位相 FIR Linkwitz-Riley</a></h4>
+  <p>線形位相なのでハイパスは遅延した入力からローパスを減算すれば得られます。つまりハイパスの計算は省略できます。分割と併合についても
+  IIR の Linkwitz-Riley のような補正オールパスは不要です。</p>
+  <figure>
+  <img src="img/fir_linkwitz_riley.svg" alt="Block diagram of FIR Linkwitz-Riley crossover." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は C++ による実装へのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/ebf401bd95eea9d361650e83a1abd891db6bfae6/crossover_filter/code/cpp/benchmark.cpp#L333-L357">C++
+  による FIR Linkwitz-Riley の実装を読む (github.com)</a></li>
+  </ul>
+  <h2 id="比較"><a href="#比較" class="header-anchor"
+  aria-hidden="true">比較</a></h2>
+  <p>😀 は良、 👹 は悪を表しています。</p>
+  <table>
+  <colgroup>
+  <col style="width: 22%" />
+  <col style="width: 15%" />
+  <col style="width: 34%" />
+  <col style="width: 27%" />
+  </colgroup>
+  <thead>
+  <tr class="header">
+  <th style="text-align: center;"></th>
+  <th style="text-align: center;">素朴な FIR</th>
+  <th style="text-align: center;">Linkwitz-Riley IIR</th>
+  <th style="text-align: center;">Linkwitz-Riley FIR</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td style="text-align: center;">線形位相</td>
+  <td style="text-align: center;">😀</td>
+  <td style="text-align: center;">👹</td>
+  <td style="text-align: center;">😀</td>
+  </tr>
+  <tr class="even">
+  <td style="text-align: center;">レイテンシ</td>
+  <td style="text-align: center;">👹</td>
+  <td style="text-align: center;">😀</td>
+  <td style="text-align: center;">👹</td>
+  </tr>
+  <tr class="odd">
+  <td style="text-align: center;">実装の容易さ</td>
+  <td style="text-align: center;">😀</td>
+  <td style="text-align: center;">2 バンド 😀 / 3 バンド以上 👹</td>
+  <td style="text-align: center;">👹</td>
+  </tr>
+  <tr class="even">
+  <td style="text-align: center;">クロスオーバーの対称性</td>
+  <td style="text-align: center;">👹</td>
+  <td style="text-align: center;">😀</td>
+  <td style="text-align: center;">😀</td>
+  </tr>
+  </tbody>
+  </table>
+  <p>低レイテンシが要件なら Linkwitz-Riley IIR
+  が適しています。線形位相が要件かつ手軽に実装したいなら素朴な FIR
+  、実装に手間をかけてもいいなら Linkwitz-Riley FIR が適しています。</p>
+  <p>クロスオーバーの対称性はフィルタの振幅特性のスロープやストップバンドでの低減率などがローパスとハイパスで対称かということです。非対称を
+  👹 としています。</p>
+  <h3 id="バンドのベンチマーク"><a href="#バンドのベンチマーク"
+  class="header-anchor" aria-hidden="true">2
+  バンドのベンチマーク</a></h3>
+  <p>素朴な FIR 、 Linkwitz-Riley IIR 、 FIR Linkwitz-Riley の 3
+  つについて、 2 バンドの場合の簡単なベンチマークを取りました。</p>
+  <table>
+  <thead>
+  <tr class="header">
+  <th>Name</th>
+  <th style="text-align: right;">Elapsed [ms]</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td>LinkwitzRileyIIR2Band4n</td>
+  <td style="text-align: right;">1.4590</td>
+  </tr>
+  <tr class="even">
+  <td>LinkwitzRileyFIR2Band4n</td>
+  <td style="text-align: right;">2.4562</td>
+  </tr>
+  <tr class="odd">
+  <td>WindowedFIR2Band</td>
+  <td style="text-align: right;">2.8668</td>
+  </tr>
+  </tbody>
+  </table>
+  <p>以下はベンチマークに使ったコードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/crossover_filter/code/cpp/benchmark.cpp">filter_notes/crossover_filter/code/cpp/benchmark.cpp
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <p>以下はパラメータの設定です。</p>
+  <ul>
+  <li>Linkwitz-Riley IIR
+  <ul>
+  <li>4 次</li>
+  </ul></li>
+  <li>Linkwitz-Riley FIR
+  <ul>
+  <li>4 次</li>
+  <li>8 ステージ (2^8 サンプルの FIR と等価)</li>
+  </ul></li>
+  <li>素朴な FIR
+  <ul>
+  <li>255 サンプル</li>
+  </ul></li>
+  </ul>
+  <p>結果を見ると IIR の Linkwitz-Riley が速く、 FIR
+  の実装はあまり差がありません。ただし、素朴な FIR
+  は畳み込みの計算について大いに改善の余地があります。また
+  Linkwitz-Riley FIR のステージ数や、素朴な FIR
+  のフィルタ係数の数によって結果が変わることが予想されます。</p>
+  <p>このベンチマークは実は素朴な FIR
+  で十分ではないか、という疑問を解消するために行ったのでパラメータを細かく変えてトレンドを調べていません。クロスオーバー周波数をリアルタイムで変更する用途であれば、素朴な
+  FIR のフィルタ係数の更新がかなりの負荷になるので、 Linkwitz-Riley FIR
+  の利用価値はあるように見えます。クロスオーバー周波数が固定なら素朴な
+  FIR でも十分な気がします。</p>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Linkwitz%E2%80%93Riley_filter">Linkwitz–Riley
+  filter - Wikipedia</a></li>
+  <li><a href="https://linkwitzlab.com/filters.htm">Active
+  Filters</a></li>
+  <li><a
+  href="https://github.com/HEnquist/camilladsp/blob/master/filterfunctions.md">Building
+  higher order filters with Biquads | CamillaDSP</a></li>
+  <li><a
+  href="https://www.earlevel.com/main/2016/09/29/cascading-filters/">Cascading
+  filters | EarLevel Engineering</a></li>
+  <li><a
+  href="https://dsp.stackexchange.com/questions/7830/bessel-filter-second-order-sections-q-and-fc-multiplier-derivation">Bessel
+  filter second-order sections Q and Fc multiplier derivation - Signal
+  Processing Stack Exchange</a></li>
+  <li>Martin Vicanek, <a
+  href="https://vicanek.de/articles/ReverseIIR.pdf">“A New Reverse IIR
+  Filtering Algorithm”</a>, revised 2022-01-05. Obtained from <a
+  href="https://vicanek.de/articles.htm">MV’s Plugins Articles</a> in
+  2023-06-16.</li>
+  <li><a
+  href="https://dsp.stackexchange.com/questions/37714/kaiser-window-approximation/37720#37720">Kaiser
+  window approximation - Signal Processing Stack Exchange</a></li>
+  <li><a
+  href="https://github.com/google/oboe/blob/main/src/flowgraph/resampler/KaiserWindow.h">oboe/src/flowgraph/resampler/KaiserWindow.h
+  at main · google/oboe · GitHub</a></li>
+  <li><a href="https://thewolfsound.com/allpass-filter/">Allpass Filter:
+  All You Need To Know - WolfSound</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/05/17
+  <ul>
+  <li>「2 つ直列につないだ Butterworth
+  フィルタ」と「補正オールパスフィルタ」の <span
+  class="math inline">\(Q_k\)</span> の式を修正。</li>
+  </ul></li>
+  <li>2024/05/06
+  <ul>
+  <li>線形位相 FIR Linkwitz-Riley の下の図の High と Low
+  が入れ替わっていた誤りを修正。</li>
+  </ul></li>
+  <li>2024/04/30
+  <ul>
+  <li>分子とするべきところで分母と書いていた誤りを修正。</li>
+  </ul></li>
+  <li>2023/10/30
+  <ul>
+  <li>概要の追加。</li>
+  <li>「2 つ直列につないだ Butterworth
+  フィルタ」の式の出典を文中に追加。</li>
+  <li>文章の整理。</li>
+  </ul></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

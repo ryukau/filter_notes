@@ -6,10 +6,38 @@
   <title>波ノート</title>
 
   <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+      }
+
+      :link {
+        color: #88aaee;
+      }
+
+      :visited {
+        color: #dd77cc;
+      }
+
+      :link:active,
+      :visited:active {
+        color: #ff6666;
+      }
+    }
+
     body {
       max-width: 704px;
       margin: auto;
       padding: 32px 8px;
+
+      background-color: var(--background-color);
+      color: var(--foreground-color);
     }
 
     h1,
@@ -36,10 +64,13 @@
   <h1 id="波ノート">波ノート</h1>
   <p>なんかややこしそうな式がでてきたけど、どうやってコンピュータで計算すりゃいいんだ。</p>
   <p>そんなときに調べたことをまとめたノートです。</p>
-  <p>セクションごとに、下に進むほど記事が新しくなるように並べています。</p>
   <p>
     何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
   </p>
+  <ul style="list-style-type: none;">
+    <li>セクションごとに、下に進むほど記事が新しくなります。</li>
+    <li>色についてのコメントはライトテーマを基準に書いています。ダークテーマでは図の色が反転します。</li>
+  </ul>
   <h2 id="フィルタ">フィルタ</h2>
   <ul>
     <li><a href="basic_fir/basic_fir.html">お手軽なFIRフィルタのレシピ</a></li>
@@ -123,6 +154,7 @@
   <h2 id="フィルタ">関連リンク</h2>
   <ul>
     <li><a href="https://github.com/ryukau/VSTPlugins">VST 3 プラグインのリポジトリ (github.com)</a></li>
+    <li><a href="https://ryukau.github.io/UhhyouWebSynthesizers/">Web シンセサイザ (github.io)</a></li>
     <li><a href="https://ryukau.blogspot.com/">ブログ (blogger.com)</a></li>
   </ul>
 </body>

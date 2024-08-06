@@ -2,469 +2,534 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-08-05" />
-<title>recursive_sine</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>recursive_sine</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-08-05
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#sin-cos-を反復的に計算するアルゴリズムのレシピ"
-id="toc-sin-cos-を反復的に計算するアルゴリズムのレシピ">sin, cos
-を反復的に計算するアルゴリズムのレシピ</a>
-<ul>
-<li><a href="#記号" id="toc-記号">記号</a></li>
-<li><a href="#biquad-oscillator" id="toc-biquad-oscillator">Biquad
-Oscillator</a></li>
-<li><a href="#reinsch-oscillator" id="toc-reinsch-oscillator">Reinsch
-Oscillator</a></li>
-<li><a href="#digital-waveguide-oscillator"
-id="toc-digital-waveguide-oscillator">Digital Waveguide
-Oscillator</a></li>
-<li><a href="#quadrature-oscillator-with-staggered-update"
-id="toc-quadrature-oscillator-with-staggered-update">Quadrature
-Oscillator with Staggered Update</a></li>
-<li><a href="#magic-circle-oscillator"
-id="toc-magic-circle-oscillator">Magic Circle Oscillator</a></li>
-<li><a href="#coupled-form-oscillator"
-id="toc-coupled-form-oscillator">Coupled Form Oscillator</a></li>
-<li><a href="#stable-quadrature-oscillator"
-id="toc-stable-quadrature-oscillator">Stable Quadrature
-Oscillator</a></li>
-<li><a href="#周波数変調時の挙動"
-id="toc-周波数変調時の挙動">周波数変調時の挙動</a></li>
-<li><a href="#高速な周波数の変更"
-id="toc-高速な周波数の変更">高速な周波数の変更</a></li>
-<li><a href="#ナイキスト周波数での挙動"
-id="toc-ナイキスト周波数での挙動">ナイキスト周波数での挙動</a></li>
-<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
-<li><a href="#変更点" id="toc-変更点">変更点</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="sin-cos-を反復的に計算するアルゴリズムのレシピ"><a
-href="#sin-cos-を反復的に計算するアルゴリズムのレシピ"
-class="header-anchor" aria-hidden="true">sin, cos
-を反復的に計算するアルゴリズムのレシピ</a></h1>
-<p>sin と cos を反復的に計算するアルゴリズムのレシピ集です。出典は
-Martin Vicanek さんによる “<a
-href="https://www.vicanek.de/articles/QuadOsc.pdf">A New Recursive
-Quadrature Oscillator</a>” の appendix (pp.7-9)
-です。初期位相の設定方法については、この文章で独自に追加しています。</p>
-<p>オシレータの質は以下の項目を満たすほど良くなります。各アルゴリズムの比較表は
-“A New Recursive Quadrature Oscillator” の p.10 に掲載されています。</p>
-<ul>
-<li>sin と cos の振幅が等しい。 (Equal Amplitudes)</li>
-<li>同じ位相の sin と cos が同時に計算できる。 (Quadrature, 直行)</li>
-<li>システムが安定。 (Stable)</li>
-<li>低周波数でも正確。 (Low frequency accurate)</li>
-</ul>
-<p>ここでは加算合成シンセサイザのオシレータへの応用を考慮しています。大量のオシレータを同時に鳴らすわけでなければ標準ライブラリの
-sin, cos, sincos などを使うほうがいいです。</p>
-<p>この文章では Python 3 のコード例を掲載しています。以下は JavaScript
-による実装へのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/main/common/dsp/recursivesine.js">UhhyouWebSynthesizers/common/dsp/recursivesine.js
-at main · ryukau/UhhyouWebSynthesizers · GitHub</a></li>
-</ul>
-<h2 id="記号"><a href="#記号" class="header-anchor"
-aria-hidden="true">記号</a></h2>
-<ul>
-<li><span class="math inline">\(n\)</span> : 時間。サンプル数。</li>
-<li><span class="math inline">\(\omega\)</span> : オシレータの周波数。
-Radian 。</li>
-<li><span class="math inline">\(\phi\)</span> : 初期位相。 Radian
-。</li>
-<li><span class="math inline">\(s, t, u, v, w\)</span> : 状態変数。</li>
-<li><span class="math inline">\(k\)</span> :
-係数。周波数から決定されるパラメータ。</li>
-<li><span class="math inline">\(A\)</span> : 1 ではない出力振幅。 sin と
-cos が同時に計算できるアルゴリズムでは片方の振幅が 1
-でないものがある。</li>
-</ul>
-<h2 id="biquad-oscillator"><a href="#biquad-oscillator"
-class="header-anchor" aria-hidden="true">Biquad Oscillator</a></h2>
-<p>出力が sin
-だけですが、最も高速に計算できます。低周波数で精度が落ちるそうですが、音への応用かつ
-32-bit float が使えるならあまり問題にはなりません。</p>
-<table>
-<colgroup>
-<col style="width: 17%" />
-<col style="width: 12%" />
-<col style="width: 55%" />
-<col style="width: 14%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>反復部</th>
-<th>パラメータ</th>
-<th>初期化</th>
-<th>出力</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(u_{n+1} = k u_n - u_{n-1}\)</span></td>
-<td><span class="math inline">\(k = 2 \cos \omega\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \sin(\phi -
-\omega)\\u_{-2} &amp;= \sin(\phi - 2 \omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(u_n = \sin(n \omega)\)</span></td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#sin-cos-を反復的に計算するアルゴリズムのレシピ"
+        id="toc-sin-cos-を反復的に計算するアルゴリズムのレシピ">sin, cos
+        を反復的に計算するアルゴリズムのレシピ</a>
+        <ul>
+        <li><a href="#記号" id="toc-記号">記号</a></li>
+        <li><a href="#biquad-oscillator"
+        id="toc-biquad-oscillator">Biquad Oscillator</a></li>
+        <li><a href="#reinsch-oscillator"
+        id="toc-reinsch-oscillator">Reinsch Oscillator</a></li>
+        <li><a href="#digital-waveguide-oscillator"
+        id="toc-digital-waveguide-oscillator">Digital Waveguide
+        Oscillator</a></li>
+        <li><a href="#quadrature-oscillator-with-staggered-update"
+        id="toc-quadrature-oscillator-with-staggered-update">Quadrature
+        Oscillator with Staggered Update</a></li>
+        <li><a href="#magic-circle-oscillator"
+        id="toc-magic-circle-oscillator">Magic Circle
+        Oscillator</a></li>
+        <li><a href="#coupled-form-oscillator"
+        id="toc-coupled-form-oscillator">Coupled Form
+        Oscillator</a></li>
+        <li><a href="#stable-quadrature-oscillator"
+        id="toc-stable-quadrature-oscillator">Stable Quadrature
+        Oscillator</a></li>
+        <li><a href="#周波数変調時の挙動"
+        id="toc-周波数変調時の挙動">周波数変調時の挙動</a></li>
+        <li><a href="#高速な周波数の変更"
+        id="toc-高速な周波数の変更">高速な周波数の変更</a></li>
+        <li><a href="#ナイキスト周波数での挙動"
+        id="toc-ナイキスト周波数での挙動">ナイキスト周波数での挙動</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="sin-cos-を反復的に計算するアルゴリズムのレシピ"><a
+  href="#sin-cos-を反復的に計算するアルゴリズムのレシピ"
+  class="header-anchor" aria-hidden="true">sin, cos
+  を反復的に計算するアルゴリズムのレシピ</a></h1>
+  <p>sin と cos を反復的に計算するアルゴリズムのレシピ集です。出典は
+  Martin Vicanek さんによる “<a
+  href="https://www.vicanek.de/articles/QuadOsc.pdf">A New Recursive
+  Quadrature Oscillator</a>” の appendix (pp.7-9)
+  です。初期位相の設定方法については、この文章で独自に追加しています。</p>
+  <p>オシレータの質は以下の項目を満たすほど良くなります。各アルゴリズムの比較表は
+  “A New Recursive Quadrature Oscillator” の p.10
+  に掲載されています。</p>
+  <ul>
+  <li>sin と cos の振幅が等しい。 (Equal Amplitudes)</li>
+  <li>同じ位相の sin と cos が同時に計算できる。 (Quadrature, 直行)</li>
+  <li>システムが安定。 (Stable)</li>
+  <li>低周波数でも正確。 (Low frequency accurate)</li>
+  </ul>
+  <p>ここでは加算合成シンセサイザのオシレータへの応用を考慮しています。大量のオシレータを同時に鳴らすわけでなければ標準ライブラリの
+  sin, cos, sincos などを使うほうがいいです。</p>
+  <p>この文章では Python 3 のコード例を掲載しています。以下は JavaScript
+  による実装へのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/UhhyouWebSynthesizers/blob/main/common/dsp/recursivesine.js">UhhyouWebSynthesizers/common/dsp/recursivesine.js
+  at main · ryukau/UhhyouWebSynthesizers · GitHub</a></li>
+  </ul>
+  <h2 id="記号"><a href="#記号" class="header-anchor"
+  aria-hidden="true">記号</a></h2>
+  <ul>
+  <li><span class="math inline">\(n\)</span> : 時間。サンプル数。</li>
+  <li><span class="math inline">\(\omega\)</span> : オシレータの周波数。
+  Radian 。</li>
+  <li><span class="math inline">\(\phi\)</span> : 初期位相。 Radian
+  。</li>
+  <li><span class="math inline">\(s, t, u, v, w\)</span> :
+  状態変数。</li>
+  <li><span class="math inline">\(k\)</span> :
+  係数。周波数から決定されるパラメータ。</li>
+  <li><span class="math inline">\(A\)</span> : 1 ではない出力振幅。 sin
+  と cos が同時に計算できるアルゴリズムでは片方の振幅が 1
+  でないものがある。</li>
+  </ul>
+  <h2 id="biquad-oscillator"><a href="#biquad-oscillator"
+  class="header-anchor" aria-hidden="true">Biquad Oscillator</a></h2>
+  <p>出力が sin
+  だけですが、最も高速に計算できます。低周波数で精度が落ちるそうですが、音への応用かつ
+  32-bit float が使えるならあまり問題にはなりません。</p>
+  <table>
+  <colgroup>
+  <col style="width: 17%" />
+  <col style="width: 12%" />
+  <col style="width: 55%" />
+  <col style="width: 14%" />
+  </colgroup>
+  <thead>
+  <tr class="header">
+  <th>反復部</th>
+  <th>パラメータ</th>
+  <th>初期化</th>
+  <th>出力</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td><span class="math inline">\(u_{n+1} = k u_n -
+  u_{n-1}\)</span></td>
+  <td><span class="math inline">\(k = 2 \cos \omega\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \sin(\phi
+  - \omega)\\u_{-2} &amp;= \sin(\phi - 2
+  \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(u_n = \sin(n \omega)\)</span></td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> biquad(freqNormalized, initialPhase):</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
@@ -483,43 +548,43 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        u2 <span class="op">=</span> u1</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        u1 <span class="op">=</span> u0</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (u0, <span class="dv">0</span>)</span></code></pre></div>
-<h2 id="reinsch-oscillator"><a href="#reinsch-oscillator"
-class="header-anchor" aria-hidden="true">Reinsch Oscillator</a></h2>
-<p>Vicanek
-さんによると、周波数が固定なら理想的なオシレータだそうです。</p>
-<table>
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 26%" />
-<col style="width: 27%" />
-<col style="width: 24%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>反復部</th>
-<th>パラメータ</th>
-<th>初期化</th>
-<th>出力</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(\begin{aligned}u_{n+1} &amp;= u_n +
-v_n\\v_{n+1} &amp;= v_n - k u_{n+1}\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}k &amp;= 4 \sin^2
-(\tfrac{1}{2} \omega)\\A &amp;= 2 \sin(\tfrac{1}{2}
-\omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \sin(\phi -
-\omega)\\v_{-1} &amp;= A \cos(\phi - \tfrac{1}{2}
-\omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_n &amp;= \sin(n
-\omega)\\v_n &amp;= A \cos[(n + \tfrac{1}{2})
-\omega]\end{aligned}\)</span></td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reinsch(freqNormalized, initialPhase):</span>
+  <h2 id="reinsch-oscillator"><a href="#reinsch-oscillator"
+  class="header-anchor" aria-hidden="true">Reinsch Oscillator</a></h2>
+  <p>Vicanek
+  さんによると、周波数が固定なら理想的なオシレータだそうです。</p>
+  <table>
+  <colgroup>
+  <col style="width: 20%" />
+  <col style="width: 26%" />
+  <col style="width: 27%" />
+  <col style="width: 24%" />
+  </colgroup>
+  <thead>
+  <tr class="header">
+  <th>反復部</th>
+  <th>パラメータ</th>
+  <th>初期化</th>
+  <th>出力</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td><span class="math inline">\(\begin{aligned}u_{n+1} &amp;= u_n +
+  v_n\\v_{n+1} &amp;= v_n - k u_{n+1}\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}k &amp;= 4 \sin^2
+  (\tfrac{1}{2} \omega)\\A &amp;= 2 \sin(\tfrac{1}{2}
+  \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \sin(\phi
+  - \omega)\\v_{-1} &amp;= A \cos(\phi - \tfrac{1}{2}
+  \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_n &amp;= \sin(n
+  \omega)\\v_n &amp;= A \cos[(n + \tfrac{1}{2})
+  \omega]\end{aligned}\)</span></td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reinsch(freqNormalized, initialPhase):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.sin(omega <span class="op">/</span> <span class="dv">2</span>)</span>
@@ -530,41 +595,42 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> u <span class="op">+</span> v</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> v <span class="op">-</span> k <span class="op">*</span> u</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (u, v)  <span class="co"># `u` is main output.</span></span></code></pre></div>
-<h2 id="digital-waveguide-oscillator"><a
-href="#digital-waveguide-oscillator" class="header-anchor"
-aria-hidden="true">Digital Waveguide Oscillator</a></h2>
-<p>他と比べると周波数変調時の振幅の変化が大きいオシレータです。</p>
-<table>
-<colgroup>
-<col style="width: 29%" />
-<col style="width: 22%" />
-<col style="width: 26%" />
-<col style="width: 21%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>反復部</th>
-<th>パラメータ</th>
-<th>初期化</th>
-<th>出力</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(\begin{aligned}s_n &amp;= k (u_n +
-v_n)\\t_n &amp;= s_n + u_n\\v_{n+1} &amp;= s_n - v_n\\v_{n+1} &amp;=
-t_n\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}k &amp;= \cos \omega\\A
-&amp;= -\tan(\tfrac{1}{2} \omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= A \sin(\phi
-- \omega)\\v_{-1} &amp;= \cos(\phi - \omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_n &amp;= A \sin(n
-\omega)\\v_n &amp;= \cos(n \omega)\end{aligned}\)</span></td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> digitalWaveguide(freqNormalized, initialPhase):</span>
+  <h2 id="digital-waveguide-oscillator"><a
+  href="#digital-waveguide-oscillator" class="header-anchor"
+  aria-hidden="true">Digital Waveguide Oscillator</a></h2>
+  <p>他と比べると周波数変調時の振幅の変化が大きいオシレータです。</p>
+  <table>
+  <colgroup>
+  <col style="width: 29%" />
+  <col style="width: 22%" />
+  <col style="width: 26%" />
+  <col style="width: 21%" />
+  </colgroup>
+  <thead>
+  <tr class="header">
+  <th>反復部</th>
+  <th>パラメータ</th>
+  <th>初期化</th>
+  <th>出力</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td><span class="math inline">\(\begin{aligned}s_n &amp;= k (u_n +
+  v_n)\\t_n &amp;= s_n + u_n\\v_{n+1} &amp;= s_n - v_n\\v_{n+1} &amp;=
+  t_n\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}k &amp;= \cos \omega\\A
+  &amp;= -\tan(\tfrac{1}{2} \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= A
+  \sin(\phi - \omega)\\v_{-1} &amp;= \cos(\phi -
+  \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_n &amp;= A \sin(n
+  \omega)\\v_n &amp;= \cos(n \omega)\end{aligned}\)</span></td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> digitalWaveguide(freqNormalized, initialPhase):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> <span class="op">-</span>np.tan(omega <span class="op">/</span> <span class="dv">2</span>) <span class="op">*</span> np.sin(phi <span class="op">-</span> omega)</span>
@@ -576,41 +642,42 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> s <span class="op">-</span> v</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> t</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (u, v)  <span class="co"># `v` is main output.</span></span></code></pre></div>
-<h2 id="quadrature-oscillator-with-staggered-update"><a
-href="#quadrature-oscillator-with-staggered-update"
-class="header-anchor" aria-hidden="true">Quadrature Oscillator with
-Staggered Update</a></h2>
-<p>出所がよくわからないオシレータです。</p>
-<table>
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 21%" />
-<col style="width: 29%" />
-<col style="width: 24%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>反復部</th>
-<th>パラメータ</th>
-<th>初期化</th>
-<th>出力</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(\begin{aligned}v_{n+1} &amp;= u_n + k
-v_n\\u_{n+1} &amp;= k v_{n+1} - v_n\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}k &amp;= \cos \omega\\A
-&amp;= -\sin(\omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= A \sin(\phi
-- \omega)\\v_{-1} &amp;= \cos(\phi - \omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_n &amp;= A \sin(n
-\omega)\\v_n &amp;= \cos(n \omega)\end{aligned}\)</span></td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quadratureStaggered(freqNormalized, initialPhase):</span>
+  <h2 id="quadrature-oscillator-with-staggered-update"><a
+  href="#quadrature-oscillator-with-staggered-update"
+  class="header-anchor" aria-hidden="true">Quadrature Oscillator with
+  Staggered Update</a></h2>
+  <p>出所がよくわからないオシレータです。</p>
+  <table>
+  <colgroup>
+  <col style="width: 25%" />
+  <col style="width: 21%" />
+  <col style="width: 29%" />
+  <col style="width: 24%" />
+  </colgroup>
+  <thead>
+  <tr class="header">
+  <th>反復部</th>
+  <th>パラメータ</th>
+  <th>初期化</th>
+  <th>出力</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td><span class="math inline">\(\begin{aligned}v_{n+1} &amp;= u_n + k
+  v_n\\u_{n+1} &amp;= k v_{n+1} - v_n\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}k &amp;= \cos \omega\\A
+  &amp;= -\sin(\omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= A
+  \sin(\phi - \omega)\\v_{-1} &amp;= \cos(\phi -
+  \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_n &amp;= A \sin(n
+  \omega)\\v_n &amp;= \cos(n \omega)\end{aligned}\)</span></td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> quadratureStaggered(freqNormalized, initialPhase):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> <span class="op">-</span>np.sin(omega) <span class="op">*</span> np.sin(phi <span class="op">-</span> omega)</span>
@@ -621,57 +688,57 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> u <span class="op">+</span> k <span class="op">*</span> v</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> k <span class="op">*</span> v <span class="op">-</span> t</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (u, v)  <span class="co"># `v` is main output.</span></span></code></pre></div>
-<h2 id="magic-circle-oscillator"><a href="#magic-circle-oscillator"
-class="header-anchor" aria-hidden="true">Magic Circle
-Oscillator</a></h2>
-<p>Modified coupled form
-とも呼ばれます。以下はアルゴリズムのアイデアを示す資料へのリンクです。フットノートの
-<a
-href="https://ccrma.stanford.edu/~jos/pasp/footnode.html#foot53986">C.17</a>
-に追加情報があります。</p>
-<ul>
-<li><a
-href="https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html">Digital
-Sinusoid Generators</a></li>
-</ul>
-<p>以下の式は Vicenak さんによって紹介されている形とは異なります。
-Quadrature オシレータとなるように変更を加えています。パラメータ <span
-class="math inline">\(k\)</span> は <a
-href="https://en.wikipedia.org/wiki/Small-angle_approximation">small
-angle approximation</a> によって <span class="math inline">\(2
-\sin(\tfrac{1}{2} \omega) \approx \omega\)</span>
-と近似できます。つまり、低い周波数であれば高速に周波数を変更できます。</p>
-<table>
-<colgroup>
-<col style="width: 27%" />
-<col style="width: 11%" />
-<col style="width: 35%" />
-<col style="width: 25%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>反復部</th>
-<th>パラメータ</th>
-<th>初期化</th>
-<th>出力</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(\begin{aligned}u_{n+1} &amp;= u_n - k
-v_n\\v_{n+1} &amp;= v_n + k u_{n+1}\end{aligned}\)</span></td>
-<td><span class="math inline">\(k = 2 \sin(\tfrac{1}{2}
-\omega)\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \cos(\phi -
-\frac{3}{2} \omega)\\v_{-1} &amp;= \sin(\phi -
-\omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_n &amp;= \cos(n
-\omega)\\v_n &amp;= \sin(n \omega)\end{aligned}\)</span></td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> magicCircle(freqNormalized, initialPhase):</span>
+  <h2 id="magic-circle-oscillator"><a href="#magic-circle-oscillator"
+  class="header-anchor" aria-hidden="true">Magic Circle
+  Oscillator</a></h2>
+  <p>Modified coupled form
+  とも呼ばれます。以下はアルゴリズムのアイデアを示す資料へのリンクです。フットノートの
+  <a
+  href="https://ccrma.stanford.edu/~jos/pasp/footnode.html#foot53986">C.17</a>
+  に追加情報があります。</p>
+  <ul>
+  <li><a
+  href="https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html">Digital
+  Sinusoid Generators</a></li>
+  </ul>
+  <p>以下の式は Vicenak さんによって紹介されている形とは異なります。
+  Quadrature オシレータとなるように変更を加えています。パラメータ <span
+  class="math inline">\(k\)</span> は <a
+  href="https://en.wikipedia.org/wiki/Small-angle_approximation">small
+  angle approximation</a> によって <span class="math inline">\(2
+  \sin(\tfrac{1}{2} \omega) \approx \omega\)</span>
+  と近似できます。つまり、低い周波数であれば高速に周波数を変更できます。</p>
+  <table>
+  <colgroup>
+  <col style="width: 27%" />
+  <col style="width: 11%" />
+  <col style="width: 35%" />
+  <col style="width: 25%" />
+  </colgroup>
+  <thead>
+  <tr class="header">
+  <th>反復部</th>
+  <th>パラメータ</th>
+  <th>初期化</th>
+  <th>出力</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td><span class="math inline">\(\begin{aligned}u_{n+1} &amp;= u_n - k
+  v_n\\v_{n+1} &amp;= v_n + k u_{n+1}\end{aligned}\)</span></td>
+  <td><span class="math inline">\(k = 2 \sin(\tfrac{1}{2}
+  \omega)\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \cos(\phi
+  - \frac{3}{2} \omega)\\v_{-1} &amp;= \sin(\phi -
+  \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_n &amp;= \cos(n
+  \omega)\\v_n &amp;= \sin(n \omega)\end{aligned}\)</span></td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> magicCircle(freqNormalized, initialPhase):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.cos(phi <span class="op">-</span> omega <span class="op">*</span> <span class="dv">3</span> <span class="op">/</span> <span class="dv">2</span>)</span>
@@ -681,43 +748,44 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        u <span class="op">-=</span> k <span class="op">*</span> v</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        v <span class="op">+=</span> k <span class="op">*</span> u</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (v, u)</span></code></pre></div>
-<h2 id="coupled-form-oscillator"><a href="#coupled-form-oscillator"
-class="header-anchor" aria-hidden="true">Coupled Form
-Oscillator</a></h2>
-<p>Vicenak
-さんによると、このオシレータは不安定で、周波数が一定でも時間とともに振幅が変わるそうです。ただし数秒程度の音の計算であればそれほど問題にはなりません。
-<a href="https://en.wikipedia.org/wiki/Rotation_matrix">2
-次元の回転行列</a>の計算と同じ形をしています。</p>
-<table>
-<colgroup>
-<col style="width: 27%" />
-<col style="width: 21%" />
-<col style="width: 28%" />
-<col style="width: 23%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>反復部</th>
-<th>パラメータ</th>
-<th>初期化</th>
-<th>出力</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(\begin{aligned}u_{n+1} &amp;= k_1 u_n -
-k_2 v_n\\v_{n+1} &amp;= k_2 u_n + k_1 v_n\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}k_1 &amp;= \cos
-\omega\\k_2 &amp;= \sin \omega\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \cos(\phi -
-\omega)\\v_{-1} &amp;= \sin(\phi - \omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_n &amp;= \cos(n
-\omega)\\v_n &amp;= \sin(n \omega)\end{aligned}\)</span></td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> coupledForm(freqNormalized, initialPhase):</span>
+  <h2 id="coupled-form-oscillator"><a href="#coupled-form-oscillator"
+  class="header-anchor" aria-hidden="true">Coupled Form
+  Oscillator</a></h2>
+  <p>Vicenak
+  さんによると、このオシレータは不安定で、周波数が一定でも時間とともに振幅が変わるそうです。ただし数秒程度の音の計算であればそれほど問題にはなりません。
+  <a href="https://en.wikipedia.org/wiki/Rotation_matrix">2
+  次元の回転行列</a>の計算と同じ形をしています。</p>
+  <table>
+  <colgroup>
+  <col style="width: 27%" />
+  <col style="width: 21%" />
+  <col style="width: 28%" />
+  <col style="width: 23%" />
+  </colgroup>
+  <thead>
+  <tr class="header">
+  <th>反復部</th>
+  <th>パラメータ</th>
+  <th>初期化</th>
+  <th>出力</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td><span class="math inline">\(\begin{aligned}u_{n+1} &amp;= k_1 u_n
+  - k_2 v_n\\v_{n+1} &amp;= k_2 u_n + k_1 v_n\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}k_1 &amp;= \cos
+  \omega\\k_2 &amp;= \sin \omega\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \cos(\phi
+  - \omega)\\v_{-1} &amp;= \sin(\phi -
+  \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_n &amp;= \cos(n
+  \omega)\\v_n &amp;= \sin(n \omega)\end{aligned}\)</span></td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> coupledForm(freqNormalized, initialPhase):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.cos(phi <span class="op">-</span> omega)</span>
@@ -730,42 +798,43 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> k1 <span class="op">*</span> u0 <span class="op">-</span> k2 <span class="op">*</span> v0</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> k2 <span class="op">*</span> u0 <span class="op">+</span> k1 <span class="op">*</span> v0</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (v, u)</span></code></pre></div>
-<h2 id="stable-quadrature-oscillator"><a
-href="#stable-quadrature-oscillator" class="header-anchor"
-aria-hidden="true">Stable Quadrature Oscillator</a></h2>
-<p>最も質のいいオシレータです。</p>
-<table>
-<colgroup>
-<col style="width: 30%" />
-<col style="width: 23%" />
-<col style="width: 25%" />
-<col style="width: 21%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>反復部</th>
-<th>パラメータ</th>
-<th>初期化</th>
-<th>出力</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><span class="math inline">\(\begin{aligned}w_n &amp;= u_n - k_1
-v_n\\v_{n+1} &amp;= v_n + k_2 w_n\\u_{n+1} &amp;= w_n - k_1
-v_{n+1}\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}k_1 &amp;=
-\tan(\tfrac{1}{2} \omega)\\k_2 &amp;= \sin
-\omega\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \cos(\phi -
-\omega)\\v_{-1} &amp;= \sin(\phi - \omega)\end{aligned}\)</span></td>
-<td><span class="math inline">\(\begin{aligned}u_n &amp;= \cos(n
-\omega)\\v_n &amp;= \sin(n \omega)\end{aligned}\)</span></td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stableQuadrature(freqNormalized, initialPhase):</span>
+  <h2 id="stable-quadrature-oscillator"><a
+  href="#stable-quadrature-oscillator" class="header-anchor"
+  aria-hidden="true">Stable Quadrature Oscillator</a></h2>
+  <p>最も質のいいオシレータです。</p>
+  <table>
+  <colgroup>
+  <col style="width: 30%" />
+  <col style="width: 23%" />
+  <col style="width: 25%" />
+  <col style="width: 21%" />
+  </colgroup>
+  <thead>
+  <tr class="header">
+  <th>反復部</th>
+  <th>パラメータ</th>
+  <th>初期化</th>
+  <th>出力</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td><span class="math inline">\(\begin{aligned}w_n &amp;= u_n - k_1
+  v_n\\v_{n+1} &amp;= v_n + k_2 w_n\\u_{n+1} &amp;= w_n - k_1
+  v_{n+1}\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}k_1 &amp;=
+  \tan(\tfrac{1}{2} \omega)\\k_2 &amp;= \sin
+  \omega\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_{-1} &amp;= \cos(\phi
+  - \omega)\\v_{-1} &amp;= \sin(\phi -
+  \omega)\end{aligned}\)</span></td>
+  <td><span class="math inline">\(\begin{aligned}u_n &amp;= \cos(n
+  \omega)\\v_n &amp;= \sin(n \omega)\end{aligned}\)</span></td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stableQuadrature(freqNormalized, initialPhase):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> freqNormalized</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialPhase</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.cos(phi <span class="op">-</span> omega)</span>
@@ -777,44 +846,45 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        v <span class="op">+=</span> k2 <span class="op">*</span> w</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> w <span class="op">-</span> k1 <span class="op">*</span> v</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> (v, u)</span></code></pre></div>
-<h2 id="周波数変調時の挙動"><a href="#周波数変調時の挙動"
-class="header-anchor" aria-hidden="true">周波数変調時の挙動</a></h2>
-<p>反復的に計算するアルゴリズムで周波数を変えたときに振幅がどのように変わるのかを調べました。以下はプロットに使った
-Python 3 のコードへのリンクです。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/master/recursive_sine/modulation.py">filter_notes/recursive_sine/modulation.py
-at master · ryukau/filter_notes · GitHub</a></li>
-</ul>
-<p>図の右下の <code>standardMath</code> は NumPy の <code>np.sin</code>
-と <code>np.cos</code> で計算したリファレンス信号です。</p>
-<p>以下はサンプリング周波数を 48000 Hz として、 10, 20000, 10 Hz
-と周波数を変調したときの様子です。信号の長さは 96000 サンプル = 2
-秒です。 Coupled form と stable quadrature
-は周波数変調をかけても振幅が安定しています。 Magic circle
-はナイキスト周波数に近づくときだけ振幅が大きくなっています。その他のアルゴリズムではナイキスト周波数に近づくほど振幅が下がっています。</p>
-<figure>
-<img src="img/recursive_sine_fm_10_20000.svg" alt="" style="padding-bottom: 12px;"/>
-</figure>
-<p>以下はサンプリング周波数を 48000 Hz として、 20000, 10, 20000 Hz
-と、上の図とは逆となるように周波数を変調したときの様子です。信号の長さは
-96000 サンプル = 2 秒です。 Coupled form と stable quadrature
-は上の図と同様に、周波数変調をかけても振幅が安定しています。 Biquad,
-Reinsch, quadrature with staggered update の 3 つは振幅のピークが 15
-を少し超えるほど大きくなっています。 Digital waveguide
-は他に比べると振幅の振れ幅が大きく、ピーク振幅は 60 を超えてます。 Magic
-circle は周波数の低下とともに振幅が下がっています。</p>
-<figure>
-<img src="img/recursive_sine_fm_20000_10.svg" alt="" style="padding-bottom: 12px;"/>
-</figure>
-<h2 id="高速な周波数の変更"><a href="#高速な周波数の変更"
-class="header-anchor" aria-hidden="true">高速な周波数の変更</a></h2>
-<p>パラメータの <span class="math inline">\(k\)</span>
-をルックアップテーブルにしてしまうことで高速に周波数を変更できます。指定できる周波数が固定されてしまいますが、楽器への応用であればそこまで問題にはなりません。</p>
-<p>以下の例は C++ による magic circle oscillator
-の実装例です。テーブルの値については倍音関係を正確に表せるようにするなど工夫の余地があります。</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+  <h2 id="周波数変調時の挙動"><a href="#周波数変調時の挙動"
+  class="header-anchor" aria-hidden="true">周波数変調時の挙動</a></h2>
+  <p>反復的に計算するアルゴリズムで周波数を変えたときに振幅がどのように変わるのかを調べました。以下はプロットに使った
+  Python 3 のコードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/recursive_sine/modulation.py">filter_notes/recursive_sine/modulation.py
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <p>図の右下の <code>standardMath</code> は NumPy の
+  <code>np.sin</code> と <code>np.cos</code>
+  で計算したリファレンス信号です。</p>
+  <p>以下はサンプリング周波数を 48000 Hz として、 10, 20000, 10 Hz
+  と周波数を変調したときの様子です。信号の長さは 96000 サンプル = 2
+  秒です。 Coupled form と stable quadrature
+  は周波数変調をかけても振幅が安定しています。 Magic circle
+  はナイキスト周波数に近づくときだけ振幅が大きくなっています。その他のアルゴリズムではナイキスト周波数に近づくほど振幅が下がっています。</p>
+  <figure>
+  <img src="img/recursive_sine_fm_10_20000.svg" alt="" style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はサンプリング周波数を 48000 Hz として、 20000, 10, 20000 Hz
+  と、上の図とは逆となるように周波数を変調したときの様子です。信号の長さは
+  96000 サンプル = 2 秒です。 Coupled form と stable quadrature
+  は上の図と同様に、周波数変調をかけても振幅が安定しています。 Biquad,
+  Reinsch, quadrature with staggered update の 3 つは振幅のピークが 15
+  を少し超えるほど大きくなっています。 Digital waveguide
+  は他に比べると振幅の振れ幅が大きく、ピーク振幅は 60 を超えてます。
+  Magic circle は周波数の低下とともに振幅が下がっています。</p>
+  <figure>
+  <img src="img/recursive_sine_fm_20000_10.svg" alt="" style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="高速な周波数の変更"><a href="#高速な周波数の変更"
+  class="header-anchor" aria-hidden="true">高速な周波数の変更</a></h2>
+  <p>パラメータの <span class="math inline">\(k\)</span>
+  をルックアップテーブルにしてしまうことで高速に周波数を変更できます。指定できる周波数が固定されてしまいますが、楽器への応用であればそこまで問題にはなりません。</p>
+  <p>以下の例は C++ による magic circle oscillator
+  の実装例です。テーブルの値については倍音関係を正確に表せるようにするなど工夫の余地があります。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
@@ -854,83 +924,83 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#c
 <span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">std::</span>accumulate<span class="op">(</span>v<span class="op">.</span>begin<span class="op">(),</span> v<span class="op">.</span>end<span class="op">(),</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">));</span></span>
 <span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
-<h2 id="ナイキスト周波数での挙動"><a href="#ナイキスト周波数での挙動"
-class="header-anchor"
-aria-hidden="true">ナイキスト周波数での挙動</a></h2>
-<p>ナイキスト周波数で発散するかどうかを調べました。実装では
-<code>freq = min(freq, 0.49 * samplingRate)</code>
-のように、周波数の上限をナイキスト周波数より少し低めにしておいたほうが安全です。</p>
-<table>
-<thead>
-<tr class="header">
-<th>種類</th>
-<th>ナイキスト周波数での振幅</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Biquad</td>
-<td>発散</td>
-</tr>
-<tr class="even">
-<td>Reinsch</td>
-<td>発散</td>
-</tr>
-<tr class="odd">
-<td>Digital waveguide</td>
-<td>発散</td>
-</tr>
-<tr class="even">
-<td>Staggered Update</td>
-<td>一定</td>
-</tr>
-<tr class="odd">
-<td>Magic circle</td>
-<td>発散</td>
-</tr>
-<tr class="even">
-<td>Coupled form</td>
-<td>一定</td>
-</tr>
-<tr class="odd">
-<td>Stable Quadrature</td>
-<td>一定</td>
-</tr>
-</tbody>
-</table>
-<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
-aria-hidden="true">参考文献</a></h2>
-<ul>
-<li>Martin Vicanek, “<a
-href="https://www.vicanek.de/articles/QuadOsc.pdf">A New Recursive
-Quadrature Oscillator</a>”, 21. October 20.</li>
-<li><a
-href="https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html">Digital
-Sinusoid Generators</a></li>
-</ul>
-<h2 id="変更点"><a href="#変更点" class="header-anchor"
-aria-hidden="true">変更点</a></h2>
-<ul>
-<li>2024/08/05
-<ul>
-<li>Digital Waveguide Oscillator の <span
-class="math inline">\(t_n\)</span> 式の <span
-class="math inline">\(u_n\)</span> が <span
-class="math inline">\(v_n\)</span> になっていた誤りを修正。</li>
-</ul></li>
-<li>2024/08/01
-<ul>
-<li>Biquad と magic circle の式を修正。</li>
-<li>「ナイキスト周波数での挙動」の節を追加。</li>
-</ul></li>
-<li>2024/07/29
-<ul>
-<li>文章の追加、整理。</li>
-</ul></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <h2 id="ナイキスト周波数での挙動"><a href="#ナイキスト周波数での挙動"
+  class="header-anchor"
+  aria-hidden="true">ナイキスト周波数での挙動</a></h2>
+  <p>ナイキスト周波数で発散するかどうかを調べました。実装では
+  <code>freq = min(freq, 0.49 * samplingRate)</code>
+  のように、周波数の上限をナイキスト周波数より少し低めにしておいたほうが安全です。</p>
+  <table>
+  <thead>
+  <tr class="header">
+  <th>種類</th>
+  <th>ナイキスト周波数での振幅</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="odd">
+  <td>Biquad</td>
+  <td>発散</td>
+  </tr>
+  <tr class="even">
+  <td>Reinsch</td>
+  <td>発散</td>
+  </tr>
+  <tr class="odd">
+  <td>Digital waveguide</td>
+  <td>発散</td>
+  </tr>
+  <tr class="even">
+  <td>Staggered Update</td>
+  <td>一定</td>
+  </tr>
+  <tr class="odd">
+  <td>Magic circle</td>
+  <td>発散</td>
+  </tr>
+  <tr class="even">
+  <td>Coupled form</td>
+  <td>一定</td>
+  </tr>
+  <tr class="odd">
+  <td>Stable Quadrature</td>
+  <td>一定</td>
+  </tr>
+  </tbody>
+  </table>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li>Martin Vicanek, “<a
+  href="https://www.vicanek.de/articles/QuadOsc.pdf">A New Recursive
+  Quadrature Oscillator</a>”, 21. October 20.</li>
+  <li><a
+  href="https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html">Digital
+  Sinusoid Generators</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/08/05
+  <ul>
+  <li>Digital Waveguide Oscillator の <span
+  class="math inline">\(t_n\)</span> 式の <span
+  class="math inline">\(u_n\)</span> が <span
+  class="math inline">\(v_n\)</span> になっていた誤りを修正。</li>
+  </ul></li>
+  <li>2024/08/01
+  <ul>
+  <li>Biquad と magic circle の式を修正。</li>
+  <li>「ナイキスト周波数での挙動」の節を追加。</li>
+  </ul></li>
+  <li>2024/07/29
+  <ul>
+  <li>文章の追加、整理。</li>
+  </ul></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

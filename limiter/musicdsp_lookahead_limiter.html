@@ -2,398 +2,452 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>musicdsp_lookahead_limiter</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>musicdsp_lookahead_limiter</title>
 
-<style>
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-img {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-video {
-max-width: 100%;
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-a {
-text-decoration: none;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor {
-color: #000000;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-</head>
+    
+  </style>
+
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#lookahead-limiter-の記事の訳"
-id="toc-lookahead-limiter-の記事の訳">Lookahead Limiter の記事の訳</a>
-<ul>
-<li><a href="#訳" id="toc-訳">訳</a>
-<ul>
-<li><a href="#材料" id="toc-材料">材料:</a></li>
-<li><a href="#レシピ" id="toc-レシピ">レシピ:</a></li>
-</ul></li>
-<li><a href="#訳注" id="toc-訳注">訳注</a></li>
-<li><a href="#その他" id="toc-その他">その他</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="lookahead-limiter-の記事の訳"><a
-href="#lookahead-limiter-の記事の訳" class="header-anchor"
-aria-hidden="true">Lookahead Limiter の記事の訳</a></h1>
-<p>以下は原文へのリンクです。訳文は Markdown
-のフォーマットに整形しています。</p>
-<ul>
-<li><a
-href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
-Limiter — Musicdsp.org documentation</a></li>
-</ul>
-<h2 id="訳"><a href="#訳" class="header-anchor"
-aria-hidden="true">訳</a></h2>
-<h3 id="材料"><a href="#材料" class="header-anchor"
-aria-hidden="true">材料:</a></h3>
-<ul>
-<li>1 つのリングバッファ (先読み時間の長さ)</li>
-<li>2 つのリングバッファ (先読み時間の半分の長さ)</li>
-<li>4 つのパラメータ (「先読み時間 [s] 」、「入力ゲイン [dB]
-」、「出力ゲイン [dB] 」、「リリース時間 [s] 」)</li>
-<li>一握りの状態変数</li>
-</ul>
-<h3 id="レシピ"><a href="#レシピ" class="header-anchor"
-aria-hidden="true">レシピ:</a></h3>
-<ol start="0" type="1">
-<li>全てのバッファが適切に初期化されて 1
-つのゴミデータも含まないようにする (純粋な 0 埋めが必要) 。</li>
-</ol>
-<p>各サンプルについて以下の処理を行う:</p>
-<ol type="1">
-<li><p>後で使うために、現在のサンプルを先読み時間のリングバッファに格納する
-(そして前段「出力」として抜け落ちてくる値を取得する)</p></li>
-<li><p>このリングバッファ内の最大値を探す。これはホールドアルゴリズムで効率よく実装することもできる。</p></li>
-<li><p>「入力ゲイン [dB]
-」パラメータによって、この最大値にゲインをかける</p></li>
-<li><p>必要なゲインリダクション係数を計算する
-(もしゲインリダクションが起こらないなら =1 、あらゆる 0 dBFS
-を超える信号については &lt;1)</p></li>
-<li><p>よりよい数値的な安定性のために、この値を 1 から引く。
-(<strong>後で必ず元に戻すこと！</strong>)</p></li>
-<li><p>短時間の合計を計算するために、このゲインリダクションの値を 1
-つ目の小さいほうのリングバッファに加える
-(この値を合計に加算して、リングバッファから抜け落ちた値を減算する)
-。</p></li>
-<li><p>合計をリングバッファの長さで割って正規化する (-&gt; /
-(「先読み時間 [samples] 」 / 2))</p></li>
-<li><p>この合計を使って 2 つ目のリングバッファで手順 6 と 7
-を繰り返す。これらの手順の理由はディラックのインパルスを三角形に変換すること
-(ディラック -&gt; 矩形 -&gt; 三角形)</p></li>
-<li><p>リリース時間 (リリース時間 -&gt; リリーススルーレート「係数」
--&gt; その係数で乗算)
-を「最大ゲインリダクション」状態変数に適用する</p></li>
-<li><p>今、計算されたゲインリダクションが「最大ゲインリダクション」より高いかをチェックする。もしそうなら入れ替えろ！</p></li>
-<li><p>手順 5 の (1 - x) をここで除去する</p></li>
-<li><p>入力から得られた上記の値と出力のゲインから実効ゲインリダクションを計算する。</p></li>
-<li><p>このゲインリダクションを手順 1 の前段「出力」に適用する</p></li>
-</ol>
-<p>全てのサンプルに上の処理 (手順 1-13) を繰り返せ！</p>
-<h2 id="訳注"><a href="#訳注" class="header-anchor"
-aria-hidden="true">訳注</a></h2>
-<ul>
-<li>dirt -&gt; ゴミデータ
-<ul>
-<li>初期化されていない配列のデータはゴミと呼ばれることがある。</li>
-</ul></li>
-<li>preliminary -&gt; 前段
-<ul>
-<li>preliminary は「事前に必要となる」というような意味 (<a
-href="https://www.merriam-webster.com/dictionary/preliminary">Merriam-Webster</a>)
-。 the lookahead time circular buffer
-から出力された値はゲインを掛け合わせてリミッタの出力になるので、文脈から前段「出力」とした。</li>
-</ul></li>
-<li>手順 6 の felt out は fell out の誤字と判断した。</li>
-</ul>
-<h2 id="その他"><a href="#その他" class="header-anchor"
-aria-hidden="true">その他</a></h2>
-<p>手順 5 と 11
-は誤差が減らずにエッジケースが増えるので、実装することはお勧めしません。この誤差について調べたことを以下のリンク先に掲載しています。</p>
-<ul>
-<li><a
-href="../s_curve_step_response_filter/s_curve_step_response_filter.html#補足">ステップ応答が
-S 字を描くフィルタ - 補足</a></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#lookahead-limiter-の記事の訳"
+        id="toc-lookahead-limiter-の記事の訳">Lookahead Limiter
+        の記事の訳</a>
+        <ul>
+        <li><a href="#訳" id="toc-訳">訳</a>
+        <ul>
+        <li><a href="#材料" id="toc-材料">材料:</a></li>
+        <li><a href="#レシピ" id="toc-レシピ">レシピ:</a></li>
+        </ul></li>
+        <li><a href="#訳注" id="toc-訳注">訳注</a></li>
+        <li><a href="#その他" id="toc-その他">その他</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="lookahead-limiter-の記事の訳"><a
+  href="#lookahead-limiter-の記事の訳" class="header-anchor"
+  aria-hidden="true">Lookahead Limiter の記事の訳</a></h1>
+  <p>以下は原文へのリンクです。訳文は Markdown
+  のフォーマットに整形しています。</p>
+  <ul>
+  <li><a
+  href="https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html">Lookahead
+  Limiter — Musicdsp.org documentation</a></li>
+  </ul>
+  <h2 id="訳"><a href="#訳" class="header-anchor"
+  aria-hidden="true">訳</a></h2>
+  <h3 id="材料"><a href="#材料" class="header-anchor"
+  aria-hidden="true">材料:</a></h3>
+  <ul>
+  <li>1 つのリングバッファ (先読み時間の長さ)</li>
+  <li>2 つのリングバッファ (先読み時間の半分の長さ)</li>
+  <li>4 つのパラメータ (「先読み時間 [s] 」、「入力ゲイン [dB]
+  」、「出力ゲイン [dB] 」、「リリース時間 [s] 」)</li>
+  <li>一握りの状態変数</li>
+  </ul>
+  <h3 id="レシピ"><a href="#レシピ" class="header-anchor"
+  aria-hidden="true">レシピ:</a></h3>
+  <ol start="0" type="1">
+  <li>全てのバッファが適切に初期化されて 1
+  つのゴミデータも含まないようにする (純粋な 0 埋めが必要) 。</li>
+  </ol>
+  <p>各サンプルについて以下の処理を行う:</p>
+  <ol type="1">
+  <li><p>後で使うために、現在のサンプルを先読み時間のリングバッファに格納する
+  (そして前段「出力」として抜け落ちてくる値を取得する)</p></li>
+  <li><p>このリングバッファ内の最大値を探す。これはホールドアルゴリズムで効率よく実装することもできる。</p></li>
+  <li><p>「入力ゲイン [dB]
+  」パラメータによって、この最大値にゲインをかける</p></li>
+  <li><p>必要なゲインリダクション係数を計算する
+  (もしゲインリダクションが起こらないなら =1 、あらゆる 0 dBFS
+  を超える信号については &lt;1)</p></li>
+  <li><p>よりよい数値的な安定性のために、この値を 1 から引く。
+  (<strong>後で必ず元に戻すこと！</strong>)</p></li>
+  <li><p>短時間の合計を計算するために、このゲインリダクションの値を 1
+  つ目の小さいほうのリングバッファに加える
+  (この値を合計に加算して、リングバッファから抜け落ちた値を減算する)
+  。</p></li>
+  <li><p>合計をリングバッファの長さで割って正規化する (-&gt; /
+  (「先読み時間 [samples] 」 / 2))</p></li>
+  <li><p>この合計を使って 2 つ目のリングバッファで手順 6 と 7
+  を繰り返す。これらの手順の理由はディラックのインパルスを三角形に変換すること
+  (ディラック -&gt; 矩形 -&gt; 三角形)</p></li>
+  <li><p>リリース時間 (リリース時間 -&gt; リリーススルーレート「係数」
+  -&gt; その係数で乗算)
+  を「最大ゲインリダクション」状態変数に適用する</p></li>
+  <li><p>今、計算されたゲインリダクションが「最大ゲインリダクション」より高いかをチェックする。もしそうなら入れ替えろ！</p></li>
+  <li><p>手順 5 の (1 - x) をここで除去する</p></li>
+  <li><p>入力から得られた上記の値と出力のゲインから実効ゲインリダクションを計算する。</p></li>
+  <li><p>このゲインリダクションを手順 1
+  の前段「出力」に適用する</p></li>
+  </ol>
+  <p>全てのサンプルに上の処理 (手順 1-13) を繰り返せ！</p>
+  <h2 id="訳注"><a href="#訳注" class="header-anchor"
+  aria-hidden="true">訳注</a></h2>
+  <ul>
+  <li>dirt -&gt; ゴミデータ
+  <ul>
+  <li>初期化されていない配列のデータはゴミと呼ばれることがある。</li>
+  </ul></li>
+  <li>preliminary -&gt; 前段
+  <ul>
+  <li>preliminary は「事前に必要となる」というような意味 (<a
+  href="https://www.merriam-webster.com/dictionary/preliminary">Merriam-Webster</a>)
+  。 the lookahead time circular buffer
+  から出力された値はゲインを掛け合わせてリミッタの出力になるので、文脈から前段「出力」とした。</li>
+  </ul></li>
+  <li>手順 6 の felt out は fell out の誤字と判断した。</li>
+  </ul>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <p>手順 5 と 11
+  は誤差が減らずにエッジケースが増えるので、実装することはお勧めしません。この誤差について調べたことを以下のリンク先に掲載しています。</p>
+  <ul>
+  <li><a
+  href="../s_curve_step_response_filter/s_curve_step_response_filter.html#補足">ステップ応答が
+  S 字を描くフィルタ - 補足</a></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>

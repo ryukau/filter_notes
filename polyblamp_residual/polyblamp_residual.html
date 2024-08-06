@@ -2,521 +2,584 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
 
 <head>
-<meta charset="utf-8" />
-<meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-<meta name="dcterms.date" content="2024-07-29" />
-<title>polyblamp_residual</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-06" />
+      <title>polyblamp_residual</title>
 
-<style>
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    background-color: #ffffff;
-    color: #666666;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
-code span.an { color: #666666; font-style: italic; } /* Annotation */
-code span.at { color: #906000; } /* Attribute */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #000000; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #b000b0; } /* Char */
-code span.cn { } /* Constant */
-code span.co { color: #008800; } /* Comment */
-code span.cv { color: #008800; } /* CommentVar */
-code span.do { color: #008800; } /* Documentation */
-code span.dt { color: #906000; } /* DataType */
-code span.dv { color: #0000ff; } /* DecVal */
-code span.er { color: #ffffff; background-color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000ff; } /* Float */
-code span.im { color: #000000; font-weight: bold; } /* Import */
-code span.in { color: #666666; } /* Information */
-code span.kw { color: #000000; font-weight: bold; } /* Keyword */
-code span.op { } /* Operator */
-code span.ot { color: #000000; } /* Other */
-code span.pp { color: #000000; font-weight: bold; } /* Preprocessor */
-code span.sc { color: #b000b0; } /* SpecialChar */
-code span.ss { color: #b000b0; } /* SpecialString */
-code span.st { color: #b000b0; } /* String */
-code span.va { color: #000088; } /* Variable */
-code span.vs { color: #b000b0; } /* VerbatimString */
-code span.wa { background-color: #ffff00; font-weight: bold; font-style: italic; text-decoration: underline; } /* Warning */
-</style>
-<style>
-body {
-max-width: 704px;
-margin: auto;
-padding: 32px 8px;
-}
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
 
-img {
-max-width: 100%;
-}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
 
-video {
-max-width: 100%;
-}
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
 
-kbd {
-font-family: inherit;
-border-style: solid;
-border-width: 1px 2px 2px 1px;
-border-radius: 2px;
-padding: 4px;
-margin: 2px;
-line-height: calc(1em + 16px);
-}
+      pre>code {
+        filter: invert(0);
+      }
+    }
 
-a {
-text-decoration: none;
-}
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
 
-.header-anchor {
-color: #000000;
-}
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
 
-.header-anchor:hover {
-color: #0000EE;
-}
+    img {
+      max-width: 100%;
+    }
 
-.header-anchor:hover::after {
-display: inline-block;
-font-size: min(1em, 1rem);
-content: '(クリックでここへリンク)';
-padding-left: 1em;
-color: #0000EE;
-}
+    video {
+      max-width: 100%;
+    }
 
-h2 {
-border-left: solid 32px #000000;
-padding-left: 24px;
-}
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
 
-h3 {
-border-left: solid 20px #404040;
-padding-left: 16px;
-}
+    a {
+      text-decoration: none;
+    }
 
-h4 {
-font-size: 100%;
-border-left: solid 12px #606060;
-padding-left: 8px;
-}
+    :link {
+      color: var(--link-color);
+    }
 
-h5 {
-font-size: 90%;
-border-left: solid 4px #808080;
-padding-left: 4px;
-}
+    :visited {
+      color: var(--visited-color);
+    }
 
-h6 {
-font-size: 80%;
-border-left: solid 2px #a0a0a0;
-padding-left: 2px;
-}
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
 
-table {
-border-spacing: 0px;
-border-collapse: separate;
-border-left: 1px solid #888888;
-border-right: 1px solid #888888;
-border-top: 1px solid #888888;
-border-bottom: hidden;
-}
+    .header-anchor {
+      color: var(--foreground-color);
+    }
 
-tr:nth-child(odd) {
-background: #eeeeee;
-}
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
 
-tr:nth-child(even) {
-background: #ffffff;
-}
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
 
-th {
-height: 2em;
-padding: 4px 1em 4px 1em;
-background: #ffffff;
-border-bottom: 1px solid #888888;
-}
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
 
-th:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
 
-td {
-height: 1.5em;
-padding: 4px 1em 4px 1em;
-border-bottom: 1px solid #888888;
-}
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
 
-td:not(:first-child) {
-border-left: 1px solid #888888;
-}
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
 
-dl {
-padding-left: 2em;
-}
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
 
-dt {
-font-weight: bold;
-border-bottom: 1px dashed #000000;
-margin-top: 2em;
-}
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
 
-dd {
-border-left: 1px dotted #000000;
-margin-left: 1em;
-padding-left: 1em;
-}
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
 
-audio {
-vertical-align: middle;
-}
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
 
-label {
-vertical-align: middle;
-}
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
 
-:not(.sourceCode)>pre {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-div.sourceCode {
-overflow: auto;
-border: 1px solid #888888;
-padding: 8px;
-}
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-pre>code.sourceCode>span>a:first-child::before {
-border-right: 1px solid #888888;
-padding-right: 1em;
-margin-right: 1em;
-text-decoration: none;
-}
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
 
-:not(pre)>code {
-color: #163eac;
-}
+    dl {
+      padding-left: 2em;
+    }
 
-li {
-margin: 8px;
-}
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
 
-summary:hover {
-background-color: #eeeeee;
-}
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
 
-header {
-border-bottom: 1px gray solid;
-padding: 0.5em;
-margin-bottom: 1em;
-}
+    audio {
+      vertical-align: middle;
+    }
 
-footer {
-border-top: 1px gray solid;
-padding: 0.5em;
-margin-top: 1em;
-}
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
 
 
-canvas {
-/* image-rendering: pixelated; */
-display: inline-block;
-border-style: solid;
-border-width: 1px;
-border-color: #627f84;
-}
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
 
-.controlBlock {
-display: inline-block;
-width: 450px;
-text-align: left;
-vertical-align: top;
-margin-left: 4px;
-}
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
 
-input[type="button"] {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-font-size: 16px;
-height: 32px;
-}
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
 
-input[type="button"]:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-div.numberInput {
-display: block;
-white-space: nowrap;
-}
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
 
-div.numberInput:hover {
-background-color: #e0ecff;
-}
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
 
-.numberInputLabel {
-/* max 12 letter  */
-display: inline-block;
-margin: 0 8px 0 8px;
-text-align: left;
-vertical-align: middle;
-width: 100px;
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
 
-font-size: 10pt;
-font-family: 'Courier New', Courier, monospace;
-}
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
 
-.numberInputNumber {
-display: inline-block;
-vertical-align: middle;
-width: 120px;
-}
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
 
-.numberInputRange {
-display: inline-block;
-vertical-align: middle;
-width: 160px;
-}
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
 
-.pullDownMenu {
-display: inline-block;
-text-align: center;
-}
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
 
-.pullDownMenu:hover {
-background-color: #e0ecff;
-}
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
 
-select {
-background-color: #ffffff;
-border: 2px solid #aaaaaa;
-height: 24px;
-vertical-align: middle;
-font-size: 12px;
-}
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
 
-select:hover {
-background-color: #ffffff;
-border: 2px solid #aaccff;
-}
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
 
-span.math.inline a {
-  color: #000000;
-}
-</style>
+    span.math.inline a {
+      color: #000000;
+    }
 
-<script src="../lib/MathJax/es5/tex-chtml-full.js"
-type="text/javascript"></script>
-</head>
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
 
 <body>
-<header>
-<p>
-何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
-</p>
-<hr>
-<a href="../index.html">インデックスに戻る</a>
-<p>
-Update: 2024-07-29
-</p>
-<details>
-<summary translate="yes">Table of Contents</summary>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#polyblamp-residual" id="toc-polyblamp-residual">PolyBLAMP
-Residual</a>
-<ul>
-<li><a href="#blamp-residual-の導出"
-id="toc-blamp-residual-の導出">BLAMP Residual の導出</a></li>
-<li><a href="#多項式による-blamp-residual-の近似-polyblamp-residual"
-id="toc-多項式による-blamp-residual-の近似-polyblamp-residual">多項式による
-BLAMP residual の近似 (PolyBLAMP residual)</a></li>
-<li><a href="#三角波オシレータへの応用"
-id="toc-三角波オシレータへの応用">三角波オシレータへの応用</a></li>
-<li><a href="#ハードクリップへの応用の検討"
-id="toc-ハードクリップへの応用の検討">ハードクリップへの応用の検討</a></li>
-<li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
-</ul></li>
-</ul>
-</nav>
-</details>
-</header>
-<h1 id="polyblamp-residual"><a href="#polyblamp-residual"
-class="header-anchor" aria-hidden="true">PolyBLAMP Residual</a></h1>
-<p>Esqueda, Välimäki, Bilbao による <a
-href="http://www.research.ed.ac.uk/portal/files/28180097/18_DAFx_16_paper_33_PN.pdf">ROUNDING
-CORNERS WITH BLAMP</a> で紹介されている、 polyBLAMP residual
-を波形の<ruby>角<rt>かど</rt></ruby>に足し合わせてエイリアシングを減らす方法を試します。</p>
-<h2 id="blamp-residual-の導出"><a href="#blamp-residual-の導出"
-class="header-anchor" aria-hidden="true">BLAMP Residual の導出</a></h2>
-<p>BLAMP は Band Limited rAMP function の略です。BLAMP
-は帯域制限されたインパルスを 2 回積分することで得られます。</p>
-<p>帯域制限されたインパルス <span class="math inline">\(h(t)\)</span>
-の式です。</p>
-<p><span class="math display">\[
-h(t) = f_s \mathrm{sinc} (f_s t)
-\]</span></p>
-<p><span class="math inline">\(h(t)\)</span> を 1
-回積分すると帯域制限されたステップ関数 (BLEP) の式になります。 BLEP は
-Band Limited stEP の略です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-J h(t)
-  &amp;= \frac{1}{2} + \frac{1}{\pi}\mathrm{Si}(\pi f_s t)\\
-\mathrm{Si}(x)
-  &amp;= \sum_{n=0}^{\infty} \frac{(-1)^n x^{2 n + 1}}{(2 n + 1)(2 n +
-1)!}
-\end{aligned}
-\]</span></p>
-<p>ここでは <span class="math inline">\(J\)</span>
-で積分の演算を表しています。 <span
-class="math inline">\(\mathrm{Si}(x)\)</span> は <a
-href="https://en.wikipedia.org/wiki/Trigonometric_integral">sine
-integral</a> です。</p>
-<p><span class="math inline">\(J h(t)\)</span> をもう一回積分すると
-BLAMP の式になります。</p>
-<p><span class="math display">\[
-J^2 h(t)
-  = t \left( \frac{1}{2} + \frac{1}{\pi} \mathrm{Si}(\pi f_s t) \right)
-    + \frac{\cos(\pi f_s t)}{\pi^2 f_s}
-\]</span></p>
-<p>BLAMP の式からランプ関数 <span class="math inline">\(R(t)\)</span>
-を引くと BLAMP residual が得られます。</p>
-<p><span class="math display">\[
-r(t) = J^2 h(t) - R(t)
-\]</span></p>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Ramp_function">Ramp function
-- Wikipedia</a></li>
-<li><a
-href="https://en.wikipedia.org/wiki/Heaviside_step_function">Heaviside
-step function - Wikipedia</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Dirac_delta_function">Dirac
-delta function - Wikipedia</a></li>
-<li><a
-href="https://en.wikipedia.org/wiki/Trigonometric_integral">Trigonometric
-integral - Wikipedia</a></li>
-</ul>
-<h2 id="多項式による-blamp-residual-の近似-polyblamp-residual"><a
-href="#多項式による-blamp-residual-の近似-polyblamp-residual"
-class="header-anchor" aria-hidden="true">多項式による BLAMP residual
-の近似 (PolyBLAMP residual)</a></h2>
-<p>BLAMP residual
-を直接使うのは計算コストが高く実用的ではないそうです。そこで、計算コストを減らすために
-B-spline の基底関数を 2 回積分した式で BLAMP
-を近似する方法が提案されています。 B-spline の基底関数を 2
-回積分した式は polyBLAMP と呼ばれています。</p>
-<p>B-spline の定義です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-N(i, 1, t) &amp;= \begin{cases}
-  1, &amp; \text{if}\enspace t_i \leq t &lt; t_{i + 1},\\
-  0,  &amp; \text{otherwise.}
-\end{cases}\\
-N(i, k + 1, t)
-  &amp;= \frac{x - t_i}{t_{i + k} - t_i} N(i, k, t)
-    + \frac{t_{i + k + 1} - t}{t_{i + k + 1} - t_{i + 1}} N(i + 1, k, t)
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(N(i, k, t)\)</span>
-を展開して得られる多項式の次数は <span class="math inline">\(k
--  1\)</span> となります。</p>
-<p>すべての <span class="math inline">\(t_i\)</span> をまとめたベクトル
-<span class="math inline">\(T\)</span>
-のことをノットベクタといいます。</p>
-<p><span class="math display">\[
-T_k = (i_0, i_1, i_2, \dots, i_{3k - 4}, i_{3k - 3}, i_{3k - 2})
-\]</span></p>
-<p>ノットベクタのインデックス <span class="math inline">\(i\)</span>
-の範囲は <span class="math inline">\([0, 3 k - 2]\)</span> です。</p>
-<p>ノットベクタの値の間隔が均等な B-spline のことをユニフォーム B-spline
-と呼びます。次の式は <span class="math inline">\(t\)</span> の範囲を
-<span class="math inline">\(t_{k - 1} \leq t &lt; t_k\)</span>
-と仮定したときに、ユニフォーム B-spline
-の基底関数の導出に使えるノットベクタ <span
-class="math inline">\(\hat{T}_k\)</span> です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-\hat{T}_1 &amp;= (-1, 0, 1, 2, 3)\\
-\hat{T}_2 &amp;= (-2, -1, 0, 1, 2, 3, 4, 5)\\
-\hat{T}_3 &amp;= (-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7)\\
-&amp;\vdots
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(\hat{T}_k\)</span> を使い、 <span
-class="math inline">\(N(i, k, t)\)</span> について <span
-class="math inline">\(i\)</span> を <span
-class="math inline">\(0\)</span> から <span class="math inline">\(k -
-1\)</span> まで増やしていくことで <span class="math inline">\(k\)</span>
-個の基底関数が得られます。</p>
-<p>次の式は 3 次のユニフォーム B-spline の基底関数です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-B_0(t) &amp;= -\frac{t^3}{6} + \frac{t^2}{2} - \frac{t}{2} +
-\frac{1}{6}\\
-B_1(t) &amp;=  \frac{t^3}{2} - t^2 + \frac{2}{3}\\
-B_2(t) &amp;= -\frac{t^3}{2} + \frac{t^2}{2} + \frac{t}{2} +
-\frac{1}{6}\\
-B_3(t) &amp;=  \frac{t^3}{6}
-\end{aligned}
-\]</span></p>
-<ul>
-<li><a
-href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform
-Cubic B-Spline Curves</a></li>
-</ul>
-<p>基底関数はつぎはぎになっています。まずは <span
-class="math inline">\(B_3(t)\)</span> から始まり、 <span
-class="math inline">\(t\)</span> を <span
-class="math inline">\(0\)</span> から <span
-class="math inline">\(1\)</span> に増やしていきます。 <span
-class="math inline">\(t\)</span> が <span
-class="math inline">\(1\)</span> を超えたら <span
-class="math inline">\(0\)</span> に戻し、関数を <span
-class="math inline">\(B_2(t)\)</span> に変えて、また <span
-class="math inline">\(t\)</span> を <span
-class="math inline">\(0\)</span> から <span
-class="math inline">\(1\)</span> に増やしていきます。これを <span
-class="math inline">\(B_0(t)\)</span>
-まで繰り返すことで基底関数が描画できます。</p>
-<p>次のコードを実行すると使って基底関数を描画します。 Python3
-のインタプリタにコピペすれば動きます。</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-06
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#polyblamp-residual"
+        id="toc-polyblamp-residual">PolyBLAMP Residual</a>
+        <ul>
+        <li><a href="#blamp-residual-の導出"
+        id="toc-blamp-residual-の導出">BLAMP Residual の導出</a></li>
+        <li><a
+        href="#多項式による-blamp-residual-の近似-polyblamp-residual"
+        id="toc-多項式による-blamp-residual-の近似-polyblamp-residual">多項式による
+        BLAMP residual の近似 (PolyBLAMP residual)</a></li>
+        <li><a href="#三角波オシレータへの応用"
+        id="toc-三角波オシレータへの応用">三角波オシレータへの応用</a></li>
+        <li><a href="#ハードクリップへの応用の検討"
+        id="toc-ハードクリップへの応用の検討">ハードクリップへの応用の検討</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="polyblamp-residual"><a href="#polyblamp-residual"
+  class="header-anchor" aria-hidden="true">PolyBLAMP Residual</a></h1>
+  <p>Esqueda, Välimäki, Bilbao による <a
+  href="http://www.research.ed.ac.uk/portal/files/28180097/18_DAFx_16_paper_33_PN.pdf">ROUNDING
+  CORNERS WITH BLAMP</a> で紹介されている、 polyBLAMP residual
+  を波形の<ruby>角<rt>かど</rt></ruby>に足し合わせてエイリアシングを減らす方法を試します。</p>
+  <h2 id="blamp-residual-の導出"><a href="#blamp-residual-の導出"
+  class="header-anchor" aria-hidden="true">BLAMP Residual
+  の導出</a></h2>
+  <p>BLAMP は Band Limited rAMP function の略です。BLAMP
+  は帯域制限されたインパルスを 2 回積分することで得られます。</p>
+  <p>帯域制限されたインパルス <span class="math inline">\(h(t)\)</span>
+  の式です。</p>
+  <p><span class="math display">\[
+  h(t) = f_s \mathrm{sinc} (f_s t)
+  \]</span></p>
+  <p><span class="math inline">\(h(t)\)</span> を 1
+  回積分すると帯域制限されたステップ関数 (BLEP) の式になります。 BLEP は
+  Band Limited stEP の略です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  J h(t)
+    &amp;= \frac{1}{2} + \frac{1}{\pi}\mathrm{Si}(\pi f_s t)\\
+  \mathrm{Si}(x)
+    &amp;= \sum_{n=0}^{\infty} \frac{(-1)^n x^{2 n + 1}}{(2 n + 1)(2 n +
+  1)!}
+  \end{aligned}
+  \]</span></p>
+  <p>ここでは <span class="math inline">\(J\)</span>
+  で積分の演算を表しています。 <span
+  class="math inline">\(\mathrm{Si}(x)\)</span> は <a
+  href="https://en.wikipedia.org/wiki/Trigonometric_integral">sine
+  integral</a> です。</p>
+  <p><span class="math inline">\(J h(t)\)</span> をもう一回積分すると
+  BLAMP の式になります。</p>
+  <p><span class="math display">\[
+  J^2 h(t)
+    = t \left( \frac{1}{2} + \frac{1}{\pi} \mathrm{Si}(\pi f_s t)
+  \right)
+      + \frac{\cos(\pi f_s t)}{\pi^2 f_s}
+  \]</span></p>
+  <p>BLAMP の式からランプ関数 <span class="math inline">\(R(t)\)</span>
+  を引くと BLAMP residual が得られます。</p>
+  <p><span class="math display">\[
+  r(t) = J^2 h(t) - R(t)
+  \]</span></p>
+  <ul>
+  <li><a href="https://en.wikipedia.org/wiki/Ramp_function">Ramp
+  function - Wikipedia</a></li>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Heaviside_step_function">Heaviside
+  step function - Wikipedia</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Dirac_delta_function">Dirac
+  delta function - Wikipedia</a></li>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Trigonometric_integral">Trigonometric
+  integral - Wikipedia</a></li>
+  </ul>
+  <h2 id="多項式による-blamp-residual-の近似-polyblamp-residual"><a
+  href="#多項式による-blamp-residual-の近似-polyblamp-residual"
+  class="header-anchor" aria-hidden="true">多項式による BLAMP residual
+  の近似 (PolyBLAMP residual)</a></h2>
+  <p>BLAMP residual
+  を直接使うのは計算コストが高く実用的ではないそうです。そこで、計算コストを減らすために
+  B-spline の基底関数を 2 回積分した式で BLAMP
+  を近似する方法が提案されています。 B-spline の基底関数を 2
+  回積分した式は polyBLAMP と呼ばれています。</p>
+  <p>B-spline の定義です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  N(i, 1, t) &amp;= \begin{cases}
+    1, &amp; \text{if}\enspace t_i \leq t &lt; t_{i + 1},\\
+    0,  &amp; \text{otherwise.}
+  \end{cases}\\
+  N(i, k + 1, t)
+    &amp;= \frac{x - t_i}{t_{i + k} - t_i} N(i, k, t)
+      + \frac{t_{i + k + 1} - t}{t_{i + k + 1} - t_{i + 1}} N(i + 1, k,
+  t)
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(N(i, k, t)\)</span>
+  を展開して得られる多項式の次数は <span class="math inline">\(k
+  -  1\)</span> となります。</p>
+  <p>すべての <span class="math inline">\(t_i\)</span>
+  をまとめたベクトル <span class="math inline">\(T\)</span>
+  のことをノットベクタといいます。</p>
+  <p><span class="math display">\[
+  T_k = (i_0, i_1, i_2, \dots, i_{3k - 4}, i_{3k - 3}, i_{3k - 2})
+  \]</span></p>
+  <p>ノットベクタのインデックス <span class="math inline">\(i\)</span>
+  の範囲は <span class="math inline">\([0, 3 k - 2]\)</span> です。</p>
+  <p>ノットベクタの値の間隔が均等な B-spline のことをユニフォーム
+  B-spline と呼びます。次の式は <span class="math inline">\(t\)</span>
+  の範囲を <span class="math inline">\(t_{k - 1} \leq t &lt;
+  t_k\)</span> と仮定したときに、ユニフォーム B-spline
+  の基底関数の導出に使えるノットベクタ <span
+  class="math inline">\(\hat{T}_k\)</span> です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \hat{T}_1 &amp;= (-1, 0, 1, 2, 3)\\
+  \hat{T}_2 &amp;= (-2, -1, 0, 1, 2, 3, 4, 5)\\
+  \hat{T}_3 &amp;= (-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7)\\
+  &amp;\vdots
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(\hat{T}_k\)</span> を使い、 <span
+  class="math inline">\(N(i, k, t)\)</span> について <span
+  class="math inline">\(i\)</span> を <span
+  class="math inline">\(0\)</span> から <span class="math inline">\(k -
+  1\)</span> まで増やしていくことで <span
+  class="math inline">\(k\)</span> 個の基底関数が得られます。</p>
+  <p>次の式は 3 次のユニフォーム B-spline の基底関数です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  B_0(t) &amp;= -\frac{t^3}{6} + \frac{t^2}{2} - \frac{t}{2} +
+  \frac{1}{6}\\
+  B_1(t) &amp;=  \frac{t^3}{2} - t^2 + \frac{2}{3}\\
+  B_2(t) &amp;= -\frac{t^3}{2} + \frac{t^2}{2} + \frac{t}{2} +
+  \frac{1}{6}\\
+  B_3(t) &amp;=  \frac{t^3}{6}
+  \end{aligned}
+  \]</span></p>
+  <ul>
+  <li><a
+  href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform
+  Cubic B-Spline Curves</a></li>
+  </ul>
+  <p>基底関数はつぎはぎになっています。まずは <span
+  class="math inline">\(B_3(t)\)</span> から始まり、 <span
+  class="math inline">\(t\)</span> を <span
+  class="math inline">\(0\)</span> から <span
+  class="math inline">\(1\)</span> に増やしていきます。 <span
+  class="math inline">\(t\)</span> が <span
+  class="math inline">\(1\)</span> を超えたら <span
+  class="math inline">\(0\)</span> に戻し、関数を <span
+  class="math inline">\(B_2(t)\)</span> に変えて、また <span
+  class="math inline">\(t\)</span> を <span
+  class="math inline">\(0\)</span> から <span
+  class="math inline">\(1\)</span> に増やしていきます。これを <span
+  class="math inline">\(B_0(t)\)</span>
+  まで繰り返すことで基底関数が描画できます。</p>
+  <p>次のコードを実行すると使って基底関数を描画します。 Python3
+  のインタプリタにコピペすれば動きます。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> pyplot</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> B0(t):</span>
@@ -536,133 +599,133 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a hr
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>pyplot.plot(y)</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>pyplot.show()</span></code></pre></div>
-<p>基底関数の見た目です。 <span class="math inline">\(B_i(t)\)</span>
-がつぎはぎになっている様子が分かります。</p>
-<figure>
-<img src="img/uniform_cubic_bspline.png" alt="Image of basis of uniform cubic b-spline." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>あとは 3 次のユニフォーム B-spline の基底関数を 2 回積分すれば 4点の
-polyBLAMP が得られます。 1 回目の積分を行います。</p>
-<p><span class="math display">\[
-\begin{aligned}
-J B_3(t)
-  &amp;= \frac{t^4}{24} + C_3\\
-J B_2(t)
-  &amp;=
--\frac{{{t}^{4}}}{8}+\frac{{{t}^{3}}}{6}+\frac{{{t}^{2}}}{4}+\frac{t}{6}
-+ C_2\\
-J B_1(t)
-  &amp;= \frac{{{t}^{4}}}{8}-\frac{{{t}^{3}}}{3}+\frac{2 t}{3} + C_1\\
-J B_0(t)
-  &amp;=
--\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{6}-\frac{{{t}^{2}}}{4}+\frac{t}{6}
-+ C_0
-\end{aligned}
-\]</span></p>
-<p>積分定数を決めます。まず <span class="math inline">\(J B_3(0) =
-0\)</span> と仮定します。すると <span class="math inline">\(C_3 =
-0\)</span> となります。次に関数の間が滑らかにつながるようにしたいので
-<span class="math inline">\(J B_3(1) = J B_2(0)\)</span>
-と仮定します。すると <span class="math inline">\(C_2 = J B_3(1)\)</span>
-となります。あとは同様に <span class="math inline">\(J B_2(1) = J
-B_1(0)\)</span> より <span class="math inline">\(C_1 = J B_2(1)\)</span>
-、 <span class="math inline">\(J B_1(1) = J B_0(0)\)</span> より <span
-class="math inline">\(C_0 = J B_1(1)\)</span>
-と積分定数が決まります。</p>
-<p><span class="math display">\[
-\begin{aligned}
-C_3 &amp;= 0\\
-C_2 &amp;= J B_3(1) &amp;&amp;= \frac{1}{24}\\
-C_1 &amp;= J B_2(1) &amp;&amp;= \frac{1}{2}\\
-C_0 &amp;= J B_1(1) &amp;&amp;= \frac{23}{24}\\
-\end{aligned}
-\]</span></p>
-<p>積分定数が決まったので代入します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-J B_3(t)
-  &amp;= \frac{t^4}{24}\\
-J B_2(t)
-  &amp;=
--\frac{{{t}^{4}}}{8}+\frac{{{t}^{3}}}{6}+\frac{{{t}^{2}}}{4}+\frac{t}{6}
-+ \frac{1}{24}\\
-J B_1(t)
-  &amp;= \frac{{{t}^{4}}}{8}-\frac{{{t}^{3}}}{3}+\frac{2 t}{3} +
-\frac{1}{2}\\
-J B_0(t)
-  &amp;=
--\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{6}-\frac{{{t}^{2}}}{4}+\frac{t}{6}
-+ \frac{23}{24}\\
-\end{aligned}
-\]</span></p>
-<p>もう一回の積分も同じように積分定数を決めることができます。</p>
-<p><span class="math display">\[
-\begin{aligned}
-J^2 B_3(t)
-  &amp;= \frac{{{t}^{5}}}{120}\\
-J^2 B_2(t)
-  &amp;=
--\frac{{{t}^{5}}}{40}+\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{t}{24}+J^2
-B_3(1)
-  &amp;&amp;=
--\frac{{{t}^{5}}}{40}+\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{t}{24}+\frac{1}{120}\\
-J^2 B_1(t)
-  &amp;=
-\frac{{{t}^{5}}}{40}-\frac{{{t}^{4}}}{12}+\frac{{{t}^{2}}}{3}+\frac{t}{2}+J^2
-B_2(1)
-  &amp;&amp;=
-\frac{{{t}^{5}}}{40}-\frac{{{t}^{4}}}{12}+\frac{{{t}^{2}}}{3}+\frac{t}{2}+\frac{7}{30}\\
-J^2 B_0(t)
-  &amp;=
--\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{24}-\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{23
-t}{24}+J^2 B_1(1)
-  &amp;&amp;=
--\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{24}-\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{23
-t}{24}+\frac{121}{120}\\
-\end{aligned}
-\]</span></p>
-<p>2 回積分した式からランプ関数 <span
-class="math inline">\(R(x)\)</span> を引くことで polyBLAMP residual
-が得られます。 3 次のときは <span class="math inline">\(x = 0\)</span>
-が <span class="math inline">\(J^2 B_1(t)\)</span> と <span
-class="math inline">\(J^2 B_2(t)\)</span> の境界になるので、 <span
-class="math inline">\(J^2 B_1(t)\)</span> と <span
-class="math inline">\(J^2 B_0(t)\)</span> から <span
-class="math inline">\(t\)</span> を引きます。 <span
-class="math inline">\(t\)</span>
-を引いた式については積分定数を決め直します。</p>
-<p><span class="math display">\[
-\begin{aligned}
-J^2 \hat{B}_1(t)
-  &amp;=
-\frac{{{t}^{5}}}{40}-\frac{{{t}^{4}}}{12}+\frac{{{t}^{2}}}{3}+\frac{t}{2}+\frac{7}{30}
-- t
-  &amp;&amp;=
-\frac{{{t}^{5}}}{40}-\frac{{{t}^{4}}}{12}+\frac{{{t}^{2}}}{3}-\frac{t}{2}+\frac{7}{30}\\
-J^2 \hat{B}_0(t)
-  &amp;=
--\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{24}-\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{23
-t}{24} - t + J^2 B_1(1)
-  &amp;&amp;=
--\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{24}-\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}
-- \frac{t}{24} - \frac{1}{120}\\
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(J^2 B_3(t)\)</span> 、 <span
-class="math inline">\(J^2 B_2(t)\)</span> 、 <span
-class="math inline">\(J^2 \hat{B}_0(t)\)</span> 、 <span
-class="math inline">\(J^2 \hat{B}_1(t)\)</span> が 4 point polyBLAMP
-residual の式です。</p>
-<p>次の図は 3 次のユニフォーム B-spline の基底関数と、それを 1
-回積分した関数、 2 回積分した関数、最終的に得られた 4 point polyBLAMP
-residual の見た目を表しています。</p>
-<figure>
-<img src="img/bspline.png" alt="Image of b-spline basis and its 1st integral, second integral and polyBLAMP residual." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>ここまでの式変形を Maxima のコードにしました。 wxMaxima
-にコピペすれば動きます。</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cn">N</span>(<span class="cn">i</span>, <span class="cn">k</span>, <span class="cn">t</span>) :=</span>
+  <p>基底関数の見た目です。 <span class="math inline">\(B_i(t)\)</span>
+  がつぎはぎになっている様子が分かります。</p>
+  <figure>
+  <img src="img/uniform_cubic_bspline.png" alt="Image of basis of uniform cubic b-spline." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>あとは 3 次のユニフォーム B-spline の基底関数を 2 回積分すれば
+  4点の polyBLAMP が得られます。 1 回目の積分を行います。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  J B_3(t)
+    &amp;= \frac{t^4}{24} + C_3\\
+  J B_2(t)
+    &amp;=
+  -\frac{{{t}^{4}}}{8}+\frac{{{t}^{3}}}{6}+\frac{{{t}^{2}}}{4}+\frac{t}{6}
+  + C_2\\
+  J B_1(t)
+    &amp;= \frac{{{t}^{4}}}{8}-\frac{{{t}^{3}}}{3}+\frac{2 t}{3} + C_1\\
+  J B_0(t)
+    &amp;=
+  -\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{6}-\frac{{{t}^{2}}}{4}+\frac{t}{6}
+  + C_0
+  \end{aligned}
+  \]</span></p>
+  <p>積分定数を決めます。まず <span class="math inline">\(J B_3(0) =
+  0\)</span> と仮定します。すると <span class="math inline">\(C_3 =
+  0\)</span> となります。次に関数の間が滑らかにつながるようにしたいので
+  <span class="math inline">\(J B_3(1) = J B_2(0)\)</span>
+  と仮定します。すると <span class="math inline">\(C_2 = J
+  B_3(1)\)</span> となります。あとは同様に <span class="math inline">\(J
+  B_2(1) = J B_1(0)\)</span> より <span class="math inline">\(C_1 = J
+  B_2(1)\)</span> 、 <span class="math inline">\(J B_1(1) = J
+  B_0(0)\)</span> より <span class="math inline">\(C_0 = J
+  B_1(1)\)</span> と積分定数が決まります。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  C_3 &amp;= 0\\
+  C_2 &amp;= J B_3(1) &amp;&amp;= \frac{1}{24}\\
+  C_1 &amp;= J B_2(1) &amp;&amp;= \frac{1}{2}\\
+  C_0 &amp;= J B_1(1) &amp;&amp;= \frac{23}{24}\\
+  \end{aligned}
+  \]</span></p>
+  <p>積分定数が決まったので代入します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  J B_3(t)
+    &amp;= \frac{t^4}{24}\\
+  J B_2(t)
+    &amp;=
+  -\frac{{{t}^{4}}}{8}+\frac{{{t}^{3}}}{6}+\frac{{{t}^{2}}}{4}+\frac{t}{6}
+  + \frac{1}{24}\\
+  J B_1(t)
+    &amp;= \frac{{{t}^{4}}}{8}-\frac{{{t}^{3}}}{3}+\frac{2 t}{3} +
+  \frac{1}{2}\\
+  J B_0(t)
+    &amp;=
+  -\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{6}-\frac{{{t}^{2}}}{4}+\frac{t}{6}
+  + \frac{23}{24}\\
+  \end{aligned}
+  \]</span></p>
+  <p>もう一回の積分も同じように積分定数を決めることができます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  J^2 B_3(t)
+    &amp;= \frac{{{t}^{5}}}{120}\\
+  J^2 B_2(t)
+    &amp;=
+  -\frac{{{t}^{5}}}{40}+\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{t}{24}+J^2
+  B_3(1)
+    &amp;&amp;=
+  -\frac{{{t}^{5}}}{40}+\frac{{{t}^{4}}}{24}+\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{t}{24}+\frac{1}{120}\\
+  J^2 B_1(t)
+    &amp;=
+  \frac{{{t}^{5}}}{40}-\frac{{{t}^{4}}}{12}+\frac{{{t}^{2}}}{3}+\frac{t}{2}+J^2
+  B_2(1)
+    &amp;&amp;=
+  \frac{{{t}^{5}}}{40}-\frac{{{t}^{4}}}{12}+\frac{{{t}^{2}}}{3}+\frac{t}{2}+\frac{7}{30}\\
+  J^2 B_0(t)
+    &amp;=
+  -\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{24}-\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{23
+  t}{24}+J^2 B_1(1)
+    &amp;&amp;=
+  -\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{24}-\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{23
+  t}{24}+\frac{121}{120}\\
+  \end{aligned}
+  \]</span></p>
+  <p>2 回積分した式からランプ関数 <span
+  class="math inline">\(R(x)\)</span> を引くことで polyBLAMP residual
+  が得られます。 3 次のときは <span class="math inline">\(x = 0\)</span>
+  が <span class="math inline">\(J^2 B_1(t)\)</span> と <span
+  class="math inline">\(J^2 B_2(t)\)</span> の境界になるので、 <span
+  class="math inline">\(J^2 B_1(t)\)</span> と <span
+  class="math inline">\(J^2 B_0(t)\)</span> から <span
+  class="math inline">\(t\)</span> を引きます。 <span
+  class="math inline">\(t\)</span>
+  を引いた式については積分定数を決め直します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  J^2 \hat{B}_1(t)
+    &amp;=
+  \frac{{{t}^{5}}}{40}-\frac{{{t}^{4}}}{12}+\frac{{{t}^{2}}}{3}+\frac{t}{2}+\frac{7}{30}
+  - t
+    &amp;&amp;=
+  \frac{{{t}^{5}}}{40}-\frac{{{t}^{4}}}{12}+\frac{{{t}^{2}}}{3}-\frac{t}{2}+\frac{7}{30}\\
+  J^2 \hat{B}_0(t)
+    &amp;=
+  -\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{24}-\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}+\frac{23
+  t}{24} - t + J^2 B_1(1)
+    &amp;&amp;=
+  -\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{24}-\frac{{{t}^{3}}}{12}+\frac{{{t}^{2}}}{12}
+  - \frac{t}{24} - \frac{1}{120}\\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(J^2 B_3(t)\)</span> 、 <span
+  class="math inline">\(J^2 B_2(t)\)</span> 、 <span
+  class="math inline">\(J^2 \hat{B}_0(t)\)</span> 、 <span
+  class="math inline">\(J^2 \hat{B}_1(t)\)</span> が 4 point polyBLAMP
+  residual の式です。</p>
+  <p>次の図は 3 次のユニフォーム B-spline の基底関数と、それを 1
+  回積分した関数、 2 回積分した関数、最終的に得られた 4 point polyBLAMP
+  residual の見た目を表しています。</p>
+  <figure>
+  <img src="img/bspline.png" alt="Image of b-spline basis and its 1st integral, second integral and polyBLAMP residual." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>ここまでの式変形を Maxima のコードにしました。 wxMaxima
+  にコピペすれば動きます。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cn">N</span>(<span class="cn">i</span>, <span class="cn">k</span>, <span class="cn">t</span>) :=</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span> <span class="cn">k</span> = <span class="dv">1</span> <span class="kw">then</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span>) &lt;= <span class="cn">t</span> <span class="kw">and</span> <span class="cn">t</span> &lt; <span class="cn">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="dv">1</span>) <span class="kw">then</span> <span class="dv">1</span> <span class="kw">else</span> <span class="dv">0</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">else</span> <span class="fu">block</span>([<span class="cn">t_i</span>: <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span>), <span class="cn">t_ik</span>: <span class="fu">concat</span>(<span class="do">&#39;</span><span class="cn">t</span>, <span class="cn">i</span> + <span class="cn">k</span>)],</span>
@@ -700,108 +763,108 @@ class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb2-1"><a hr
 <span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="cn">P</span>: <span class="cn">findConstant</span>(<span class="cn">eq</span>, <span class="kw">false</span>); <span class="co">/* 1 回積分した式。 */</span></span>
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="cn">Q</span>: <span class="cn">findConstant</span>(<span class="cn">P</span>, <span class="kw">false</span>);  <span class="co">/* 2 回積分した式。 */</span></span>
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="cn">R</span>: <span class="cn">findConstant</span>(<span class="cn">P</span>, <span class="kw">true</span>);   <span class="co">/* polyBLAMP residual */</span></span></code></pre></div>
-<p>コードから得られた 6 point polyBLAMP residual の式です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-J^2 B_{6, 0}(t) &amp;=
--\frac{{{t}^{7}}}{5040}+\frac{{{t}^{6}}}{720}-\frac{{{t}^{5}}}{240}+\frac{{{t}^{4}}}{144}-\frac{{{t}^{3}}}{144}+\frac{{{t}^{2}}}{240}-\frac{t}{720}+\frac{1}{5040}\\
-J^2 B_{6, 1}(t) &amp;=
-\frac{{{t}^{7}}}{1008}-\frac{{{t}^{6}}}{180}+\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{72}-\frac{5
-{{t}^{3}}}{72}+\frac{13 {{t}^{2}}}{120}-\frac{29
-t}{360}+\frac{61}{2520}\\
-J^2 B_{6, 2}(t) &amp;=
--\frac{{{t}^{7}}}{504}+\frac{{{t}^{6}}}{120}-\frac{{{t}^{4}}}{24}+\frac{11
-{{t}^{2}}}{40}-\frac{t}{2}+\frac{239}{840}\\
-J^2 B_{6, 3}(t) &amp;=
-\frac{{{t}^{7}}}{504}-\frac{{{t}^{6}}}{180}-\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{72}+\frac{5
-{{t}^{3}}}{72}+\frac{13 {{t}^{2}}}{120}+\frac{29
-t}{360}+\frac{61}{2520}\\
-J^2 B_{6, 4}(t) &amp;=
--\frac{{{t}^{7}}}{1008}+\frac{{{t}^{6}}}{720}+\frac{{{t}^{5}}}{240}+\frac{{{t}^{4}}}{144}+\frac{{{t}^{3}}}{144}+\frac{{{t}^{2}}}{240}+\frac{t}{720}+\frac{1}{5040}\\
-J^2 B_{6, 5}(t) &amp;= \frac{{{t}^{7}}}{5040}\\
-\end{aligned}
-\]</span></p>
-<p>8 point polyBLAMP residual の式です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-J^2 B_{8, 0}(t) &amp;=
--\frac{{{t}^{9}}}{362880}+\frac{{{t}^{8}}}{40320}-\frac{{{t}^{7}}}{10080}+\frac{{{t}^{6}}}{4320}-\frac{{{t}^{5}}}{2880}+\frac{{{t}^{4}}}{2880}-\frac{{{t}^{3}}}{4320}+\frac{{{t}^{2}}}{10080}-\frac{t}{40320}+\frac{1}{362880}\\
-J^2 B_{8, 1}(t) &amp;=
-\frac{{{t}^{9}}}{51840}-\frac{{{t}^{8}}}{6720}+\frac{{{t}^{7}}}{2520}-\frac{{{t}^{5}}}{360}+\frac{{{t}^{4}}}{120}-\frac{7
-{{t}^{3}}}{540}+\frac{{{t}^{2}}}{84}-\frac{31 t}{5040}+\frac{1}{720}\\
-J^2 B_{8, 2}(t) &amp;=
--\frac{{{t}^{9}}}{17280}+\frac{{{t}^{8}}}{2688}-\frac{{{t}^{7}}}{2016}-\frac{{{t}^{6}}}{480}+\frac{19
-{{t}^{5}}}{2880}+\frac{{{t}^{4}}}{192}-\frac{49
-{{t}^{3}}}{864}+\frac{397 {{t}^{2}}}{3360}-\frac{4541
-t}{40320}+\frac{347}{8064}\\
-J^2 B_{8, 3}(t) &amp;=
-\frac{{{t}^{9}}}{10368}-\frac{{{t}^{8}}}{2016}+\frac{{{t}^{6}}}{270}-\frac{{{t}^{4}}}{36}+\frac{151
-{{t}^{2}}}{630}-\frac{t}{2}+\frac{1487}{4536}\\
-J^2 B_{8, 4}(t) &amp;=
--\frac{{{t}^{9}}}{10368}+\frac{{{t}^{8}}}{2688}+\frac{{{t}^{7}}}{2016}-\frac{{{t}^{6}}}{480}-\frac{19
-{{t}^{5}}}{2880}+\frac{{{t}^{4}}}{192}+\frac{49
-{{t}^{3}}}{864}+\frac{397 {{t}^{2}}}{3360}+\frac{4541
-t}{40320}+\frac{347}{8064}\\
-J^2 B_{8, 5}(t) &amp;=
-\frac{{{t}^{9}}}{17280}-\frac{{{t}^{8}}}{6720}-\frac{{{t}^{7}}}{2520}+\frac{{{t}^{5}}}{360}+\frac{{{t}^{4}}}{120}+\frac{7
-{{t}^{3}}}{540}+\frac{{{t}^{2}}}{84}+\frac{31 t}{5040}+\frac{1}{720}\\
-J^2 B_{8, 6}(t) &amp;=
--\frac{{{t}^{9}}}{51840}+\frac{{{t}^{8}}}{40320}+\frac{{{t}^{7}}}{10080}+\frac{{{t}^{6}}}{4320}+\frac{{{t}^{5}}}{2880}+\frac{{{t}^{4}}}{2880}+\frac{{{t}^{3}}}{4320}+\frac{{{t}^{2}}}{10080}+\frac{t}{40320}+\frac{1}{362880}\\
-J^2 B_{8, 7}(t) &amp;= \frac{{{t}^{9}}}{362880}
-\end{aligned}
-\]</span></p>
-<h2 id="三角波オシレータへの応用"><a href="#三角波オシレータへの応用"
-class="header-anchor"
-aria-hidden="true">三角波オシレータへの応用</a></h2>
-<p>4 point polyBLAMP residual
-を素朴な三角波オシレータの<ruby>角<rt>かど</rt></ruby>に足し合わせてエイリアシングノイズを低減します。</p>
-<p>素朴な三角波は次の式で生成できます。</p>
-<p><span class="math display">\[
-\mathrm{Tri}(n) = 4 \left| \frac{n f_0}{f_s} - \frac{1}{2} \right| - 1
-\]</span></p>
-<p><span class="math inline">\(n\)</span> は経過したサンプル数、 <span
-class="math inline">\(f_0\)</span> はオシレータの周波数、 <span
-class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
-<p>絶対値を外したときの <span class="math inline">\(n\)</span>
-の係数がランプ関数の傾き <span class="math inline">\(\mu\)</span>
-になります。</p>
-<p><span class="math display">\[
-\mu = \frac{4 f_0}{f_s}
-\]</span></p>
-<p>三角波では次の図のように波形の 1 周期の内にランプ関数の角が 4
-つ現れます。</p>
-<figure>
-<img src="img/triangle_ramp.svg" alt="Image of ." style="width: 400px;padding-bottom: 12px;"/>
-</figure>
-<p>角が現れるのは正規化された位相 <span class="math inline">\(\phi =
-\dfrac{n f_0}{f_s} \bmod 1\)</span> が <span
-class="math inline">\(0\)</span> か <span
-class="math inline">\(0.5\)</span> のときです。角の位置 <span
-class="math inline">\(d\)</span> は <span
-class="math inline">\(\phi\)</span> から計算できます。</p>
-<p><span class="math display">\[
-d = \begin{cases}
-\dfrac{\phi f_s}{f_0},         &amp;\quad \text{if}\enspace 0 \leq \phi
-&lt; \frac{f_0}{f_s}\\\\
-\dfrac{(\phi - 0.5) f_s}{f_0}, &amp;\quad \text{if}\enspace 0.5 \leq
-\phi &lt; 0.5 + \frac{f_0}{f_s}\\
-\end{cases}
-\]</span></p>
-<p>ランプ関数の向きが <span class="math inline">\(x \leq 0\)</span>
-のときに <span class="math inline">\(\pm x\)</span> となる場合は <span
-class="math inline">\(1 - d\)</span> とします。</p>
-<figure>
-<img src="img/triangle_d.svg" alt="Image of location of d." style="width: 400px;padding-bottom: 12px;"/>
-</figure>
-<p>実装例です。この Python3 + NumPy
-の実装はかなり遅いです。完全なコードは長いのでリンクにしました。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/bda317e00afb602d5543671d38c23e1ab9d8f318/polyblamp_residual/demo/blamp_osc.py#L58">コードを読む
-(github.com)</a></li>
-</ul>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> blamp_residual4(d):</span>
+  <p>コードから得られた 6 point polyBLAMP residual の式です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  J^2 B_{6, 0}(t) &amp;=
+  -\frac{{{t}^{7}}}{5040}+\frac{{{t}^{6}}}{720}-\frac{{{t}^{5}}}{240}+\frac{{{t}^{4}}}{144}-\frac{{{t}^{3}}}{144}+\frac{{{t}^{2}}}{240}-\frac{t}{720}+\frac{1}{5040}\\
+  J^2 B_{6, 1}(t) &amp;=
+  \frac{{{t}^{7}}}{1008}-\frac{{{t}^{6}}}{180}+\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{72}-\frac{5
+  {{t}^{3}}}{72}+\frac{13 {{t}^{2}}}{120}-\frac{29
+  t}{360}+\frac{61}{2520}\\
+  J^2 B_{6, 2}(t) &amp;=
+  -\frac{{{t}^{7}}}{504}+\frac{{{t}^{6}}}{120}-\frac{{{t}^{4}}}{24}+\frac{11
+  {{t}^{2}}}{40}-\frac{t}{2}+\frac{239}{840}\\
+  J^2 B_{6, 3}(t) &amp;=
+  \frac{{{t}^{7}}}{504}-\frac{{{t}^{6}}}{180}-\frac{{{t}^{5}}}{120}+\frac{{{t}^{4}}}{72}+\frac{5
+  {{t}^{3}}}{72}+\frac{13 {{t}^{2}}}{120}+\frac{29
+  t}{360}+\frac{61}{2520}\\
+  J^2 B_{6, 4}(t) &amp;=
+  -\frac{{{t}^{7}}}{1008}+\frac{{{t}^{6}}}{720}+\frac{{{t}^{5}}}{240}+\frac{{{t}^{4}}}{144}+\frac{{{t}^{3}}}{144}+\frac{{{t}^{2}}}{240}+\frac{t}{720}+\frac{1}{5040}\\
+  J^2 B_{6, 5}(t) &amp;= \frac{{{t}^{7}}}{5040}\\
+  \end{aligned}
+  \]</span></p>
+  <p>8 point polyBLAMP residual の式です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  J^2 B_{8, 0}(t) &amp;=
+  -\frac{{{t}^{9}}}{362880}+\frac{{{t}^{8}}}{40320}-\frac{{{t}^{7}}}{10080}+\frac{{{t}^{6}}}{4320}-\frac{{{t}^{5}}}{2880}+\frac{{{t}^{4}}}{2880}-\frac{{{t}^{3}}}{4320}+\frac{{{t}^{2}}}{10080}-\frac{t}{40320}+\frac{1}{362880}\\
+  J^2 B_{8, 1}(t) &amp;=
+  \frac{{{t}^{9}}}{51840}-\frac{{{t}^{8}}}{6720}+\frac{{{t}^{7}}}{2520}-\frac{{{t}^{5}}}{360}+\frac{{{t}^{4}}}{120}-\frac{7
+  {{t}^{3}}}{540}+\frac{{{t}^{2}}}{84}-\frac{31 t}{5040}+\frac{1}{720}\\
+  J^2 B_{8, 2}(t) &amp;=
+  -\frac{{{t}^{9}}}{17280}+\frac{{{t}^{8}}}{2688}-\frac{{{t}^{7}}}{2016}-\frac{{{t}^{6}}}{480}+\frac{19
+  {{t}^{5}}}{2880}+\frac{{{t}^{4}}}{192}-\frac{49
+  {{t}^{3}}}{864}+\frac{397 {{t}^{2}}}{3360}-\frac{4541
+  t}{40320}+\frac{347}{8064}\\
+  J^2 B_{8, 3}(t) &amp;=
+  \frac{{{t}^{9}}}{10368}-\frac{{{t}^{8}}}{2016}+\frac{{{t}^{6}}}{270}-\frac{{{t}^{4}}}{36}+\frac{151
+  {{t}^{2}}}{630}-\frac{t}{2}+\frac{1487}{4536}\\
+  J^2 B_{8, 4}(t) &amp;=
+  -\frac{{{t}^{9}}}{10368}+\frac{{{t}^{8}}}{2688}+\frac{{{t}^{7}}}{2016}-\frac{{{t}^{6}}}{480}-\frac{19
+  {{t}^{5}}}{2880}+\frac{{{t}^{4}}}{192}+\frac{49
+  {{t}^{3}}}{864}+\frac{397 {{t}^{2}}}{3360}+\frac{4541
+  t}{40320}+\frac{347}{8064}\\
+  J^2 B_{8, 5}(t) &amp;=
+  \frac{{{t}^{9}}}{17280}-\frac{{{t}^{8}}}{6720}-\frac{{{t}^{7}}}{2520}+\frac{{{t}^{5}}}{360}+\frac{{{t}^{4}}}{120}+\frac{7
+  {{t}^{3}}}{540}+\frac{{{t}^{2}}}{84}+\frac{31 t}{5040}+\frac{1}{720}\\
+  J^2 B_{8, 6}(t) &amp;=
+  -\frac{{{t}^{9}}}{51840}+\frac{{{t}^{8}}}{40320}+\frac{{{t}^{7}}}{10080}+\frac{{{t}^{6}}}{4320}+\frac{{{t}^{5}}}{2880}+\frac{{{t}^{4}}}{2880}+\frac{{{t}^{3}}}{4320}+\frac{{{t}^{2}}}{10080}+\frac{t}{40320}+\frac{1}{362880}\\
+  J^2 B_{8, 7}(t) &amp;= \frac{{{t}^{9}}}{362880}
+  \end{aligned}
+  \]</span></p>
+  <h2 id="三角波オシレータへの応用"><a href="#三角波オシレータへの応用"
+  class="header-anchor"
+  aria-hidden="true">三角波オシレータへの応用</a></h2>
+  <p>4 point polyBLAMP residual
+  を素朴な三角波オシレータの<ruby>角<rt>かど</rt></ruby>に足し合わせてエイリアシングノイズを低減します。</p>
+  <p>素朴な三角波は次の式で生成できます。</p>
+  <p><span class="math display">\[
+  \mathrm{Tri}(n) = 4 \left| \frac{n f_0}{f_s} - \frac{1}{2} \right| - 1
+  \]</span></p>
+  <p><span class="math inline">\(n\)</span> は経過したサンプル数、 <span
+  class="math inline">\(f_0\)</span> はオシレータの周波数、 <span
+  class="math inline">\(f_s\)</span> はサンプリング周波数です。</p>
+  <p>絶対値を外したときの <span class="math inline">\(n\)</span>
+  の係数がランプ関数の傾き <span class="math inline">\(\mu\)</span>
+  になります。</p>
+  <p><span class="math display">\[
+  \mu = \frac{4 f_0}{f_s}
+  \]</span></p>
+  <p>三角波では次の図のように波形の 1 周期の内にランプ関数の角が 4
+  つ現れます。</p>
+  <figure>
+  <img src="img/triangle_ramp.svg" alt="Image of ." style="width: 400px;padding-bottom: 12px;"/>
+  </figure>
+  <p>角が現れるのは正規化された位相 <span class="math inline">\(\phi =
+  \dfrac{n f_0}{f_s} \bmod 1\)</span> が <span
+  class="math inline">\(0\)</span> か <span
+  class="math inline">\(0.5\)</span> のときです。角の位置 <span
+  class="math inline">\(d\)</span> は <span
+  class="math inline">\(\phi\)</span> から計算できます。</p>
+  <p><span class="math display">\[
+  d = \begin{cases}
+  \dfrac{\phi f_s}{f_0},         &amp;\quad \text{if}\enspace 0 \leq
+  \phi &lt; \frac{f_0}{f_s}\\\\
+  \dfrac{(\phi - 0.5) f_s}{f_0}, &amp;\quad \text{if}\enspace 0.5 \leq
+  \phi &lt; 0.5 + \frac{f_0}{f_s}\\
+  \end{cases}
+  \]</span></p>
+  <p>ランプ関数の向きが <span class="math inline">\(x \leq 0\)</span>
+  のときに <span class="math inline">\(\pm x\)</span> となる場合は <span
+  class="math inline">\(1 - d\)</span> とします。</p>
+  <figure>
+  <img src="img/triangle_d.svg" alt="Image of location of d." style="width: 400px;padding-bottom: 12px;"/>
+  </figure>
+  <p>実装例です。この Python3 + NumPy
+  の実装はかなり遅いです。完全なコードは長いのでリンクにしました。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/bda317e00afb602d5543671d38c23e1ab9d8f318/polyblamp_residual/demo/blamp_osc.py#L58">コードを読む
+  (github.com)</a></li>
+  </ul>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> blamp_residual4(d):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">120</span>,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span>d<span class="op">**</span><span class="dv">5</span> <span class="op">/</span> <span class="dv">40</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">4</span> <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">3</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> <span class="dv">12</span> <span class="op">+</span> d <span class="op">/</span> <span class="dv">24</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">120</span>,</span>
@@ -859,140 +922,140 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 <span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> data</span>
 <span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>tri_blamp4 <span class="op">=</span> render_blamp(<span class="dv">4</span>, samplerate, frequency, blamp_residual4)</span></code></pre></div>
-<p><span class="math inline">\(f_s = 44100, f_0 = 5500\)</span>
-としてレンダリングした三角波の音です。</p>
-<figure>
-<figcaption>
-naive
-</figcaption>
-<audio controls>
-<source src="snd/tri_naive.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-4 point polyBLAMP residual
-</figcaption>
-<audio controls>
-<source src="snd/tri_blamp4.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-6 point polyBLAMP residual
-</figcaption>
-<audio controls>
-<source src="snd/tri_blamp6.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-8 point polyBLAMP residual
-</figcaption>
-<audio controls>
-<source src="snd/tri_blamp8.wav" type="audio/wav">
-</audio>
-</figure>
-<p>波形です。 polyBLAMP residual
-を足し合わせた波形は角が丸まったように見えます。</p>
-<figure>
-<img src="img/triangle_waveform.png" alt="Image of triangle waveform." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>周波数成分の比較です。 polyBLAMP residual
-の点数が増えるとノイズが減っていることが分かります。</p>
-<figure>
-<img src="img/triangle_spectrum.png" alt="Image of triangle spectrum." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>三角波では polyBLAMP residual が <span
-class="math inline">\(k\)</span> 点のとき <span
-class="math inline">\(f_s / k\)</span> Hz
-までならノイズ低減が見込めます。 <span class="math inline">\(f_s /
-k\)</span> Hz を超えると residual
-を足し合わせている領域がランプ関数だという仮定が崩れるので逆にノイズが増えます。</p>
-<p><span class="math inline">\(f_s = 44100\)</span>
-のときに使える最も高い周波数です。</p>
-<ul>
-<li><span class="math inline">\(k = 4 \to\)</span> 11025 Hz</li>
-<li><span class="math inline">\(k = 6 \to\)</span> 7350 Hz</li>
-<li><span class="math inline">\(k = 8 \to\)</span> 5512.5 Hz</li>
-</ul>
-<p>次の図は仮定が崩れるパターンを示しています。</p>
-<figure>
-<img src="img/triangle_assume_fail.svg" alt="Image of ." style="width: 400px;padding-bottom: 12px;"/>
-</figure>
-<h2 id="ハードクリップへの応用の検討"><a
-href="#ハードクリップへの応用の検討" class="header-anchor"
-aria-hidden="true">ハードクリップへの応用の検討</a></h2>
-<p>論文ではハードクリップへの応用についても触れられているので試します。</p>
-<p>ハードクリップとは波形に <code>clamp</code>
-関数をかける処理のことです。 <code>clamp</code>
-関数は次のように定義できます。</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> clamp(value, low, high):</span>
+  <p><span class="math inline">\(f_s = 44100, f_0 = 5500\)</span>
+  としてレンダリングした三角波の音です。</p>
+  <figure>
+  <figcaption>
+  naive
+  </figcaption>
+  <audio controls>
+  <source src="snd/tri_naive.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  4 point polyBLAMP residual
+  </figcaption>
+  <audio controls>
+  <source src="snd/tri_blamp4.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  6 point polyBLAMP residual
+  </figcaption>
+  <audio controls>
+  <source src="snd/tri_blamp6.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  8 point polyBLAMP residual
+  </figcaption>
+  <audio controls>
+  <source src="snd/tri_blamp8.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <p>波形です。 polyBLAMP residual
+  を足し合わせた波形は角が丸まったように見えます。</p>
+  <figure>
+  <img src="img/triangle_waveform.png" alt="Image of triangle waveform." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>周波数成分の比較です。 polyBLAMP residual
+  の点数が増えるとノイズが減っていることが分かります。</p>
+  <figure>
+  <img src="img/triangle_spectrum.png" alt="Image of triangle spectrum." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>三角波では polyBLAMP residual が <span
+  class="math inline">\(k\)</span> 点のとき <span
+  class="math inline">\(f_s / k\)</span> Hz
+  までならノイズ低減が見込めます。 <span class="math inline">\(f_s /
+  k\)</span> Hz を超えると residual
+  を足し合わせている領域がランプ関数だという仮定が崩れるので逆にノイズが増えます。</p>
+  <p><span class="math inline">\(f_s = 44100\)</span>
+  のときに使える最も高い周波数です。</p>
+  <ul>
+  <li><span class="math inline">\(k = 4 \to\)</span> 11025 Hz</li>
+  <li><span class="math inline">\(k = 6 \to\)</span> 7350 Hz</li>
+  <li><span class="math inline">\(k = 8 \to\)</span> 5512.5 Hz</li>
+  </ul>
+  <p>次の図は仮定が崩れるパターンを示しています。</p>
+  <figure>
+  <img src="img/triangle_assume_fail.svg" alt="Image of ." style="width: 400px;padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="ハードクリップへの応用の検討"><a
+  href="#ハードクリップへの応用の検討" class="header-anchor"
+  aria-hidden="true">ハードクリップへの応用の検討</a></h2>
+  <p>論文ではハードクリップへの応用についても触れられているので試します。</p>
+  <p>ハードクリップとは波形に <code>clamp</code>
+  関数をかける処理のことです。 <code>clamp</code>
+  関数は次のように定義できます。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> clamp(value, low, high):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&lt;</span> low:</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> low</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> value <span class="op">&gt;</span> high:</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> high</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> value</span></code></pre></div>
-<p>PolyBLAMP residual
-をハードクリップに適用するためには、入力信号からランプ関数の<ruby>角<rt>かど</rt></ruby>の位置
-<span class="math inline">\(d\)</span> と、傾き <span
-class="math inline">\(\mu\)</span> を推定する必要があります。</p>
-<p>波形の角の部分だけを取り出した図です。 4 point polyBLAMP residual
-は角がインデックス 1 と 2 の間にあると仮定しています。</p>
-<figure>
-<img src="img/hardclip_corner.svg" alt="Image of a corner of hardclip." style="width: 400px;padding-bottom: 12px;"/>
-</figure>
-<p>論文では <span class="math inline">\(d\)</span> と <span
-class="math inline">\(\mu\)</span>
-の推定にラグランジュ補間を使っています。次の式は 4
-つのサンプルを通過するラグランジュ補間の多項式です。</p>
-<p><span class="math display">\[
-\begin{aligned}
-a &amp;= -\frac{1}{6} s[0] + \frac{1}{2} s[1] - \frac{1}{2} s[2] +
-\frac{1}{6} s[3]\\
-b &amp;= s[0] -\frac{5}{2} s[1] + 2 s[2] - \frac{1}{2} s[3]\\
-c &amp;= -\frac{6}{11} s[0] + 3 s[1] - \frac{3}{2} s[2] + \frac{1}{3}
-s[3]\\
-d &amp;= s[0]
-\end{aligned}
-\]</span></p>
-<p><a
-href="https://en.wikipedia.org/wiki/Newton%27s_method">ニュートン法</a>で、次の方程式を
-<span class="math inline">\(D = 1 + d\)</span> について解きます。</p>
-<p><span class="math display">\[
-a D^3 + b D^2 + c D + e - \rho = 0
-\]</span></p>
-<p>方程式をニュートン法の漸化式にします。</p>
-<p><span class="math display">\[
-\begin{aligned}
-D_0 &amp;= 1.5\\
-D_{q + 1}
-&amp;= D_q - \frac{f(D_q)}{f&#39;(D_q)}\\
-&amp;= D_q - \frac{a D_q^3 + b D_q^2 + c D_q + e - \rho}{3 a D_q^2 + 2 b
-D_q + c}\\
-d &amp;= D - 1\\
-\mu &amp;= f&#39;(D_Q)
-\end{aligned}
-\]</span></p>
-<p><span class="math inline">\(\rho\)</span>
-は角の高さです。例えば全波整流では <span
-class="math inline">\(0\)</span> 、音量 <span
-class="math inline">\(L\)</span> でのハードクリッピングでは <span
-class="math inline">\(\pm L\)</span> となります。 <span
-class="math inline">\(D_Q\)</span>
-はニュートン法から得られた最終的な値です。</p>
-<p>実装の詳細としてランプ関数の向きによる分岐があります。ランプ関数の向きは、
-<span class="math inline">\(x\)</span> の符号と、 0 以上なのか 0
-以下なのかの条件の組み合わせで、合計 4 つあります。</p>
-<figure>
-<img src="img/ramp_direction.svg" alt="Image of 4 types of ramp function direction." style="width: 800px;padding-bottom: 12px;"/>
-</figure>
-<p>テストします。次のコードではランプ関数が <span
-class="math inline">\(x &gt; 0\)</span> のときに <span
-class="math inline">\(x\)</span> となる場合だけを扱っています。</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
+  <p>PolyBLAMP residual
+  をハードクリップに適用するためには、入力信号からランプ関数の<ruby>角<rt>かど</rt></ruby>の位置
+  <span class="math inline">\(d\)</span> と、傾き <span
+  class="math inline">\(\mu\)</span> を推定する必要があります。</p>
+  <p>波形の角の部分だけを取り出した図です。 4 point polyBLAMP residual
+  は角がインデックス 1 と 2 の間にあると仮定しています。</p>
+  <figure>
+  <img src="img/hardclip_corner.svg" alt="Image of a corner of hardclip." style="width: 400px;padding-bottom: 12px;"/>
+  </figure>
+  <p>論文では <span class="math inline">\(d\)</span> と <span
+  class="math inline">\(\mu\)</span>
+  の推定にラグランジュ補間を使っています。次の式は 4
+  つのサンプルを通過するラグランジュ補間の多項式です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  a &amp;= -\frac{1}{6} s[0] + \frac{1}{2} s[1] - \frac{1}{2} s[2] +
+  \frac{1}{6} s[3]\\
+  b &amp;= s[0] -\frac{5}{2} s[1] + 2 s[2] - \frac{1}{2} s[3]\\
+  c &amp;= -\frac{6}{11} s[0] + 3 s[1] - \frac{3}{2} s[2] + \frac{1}{3}
+  s[3]\\
+  d &amp;= s[0]
+  \end{aligned}
+  \]</span></p>
+  <p><a
+  href="https://en.wikipedia.org/wiki/Newton%27s_method">ニュートン法</a>で、次の方程式を
+  <span class="math inline">\(D = 1 + d\)</span> について解きます。</p>
+  <p><span class="math display">\[
+  a D^3 + b D^2 + c D + e - \rho = 0
+  \]</span></p>
+  <p>方程式をニュートン法の漸化式にします。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  D_0 &amp;= 1.5\\
+  D_{q + 1}
+  &amp;= D_q - \frac{f(D_q)}{f&#39;(D_q)}\\
+  &amp;= D_q - \frac{a D_q^3 + b D_q^2 + c D_q + e - \rho}{3 a D_q^2 + 2
+  b D_q + c}\\
+  d &amp;= D - 1\\
+  \mu &amp;= f&#39;(D_Q)
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(\rho\)</span>
+  は角の高さです。例えば全波整流では <span
+  class="math inline">\(0\)</span> 、音量 <span
+  class="math inline">\(L\)</span> でのハードクリッピングでは <span
+  class="math inline">\(\pm L\)</span> となります。 <span
+  class="math inline">\(D_Q\)</span>
+  はニュートン法から得られた最終的な値です。</p>
+  <p>実装の詳細としてランプ関数の向きによる分岐があります。ランプ関数の向きは、
+  <span class="math inline">\(x\)</span> の符号と、 0 以上なのか 0
+  以下なのかの条件の組み合わせで、合計 4 つあります。</p>
+  <figure>
+  <img src="img/ramp_direction.svg" alt="Image of 4 types of ramp function direction." style="width: 800px;padding-bottom: 12px;"/>
+  </figure>
+  <p>テストします。次のコードではランプ関数が <span
+  class="math inline">\(x &gt; 0\)</span> のときに <span
+  class="math inline">\(x\)</span> となる場合だけを扱っています。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(D, a, b, c, e, rho):</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">*</span> D<span class="op">**</span><span class="dv">3</span> <span class="op">+</span> b <span class="op">*</span> D<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> c <span class="op">*</span> D <span class="op">+</span> e <span class="op">-</span> rho</span>
@@ -1040,16 +1103,16 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> sig <span class="op">+</span> polyblamp_residual(D <span class="op">-</span> <span class="dv">1</span>, slope)</span>
 <span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="co"># プロットは省略。</span></span></code></pre></div>
-<p>推定結果の図です。ラグランジュ補間がうまくできていません。</p>
-<figure>
-<img src="img/d_mu_estimation.png" alt="Image of result of d and mu estimatioin." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>論文の式はラグランジュ補間での <span
-class="math inline">\(\rho\)</span>
-の使い方が間違っているように思います。コードの <code>estimate</code>
-を修正します。</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate(sign, rho, s0, s1, s2, s3):</span>
+  <p>推定結果の図です。ラグランジュ補間がうまくできていません。</p>
+  <figure>
+  <img src="img/d_mu_estimation.png" alt="Image of result of d and mu estimatioin." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>論文の式はラグランジュ補間での <span
+  class="math inline">\(\rho\)</span>
+  の使い方が間違っているように思います。コードの <code>estimate</code>
+  を修正します。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> estimate(sign, rho, s0, s1, s2, s3):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    a, b, c, e <span class="op">=</span> lagrange4(s0 <span class="op">-</span> rho, s1 <span class="op">-</span> rho, s2 <span class="op">-</span> rho, s3 <span class="op">-</span> rho)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> <span class="fl">1.5</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">128</span>):</span>
@@ -1059,81 +1122,82 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        f(D, a, b, c, e, <span class="dv">0</span>),</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        numpy.<span class="bu">abs</span>(f_dash(D, a, b, c)),</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
-<p>修正した結果です。補間はうまく動きましたが、値の推定は間違っています。</p>
-<figure>
-<img src="img/d_mu_estimation_fixed_lagrange.png" alt="Image of result of d and mu estimatioin with fixed lagrange interpolation." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>さらに、実データでは 3.0
-の位置にあるサンプルがランプ関数に従わないケースも考えられます。次の図は
-<span class="math inline">\(\rho = -0.3\)</span> で、入力信号が
-<code>[-0.300, -0.300, -0.001, -0.150]</code> のときの推定結果です。</p>
-<figure>
-<img src="img/d_mu_estimation_edgecase.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
-</figure>
-<p>ラグランジュ補間の振る舞いを考えると、論文の手法では常に D = 1.0
-と推定されてしまうような気がします。別の推定方法を使うにしても、入力信号がランプ関数に従わないケースがありえることから、何らかの追加情報がなければ角の位置の推定は困難に思えます。</p>
-<p>とりあえず実装してみました。</p>
-<ul>
-<li><a
-href="https://github.com/ryukau/filter_notes/blob/bda317e00afb602d5543671d38c23e1ab9d8f318/polyblamp_residual/demo/blamp_saturation.py#L10">ハードクリップの実装を見る
-(github.com)</a></li>
-</ul>
-<p>音のサンプルです。</p>
-<figure>
-<figcaption>
-clamp
-</figcaption>
-<audio controls>
-<source src="snd/hardclip_naive.wav" type="audio/wav">
-</audio>
-</figure>
-<figure>
-<figcaption>
-4 point polyBLAMP residual
-</figcaption>
-<audio controls>
-<source src="snd/hardclip_blamp.wav" type="audio/wav">
-</audio>
-</figure>
-<p>角の位置 <span class="math inline">\(d\)</span> は 3 番目の信号 <span
-class="math inline">\(s_3\)</span> から 2 番目の信号 <span
-class="math inline">\(s_2\)</span> を引いた値を傾きとして、 <span
-class="math inline">\(d = \dfrac{s_2 - \rho}{|s_3 - s_2|}\)</span>
-で求めています。入力信号がランプ関数に従わないケースは無視しています。</p>
-<p>この実装は <code>clamp</code>
-だけをつかった素朴な実装よりノイズが増えます。歪み系エフェクトの部品としては使えるかもしれません。</p>
-<h2 id="参考文献"><a href="#参考文献" class="header-anchor"
-aria-hidden="true">参考文献</a></h2>
-<ul>
-<li>Fabián Esqueda, Vesa Välimäki, and Stefan Bilbao. “<a
-href="http://dafx16.vutbr.cz/dafxpapers/18-DAFx-16_paper_33-PN.pdf">Rounding
-corners with BLAMP.</a>” Proc. Int. Conf. Digital Audio Effects
-(DAFx-16), Brno, Czech Republic. 2016.</li>
-<li>Vesa Välimäki, Jussi Pekonen, and Juhan Nam. “<a
-href="http://mac.kaist.ac.kr/pubs/ValimakiPeknenNam-jasa2012.pdf">Perceptually
-informed synthesis of bandlimited classical waveforms using integrated
-polynomial interpolation.</a>” The Journal of the Acoustical Society of
-America 131.1 (2012): 974-986.</li>
-<li><a
-href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform
-Cubic B-Spline Curves</a></li>
-<li><a
-href="http://web.mit.edu/hyperbook/Patrikalakis-Maekawa-Cho/node15.html">1.4
-B-spline curves and surfaces</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Ramp_function">Ramp function
-- Wikipedia</a></li>
-<li><a
-href="https://en.wikipedia.org/wiki/Heaviside_step_function">Heaviside
-step function - Wikipedia</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Dirac_delta_function">Dirac
-delta function - Wikipedia</a></li>
-<li><a
-href="https://en.wikipedia.org/wiki/Trigonometric_integral">Trigonometric
-integral - Wikipedia</a></li>
-</ul>
-<footer>
-<a href="../index.html">インデックスに戻る</a>
-</footer>
+  <p>修正した結果です。補間はうまく動きましたが、値の推定は間違っています。</p>
+  <figure>
+  <img src="img/d_mu_estimation_fixed_lagrange.png" alt="Image of result of d and mu estimatioin with fixed lagrange interpolation." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>さらに、実データでは 3.0
+  の位置にあるサンプルがランプ関数に従わないケースも考えられます。次の図は
+  <span class="math inline">\(\rho = -0.3\)</span> で、入力信号が
+  <code>[-0.300, -0.300, -0.001, -0.150]</code>
+  のときの推定結果です。</p>
+  <figure>
+  <img src="img/d_mu_estimation_edgecase.png" alt="Image of ." style="width: 480px;padding-bottom: 12px;"/>
+  </figure>
+  <p>ラグランジュ補間の振る舞いを考えると、論文の手法では常に D = 1.0
+  と推定されてしまうような気がします。別の推定方法を使うにしても、入力信号がランプ関数に従わないケースがありえることから、何らかの追加情報がなければ角の位置の推定は困難に思えます。</p>
+  <p>とりあえず実装してみました。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/bda317e00afb602d5543671d38c23e1ab9d8f318/polyblamp_residual/demo/blamp_saturation.py#L10">ハードクリップの実装を見る
+  (github.com)</a></li>
+  </ul>
+  <p>音のサンプルです。</p>
+  <figure>
+  <figcaption>
+  clamp
+  </figcaption>
+  <audio controls>
+  <source src="snd/hardclip_naive.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <figure>
+  <figcaption>
+  4 point polyBLAMP residual
+  </figcaption>
+  <audio controls>
+  <source src="snd/hardclip_blamp.wav" type="audio/wav">
+  </audio>
+  </figure>
+  <p>角の位置 <span class="math inline">\(d\)</span> は 3 番目の信号
+  <span class="math inline">\(s_3\)</span> から 2 番目の信号 <span
+  class="math inline">\(s_2\)</span> を引いた値を傾きとして、 <span
+  class="math inline">\(d = \dfrac{s_2 - \rho}{|s_3 - s_2|}\)</span>
+  で求めています。入力信号がランプ関数に従わないケースは無視しています。</p>
+  <p>この実装は <code>clamp</code>
+  だけをつかった素朴な実装よりノイズが増えます。歪み系エフェクトの部品としては使えるかもしれません。</p>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li>Fabián Esqueda, Vesa Välimäki, and Stefan Bilbao. “<a
+  href="http://dafx16.vutbr.cz/dafxpapers/18-DAFx-16_paper_33-PN.pdf">Rounding
+  corners with BLAMP.</a>” Proc. Int. Conf. Digital Audio Effects
+  (DAFx-16), Brno, Czech Republic. 2016.</li>
+  <li>Vesa Välimäki, Jussi Pekonen, and Juhan Nam. “<a
+  href="http://mac.kaist.ac.kr/pubs/ValimakiPeknenNam-jasa2012.pdf">Perceptually
+  informed synthesis of bandlimited classical waveforms using integrated
+  polynomial interpolation.</a>” The Journal of the Acoustical Society
+  of America 131.1 (2012): 974-986.</li>
+  <li><a
+  href="http://www2.cs.uregina.ca/~anima/408/Notes/Interpolation/UniformBSpline.htm">Uniform
+  Cubic B-Spline Curves</a></li>
+  <li><a
+  href="http://web.mit.edu/hyperbook/Patrikalakis-Maekawa-Cho/node15.html">1.4
+  B-spline curves and surfaces</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Ramp_function">Ramp
+  function - Wikipedia</a></li>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Heaviside_step_function">Heaviside
+  step function - Wikipedia</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Dirac_delta_function">Dirac
+  delta function - Wikipedia</a></li>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Trigonometric_integral">Trigonometric
+  integral - Wikipedia</a></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
 </body>
 
 </html>
