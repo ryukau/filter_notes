@@ -29,7 +29,7 @@ $$
 u_{n} &= u(x, t + n\,\Delta_t)\\
 u_{n+1} &= u(x, t + (n + 1)\,\Delta_t)\\
 u_{n, x+1} &= u(x + \Delta_x, t + n\,\Delta_t)\\
-u_{n, x-1} &= u(x - \Delta_x, t + (n + 1)\,\Delta_t)\\
+u_{n, x-1} &= u(x - \Delta_x, t + n\,\Delta_t)\\
 \end{aligned}
 $$
 
@@ -338,3 +338,7 @@ $\beta < 1/4$ のとき、他のパラメータの値によっては発散しま
 ## 参考サイト
 - [Energy drift - Wikipedia](https://en.wikipedia.org/wiki/Energy_drift)
 - [pde - Energy Conservation - Computational Science Stack Exchange](https://scicomp.stackexchange.com/questions/7202/energy-conservation)
+
+## 変更点
+- 2024/08/23
+  - 微分の表記の $u_{n, x-1}$ の右辺を修正。

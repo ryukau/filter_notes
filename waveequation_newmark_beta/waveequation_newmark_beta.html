@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-08-06" />
+      <meta name="dcterms.date" content="2024-08-23" />
       <title>waveequation_newmark_beta</title>
 
   <style>
@@ -349,7 +349,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-08-06
+      Update: 2024-08-23
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -374,6 +374,7 @@
         <li><a href="#デモ" id="toc-デモ">デモ</a></li>
         <li><a href="#参考サイト"
         id="toc-参考サイト">参考サイト</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -416,7 +417,7 @@
   u_{n} &amp;= u(x, t + n\,\Delta_t)\\
   u_{n+1} &amp;= u(x, t + (n + 1)\,\Delta_t)\\
   u_{n, x+1} &amp;= u(x + \Delta_x, t + n\,\Delta_t)\\
-  u_{n, x-1} &amp;= u(x - \Delta_x, t + (n + 1)\,\Delta_t)\\
+  u_{n, x-1} &amp;= u(x - \Delta_x, t + n\,\Delta_t)\\
   \end{aligned}
   \]</span></p>
   <h2 id="波動方程式"><a href="#波動方程式" class="header-anchor"
@@ -767,6 +768,15 @@
   <li><a
   href="https://scicomp.stackexchange.com/questions/7202/energy-conservation">pde
   - Energy Conservation - Computational Science Stack Exchange</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/08/23
+  <ul>
+  <li>微分の表記の <span class="math inline">\(u_{n, x-1}\)</span>
+  の右辺を修正。</li>
+  </ul></li>
   </ul>
     <footer>
     <a href="../index.html">インデックスに戻る</a>
