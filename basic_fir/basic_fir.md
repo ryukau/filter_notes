@@ -30,7 +30,7 @@ A_{LP}(\omega) =
 \end{cases}
 $$
 
-$A_{LP}(\omega)$ を[逆フーリエ変換](https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform)します。 $A_{LP}$ の定義より範囲を $-\omega_c$ から $\omega_c$ に狭めることができます。この式は sinc 関数とも呼ばれます。また、理想ローパスフィルタ (ideal low-pass filter) と呼ばれることもあります。
+$A_{LP}(\omega)$ を[逆フーリエ変換](https://mathworld.wolfram.com/FourierTransform.html)します。 $A_{LP}$ の定義より範囲を $-\omega_c$ から $\omega_c$ に狭めることができます。この式は sinc 関数とも呼ばれます。また、理想ローパスフィルタ (ideal low-pass filter) と呼ばれることもあります。
 
 $$
 \begin{align}
@@ -184,23 +184,21 @@ A_{BR}(\omega) =
 \end{cases}
 $$
 
-ハイパスと同様に、デルタ関数の振幅特性からバンドパスフィルタの振幅特性を減算すればバンドリジェクトフィルタになります。
+カットオフ $\omega_l$ のローパスフィルタと、カットオフ $\omega_h$ のハイパスフィルタを加算するとバンドリジェクトフィルタになります。
 
 $$
 \begin{aligned}
 \frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BR}(\omega) e^{j\omega x} d\omega
-&= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega - \mathcal{F}^{-1} (A_{BP}) \\
-&= \delta(x) - \left( \frac{\sin(\omega_h x)}{\pi x} - \frac{\sin(\omega_l x)}{\pi x} \right).
+&= \frac{1}{2\pi}\int^{\infty}_{-\infty} \left( A_{LP}(\omega_l) + A_{HP}(\omega_h) \right) e^{j\omega x} d\omega \\
+&= \frac{\sin(\omega_c x)}{\pi x} + \delta(x) - \frac{\sin(\omega_c x)}{\pi x}.
 \end{aligned}
 $$
 
-Python 3 のコードに変えます。バンドパスフィルタのコードを流用しています。
+Python 3 のコードに変えます。ローパスフィルタとハイパスフィルタのコードを流用しています。
 
 ```python
 def bandrejectFir(length: int, cutoffLow: float, cutoffHigh: float):
-    fir = -bandpassFir(length, cutoffLow, cutoffHigh)
-    mid = length // 2
-    fir[mid] -= np.sum(fir)
+    fir = lowpassFir(length, cutoffLow) + highpassFir(length, cutoffHigh)
     return fir
 ```
 
@@ -295,7 +293,11 @@ $$
 ## 参考サイト
 - [The Ideal Lowpass Filter](https://ccrma.stanford.edu/~jos/sasp/Ideal_Lowpass_Filter.html)
 - [Maxima: Expand e to cos and i sin? - Stack Overflow](https://stackoverflow.com/questions/42454464/maxima-expand-e-to-cos-and-i-sin)
+- [Fourier Transform -- from Wolfram MathWorld](https://mathworld.wolfram.com/FourierTransform.html)
 
 ## 変更点
+- 2024/08/25
+  - ローパスフィルタの節の逆フーリエ変換のリンクを変更。
+  - バンドリジェクトフィルタの内容が誤っていたので修正。
 - 2024/07/22
   - 内容を大幅に改訂。多くの間違いを修正。

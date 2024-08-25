@@ -54,9 +54,9 @@ def plotResponse(fir, cutoffLow=None, cutoffHigh=None, name=""):
 
     fig.set_size_inches((10, 6))
     plt.tight_layout()
-    # plt.show()
-    plt.savefig(f"img/fir_filter_{name}_response.svg")
-    plt.close()
+    plt.show()
+    # plt.savefig(f"img/fir_filter_{name}_response.svg")
+    # plt.close()
 
 
 def sinc(x):
@@ -101,9 +101,7 @@ def bandpassFir(length: int, cutoffLow: float, cutoffHigh: float):
 
 
 def bandrejectFir(length: int, cutoffLow: float, cutoffHigh: float):
-    fir = -bandpassFir(length, cutoffLow, cutoffHigh)
-    mid = length // 2
-    fir[mid] -= np.sum(fir)
+    fir = lowpassFir(length, cutoffLow) + highpassFir(length, cutoffHigh)
     return fir
 
 

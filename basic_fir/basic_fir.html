@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-08-06" />
+      <meta name="dcterms.date" content="2024-08-25" />
       <title>basic_fir</title>
 
   <style>
@@ -410,7 +410,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-08-06
+      Update: 2024-08-25
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -491,7 +491,7 @@
   \end{cases}
   \]</span></p>
   <p><span class="math inline">\(A_{LP}(\omega)\)</span> を<a
-  href="https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform">逆フーリエ変換</a>します。
+  href="https://mathworld.wolfram.com/FourierTransform.html">逆フーリエ変換</a>します。
   <span class="math inline">\(A_{LP}\)</span> の定義より範囲を <span
   class="math inline">\(-\omega_c\)</span> から <span
   class="math inline">\(\omega_c\)</span>
@@ -648,25 +648,26 @@
   0, &amp; \text{otherwise}.
   \end{cases}
   \]</span></p>
-  <p>ハイパスと同様に、デルタ関数の振幅特性からバンドパスフィルタの振幅特性を減算すればバンドリジェクトフィルタになります。</p>
+  <p>カットオフ <span class="math inline">\(\omega_l\)</span>
+  のローパスフィルタと、カットオフ <span
+  class="math inline">\(\omega_h\)</span>
+  のハイパスフィルタを加算するとバンドリジェクトフィルタになります。</p>
   <p><span class="math display">\[
   \begin{aligned}
   \frac{1}{2\pi}\int^{\infty}_{-\infty} A_{BR}(\omega) e^{j\omega x}
   d\omega
-  &amp;= \frac{1}{2\pi}\int^{\infty}_{-\infty} e^{j\omega x} d\omega -
-  \mathcal{F}^{-1} (A_{BP}) \\
-  &amp;= \delta(x) - \left( \frac{\sin(\omega_h x)}{\pi x} -
-  \frac{\sin(\omega_l x)}{\pi x} \right).
+  &amp;= \frac{1}{2\pi}\int^{\infty}_{-\infty} \left( A_{LP}(\omega_l) +
+  A_{HP}(\omega_h) \right) e^{j\omega x} d\omega \\
+  &amp;= \frac{\sin(\omega_c x)}{\pi x} + \delta(x) -
+  \frac{\sin(\omega_c x)}{\pi x}.
   \end{aligned}
   \]</span></p>
   <p>Python 3
-  のコードに変えます。バンドパスフィルタのコードを流用しています。</p>
+  のコードに変えます。ローパスフィルタとハイパスフィルタのコードを流用しています。</p>
   <div class="sourceCode" id="cb6"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bandrejectFir(length: <span class="bu">int</span>, cutoffLow: <span class="bu">float</span>, cutoffHigh: <span class="bu">float</span>):</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> <span class="op">-</span>bandpassFir(length, cutoffLow, cutoffHigh)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> length <span class="op">//</span> <span class="dv">2</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    fir[mid] <span class="op">-=</span> np.<span class="bu">sum</span>(fir)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> lowpassFir(length, cutoffLow) <span class="op">+</span> highpassFir(length, cutoffHigh)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
   <p>以下は
   <code>length = 63, cutoffLow = 0.125, cutoffHigh = 0.25</code>
   としたときの周波数特性のプロットです。</p>
@@ -770,10 +771,18 @@
   <li><a
   href="https://stackoverflow.com/questions/42454464/maxima-expand-e-to-cos-and-i-sin">Maxima:
   Expand e to cos and i sin? - Stack Overflow</a></li>
+  <li><a
+  href="https://mathworld.wolfram.com/FourierTransform.html">Fourier
+  Transform – from Wolfram MathWorld</a></li>
   </ul>
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2024/08/25
+  <ul>
+  <li>ローパスフィルタの節の逆フーリエ変換のリンクを変更。</li>
+  <li>バンドリジェクトフィルタの内容が誤っていたので修正。</li>
+  </ul></li>
   <li>2024/07/22
   <ul>
   <li>内容を大幅に改訂。多くの間違いを修正。</li>
