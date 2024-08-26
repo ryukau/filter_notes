@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-08-26" />
+      <title>lfo_temposync_2</title>
+
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
+
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
+
+      pre>code {
+        filter: invert(0);
+      }
+    }
+
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    video {
+      max-width: 100%;
+    }
+
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    :link {
+      color: var(--link-color);
+    }
+
+    :visited {
+      color: var(--visited-color);
+    }
+
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
+
+    .header-anchor {
+      color: var(--foreground-color);
+    }
+
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
+
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
+
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
+
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
+
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
+
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
+
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
+
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
+
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
+
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
+
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    dl {
+      padding-left: 2em;
+    }
+
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
+
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
+
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+
+
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
+
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
+
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
+
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
+
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
+
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
+
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
+
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
+
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
+
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
+
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
+
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    span.math.inline a {
+      color: #000000;
+    }
+
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
+
+<body>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-08-26
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#より手軽な-lfo-のテンポシンク"
+        id="toc-より手軽な-lfo-のテンポシンク">より手軽な LFO
+        のテンポシンク</a>
+        <ul>
+        <li><a href="#蔵本モデル" id="toc-蔵本モデル">蔵本モデル</a>
+        <ul>
+        <li><a href="#誤差の定義"
+        id="toc-誤差の定義">誤差の定義</a></li>
+        <li><a href="#パラメータ設定"
+        id="toc-パラメータ設定">パラメータ設定</a></li>
+        <li><a href="#周波数の推定"
+        id="toc-周波数の推定">周波数の推定</a></li>
+        <li><a href="#ノイズに耐える実装"
+        id="toc-ノイズに耐える実装">ノイズに耐える実装</a></li>
+        </ul></li>
+        <li><a href="#ema-フィルタによる同期"
+        id="toc-ema-フィルタによる同期">EMA フィルタによる同期</a>
+        <ul>
+        <li><a href="#パラメータ設定-1"
+        id="toc-パラメータ設定-1">パラメータ設定</a></li>
+        <li><a href="#逆走の回避"
+        id="toc-逆走の回避">逆走の回避</a></li>
+        </ul></li>
+        <li><a href="#まとめ" id="toc-まとめ">まとめ</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="より手軽な-lfo-のテンポシンク"><a
+  href="#より手軽な-lfo-のテンポシンク" class="header-anchor"
+  aria-hidden="true">より手軽な LFO のテンポシンク</a></h1>
+  <p>「LFO
+  のテンポシンク」で紹介している方法よりも手軽な同期方法を見つけたのでまとめました。問題の詳細については「LFO
+  のテンポシンク」に掲載しています。</p>
+  <p>以下は Python 3 による実装へのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/lfo_temposync_2/sync.py">filter_notes/lfo_temposync_2/sync.py
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <p>以降では同期先をターゲット、同期されるオシレータをフォロワーと呼ぶことにします。</p>
+  <p>ここでは角速度を一致させることを周波数の同期と呼ぶことにします。また、位相の瞬時値を一致させることを位相の同期と呼ぶことにします。角速度とは位相を時間について微分した値です。角速度を
+  <span class="math inline">\(\omega\)</span> 、位相を <span
+  class="math inline">\(\theta\)</span> 、時間を <span
+  class="math inline">\(t\)</span> とすると以下の関係があります。</p>
+  <p><span class="math display">\[
+  \omega = \frac{d \theta}{dt}.
+  \]</span></p>
+  <p>つまり周波数の同期とは <span class="math inline">\(\omega =
+  \omega_{\text{target}}\)</span> 、位相の同期とは <span
+  class="math inline">\(\theta = \theta_{\text{target}}\)</span>
+  とすることです。ただし滑らかに遷移したいので、単に値をコピーすることはできません。</p>
+  <h2 id="蔵本モデル"><a href="#蔵本モデル" class="header-anchor"
+  aria-hidden="true">蔵本モデル</a></h2>
+  <p><a
+  href="https://en.wikipedia.org/wiki/Kuramoto_model">蔵本モデル</a>
+  (Kuramoto model)
+  は周波数の同期を表した数学のモデルです。以下はモデル内のオシレータの周波数の式です。
+  <span class="math inline">\(N\)</span>
+  個のオシレータが互いに影響を及ぼしあう形になっています。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  \frac{d \theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=0}^{N-1}
+  \sin(\theta_j - \theta_i).
+  \label{kuramotoModel}
+  \end{equation}
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(N\)</span> : オシレータの数。</li>
+  <li><span class="math inline">\(i\)</span> :
+  オシレータのインデックス。範囲は <span class="math inline">\([0,
+  N)\)</span> 。</li>
+  <li><span class="math inline">\(\theta_i\)</span> : <span
+  class="math inline">\(i\)</span> 番目のオシレータの位相。</li>
+  <li><span class="math inline">\(\omega_i\)</span> : <span
+  class="math inline">\(i\)</span> 番目のオシレータの角速度。</li>
+  <li><span class="math inline">\(K\)</span> :
+  同期の速さを決める任意の実数。</li>
+  </ul>
+  <p>ここでは 2 つのオシレータしか出てこないので、式 <span
+  class="math inline">\(\ref{kuramotoModel}\)</span>
+  をさらに簡略化できます。以下はフォロワーの位相を更新する簡略化した式です。
+  <span class="math inline">\(n\)</span>
+  はサンプル数で表された時間です。</p>
+  <p><span class="math display">\[
+  \begin{equation}
+  \theta[n+1] = \theta[n] + \omega + K \sin(\theta_{\text{target}}[n] -
+  \theta[n]).
+  \label{twoOscSync}
+  \end{equation}
+  \]</span></p>
+  <p><span class="math inline">\(K\)</span>
+  を実用的な範囲に制限します。まず、逆向きの同期 (<span
+  class="math inline">\(K &lt; 0\)</span>) や過剰な同期 (<span
+  class="math inline">\(|K| &gt; 1\)</span>) は行わないので <span
+  class="math inline">\(K \in [0, 1]\)</span> とできます。また <span
+  class="math inline">\(1/N\)</span> は <span
+  class="math inline">\(K\)</span>
+  に含めることで省略でき、オシレータの数は 2 なので <span
+  class="math inline">\(K \in [0, 1/2]\)</span>
+  まで範囲を狭められます。</p>
+  <p>Python 3 で実装します。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> syncKuramoto(targetPhase, followerFrequency, initialPhase, syncRate<span class="op">=</span><span class="fl">0.01</span>):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.zeros_like(targetPhase)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">=</span> initialPhase <span class="op">-</span> np.floor(initialPhase)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    freq <span class="op">=</span> followerFrequency</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(targetPhase)):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        phase <span class="op">+=</span> freq <span class="op">+</span> syncRate <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> (targetPhase[i] <span class="op">-</span> phase))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        phase <span class="op">-=</span> np.floor(phase)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> phase</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
+  <p>引数の一覧です。記号は式 <span
+  class="math inline">\(\ref{twoOscSync}\)</span>
+  で使われているものです。</p>
+  <ul>
+  <li><code>targetPhase</code> : <span
+  class="math inline">\(\theta_{\text{target}}\)</span> 。 1
+  次元配列。</li>
+  <li><code>followerFrequency</code> : フォロワーの周波数 <span
+  class="math inline">\(\omega\)</span> 。</li>
+  <li><code>initialPhase</code> : フォロワーの初期位相 <span
+  class="math inline">\(\theta[0]\)</span> 。</li>
+  <li><code>syncRate</code> : <span class="math inline">\(K\)</span>
+  。</li>
+  </ul>
+  <p>コードでは周波数の範囲を <code>[0, 0.5)</code>
+  に正規化しています。これは Hz
+  で表される周波数をサンプリング周波数で除算した値です。同様に位相の範囲も
+  <code>[0.0, 1.0)</code> に正規化しています。</p>
+  <h3 id="誤差の定義"><a href="#誤差の定義" class="header-anchor"
+  aria-hidden="true">誤差の定義</a></h3>
+  <p>評価のために誤差を定義します。位相の誤差はターゲット位相とフォロワー位相の差です。</p>
+  <p>実装では位相の範囲を [0, 1)
+  に正規化しているので、位相の誤差の範囲は [-0.5, 0.5]
+  になります。これは円周 1 の円の上にある 2 つの点の距離は -0.5 から 0.5
+  の範囲ですべて表せるからです。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcPhaseError(target, follower):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> follower <span class="op">-</span> target</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    d[d <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.5</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    d[d <span class="op">&gt;</span> <span class="fl">0.5</span>] <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d</span></code></pre></div>
+  <p>位相の誤差を微分すると周波数の誤差が得られます。 <a
+  href="https://numpy.org/doc/stable/reference/generated/numpy.unwrap.html"><code>numpy.unwrap</code></a>
+  で位相の巻き戻しを展開して、 <a
+  href="https://numpy.org/doc/stable/reference/generated/numpy.diff.html"><code>numpy.diff</code></a>
+  で微分を近似しています。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcFrequencyError(target, follower):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.diff(np.unwrap(follower <span class="op">-</span> target, period<span class="op">=</span><span class="dv">1</span>))</span></code></pre></div>
+  <p>平均を計算しやすくするために <code>calcPhaseError</code> と
+  <code>calcFrequencyError</code>
+  で位相の巻き戻しの扱いを変えています。誤差の平均は <a
+  href="https://numpy.org/doc/stable/reference/generated/numpy.average.html"><code>numpy.average</code></a>
+  で計算します。</p>
+  <h3 id="パラメータ設定"><a href="#パラメータ設定"
+  class="header-anchor" aria-hidden="true">パラメータ設定</a></h3>
+  <p>フォロワーの位相を更新する式を再掲します。</p>
+  <p><span class="math display">\[
+  \theta[n+1] = \theta[n] + \omega + K \sin(\theta_{\text{target}}[n] -
+  \theta[n]).
+  \]</span></p>
+  <p>パラメータの一覧です。</p>
+  <ul>
+  <li><span class="math inline">\(\omega\)</span> :
+  フォロワーの角速度。</li>
+  <li><span class="math inline">\(K\)</span> :
+  同期の速さを決める任意の実数。</li>
+  </ul>
+  <p>以下は蔵元モデルによる周波数の同期を示した図です。上から順に、 2
+  つのオシレータの位相 (phase) 、位相の誤差 (phase error) 、周波数の誤差
+  (frequency error) です。図を見やすくするために周波数の誤差の y
+  軸の範囲を狭めているため、スパイクの部分がはみ出ています。サンプリング周波数は
+  48000 Hz で、ターゲット周波数は前から順に 50, 200, 1000 Hz
+  と変わっています。パラメータは
+  <code>initialFrequency = 10 / 48000</code>,
+  <code>initialPhase = 0</code>, <code>syncRate = 0.001</code>
+  です。ターゲット周波数が 50 Hz と 200 Hz のときは周波数の誤差が 0
+  へと収束しているので、周波数の同期に成功しています。位相は誤差が 0
+  ではない値に収束しているため、一定のずれがあり同期できていません。ターゲット周波数が
+  1000 Hz のときは周波数の同期に失敗しています。</p>
+  <figure>
+  <img src="img/kuramoto_model_example.svg" alt="Plot of frequency synchronization of 2 oscillators using Kuramoto model." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>上の図より、周波数が高くなると同期に失敗することが分かります。そこで、次はどれくらい周波数が高くなると同期に失敗するかを調べました。</p>
+  <p>以下はフォロワー周波数を <span
+  class="math inline">\(\omega=0.02\)</span> として、ターゲット周波数
+  <span class="math inline">\(\omega_{\text{target}}\)</span>
+  を変えたときの誤差の平均のプロットです。上のプロットは位相の誤差、下のプロットは周波数の誤差です。同期の速さ
+  <span class="math inline">\(K\)</span>
+  の値を変えて誤差の様子を見ています。位相の誤差は <span
+  class="math inline">\(\omega\)</span> の周りでだけ 0
+  に近づいています。周波数の誤差も同様に <span
+  class="math inline">\(\omega\)</span> の周りでだけ 0
+  に近づいていますが、 <span class="math inline">\(K\)</span> が 0.1 と
+  0.01 のときは誤差がほとんど 0
+  となる範囲があります。周波数の誤差の平均はターゲット周波数が低くなると
+  <span class="math inline">\(\omega\)</span>
+  に収束するように見えます。</p>
+  <figure>
+  <img src="img/kuramoto_model_average_error_vs_frequency_omega=0.02.svg" alt="Plot of average error vs. frequency on Kuramoto model synchronization. ω = 0.02." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はフォロワー周波数が <span
+  class="math inline">\(ω=0.002\)</span> のときの誤差の図です。 <span
+  class="math inline">\(ω=0.02\)</span> のときと比べると <span
+  class="math inline">\(K\)</span> が 0.001
+  のときに周波数の誤差がほとんど 0 になる範囲が増えています。</p>
+  <figure>
+  <img src="img/kuramoto_model_average_error_vs_frequency_omega=0.002.svg" alt="Plot of average error vs. frequency on Kuramoto model synchronization. ω = 0.002." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>これ以外にも <span class="math inline">\(\omega\)</span>
+  を変えて試してみたところ、以下のようにパラメータを設定すればいいように思えました。</p>
+  <ul>
+  <li>まずは <span class="math inline">\(K\)</span>
+  の値を決める。音への応用であれば、ターゲット周波数の変更時にポップノイズが聞こえないような最大の
+  <span class="math inline">\(K\)</span> を耳で選ぶ。</li>
+  <li>同期しなければならないターゲット周波数の範囲に応じて、できる限り低いフォロワー周波数
+  <span class="math inline">\(\omega\)</span> を決める。</li>
+  </ul>
+  <h3 id="周波数の推定"><a href="#周波数の推定" class="header-anchor"
+  aria-hidden="true">周波数の推定</a></h3>
+  <p>誤差の平均のプロットを見ると、フォロワー周波数がターゲット周波数と一致するときに位相の誤差がほぼ
+  0
+  になっています。したがってフォロワー周波数を何らかの形で補正できれば位相の同期もできそうです。</p>
+  <p>以下はフォロワー位相の差分からターゲット周波数を推定する実装です。出力の
+  <code>out[i] = phase</code>
+  を反復部の先頭に置いていることに注意してください。位置を変えると同期が前にずれます。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> syncKuramoto2(targetPhase, initialFrequency, initialPhase, syncRate<span class="op">=</span><span class="fl">0.01</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.zeros_like(targetPhase)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">=</span> initialPhase <span class="op">-</span> np.floor(initialPhase)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    freq <span class="op">=</span> initialFrequency</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(targetPhase)):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> phase</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        p1 <span class="op">=</span> phase</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        phase <span class="op">+=</span> freq <span class="op">+</span> syncRate <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> (targetPhase[i] <span class="op">-</span> phase))</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        phase <span class="op">-=</span> np.floor(phase)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        estimatedFreq <span class="op">=</span> phase <span class="op">-</span> p1</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        estimatedFreq <span class="op">-=</span> np.floor(estimatedFreq)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        freq <span class="op">+=</span> (<span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span>) <span class="op">*</span> syncRate <span class="op">*</span> (estimatedFreq <span class="op">-</span> freq)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
+  <h3 id="ノイズに耐える実装"><a href="#ノイズに耐える実装"
+  class="header-anchor" aria-hidden="true">ノイズに耐える実装</a></h3>
+  <p>ここまでの実装はターゲット位相にノイズが乗っているとうまく動きません。試行錯誤したところ、同期後の位相を使ってさらに同期を行うことを繰り返せば、いくらかノイズに耐えられるようになることが分かりました。ここでのノイズは正規分布によるホワイトノイズです。</p>
+  <p>以下はノイズに耐える実装のブロック線図です。 Phase differenciation
+  の部分で位相を周波数に変換しています。</p>
+  <figure>
+  <img src="img/nested_kuramoto_model_block_diagram.svg" alt="Block diagram of nested Kuramoto model. This is just a different representation of the Python code on below." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は実装例です。 <code>nStage = 2</code>
+  のときターゲット位相とノイズの比が 64 : 1
+  であれば動作しました。ノイズの割合が増えるごとに <code>nStage</code>
+  を増やすといくらかは対応できます。 <code>syncRate</code>
+  を小さくするほど低い周波数への同期ができるようになりますが、収束が遅くなります。
+  <code>freqSyncRate</code> の値は適当に決めています。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> syncKuramoto3(targetPhase, initialFrequency, initialPhase, syncRate<span class="op">=</span><span class="fl">0.01</span>, nStage<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    freqSyncRate <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> <span class="dv">64</span>) <span class="op">*</span> syncRate</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.zeros_like(targetPhase)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">=</span> np.full(nStage, initialPhase <span class="op">-</span> np.floor(initialPhase))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    freq <span class="op">=</span> initialFrequency</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    resultFreq <span class="op">=</span> np.zeros_like(out)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> increment(target, phase, freq):</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        phase <span class="op">+=</span> freq <span class="op">+</span> syncRate <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> (target <span class="op">-</span> phase))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        phase <span class="op">-=</span> np.floor(phase)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> phase</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(targetPhase)):</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> phase[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        resultFreq[i] <span class="op">=</span> freq</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        phase[<span class="dv">0</span>] <span class="op">=</span> increment(targetPhase[i], phase[<span class="dv">0</span>], freq)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, nStage <span class="op">-</span> <span class="dv">1</span>):</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>            phase[j] <span class="op">=</span> increment(phase[j <span class="op">-</span> <span class="dv">1</span>], phase[j], freq)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        p1 <span class="op">=</span> phase[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        phase[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> increment(phase[<span class="op">-</span><span class="dv">2</span>], phase[<span class="op">-</span><span class="dv">1</span>], freq)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        estimatedFreq <span class="op">=</span> phase <span class="op">-</span> p1</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        estimatedFreq <span class="op">-=</span> np.floor(estimatedFreq)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>        freq <span class="op">+=</span> freqSyncRate <span class="op">*</span> (estimatedFreq <span class="op">-</span> freq)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (out, resultFreq)</span></code></pre></div>
+  <p>以下はターゲット位相とノイズの S/N を 2/1 (≈ 6.02 dB)
+  として同期を行ったときの図です。ところどころで周波数が揺れていますが、大枠としてはうまくいっています。ただし
+  <code>nStage=40</code> として 40
+  個のフィルタを直列につないでいます。正規分布によるホワイトノイズの振幅は
+  <a
+  href="https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule">68–95–99.7
+  rule</a> に基づいて <span class="math inline">\(\sigma = G /
+  3\)</span> と設定しています。 <span class="math inline">\(G\)</span>
+  はノイズの大まかな最大振幅です。</p>
+  <figure>
+  <img src="img/nested_kuramoto_model_on_noisy_signal.svg" alt="Nested Kuramoto model synchronization on noisy signal." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="ema-フィルタによる同期"><a href="#ema-フィルタによる同期"
+  class="header-anchor" aria-hidden="true">EMA
+  フィルタによる同期</a></h2>
+  <p>EMA (exponential moving average)
+  フィルタを使って同期します。この手法はターゲット周波数が分かっていないと使えません。以下は同期の大まかな流れを示したブロック線図です。</p>
+  <figure>
+  <img src="img/ema_sync_block_diagram.svg" alt="Block diagram of a synchronization using EMA filter." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>周波数の同期は単純に EMA
+  フィルタで滑らかにしているだけです。位相の同期では、 2
+  つの位相の差の計算 (ブロック線図の Phase Difference) を行ってから EMA
+  フィルタで滑らかにします。</p>
+  <p>Python 3
+  で実装します。計算順序が一部でも変わると位相が数サンプル前後することがあるので注意してください。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> syncFilter(targetPhase, targetFreq, initialFreq, initialPhase, syncRate<span class="op">=</span><span class="fl">0.01</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.zeros_like(targetPhase)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">=</span> initialPhase <span class="op">-</span> np.floor(initialPhase)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    delta <span class="op">=</span> initialFreq</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(targetPhase)):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        phase <span class="op">+=</span> delta</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        phase <span class="op">-=</span> np.floor(phase)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 位相の同期。</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        d1 <span class="op">=</span> targetPhase[i] <span class="op">-</span> phase</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> d1 <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            d2 <span class="op">=</span> d1 <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>            phase <span class="op">+=</span> syncRate <span class="op">*</span> (d2 <span class="cf">if</span> d2 <span class="op">&lt;</span> <span class="op">-</span>d1 <span class="cf">else</span> d1)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            d2 <span class="op">=</span> d1 <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>            phase <span class="op">+=</span> syncRate <span class="op">*</span> (d2 <span class="cf">if</span> <span class="op">-</span>d2 <span class="op">&lt;</span> d1 <span class="cf">else</span> d1)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 周波数の同期。</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        delta <span class="op">+=</span> syncRate <span class="op">*</span> (targetFreq[i] <span class="op">-</span> delta)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> phase</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
+  <h3 id="パラメータ設定-1"><a href="#パラメータ設定-1"
+  class="header-anchor" aria-hidden="true">パラメータ設定</a></h3>
+  <p>パラメータは EMA フィルタの係数 <span
+  class="math inline">\(K\)</span>
+  だけです。周波数の同期と位相の同期で異なる <span
+  class="math inline">\(K\)</span>
+  を使うこともできますが、調べた範囲では利点はなさそうでした。音に癖をつけたいときは使えるかもしれません。</p>
+  <p>以下は蔵元モデルによる周波数の同期を示した図です。フォロワーの位相が逆走している個所があります。位相の誤差と周波数の誤差はどちらも時間とともにほとんど
+  0 に収束しています。</p>
+  <figure>
+  <img src="img/ema_sync_example.svg" alt="Plot of frequency synchronization of 2 oscillators using EMA filter." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はフォロワーの初期周波数を <span
+  class="math inline">\(\omega[0]=0.02\)</span> として、ターゲット周波数
+  <span class="math inline">\(\omega_{\text{target}}\)</span>
+  を変えたときの誤差の平均のプロットです。 <span
+  class="math inline">\(K\)</span> が 0.1 と 0.01
+  のとき、位相の誤差と周波数の誤差はほとんど 0 になっています。</p>
+  <figure>
+  <img src="img/ema_sync_average_error_vs_frequency_omega=0.02.svg" alt="Plot of average error vs. frequency on Kuramoto model synchronization. ω = 0.02." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>EMA
+  フィルタによる同期のパラメータ設定は、ターゲット周波数の変更時にポップノイズが聞こえないような
+  <span class="math inline">\(K\)</span>
+  を耳で選ぶだけでよさそうです。</p>
+  <h3 id="逆走の回避"><a href="#逆走の回避" class="header-anchor"
+  aria-hidden="true">逆走の回避</a></h3>
+  <p>位相の同期で <code>abs</code> によって負の値を <code>phase</code>
+  に加えないようにすれば逆走を避けられます。以下の実装は「EMA
+  フィルタによる同期」の <code>syncFilter</code>
+  の位相の同期の部分を逆走しないようにしたコードです。</p>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d1 <span class="op">=</span> targetPhase[i] <span class="op">-</span> phase</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> d1 <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    d2 <span class="op">=</span> d1 <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">+=</span> syncRate <span class="op">*</span> <span class="bu">abs</span>(d2 <span class="cf">if</span> d2 <span class="op">&lt;</span> <span class="op">-</span>d1 <span class="cf">else</span> d1) <span class="co"># 変更点</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    d2 <span class="op">=</span> d1 <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">+=</span> syncRate <span class="op">*</span> <span class="bu">abs</span>(d2 <span class="cf">if</span> <span class="op">-</span>d2 <span class="op">&lt;</span> d1 <span class="cf">else</span> d1) <span class="co"># 変更点</span></span></code></pre></div>
+  <p>上の実装で逆走は無くなるのですが、 <code>phase</code> が
+  <code>targetPhase</code> を追い越したときに、 1
+  周だけ余計に位相が回ってしまいます。以下は追い越しによる余計な回転を示した図です。</p>
+  <figure>
+  <img src="img/forward_only_ema_sync_naive.svg" alt="Plot that highlights the overrun problem of naive implementation." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>この問題は少しの追い越しであれば逆走を許すことで緩和できます。以下は実装の一例です。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>small <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> <span class="dv">2</span><span class="op">**</span><span class="dv">10</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>d1 <span class="op">=</span> targetPhase[i] <span class="op">-</span> phase</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> d1 <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    d2 <span class="op">=</span> d1 <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    diff <span class="op">=</span> d2 <span class="cf">if</span> d2 <span class="op">&lt;</span> <span class="op">-</span>d1 <span class="cf">else</span> d1</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    absed <span class="op">=</span> <span class="bu">abs</span>(diff)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">+=</span> syncRate <span class="op">*</span> (absed <span class="cf">if</span> absed <span class="op">&gt;=</span> small <span class="cf">else</span> diff)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    d2 <span class="op">=</span> d1 <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    diff <span class="op">=</span> d2 <span class="cf">if</span> <span class="op">-</span>d2 <span class="op">&lt;</span> d1 <span class="cf">else</span> d1</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    absed <span class="op">=</span> <span class="bu">abs</span>(diff)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">+=</span> syncRate <span class="op">*</span> (absed <span class="cf">if</span> absed <span class="op">&gt;=</span> small <span class="cf">else</span> diff)</span></code></pre></div>
+  <p>以下は少しの逆走は許す実装による位相の同期を示した図です。</p>
+  <figure>
+  <img src="img/forward_only_ema_sync.svg" alt="Plot of proper implementation which doesn't overrun." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はターゲット周波数を変えたときのプロットです。</p>
+  <figure>
+  <img src="img/forward_only_ema_sync_example.svg" alt="Plot of frequency synchronization of 2 oscillators using forward only EMA filter synchronization." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="まとめ"><a href="#まとめ" class="header-anchor"
+  aria-hidden="true">まとめ</a></h2>
+  <p>LFO
+  のテンポシンクではターゲットの周波数と位相のどちらも分かっているので
+  EMA フィルタによる同期が適しています。</p>
+  <p>ターゲット周波数が分からないときは蔵元モデルが使えます。蔵元モデルによる同期は、位相の同期と、高い周波数への同期が苦手です。しかし、周波数の推定を加えることで問題点を解決できます。また、蔵元モデルによる同期を直列に何個も接続することで、ターゲット位相にホワイトノイズが乗ったときでもある程度は同期できます。</p>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a href="https://en.wikipedia.org/wiki/Kuramoto_model">Kuramoto
+  model - Wikipedia</a></li>
+  <li><a
+  href="https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.html">Exponential
+  Moving Average</a></li>
+  <li>Daniels, Bryan C. “<a
+  href="https://www.researchgate.net/profile/Bryan-Daniels-3/publication/251888882_Synchronization_of_Globally_Coupled_Nonlinear_Oscillators_the_Rich_Behavior_of_the_Kuramoto_Model/links/55e2722b08aecb1a7cc83a5b/Synchronization-of-Globally-Coupled-Nonlinear-Oscillators-the-Rich-Behavior-of-the-Kuramoto-Model.pdf">Synchronization
+  of globally coupled nonlinear oscillators: the rich behavior of the
+  Kuramoto model.</a>” Ohio Wesleyan Physics Dept., Essay 7, no. 2
+  (2005): 20.</li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
