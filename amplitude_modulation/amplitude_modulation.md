@@ -17,7 +17,7 @@ AM (amplitude modulation) のアンチエイリアシングを行います。入
 <img src="img/am.svg" alt="Block diagram of amplitude modulation." style="width: 32rem;padding-bottom: 12px;"/>
 </figure>
 
-以下はキャリアとモジュレータがどちらもサイン波のときの AM の式です。キャリアの振幅を 1 に正規化しています。
+以下は出力 $y$ の項がすべて $\sin$ になるようにした AM の式です。キャリアの振幅を 1 に正規化しています。
 
 $$
 \begin{aligned}
@@ -252,6 +252,8 @@ def antiAliasedAMFull(carrior, modulator):
 - [Single-sideband modulation - Wikipedia](https://en.wikipedia.org/wiki/Single-sideband_modulation)
 
 ## 変更点
+- 2024/08/27
+  - 素朴な AM の「キャリアとモジュレータがどちらもサイン波のときの AM の式」という表現が誤っていたので修正。
 - 2024/02/18
   - 「ハーフバンド楕円フィルタ」へのリンクを追加。
   - 素朴な AM のアンチエイリアシングのブロック線図のリンクを修正。
