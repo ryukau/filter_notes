@@ -438,6 +438,7 @@
         <li><a href="#発散の抑制"
         id="toc-発散の抑制">発散の抑制</a></li>
         <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -450,12 +451,20 @@
   href="http://www.apsipa.org/proceedings/2018/pdfs/0001355.pdf">DSP
   Implementation of Adaptive Notch Filerts With Overflow Avoidance in
   Fixed-Point Arithmetic</a>”
-  に基づいた適応ノッチフィルタを実装します。</p>
+  に基づいた適応ノッチフィルタを実装します。適応ノッチフィルタはサイン波
+  +
+  ノイズの信号から、サイン波だけを消すときに使えます。ただしノイズの種類によってはうまく動きません。</p>
+  <p>以下はプロットの作成などに使った完全なコードへのリンクです。この文章で紹介しているすべての実装を含んでいます。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/adaptive_notch/notch.py">filter_notes/adaptive_notch/notch.py
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
   <h2 id="cpz-anf"><a href="#cpz-anf" class="header-anchor"
   aria-hidden="true">CPZ-ANF</a></h2>
   <p>CPZ-ANF (adaptive notch filter with constrained poles and zeros) は
   Ishibashi らの論文で紹介されていた適応ノッチフィルタの名前です。</p>
-  <p>以下は CPZ の伝達関数です。</p>
+  <p>以下は CPZ-ANF で使われているノッチフィルタの伝達関数です。</p>
   <p><span class="math display">\[
   \begin{align}
   H_N(z) &amp;= \frac{1 + a[n] z^{-1} + z^{-2}}{1 + \rho a[n] z^{-1} +
@@ -471,45 +480,44 @@
   s[n] &amp;= z^{-1} - z^{-1} \rho H_N(z). \label{cpz-anf_s}
   \end{align}
   \]</span></p>
-  <p>記号の一覧です。</p>
-  <ul>
-  <li><span class="math inline">\(n\)</span> :
-  サンプル数で表された時間。</li>
-  <li><span class="math inline">\(x\)</span> : 入力信号。</li>
-  <li><span class="math inline">\(y\)</span> : 出力信号。</li>
-  <li><span class="math inline">\(\omega_0\)</span> :
-  ノッチの角周波数。</li>
-  <li><span class="math inline">\(\rho\)</span> : ノッチの幅。範囲 <span
-  class="math inline">\([0, 1)\)</span> 。 1
-  に近づくほどノッチが狭くなる。</li>
-  <li><span class="math inline">\(\mu\)</span> : 更新の速さ。 <span
-  class="math inline">\(1/f_s\)</span>
-  あたりの正の実数。あまり大きくすると発散する。</li>
-  </ul>
+  <p><span class="math inline">\(n\)</span> はサンプル数で表された時間、
+  <span class="math inline">\(x\)</span> は入力信号、 <span
+  class="math inline">\(y\)</span> は出力信号、 <span
+  class="math inline">\(\omega_0\)</span> はノッチの角周波数、 <span
+  class="math inline">\(\rho\)</span> はノッチの幅、 <span
+  class="math inline">\(\mu\)</span> は適応の速さです。 <span
+  class="math inline">\(\rho\)</span> の範囲は <span
+  class="math inline">\([0, 1)\)</span> で 1
+  に近づくほどノッチが狭くなります。 <span
+  class="math inline">\(\mu\)</span> の範囲は <span
+  class="math inline">\([0, 1]\)</span> ですが 1
+  に近づけすぎると発散することがあります。</p>
   <p>Python 3 で実装します。 <a
   href="https://ccrma.stanford.edu/~jos/fp/Direct_Form_II.html">Direct-form
   II</a> での実装が指定されています。</p>
   <div class="sourceCode" id="cb1"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adaptiveNotchCpz2(x, rho<span class="op">=</span><span class="fl">0.99</span>, mu<span class="op">=</span><span class="dv">1</span>, initialGuess<span class="op">=</span><span class="fl">0.5</span>):</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.zeros_like(x)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialGuess)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    v1 <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    v2 <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(x)):</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        a1 <span class="op">=</span> rho <span class="op">*</span> a</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        a2 <span class="op">=</span> rho <span class="op">*</span> rho</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        x0 <span class="op">=</span> x[i]</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        v0 <span class="op">=</span> x0 <span class="op">-</span> a1 <span class="op">*</span> v1 <span class="op">-</span> a2 <span class="op">*</span> v2</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        y0 <span class="op">=</span> v0 <span class="op">+</span> a <span class="op">*</span> v1 <span class="op">+</span> v2</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> y0  <span class="co"># ゲインは 0 dB を超えることがあるので注意。</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        s0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> rho) <span class="op">*</span> v0 <span class="op">-</span> rho <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> rho) <span class="op">*</span> v2</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> np.clip(a <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> mu <span class="op">*</span> y0 <span class="op">*</span> s0, <span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        v2 <span class="op">=</span> v1</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        v1 <span class="op">=</span> v0</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adaptiveNotchCpz2(x, rho<span class="op">=</span><span class="fl">0.99</span>, mu<span class="op">=</span><span class="dv">1</span>, initialGuess<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.zeros_like(x)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> initialGuess)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    v1 <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    v2 <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(x)):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        a1 <span class="op">=</span> rho <span class="op">*</span> a</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        a2 <span class="op">=</span> rho <span class="op">*</span> rho</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        x0 <span class="op">=</span> x[i]</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        v0 <span class="op">=</span> x0 <span class="op">-</span> a1 <span class="op">*</span> v1 <span class="op">-</span> a2 <span class="op">*</span> v2</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        y0 <span class="op">=</span> v0 <span class="op">+</span> a <span class="op">*</span> v1 <span class="op">+</span> v2</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> y0  <span class="co"># ゲインは 0 dB を超えることがあるので注意。</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        s0 <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> rho) <span class="op">*</span> v0 <span class="op">-</span> rho <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> rho) <span class="op">*</span> v2</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> np.clip(a <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> mu <span class="op">*</span> y0 <span class="op">*</span> s0, <span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        v2 <span class="op">=</span> v1</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        v1 <span class="op">=</span> v0</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
   <h3 id="ゲインの正規化"><a href="#ゲインの正規化"
   class="header-anchor" aria-hidden="true">ゲインの正規化</a></h3>
   <p>ノッチフィルタ <span class="math inline">\(H_N\)</span> は <span
@@ -524,38 +532,43 @@
   <p><span class="math display">\[
   \begin{aligned}
   \text{Gain at frequency 0 is:} &amp;&amp;
-  H_N(e^{j0}) &amp;= H_N(1) = \frac{1 + a[n] + 1}{1 + \rho a[n] +
-  \rho^2},
-  \\
+  |H_N(e^{j0})| &amp;= |H_N(1)|
+  = \left| \frac{1 + a[n] + 1}{1 + \rho a[n] + \rho^2} \right|.\\
   \text{Gain at Nyquist frequency is:} &amp;&amp;
-  H_N(e^{j\pi}) &amp;= H_N(-1) = \frac{1 - a[n] + 1}{1 - \rho a[n] +
-  \rho^2},
-  \\
+  |H_N(e^{j\pi})| &amp;= |H_N(-1)|
+  = \left| \frac{1 - a[n] + 1}{1 - \rho a[n] + \rho^2} \right|.\\
   \end{aligned}
   \]</span></p>
+  <p><span class="math inline">\(-2 \leq a \leq 2\)</span> かつ <span
+  class="math inline">\(\,0 \leq \rho &lt; 1\)</span>
+  なので絶対値を外すことができます。</p>
   <p>ゲインの最大値を 0 dB に正規化するときは、上のコードの
   <code>out[i] = y0</code> の部分を以下に変更します。</p>
   <div class="sourceCode" id="cb2"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> a <span class="op">&gt;=</span> <span class="dv">0</span>:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    out[i] <span class="op">=</span> y0 <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> a1 <span class="op">+</span> a2) <span class="op">/</span> (<span class="dv">2</span> <span class="op">+</span> a)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    out[i] <span class="op">=</span> y0 <span class="op">*</span> <span class="bu">abs</span>((<span class="dv">1</span> <span class="op">+</span> a1 <span class="op">+</span> a2) <span class="op">/</span> (<span class="dv">2</span> <span class="op">+</span> a))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    out[i] <span class="op">=</span> y0 <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> a1 <span class="op">+</span> a2) <span class="op">/</span> (<span class="dv">2</span> <span class="op">-</span> a)</span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    out[i] <span class="op">=</span> y0 <span class="op">*</span> <span class="bu">abs</span>((<span class="dv">1</span> <span class="op">-</span> a1 <span class="op">+</span> a2) <span class="op">/</span> (<span class="dv">2</span> <span class="op">-</span> a))</span></code></pre></div>
   <h3 id="分析"><a href="#分析" class="header-anchor"
   aria-hidden="true">分析</a></h3>
-  <p>以下は <code>y0</code> と <code>s0</code> の位相特性です。</p>
-  <figure>
-  <img src="img/cpz-anf_phase_diff.svg" alt="Plot of phase difference of output y and gradient s in CPZ-ANF." style="padding-bottom: 12px;"/>
-  </figure>
-  <p><span class="math inline">\(-\pi/2\)</span> と <span
-  class="math inline">\(-3\pi/2\)</span>
-  で横に黒い横線を超えると、入力がサイン波のときに <code>y0 * s0</code>
-  の時間平均をとったときの直流成分の符号が変わります。つまり、カットオフ周波数の上下で
-  <code>y0 * s0</code> の符号が変わるので、 <code>a</code>
-  がターゲット周波数に向かって適応します。</p>
   <p>より詳しい分析を <a href="#分析-1">AM
   適応ノッチフィルタの分析の節</a>に掲載しています。 <span
   class="math inline">\(a\)</span>
   の計算が異なりますが、位相差についての挙動は同じです。</p>
+  <p>以下は <code>y0</code> と <code>s0</code> の位相特性です。</p>
+  <figure>
+  <img src="img/cpz-anf_phase_diff.svg" alt="Plot of phase difference of output y and gradient s in CPZ-ANF." style="padding-bottom: 12px;"/>
+  </figure>
+  <p><code>y0</code> と <code>s0</code> の位相差を示したオレンジの線
+  (Diff.) に注目すると適応ノッチフィルタの癖をある程度予想できます。
+  Diff. が <span class="math inline">\(-\pi/2\)</span> と <span
+  class="math inline">\(-3\pi/2\)</span> の黒い横線を超えるごとに
+  <code>y0 * s0</code> の直流成分の符号が変わります。この符号の変化が
+  <code>a</code>
+  がターゲット周波数へと向かう適応の仕組みです。上の図ではカットオフ周波数を境に
+  Diff. の符号が変わるので、おおよそは適応には成功しそうです。しかし
+  Diff. が <span class="math inline">\(-3\pi/2\)</span>
+  を下回る高い周波数では適応に失敗しそうです。</p>
   <h2 id="am-適応ノッチフィルタ"><a href="#am-適応ノッチフィルタ"
   class="header-anchor" aria-hidden="true">AM
   適応ノッチフィルタ</a></h2>
@@ -597,29 +610,25 @@
   class="math inline">\(\cos\)</span> を使っています。</p>
   <p><span class="math display">\[
   \begin{aligned}
-  x(t) &amp;= \cos(\omega t). &amp;&amp; \text{Input signal.} \\
-  y(t) &amp;= A \cos(\omega t + \phi). &amp;&amp; \text{Output signal.}
-  \\
+  x(t) &amp;= \cos(\omega t). &amp;&amp; \text{Input.} \\
+  y(t) &amp;= A \cos(\omega t + \phi). &amp;&amp; \text{Output.} \\
   s(t)
   &amp;= x(t) y(t) = \frac{A}{2} \Big(
       \cos(2 \omega t + \phi)
     + \cos(-\phi)
-  \Big). &amp;&amp; \text{Velocity of filter coefficient}\ a. \\
+  \Big). &amp;&amp; \text{AM}. \\
   a(t) &amp;= -2 \cos(\omega_a(t)) = a(t - \delta_t) - 2 \mu s(t),\\
   \omega_a &amp;\in [0, \pi).
   \end{aligned}
   \]</span></p>
   <p><span class="math inline">\(\phi\)</span> は周波数 <span
-  class="math inline">\(\omega\)</span> でのノッチフィルタの出力の位相差
-  <span class="math inline">\(\angle H_N(e^{j\omega})\)</span> 、 <span
+  class="math inline">\(\omega\)</span>
+  でのノッチフィルタの出力の位相特性、 <span
   class="math inline">\(A\)</span> は周波数 <span
   class="math inline">\(\omega\)</span>
   でのノッチフィルタのゲインです。</p>
   <p><span class="math display">\[
-  \begin{aligned}
-  \phi &amp;= \angle H_N(e^{j\omega}) \\
-  A &amp;= |H_N(e^{j\omega})| \\
-  \end{aligned}
+  \phi = \angle H_N(e^{j\omega}), \quad A = |H_N(e^{j\omega})|. \\
   \]</span></p>
   <p>以下はノッチフィルタの位相特性です。</p>
   <figure>
@@ -632,7 +641,7 @@
   <li><span class="math inline">\(a\)</span> はカットオフ周波数が低いと
   -2 、高いと +2 へと近づく。</li>
   <li>適応が完了したとき、ノッチによってサイン波が消えるので
-  <code>y0 = 0</code> となり、 <code>y0 * x1</code> も 0 。</li>
+  <code>y0 = 0</code> となり、 <code>y0 * x0</code> も 0 。</li>
   <li>適応が完了していないとき：
   <ul>
   <li>ターゲットよりもカットオフが低いと <span
@@ -657,38 +666,35 @@
   </ul></li>
   </ul></li>
   </ul>
-  <p>この分析を踏まえてノッチフィルタの位相特性を見直すと、カットオフ周波数の周りでは符号が反転がうまく働いて適応に成功しそうです。しかし、ターゲット周波数が高くなると位相特性が
+  <p>上の分析を踏まえてノッチフィルタの位相特性を見直すと、カットオフ周波数の周りでは符号が反転がうまく働いて適応に成功しそうです。しかしターゲット周波数が高くなると位相特性が
   <span class="math inline">\(-3\pi/2\)</span>
-  を下回ってしまうので適応に失敗しそうです。また <span
+  を下回ってしまうので、適応に失敗しそうです。また <span
   class="math inline">\(\rho\)</span> の値があまりにも 1
   に近いとカットオフ周波数の上側で符号が反転する範囲があまりにも狭くなるので、これも失敗しそうです。</p>
-  <p>ここで肝となるのが、 <span class="math inline">\(s\)</span>
+  <p>ここで肝となるのが <span class="math inline">\(s\)</span>
   が完全に正あるいは負の値となることは稀ということです。つまり <span
   class="math inline">\(a\)</span>
   が平均としてはターゲットから離れる方向に進んでいても、瞬時的に正しい方向へと向かう状態が現れます。この挙動によって誤った周波数で適応が止まった状態から抜け出すことがあるかもしれません。</p>
   <p>簡単に試した範囲では <span class="math inline">\(\rho\)</span> を
   0.8
-  あたりまで下げれば、ターゲット周波数が高くても適応に成功します。</p>
+  あたりまで下げれば、ターゲット周波数が高くても適応に成功します。また
+  <code>y0 * x0</code> ではなく <code>y0 * x1</code>
+  にしたほうが収束が速くなることがありました。</p>
   <h3 id="次オールパスによる改良"><a href="#次オールパスによる改良"
   class="header-anchor" aria-hidden="true">1
   次オールパスによる改良</a></h3>
   <p>分析によって、ターゲット周波数がノッチのカットオフ周波数のより低いときは
-  <span class="math inline">\((-\pi/2, \pi/2)\)</span> 、高いときは
-  <span class="math inline">\((\pi/2, 3\pi/2)\)</span>
-  の位相差を作ってやれば、 AM による <span
+  <span class="math inline">\((-\pi/2, \pi/2)\)</span>
+  の位相差、高いときは <span class="math inline">\((\pi/2,
+  3\pi/2)\)</span> の位相差を作ってやれば AM による <span
   class="math inline">\(a\)</span>
-  の更新が上手くいきそうなことが分かりました。。</p>
-  <p>位相差を作るためには <span class="math inline">\([0, -/pi)\)</span>
+  の更新が上手くいきそうなことが分かりました。</p>
+  <p>位相差を作るためには <span class="math inline">\([0, -\pi)\)</span>
   の位相差を作ることができる 1 次オールパスフィルタが使えます。以下は 1
   次オールパスフィルタの伝達関数です。</p>
   <p><span class="math display">\[
   H_{AP}(z) = \frac{k_{AP} + z^{-1}}{1 + k_{AP} z^{-1}}.
   \]</span></p>
-  <p>以下は <span class="math inline">\(k_{AP}\)</span>
-  を変えたときの位相特性です。</p>
-  <figure>
-  <img src="img/allpass1_phase_response.svg" alt="Plot of phase response of first order allpass filter." style="padding-bottom: 12px;"/>
-  </figure>
   <p><span class="math inline">\(k_{AP}\)</span> は、ノッチフィルタの
   <span class="math inline">\(a\)</span> から決めます。 <span
   class="math inline">\(a\)</span> からノッチのカットオフ周波数 <span
@@ -697,16 +703,18 @@
   frequency) として <span class="math inline">\(k_{AP}\)</span>
   を計算します。</p>
   <p><span class="math display">\[
-  \begin{aligned}
-  \omega_a &amp;= \pi - \arccos(a / 2), \\
-  k_{AP} &amp;= \frac{\tan(\omega_a / 2) - 1}{\tan(\omega_a / 2) + 1}.
-  \\
-  \end{aligned}
+  \omega_a = \pi - \arccos(a / 2),\quad
+  k_{AP} = \frac{\tan(\omega_a / 2) - 1}{\tan(\omega_a / 2) + 1}.
   \]</span></p>
-  <p>以下はブロック線図です。推定値に近くなったときに修正幅を狭めるためノッチの出力の絶対値を、入力とオールパス出力の
-  AM 信号にさらに乗算しています。青の線で示された <span
-  class="math inline">\(\dot{a}\)</span> はノッチの係数 <span
-  class="math inline">\(a\)</span> の 1 サンプル当たりの変化量です。
+  <p>以下は <span class="math inline">\(k_{AP}\)</span>
+  を変えたときの位相特性です。</p>
+  <figure>
+  <img src="img/allpass1_phase_response.svg" alt="Plot of phase response of first order allpass filter." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はブロック線図です。推定値に近くなったときに修正幅を狭めるため、ノッチの出力の絶対値を
+  AM 信号にさらに乗算しています。 <span class="math inline">\(a\)</span>
+  の 1 サンプル当たりの変化量 <span
+  class="math inline">\(\dot{a}\)</span> の処理を青で示しています。
   <span class="math inline">\(a\)</span> を <span
   class="math inline">\(k_{AP}\)</span>
   に変換する処理をオレンジで示しています。</p>
@@ -729,18 +737,19 @@
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        y0 <span class="op">=</span> x0 <span class="op">+</span> a <span class="op">*</span> x1 <span class="op">+</span> x2 <span class="op">-</span> rho <span class="op">*</span> a <span class="op">*</span> y1 <span class="op">-</span> rho <span class="op">*</span> rho <span class="op">*</span> y2</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> y0</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        notchFreq <span class="op">=</span> (np.pi <span class="op">-</span> np.arccos(a <span class="op">/</span> <span class="dv">2</span>)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> np.pi)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        k_ap <span class="op">=</span> breakFreqToA(notchFreq)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        r1 <span class="op">=</span> k_ap <span class="op">*</span> (x0 <span class="op">-</span> r1) <span class="op">+</span> q1</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        q1 <span class="op">=</span> x0</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> np.clip(a <span class="op">-</span> mu <span class="op">*</span> np.<span class="bu">abs</span>(y0) <span class="op">*</span> x0 <span class="op">*</span> r1, <span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        x2 <span class="op">=</span> x1</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        x1 <span class="op">=</span> x0</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        y2 <span class="op">=</span> y1</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        y1 <span class="op">=</span> y0</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        omega_a <span class="op">=</span> np.pi <span class="op">-</span> np.arccos(a <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        t <span class="op">=</span> np.tan(omega_a <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        k_ap <span class="op">=</span> (t <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> (t <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        r1 <span class="op">=</span> k_ap <span class="op">*</span> (x0 <span class="op">-</span> r1) <span class="op">+</span> q1</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        q1 <span class="op">=</span> x0</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> np.clip(a <span class="op">-</span> mu <span class="op">*</span> np.<span class="bu">abs</span>(y0) <span class="op">*</span> x0 <span class="op">*</span> r1, <span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        x2 <span class="op">=</span> x1</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        x1 <span class="op">=</span> x0</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        y2 <span class="op">=</span> y1</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        y1 <span class="op">=</span> y0</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
   <p><span class="math inline">\(\rho\)</span> が 0.99
   あたりで高い周波数への適応がいいです。出力が完全に 0
   に収束しづらいという欠点があります。特に低い周波数では収束が遅くなります。また
@@ -749,8 +758,8 @@
   <p>収束しづらいのはカットオフ周波数付近では位相差 <span
   class="math inline">\(\phi\)</span> が <span
   class="math inline">\(-\pi/2\)</span> に近づくため、直流成分 <span
-  class="math inline">\(\cos(-\phi)\)</span>
-  が小さくなるからだと考えられます。したがってターゲット周波数とカットオフ周波数の距離が遠いほど収束が速く、周波数の差が縮まるにつれて収束が遅くなります。</p>
+  class="math inline">\(\cos(-\phi)\)</span> がほぼ 0
+  になるからだと考えられます。したがってターゲット周波数とカットオフ周波数の距離が遠いほど収束が速く、周波数の差が縮まるにつれて収束が遅くなります。</p>
   <h3 id="異なるノッチフィルタへの適用"><a
   href="#異なるノッチフィルタへの適用" class="header-anchor"
   aria-hidden="true">異なるノッチフィルタへの適用</a></h3>
@@ -778,7 +787,7 @@
   は C++ などの <a
   href="https://en.cppreference.com/w/cpp/algorithm/clamp"><code>clamp</code></a>
   と同じ計算です。 <code>delta_a</code> は 1 サンプル当たりの <span
-  class="math inline">\(a\)</span> の変動値です。</p>
+  class="math inline">\(a\)</span> の変動です。</p>
   <div class="sourceCode" id="cb5"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> np.clip(a <span class="op">-</span> mu <span class="op">*</span> delta_a, <span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span></code></pre></div>
   <p><span class="math inline">\(a\)</span>
@@ -789,8 +798,8 @@
   <span class="math inline">\(a\)</span>
   の変動値にスルーレートリミッタあるいは EMA
   ローパスをかけることです。</p>
-  <p>スルーレートリミッタは <code>clamp</code>
-  などで値の範囲を制限するだけで実装できます。ただし収束しきっていない波形が歪むことがあります。</p>
+  <p>スルーレートリミッタは <code>delta_a</code>
+  の範囲を制限するだけで実装できます。ただし収束しきっていない波形が歪むことがあります。</p>
   <div class="sourceCode" id="cb6"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> np.clip(a <span class="op">-</span> mu <span class="op">*</span> np.clip(delta_a, <span class="op">-</span><span class="fl">1e-2</span>, <span class="fl">1e-2</span>), <span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span></code></pre></div>
   <p>EMA
@@ -830,6 +839,15 @@
   <li><a
   href="https://ccrma.stanford.edu/~jos/filters/Complex_Resonator.html">Complex
   Resonator</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/08/29
+  <ul>
+  <li>ゲインの正規化を修正。</li>
+  <li>文章の整理。</li>
+  </ul></li>
   </ul>
     <footer>
     <a href="../index.html">インデックスに戻る</a>
