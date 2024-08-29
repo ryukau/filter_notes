@@ -56,28 +56,26 @@ def adaptiveNotchCpz2(x, rho=0.99, mu=1, initialGuess=0.5):
 ```
 
 ### ゲインの正規化
-ノッチフィルタ $H_N$ は $a \geq 0$ のときに周波数 0 のゲインが最大、 $a < 0$ のときにナイキスト周波数のゲインが最大となります。したがって $a \geq 0$ のときに $|H_N(e^{j0})|$ 、$a < 0$ のときに $|H_N(e^{j\pi})|$ を計算すればゲインの最大値が得られます。
+ノッチフィルタ $H_N$ は $a \geq 0$ のときに周波数 0 のゲインが最大、 $a < 0$ のときにナイキスト周波数のゲインが最大となります。したがって $a \geq 0$ のときに $|H_N(e^{j0})|$ 、$a < 0$ のときに $|H_N(e^{j\pi})|$ を計算すればゲインの最大値が得られます。 $a$ の符号を考慮すると絶対値の計算を省略できます。
 
 $$
 \begin{aligned}
 \text{Gain at frequency 0 is:} &&
 |H_N(e^{j0})| &= |H_N(1)|
-= \left| \frac{1 + a[n] + 1}{1 + \rho a[n] + \rho^2} \right|.\\
+= \frac{1 + a[n] + 1}{1 + \rho a[n] + \rho^2}.\\
 \text{Gain at Nyquist frequency is:} &&
 |H_N(e^{j\pi})| &= |H_N(-1)|
-= \left| \frac{1 - a[n] + 1}{1 - \rho a[n] + \rho^2} \right|.\\
+= \frac{1 - a[n] + 1}{1 - \rho a[n] + \rho^2}.\\
 \end{aligned}
 $$
-
-$-2 \leq a \leq 2$ かつ $\,0 \leq \rho < 1$ なので絶対値を外すことができます。
 
 ゲインの最大値を 0 dB に正規化するときは、上のコードの `out[i] = y0` の部分を以下に変更します。
 
 ```python
 if a >= 0:
-    out[i] = y0 * abs((1 + a1 + a2) / (2 + a))
+    out[i] = y0 * (1 + a1 + a2) / (2 + a)
 else:
-    out[i] = y0 * abs((1 - a1 + a2) / (2 - a))
+    out[i] = y0 * (1 - a1 + a2) / (2 - a)
 ```
 
 ### 分析
