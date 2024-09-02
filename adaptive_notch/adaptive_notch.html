@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-08-30" />
+      <meta name="dcterms.date" content="2024-09-02" />
       <title>adaptive_notch</title>
 
   <style>
@@ -410,7 +410,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-08-30
+      Update: 2024-09-02
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -643,10 +643,8 @@
   <code>y0 = 0</code> となり、 <code>y0 * x0</code> も 0 。</li>
   <li>適応が完了していないとき：
   <ul>
-  <li>ターゲットよりもカットオフが低いと <span
-  class="math inline">\(y\)</span> の位相が進む。</li>
-  <li>ターゲットよりもカットオフが高いと <span
-  class="math inline">\(y\)</span> の位相が遅れる。</li>
+  <li>カットオフ周波数の前後で <span class="math inline">\(y\)</span>
+  の位相が <span class="math inline">\(\pi\)</span> 変わる。</li>
   <li><span class="math inline">\(s\)</span> は式に含まれる <span
   class="math inline">\(- \cos(-\phi)\)</span> より、
   <ul>
@@ -842,6 +840,11 @@
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2024/09/02
+  <ul>
+  <li>「AM 適応ノッチフィルタ」 -&gt; 「分析」の <span
+  class="math inline">\(y\)</span> の位相に関する文を修正。</li>
+  </ul></li>
   <li>2024/08/29
   <ul>
   <li>ゲインの正規化を修正。</li>
