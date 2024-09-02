@@ -7,8 +7,7 @@
 - C++17
   - [libsndfile](http://www.mega-nerd.com/libsndfile/)
 
-`run.sh` を実行するとビルドします。
+## `cpp` ディレクトリ
+Linux 環境 (bash, g++) では `run.sh` を実行するとビルドします。
 
-```bash
-./run.sh
-```
+Windows 環境 (PowerShell, CMake, vcpkg) では `run.ps1` を実行するとビルドします。

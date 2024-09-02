@@ -2,17 +2,25 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
+#include <numbers>
 
-constexpr double twopi = 6.283185307179586;
-
-template<typename Sample> class PController {
+// Exponential moving average filger.
+template<typename Sample> class EmaLowpass {
 public:
-  // float 型での cutoffHz の下限は 3~4 Hz 程度。
-  static Sample cutoffToP(Sample sampleRate, Sample cutoffHz)
+  // 原則として `double` で呼び出すこと。 `float` では精度が足りないので `timeInSamples`
+  // が 5000 を超えるあたりで正しい値が出ない。
+  static Sample samplesToP(Sample timeInSamples)
   {
-    auto omega_c = Sample(twopi) * cutoffHz / sampleRate;
+    auto omega_c = std::numbers::pi_v<Sample> / timeInSamples;
     auto y = Sample(1) - cos(omega_c);
     return -y + sqrt((y + Sample(2)) * y);
+  }
+
+  static Sample thresholdToP(Sample timeInSample, Sample threshold = Sample(0.9))
+  {
+    return Sample(1)
+      - std::pow(Sample(1) - threshold, Sample(1) / (timeInSample + Sample(1)));
   }
 
   void setP(Sample p) { kp = std::clamp<Sample>(p, Sample(0), Sample(1)); }
@@ -28,24 +36,24 @@ public:
   void setup(Sample sampleRate)
   {
     this->sampleRate = sampleRate;
-    tailLength = uint32_t(0.01 * sampleRate);
+    tailLength = int(0.01 * sampleRate);
   }
 
   void reset(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)
   {
     state = State::attack;
-    sustain = std::clamp<Sample>(sustainLevel, Sample(0), Sample(1));
-    atk = int32_t(sampleRate * attackTime);
+    atk = int(sampleRate * attackTime);
     decTime = decayTime;
+    sustain = std::clamp<Sample>(sustainLevel, Sample(0), Sample(1));
     relTime = releaseTime;
-    pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
+    lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * attackTime));
   }
 
   void set(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)
   {
     switch (state) {
       case State::attack:
-        atk = int32_t(sampleRate * attackTime);
+        atk = int(sampleRate * attackTime);
         // Fall through.
 
       case State::decay:
@@ -61,19 +69,17 @@ public:
     }
 
     if (state == State::attack)
-      pController.setP(
-        PController<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
+      lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * attackTime));
     else if (state == State::decay)
-      pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / decayTime));
+      lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * decayTime));
     else if (state == State::release)
-      pController.setP(
-        PController<Sample>::cutoffToP(sampleRate, Sample(1) / releaseTime));
+      lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * releaseTime));
   }
 
   void release()
   {
     state = State::release;
-    pController.setP(PController<Sample>::cutoffToP(sampleRate, Sample(1) / relTime));
+    lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * relTime));
   }
 
   bool isAttacking() { return state == State::attack; }
@@ -84,21 +90,20 @@ public:
   {
     switch (state) {
       case State::attack: {
-        value = pController.process(Sample(1));
+        value = lowpass.process(Sample(1));
         --atk;
-        if (atk == 0) {
+        if (atk <= 0) {
           state = State::decay;
-          pController.setP(
-            PController<Sample>::cutoffToP(sampleRate, Sample(1) / decTime));
+          lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * decTime));
         }
       } break;
 
       case State::decay:
-        value = pController.process(sustain);
+        value = lowpass.process(sustain);
         break;
 
       case State::release:
-        value = pController.process(0);
+        value = lowpass.process(0);
         if (value < threshold) {
           value = threshold;
           state = State::tail;
@@ -109,11 +114,11 @@ public:
       case State::tail:
         --tailCounter;
         value = threshold * tailCounter / float(tailLength);
-        if (tailCounter == 0) {
+        if (tailCounter <= 0) {
           state = State::terminated;
-          pController.reset(0);
+          lowpass.reset(0);
         } else {
-          pController.reset(value);
+          lowpass.reset(value);
         }
         break;
 
@@ -124,15 +129,15 @@ public:
   }
 
 private:
-  enum class State : int32_t { attack, decay, release, tail, terminated };
+  enum class State { attack, decay, release, tail, terminated };
   const Sample threshold = 1e-5;
 
-  uint32_t tailLength = 32;
-  uint32_t tailCounter = tailLength;
+  int tailLength = 32;
+  int tailCounter = tailLength;
 
-  PController<Sample> pController;
+  EmaLowpass<Sample> lowpass;
   State state = State::terminated;
-  uint32_t atk = 0;
+  int atk = 0;
   Sample decTime = 0;
   Sample relTime = 0;
   Sample sampleRate = 44100;
