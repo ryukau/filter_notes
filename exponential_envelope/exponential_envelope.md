@@ -5,7 +5,7 @@
 値が 1 から 0 に向かって減衰する指数曲線 $E_d(t)$ の式です。
 
 $$
-E_d(t) = \alpha^t, \quad 0 \leq \alpha \leq 1
+E_d(t) = \alpha^t, \quad 0 \leq \alpha \leq 1.
 $$
 
 $\alpha$ は減衰の速さを決める任意の値、 $t$ は単位が秒数の時間です。
@@ -13,13 +13,13 @@ $\alpha$ は減衰の速さを決める任意の値、 $t$ は単位が秒数の
 ユーザから指定された減衰時間 $\tau$ から $\alpha$ を決めます。 $E_d$ は $0 < \alpha$ のとき $t = +\infty$ でようやく 0 になります。言い換えると $E_d$ はいつまで経っても 0 になりません。そこで 0 の代わりに十分に小さな値 $\epsilon$ に到達する時間を求めます。
 
 $$
-E_d(\tau) = \alpha^\tau = \epsilon
+E_d(\tau) = \alpha^\tau = \epsilon.
 $$
 
 時間の単位を秒数 $\tau$ からサンプル数 $n_\tau$ に置き換えます。
 
 $$
-n_\tau = \tau f_s
+n_\tau = \tau f_s.
 $$
 
 $f_s$ はサンプリング周波数です。
@@ -84,7 +84,7 @@ protected:
 増加する指数曲線 $E_a(t)$ の式です。
 
 $$
-E_d(\tau) = \epsilon \alpha^\tau = 1
+E_d(\tau) = \epsilon \alpha^\tau = 1.
 $$
 
 $\alpha$ について解きます。
@@ -418,27 +418,28 @@ Exponential Moving Average (EMA) フィルタについては[オーディオプ�
 ユーザから指定された時間 $T$ の逆数をカットオフ周波数 $f_c$ に使っています。
 
 $$
-f_c = \frac{1}{T}
+f_c = \frac{1}{T}.
 $$
 
 アタックはカウンタを使って時間経過で次の状態に進みます。
 
 リリースは出力がしきい値 `threshold` 以下になったときに次の状態に進みます。
 
-状態 `State::tail` では出力が `threshold` から 0 に到達するように直線を描きます。
+状態 `State::tail` では出力が `threshold` から 0 に到達するように直線を描きます。 `threshold` をマシンイプシロンに固定するなら `State::tail` は省略できます。
 
 ```cpp
 #include <algorithm>
 #include <cmath>
+#include <limits>
+#include <numbers>
 
-constexpr double twopi = 6.283185307179586;
-
-template<typename Sample> class EmaFilter {
+template<typename Sample> class EmaLowpass {
 public:
-  // float 型での cutoffHz の下限は 3~4 Hz 程度。
-  static Sample cutoffToP(Sample sampleRate, Sample cutoffHz)
+  // 原則として `double` で呼び出すこと。 `float` では精度が足りないので `timeInSamples`
+  // が 5000 を超えるあたりで正しい値が出ない。
+  static Sample samplesToP(Sample timeInSamples)
   {
-    auto omega_c = Sample(twopi) * cutoffHz / sampleRate;
+    auto omega_c = std::numbers::pi_v<Sample> / timeInSamples;
     auto y = Sample(1) - cos(omega_c);
     return -y + sqrt((y + Sample(2)) * y);
   }
@@ -456,24 +457,24 @@ public:
   void setup(Sample sampleRate)
   {
     this->sampleRate = sampleRate;
-    tailLength = uint32_t(0.01 * sampleRate);
+    tailLength = int(0.01 * sampleRate);
   }
 
   void reset(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)
   {
     state = State::attack;
-    sustain = std::clamp<Sample>(sustainLevel, Sample(0), Sample(1));
-    atk = int32_t(sampleRate * attackTime);
+    atk = int(sampleRate * attackTime);
     decTime = decayTime;
+    sustain = std::clamp<Sample>(sustainLevel, Sample(0), Sample(1));
     relTime = releaseTime;
-    pController.setP(EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
+    lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * attackTime));
   }
 
   void set(Sample attackTime, Sample decayTime, Sample sustainLevel, Sample releaseTime)
   {
     switch (state) {
       case State::attack:
-        atk = int32_t(sampleRate * attackTime);
+        atk = int(sampleRate * attackTime);
         // Fall through.
 
       case State::decay:
@@ -489,19 +490,17 @@ public:
     }
 
     if (state == State::attack)
-      pController.setP(
-        EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / attackTime));
+      lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * attackTime));
     else if (state == State::decay)
-      pController.setP(EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / decayTime));
+      lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * decayTime));
     else if (state == State::release)
-      pController.setP(
-        EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / releaseTime));
+      lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * releaseTime));
   }
 
   void release()
   {
     state = State::release;
-    pController.setP(EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / relTime));
+    lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * relTime));
   }
 
   bool isAttacking() { return state == State::attack; }
@@ -512,21 +511,20 @@ public:
   {
     switch (state) {
       case State::attack: {
-        value = pController.process(Sample(1));
+        value = lowpass.process(Sample(1));
         --atk;
-        if (atk == 0) {
+        if (atk <= 0) {
           state = State::decay;
-          pController.setP(
-            EmaFilter<Sample>::cutoffToP(sampleRate, Sample(1) / decTime));
+          lowpass.setP(EmaLowpass<double>::samplesToP(sampleRate * decTime));
         }
       } break;
 
       case State::decay:
-        value = pController.process(sustain);
+        value = lowpass.process(sustain);
         break;
 
       case State::release:
-        value = pController.process(0);
+        value = lowpass.process(0);
         if (value < threshold) {
           value = threshold;
           state = State::tail;
@@ -537,11 +535,11 @@ public:
       case State::tail:
         --tailCounter;
         value = threshold * tailCounter / float(tailLength);
-        if (tailCounter == 0) {
+        if (tailCounter <= 0) {
           state = State::terminated;
-          pController.reset(0);
+          lowpass.reset(0);
         } else {
-          pController.reset(value);
+          lowpass.reset(value);
         }
         break;
 
@@ -552,15 +550,15 @@ public:
   }
 
 private:
-  enum class State : int32_t { attack, decay, release, tail, terminated };
+  enum class State { attack, decay, release, tail, terminated };
   const Sample threshold = 1e-5;
 
-  uint32_t tailLength = 32;
-  uint32_t tailCounter = tailLength;
+  int tailLength = 32;
+  int tailCounter = tailLength;
 
-  EmaFilter<Sample> pController;
+  EmaLowpass<Sample> lowpass;
   State state = State::terminated;
-  uint32_t atk = 0;
+  int atk = 0;
   Sample decTime = 0;
   Sample relTime = 0;
   Sample sampleRate = 44100;
@@ -603,11 +601,12 @@ private:
 </figure>
 
 
-## 減衰する指数曲線とその反転の乗算
-減衰する指数曲線とその反転を掛け合わせて合成したエンベロープ $E_{\mathtt{AD}}(t)$ を作ります。
+## AD エンベロープ
+### `pow` を使う形
+減衰する指数曲線とその反転を掛け合わせたエンベロープ $E_{\mathtt{AD}}(t)$ を作ります。
 
 $$
-E_{\mathtt{AD}}(t) = (1 - a^{t}) d^{t}
+E_{\mathtt{AD}}(t) = (1 - a^{t}) d^{t}.
 $$
 
 ピークの位置 $t_p$ とピークの大きさ $E_{\mathtt{AD}}(t_p)$ を求めます。 $t_p$ はアタック時間です。 $E_{\mathtt{AD}}(t_p)$ は出力範囲を $[0, 1]$ に正規化するために使えます。
@@ -622,138 +621,240 @@ solve(0 = expr, t);
 出力です。
 
 $$
-t_p = \frac{\log{\left( \dfrac{\log{(d)}}{\log{(d)}+\log{(a)}}\right) }}{\log{(a)}}
+t_p = \frac{\log{\left( \dfrac{\log{(d)}}{\log{(d)}+\log{(a)}}\right) }}{\log{(a)}}.
 $$
 
 $a$ と $d$ を求めます。ユーザが指定したアタック時間を $A$ 、 ユーザが指定したディケイ時間を $D$ とします。 $[0, 1)$ の範囲の適当なしきい値 $\epsilon$ を用意して、 $a^{A} = d^{D} = \epsilon$ とすると $a, d$ は次の式で計算できます。
 
 $$
-a = \epsilon^{1/A}, \quad b = \epsilon^{1/B}
+a = \epsilon^{1/A}, \quad b = \epsilon^{1/D}.
 $$
 
-C++ での実装です。
+エンベロープのプロットです。
 
-```cpp
+<figure>
+<img src="img/ExpAD_pow.svg" alt="Plot of exponential AD envelope using `pow` formula." style="padding-bottom: 12px;"/>
+</figure>
+
+実装を「[C++ による実装](#c-による実装)」に掲載しています。
+
+### `exp` を使う形
+この計算方法は [EnvelopedSine](https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html) で使っています。 `exp` 、 `log` 、 `log1p` だけで実装できるので、 `pow` を使う形よりも手軽です。
+
+エンベロープ $\tilde{E}_{\mathtt{AD}}$ の式です。
+
+$$
+\tilde{E}_{\mathtt{AD}}(t) = (1 - e^{at}) e^{dt}.
+$$
+
+$E_{\mathtt{AD}}(t)$ の式について $a \to e^{a},\ d \to e^{d}$ と置き換えています。
+
+ピークの位置 $t_p$ とピークの大きさ $\tilde{E}_{\mathtt{AD}}(t_p)$ を求めます。 SymPy を使います。
+
+```python
+import sympy
+
+def solveForExpPeakTime():
+    a = sympy.Symbol("a", real=True, negative=True)
+    d = sympy.Symbol("d", real=True, negative=True)
+    t = sympy.Symbol("t", real=True, positive=True)
+    E_diff1 = sympy.diff((1 - sympy.exp(a * t)) * sympy.exp(d * t), t)
+    solution = sympy.solve(E_diff1, t)
+    result = sympy.simplify(solution[0])
+    print(sympy.latex(result))
+```
+
+整形した出力です。この形は [`log1p`](https://en.cppreference.com/w/c/numeric/math/log1p) が使えます。
+
+$$
+t_p = -\frac{\log{\left( \dfrac{a}{d}+1\right) }}{a}.
+$$
+
+$a$ と $d$ を求めます。アタック時間を $A$ 、 ディケイ時間を $D$ 、 適当なしきい値を $\epsilon \in [0, 1)$ とします。 $e^{-a A},\ e^{-d D},\ \epsilon$ が等しくなるような $a, d$ は次の式で計算できます。
+
+$e^{a A} = \epsilon$ より、
+
+$$
+a = \dfrac{\log(\epsilon)}{A}.
+$$
+
+$e^{d D} = \epsilon$ より、
+
+$$
+\begin{equation}
+d = \dfrac{\log(\epsilon)}{D}. \label{exp_d}
+\end{equation}
+$$
+
+エンベロープのプロットです。出力は `pow` を使う形と同じです。
+
+<figure>
+<img src="img/ExpAD_exp.svg" alt="Plot of exponential AD envelope using `exp` formula." style="padding-bottom: 12px;"/>
+</figure>
+
+実装を「[C++ による実装](#c-による実装)」に掲載しています。
+
+### ピーク時間を直接指定する形
+エンベロープのピーク時間 $t_p$ を直接指定できるように設計します。この形はパラメータの意味が大きく変わります。
+
+`exp` を使う形の $t_p$ の式を $a$ について解きます。 $t_p$ の式を再掲します。
+
+$$
+t_p = \frac{\log{\left( \dfrac{a}{d}+1\right) }}{a}.
+$$
+
+SymPy で解きます。
+
+```python
+import sympy
+
+def solvePeakTimeForA():
+    a = sympy.Symbol("a", real=True, negative=True)
+    d = sympy.Symbol("d", real=True, negative=True)
+    t_p = sympy.Symbol("t_p", real=True, positive=True)
+    eq = sympy.Eq(t_p, -sympy.log(a / d + 1) / a)
+    solution = sympy.solve(eq, a)
+    result = sympy.simplify(solution[0])
+    print(sympy.latex(result))
+```
+
+整形した出力です。 $W_{-1}$ はブランチが -1 の [Lambert W function](https://en.wikipedia.org/wiki/Lambert_W_function) です。
+
+$$
+a = \frac{W_{-1}\left(d t_{p} e^{d t_{p}}\right)}{t_{p}} - d.
+$$
+
+これでアタック時間の設定ができました。ここからはディケイ時間の設定について調べます。 $W_{-1}$ は以下の範囲でのみ定義されています。
+
+$$
+-\frac{1}{e} \leq d t_p e^{d t_p} < 0.
+$$
+
+式 $\ref{exp_d}$ を $d$ に代入して $D$ について解きます。
+
+$$
+\begin{aligned}
+-1 & \geq d t_p > -\infty, \\
+-1 & \geq \dfrac{\log(\epsilon)}{D} t_p > -\infty, \\
+-D & \geq \log(\epsilon) t_p > -\infty.
+\end{aligned}
+$$
+
+$D$ を以下のように設定すると $W_{-1}$ の定義域でディケイ時間を設定できることがわかりました。
+
+$$
+D = \delta - \log(\epsilon) t_p, \quad \delta > 0.
+$$
+
+$\delta$ は減衰の長さを変えるリリース時間のようなパラメータですが、直感的には使えないことに注意してください。例えば $t_p=3,\,\delta=1$ としたとき、エンベロープが十分に小さい値に到達するのは 4 秒後よりもずっと後になります。以下の式を $t$ について解くことができればエンベロープが $\epsilon$ に到達する具体的な時間が得られますが、 SymPy 、 Maxima 、 Wolfram Alpha では解けなかったです。
+
+$$
+\epsilon = (1 - e^{at}) e^{dt}.
+$$
+
+エンベロープのプロットです。パラメータの意味が異なるので、出力も他の形とは異なります。以下のプロットは他の形の出力と似たような見た目になるようにパラメータを調整してあります。
+
+<figure>
+<img src="img/ExpAD_peak.svg" alt="Plot of exponential AD envelope using `exp` formula." style="padding-bottom: 12px;"/>
+</figure>
+
+実装を「[C++ による実装](#c-による実装)」に掲載しています。
+
+### C++ による実装
+C++ で実装します。以下は完全な実装とテストコードへのリンクです。
+
+- [filter_notes/exponential_envelope/demo/cpp/expAD.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/cpp/expAD.cpp)
+
+Lambert W function は [Darko Veberic さんによる実装](https://github.com/DarkoVeberic/LambertW)を使っています。 [Boost::math](https://www.boost.org/doc/libs/develop/libs/math/doc/html/math_toolkit/lambert_w.html) にも実装があります。
+
+```c++
+#include "lib/LambertW.hpp"
+
+#include <algorithm>
 #include <cmath>
+#include <limits>
 
-class ExpAD {
+template<typename Sample> class ExpAD {
+private:
+  Sample gain = 0;
+  Sample valueA = 0;
+  Sample alphaA = 0;
+  Sample valueD = 0;
+  Sample alphaD = 0;
+
 public:
-  void setup(float sampleRate) { this->sampleRate = sampleRate; }
-  bool isTerminated() { return valueD <= threshold; }
+  bool isTerminated() { return valueD <= std::numeric_limits<Sample>::epsilon(); }
 
-  // attack and decay in seconds.
-  void reset(float attack, float decay)
+  void resetPow(Sample sampleRate, Sample attackSeconds, Sample decaySeconds)
   {
-    valueA = 1.0f;
-    if (attack < 1e-5) attack = 1e-5;
-    alphaA = powf(threshold, 1.0f / (attack * sampleRate));
+    constexpr Sample epsilon = Sample(1e-5);
 
-    valueD = 1.0f;
-    if (decay < 1e-5) decay = 1e-5;
-    alphaD = powf(threshold, 1.0f / (decay * sampleRate));
+    valueA = Sample(1);
+    alphaA
+      = std::pow(epsilon, Sample(1) / std::max(Sample(1), attackSeconds * sampleRate));
 
-    if (attack <= 0.0f) {
-      gain = 1.0f;
-    } else if (decay <= 0.0f) {
-      gain = 0.0f;
-    } else {
-      auto log_a = logf(alphaA);
-      auto log_d = logf(alphaD);
-      auto t_p = logf(log_d / (log_a + log_d)) / log_a;
-      gain = 1.0f / ((1.0f - powf(alphaA, t_p)) * powf(alphaD, t_p));
-    }
+    valueD = Sample(1);
+    alphaD
+      = std::pow(epsilon, Sample(1) / std::max(Sample(1), decaySeconds * sampleRate));
+
+    const auto log_a = std::log(alphaA);
+    const auto log_d = std::log(alphaD);
+    const auto t_p = std::log(log_d / (log_a + log_d)) / log_a;
+    gain = Sample(1) / ((Sample(1) - std::pow(alphaA, t_p)) * std::pow(alphaD, t_p));
   }
 
-  float process()
+  void resetExp(Sample sampleRate, Sample attackSeconds, Sample decaySeconds)
+  {
+    constexpr Sample epsilon = Sample(1e-5);
+
+    const auto a_ = std::log(epsilon) / attackSeconds;
+    const auto d_ = std::log(epsilon) / decaySeconds;
+
+    valueA = Sample(1);
+    alphaA = std::exp(a_ / sampleRate);
+
+    valueD = Sample(1);
+    alphaD = std::exp(d_ / sampleRate);
+
+    const auto t_p = -std::log1p(a_ / d_) / a_;
+    gain = Sample(1) / ((Sample(1) - std::exp(a_ * t_p)) * std::exp(d_ * t_p));
+  }
+
+  void resetPeak(Sample sampleRate, Sample peakSeconds, Sample releaseSeconds)
+  {
+    constexpr Sample epsilon = std::numeric_limits<Sample>::epsilon();
+
+    const auto decaySeconds = releaseSeconds - std::log(epsilon) * peakSeconds;
+    const auto d_ = std::log(epsilon) / decaySeconds;
+    const auto x_ = d_ * peakSeconds;
+    const auto a_ = Sample(utl::LambertW(-1, x_ * std::exp(x_))) / peakSeconds - d_;
+
+    const auto attackSeconds = -std::log(epsilon) / std::log(-a_);
+    valueA = Sample(1);
+    alphaA = std::exp(a_ / sampleRate);
+
+    valueD = Sample(1);
+    alphaD = std::exp(d_ / sampleRate);
+
+    gain = Sample(1)
+      / ((Sample(1) - std::exp(a_ * peakSeconds)) * std::exp(d_ * peakSeconds));
+  }
+
+  Sample process()
   {
     valueA *= alphaA;
     valueD *= alphaD;
-    return gain * (1.0f - threshold - valueA) * (valueD - threshold);
+    return gain * (Sample(1) - valueA) * valueD;
   }
-
-protected:
-  const float threshold = 1e-5;
-  float sampleRate = 44100;
-  float gain = 0;
-  float valueA = 0;
-  float alphaA = 0;
-  float valueD = 0;
-  float alphaD = 0;
 };
 ```
 
-テストコードへのリンクです。
-
-- [filter_notes/expAD.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/expAD.cpp)
-
-テスト結果です。
-
-<figure>
-<img src="img/ExpAD_cpp.png" alt="Image of ExpAD envelope. C++ implementation." style="padding-bottom: 12px;"/>
-</figure>
-
-### 別解
-この計算方法は [EnvelopedSine](https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html) で使っています。エンベロープ $\tilde{E}_{\mathtt{AD}}$ の式です。
-
-$$
-\tilde{E}_{\mathtt{AD}}(t) = (1 - e^{-at}) e^{-bt}
-$$
-
-$E_{\mathtt{AD}}(t)$ の式について $a \to e^{-a},\ d \to e^{-b}$ と置き換えています。
-
-ピークの位置 $t_p$ とピークの大きさ $\tilde{E}_{\mathtt{AD}}(t_p)$ を求めます。
-
-```maxima
-expr: diff((1-exp(-a*t)) * exp(-b*t), t);
-solve(0 = expr, t);
-```
-
-$$
-t_p = \frac{\log{\left( \dfrac{a}{b}+1\right) }}{a}
-$$
-
-$a$ と $b$ を求めます。アタック時間を $A$ 、 ディケイ時間を $B$ 、 適当なしきい値を $\epsilon \in [0, 1)$ とします。 $e^{-a A},\ e^{-b B},\ \epsilon$ が等しくなるような $a, b$ は次の式で計算できます。
-
-$e^{-a A} = \epsilon$ より、
-
-$$
-a = - \dfrac{\log(\epsilon)}{A}.
-$$
-
-$e^{-b B} = \epsilon$ より、
-
-$$
-\quad b = - \dfrac{\log(\epsilon)}{B}.
-$$
-
-コード例です。
-
-```python
-import numpy as np
-
-def envelopeExpr(a, b, time):
-    return (1 - np.exp(-a * time)) * np.exp(-b * time)
-
-def envelope(attack, decay, eps=1e-5):
-    _a = -np.log(eps) / attack
-    _b = -np.log(eps) / decay
-    peakTime = np.log(_a / _b + 1) / _a
-    gain = 1 / envelopeExpr(_a, _b, peakTime)
-
-    samplerate = 48000
-    duration = 1
-    time = np.linspace(0, duration, duration * samplerate)
-
-    return envelopeExpr(_a, _b, time)
-
-output = envelope(1.0, 2.0)
-```
-
-<figure>
-<img src="img/ExpAD.png" alt="Image of ExpAD envelope. Alternative implementation." style="padding-bottom: 12px;"/>
-</figure>
-
 ## 変更点
+- 2024/09/02
+  - 「減衰する指数曲線とその反転の乗算」のタイトルを「AD エンベロープ」に変更。
+    - 「$t_p$ を直接指定する形」を追加。
+    - C++ の実装を変更。
+    - アタックの記号を $a$ 、ディケイの記号を $d$ に統一。
 - 2024/05/06
   - "P Controller" という呼び方を、一般的な用語の "exponential moving average フィルタ" に置換。
   - `\Tau` が MathJax で表示されていなかったので `\eta` に置換。
