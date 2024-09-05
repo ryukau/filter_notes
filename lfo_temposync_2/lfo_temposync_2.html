@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-08-26" />
+      <meta name="dcterms.date" content="2024-09-05" />
       <title>lfo_temposync_2</title>
 
   <style>
@@ -410,7 +410,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-08-26
+      Update: 2024-09-05
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -441,6 +441,7 @@
         </ul></li>
         <li><a href="#まとめ" id="toc-まとめ">まとめ</a></li>
         <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -558,19 +559,20 @@
   になります。これは円周 1 の円の上にある 2 つの点の距離は -0.5 から 0.5
   の範囲ですべて表せるからです。</p>
   <div class="sourceCode" id="cb2"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcPhaseError(target, follower):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> follower <span class="op">-</span> target</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    d[d <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.5</span>] <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    d[d <span class="op">&gt;</span> <span class="fl">0.5</span>] <span class="op">-=</span> <span class="dv">1</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d</span></code></pre></div>
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcPhaseError(targetPhase, followerPhase):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;`targetPhase` と `followerPhase` の範囲は [0, 1) 。&quot;&quot;&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> followerPhase <span class="op">-</span> targetPhase</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    d[d <span class="op">&lt;</span> <span class="op">-</span><span class="fl">0.5</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    d[d <span class="op">&gt;</span> <span class="fl">0.5</span>] <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d</span></code></pre></div>
   <p>位相の誤差を微分すると周波数の誤差が得られます。 <a
   href="https://numpy.org/doc/stable/reference/generated/numpy.unwrap.html"><code>numpy.unwrap</code></a>
   で位相の巻き戻しを展開して、 <a
   href="https://numpy.org/doc/stable/reference/generated/numpy.diff.html"><code>numpy.diff</code></a>
   で微分を近似しています。</p>
   <div class="sourceCode" id="cb3"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcFrequencyError(target, follower):</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.diff(np.unwrap(follower <span class="op">-</span> target, period<span class="op">=</span><span class="dv">1</span>))</span></code></pre></div>
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcFrequencyError(targetFreq, followerFreq):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.diff(np.unwrap(followerFreq <span class="op">-</span> targetFreq, period<span class="op">=</span><span class="dv">1</span>))</span></code></pre></div>
   <p>平均を計算しやすくするために <code>calcPhaseError</code> と
   <code>calcFrequencyError</code>
   で位相の巻き戻しの扱いを変えています。誤差の平均は <a
@@ -722,8 +724,10 @@
   <h2 id="ema-フィルタによる同期"><a href="#ema-フィルタによる同期"
   class="header-anchor" aria-hidden="true">EMA
   フィルタによる同期</a></h2>
-  <p>EMA (exponential moving average)
-  フィルタを使って同期します。この手法はターゲット周波数が分かっていないと使えません。以下は同期の大まかな流れを示したブロック線図です。</p>
+  <p><a
+  href="https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.html">Exponential
+  moving average (EMA) フィルタ</a>
+  を使って同期します。この手法はターゲット周波数がわかっていないと使えません。以下は同期の大まかな流れを示したブロック線図です。</p>
   <figure>
   <img src="img/ema_sync_block_diagram.svg" alt="Block diagram of a synchronization using EMA filter." style="padding-bottom: 12px;"/>
   </figure>
@@ -763,8 +767,9 @@
   だけです。周波数の同期と位相の同期で異なる <span
   class="math inline">\(K\)</span>
   を使うこともできますが、調べた範囲では利点はなさそうでした。音に癖をつけたいときは使えるかもしれません。</p>
-  <p>以下は蔵本モデルによる周波数の同期を示した図です。フォロワーの位相が逆走している個所があります。位相の誤差と周波数の誤差はどちらも時間とともにほとんど
-  0 に収束しています。</p>
+  <p>以下は EMA
+  フィルタによる周波数の同期を示した図です。周波数が変更されると一時的にフォロワーの位相が逆走しています。位相の誤差と周波数の誤差は時間とともに
+  0 へと収束しています。</p>
   <figure>
   <img src="img/ema_sync_example.svg" alt="Plot of frequency synchronization of 2 oscillators using EMA filter." style="padding-bottom: 12px;"/>
   </figure>
@@ -796,8 +801,8 @@
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    d2 <span class="op">=</span> d1 <span class="op">-</span> <span class="dv">1</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    phase <span class="op">+=</span> syncRate <span class="op">*</span> <span class="bu">abs</span>(d2 <span class="cf">if</span> <span class="op">-</span>d2 <span class="op">&lt;</span> d1 <span class="cf">else</span> d1) <span class="co"># 変更点</span></span></code></pre></div>
   <p>上の実装で逆走は無くなるのですが、 <code>phase</code> が
-  <code>targetPhase</code> を追い越したときに、 1
-  周だけ余計に位相が回ってしまいます。以下は追い越しによる余計な回転を示した図です。</p>
+  <code>targetPhase</code>
+  が完全に重ならない限りは追い越しが起こります。以下は追い越しによる余計な回転を示した図です。赤い線がスパイク状になっている部分が追い越しです。</p>
   <figure>
   <img src="img/forward_only_ema_sync_naive.svg" alt="Plot that highlights the overrun problem of naive implementation." style="padding-bottom: 12px;"/>
   </figure>
@@ -842,6 +847,14 @@
   of globally coupled nonlinear oscillators: the rich behavior of the
   Kuramoto model.</a>” Ohio Wesleyan Physics Dept., Essay 7, no. 2
   (2005): 20.</li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/09/05
+  <ul>
+  <li>文章の整理と用語の修正。</li>
+  </ul></li>
   </ul>
     <footer>
     <a href="../index.html">インデックスに戻る</a>

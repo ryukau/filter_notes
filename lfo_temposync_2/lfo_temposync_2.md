@@ -73,8 +73,9 @@ def syncKuramoto(targetPhase, followerFrequency, initialPhase, syncRate=0.01):
 実装では位相の範囲を \[0, 1\) に正規化しているので、位相の誤差の範囲は \[-0.5, 0.5\] になります。これは円周 1 の円の上にある 2 つの点の距離は -0.5 から 0.5 の範囲ですべて表せるからです。
 
 ```python
-def calcPhaseError(target, follower):
-    d = follower - target
+def calcPhaseError(targetPhase, followerPhase):
+    """`targetPhase` と `followerPhase` の範囲は [0, 1) 。"""
+    d = followerPhase - targetPhase
     d[d < -0.5] += 1
     d[d > 0.5] -= 1
     return d
@@ -83,8 +84,8 @@ def calcPhaseError(target, follower):
 位相の誤差を微分すると周波数の誤差が得られます。 [`numpy.unwrap`](https://numpy.org/doc/stable/reference/generated/numpy.unwrap.html) で位相の巻き戻しを展開して、 [`numpy.diff`](https://numpy.org/doc/stable/reference/generated/numpy.diff.html) で微分を近似しています。
 
 ```python
-def calcFrequencyError(target, follower):
-    return np.diff(np.unwrap(follower - target, period=1))
+def calcFrequencyError(targetFreq, followerFreq):
+    return np.diff(np.unwrap(followerFreq - targetFreq, period=1))
 ```
 
 平均を計算しやすくするために `calcPhaseError` と `calcFrequencyError` で位相の巻き戻しの扱いを変えています。誤差の平均は [`numpy.average`](https://numpy.org/doc/stable/reference/generated/numpy.average.html) で計算します。
@@ -198,7 +199,7 @@ def syncKuramoto3(targetPhase, initialFrequency, initialPhase, syncRate=0.01, nS
 </figure>
 
 ## EMA フィルタによる同期
-EMA (exponential moving average) フィルタを使って同期します。この手法はターゲット周波数が分かっていないと使えません。以下は同期の大まかな流れを示したブロック線図です。
+[Exponential moving average (EMA) フィルタ](https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.html) を使って同期します。この手法はターゲット周波数がわかっていないと使えません。以下は同期の大まかな流れを示したブロック線図です。
 
 <figure>
 <img src="img/ema_sync_block_diagram.svg" alt="Block diagram of a synchronization using EMA filter." style="padding-bottom: 12px;"/>
@@ -236,7 +237,7 @@ def syncFilter(targetPhase, targetFreq, initialFreq, initialPhase, syncRate=0.01
 ### パラメータ設定
 パラメータは EMA フィルタの係数 $K$ だけです。周波数の同期と位相の同期で異なる $K$ を使うこともできますが、調べた範囲では利点はなさそうでした。音に癖をつけたいときは使えるかもしれません。
 
-以下は蔵本モデルによる周波数の同期を示した図です。フォロワーの位相が逆走している個所があります。位相の誤差と周波数の誤差はどちらも時間とともにほとんど 0 に収束しています。
+以下は EMA フィルタによる周波数の同期を示した図です。周波数が変更されると一時的にフォロワーの位相が逆走しています。位相の誤差と周波数の誤差は時間とともに 0 へと収束しています。
 
 <figure>
 <img src="img/ema_sync_example.svg" alt="Plot of frequency synchronization of 2 oscillators using EMA filter." style="padding-bottom: 12px;"/>
@@ -263,7 +264,7 @@ else:
     phase += syncRate * abs(d2 if -d2 < d1 else d1) # 変更点
 ```
 
-上の実装で逆走は無くなるのですが、 `phase` が `targetPhase` を追い越したときに、 1 周だけ余計に位相が回ってしまいます。以下は追い越しによる余計な回転を示した図です。
+上の実装で逆走は無くなるのですが、 `phase` が `targetPhase` が完全に重ならない限りは追い越しが起こります。以下は追い越しによる余計な回転を示した図です。赤い線がスパイク状になっている部分が追い越しです。
 
 <figure>
 <img src="img/forward_only_ema_sync_naive.svg" alt="Plot that highlights the overrun problem of naive implementation." style="padding-bottom: 12px;"/>
@@ -307,3 +308,7 @@ LFO のテンポシンクではターゲットの周波数と位相のどちら�
 - [Kuramoto model - Wikipedia](https://en.wikipedia.org/wiki/Kuramoto_model)
 - [Exponential Moving Average](https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.html)
 - Daniels, Bryan C. "[Synchronization of globally coupled nonlinear oscillators: the rich behavior of the Kuramoto model.](https://www.researchgate.net/profile/Bryan-Daniels-3/publication/251888882_Synchronization_of_Globally_Coupled_Nonlinear_Oscillators_the_Rich_Behavior_of_the_Kuramoto_Model/links/55e2722b08aecb1a7cc83a5b/Synchronization-of-Globally-Coupled-Nonlinear-Oscillators-the-Rich-Behavior-of-the-Kuramoto-Model.pdf)" Ohio Wesleyan Physics Dept., Essay 7, no. 2 (2005): 20.
+
+## 変更点
+- 2024/09/05
+  - 文章の整理と用語の修正。
