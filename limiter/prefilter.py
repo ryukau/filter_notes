@@ -55,6 +55,41 @@ def getInversedMaxUnderReadFIR(firLength=64):
     return np.roll(fir, len(fir) // 2 - 1)
 
 
+def getInverseMaxUnderReadFtFIR(firLength=64):
+    """
+    `firLength` Should be even.
+
+    Derived by using continuous time inverse Fourier transform (IFT). Group delay is uniform. The amplitude at Nyquist frequency is not 0.
+
+    ```maxima
+    ift(low, high) := integrate(cos(ω/2) * exp(%i * ω * x) / (2 * %pi), ω, low, high);
+    expand(demoivre(ift(-%pi, %pi)));
+    ```
+
+    Variable cutoff below couldn't make the gain at Nyquist frequency to 0:
+
+    ```maxima
+    /* `c` is cutoff in radian in [0, pi). */
+    ift(low, high) := integrate(cos(%pi*ω/(2*c)) * exp(%i * ω * x) / (2 * %pi), ω, low, high);
+    expand(demoivre(ift(-c, c)));
+    ```
+
+    Result:
+
+    ```
+    fir[i] = -((2 * c * np.cos(c * x)) / (4 * c * c * x * x - np.pi * np.pi))
+    ```
+    """
+    length = firLength - (firLength + 1) % 2
+    mid = length // 2
+
+    fir = np.zeros(firLength)
+    for i in range(length):
+        x = i - mid
+        fir[i] = -((2 * np.cos(np.pi * x)) / (4 * np.pi * x * x - np.pi))
+    return fir
+
+
 def getBasicLimiterFIR():
     return signal.firwin(63, 18000, window=("dpss", 8), fs=48000)
 
@@ -98,10 +133,19 @@ def plotMaxUnderReadIdea():
     plt.show()
 
 
-plotMaxUnderReadIdea()
+def plotFIR():
+    fir = getInverseMaxUnderReadFtFIR()
+    plt.plot(fir)
+    plt.grid()
+    plt.show()
+
+
+# plotFIR()
+# plotMaxUnderReadIdea()
 plotResponse(
     [
-        {"name": "MaxUnderRead", "coefficient": getInversedMaxUnderReadFIR()},
         {"name": "BasicLimiter", "coefficient": getBasicLimiterFIR()},
+        {"name": "MaxUnderRead", "coefficient": getInversedMaxUnderReadFIR()},
+        {"name": "MaxUnderRead FT", "coefficient": getInverseMaxUnderReadFtFIR()},
     ]
 )
