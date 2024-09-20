@@ -77,7 +77,7 @@ def reinsch(freqNormalized, initialPhase):
 
 | 反復部                                                                                                     | パラメータ                                                                           | 初期化                                                                                       | 出力                                                                         |
 |------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| $\begin{aligned}s_n &= k (u_n + v_n)\\t_n &= s_n + u_n\\v_{n+1} &= s_n - v_n\\v_{n+1} &= t_n\end{aligned}$ | $\begin{aligned}k &= \cos \omega\\A &= -\tan(\tfrac{1}{2} \omega)\end{aligned}$ | $\begin{aligned}u_{-1} &= A \sin(\phi - \omega)\\v_{-1} &= \cos(\phi - \omega)\end{aligned}$ | $\begin{aligned}u_n &= A \sin(n \omega)\\v_n &= \cos(n \omega)\end{aligned}$ |
+| $\begin{aligned}s_n &= k (u_n + v_n)\\t_n &= s_n + u_n\\u_{n+1} &= s_n - v_n\\v_{n+1} &= t_n\end{aligned}$ | $\begin{aligned}k &= \cos \omega\\A &= -\tan(\tfrac{1}{2} \omega)\end{aligned}$ | $\begin{aligned}u_{-1} &= A \sin(\phi - \omega)\\v_{-1} &= \cos(\phi - \omega)\end{aligned}$ | $\begin{aligned}u_n &= A \sin(n \omega)\\v_n &= \cos(n \omega)\end{aligned}$ |
 
 ```python
 def digitalWaveguide(freqNormalized, initialPhase):
@@ -269,6 +269,8 @@ public:
 - [Digital Sinusoid Generators](https://ccrma.stanford.edu/~jos/pasp/Digital_Sinusoid_Generators.html)
 
 ## 変更点
+- 2024/09/21
+  - Digital Waveguide Oscillator の $u_{n+1}$ 式の左辺が $v_{n+1}$ になっていた誤りを修正。
 - 2024/08/05
   - Digital Waveguide Oscillator の $t_n$ 式の $u_n$ が $v_n$ になっていた誤りを修正。
 - 2024/08/01
