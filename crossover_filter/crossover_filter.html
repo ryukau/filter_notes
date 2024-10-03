@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-08-06" />
+      <meta name="dcterms.date" content="2024-10-03" />
       <title>crossover_filter</title>
 
   <style>
@@ -349,7 +349,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-08-06
+      Update: 2024-10-03
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -951,7 +951,7 @@
   p_k = - 2 \pi \frac{f_c}{f_s} \exp \left( i \frac{\pi (2 k - N + 1)}{2
   N} \right), \quad k \in [0, N/2).
   \]</span></p>
-  <p>さらに数値計算の安定性を高めるために <span
+  <p>さらに計算の途中で内部の値が大きくなりすぎることを防ぐために <span
   class="math inline">\(G\)</span> を以下の式で各セクションのゲイン
   <span class="math inline">\(g\)</span> に分割します。</p>
   <p><span class="math display">\[
@@ -1131,6 +1131,10 @@
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2024/10/03
+  <ul>
+  <li>「数値計算の安定性を高める」という個所を「計算の途中で内部の値が大きくなりすぎることを防ぐ」というより具体的な表現に変更。</li>
+  </ul></li>
   <li>2024/05/17
   <ul>
   <li>「2 つ直列につないだ Butterworth

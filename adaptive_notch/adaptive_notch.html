@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-09-02" />
+      <meta name="dcterms.date" content="2024-10-03" />
       <title>adaptive_notch</title>
 
   <style>
@@ -410,7 +410,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-09-02
+      Update: 2024-10-03
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -429,9 +429,9 @@
         id="toc-am-適応ノッチフィルタ">AM 適応ノッチフィルタ</a>
         <ul>
         <li><a href="#分析-1" id="toc-分析-1">分析</a></li>
-        <li><a href="#次オールパスによる改良"
-        id="toc-次オールパスによる改良">1
-        次オールパスによる改良</a></li>
+        <li><a href="#次オールパスによる適応ノッチフィルタ"
+        id="toc-次オールパスによる適応ノッチフィルタ">1
+        次オールパスによる適応ノッチフィルタ</a></li>
         <li><a href="#異なるノッチフィルタへの適用"
         id="toc-異なるノッチフィルタへの適用">異なるノッチフィルタへの適用</a></li>
         </ul></li>
@@ -677,9 +677,9 @@
   あたりまで下げれば、ターゲット周波数が高くても適応に成功します。また
   <code>y0 * x0</code> ではなく <code>y0 * x1</code>
   にしたほうが収束が速くなることがありました。</p>
-  <h3 id="次オールパスによる改良"><a href="#次オールパスによる改良"
-  class="header-anchor" aria-hidden="true">1
-  次オールパスによる改良</a></h3>
+  <h3 id="次オールパスによる適応ノッチフィルタ"><a
+  href="#次オールパスによる適応ノッチフィルタ" class="header-anchor"
+  aria-hidden="true">1 次オールパスによる適応ノッチフィルタ</a></h3>
   <p>分析によって、ターゲット周波数がノッチのカットオフ周波数のより低いときは
   <span class="math inline">\((-\pi/2, \pi/2)\)</span>
   の位相差、高いときは <span class="math inline">\((\pi/2,
@@ -761,7 +761,7 @@
   href="#異なるノッチフィルタへの適用" class="header-anchor"
   aria-hidden="true">異なるノッチフィルタへの適用</a></h3>
   <p>AM による周波数の適応は <span class="math inline">\(H_N\)</span>
-  とは異なるノッチフィルタとも組み合わせられます。計算量の面からみると利点は薄いですが、
+  とは異なるノッチフィルタとも組み合わせられます。計算量が増えるので使いどころはなさそうですが、
   <a
   href="https://webaudio.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html">RBJ
   biquad</a> のノッチと組み合わせた実装を以下に掲載しています。</p>
@@ -840,6 +840,12 @@
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2024/10/03
+  <ul>
+  <li>「1 次オールパスによる改良」を「1
+  次オールパスによる適応ノッチフィルタ」に変更。</li>
+  <li>文章の整理。</li>
+  </ul></li>
   <li>2024/09/02
   <ul>
   <li>「AM 適応ノッチフィルタ」 -&gt; 「分析」の <span
