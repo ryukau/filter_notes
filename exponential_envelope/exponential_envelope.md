@@ -322,7 +322,8 @@ protected:
 
 テストに使ったコードへのリンクです。
 
-- [filter_notes/test.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/test.cpp)
+- [filter_notes/exponential_envelope/demo/cpp/exponential_envelope.hpp at master · ryukau/filter_notes](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/cpp/exponential_envelope.hpp)
+- [filter_notes/exponential_envelope/demo/cpp/test_exponential_envelope.cpp at master · ryukau/filter_notes](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/cpp/test_exponential_envelope.cpp)
 
 テスト結果です。図の縦軸は振幅、横軸は秒数です。音のサンプルはエンベロープを 100 Hz のサイン波の音量に適用しています。
 
@@ -569,8 +570,8 @@ private:
 
 テストに使ったコードへのリンクです。
 
-- [filter_notes/P_exponential_envelope.hpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/P_exponential_envelope.hpp)
-- [filter_notes/test_P_exponential_envelope.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/test_P_exponential_envelope.cpp)
+- [filter_notes/exponential_envelope/demo/cpp/P_exponential_envelope.hpp at master · ryukau/filter_notes](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/cpp/P_exponential_envelope.hpp)
+- [filter_notes/exponential_envelope/demo/cpp/test_P_exponential_envelope.cpp at master · ryukau/filter_notes](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/cpp/test_P_exponential_envelope.cpp)
 
 テスト結果です。
 
@@ -763,7 +764,7 @@ $$
 ### C++ による実装
 C++ で実装します。以下は完全な実装とテストコードへのリンクです。
 
-- [filter_notes/exponential_envelope/demo/cpp/expAD.cpp at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/cpp/expAD.cpp)
+- [filter_notes/exponential_envelope/demo/cpp/expAD.cpp at master · ryukau/filter_notes](https://github.com/ryukau/filter_notes/blob/master/exponential_envelope/demo/cpp/expAD.cpp)
 
 Lambert W function は [Darko Veberic さんによる実装](https://github.com/DarkoVeberic/LambertW)を使っています。 [Boost::math](https://www.boost.org/doc/libs/develop/libs/math/doc/html/math_toolkit/lambert_w.html) にも実装があります。
 
@@ -850,6 +851,8 @@ public:
 ```
 
 ## 変更点
+- 2024/10/12
+  - リンクの修正。
 - 2024/09/02
   - 「減衰する指数曲線とその反転の乗算」のタイトルを「AD エンベロープ」に変更。
     - 「$t_p$ を直接指定する形」を追加。
