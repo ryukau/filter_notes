@@ -637,7 +637,7 @@ $$
 <img src="img/ExpAD_pow.svg" alt="Plot of exponential AD envelope using `pow` formula." style="padding-bottom: 12px;"/>
 </figure>
 
-実装を「[C++ による実装](#c-による実装)」に掲載しています。
+実装を「[C++ による実装](#c-による実装)」に掲載しています。 `resetPow` に対応します。
 
 ### `exp` を使う形
 この計算方法は [EnvelopedSine](https://ryukau.github.io/VSTPlugins/manual/EnvelopedSine/EnvelopedSine_ja.html) で使っています。 `exp` 、 `log` 、 `log1p` だけで実装できるので、 `pow` を使う形よりも手軽です。
@@ -693,7 +693,7 @@ $$
 <img src="img/ExpAD_exp.svg" alt="Plot of exponential AD envelope using `exp` formula." style="padding-bottom: 12px;"/>
 </figure>
 
-実装を「[C++ による実装](#c-による実装)」に掲載しています。
+実装を「[C++ による実装](#c-による実装)」に掲載しています。 `resetExp` に対応します。
 
 ### ピーク時間を直接指定する形
 エンベロープのピーク時間 $t_p$ を直接指定できるように設計します。この形はパラメータの意味が大きく変わります。
@@ -731,11 +731,16 @@ $$
 -\frac{1}{e} \leq d t_p e^{d t_p} < 0.
 $$
 
+$d t_p e^{d t_p}$ は、 $d t_p \to -\infty$ のとき $0$ 、 $d t_p \to -1$ のとき $-\dfrac{1}{e}$ 、となるので以下のように変形できます。
+
+$$
+-1 \geq d t_p > -\infty.
+$$
+
 式 $\ref{exp_d}$ を $d$ に代入して $D$ について解きます。
 
 $$
 \begin{aligned}
--1 & \geq d t_p > -\infty, \\
 -1 & \geq \dfrac{\log(\epsilon)}{D} t_p > -\infty, \\
 -D & \geq \log(\epsilon) t_p > -\infty.
 \end{aligned}
@@ -759,7 +764,7 @@ $$
 <img src="img/ExpAD_peak.svg" alt="Plot of exponential AD envelope using `exp` formula." style="padding-bottom: 12px;"/>
 </figure>
 
-実装を「[C++ による実装](#c-による実装)」に掲載しています。
+実装を「[C++ による実装](#c-による実装)」に掲載しています。 `resetPeak` に対応します。
 
 ### C++ による実装
 C++ で実装します。以下は完全な実装とテストコードへのリンクです。
@@ -853,6 +858,7 @@ public:
 ## 変更点
 - 2024/10/12
   - リンクの修正。
+  - 「ピーク時間を直接指定する形」の式変形の詳細を追加。
 - 2024/09/02
   - 「減衰する指数曲線とその反転の乗算」のタイトルを「AD エンベロープ」に変更。
     - 「$t_p$ を直接指定する形」を追加。

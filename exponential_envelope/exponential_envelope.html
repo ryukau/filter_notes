@@ -1129,7 +1129,8 @@
   <img src="img/ExpAD_pow.svg" alt="Plot of exponential AD envelope using `pow` formula." style="padding-bottom: 12px;"/>
   </figure>
   <p>実装を「<a href="#c-による実装">C++
-  による実装</a>」に掲載しています。</p>
+  による実装</a>」に掲載しています。 <code>resetPow</code>
+  に対応します。</p>
   <h3 id="exp-を使う形"><a href="#exp-を使う形" class="header-anchor"
   aria-hidden="true"><code>exp</code> を使う形</a></h3>
   <p>この計算方法は <a
@@ -1190,7 +1191,8 @@
   <img src="img/ExpAD_exp.svg" alt="Plot of exponential AD envelope using `exp` formula." style="padding-bottom: 12px;"/>
   </figure>
   <p>実装を「<a href="#c-による実装">C++
-  による実装</a>」に掲載しています。</p>
+  による実装</a>」に掲載しています。 <code>resetExp</code>
+  に対応します。</p>
   <h3 id="ピーク時間を直接指定する形"><a
   href="#ピーク時間を直接指定する形" class="header-anchor"
   aria-hidden="true">ピーク時間を直接指定する形</a></h3>
@@ -1228,12 +1230,20 @@
   <p><span class="math display">\[
   -\frac{1}{e} \leq d t_p e^{d t_p} &lt; 0.
   \]</span></p>
+  <p><span class="math inline">\(d t_p e^{d t_p}\)</span> は、 <span
+  class="math inline">\(d t_p \to -\infty\)</span> のとき <span
+  class="math inline">\(0\)</span> 、 <span class="math inline">\(d t_p
+  \to -1\)</span> のとき <span
+  class="math inline">\(-\dfrac{1}{e}\)</span>
+  、となるので以下のように変形できます。</p>
+  <p><span class="math display">\[
+  -1 \geq d t_p &gt; -\infty.
+  \]</span></p>
   <p>式 <span class="math inline">\(\ref{exp_d}\)</span> を <span
   class="math inline">\(d\)</span> に代入して <span
   class="math inline">\(D\)</span> について解きます。</p>
   <p><span class="math display">\[
   \begin{aligned}
-  -1 &amp; \geq d t_p &gt; -\infty, \\
   -1 &amp; \geq \dfrac{\log(\epsilon)}{D} t_p &gt; -\infty, \\
   -D &amp; \geq \log(\epsilon) t_p &gt; -\infty.
   \end{aligned}
@@ -1262,7 +1272,8 @@
   <img src="img/ExpAD_peak.svg" alt="Plot of exponential AD envelope using `exp` formula." style="padding-bottom: 12px;"/>
   </figure>
   <p>実装を「<a href="#c-による実装">C++
-  による実装</a>」に掲載しています。</p>
+  による実装</a>」に掲載しています。 <code>resetPeak</code>
+  に対応します。</p>
   <h3 id="c-による実装"><a href="#c-による実装" class="header-anchor"
   aria-hidden="true">C++ による実装</a></h3>
   <p>C++
@@ -1363,6 +1374,7 @@
   <li>2024/10/12
   <ul>
   <li>リンクの修正。</li>
+  <li>「ピーク時間を直接指定する形」の式変形の詳細を追加。</li>
   </ul></li>
   <li>2024/09/02
   <ul>
