@@ -119,7 +119,7 @@ def adaptiveNotchAM(x, rho=0.99, mu=1, initialGuess=0.5):
 ### 分析
 サイン波が AM 適応ノッチフィルタに入力されたときの挙動について分析します。
 
-式をたてます。 $x$ と $y$ は $\sin$ でもいいのですが、符号をそろえて楽をするために $\cos$ を使っています。
+式をたてます。
 
 $$
 \begin{aligned}
@@ -134,6 +134,8 @@ a(t) &= -2 \cos(\omega_a(t)) = a(t - \delta_t) - 2 \mu s(t),\\
 \omega_a &\in [0, \pi).
 \end{aligned}
 $$
+
+$x$ と $y$ は $\sin$ でもいいのですが、符号をそろえて楽をするために $\cos$ を使っています。 AM の式は三角関数の [product-to-sum identity](https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Product-to-sum_identities) を使っています。
 
 $\phi$ は周波数 $\omega$ でのノッチフィルタの出力の位相特性、 $A$ は周波数 $\omega$ でのノッチフィルタのゲインです。
 
@@ -153,7 +155,7 @@ $$
 - 適応が完了したとき、ノッチによってサイン波が消えるので `y0 = 0` となり、 `y0 * x0` も 0 。
 - 適応が完了していないとき：
   - カットオフ周波数の前後で $y$ の位相が $\pi$ 変わる。
-  - $s$ は式に含まれる $- \cos(-\phi)$ より、
+  - $s$ は式に含まれる $\cos(-\phi)$ より、
     - 位相のずれが 0 なら常に正の値になる。 $s \geq 0$ 。
     - 位相のずれが $\pi$ なら常に負の値になる。 $s \leq 0$ 。
     - 位相のずれが $0 > \phi > -\pi/2$ あるいは $-3\pi/2 > \phi > -2\pi$ の範囲なら、正の値の直流が乗る。 $\langle s \rangle > 0$ 。
@@ -268,6 +270,8 @@ a = np.clip(a - mu * w1, -2, 2)
 - [Complex Resonator](https://ccrma.stanford.edu/~jos/filters/Complex_Resonator.html)
 
 ## 変更点
+- 2024/10/18
+  - 「$s$ は式に含まれる $- \cos(-\phi)$ より」を「$s$ は式に含まれる $\cos(-\phi)$ より」に修正。
 - 2024/10/03
   - 「1 次オールパスによる改良」を「1 次オールパスによる適応ノッチフィルタ」に変更。
   - 文章の整理。

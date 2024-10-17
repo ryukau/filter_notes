@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-10-03" />
+      <meta name="dcterms.date" content="2024-10-18" />
       <title>adaptive_notch</title>
 
   <style>
@@ -410,7 +410,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-10-03
+      Update: 2024-10-18
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -602,11 +602,7 @@
   aria-hidden="true">分析</a></h3>
   <p>サイン波が AM
   適応ノッチフィルタに入力されたときの挙動について分析します。</p>
-  <p>式をたてます。 <span class="math inline">\(x\)</span> と <span
-  class="math inline">\(y\)</span> は <span
-  class="math inline">\(\sin\)</span>
-  でもいいのですが、符号をそろえて楽をするために <span
-  class="math inline">\(\cos\)</span> を使っています。</p>
+  <p>式をたてます。</p>
   <p><span class="math display">\[
   \begin{aligned}
   x(t) &amp;= \cos(\omega t). &amp;&amp; \text{Input.} \\
@@ -620,6 +616,14 @@
   \omega_a &amp;\in [0, \pi).
   \end{aligned}
   \]</span></p>
+  <p><span class="math inline">\(x\)</span> と <span
+  class="math inline">\(y\)</span> は <span
+  class="math inline">\(\sin\)</span>
+  でもいいのですが、符号をそろえて楽をするために <span
+  class="math inline">\(\cos\)</span> を使っています。 AM
+  の式は三角関数の <a
+  href="https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Product-to-sum_identities">product-to-sum
+  identity</a> を使っています。</p>
   <p><span class="math inline">\(\phi\)</span> は周波数 <span
   class="math inline">\(\omega\)</span>
   でのノッチフィルタの出力の位相特性、 <span
@@ -646,7 +650,7 @@
   <li>カットオフ周波数の前後で <span class="math inline">\(y\)</span>
   の位相が <span class="math inline">\(\pi\)</span> 変わる。</li>
   <li><span class="math inline">\(s\)</span> は式に含まれる <span
-  class="math inline">\(- \cos(-\phi)\)</span> より、
+  class="math inline">\(\cos(-\phi)\)</span> より、
   <ul>
   <li>位相のずれが 0 なら常に正の値になる。 <span
   class="math inline">\(s \geq 0\)</span> 。</li>
@@ -840,6 +844,13 @@
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2024/10/18
+  <ul>
+  <li>「<span class="math inline">\(s\)</span> は式に含まれる <span
+  class="math inline">\(- \cos(-\phi)\)</span> より」を「<span
+  class="math inline">\(s\)</span> は式に含まれる <span
+  class="math inline">\(\cos(-\phi)\)</span> より」に修正。</li>
+  </ul></li>
   <li>2024/10/03
   <ul>
   <li>「1 次オールパスによる改良」を「1
