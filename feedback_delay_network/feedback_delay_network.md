@@ -81,7 +81,7 @@ $$
 \mathbf{A} \mathbf{A}^\mathrm{T} = \mathbf{I}
 $$
 
-$\mathbf{A}^\mathrm{T}$ は $\mathbf{A}$ の転置、 $\mathbf{I}$ は単位行列です。この計算はフィードバック行列の安定性の判定に使えます。ただし、直行行列でなくても安定なフィードバック行列とディレイの組は存在します。
+$\mathbf{A}^\mathrm{T}$ は $\mathbf{A}$ の転置、 $\mathbf{I}$ は単位行列です。この計算はフィードバック行列の安定性の判定に使えます。ただし、直交行列でなくても安定なフィードバック行列とディレイの組は存在します。
 
 [`scipy.stats.ortho_group.rvs()`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ortho_group.html) に直交行列をランダマイズする Python 3 の実装があります。ドキュメンテーションでは Mezzadri による ["How to generate random matrices from the classical compact groups"](https://arxiv.org/abs/math-ph/0609050v2) が参考文献としてあげられています。
 
@@ -184,7 +184,7 @@ $$
 
 $\mathbf{I}$ は単位行列、 $\mathbf{v}$ は少なくとも 1 つの要素が 0 でない列ベクトルです。
 
-Householder 行列の特徴は、 $n$ 個の乱数から直行行列を組み立てられることと、対称行列 ($\mathbf{P} = \mathbf{P}^\mathrm{T}$) となることです。先に紹介した `scipy.stats.ortho_group.rvs()` と `scipy.stats.special_ortho_group.rvs()` では $n$ についての[三角数](https://en.wikipedia.org/wiki/Triangular_number)、つまり $n(n+1)/2$ 個の乱数が要りますが、対称行列になるとは限りません。
+Householder 行列の特徴は、 $n$ 個の乱数から直交行列を組み立てられることと、対称行列 ($\mathbf{P} = \mathbf{P}^\mathrm{T}$) となることです。先に紹介した `scipy.stats.ortho_group.rvs()` と `scipy.stats.special_ortho_group.rvs()` では $n$ についての[三角数](https://en.wikipedia.org/wiki/Triangular_number)、つまり $n(n+1)/2$ 個の乱数が要りますが、対称行列になるとは限りません。
 
 以下は実装です。
 
@@ -504,7 +504,7 @@ $$
 
 この計算は $\begin{bmatrix}1 & 1 \\ 1 & -1 \end{bmatrix}$ の[クロネッカー積](https://en.wikipedia.org/wiki/Kronecker_product)を繰り返すと説明されていることもあります。
 
-タイリングは回転させても直行行列になります。ただし、アダマール行列ではなくなります。
+タイリングは回転させても直交行列になります。ただし、アダマール行列ではなくなります。
 
 $$
 \overset{\tiny \triangle}{\mathbf{{H}}}_{n^2} = \begin{bmatrix}
@@ -525,6 +525,10 @@ $$
 $$
 
 以下は C++ の実装です。初期値に 1 を使うとゲインが `dim` 倍になるので、代わりに `1 / sqrt(dim)` を使っています。
+
+`static_assert` の条件は `dim == 2^n` であることをチェックしています。以下の Stack Overflow の回答を参考にしました。
+
+- [c++ - How do I check if a template parameter is a power of two? - Stack Overflow](https://stackoverflow.com/questions/10585450/how-do-i-check-if-a-template-parameter-is-a-power-of-two/19399478#19399478)
 
 ```c++
 template<size_t dim>
@@ -679,10 +683,6 @@ $$
 ##### C++ のコード
 今回は conference 行列に使える大きさを判定する手間を省くために OEIS の [数列 A000952](https://oeis.org/A000952) を conference 行列の候補として、そのまま使うことにしました。 `candidate` に格納しています。
 
-`static_assert` の条件は `dim == 2^n` であることをチェックしています。以下の Stack Overflow の回答を参考にしました。
-
-- [c++ - How do I check if a template parameter is a power of two? - Stack Overflow](https://stackoverflow.com/questions/10585450/how-do-i-check-if-a-template-parameter-is-a-power-of-two/19399478#19399478)
-
 ```c++
 template<size_t dim>
 void constructConference(std::array<std::array<Sample, dim>, dim> &mat)
@@ -799,8 +799,11 @@ http://ccrma.stanford.edu/~jos/pasp/, online book,
 - [A000952 - OEIS](https://oeis.org/A000952)
 
 ## 変更点
+- 2024/10/25
+  - 「直行行列」を「直交行列」に修正。
+  - `dim == 2^n` をチェックする `static_assert` について、アダマール行列ではなく conference 行列の節に記述していた取り違いを修正。
 - 2024/08/04
-  - 「単位行列に近いランダムな特殊直交行列の生成」の誤っていた個所を削除。直行行列と別の行列を乗算して、別の新しい直行行列を得ようとしていたが、以前に記述していた方針は誤り。
+  - 「単位行列に近いランダムな特殊直交行列の生成」の誤っていた個所を削除。直交行列と別の行列を乗算して、別の新しい直交行列を得ようとしていたが、以前に記述していた方針は誤り。
 - 2024/06/25
   - 実装の節の `std::array` の大きさが指定した値よりも短くなることについて、原因がはっきりしないので記述を変更。
 - 2024/04/19

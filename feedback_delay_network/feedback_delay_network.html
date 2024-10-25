@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-08-06" />
+      <meta name="dcterms.date" content="2024-10-25" />
       <title>feedback_delay_network</title>
 
   <style>
@@ -410,7 +410,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-08-06
+      Update: 2024-10-25
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -615,7 +615,7 @@
   <p><span class="math inline">\(\mathbf{A}^\mathrm{T}\)</span> は <span
   class="math inline">\(\mathbf{A}\)</span> の転置、 <span
   class="math inline">\(\mathbf{I}\)</span>
-  は単位行列です。この計算はフィードバック行列の安定性の判定に使えます。ただし、直行行列でなくても安定なフィードバック行列とディレイの組は存在します。</p>
+  は単位行列です。この計算はフィードバック行列の安定性の判定に使えます。ただし、直交行列でなくても安定なフィードバック行列とディレイの組は存在します。</p>
   <p><a
   href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ortho_group.html"><code>scipy.stats.ortho_group.rvs()</code></a>
   に直交行列をランダマイズする Python 3
@@ -737,7 +737,7 @@
   class="math inline">\(\mathbf{v}\)</span> は少なくとも 1 つの要素が 0
   でない列ベクトルです。</p>
   <p>Householder 行列の特徴は、 <span class="math inline">\(n\)</span>
-  個の乱数から直行行列を組み立てられることと、対称行列 (<span
+  個の乱数から直交行列を組み立てられることと、対称行列 (<span
   class="math inline">\(\mathbf{P} = \mathbf{P}^\mathrm{T}\)</span>)
   となることです。先に紹介した
   <code>scipy.stats.ortho_group.rvs()</code> と
@@ -1076,7 +1076,7 @@
   <p>この計算は <span class="math inline">\(\begin{bmatrix}1 &amp; 1 \\
   1 &amp; -1 \end{bmatrix}\)</span> の<a
   href="https://en.wikipedia.org/wiki/Kronecker_product">クロネッカー積</a>を繰り返すと説明されていることもあります。</p>
-  <p>タイリングは回転させても直行行列になります。ただし、アダマール行列ではなくなります。</p>
+  <p>タイリングは回転させても直交行列になります。ただし、アダマール行列ではなくなります。</p>
   <p><span class="math display">\[
   \overset{\tiny \triangle}{\mathbf{{H}}}_{n^2} = \begin{bmatrix}
   \overset{\tiny \triangle}{\mathbf{{H}}}_{n} &amp; \overset{\tiny
@@ -1102,6 +1102,15 @@
   \]</span></p>
   <p>以下は C++ の実装です。初期値に 1 を使うとゲインが <code>dim</code>
   倍になるので、代わりに <code>1 / sqrt(dim)</code> を使っています。</p>
+  <p><code>static_assert</code> の条件は <code>dim == 2^n</code>
+  であることをチェックしています。以下の Stack Overflow
+  の回答を参考にしました。</p>
+  <ul>
+  <li><a
+  href="https://stackoverflow.com/questions/10585450/how-do-i-check-if-a-template-parameter-is-a-power-of-two/19399478#19399478">c++
+  - How do I check if a template parameter is a power of two? - Stack
+  Overflow</a></li>
+  </ul>
   <div class="sourceCode" id="cb9"><pre
   class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> constructHadamardSylvester<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
@@ -1273,15 +1282,6 @@
   の <a href="https://oeis.org/A000952">数列 A000952</a> を conference
   行列の候補として、そのまま使うことにしました。 <code>candidate</code>
   に格納しています。</p>
-  <p><code>static_assert</code> の条件は <code>dim == 2^n</code>
-  であることをチェックしています。以下の Stack Overflow
-  の回答を参考にしました。</p>
-  <ul>
-  <li><a
-  href="https://stackoverflow.com/questions/10585450/how-do-i-check-if-a-template-parameter-is-a-power-of-two/19399478#19399478">c++
-  - How do I check if a template parameter is a power of two? - Stack
-  Overflow</a></li>
-  </ul>
   <div class="sourceCode" id="cb12"><pre
   class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> constructConference<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
@@ -1467,9 +1467,16 @@
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2024/10/25
+  <ul>
+  <li>「直行行列」を「直交行列」に修正。</li>
+  <li><code>dim == 2^n</code> をチェックする <code>static_assert</code>
+  について、アダマール行列ではなく conference
+  行列の節に記述していた取り違いを修正。</li>
+  </ul></li>
   <li>2024/08/04
   <ul>
-  <li>「単位行列に近いランダムな特殊直交行列の生成」の誤っていた個所を削除。直行行列と別の行列を乗算して、別の新しい直行行列を得ようとしていたが、以前に記述していた方針は誤り。</li>
+  <li>「単位行列に近いランダムな特殊直交行列の生成」の誤っていた個所を削除。直交行列と別の行列を乗算して、別の新しい直交行列を得ようとしていたが、以前に記述していた方針は誤り。</li>
   </ul></li>
   <li>2024/06/25
   <ul>
