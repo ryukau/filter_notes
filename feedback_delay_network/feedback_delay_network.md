@@ -126,7 +126,13 @@ void randomOrthogonal(unsigned seed, std::array<std::array<Sample, dim>, dim> &H
 ```
 
 #### 特殊直交行列
-以下の実装は [`scipy.stats.special_ortho_group.rvs()`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.special_ortho_group.html) を C++ に翻訳したものです。
+行列 $\mathbf{A}$ が特殊直交行列のとき以下の性質があります。 $\mathrm{det}$ は行列式 ([determinant](https://en.wikipedia.org/wiki/Determinant)) の計算です。
+
+$$
+\mathbf{A} \mathbf{A}^\mathrm{T} = \mathbf{I}, \quad \mathrm{det}(\mathbf{A}) = 1.
+$$
+
+以下の実装は [`scipy.stats.special_ortho_group.rvs()`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.special_ortho_group.html) をおおむね C++ に翻訳したものです。
 
 ```c++
 template<size_t dim>
@@ -141,7 +147,7 @@ void randomSpecialOrthogonal(unsigned seed, std::array<std::array<Sample, dim>, 
 
   std::array<Sample, dim> x;
   std::array<Sample, dim> D;
-  for (size_t n = 0; n < dim; ++n) {
+  for (size_t n = 0; n < dim - 1; ++n) {
     auto xRange = dim - n;
     for (size_t i = 0; i < xRange; ++i) x[i] = dist(rng);
 
@@ -158,8 +164,8 @@ void randomSpecialOrthogonal(unsigned seed, std::array<std::array<Sample, dim>, 
 
     for (size_t row = 0; row < dim; ++row) {
       Sample dotH = 0;
-      for (size_t col = 0; col < xRange; ++col) dotH += H[col][row] * x[col];
-      for (size_t col = 0; col < xRange; ++col) H[col][row] -= dotH * x[col];
+      for (size_t col = 0; col < xRange; ++col) dotH += H[col][row] * x[col]; // ★
+      for (size_t col = 0; col < xRange; ++col) H[col][row] -= dotH * x[col]; // ★
     }
   }
 
@@ -171,6 +177,13 @@ void randomSpecialOrthogonal(unsigned seed, std::array<std::array<Sample, dim>, 
     for (size_t col = 0; col < dim; ++col) H[col][row] *= D[row];
   }
 }
+```
+
+`scipy.stats.special_ortho_group.rvs()` と行列を一致させるときは、以下のように ★ の部分の `H[col]` を `H[n + col]` に置換します。
+
+```c++
+for (size_t col = 0; col < xRange; ++col) dotH += H[n + col][row] * x[col]; // ★
+for (size_t col = 0; col < xRange; ++col) H[n + col][row] -= dotH * x[col]; // ★
 ```
 
 #### Householder 行列
@@ -799,6 +812,8 @@ http://ccrma.stanford.edu/~jos/pasp/, online book,
 - [A000952 - OEIS](https://oeis.org/A000952)
 
 ## 変更点
+- 2024/11/29
+  - 特殊直行行列の実装のバグを修正。以前の実装では determinant が 1 ではなく -1 になっていた。
 - 2024/10/25
   - 「直行行列」を「直交行列」に修正。
   - `dim == 2^n` をチェックする `static_assert` について、アダマール行列ではなく conference 行列の節に記述していた取り違いを修正。

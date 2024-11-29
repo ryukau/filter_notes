@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2024-10-25" />
+      <meta name="dcterms.date" content="2024-11-29" />
       <title>feedback_delay_network</title>
 
   <style>
@@ -410,7 +410,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2024-10-25
+      Update: 2024-11-29
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -674,9 +674,18 @@
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
   <h4 id="特殊直交行列"><a href="#特殊直交行列" class="header-anchor"
   aria-hidden="true">特殊直交行列</a></h4>
+  <p>行列 <span class="math inline">\(\mathbf{A}\)</span>
+  が特殊直交行列のとき以下の性質があります。 <span
+  class="math inline">\(\mathrm{det}\)</span> は行列式 (<a
+  href="https://en.wikipedia.org/wiki/Determinant">determinant</a>)
+  の計算です。</p>
+  <p><span class="math display">\[
+  \mathbf{A} \mathbf{A}^\mathrm{T} = \mathbf{I}, \quad
+  \mathrm{det}(\mathbf{A}) = 1.
+  \]</span></p>
   <p>以下の実装は <a
   href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.special_ortho_group.html"><code>scipy.stats.special_ortho_group.rvs()</code></a>
-  を C++ に翻訳したものです。</p>
+  をおおむね C++ に翻訳したものです。</p>
   <div class="sourceCode" id="cb3"><pre
   class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomSpecialOrthogonal<span class="op">(</span><span class="dt">unsigned</span> seed<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>H<span class="op">)</span></span>
@@ -690,7 +699,7 @@
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;</span> x<span class="op">;</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;</span> D<span class="op">;</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> n <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> n <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> n <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> n <span class="op">&lt;</span> dim <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> <span class="op">++</span>n<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> xRange <span class="op">=</span> dim <span class="op">-</span> n<span class="op">;</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
@@ -707,8 +716,8 @@
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>      Sample dotH <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> dotH <span class="op">+=</span> H<span class="op">[</span>col<span class="op">][</span>row<span class="op">]</span> <span class="op">*</span> x<span class="op">[</span>col<span class="op">];</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> H<span class="op">[</span>col<span class="op">][</span>row<span class="op">]</span> <span class="op">-=</span> dotH <span class="op">*</span> x<span class="op">[</span>col<span class="op">];</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> dotH <span class="op">+=</span> H<span class="op">[</span>col<span class="op">][</span>row<span class="op">]</span> <span class="op">*</span> x<span class="op">[</span>col<span class="op">];</span> <span class="co">// ★</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> H<span class="op">[</span>col<span class="op">][</span>row<span class="op">]</span> <span class="op">-=</span> dotH <span class="op">*</span> x<span class="op">[</span>col<span class="op">];</span> <span class="co">// ★</span></span>
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
@@ -720,6 +729,12 @@
 <span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> H<span class="op">[</span>col<span class="op">][</span>row<span class="op">]</span> <span class="op">*=</span> D<span class="op">[</span>row<span class="op">];</span></span>
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <p><code>scipy.stats.special_ortho_group.rvs()</code>
+  と行列を一致させるときは、以下のように ★ の部分の <code>H[col]</code>
+  を <code>H[n + col]</code> に置換します。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> dotH <span class="op">+=</span> H<span class="op">[</span>n <span class="op">+</span> col<span class="op">][</span>row<span class="op">]</span> <span class="op">*</span> x<span class="op">[</span>col<span class="op">];</span> <span class="co">// ★</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> H<span class="op">[</span>n <span class="op">+</span> col<span class="op">][</span>row<span class="op">]</span> <span class="op">-=</span> dotH <span class="op">*</span> x<span class="op">[</span>col<span class="op">];</span> <span class="co">// ★</span></span></code></pre></div>
   <h4 id="householder-行列"><a href="#householder-行列"
   class="header-anchor" aria-hidden="true">Householder 行列</a></h4>
   <p>“<a
@@ -747,44 +762,44 @@
   <span class="math inline">\(n(n+1)/2\)</span>
   個の乱数が要りますが、対称行列になるとは限りません。</p>
   <p>以下は実装です。</p>
-  <div class="sourceCode" id="cb4"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomHouseholder<span class="op">(</span><span class="dt">unsigned</span> seed<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>matrix<span class="op">)</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)};</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;</span> vec<span class="op">{};</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> vec<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  Sample denom <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> denom <span class="op">+=</span> vec<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> vec<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Return identity matrix if `vec` is all 0.</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>denom <span class="op">&lt;=</span> <span class="bu">std::</span>numeric_limits<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>epsilon<span class="op">())</span> <span class="op">{</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>j<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        matrix<span class="op">[</span>i<span class="op">][</span>j<span class="op">]</span> <span class="op">=</span> i <span class="op">==</span> j <span class="op">?</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">:</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span><span class="op">;</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> scale <span class="op">=</span> Sample<span class="op">(-</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> denom<span class="op">;</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Diagonal elements.</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    matrix<span class="op">[</span>i<span class="op">][</span>i<span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> scale <span class="op">*</span> vec<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> vec<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Non-diagonal elements.</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> j <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span><span class="op">;</span> j <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>j<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>      <span class="kw">auto</span> value <span class="op">=</span> scale <span class="op">*</span> vec<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> vec<span class="op">[</span>j<span class="op">];</span></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>      matrix<span class="op">[</span>i<span class="op">][</span>j<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>      matrix<span class="op">[</span>j<span class="op">][</span>i<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomHouseholder<span class="op">(</span><span class="dt">unsigned</span> seed<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>matrix<span class="op">)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)};</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;</span> vec<span class="op">{};</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> vec<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  Sample denom <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> denom <span class="op">+=</span> vec<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> vec<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Return identity matrix if `vec` is all 0.</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>denom <span class="op">&lt;=</span> <span class="bu">std::</span>numeric_limits<span class="op">&lt;</span>Sample<span class="op">&gt;::</span>epsilon<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>j<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        matrix<span class="op">[</span>i<span class="op">][</span>j<span class="op">]</span> <span class="op">=</span> i <span class="op">==</span> j <span class="op">?</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">:</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> scale <span class="op">=</span> Sample<span class="op">(-</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> denom<span class="op">;</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Diagonal elements.</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    matrix<span class="op">[</span>i<span class="op">][</span>i<span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">+</span> scale <span class="op">*</span> vec<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> vec<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Non-diagonal elements.</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> j <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span><span class="op">;</span> j <span class="op">&lt;</span> dim<span class="op">;</span> <span class="op">++</span>j<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>      <span class="kw">auto</span> value <span class="op">=</span> scale <span class="op">*</span> vec<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> vec<span class="op">[</span>j<span class="op">];</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>      matrix<span class="op">[</span>i<span class="op">][</span>j<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>      matrix<span class="op">[</span>j<span class="op">][</span>i<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
   <h4 id="巡回行列"><a href="#巡回行列" class="header-anchor"
   aria-hidden="true">巡回行列</a></h4>
   <p>以下は “Circulant and elliptic feedback delay networks for
@@ -826,44 +841,44 @@
   1 のときは対角行列を 1 列だけ右にシフトした行列、 <code>dim</code>
   以上のときは密な行列 (dense matrix)
   になります。右シフトがないとコムフィルタになるのでショートディレイが目立つ金属的な音になります。</p>
-  <div class="sourceCode" id="cb5"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomCirculantOrthogonal<span class="op">(</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">unsigned</span> seed<span class="op">,</span> <span class="dt">size_t</span> band<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)};</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> left <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>band <span class="op">&gt;=</span> length<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    band <span class="op">=</span> length<span class="op">;</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    left <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> length<span class="op">&gt;</span> source<span class="op">{};</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  Sample sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">do</span> <span class="op">{</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> left<span class="op">;</span> i <span class="op">&lt;</span> band<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>      source<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>      sum <span class="op">+=</span> source<span class="op">[</span>i<span class="op">];</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">while</span> <span class="op">(</span>sum <span class="op">==</span> <span class="dv">0</span><span class="op">);</span> <span class="co">// Avoid 0 division.</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  Sample scale <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> sum<span class="op">;</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> length<span class="op">&gt;</span> squared<span class="op">;</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> squared<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="bu">std::</span>sqrt<span class="op">(</span>source<span class="op">[</span>i<span class="op">]);</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>      mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> row <span class="op">==</span> col <span class="op">?</span> scale <span class="op">*</span> source<span class="op">[</span>row<span class="op">]</span> <span class="op">-</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>                                  <span class="op">:</span> scale <span class="op">*</span> squared<span class="op">[</span>row<span class="op">]</span> <span class="op">*</span> squared<span class="op">[</span>col<span class="op">];</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomCirculantOrthogonal<span class="op">(</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">unsigned</span> seed<span class="op">,</span> <span class="dt">size_t</span> band<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>Sample<span class="op">(</span><span class="dv">0</span><span class="op">),</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)};</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> left <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>band <span class="op">&gt;=</span> length<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    band <span class="op">=</span> length<span class="op">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    left <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> length<span class="op">&gt;</span> source<span class="op">{};</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  Sample sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">do</span> <span class="op">{</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> left<span class="op">;</span> i <span class="op">&lt;</span> band<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>      source<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>      sum <span class="op">+=</span> source<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">while</span> <span class="op">(</span>sum <span class="op">==</span> <span class="dv">0</span><span class="op">);</span> <span class="co">// Avoid 0 division.</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  Sample scale <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> sum<span class="op">;</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> length<span class="op">&gt;</span> squared<span class="op">;</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> squared<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="bu">std::</span>sqrt<span class="op">(</span>source<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>      mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> row <span class="op">==</span> col <span class="op">?</span> scale <span class="op">*</span> source<span class="op">[</span>row<span class="op">]</span> <span class="op">-</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>                                  <span class="op">:</span> scale <span class="op">*</span> squared<span class="op">[</span>row<span class="op">]</span> <span class="op">*</span> squared<span class="op">[</span>col<span class="op">];</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
   <h4 id="三角行列"><a href="#三角行列" class="header-anchor"
   aria-hidden="true">三角行列</a></h4>
   <p>フィードバック行列が三角行列のとき、すべての対角要素の絶対値が 1
@@ -910,29 +925,29 @@
   でランダマイズの範囲を変更できます。範囲は <code>[0, 1]</code> と
   <code>[-1, 0]</code> なら発散しなかったのですが、 <code>[-1, 1]</code>
   にすると発散しました。</p>
-  <div class="sourceCode" id="cb6"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomUpperTriangular<span class="op">(</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">unsigned</span> seed<span class="op">,</span> Sample low<span class="op">,</span> Sample high<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>low <span class="op">&gt;</span> high<span class="op">)</span> <span class="bu">std::</span>swap<span class="op">(</span>low<span class="op">,</span> high<span class="op">);</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>low<span class="op">,</span> high<span class="op">};</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">.</span>fill<span class="op">({});</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> row<span class="op">;</span> col <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    Sample sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> col <span class="op">+</span> <span class="dv">1</span><span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> sum <span class="op">+=</span> mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">];</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    Sample scale <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> sum<span class="op">;</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>col<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> scale <span class="op">*</span> mat<span class="op">[</span>col<span class="op">][</span>col<span class="op">]</span> <span class="op">-</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> col<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">*=</span> scale<span class="op">;</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomUpperTriangular<span class="op">(</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">unsigned</span> seed<span class="op">,</span> Sample low<span class="op">,</span> Sample high<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>low <span class="op">&gt;</span> high<span class="op">)</span> <span class="bu">std::</span>swap<span class="op">(</span>low<span class="op">,</span> high<span class="op">);</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>low<span class="op">,</span> high<span class="op">};</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">.</span>fill<span class="op">({});</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> row<span class="op">;</span> col <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    Sample sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> col <span class="op">+</span> <span class="dv">1</span><span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> sum <span class="op">+=</span> mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">];</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    Sample scale <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> sum<span class="op">;</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>col<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> scale <span class="op">*</span> mat<span class="op">[</span>col<span class="op">][</span>col<span class="op">]</span> <span class="op">-</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> col<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">*=</span> scale<span class="op">;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
   <h4 id="schroeder-リバーブ行列"><a href="#schroeder-リバーブ行列"
   class="header-anchor" aria-hidden="true">Schroeder
   リバーブ行列</a></h4>
@@ -967,34 +982,34 @@
   class="math inline">\((-1, 1)\)</span> で発散しません。 -1 あるいは 1
   を含めると発振します。</p>
   <p>以下は C++ による実装です。</p>
-  <div class="sourceCode" id="cb7"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomSchroeder<span class="op">(</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">unsigned</span> seed<span class="op">,</span> Sample low<span class="op">,</span> Sample high<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    length <span class="op">&gt;=</span> <span class="dv">2</span><span class="op">,</span> <span class="st">&quot;FeedbackDelayNetwork::randomSchroeder(): length must be &gt;= 2.&quot;</span><span class="op">);</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>low <span class="op">&gt;</span> high<span class="op">)</span> <span class="bu">std::</span>swap<span class="op">(</span>low<span class="op">,</span> high<span class="op">);</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>low<span class="op">,</span> high<span class="op">};</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">.</span>fill<span class="op">({});</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> idx <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> idx <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>idx<span class="op">)</span> mat<span class="op">[</span>idx<span class="op">][</span>idx<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> <span class="op">&amp;&amp;</span>paraGain <span class="op">=</span> mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">][</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">];</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> <span class="op">&amp;&amp;</span>lastGain <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> paraGain <span class="op">*</span> paraGain<span class="op">;</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> scale2 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>Sample<span class="op">(</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">)</span> <span class="op">+</span> paraGain<span class="op">);</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> scale1 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">/</span> <span class="op">(</span>Sample<span class="op">(</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">)</span> <span class="op">*</span> paraGain <span class="op">+</span> lastGain <span class="op">+</span> matrix<span class="op">[</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">][</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">]);</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> length <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> scale2<span class="op">;</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> <span class="op">-</span>paraGain <span class="op">*</span> scale1<span class="op">;</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">][</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">]</span> <span class="op">=</span> lastGain <span class="op">*</span> scale1<span class="op">;</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomSchroeder<span class="op">(</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">unsigned</span> seed<span class="op">,</span> Sample low<span class="op">,</span> Sample high<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    length <span class="op">&gt;=</span> <span class="dv">2</span><span class="op">,</span> <span class="st">&quot;FeedbackDelayNetwork::randomSchroeder(): length must be &gt;= 2.&quot;</span><span class="op">);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>low <span class="op">&gt;</span> high<span class="op">)</span> <span class="bu">std::</span>swap<span class="op">(</span>low<span class="op">,</span> high<span class="op">);</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>low<span class="op">,</span> high<span class="op">};</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">.</span>fill<span class="op">({});</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> idx <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> idx <span class="op">&lt;</span> length<span class="op">;</span> <span class="op">++</span>idx<span class="op">)</span> mat<span class="op">[</span>idx<span class="op">][</span>idx<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> <span class="op">&amp;&amp;</span>paraGain <span class="op">=</span> mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">][</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">];</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> <span class="op">&amp;&amp;</span>lastGain <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> paraGain <span class="op">*</span> paraGain<span class="op">;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> scale2 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>Sample<span class="op">(</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">)</span> <span class="op">+</span> paraGain<span class="op">);</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> scale1 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">/</span> <span class="op">(</span>Sample<span class="op">(</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">)</span> <span class="op">*</span> paraGain <span class="op">+</span> lastGain <span class="op">+</span> matrix<span class="op">[</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">][</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">]);</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> length <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> scale2<span class="op">;</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> <span class="op">-</span>paraGain <span class="op">*</span> scale1<span class="op">;</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">[</span>length <span class="op">-</span> <span class="dv">1</span><span class="op">][</span>length <span class="op">-</span> <span class="dv">2</span><span class="op">]</span> <span class="op">=</span> lastGain <span class="op">*</span> scale1<span class="op">;</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
   <h4 id="吸収オールパス行列"><a href="#吸収オールパス行列"
   class="header-anchor" aria-hidden="true">吸収オールパス行列</a></h4>
   <p>以下は “Time-varying feedback matrices in feedback delay networks
@@ -1023,38 +1038,38 @@
   の範囲なら収束します。</p>
   <p>以下は C++ による実装です。 <code>randomOrthogonal</code>
   に依存しています。</p>
-  <div class="sourceCode" id="cb8"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomAbsorbent<span class="op">(</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">unsigned</span> seed<span class="op">,</span> Sample low<span class="op">,</span> Sample high<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span>dim <span class="op">&gt;=</span> <span class="dv">2</span><span class="op">,</span> <span class="st">&quot;randomAbsorbent(): dim must be &gt;= 2.&quot;</span><span class="op">);</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span>dim <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">,</span> <span class="st">&quot;randomAbsorbent(): dim must be even.&quot;</span><span class="op">);</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>low <span class="op">&gt;</span> high<span class="op">)</span> <span class="bu">std::</span>swap<span class="op">(</span>low<span class="op">,</span> high<span class="op">);</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>low<span class="op">,</span> high<span class="op">};</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_int_distribution<span class="op">&lt;</span><span class="dt">unsigned</span><span class="op">&gt;</span> seeder<span class="op">{</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="op">,</span> <span class="bu">std::</span>numeric_limits<span class="op">&lt;</span><span class="dt">unsigned</span><span class="op">&gt;::</span>max<span class="op">()};</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="dt">size_t</span> half <span class="op">=</span> length <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">.</span>fill<span class="op">({});</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> half<span class="op">&gt;,</span> half<span class="op">&gt;</span> A<span class="op">;</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  randomOrthogonal<span class="op">(</span>seeder<span class="op">(</span>rng<span class="op">),</span> A<span class="op">);</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> half<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> gain <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>half <span class="op">+</span> col<span class="op">][</span>half <span class="op">+</span> col<span class="op">]</span> <span class="op">=</span> gain<span class="op">;</span>             <span class="co">// Fill lower right.</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>half <span class="op">+</span> col<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> gain <span class="op">*</span> gain<span class="op">;</span> <span class="co">// Fill lower left.</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> half<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>      mat<span class="op">[</span>row<span class="op">][</span>half <span class="op">+</span> col<span class="op">]</span> <span class="op">=</span> A<span class="op">[</span>row<span class="op">][</span>col<span class="op">];</span>  <span class="co">// Fill top right.</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>      mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> <span class="op">-</span>A<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">*</span> gain<span class="op">;</span> <span class="co">// Fill top left</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> randomAbsorbent<span class="op">(</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">unsigned</span> seed<span class="op">,</span> Sample low<span class="op">,</span> Sample high<span class="op">,</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span>dim <span class="op">&gt;=</span> <span class="dv">2</span><span class="op">,</span> <span class="st">&quot;randomAbsorbent(): dim must be &gt;= 2.&quot;</span><span class="op">);</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span>dim <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">,</span> <span class="st">&quot;randomAbsorbent(): dim must be even.&quot;</span><span class="op">);</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  pcg64 rng<span class="op">{};</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  rng<span class="op">.</span>seed<span class="op">(</span>seed<span class="op">);</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>low <span class="op">&gt;</span> high<span class="op">)</span> <span class="bu">std::</span>swap<span class="op">(</span>low<span class="op">,</span> high<span class="op">);</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_real_distribution<span class="op">&lt;</span>Sample<span class="op">&gt;</span> dist<span class="op">{</span>low<span class="op">,</span> high<span class="op">};</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>uniform_int_distribution<span class="op">&lt;</span><span class="dt">unsigned</span><span class="op">&gt;</span> seeder<span class="op">{</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span><span class="op">,</span> <span class="bu">std::</span>numeric_limits<span class="op">&lt;</span><span class="dt">unsigned</span><span class="op">&gt;::</span>max<span class="op">()};</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="dt">size_t</span> half <span class="op">=</span> length <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">.</span>fill<span class="op">({});</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> half<span class="op">&gt;,</span> half<span class="op">&gt;</span> A<span class="op">;</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  randomOrthogonal<span class="op">(</span>seeder<span class="op">(</span>rng<span class="op">),</span> A<span class="op">);</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> col <span class="op">&lt;</span> half<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> gain <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>half <span class="op">+</span> col<span class="op">][</span>half <span class="op">+</span> col<span class="op">]</span> <span class="op">=</span> gain<span class="op">;</span>             <span class="co">// Fill lower right.</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>half <span class="op">+</span> col<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">-</span> gain <span class="op">*</span> gain<span class="op">;</span> <span class="co">// Fill lower left.</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> row <span class="op">&lt;</span> half<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>      mat<span class="op">[</span>row<span class="op">][</span>half <span class="op">+</span> col<span class="op">]</span> <span class="op">=</span> A<span class="op">[</span>row<span class="op">][</span>col<span class="op">];</span>  <span class="co">// Fill top right.</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>      mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> <span class="op">-</span>A<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">*</span> gain<span class="op">;</span> <span class="co">// Fill top left</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
   <h4 id="アダマール行列"><a href="#アダマール行列"
   class="header-anchor" aria-hidden="true">アダマール行列</a></h4>
   <p>ここでは Sylvester’s construction と呼ばれる手法で<a
@@ -1111,31 +1126,31 @@
   - How do I check if a template parameter is a power of two? - Stack
   Overflow</a></li>
   </ul>
-  <div class="sourceCode" id="cb9"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> constructHadamardSylvester<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    dim <span class="op">&amp;&amp;</span> <span class="op">((</span>dim <span class="op">&amp;</span> <span class="op">(</span>dim <span class="op">-</span> <span class="dv">1</span><span class="op">))</span> <span class="op">==</span> <span class="dv">0</span><span class="op">),</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;FeedbackDelayNetwork::constructHadamardSylvester(): dim must be power of 2.&quot;</span><span class="op">);</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">[</span><span class="dv">0</span><span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="bu">std::</span>sqrt<span class="op">(</span>Sample<span class="op">(</span>dim<span class="op">));</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> start <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> end <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>start <span class="op">&lt;</span> dim<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> start<span class="op">;</span> row <span class="op">&lt;</span> end<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> start<span class="op">;</span> col <span class="op">&lt;</span> end<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> <span class="op">&amp;&amp;</span>value <span class="op">=</span> mat<span class="op">[</span>row <span class="op">-</span> start<span class="op">][</span>col <span class="op">-</span> start<span class="op">];</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        mat<span class="op">[</span>row <span class="op">-</span> start<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span> <span class="co">// Upper right.</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        mat<span class="op">[</span>row<span class="op">][</span>col <span class="op">-</span> start<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span> <span class="co">// Lower left.</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> <span class="op">-</span>value<span class="op">;</span>        <span class="co">// Lower right.</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    start <span class="op">*=</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    end <span class="op">*=</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> constructHadamardSylvester<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    dim <span class="op">&amp;&amp;</span> <span class="op">((</span>dim <span class="op">&amp;</span> <span class="op">(</span>dim <span class="op">-</span> <span class="dv">1</span><span class="op">))</span> <span class="op">==</span> <span class="dv">0</span><span class="op">),</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;FeedbackDelayNetwork::constructHadamardSylvester(): dim must be power of 2.&quot;</span><span class="op">);</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">[</span><span class="dv">0</span><span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="bu">std::</span>sqrt<span class="op">(</span>Sample<span class="op">(</span>dim<span class="op">));</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> start <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> end <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>start <span class="op">&lt;</span> dim<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> start<span class="op">;</span> row <span class="op">&lt;</span> end<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> col <span class="op">=</span> start<span class="op">;</span> col <span class="op">&lt;</span> end<span class="op">;</span> <span class="op">++</span>col<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> <span class="op">&amp;&amp;</span>value <span class="op">=</span> mat<span class="op">[</span>row <span class="op">-</span> start<span class="op">][</span>col <span class="op">-</span> start<span class="op">];</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        mat<span class="op">[</span>row <span class="op">-</span> start<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span> <span class="co">// Upper right.</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        mat<span class="op">[</span>row<span class="op">][</span>col <span class="op">-</span> start<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span> <span class="co">// Lower left.</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        mat<span class="op">[</span>row<span class="op">][</span>col<span class="op">]</span> <span class="op">=</span> <span class="op">-</span>value<span class="op">;</span>        <span class="co">// Lower right.</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    start <span class="op">*=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    end <span class="op">*=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
   <h4 id="conference-行列"><a href="#conference-行列"
   class="header-anchor" aria-hidden="true">Conference 行列</a></h4>
   <p>ここでは Paley のアダマール行列の構築法で使われる <a
@@ -1178,9 +1193,9 @@
   \mathrm{QR}(k) = \{i^2 \bmod k \mid i \in \{1, 2, \dots, k - 1\}\}.
   \]</span></p>
   <p>Python 3 では以下のように書けます。</p>
-  <div class="sourceCode" id="cb10"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>modulo <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>quadraticResidue <span class="op">=</span> <span class="bu">set</span>([(i <span class="op">*</span> i) <span class="op">%</span> modulo <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, modulo)])</span></code></pre></div>
+  <div class="sourceCode" id="cb11"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>modulo <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>quadraticResidue <span class="op">=</span> <span class="bu">set</span>([(i <span class="op">*</span> i) <span class="op">%</span> modulo <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, modulo)])</span></code></pre></div>
   <h5 id="legendre-symbol"><a href="#legendre-symbol"
   class="header-anchor" aria-hidden="true">Legendre Symbol</a></h5>
   <p>得られた quadratic residue をもとに、以下の式でモジュロ <span
@@ -1236,12 +1251,12 @@
   \]</span></p>
   <p>Legendre symbol の集合の計算は Python 3
   では以下のように書けます。</p>
-  <div class="sourceCode" id="cb11"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># quadraticResidue は set() 。</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>legendreSymbol <span class="op">=</span> [</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> (<span class="dv">1</span> <span class="cf">if</span> i <span class="kw">in</span> quadraticResidue <span class="cf">else</span> <span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(modulo)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># quadraticResidue は set() 。</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>legendreSymbol <span class="op">=</span> [</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span> <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> (<span class="dv">1</span> <span class="cf">if</span> i <span class="kw">in</span> quadraticResidue <span class="cf">else</span> <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(modulo)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div>
   <h5 id="行列の組み立て"><a href="#行列の組み立て"
   class="header-anchor" aria-hidden="true">行列の組み立て</a></h5>
   <p><span class="math inline">\(\mathrm{LS}(k)\)</span>
@@ -1282,44 +1297,44 @@
   の <a href="https://oeis.org/A000952">数列 A000952</a> を conference
   行列の候補として、そのまま使うことにしました。 <code>candidate</code>
   に格納しています。</p>
-  <div class="sourceCode" id="cb12"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> constructConference<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="dt">size_t</span><span class="op">,</span> <span class="dv">13</span><span class="op">&gt;</span> candidates<span class="op">{</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">62</span><span class="op">,</span> <span class="dv">54</span><span class="op">,</span> <span class="dv">50</span><span class="op">,</span> <span class="dv">46</span><span class="op">,</span> <span class="dv">42</span><span class="op">,</span> <span class="dv">38</span><span class="op">,</span> <span class="dv">30</span><span class="op">,</span> <span class="dv">26</span><span class="op">,</span> <span class="dv">18</span><span class="op">,</span> <span class="dv">14</span><span class="op">,</span> <span class="dv">10</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> found <span class="op">=</span> <span class="bu">std::</span>find_if<span class="op">(</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    candidates<span class="op">.</span>begin<span class="op">(),</span> candidates<span class="op">.</span>end<span class="op">(),</span> <span class="op">[](</span><span class="dt">size_t</span> size<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> size <span class="op">&lt;=</span> dim<span class="op">;</span> <span class="op">});</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>found <span class="op">==</span> candidates<span class="op">.</span>end<span class="op">())</span> <span class="cf">return</span><span class="op">;</span> <span class="co">// mat が小さすぎるときは何もしない。</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> dimension <span class="op">=</span> <span class="op">*</span>found<span class="op">;</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> modulo <span class="op">=</span> dimension <span class="op">-</span> <span class="dv">1</span><span class="op">;</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>set<span class="op">&lt;</span><span class="dt">size_t</span><span class="op">&gt;</span> quadraticResidue<span class="op">;</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> modulo<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> quadraticResidue<span class="op">.</span>emplace<span class="op">((</span>i <span class="op">*</span> i<span class="op">)</span> <span class="op">%</span> modulo<span class="op">);</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  quadraticResidue<span class="op">.</span>erase<span class="op">(</span><span class="dv">0</span><span class="op">);</span> <span class="co">// 念のため。</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="bu">std::</span>sqrt<span class="op">(</span>Sample<span class="op">(</span>modulo<span class="op">));</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> symbol<span class="op">;</span> <span class="co">// modulo についての Legendre symbol の集合。</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  symbol<span class="op">.</span>reserve<span class="op">(</span>modulo<span class="op">);</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  symbol<span class="op">.</span>push_back<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> modulo<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    symbol<span class="op">.</span>push_back<span class="op">(</span>quadraticResidue<span class="op">.</span>count<span class="op">(</span>i<span class="op">)</span> <span class="op">?</span> value <span class="op">:</span> <span class="op">-</span>value<span class="op">);</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">.</span>fill<span class="op">({});</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">[</span><span class="dv">0</span><span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> dimension<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span><span class="dv">0</span><span class="op">][</span>i<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> row <span class="op">&lt;</span> dimension<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>copy<span class="op">(</span>symbol<span class="op">.</span>begin<span class="op">(),</span> symbol<span class="op">.</span>end<span class="op">(),</span> mat<span class="op">[</span>row<span class="op">].</span>begin<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">);</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>rotate<span class="op">(</span>symbol<span class="op">.</span>rbegin<span class="op">(),</span> symbol<span class="op">.</span>rbegin<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> symbol<span class="op">.</span>rend<span class="op">());</span></span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <div class="sourceCode" id="cb13"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="dt">size_t</span> dim<span class="op">&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> constructConference<span class="op">(</span><span class="bu">std::</span>array<span class="op">&lt;</span><span class="bu">std::</span>array<span class="op">&lt;</span>Sample<span class="op">,</span> dim<span class="op">&gt;,</span> dim<span class="op">&gt;</span> <span class="op">&amp;</span>mat<span class="op">)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="bu">std::</span>array<span class="op">&lt;</span><span class="dt">size_t</span><span class="op">,</span> <span class="dv">13</span><span class="op">&gt;</span> candidates<span class="op">{</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">62</span><span class="op">,</span> <span class="dv">54</span><span class="op">,</span> <span class="dv">50</span><span class="op">,</span> <span class="dv">46</span><span class="op">,</span> <span class="dv">42</span><span class="op">,</span> <span class="dv">38</span><span class="op">,</span> <span class="dv">30</span><span class="op">,</span> <span class="dv">26</span><span class="op">,</span> <span class="dv">18</span><span class="op">,</span> <span class="dv">14</span><span class="op">,</span> <span class="dv">10</span><span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> found <span class="op">=</span> <span class="bu">std::</span>find_if<span class="op">(</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    candidates<span class="op">.</span>begin<span class="op">(),</span> candidates<span class="op">.</span>end<span class="op">(),</span> <span class="op">[](</span><span class="dt">size_t</span> size<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> size <span class="op">&lt;=</span> dim<span class="op">;</span> <span class="op">});</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>found <span class="op">==</span> candidates<span class="op">.</span>end<span class="op">())</span> <span class="cf">return</span><span class="op">;</span> <span class="co">// mat が小さすぎるときは何もしない。</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> dimension <span class="op">=</span> <span class="op">*</span>found<span class="op">;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> modulo <span class="op">=</span> dimension <span class="op">-</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>set<span class="op">&lt;</span><span class="dt">size_t</span><span class="op">&gt;</span> quadraticResidue<span class="op">;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> modulo<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> quadraticResidue<span class="op">.</span>emplace<span class="op">((</span>i <span class="op">*</span> i<span class="op">)</span> <span class="op">%</span> modulo<span class="op">);</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  quadraticResidue<span class="op">.</span>erase<span class="op">(</span><span class="dv">0</span><span class="op">);</span> <span class="co">// 念のため。</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  Sample value <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="bu">std::</span>sqrt<span class="op">(</span>Sample<span class="op">(</span>modulo<span class="op">));</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> symbol<span class="op">;</span> <span class="co">// modulo についての Legendre symbol の集合。</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  symbol<span class="op">.</span>reserve<span class="op">(</span>modulo<span class="op">);</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  symbol<span class="op">.</span>push_back<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> modulo<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    symbol<span class="op">.</span>push_back<span class="op">(</span>quadraticResidue<span class="op">.</span>count<span class="op">(</span>i<span class="op">)</span> <span class="op">?</span> value <span class="op">:</span> <span class="op">-</span>value<span class="op">);</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">.</span>fill<span class="op">({});</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  mat<span class="op">[</span><span class="dv">0</span><span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> dimension<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span><span class="dv">0</span><span class="op">][</span>i<span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    mat<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> value<span class="op">;</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> row <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> row <span class="op">&lt;</span> dimension<span class="op">;</span> <span class="op">++</span>row<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>copy<span class="op">(</span>symbol<span class="op">.</span>begin<span class="op">(),</span> symbol<span class="op">.</span>end<span class="op">(),</span> mat<span class="op">[</span>row<span class="op">].</span>begin<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>rotate<span class="op">(</span>symbol<span class="op">.</span>rbegin<span class="op">(),</span> symbol<span class="op">.</span>rbegin<span class="op">()</span> <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> symbol<span class="op">.</span>rend<span class="op">());</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
   <h2 id="音についての所感"><a href="#音についての所感"
   class="header-anchor" aria-hidden="true">音についての所感</a></h2>
   <p>ここまで紹介した中で、 Householder を除く行列は VST 3 プラグインの
@@ -1349,12 +1364,12 @@
   class="header-anchor"
   aria-hidden="true">単位行列に近いランダムな特殊直交行列の生成</a></h3>
   <p>特殊直交行列をランダムに生成するとき、以下の行で乱数を使っています。</p>
-  <div class="sourceCode" id="cb13"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span></code></pre></div>
-  <p>この行を以下のように変更することで、どれくらい単位行列に近くなるかということを設定できます。</p>
   <div class="sourceCode" id="cb14"><pre
-  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> identityAmount <span class="op">*</span> dist<span class="op">(</span>rng<span class="op">);</span></span></code></pre></div>
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> dist<span class="op">(</span>rng<span class="op">);</span></span></code></pre></div>
+  <p>この行を以下のように変更することで、どれくらい単位行列に近くなるかということを設定できます。</p>
+  <div class="sourceCode" id="cb15"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> xRange<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> x<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> identityAmount <span class="op">*</span> dist<span class="op">(</span>rng<span class="op">);</span></span></code></pre></div>
   <p><code>identityAmount</code> は 0 より大きい実数です。 0
   に近づくほど生成された特殊直交行列が単位行列に近づきます。 1
   を大きく超えると対角成分が他の成分に比べて小さくなります。負の値も使えますが、
@@ -1365,14 +1380,14 @@
   aria-hidden="true">ランダムな直交行列のソート</a></h3>
   <p>今回は使っていませんが、 FDN
   への応用では以下のように直交行列をソートすることで扱いやすくなることがあるかもしれません。</p>
-  <div class="sourceCode" id="cb15"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> special_ortho_group</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>axis <span class="op">=</span> <span class="dv">0</span>  <span class="co"># 0, 1 のどちらでもいい。</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> special_ortho_group.rvs(<span class="dv">4</span>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>sorted_indices <span class="op">=</span> np.argmax(np.<span class="bu">abs</span>(source), axis<span class="op">=</span>axis)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>mat <span class="op">=</span> np.take(source, sorted_indices, axis)  <span class="co"># ソートしても直交行列。</span></span></code></pre></div>
+  <div class="sourceCode" id="cb16"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> special_ortho_group</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>axis <span class="op">=</span> <span class="dv">0</span>  <span class="co"># 0, 1 のどちらでもいい。</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> special_ortho_group.rvs(<span class="dv">4</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>sorted_indices <span class="op">=</span> np.argmax(np.<span class="bu">abs</span>(source), axis<span class="op">=</span>axis)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>mat <span class="op">=</span> np.take(source, sorted_indices, axis)  <span class="co"># ソートしても直交行列。</span></span></code></pre></div>
   <h3 id="weighing-行列"><a href="#weighing-行列" class="header-anchor"
   aria-hidden="true">Weighing 行列</a></h3>
   <p><a href="https://en.wikipedia.org/wiki/Weighing_matrix">Weighing
@@ -1467,6 +1482,11 @@
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2024/11/29
+  <ul>
+  <li>特殊直行行列の実装のバグを修正。以前の実装では determinant が 1
+  ではなく -1 になっていた。</li>
+  </ul></li>
   <li>2024/10/25
   <ul>
   <li>「直行行列」を「直交行列」に修正。</li>

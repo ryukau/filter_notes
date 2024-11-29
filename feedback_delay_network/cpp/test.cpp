@@ -81,7 +81,7 @@ template<typename Sample, size_t length> struct FeedbackMatrix {
 
     std::array<Sample, dim> x;
     std::array<Sample, dim> D;
-    for (size_t n = 0; n < dim; ++n) {
+    for (size_t n = 0; n < dim - 1; ++n) {
       auto xRange = dim - n;
       for (size_t i = 0; i < xRange; ++i) x[i] = dist(rng);
 
