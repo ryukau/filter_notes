@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2024-12-30" />
+      <title>fdn_coupling_by_feedback_matrix</title>
+
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
+
+      audio,
+      code,
+      img,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
+
+      pre>code {
+        filter: invert(0);
+      }
+    }
+
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    video {
+      max-width: 100%;
+    }
+
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    :link {
+      color: var(--link-color);
+    }
+
+    :visited {
+      color: var(--visited-color);
+    }
+
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
+
+    .header-anchor {
+      color: var(--foreground-color);
+    }
+
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
+
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
+
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
+
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
+
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
+
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
+
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
+
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
+
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
+
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
+
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    dl {
+      padding-left: 2em;
+    }
+
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
+
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
+
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+
+
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
+
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
+
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
+
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
+
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
+
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
+
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
+
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
+
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
+
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
+
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
+
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    span.math.inline a {
+      color: #000000;
+    }
+
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
+
+<body>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2024-12-30
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#fdn-の結合" id="toc-fdn-の結合">FDN の結合</a>
+        <ul>
+        <li><a href="#大きさの等しい直交行列を対角に並べた直交行列"
+        id="toc-大きさの等しい直交行列を対角に並べた直交行列">大きさの等しい直交行列を対角に並べた直交行列</a>
+        <ul>
+        <li><a href="#つの直交行列からの構築-非対角成分が-0"
+        id="toc-つの直交行列からの構築-非対角成分が-0">2
+        つの直交行列からの構築 (非対角成分が 0)</a></li>
+        <li><a href="#つの直交行列からの構築-非対角成分が-0-でない"
+        id="toc-つの直交行列からの構築-非対角成分が-0-でない">2
+        つの直交行列からの構築 (非対角成分が 0 でない)</a></li>
+        <li><a href="#つの直交行列からの構築"
+        id="toc-つの直交行列からの構築">3
+        つの直交行列からの構築</a></li>
+        <li><a href="#一般化" id="toc-一般化">一般化</a></li>
+        <li><a href="#を含む形" id="toc-を含む形">0 を含む形</a></li>
+        </ul></li>
+        <li><a
+        href="#大きさが異なる直交行列を対角成分に並べた行列は直交行列にならない"
+        id="toc-大きさが異なる直交行列を対角成分に並べた行列は直交行列にならない">大きさが異なる直交行列を対角成分に並べた行列は直交行列にならない</a></li>
+        <li><a href="#つの直交行列のクロネッカー積は直交行列"
+        id="toc-つの直交行列のクロネッカー積は直交行列">2
+        つの直交行列のクロネッカー積は直交行列</a></li>
+        <li><a href="#その他" id="toc-その他">その他</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="fdn-の結合"><a href="#fdn-の結合" class="header-anchor"
+  aria-hidden="true">FDN の結合</a></h1>
+  <p>スネアドラムの合成のために、複数の feedback delay network (FDN) を
+  1 つの大きな FDN に結合 (coupling) する方法について調べます。</p>
+  <p>FDN はドラムの膜や胴のような音が出せます。また FDN
+  のフィードバック行列が直交行列であれば発振します。 1 つの膜や 1
+  つの胴などの部品を、それぞれ 1 つの FDN
+  で表現できるとすると、以下のようなフィードバック行列を構築することで結合できると考えられます。</p>
+  <p><span class="math display">\[
+  W = \begin{bmatrix}
+    a_0 A_0 &amp;         &amp; \cdots  &amp;        \\
+            &amp; a_1 A_1 &amp;         &amp;        \\
+    \vdots  &amp;         &amp; a_2 A_2 &amp;        \\
+            &amp;         &amp;         &amp; \ddots \\
+  \end{bmatrix}
+  ,\qquad W W^T = I.
+  \]</span></p>
+  <p><span class="math inline">\(I\)</span> は単位行列、 <span
+  class="math inline">\(W\)</span> は直交行列です。以降では主に <span
+  class="math inline">\(W\)</span>
+  の非対角成分を決める方法について調べています。</p>
+  <p><span class="math inline">\(i\)</span>
+  を行列の要素のインデックスとします。 <span
+  class="math inline">\(a_i\)</span> は範囲 <span
+  class="math inline">\([-1, 1]\)</span> のスカラーで、各 FDN
+  のフィードバックゲインを表しています。 <span
+  class="math inline">\(A_i\)</span>
+  はそれぞれ任意の直交行列です。以降ではアルファベットの大文字は行列、小文字はスカラーを表すことにします。</p>
+  <p>以下は確認に使った Python 3 のコードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/fdn_coupling_by_feedback_matrix/test.py">filter_notes/fdn_coupling_by_feedback_matrix/test.py
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <h2 id="大きさの等しい直交行列を対角に並べた直交行列"><a
+  href="#大きさの等しい直交行列を対角に並べた直交行列"
+  class="header-anchor"
+  aria-hidden="true">大きさの等しい直交行列を対角に並べた直交行列</a></h2>
+  <h3 id="つの直交行列からの構築-非対角成分が-0"><a
+  href="#つの直交行列からの構築-非対角成分が-0" class="header-anchor"
+  aria-hidden="true">2 つの直交行列からの構築 (非対角成分が 0)</a></h3>
+  <p>大きさが等しい 2 つの直交行列 <span class="math inline">\(A,
+  D\)</span> から大きな直交行列を組み立てます。</p>
+  <p>簡単な場合から始めます。以下の <span
+  class="math inline">\(E\)</span> のように非対角成分が 0
+  なら直交行列です。</p>
+  <p><span class="math display">\[
+  E = \begin{bmatrix}A &amp; 0 \\ 0 &amp; D\end{bmatrix}.
+  \]</span></p>
+  <p>以下は <span class="math inline">\(E\)</span>
+  が直交行列となることを示した式変形です。 <span
+  class="math inline">\(^T\)</span> は転置の演算子です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  E E^T
+  =
+  \begin{bmatrix}A &amp; 0 \\ 0 &amp; D\end{bmatrix}
+  \begin{bmatrix}A &amp; 0 \\ 0 &amp; D\end{bmatrix}^T
+  =
+  \begin{bmatrix}A &amp; 0 \\ 0 &amp; D\end{bmatrix}
+  \begin{bmatrix}A^T &amp; 0 \\ 0 &amp; D^T\end{bmatrix}
+  =
+  \begin{bmatrix}A A^T &amp; 0 \\ 0 &amp; D D^T\end{bmatrix}
+  =
+  \begin{bmatrix}I &amp; 0 \\ 0 &amp; I\end{bmatrix}.
+  \end{aligned}
+  \]</span></p>
+  <h3 id="つの直交行列からの構築-非対角成分が-0-でない"><a
+  href="#つの直交行列からの構築-非対角成分が-0-でない"
+  class="header-anchor" aria-hidden="true">2 つの直交行列からの構築
+  (非対角成分が 0 でない)</a></h3>
+  <p>対角成分が 0 でない場合を調べます。 2 つのスカラー <span
+  class="math inline">\(a, d\)</span>
+  を用意して、以下のより一般的な形の行列を用意します。</p>
+  <p><span class="math display">\[
+  F = \begin{bmatrix}a A &amp; B \\ C &amp; d D\end{bmatrix}.
+  \]</span></p>
+  <p><span class="math inline">\(a, d\)</span> が 1 でないときに <span
+  class="math inline">\(F\)</span> が直交行列となる <span
+  class="math inline">\(B\)</span> と <span
+  class="math inline">\(C\)</span> を求めたいです。直交行列の性質より
+  <span class="math inline">\(F F^T = I\)</span> なので、とりあえず
+  <span class="math inline">\(F F^T\)</span> を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  F F^T
+  &amp;=
+  \begin{bmatrix}a A &amp; B \\ C &amp; d D\end{bmatrix}
+  \begin{bmatrix}a A &amp; B \\ C &amp; d D\end{bmatrix}^T
+  \\&amp;=
+  \begin{bmatrix}a A   &amp; B   \\ C   &amp; d D  \end{bmatrix}
+  \begin{bmatrix}a A^T &amp; C^T \\ B^T &amp; d D^T\end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+    a^2 A A^T +   B B^T  &amp; a A C^T + B   d D^T \\
+    C   a A^T + d D B^T  &amp;   C C^T + d^2 D D^T
+  \end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+    (a^2 + 1) I  &amp; a A C^T + B   d D^T \\
+    C   a A^T + d D B^T  &amp;   (d^2 + 1) I
+  \end{bmatrix}
+  \end{aligned}
+  \]</span></p>
+  <p>上の式展開より、 <span class="math inline">\(F\)</span>
+  を直交行列にするには <span class="math inline">\(a = d\)</span>
+  として、 <span class="math inline">\(\dfrac{1}{a^2 + 1}\)</span>
+  を乗算する必要があります。また、以下の条件が得られました。</p>
+  <ul>
+  <li><span class="math inline">\(a A   C^T + d D^T B   =
+  0.\)</span></li>
+  <li><span class="math inline">\(a A^T C   + d D   B^T =
+  0.\)</span></li>
+  </ul>
+  <p>以下の 2 つの場合に条件を満たすことができます。
+  (別解あり。後述。)</p>
+  <p><span class="math display">\[
+  \begin{matrix}
+  \begin{aligned}
+  \text{If} \quad C &amp;= -A \quad\text{and}\quad B = D,\\
+  &amp; a A   (-A)^T + d D^T D   = -a I + d I = 0,\\
+  &amp; a A^T (-A)   + d D   D^T = -a I + d I = 0.\\
+  \end{aligned}
+  &amp;\qquad
+  \begin{aligned}
+  \text{If} \quad C &amp;= A \quad\text{and}\quad B = -D,\\
+  &amp; a A   A^T + d D^T (-D)   = a I - d I = 0,\\
+  &amp; a A^T A   + d D   (-D)^T = a I - d I = 0.\\
+  \end{aligned}
+  \end{matrix}
+  \]</span></p>
+  <p>整理します。</p>
+  <p><span class="math display">\[
+  F_1 = \frac{1}{\sqrt{a^2 + 1}} \begin{bmatrix}a A &amp;  D \\ -A &amp;
+  a D\end{bmatrix},
+  \quad
+  F_2 = \frac{1}{\sqrt{a^2 + 1}} \begin{bmatrix}a A &amp; -D \\  A &amp;
+  a D\end{bmatrix}.
+  \]</span></p>
+  <p>Python 3 で実装してテストします。
+  <code>np.testing.assert_almost_equal</code>
+  で止まらなければ、正しく動作しています。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> ortho_group</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>seed <span class="op">=</span> <span class="dv">421378561</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(seed)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>size <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> ortho_group.rvs(size, random_state<span class="op">=</span>rng)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>D <span class="op">=</span> ortho_group.rvs(size, random_state<span class="op">=</span>rng)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ratio <span class="op">=</span> <span class="dv">1</span>                               <span class="co"># 式中の a</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> np.sqrt(ratio <span class="op">*</span> ratio <span class="op">+</span> <span class="dv">1</span>) <span class="co"># 式中の 1 / sqrt(a^2 + 1)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>F1 <span class="op">=</span> scaler <span class="op">*</span> np.block([[ratio <span class="op">*</span> A, D], [<span class="op">-</span>A, ratio <span class="op">*</span> D]])</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>F2 <span class="op">=</span> scaler <span class="op">*</span> np.block([[ratio <span class="op">*</span> A, <span class="op">-</span>D], [A, ratio <span class="op">*</span> D]])</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># F * F^T = I をテスト。 @ は NumPy の行列の乗算 (numpy.matmul) 。</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>np.testing.assert_almost_equal(F1 <span class="op">@</span> F1.T, np.identity(F1.shape[<span class="dv">0</span>]))</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>np.testing.assert_almost_equal(F2 <span class="op">@</span> F2.T, np.identity(F2.shape[<span class="dv">0</span>]))</span></code></pre></div>
+  <h3 id="つの直交行列からの構築"><a href="#つの直交行列からの構築"
+  class="header-anchor" aria-hidden="true">3
+  つの直交行列からの構築</a></h3>
+  <p>以下は構築したい行列 <span class="math inline">\(G\)</span>
+  の定義です。対角成分の <span class="math inline">\(A_{ii}\)</span>
+  は任意の直交行列です。 <span class="math inline">\(i \neq j\)</span>
+  となる行列 <span class="math inline">\(A_{ij}\)</span> を決めて <span
+  class="math inline">\(G\)</span> を直交行列にします。 <span
+  class="math inline">\(i, j\)</span> はインデックスです。</p>
+  <p><span class="math display">\[
+  G = \begin{bmatrix}
+    a A_{11} &amp;   A_{12} &amp;   A_{13} \\
+      A_{21} &amp; a A_{22} &amp;   A_{23} \\
+      A_{31} &amp;   A_{32} &amp; a A_{33} \\
+  \end{bmatrix}, \qquad G G^T = I.
+  \]</span></p>
+  <p><span class="math inline">\(G G^T\)</span> を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G G^T
+  &amp;=
+  \begin{bmatrix}
+    a A_{11} &amp;   A_{12} &amp;   A_{13} \\
+      A_{21} &amp; a A_{22} &amp;   A_{23} \\
+      A_{31} &amp;   A_{32} &amp; a A_{33} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    a A_{11}^T   &amp;   A_{21}^T &amp;   A_{31}^T \\
+      A_{12}^T   &amp; a A_{22}^T &amp;   A_{32}^T \\
+      A_{13}^T   &amp;   A_{23}^T &amp; a A_{33}^T \\
+  \end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+    a^2 A_{11} A_{11}^T +   A_{12} A_{12}^T +   A_{13} A_{13}^T &amp;
+    a   A_{11} A_{21}^T + a A_{12} A_{22}^T +   A_{13} A_{23}^T &amp;
+    a   A_{11} A_{31}^T +   A_{12} A_{32}^T + a A_{13} A_{33}^T
+    \\
+    a A_{21} A_{11}^T + a   A_{22} A_{12}^T +   A_{23} A_{13}^T &amp;
+      A_{21} A_{21}^T + a^2 A_{22} A_{22}^T +   A_{23} A_{23}^T &amp;
+      A_{21} A_{31}^T + a   A_{22} A_{32}^T + a A_{23} A_{33}^T
+    \\
+    a A_{31} A_{11}^T +   A_{32} A_{12}^T + a   A_{33} A_{13}^T &amp;
+      A_{31} A_{21}^T + a A_{32} A_{22}^T + a   A_{33} A_{23}^T &amp;
+      A_{31} A_{31}^T +   A_{32} A_{32}^T + a^2 A_{33} A_{33}^T
+  \end{bmatrix}.
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(G\)</span>
+  が直交行列になりそうな非対角成分を推定します。以下は上の式展開を眺めて適当に決めた値です。</p>
+  <ul>
+  <li><span class="math inline">\(A_{12} = A_{32} = p
+  A_{22}\)</span></li>
+  <li><span class="math inline">\(A_{21} = q A_{11}\)</span></li>
+  <li><span class="math inline">\(A_{23} = r A_{33}\)</span></li>
+  <li><span class="math inline">\(A_{13} = s A_{33}\)</span></li>
+  <li><span class="math inline">\(A_{31} = t A_{11}\)</span></li>
+  </ul>
+  <p>代入します。以下の式中の <span
+  class="math inline">\(\otimes\)</span> はクロネッカー積 (<a
+  href="https://en.wikipedia.org/wiki/Kronecker_product">Kronecker
+  product</a>) の演算子です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  G G^T
+  &amp;=
+  \begin{bmatrix}
+    a A_{11} &amp; p A_{22} &amp; s A_{33} \\
+    q A_{11} &amp; a A_{22} &amp; r A_{33} \\
+    t A_{11} &amp; p A_{22} &amp; a A_{33} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    a A_{11}^T   &amp; q A_{11}^T &amp; t A_{11}^T \\
+    p A_{22}^T   &amp; a A_{22}^T &amp; p A_{22}^T \\
+    s A_{33}^T   &amp; r A_{33}^T &amp; a A_{33}^T \\
+  \end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+    a^2 I + p^2 I + s^2 I &amp;
+    a q I + a p I + r s I &amp;
+    a t I + p^2 I + a s I
+    \\
+    a q I + a p I + r s I &amp;
+    q^2 I + a^2 I + r^2 I &amp;
+    q t I + a p I + a r I
+    \\
+    a t I + p^2 I + a s I &amp;
+    q t I + a p I + a r I &amp;
+    t^2 I + p^2 I + a^2 I
+  \end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+    a^2 + p^2 + s^2 &amp;
+    a q + a p + r s &amp;
+    a t + p^2 + a s
+    \\
+    a q + a p + r s &amp;
+    q^2 + a^2 + r^2 &amp;
+    q t + a p + a r
+    \\
+    a t + p^2 + a s &amp;
+    q t + a p + a r &amp;
+    t^2 + p^2 + a^2
+  \end{bmatrix} \otimes I.
+  \end{aligned}
+  \]</span></p>
+  <p>連立方程式が得られました。 <span class="math inline">\(y\)</span>
+  は対角成分に共通する何らかのスカラーです。</p>
+  <ul>
+  <li><span class="math inline">\(y = a^2 + p^2 + s^2\)</span></li>
+  <li><span class="math inline">\(y = q^2 + a^2 + r^2\)</span></li>
+  <li><span class="math inline">\(y = t^2 + p^2 + a^2\)</span></li>
+  <li><span class="math inline">\(0 = a q + a p + r s\)</span></li>
+  <li><span class="math inline">\(0 = a t + p^2 + a s\)</span></li>
+  <li><span class="math inline">\(0 = q t + a p + a r\)</span></li>
+  </ul>
+  <p>SymPy と Maxima で解きます。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SymPy, Python 3</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sympy <span class="im">import</span> solve</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sympy.abc <span class="im">import</span> a, p, q, r, s, t, y</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>solve(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  [</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    a<span class="op">*</span>a <span class="op">+</span> p<span class="op">*</span>p <span class="op">+</span> s<span class="op">*</span>s <span class="op">-</span> y,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    q<span class="op">*</span>q <span class="op">+</span> a<span class="op">*</span>a <span class="op">+</span> r<span class="op">*</span>r <span class="op">-</span> y,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    t<span class="op">*</span>t <span class="op">+</span> p<span class="op">*</span>p <span class="op">+</span> a<span class="op">*</span>a <span class="op">-</span> y,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    a<span class="op">*</span>q <span class="op">+</span> a<span class="op">*</span>p <span class="op">+</span> r<span class="op">*</span>s <span class="op">-</span> <span class="dv">0</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    a<span class="op">*</span>t <span class="op">+</span> p<span class="op">*</span>p <span class="op">+</span> a<span class="op">*</span>s <span class="op">-</span> <span class="dv">0</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    q<span class="op">*</span>t <span class="op">+</span> a<span class="op">*</span>p <span class="op">+</span> a<span class="op">*</span>r <span class="op">-</span> <span class="dv">0</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  ],</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  p, q, r, s, t, y,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="bu">dict</span><span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* Maxima */</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  [<span class="cn">y</span> = <span class="cn">a</span>*<span class="cn">a</span> + <span class="cn">p</span>*<span class="cn">p</span> + <span class="cn">s</span>*<span class="cn">s</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>   <span class="cn">y</span> = <span class="cn">q</span>*<span class="cn">q</span> + <span class="cn">a</span>*<span class="cn">a</span> + <span class="cn">r</span>*<span class="cn">r</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>   <span class="cn">y</span> = <span class="cn">t</span>*<span class="cn">t</span> + <span class="cn">p</span>*<span class="cn">p</span> + <span class="cn">a</span>*<span class="cn">a</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>   <span class="dv">0</span> = <span class="cn">a</span>*<span class="cn">q</span> + <span class="cn">a</span>*<span class="cn">p</span> + <span class="cn">r</span>*<span class="cn">s</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>   <span class="dv">0</span> = <span class="cn">a</span>*<span class="cn">t</span> + <span class="cn">p</span>*<span class="cn">p</span> + <span class="cn">a</span>*<span class="cn">s</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>   <span class="dv">0</span> = <span class="cn">q</span>*<span class="cn">t</span> + <span class="cn">a</span>*<span class="cn">p</span> + <span class="cn">a</span>*<span class="cn">r</span>],</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  [<span class="cn">p</span>, <span class="cn">q</span>, <span class="cn">r</span>, <span class="cn">s</span>, <span class="cn">t</span>, <span class="cn">y</span>]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+  <p>以下は得られた解です。上が SymPy 、下が Maxima
+  の出力です。見やすさのために整形しています。</p>
+  <pre><code>[
+  {p: 0,            q: 0,              r: 0,              s: 0,    t: 0,    y: a**2},
+  {p: -2*a,         q: -2*a,           r: -2*a,           s: -2*a, t: -2*a, y: 9*a**2},
+  {p: 2*a,          q: 2*a,            r: 2*a,            s: -2*a, t: -2*a, y: 9*a**2},
+  {p: -sqrt(2)*I*a, q: sqrt(2)*I*a/2,  r: sqrt(2)*I*a/2,  s: a,    t: a,    y: 0},
+  {p: sqrt(2)*I*a,  q: -sqrt(2)*I*a/2, r: -sqrt(2)*I*a/2, s: a,    t: a,    y: 0}
+]</code></pre>
+  <pre><code>[
+  [p=0,               q=0,                 r=0,                 s=0,      t=0,      y=a^2],
+  [p=2*a,             q=2*a,               r=2*a,               s=-(2*a), t=-(2*a), y=9*a^2],
+  [p=-(2*a),          q=-(2*a),            r=-(2*a),            s=-(2*a), t=-(2*a), y=9*a^2],
+  [p=-(sqrt(2)*%i*a), q=(%i*a)/sqrt(2),    r=(%i*a)/sqrt(2),    s=a,      t=a,      y=0],
+  [p=sqrt(2)*%i*a,    q=-((%i*a)/sqrt(2)), r=-((%i*a)/sqrt(2)), s=a,      t=a,      y=0]
+]</code></pre>
+  <p>SymPy の出力の <span class="math inline">\(\TeX\)</span>
+  表記です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  &amp; \left\{ p : 0, \  q : 0, \  r : 0, \  s : 0, \  t : 0, \  y :
+  a^{2}\right\},\\
+  &amp; \left\{ p : - 2 a, \  q : - 2 a, \  r : - 2 a, \  s : - 2 a,
+  \  t : - 2 a, \  y : 9 a^{2}\right\},\\
+  &amp; \left\{ p : 2 a, \  q : 2 a, \  r : 2 a, \  s : - 2 a, \  t : -
+  2 a, \  y : 9 a^{2}\right\},\\
+  &amp; \left\{ p : - \sqrt{2} i a, \  q : \frac{\sqrt{2} i a}{2}, \  r
+  : \frac{\sqrt{2} i a}{2}, \  s : a, \  t : a, \  y : 0\right\},\\
+  &amp; \left\{ p : \sqrt{2} i a, \  q : - \frac{\sqrt{2} i a}{2}, \  r
+  : - \frac{\sqrt{2} i a}{2}, \  s : a, \  t : a, \  y : 0\right\}.
+  \end{aligned}
+  \]</span></p>
+  <h3 id="一般化"><a href="#一般化" class="header-anchor"
+  aria-hidden="true">一般化</a></h3>
+  <p>以下は構築したい行列 <span class="math inline">\(H\)</span>
+  の定義です。対角成分の <span class="math inline">\(A_{ii}\)</span>
+  は任意の直交行列です。</p>
+  <p><span class="math display">\[
+  H = \begin{bmatrix}
+    a A_{11} &amp;   A_{12} &amp; \cdots &amp;   A_{1n} \\
+      A_{21} &amp; a A_{22} &amp;        &amp;   A_{2n} \\
+    \vdots   &amp;          &amp; \ddots &amp; \vdots   \\
+      A_{n1} &amp;   A_{n2} &amp; \cdots &amp; a A_{nn} \\
+  \end{bmatrix}.
+  \]</span></p>
+  <p><span class="math inline">\(A_{ij} = h_{ij} A_{jj}\)</span>
+  と置換します。また、式変形を分かりやすくするために <span
+  class="math inline">\(a = h_{ii}\)</span> と置換します。</p>
+  <p><span class="math display">\[
+  H = \begin{bmatrix}
+    h_{11} A_{11} &amp; h_{12} A_{22} &amp; \cdots &amp; h_{1n} A_{nn}
+  \\
+    h_{21} A_{11} &amp; h_{22} A_{22} &amp;        &amp; h_{2n} A_{nn}
+  \\
+    \vdots        &amp;               &amp; \ddots &amp;
+  \vdots        \\
+    h_{n1} A_{11} &amp; h_{n2} A_{22} &amp; \cdots &amp; h_{nn} A_{nn}
+  \\
+  \end{bmatrix}.
+  \]</span></p>
+  <p><span class="math inline">\(H H^T\)</span> を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  H H^T
+  &amp;=
+  \begin{bmatrix}
+    h_{11} A_{11} &amp; h_{12} A_{22} &amp; \cdots &amp; h_{1n} A_{nn}
+  \\
+    h_{21} A_{11} &amp; h_{22} A_{22} &amp;        &amp; h_{2n} A_{nn}
+  \\
+    \vdots        &amp;               &amp; \ddots &amp;
+  \vdots        \\
+    h_{n1} A_{11} &amp; h_{n2} A_{22} &amp; \cdots &amp; h_{nn} A_{nn}
+  \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    h_{11} A_{11}^T &amp; h_{21} A_{11}^T &amp; \cdots &amp; h_{n1}
+  A_{nn}^T \\
+    h_{12} A_{22}^T &amp; h_{22} A_{22}^T &amp;        &amp; h_{n2}
+  A_{nn}^T \\
+    \vdots          &amp;                 &amp; \ddots &amp;
+  \vdots          \\
+    h_{1n} A_{nn}^T &amp; h_{2n} A_{nn}^T &amp; \cdots &amp; h_{nn}
+  A_{nn}^T \\
+  \end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+  \sum_{k=1}^n h_{1k} h_{1k} &amp;
+  \sum_{k=1}^n h_{1k} h_{2k} &amp;
+  \cdots &amp;
+  \sum_{k=1}^n h_{1k} h_{nk}
+  \\
+  \sum_{k=1}^n h_{2k} h_{1k} &amp;
+  \sum_{k=1}^n h_{2k} h_{2k} &amp;
+  \cdots &amp;
+  \sum_{k=1}^n h_{2k} h_{nk}
+  \\
+  \vdots &amp;
+  &amp;
+  \ddots &amp;
+  \vdots
+  \\
+  \sum_{k=1}^n h_{nk} h_{1k} &amp;
+  \sum_{k=1}^n h_{nk} h_{2k} &amp;
+  \cdots &amp;
+  \sum_{k=1}^n h_{nk} h_{nk}
+  \end{bmatrix} \otimes I
+  .
+  \end{aligned}
+  \]</span></p>
+  <p>以下はインデックス <span class="math inline">\((i, j)\)</span>
+  の式の形です。</p>
+  <p><span class="math display">\[
+  A_{ij} = \sum_{k=1}^n h_{ik} h_{jk}.
+  \]</span></p>
+  <p>以下の連立方程式の解が、問題の一般解です。見やすさのために総和を行列の外に出しています。対角成分を境として対称性があるので上下どちらかの三角行列にあたる式だけを連立すれば十分です。また、
+  <span class="math inline">\(y\)</span> も方程式の変数です。</p>
+  <p><span class="math display">\[
+  y I =
+  \sum_{k=1}^n
+  \begin{bmatrix}
+  h_{1k} h_{1k} &amp; h_{1k} h_{2k} &amp; \cdots &amp; h_{1k} h_{nk} \\
+  h_{2k} h_{1k} &amp; h_{2k} h_{2k} &amp; \cdots &amp; h_{2k} h_{nk} \\
+  \vdots        &amp;               &amp; \ddots &amp; \vdots        \\
+  h_{nk} h_{1k} &amp; h_{nk} h_{2k} &amp; \cdots &amp; h_{nk} h_{nk}
+  \end{bmatrix}.
+  \]</span></p>
+  <p>SymPy
+  で解きます。そのままだと計算が終わらなさそうだったので、適当に <span
+  class="math inline">\(h_{ij} = b\)</span>
+  としました。したがって、この節の以降の結果は一般解ではありません。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solveCoefficientsFull(dim: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> sympy.Symbol(<span class="st">&quot;a&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> sympy.Symbol(<span class="st">&quot;b&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> sympy.Symbol(<span class="st">&quot;y&quot;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># h_ij をすべて b にしてしまうことで、とりあえず使える解を出す。</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> {</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        i: {j: b <span class="cf">if</span> i <span class="op">!=</span> j <span class="cf">else</span> a <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)} <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    eq <span class="op">=</span> []</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i, dim <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            expr <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                expr <span class="op">+=</span> h[i][k] <span class="op">*</span> h[j][k]</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> i <span class="op">==</span> j:</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                expr <span class="op">-=</span> y</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>            eq.append(expr)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> <span class="bu">set</span>([elem <span class="cf">for</span> row <span class="kw">in</span> h.values() <span class="cf">for</span> elem <span class="kw">in</span> row.values()])</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    variables.remove(a)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    variables.add(y)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sympy.solve(eq, <span class="op">*</span>variables, <span class="bu">dict</span><span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+  <p>以下は上のコードで <code>dim</code> を 2 から 128
+  まで変えたときの結果です。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/fdn_coupling_by_feedback_matrix/out_all_b.json"><code>dim</code>
+  を 2 から 128 まで変えたときの特殊解 (github.com)</a></li>
+  </ul>
+  <p>一般解を得たいときは <code>h</code>
+  の定義を以下のように変えます。ただし <code>dim &gt;= 3</code>
+  のときに計算が終わらないかもしれません。</p>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 一般化された形。</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    i: {j: sympy.Symbol(<span class="ss">f&quot;h_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">&quot;</span>) <span class="cf">if</span> i <span class="op">!=</span> j <span class="cf">else</span> a <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)}</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+  <p><code>dim == 3</code> のケースであれば、以下のように <span
+  class="math inline">\(h_{1n} = h_{n1} = b\)</span>
+  とすれば、いくつかの解が得られます。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 一般化された形と同じ。</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> {</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    i: {j: sympy.Symbol(<span class="ss">f&quot;h_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">&quot;</span>) <span class="cf">if</span> i <span class="op">!=</span> j <span class="cf">else</span> a <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)}</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>h[<span class="dv">1</span>][dim] <span class="op">=</span> b</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>h[dim][<span class="dv">1</span>] <span class="op">=</span> b</span></code></pre></div>
+  <h3 id="を含む形"><a href="#を含む形" class="header-anchor"
+  aria-hidden="true">0 を含む形</a></h3>
+  <p>前節までの形ではドラムの部品が下の図のように<a
+  href="https://en.wikipedia.org/wiki/Complete_graph">完全グラフ</a>として結合されます。</p>
+  <figure>
+  <img src="img/fdn_coupling_complete_graph.svg" alt="Complete graph of snare drum parts which is unrealistic." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>しかし、本物のスネアドラムは直接は部品がつながっていない部分があります。</p>
+  <figure>
+  <img src="img/fdn_coupling_snaredrum_graph.svg" alt="Realistic graph of snare drum parts." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>必要なエッジのみに結合を減らすことはできないか調べます。</p>
+  <p>構築したい行列 <span class="math inline">\(L\)</span>
+  を定義します。対角成分に隣接する区画以外は <span
+  class="math inline">\(0\)</span> です。</p>
+  <p><span class="math display">\[
+  L = \begin{bmatrix}
+    h_{11} A_{11} &amp; h_{12} A_{22} &amp; 0             &amp;
+  0             &amp; 0             &amp;        \\
+    h_{21} A_{11} &amp; h_{22} A_{22} &amp; h_{23} A_{33} &amp;
+  0             &amp; 0             &amp;        \\
+    0             &amp; h_{32} A_{22} &amp; h_{33} A_{33} &amp; h_{34}
+  A_{44} &amp; 0             &amp; \cdots \\
+    0             &amp; 0             &amp; h_{43} A_{33} &amp; h_{44}
+  A_{44} &amp; h_{45} A_{55} &amp;        \\
+    0             &amp; 0             &amp; 0             &amp; h_{54}
+  A_{44} &amp; h_{55} A_{55} &amp;        \\
+                  &amp;               &amp;
+  \vdots        &amp;               &amp;               &amp; \ddots \\
+  \end{bmatrix}.
+  \]</span></p>
+  <p><span class="math inline">\(L L^T\)</span> を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  L L^T
+  &amp;=
+  \begin{bmatrix}
+    h_{11} A_{11} &amp; h_{12} A_{22} &amp; 0             &amp;
+  0             &amp; 0             &amp;        \\
+    h_{21} A_{11} &amp; h_{22} A_{22} &amp; h_{23} A_{33} &amp;
+  0             &amp; 0             &amp;        \\
+    0             &amp; h_{32} A_{22} &amp; h_{33} A_{33} &amp; h_{34}
+  A_{44} &amp; 0             &amp; \cdots \\
+    0             &amp; 0             &amp; h_{43} A_{33} &amp; h_{44}
+  A_{44} &amp; h_{45} A_{55} &amp;        \\
+    0             &amp; 0             &amp; 0             &amp; h_{54}
+  A_{44} &amp; h_{55} A_{55} &amp;        \\
+                  &amp;               &amp;
+  \vdots        &amp;               &amp;               &amp; \ddots \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    h_{11} A_{11}^T &amp; h_{21} A_{11}^T &amp; 0               &amp;
+  0               &amp; 0               &amp;        \\
+    h_{12} A_{22}^T &amp; h_{22} A_{22}^T &amp; h_{32} A_{22}^T &amp;
+  0               &amp; 0               &amp;        \\
+    0               &amp; h_{23} A_{33}^T &amp; h_{33} A_{33}^T &amp;
+  h_{43} A_{33}^T &amp; 0               &amp; \cdots \\
+    0               &amp; 0               &amp; h_{34} A_{44}^T &amp;
+  h_{44} A_{44}^T &amp; h_{54} A_{44}^T &amp;        \\
+    0               &amp; 0               &amp; 0               &amp;
+  h_{45} A_{55}^T &amp; h_{55} A_{55}^T &amp;        \\
+                    &amp;                 &amp;
+  \vdots          &amp;                 &amp;                 &amp;
+  \ddots \\
+  \end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+  \sum_{k=1}^2 h_{1k} h_{1k} &amp; \sum_{k=1}^2 h_{1k} h_{2k} &amp;
+  0                          &amp; 0                          &amp;
+  0                          &amp;        \\
+  \sum_{k=1}^2 h_{2k} h_{1k} &amp; \sum_{k=1}^3 h_{2k} h_{2k} &amp;
+  \sum_{k=2}^3 h_{2k} h_{3k} &amp; 0                          &amp;
+  0                          &amp;        \\
+  0                          &amp; \sum_{k=2}^3 h_{3k} h_{2k} &amp;
+  \sum_{k=2}^4 h_{3k} h_{3k} &amp; \sum_{k=3}^4 h_{3k} h_{4k} &amp;
+  0                          &amp; \cdots \\
+  0                          &amp; 0                          &amp;
+  \sum_{k=3}^4 h_{4k} h_{3k} &amp; \sum_{k=3}^5 h_{4k} h_{4k} &amp;
+  \sum_{k=4}^5 h_{4k} h_{5k} &amp;        \\
+  0                          &amp; 0                          &amp;
+  0                          &amp; \sum_{k=4}^5 h_{5k} h_{4k} &amp;
+  \sum_{k=4}^6 h_{5k} h_{5k} &amp;        \\
+                             &amp;                            &amp;
+  \vdots                     &amp;                            &amp;                            &amp;
+  \ddots \\
+  \end{bmatrix} \otimes I.
+  \end{aligned}
+  \]</span></p>
+  <p>以下はインデックス <span class="math inline">\((i, j)\)</span>
+  の式の形です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \hat{h}_{ij}
+  &amp;=
+  \begin{cases}
+  \sum_{k=i-1}^i     h_{ik} h_{jk} &amp; \text{if} \enspace j = i - 1,
+  \\
+  \sum_{k=i-1}^{i+1} h_{ik} h_{jk} &amp; \text{if} \enspace j =
+  i,     \\
+  \sum_{k=i}^{i+1}   h_{ik} h_{jk} &amp; \text{if} \enspace j = i + 1,
+  \\
+  0                          &amp; \text{otherwise}.
+  \end{cases}
+  \\&amp;=
+  \begin{cases}
+           h(i, i-1) h(i-1          , i-1) +  h(i, i) h(i-1          ,
+  i)                                   &amp; \text{if} \enspace j = i -
+  1, \\
+           h(i, i-1) h(i\phantom{-1}, i-1) +  h(i, i) h(i\phantom{-1},
+  i) + h(i, i+1) h(i\phantom{+1}, i+1) &amp; \text{if} \enspace i =
+  j,     \\
+  \phantom{h(i, i-1) h(i-1          , i-1) +} h(i, i) h(i+1          ,
+  i) + h(i, i+1) h(i+1          , i+1) &amp; \text{if} \enspace j = i +
+  1, \\
+  0                                                                                                         &amp;
+  \text{otherwise}.
+  \end{cases}
+  \end{aligned}
+  \]</span></p>
+  <p>SymPy で解きます。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solveCoefficientsMostlyDiag(dim: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> sympy.Symbol(<span class="st">&quot;a&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> sympy.Symbol(<span class="st">&quot;y&quot;</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        i: {j: sympy.Symbol(<span class="ss">f&quot;h_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">&quot;</span>) <span class="cf">if</span> i <span class="op">!=</span> j <span class="cf">else</span> a <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)}</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> confinedRange(dim, start, end):</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> start <span class="op">&lt;</span> <span class="dv">1</span>:</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            start <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> end <span class="op">&gt;</span> dim <span class="op">+</span> <span class="dv">1</span>:</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            end <span class="op">=</span> dim <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">range</span>(start, end)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    eq <span class="op">=</span> <span class="bu">set</span>([])</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i <span class="op">-</span> <span class="dv">1</span>, i <span class="op">+</span> <span class="dv">2</span>):</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> j <span class="op">&lt;</span> <span class="dv">1</span> <span class="kw">or</span> j <span class="op">&gt;</span> dim:</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>            expr <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> j <span class="op">==</span> i <span class="op">-</span> <span class="dv">1</span>:</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> k <span class="kw">in</span> confinedRange(dim, i <span class="op">-</span> <span class="dv">1</span>, i <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>                    expr <span class="op">+=</span> h[i][k] <span class="op">*</span> h[j][k]</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> j <span class="op">==</span> i:</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> k <span class="kw">in</span> confinedRange(dim, i <span class="op">-</span> <span class="dv">1</span>, i <span class="op">+</span> <span class="dv">2</span>):</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>                    expr <span class="op">+=</span> h[i][k] <span class="op">*</span> h[j][k]</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> j <span class="op">==</span> i <span class="op">+</span> <span class="dv">1</span>:</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> k <span class="kw">in</span> confinedRange(dim, i, i <span class="op">+</span> <span class="dv">2</span>):</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>                    expr <span class="op">+=</span> h[i][k] <span class="op">*</span> h[j][k]</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="st">&quot;Shouldn&#39;t reach here, but just in case.&quot;</span>)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> i <span class="op">==</span> j:</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>                expr <span class="op">-=</span> y</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>            eq.add(expr)</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    variables <span class="op">=</span> <span class="bu">set</span>([elem <span class="cf">for</span> row <span class="kw">in</span> h.values() <span class="cf">for</span> elem <span class="kw">in</span> row.values()])</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    variables.remove(a)</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    variables.add(y)</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sympy.solve(eq, <span class="op">*</span>variables, <span class="bu">dict</span><span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
+  <p>対角でない区画の係数がすべて 0
+  となる解しか得られなかったです。また、行列の大きさが 4
+  以上の偶数のときは解が得られなかったです。</p>
+  <h2
+  id="大きさが異なる直交行列を対角成分に並べた行列は直交行列にならない"><a
+  href="#大きさが異なる直交行列を対角成分に並べた行列は直交行列にならない"
+  class="header-anchor"
+  aria-hidden="true">大きさが異なる直交行列を対角成分に並べた行列は直交行列にならない</a></h2>
+  <p>以降での表記の簡略化のために、行列を以下のように行ベクトル <span
+  class="math inline">\(\vec{a}\)</span> の集まりとして表します。</p>
+  <p><span class="math display">\[
+  A = \begin{bmatrix}
+  a_{11} &amp; a_{12} &amp; \cdots &amp; a_{1n} \\
+  a_{21} &amp; a_{22} &amp;        &amp; a_{2n} \\
+  \vdots &amp;        &amp; \ddots &amp; \vdots \\
+  a_{n1} &amp; a_{n2} &amp; \cdots &amp; a_{nn} \\
+  \end{bmatrix}
+  = \begin{bmatrix}
+  \vec{a}_1 \\ \vec{a}_2 \\ \cdots \\ \vec{a}_n
+  \end{bmatrix}
+  ,\quad\text{where}\quad
+  \vec{a}_i = \begin{bmatrix}
+  a_{i1} &amp; a_{i2} &amp; \cdots &amp; a_{in}
+  \end{bmatrix}.
+  \]</span></p>
+  <p>行ベクトル表記を使うと直交行列の性質を以下のように書けます。中点
+  <span class="math inline">\(\cdot\)</span> は内積 (dot product)
+  です。</p>
+  <p><span class="math display">\[
+  A A^T =
+  \begin{bmatrix}
+  \vec{a}_1 \\ \vec{a}_2 \\ \cdots \\ \vec{a}_n
+  \end{bmatrix}
+  \begin{bmatrix}
+  \vec{a}^T_1 &amp; \vec{a}^T_2 &amp; \cdots &amp; \vec{a}^T_n
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+  \vec{a}_1 \cdot \vec{a}^T_1 &amp; \vec{a}_1 \cdot \vec{a}^T_2 &amp;
+  \cdots &amp; \vec{a}_1 \cdot \vec{a}^T_n \\
+  \vec{a}_2 \cdot \vec{a}^T_1 &amp; \vec{a}_2 \cdot \vec{a}^T_2
+  &amp;        &amp; \vec{a}_2 \cdot \vec{a}^T_n \\
+  \vdots &amp;        &amp; \ddots &amp; \vdots \\
+  \vec{a}_n \cdot \vec{a}^T_1 &amp; \vec{a}_n \cdot \vec{a}^T_2 &amp;
+  \cdots &amp; \vec{a}_n \cdot \vec{a}^T_n \\
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+  1      &amp; 0      &amp; \cdots &amp; 0      \\
+  0      &amp; 1      &amp;        &amp; 0      \\
+  \vdots &amp;        &amp; \ddots &amp; \vdots \\
+  0      &amp; 0      &amp; \cdots &amp; 1      \\
+  \end{bmatrix}
+  = I.
+  \]</span></p>
+  <p>以下の性質が見えます。</p>
+  <p><span class="math display">\[
+  \vec{a}_i \cdot \vec{a}^T_j = \begin{cases}
+  1 &amp; i = j, \\
+  0 &amp; i \neq j. \\
+  \end{cases}
+  \]</span></p>
+  <p>ここからは、本題となる 2 つの異なる大きさの直交行列を 1
+  つの直交行列にまとめる方法について調べます。</p>
+  <p>記号を定義します。</p>
+  <ul>
+  <li><span class="math inline">\(n \times n\)</span> の直交行列 <span
+  class="math inline">\(A.\)</span></li>
+  <li><span class="math inline">\(m \times m\)</span> の直交行列 <span
+  class="math inline">\(D.\)</span></li>
+  <li><span class="math inline">\(n \neq m.\)</span></li>
+  </ul>
+  <p>以下の行列 <span class="math inline">\(P\)</span>
+  が直交行列となるように <span class="math inline">\(B, G\)</span>
+  の値を決めたいです。色は見やすさのために加えています。記号の大きさは行列の大きさが異なることの強調です。</p>
+  <p><span class="math display">\[
+  \newcommand{\cA}[1] {\textcolor{black}{\vec{#1}}}
+  \newcommand{\cB}[1] {\textcolor{red}{\vec{#1}}}
+  \newcommand{\cG}[1] {\textcolor{green}{\vec{#1}}}
+  \newcommand{\cD}[1] {\textcolor{blue}{\vec{#1}}}
+  \]</span></p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  P P^T
+  &amp;=
+  \begin{bmatrix}
+    \Huge{A}  &amp; \small{B} \\
+    \small{G} &amp; \large{D}
+  \end{bmatrix}
+  \begin{bmatrix}
+    \Huge{A}^{\normalsize{T}} &amp; \small{G}^T \\
+    \small{B}^T               &amp; \large{D}^T
+  \end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+  a_{11} &amp; \cdots &amp; a_{1n} &amp; b_{11} &amp; \cdots &amp;
+  b_{1m} \\
+  \vdots &amp;        &amp; \vdots &amp; \vdots &amp;        &amp;
+  \vdots \\
+  a_{n1} &amp; \cdots &amp; a_{nn} &amp; b_{n1} &amp; \cdots &amp;
+  b_{nm} \\
+  g_{11} &amp; \cdots &amp; g_{1n} &amp; d_{11} &amp; \cdots &amp;
+  d_{1m} \\
+  \vdots &amp;        &amp; \vdots &amp; \vdots &amp;        &amp;
+  \vdots \\
+  g_{m1} &amp; \cdots &amp; g_{mn} &amp; d_{m1} &amp; \cdots &amp;
+  d_{mm} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+  a_{11} &amp; \cdots &amp; a_{n1} &amp; g_{11} &amp; \cdots &amp;
+  g_{m1} \\
+  \vdots &amp;        &amp; \vdots &amp; \vdots &amp;        &amp;
+  \vdots \\
+  a_{1n} &amp; \cdots &amp; a_{nn} &amp; g_{1n} &amp; \cdots &amp;
+  g_{mn} \\
+  b_{11} &amp; \cdots &amp; b_{n1} &amp; d_{11} &amp; \cdots &amp;
+  d_{m1} \\
+  \vdots &amp;        &amp; \vdots &amp; \vdots &amp;        &amp;
+  \vdots \\
+  b_{1m} &amp; \cdots &amp; b_{nm} &amp; d_{1m} &amp; \cdots &amp;
+  d_{mm} \\
+  \end{bmatrix}
+  \\&amp;=
+  \begin{bmatrix}
+    (\cA{a}_1 \cdot \cA{a}_1 + \cB{b}_1 \cdot \cB{b}_1) &amp;
+    \cdots                                  &amp;
+    (\cA{a}_1 \cdot \cA{a}_n + \cB{b}_1 \cdot \cB{b}_n) &amp;
+    (\cA{a}_1 \cdot \cG{g}_1 + \cB{b}_1 \cdot \cD{d}_1) &amp;
+    \cdots                                  &amp;
+    (\cA{a}_1 \cdot \cG{g}_m + \cB{b}_1 \cdot \cD{d}_m)
+  \\
+    \vdots &amp;        &amp; \vdots &amp; \vdots &amp;        &amp;
+  \vdots
+  \\
+    (\cA{a}_n \cdot \cA{a}_1 + \cB{b}_n \cdot \cB{b}_1) &amp;
+    \cdots                                  &amp;
+    (\cA{a}_n \cdot \cA{a}_n + \cB{b}_n \cdot \cB{b}_n) &amp;
+    (\cA{a}_n \cdot \cG{g}_1 + \cB{b}_n \cdot \cD{d}_1) &amp;
+    \cdots                                  &amp;
+    (\cA{a}_n \cdot \cG{g}_m + \cB{b}_n \cdot \cD{d}_m)
+  \\
+    (\cG{g}_1 \cdot \cA{a}_1 + \cD{d}_1 \cdot \cB{b}_1) &amp;
+    \cdots                                  &amp;
+    (\cG{g}_1 \cdot \cA{a}_n + \cD{d}_1 \cdot \cB{b}_n) &amp;
+    (\cG{g}_1 \cdot \cG{g}_1 + \cD{d}_1 \cdot \cD{d}_1) &amp;
+    \cdots                                  &amp;
+    (\cG{g}_1 \cdot \cG{g}_m + \cD{d}_1 \cdot \cD{d}_m)
+  \\
+    \vdots &amp;        &amp; \vdots &amp; \vdots &amp;        &amp;
+  \vdots
+  \\
+    (\cG{g}_m \cdot \cA{a}_1 + \cD{d}_m \cdot \cB{b}_1) &amp;
+    \cdots                                  &amp;
+    (\cG{g}_m \cdot \cA{a}_n + \cD{d}_m \cdot \cB{b}_n) &amp;
+    (\cG{g}_m \cdot \cG{g}_1 + \cD{d}_m \cdot \cD{d}_1) &amp;
+    \cdots                                  &amp;
+    (\cG{g}_m \cdot \cG{g}_m + \cD{d}_m \cdot \cD{d}_m)
+  \end{bmatrix}
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(A\)</span> は直交行列なので、 <span
+  class="math inline">\(\cA{a}_i \cdot \cA{a}_j\)</span> は <span
+  class="math inline">\(i \neq j\)</span> のとき 0 です。 <span
+  class="math inline">\(D\)</span> についても同様です。</p>
+  <p>上の展開式より、以下の条件が見えます。</p>
+  <ol type="1">
+  <li><span class="math inline">\(\cA{a}_i \cdot \cG{g}_j\)</span>
+  はすべて 0 。</li>
+  <li><span class="math inline">\(\cD{d}_i \cdot \cB{b}_j\)</span>
+  はすべて 0 。</li>
+  <li><span class="math inline">\(\cB{b}_i \cdot \cB{b}_j\)</span> と
+  <span class="math inline">\(\cG{g}_i \cdot \cG{g}_j\)</span>
+  について、
+  <ul>
+  <li><span class="math inline">\(i = j\)</span> なら、すべての <span
+  class="math inline">\(i\)</span> について何らかの定数。</li>
+  <li><span class="math inline">\(i \neq j\)</span> なら、 0 。</li>
+  </ul></li>
+  </ol>
+  <ul>
+  <li>条件 1 より <span class="math inline">\(\cG{g}_i =
+  \cA{a}_k\)</span> 。 <span class="math inline">\(k\)</span> は <span
+  class="math inline">\([1, n]\)</span> の範囲で <span
+  class="math inline">\(i\)</span> と等しくなければなんでもいい。つまり
+  <span class="math inline">\(G\)</span> は <span
+  class="math inline">\(A\)</span>
+  の行を抜き出して順序を入れ換えた行列。</li>
+  <li>条件 2 より <span class="math inline">\(\cB{b}_i =
+  \cD{d}_k\)</span> 。 <span class="math inline">\(k\)</span> は <span
+  class="math inline">\([1, m]\)</span> の範囲で <span
+  class="math inline">\(i\)</span> と等しくなければなんでもいい。つまり
+  <span class="math inline">\(B\)</span> は <span
+  class="math inline">\(D\)</span>
+  の行を抜き出して順序を入れ換えた行列。</li>
+  <li>条件 3 を満たすには上記の <span class="math inline">\(k\)</span>
+  について同じ値を 2 回以上使わなければいい。つまり <span
+  class="math inline">\(B, G\)</span>
+  のすべての行が異なっていればいい。</li>
+  </ul>
+  <p>ここで問題があります。 <span class="math inline">\(n &gt;
+  m\)</span> のときに条件 2 の構築を行うと、 <span
+  class="math inline">\(D\)</span> の行数より <span
+  class="math inline">\(B\)</span> の行数が多くなるので、 <span
+  class="math inline">\(B\)</span> に重複する行が現れます。 <span
+  class="math inline">\(n &lt; m\)</span> のときは <span
+  class="math inline">\(G\)</span>
+  について同様です。この重複があると非対角成分に 0
+  でない要素が現れてしまうので、構築は不可に見えます。</p>
+  <p>この問題は正方でない直交行列が構築できるかという問題と関連しています。以下のリンク先では上の結論と同様に、正方でない行列
+  <span class="math inline">\(B\)</span> について、 <span
+  class="math inline">\(B B^T = I\)</span> としたいとき、 <span
+  class="math inline">\(B\)</span>
+  の行数が列数よりも大きいときは条件が満たせないと言われています。</p>
+  <ul>
+  <li><a
+  href="https://math.stackexchange.com/questions/1121812/orthogonal-rectangular-matrix">matrices
+  - “Orthogonal” Rectangular Matrix - Mathematics Stack
+  Exchange</a></li>
+  </ul>
+  <h2 id="つの直交行列のクロネッカー積は直交行列"><a
+  href="#つの直交行列のクロネッカー積は直交行列" class="header-anchor"
+  aria-hidden="true">2 つの直交行列のクロネッカー積は直交行列</a></h2>
+  <p><a
+  href="https://en.wikipedia.org/wiki/Kronecker_product">クロネッカー積</a>は
+  mixed-product property と呼ばれる以下の性質を持ちます。</p>
+  <p><span class="math display">\[
+  (A \otimes B) (C \otimes D) = (A C) \otimes (B D)
+  \]</span></p>
+  <p>また、転置について以下の性質を持ちます。</p>
+  <p><span class="math display">\[
+  (A \otimes B)^T = A^T \otimes B^T
+  \]</span></p>
+  <p>したがって <span class="math inline">\(A, B\)</span>
+  を直交行列とすると以下の式変形ができます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  (A \otimes B) ((A \otimes B)^T)
+  = (A \otimes B) (A^T \otimes B^T)
+  = (A A^T) \otimes (B B^T)
+  = I \otimes I
+  = I
+  \end{aligned}
+  \]</span></p>
+  <p>よって 2 つの直交行列のクロネッカー積は直交行列です。</p>
+  <p>以下のコードでテストしたところ、計算もうまくいくことがわかりました。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>seed <span class="op">=</span> <span class="dv">568785145</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(seed)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>size <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> ortho_group.rvs(size, random_state<span class="op">=</span>rng)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> ortho_group.rvs(size, random_state<span class="op">=</span>rng)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> np.kron(A, B)  <span class="co"># この行列は直交行列？</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>np.testing.assert_almost_equal(C <span class="op">@</span> C.T, np.identity(C.shape[<span class="dv">0</span>]))</span></code></pre></div>
+  <h2 id="その他"><a href="#その他" class="header-anchor"
+  aria-hidden="true">その他</a></h2>
+  <p>「0
+  を含む形」でいい結果が出なかったので、この手法はドラムの合成については筋がいいとは言えない気がします。とりあえず
+  <a
+  href="https://ryukau.github.io/UhhyouWebSynthesizers/CoupledSnare/synth.html">CoupledSnare</a>
+  というスネアドラムのシンセサイザで 2x2
+  の場合について実装したので、興味があれば試してみてください。リンク先の
+  <code>Misc. -&gt; Coupling Gain</code> で FDN
+  のカップリングを調整できます。</p>
+  <p>一通り調べてから “FDN coupling”
+  で検索したところ、以下の論文を見つけました。</p>
+  <ol type="1">
+  <li>Das, Orchisama, and Jonathan S. Abel. “<a
+  href="https://ccrma.stanford.edu/~orchi/Documents/JAES21_GFDN.pdf">Grouped
+  feedback delay networks for modeling of coupled spaces.</a>” Journal
+  of the Audio Engineering Society 69.7/8 (2021): 486-496.</li>
+  <li>Das, Orchisama, Sebastian J. Schlecht, and Enzo De Sena. “<a
+  href="https://acris.aalto.fi/ws/portalfiles/portal/113021875/Grouped_Feedback_Delay_Networks_With_Frequency_Dependent_Coupling.pdf">Grouped
+  feedback delay networks with frequency-dependent coupling.</a>”
+  IEEE/ACM Transactions on Audio, Speech, and Language Processing 31
+  (2023): 2004-2015.</li>
+  </ol>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
