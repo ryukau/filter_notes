@@ -17,7 +17,7 @@ $I$ は単位行列、 $W$ は直交行列です。以降では主に $W$ の非
 
 $i$ を行列の要素のインデックスとします。 $a_i$ は範囲 $[-1, 1]$ のスカラーで、各 FDN のフィードバックゲインを表しています。 $A_i$ はそれぞれ任意の直交行列です。以降ではアルファベットの大文字は行列、小文字はスカラーを表すことにします。
 
-以下は確認に使った Python 3 のコードへのリンクです。
+コードはすべて Python 3 です。以下は確認に使った Python 3 のコードへのリンクです。
 
 - [filter_notes/fdn_coupling_by_feedback_matrix/test.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/fdn_coupling_by_feedback_matrix/test.py)
 
@@ -50,7 +50,7 @@ E E^T
 $$
 
 ### 2 つの直交行列からの構築 (非対角成分が 0 でない)
-対角成分が 0 でない場合を調べます。 2 つのスカラー $a, d$ を用意して、以下のより一般的な形の行列を用意します。
+対角成分が 0 でない以下の形を調べます。 $a, d$ はスカラーです。
 
 $$
 F = \begin{bmatrix}a A & B \\ C & d D\end{bmatrix}.
@@ -85,7 +85,7 @@ $$
 - $a A   C^T + d D^T B   = 0.$
 - $a A^T C   + d D   B^T = 0.$
 
-以下の 2 つの場合に条件を満たすことができます。 (別解あり。後述。)
+以下の 2 つの場合に条件を満たすことができます。 (別解あり。「列方向に同じ直交行列を並べたときの解」のコードを参照。)
 
 $$
 \begin{matrix}
@@ -311,7 +311,7 @@ $$
 \end{aligned}
 $$
 
-### 一般化
+### 列方向に同じ直交行列を並べたときの解
 以下は構築したい行列 $H$ の定義です。対角成分の $A_{ii}$ は任意の直交行列です。
 
 $$
@@ -384,7 +384,7 @@ $$
 A_{ij} = \sum_{k=1}^n h_{ik} h_{jk}.
 $$
 
-以下の連立方程式の解が、問題の一般解です。見やすさのために総和を行列の外に出しています。対角成分を境として対称性があるので上下どちらかの三角行列にあたる式だけを連立すれば十分です。また、 $y$ も方程式の変数です。
+あとは以下の連立方程式を解けば欲しい行列が構築できます。見やすさのために総和を行列の外に出しています。対角成分を境として対称性があるので上下どちらかの三角行列にあたる式だけを連立すれば十分です。また、 $y$ も方程式の変数です。
 
 $$
 y I =
@@ -397,7 +397,7 @@ h_{nk} h_{1k} & h_{nk} h_{2k} & \cdots & h_{nk} h_{nk}
 \end{bmatrix}.
 $$
 
-SymPy で解きます。そのままだと計算が終わらなさそうだったので、適当に $h_{ij} = b$ としました。したがって、この節の以降の結果は一般解ではありません。
+SymPy で解きます。そのままだと計算が終わらなさそうだったので、適当に $h_{ij} = b$ としました。したがって解の数が減っています。
 
 ```python
 def solveCoefficientsFull(dim: int) -> dict:
@@ -431,10 +431,10 @@ def solveCoefficientsFull(dim: int) -> dict:
 
 - [`dim` を 2 から 128 まで変えたときの特殊解 (github.com)](https://github.com/ryukau/filter_notes/blob/master/fdn_coupling_by_feedback_matrix/out_all_b.json)
 
-一般解を得たいときは `h` の定義を以下のように変えます。ただし `dim >= 3` のときに計算が終わらないかもしれません。
+すべての解を得たいときは `h` の定義を以下のように変えます。ただし `dim >= 3` のときに計算が終わらないかもしれません。
 
 ```python
-# 一般化された形。
+# 問題の定義通りの形。
 h = {
     i: {j: sympy.Symbol(f"h_{i},{j}") if i != j else a for j in range(1, dim + 1)}
     for i in range(1, dim + 1)
@@ -444,7 +444,7 @@ h = {
 `dim == 3` のケースであれば、以下のように $h_{1n} = h_{n1} = b$ とすれば、いくつかの解が得られます。
 
 ```python
-# 一般化された形と同じ。
+# 問題の定義通りの形と同じ。
 h = {
     i: {j: sympy.Symbol(f"h_{i},{j}") if i != j else a for j in range(1, dim + 1)}
     for i in range(1, dim + 1)
@@ -794,3 +794,8 @@ np.testing.assert_almost_equal(C @ C.T, np.identity(C.shape[0]))
 
 1. Das, Orchisama, and Jonathan S. Abel. "[Grouped feedback delay networks for modeling of coupled spaces.](https://ccrma.stanford.edu/~orchi/Documents/JAES21_GFDN.pdf)" Journal of the Audio Engineering Society 69.7/8 (2021): 486-496.
 2. Das, Orchisama, Sebastian J. Schlecht, and Enzo De Sena. "[Grouped feedback delay networks with frequency-dependent coupling.](https://acris.aalto.fi/ws/portalfiles/portal/113021875/Grouped_Feedback_Delay_Networks_With_Frequency_Dependent_Coupling.pdf)" IEEE/ACM Transactions on Audio, Speech, and Language Processing 31 (2023): 2004-2015.
+
+## 変更点
+- 2024/12/30
+  - 「一般化」を「列方向に同じ直交行列を並べたときの解」に変更。
+  - 文章の整理。

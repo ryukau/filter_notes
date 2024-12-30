@@ -430,7 +430,8 @@
         <li><a href="#つの直交行列からの構築"
         id="toc-つの直交行列からの構築">3
         つの直交行列からの構築</a></li>
-        <li><a href="#一般化" id="toc-一般化">一般化</a></li>
+        <li><a href="#列方向に同じ直交行列を並べたときの解"
+        id="toc-列方向に同じ直交行列を並べたときの解">列方向に同じ直交行列を並べたときの解</a></li>
         <li><a href="#を含む形" id="toc-を含む形">0 を含む形</a></li>
         </ul></li>
         <li><a
@@ -440,6 +441,7 @@
         id="toc-つの直交行列のクロネッカー積は直交行列">2
         つの直交行列のクロネッカー積は直交行列</a></li>
         <li><a href="#その他" id="toc-その他">その他</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -473,7 +475,8 @@
   のフィードバックゲインを表しています。 <span
   class="math inline">\(A_i\)</span>
   はそれぞれ任意の直交行列です。以降ではアルファベットの大文字は行列、小文字はスカラーを表すことにします。</p>
-  <p>以下は確認に使った Python 3 のコードへのリンクです。</p>
+  <p>コードはすべて Python 3 です。以下は確認に使った Python 3
+  のコードへのリンクです。</p>
   <ul>
   <li><a
   href="https://github.com/ryukau/filter_notes/blob/master/fdn_coupling_by_feedback_matrix/test.py">filter_notes/fdn_coupling_by_feedback_matrix/test.py
@@ -516,9 +519,8 @@
   href="#つの直交行列からの構築-非対角成分が-0-でない"
   class="header-anchor" aria-hidden="true">2 つの直交行列からの構築
   (非対角成分が 0 でない)</a></h3>
-  <p>対角成分が 0 でない場合を調べます。 2 つのスカラー <span
-  class="math inline">\(a, d\)</span>
-  を用意して、以下のより一般的な形の行列を用意します。</p>
+  <p>対角成分が 0 でない以下の形を調べます。 <span
+  class="math inline">\(a, d\)</span> はスカラーです。</p>
   <p><span class="math display">\[
   F = \begin{bmatrix}a A &amp; B \\ C &amp; d D\end{bmatrix}.
   \]</span></p>
@@ -560,7 +562,7 @@
   0.\)</span></li>
   </ul>
   <p>以下の 2 つの場合に条件を満たすことができます。
-  (別解あり。後述。)</p>
+  (別解あり。「列方向に同じ直交行列を並べたときの解」のコードを参照。)</p>
   <p><span class="math display">\[
   \begin{matrix}
   \begin{aligned}
@@ -783,8 +785,9 @@
   : - \frac{\sqrt{2} i a}{2}, \  s : a, \  t : a, \  y : 0\right\}.
   \end{aligned}
   \]</span></p>
-  <h3 id="一般化"><a href="#一般化" class="header-anchor"
-  aria-hidden="true">一般化</a></h3>
+  <h3 id="列方向に同じ直交行列を並べたときの解"><a
+  href="#列方向に同じ直交行列を並べたときの解" class="header-anchor"
+  aria-hidden="true">列方向に同じ直交行列を並べたときの解</a></h3>
   <p>以下は構築したい行列 <span class="math inline">\(H\)</span>
   の定義です。対角成分の <span class="math inline">\(A_{ii}\)</span>
   は任意の直交行列です。</p>
@@ -866,7 +869,7 @@
   <p><span class="math display">\[
   A_{ij} = \sum_{k=1}^n h_{ik} h_{jk}.
   \]</span></p>
-  <p>以下の連立方程式の解が、問題の一般解です。見やすさのために総和を行列の外に出しています。対角成分を境として対称性があるので上下どちらかの三角行列にあたる式だけを連立すれば十分です。また、
+  <p>あとは以下の連立方程式を解けば欲しい行列が構築できます。見やすさのために総和を行列の外に出しています。対角成分を境として対称性があるので上下どちらかの三角行列にあたる式だけを連立すれば十分です。また、
   <span class="math inline">\(y\)</span> も方程式の変数です。</p>
   <p><span class="math display">\[
   y I =
@@ -881,7 +884,7 @@
   <p>SymPy
   で解きます。そのままだと計算が終わらなさそうだったので、適当に <span
   class="math inline">\(h_{ij} = b\)</span>
-  としました。したがって、この節の以降の結果は一般解ではありません。</p>
+  としました。したがって解の数が減っています。</p>
   <div class="sourceCode" id="cb6"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solveCoefficientsFull(dim: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> sympy.Symbol(<span class="st">&quot;a&quot;</span>)</span>
@@ -915,11 +918,11 @@
   href="https://github.com/ryukau/filter_notes/blob/master/fdn_coupling_by_feedback_matrix/out_all_b.json"><code>dim</code>
   を 2 から 128 まで変えたときの特殊解 (github.com)</a></li>
   </ul>
-  <p>一般解を得たいときは <code>h</code>
+  <p>すべての解を得たいときは <code>h</code>
   の定義を以下のように変えます。ただし <code>dim &gt;= 3</code>
   のときに計算が終わらないかもしれません。</p>
   <div class="sourceCode" id="cb7"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 一般化された形。</span></span>
+  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 問題の定義通りの形。</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> {</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    i: {j: sympy.Symbol(<span class="ss">f&quot;h_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">&quot;</span>) <span class="cf">if</span> i <span class="op">!=</span> j <span class="cf">else</span> a <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)}</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)</span>
@@ -928,7 +931,7 @@
   class="math inline">\(h_{1n} = h_{n1} = b\)</span>
   とすれば、いくつかの解が得られます。</p>
   <div class="sourceCode" id="cb8"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 一般化された形と同じ。</span></span>
+  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 問題の定義通りの形と同じ。</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> {</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    i: {j: sympy.Symbol(<span class="ss">f&quot;h_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">,</span><span class="sc">{</span>j<span class="sc">}</span><span class="ss">&quot;</span>) <span class="cf">if</span> i <span class="op">!=</span> j <span class="cf">else</span> a <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)}</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, dim <span class="op">+</span> <span class="dv">1</span>)</span>
@@ -1378,6 +1381,15 @@
   IEEE/ACM Transactions on Audio, Speech, and Language Processing 31
   (2023): 2004-2015.</li>
   </ol>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2024/12/30
+  <ul>
+  <li>「一般化」を「列方向に同じ直交行列を並べたときの解」に変更。</li>
+  <li>文章の整理。</li>
+  </ul></li>
+  </ul>
     <footer>
     <a href="../index.html">インデックスに戻る</a>
   </footer>
