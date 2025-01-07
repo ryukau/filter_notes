@@ -655,7 +655,7 @@ $$
 以下の行列 $P$ が直交行列となるように $B, G$ の値を決めたいです。色は見やすさのために加えています。記号の大きさは行列の大きさが異なることの強調です。
 
 $$
-\newcommand{\cA}[1] {\textcolor{black}{\vec{#1}}}
+\newcommand{\cA}[1] {\vec{#1}}
 \newcommand{\cB}[1] {\textcolor{red}{\vec{#1}}}
 \newcommand{\cG}[1] {\textcolor{green}{\vec{#1}}}
 \newcommand{\cD}[1] {\textcolor{blue}{\vec{#1}}}
