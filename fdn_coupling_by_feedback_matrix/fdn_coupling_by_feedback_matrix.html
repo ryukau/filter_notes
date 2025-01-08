@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2025-01-07" />
+      <meta name="dcterms.date" content="2025-01-09" />
       <title>fdn_coupling_by_feedback_matrix</title>
 
   <style>
@@ -411,7 +411,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2025-01-07
+      Update: 2025-01-09
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -546,6 +546,21 @@
     C   a A^T + d D B^T  &amp;   C C^T + d^2 D D^T
   \end{bmatrix}
   \\&amp;=
+  \begin{bmatrix}
+    a^2 I     + B B^T   &amp; a A C^T + B d D^T \\
+    C   a A^T + d D B^T &amp;   C C^T + d^2 I
+  \end{bmatrix}
+  \end{aligned}
+  \]</span></p>
+  <p>対角成分に含まれる項の <span class="math inline">\(B B^T\)</span>
+  と <span class="math inline">\(C C^T\)</span>
+  を決めます。とりあえず計算できる形が欲しいので、適当に <span
+  class="math inline">\(B, C\)</span>
+  を直交行列とします。すると以下の形が出てきます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  F F^T
+  &amp;=
   \begin{bmatrix}
     (a^2 + 1) I  &amp; a A C^T + B   d D^T \\
     C   a A^T + d D B^T  &amp;   (d^2 + 1) I
@@ -868,7 +883,7 @@
   <p>以下はインデックス <span class="math inline">\((i, j)\)</span>
   の式の形です。</p>
   <p><span class="math display">\[
-  A_{ij} = \sum_{k=1}^n h_{ik} h_{jk}.
+  \sum_{k=1}^n h_{ik} h_{jk}.
   \]</span></p>
   <p>あとは以下の連立方程式を解けば欲しい行列が構築できます。見やすさのために総和を行列の外に出しています。対角成分を境として対称性があるので上下どちらかの三角行列にあたる式だけを連立すれば十分です。また、
   <span class="math inline">\(y\)</span> も方程式の変数です。</p>
@@ -1385,6 +1400,16 @@
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2025/01/09
+  <ul>
+  <li>「2 つの直交行列からの構築 (非対角成分が 0 でない)」で、適当に
+  <span class="math inline">\(B, C\)</span>
+  を直交行列としたことを追加。</li>
+  <li>「列方向に同じ直交行列を並べたときの解」のインデックス <span
+  class="math inline">\((i, j)\)</span> の式の左辺を削除。 <span
+  class="math inline">\(A_{ij} = ...\)</span>
+  としていたが定義とあっていなかった。</li>
+  </ul></li>
   <li>2024/12/30
   <ul>
   <li>「一般化」を「列方向に同じ直交行列を並べたときの解」に変更。</li>

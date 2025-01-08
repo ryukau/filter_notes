@@ -74,6 +74,19 @@ F F^T
 \end{bmatrix}
 \\&=
 \begin{bmatrix}
+  a^2 I     + B B^T   & a A C^T + B d D^T \\
+  C   a A^T + d D B^T &   C C^T + d^2 I
+\end{bmatrix}
+\end{aligned}
+$$
+
+対角成分に含まれる項の $B B^T$ と $C C^T$ を決めます。とりあえず計算できる形が欲しいので、適当に $B, C$ を直交行列とします。すると以下の形が出てきます。
+
+$$
+\begin{aligned}
+F F^T
+&=
+\begin{bmatrix}
   (a^2 + 1) I  & a A C^T + B   d D^T \\
   C   a A^T + d D B^T  &   (d^2 + 1) I
 \end{bmatrix}
@@ -381,7 +394,7 @@ $$
 以下はインデックス $(i, j)$ の式の形です。
 
 $$
-A_{ij} = \sum_{k=1}^n h_{ik} h_{jk}.
+\sum_{k=1}^n h_{ik} h_{jk}.
 $$
 
 あとは以下の連立方程式を解けば欲しい行列が構築できます。見やすさのために総和を行列の外に出しています。対角成分を境として対称性があるので上下どちらかの三角行列にあたる式だけを連立すれば十分です。また、 $y$ も方程式の変数です。
@@ -796,6 +809,9 @@ np.testing.assert_almost_equal(C @ C.T, np.identity(C.shape[0]))
 2. Das, Orchisama, Sebastian J. Schlecht, and Enzo De Sena. "[Grouped feedback delay networks with frequency-dependent coupling.](https://acris.aalto.fi/ws/portalfiles/portal/113021875/Grouped_Feedback_Delay_Networks_With_Frequency_Dependent_Coupling.pdf)" IEEE/ACM Transactions on Audio, Speech, and Language Processing 31 (2023): 2004-2015.
 
 ## 変更点
+- 2025/01/09
+  - 「2 つの直交行列からの構築 (非対角成分が 0 でない)」で、適当に $B, C$ を直交行列としたことを追加。
+  - 「列方向に同じ直交行列を並べたときの解」のインデックス $(i, j)$ の式の左辺を削除。 $A_{ij} = ...$ としていたが定義とあっていなかった。
 - 2024/12/30
   - 「一般化」を「列方向に同じ直交行列を並べたときの解」に変更。
   - 文章の整理。
