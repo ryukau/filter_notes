@@ -61,6 +61,39 @@ def adaa2Bypass(x):
     return y
 
 
+def adaa2CosineWindow(x):
+    eps = np.finfo(np.float64).eps
+    x = x.copy()
+    y = np.zeros_like(x)
+
+    x1 = 0
+    x2 = 0
+    for n, _ in enumerate(x):
+        x0 = x[n]
+
+        d0 = x0 - x1
+        t0 = 0
+        if np.abs(d0) < eps:
+            mid = 0.5 + 2 / (np.pi * np.pi)
+            t0 = 0.5 * (x2 + mid * (x1 - x2))
+        else:
+            t0 = (-x0 + x1 + np.pi**2 * (x0 + x1) / 4) / np.pi**2
+
+        d1 = x1 - x2
+        t1 = 0
+        if np.abs(d1) < eps:
+            mid = 0.5 - 2 / (np.pi * np.pi)
+            t1 = 0.5 * (x1 + mid * (x2 - x1))
+        else:
+            t1 = (x1 - x2 + np.pi**2 * (x1 + x2) / 4) / np.pi**2
+
+        y[n] = t0 + t1
+
+        x2 = x1
+        x1 = x0
+    return y
+
+
 def peakHold(sig, holdTime):
     """
     sig: 入力信号。
@@ -117,7 +150,7 @@ def generateSignal(upRate, length, seed=None):
     rng = np.random.default_rng(seed)
     sig = 2.0 * rng.binomial(1, 0.5, length) - 1
 
-    # frequencyNormalized = 1661 / 48000
+    # frequencyNormalized = 16661 / 48000
     # phase = 0
     # sig = np.empty(length)
     # for i in range(len(sig)):
@@ -145,12 +178,14 @@ if __name__ == "__main__":
     length = 65536
     holdTime = 128
     upRate = 16
-    seed = 68464
+    seed = None
 
     sig, up, downAbs = generateSignal(upRate, length, seed)
 
     src = sig.copy()
-    sig = adaa1Bypass(sig)
+    # sig = adaa1Bypass(sig)
+    # sig = adaa2Bypass(sig)
+    sig = adaa2CosineWindow(sig)
     limited = applyLimiter(sig, np.abs(sig), holdTime)
     # limited = applyLimiter(sig, downAbs, holdTime) # Reference quality.
 
