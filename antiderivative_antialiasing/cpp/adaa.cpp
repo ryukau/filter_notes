@@ -334,7 +334,7 @@ template<typename T> inline T log1pJ2(T x)
 
 template<typename Sample> class SaturatorAdaa1 {
 private:
-  static constexpr Sample eps = Sample(std::numeric_limits<float>::epsilon());
+  static constexpr Sample eps = std::numeric_limits<Sample>::epsilon();
   Sample x1 = 0;
   Sample s1 = 0;
 
@@ -413,7 +413,7 @@ public:
 
 template<typename Sample> class SaturatorAdaa2 {
 private:
-  static constexpr Sample eps = Sample(0.0000152587890625);
+  static constexpr Sample eps = std::numeric_limits<Sample>::epsilon();
   Sample x1 = 0;
   Sample x2 = 0;
   Sample s1 = 0;
