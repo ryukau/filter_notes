@@ -127,6 +127,8 @@ def idealPeakHoldNaive(sig, holdtime: int):
 ここでは上のコードのアルゴリズムのことを理想的なホールドの素朴な実装と呼びます。素朴な実装の問題点は計算量です。上のコードの `out[i] = max(buffer)` は Python では 1 行で書けますが、計算量はバッファの長さに比例します。したがってホールド時間を長くすると計算が重たくなります。
 
 ### リアルタイムで使えるアルゴリズム {#realtime-implementation}
+**追加情報**: 「[SignalSmith Audio による一定時間アルゴリズム](#signalsmith-audio-による計算時間が一定のアルゴリズム)」でより良いアルゴリズムを紹介しています。
+
 計算量の問題を解決するために試行錯誤したところ、局所最大値をキューに保存することで高速に計算するアルゴリズムを思いつきました。
 
 例として以下のような入力について考えます。図の赤い実線が理想的なホールドの出力です。赤い点線は出力値の候補を表しています。
@@ -454,6 +456,31 @@ int main()
 
 `RingQueue` は `push_back` や `pop_front` でメモリの確保や解放が行われないようにした `std::deque` の代替です。速度はほとんど同じです。
 
+### SignalSmith Audio による計算時間が一定のアルゴリズム
+Signalsmith Audio の Geraint Luff さんによる以下の記事でより良いピークホールドのアルゴリズムが紹介されています。
+
+- [Constant-time peak-hold  :  Blog  :  Signalsmith Audio](https://signalsmith-audio.co.uk/writing/2022/constant-time-peak-hold/)
+
+以下はリファレンス実装へのリンクです。
+
+- [dsp/envelopes.h at 5c7d1f3eb375b4862b682d310ccfbaafb6a4477e · Signalsmith-Audio/dsp · GitHub](https://github.com/Signalsmith-Audio/dsp/blob/5c7d1f3eb375b4862b682d310ccfbaafb6a4477e/envelopes.h#L362)
+
+Geraint Luff さんのアルゴリズムはホールド時間が一定であれば計算量が $O(1)$ という大きな利点があります。また、ホールド時間をリアルタイムで変更することができます。簡単なベンチマークをとったところ、上で紹介しているピークホールドよりも計算が速かったです。
+
+2025-02-25 の時点ではリファレンス実装に一つバグがあるので注意してください。リファレンス実装のリンク先の `PeakHold::resize()` に以下の行があります。
+
+```c++
+while (bufferLength < maxLength) bufferLength *= 2;
+```
+
+ループの条件の比較を `<` から `<=` に変えるとバグが直ります。
+
+```c++
+while (bufferLength <= maxLength) bufferLength *= 2;
+```
+
+上記の変更がなければ `maxLength` がちょうど $2^n$ のときにバッファの長さが足りずに予期しないスパイクが出力に乗ってしまいます。
+
 ## その他
 ### 後ろ向きホールド
 試行錯誤しているときに下の図のような後ろ向きホールドを思いついたのですが、理想的なホールドの生成には使えないことがわかりました。
@@ -501,7 +528,12 @@ def peakHoldBackward(sig, holdtime, reset=0):
 - c は b のホールド時間内に現れる。
 - a > b かつ c > b 。
 
+## 参考文献
+- [Constant-time peak-hold  :  Blog  :  Signalsmith Audio](https://signalsmith-audio.co.uk/writing/2022/constant-time-peak-hold/)
+
 ## 変更点
+- 2025-02-25
+  - 「[SignalSmith Audio による計算時間が一定のアルゴリズム](#signalsmith-audio-による計算時間が一定のアルゴリズム)」の節を追加。
 - 2022/05/07
   - C++ の実装を変更。
     - `PeakHold::process()` をより効率よく実装。

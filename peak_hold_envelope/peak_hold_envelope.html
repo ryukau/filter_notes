@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2025-01-07" />
+      <meta name="dcterms.date" content="2025-02-25" />
       <title>peak_hold_envelope</title>
 
   <style>
@@ -411,7 +411,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2025-01-07
+      Update: 2025-02-25
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -435,12 +435,17 @@
         <li><a href="#テスト" id="toc-テスト">テスト</a></li>
         <li><a href="#c-による実装" id="toc-c-による実装">C++
         による実装</a></li>
+        <li><a
+        href="#signalsmith-audio-による計算時間が一定のアルゴリズム"
+        id="toc-signalsmith-audio-による計算時間が一定のアルゴリズム">SignalSmith
+        Audio による計算時間が一定のアルゴリズム</a></li>
         </ul></li>
         <li><a href="#その他" id="toc-その他">その他</a>
         <ul>
         <li><a href="#後ろ向きホールド"
         id="toc-後ろ向きホールド">後ろ向きホールド</a></li>
         </ul></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
         <li><a href="#変更点" id="toc-変更点">変更点</a></li>
         </ul></li>
         </ul>
@@ -563,6 +568,10 @@
   <h3 id="realtime-implementation"><a href="#realtime-implementation"
   class="header-anchor"
   aria-hidden="true">リアルタイムで使えるアルゴリズム</a></h3>
+  <p><strong>追加情報</strong>: 「<a
+  href="#signalsmith-audio-による計算時間が一定のアルゴリズム">SignalSmith
+  Audio
+  による一定時間アルゴリズム</a>」でより良いアルゴリズムを紹介しています。</p>
   <p>計算量の問題を解決するために試行錯誤したところ、局所最大値をキューに保存することで高速に計算するアルゴリズムを思いつきました。</p>
   <p>例として以下のような入力について考えます。図の赤い実線が理想的なホールドの出力です。赤い点線は出力値の候補を表しています。</p>
   <figure>
@@ -882,6 +891,39 @@
   <p><code>RingQueue</code> は <code>push_back</code> や
   <code>pop_front</code> でメモリの確保や解放が行われないようにした
   <code>std::deque</code> の代替です。速度はほとんど同じです。</p>
+  <h3 id="signalsmith-audio-による計算時間が一定のアルゴリズム"><a
+  href="#signalsmith-audio-による計算時間が一定のアルゴリズム"
+  class="header-anchor" aria-hidden="true">SignalSmith Audio
+  による計算時間が一定のアルゴリズム</a></h3>
+  <p>Signalsmith Audio の Geraint Luff
+  さんによる以下の記事でより良いピークホールドのアルゴリズムが紹介されています。</p>
+  <ul>
+  <li><a
+  href="https://signalsmith-audio.co.uk/writing/2022/constant-time-peak-hold/">Constant-time
+  peak-hold  :  Blog  :  Signalsmith Audio</a></li>
+  </ul>
+  <p>以下はリファレンス実装へのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/Signalsmith-Audio/dsp/blob/5c7d1f3eb375b4862b682d310ccfbaafb6a4477e/envelopes.h#L362">dsp/envelopes.h
+  at 5c7d1f3eb375b4862b682d310ccfbaafb6a4477e · Signalsmith-Audio/dsp ·
+  GitHub</a></li>
+  </ul>
+  <p>Geraint Luff さんのアルゴリズムはホールド時間が一定であれば計算量が
+  <span class="math inline">\(O(1)\)</span>
+  という大きな利点があります。また、ホールド時間をリアルタイムで変更することができます。簡単なベンチマークをとったところ、上で紹介しているピークホールドよりも計算が速かったです。</p>
+  <p>2025-02-25
+  の時点ではリファレンス実装に一つバグがあるので注意してください。リファレンス実装のリンク先の
+  <code>PeakHold::resize()</code> に以下の行があります。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>bufferLength <span class="op">&lt;</span> maxLength<span class="op">)</span> bufferLength <span class="op">*=</span> <span class="dv">2</span><span class="op">;</span></span></code></pre></div>
+  <p>ループの条件の比較を <code>&lt;</code> から <code>&lt;=</code>
+  に変えるとバグが直ります。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>bufferLength <span class="op">&lt;=</span> maxLength<span class="op">)</span> bufferLength <span class="op">*=</span> <span class="dv">2</span><span class="op">;</span></span></code></pre></div>
+  <p>上記の変更がなければ <code>maxLength</code> がちょうど <span
+  class="math inline">\(2^n\)</span>
+  のときにバッファの長さが足りずに予期しないスパイクが出力に乗ってしまいます。</p>
   <h2 id="その他"><a href="#その他" class="header-anchor"
   aria-hidden="true">その他</a></h2>
   <h3 id="後ろ向きホールド"><a href="#後ろ向きホールド"
@@ -902,21 +944,21 @@
   <p><span class="math inline">\(z^{-d}\)</span> は <span
   class="math inline">\(d\)</span> サンプルの遅延を表しています。</p>
   <p>後ろ向きホールドの実装です。インデックスの並びが逆転している以外は、前向きホールドと同じです。</p>
-  <div class="sourceCode" id="cb8"><pre
-  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> peakHoldBackward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    hold <span class="op">=</span> reset</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">reversed</span>(<span class="bu">range</span>(<span class="bu">len</span>(sig))): <span class="co"># ここだけ変更。</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            counter <span class="op">-=</span> <span class="dv">1</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>            hold <span class="op">=</span> reset</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> hold <span class="op">&lt;=</span> sig[i]:</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            hold <span class="op">=</span> sig[i]</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            counter <span class="op">=</span> holdtime</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> hold</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> peakHoldBackward(sig, holdtime, reset<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> np.empty(<span class="bu">len</span>(sig))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    hold <span class="op">=</span> reset</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    counter <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">reversed</span>(<span class="bu">range</span>(<span class="bu">len</span>(sig))): <span class="co"># ここだけ変更。</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> counter <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            counter <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            hold <span class="op">=</span> reset</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> hold <span class="op">&lt;=</span> sig[i]:</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            hold <span class="op">=</span> sig[i]</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>            counter <span class="op">=</span> holdtime</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> hold</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div>
   <p>以下は前向きと後ろ向きホールドを組み合わせても理想的なホールドの生成に失敗するケースです。黒い縦線が入力、青い縦の点線がディレイをかけた入力です。赤の実線が前向きホールドの出力、緑の実線が後ろ向きホールドの出力です。</p>
   <figure>
   <img src="img/backward_hold_fail.svg" alt="Example plots of a case that backward hold fails to make correct envelope." style="padding-bottom: 12px;"/>
@@ -928,9 +970,22 @@
   <li>c は b のホールド時間内に現れる。</li>
   <li>a &gt; b かつ c &gt; b 。</li>
   </ul>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="https://signalsmith-audio.co.uk/writing/2022/constant-time-peak-hold/">Constant-time
+  peak-hold  :  Blog  :  Signalsmith Audio</a></li>
+  </ul>
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2025-02-25
+  <ul>
+  <li>「<a
+  href="#signalsmith-audio-による計算時間が一定のアルゴリズム">SignalSmith
+  Audio による計算時間が一定のアルゴリズム</a>」の節を追加。</li>
+  </ul></li>
   <li>2022/05/07
   <ul>
   <li>C++ の実装を変更。
