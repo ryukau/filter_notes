@@ -998,15 +998,17 @@
   <figure>
   <img src="./img/aa_comparison_on_delaytime_mod.svg" alt="Comparison of aliasing noise produced on delay time change. 6 different interpolation types are tested, that are no interpolation (integer), linear interpolation, order 3 Lagrange interpolation, rectangular window sinc interpolation, triangle window sinc interpolation, and Blackman-Harris window sinc interpolation." style="padding-bottom: 12px;"/>
   </figure>
-  <p>大まかには明るく密度が高く見えるほどエイリアシングノイズが出ています。左上が補間なし、中央上が線形補間、右上が
-  3 次ラグランジュ補間で、この 3
+  <p>入力信号は 4000 Hz ののこぎり波で、ディレイ時間は sin
+  で変調しています。大まかには縦方向に沿って明るい部分が多いほど、エイリアシングノイズが多いと言えます。</p>
+  <p>左上が補間なし、中央上が線形補間、右上が 3
+  次ラグランジュ補間で、この 3
   つはエイリアシングが出ていることがはっきりとわかります。下の 3
-  つはすべて高速な windowed sinc
+  つは高速な windowed sinc
   フィルタの計算を応用した実装の結果で、左下は矩形窓、中央下は三角窓、右下は
-  Blackman-Harris 窓 (上の C++ 実装)
+  Blackman-Harris 窓 (上記の C++ 実装)
   です。矩形窓は横線がうねっている部分でのエイリアシングがぼんやりと見えますが、他の
   2
-  つの窓とは異なり、縦の明るい線が見られません。縦の明るい線はフィルタの長さが切り替わるときに生じるポップノイズです。したがって、常にディレイ時間が変わり続けるときは矩形窓にも利点があると考えられますが、前述のようにフィードバックコムフィルタへの応用ではリップルによるフィードバックゲインの制限がかかります。</p>
+  つの窓とは異なり、縦の明るい線が見られません。縦の明るい線はフィルタの長さが切り替わるときに生じるポップノイズです。したがって、常にディレイ時間が変わり続けるときは矩形窓にも利点があると考えられますが、前述のようにフィードバックコムフィルタへの応用では通過域のリップルによるフィードバックゲインの制限がかかります。</p>
   <p>以下のコードを実行した結果からプロットしました。</p>
   <ul>
   <li><a
