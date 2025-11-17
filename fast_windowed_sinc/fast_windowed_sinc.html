@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2025-11-17" />
+      <title>fast_windowed_sinc</title>
+
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
+
+      audio,
+      code,
+      img,
+      .MathJax_ref,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
+
+      pre>code {
+        filter: invert(0);
+      }
+    }
+
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    video {
+      max-width: 100%;
+    }
+
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    :link {
+      color: var(--link-color);
+    }
+
+    :visited {
+      color: var(--visited-color);
+    }
+
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
+
+    .header-anchor {
+      color: var(--foreground-color);
+    }
+
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
+
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
+
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
+
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
+
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
+
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
+
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
+
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
+
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
+
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
+
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    dl {
+      padding-left: 2em;
+    }
+
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
+
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
+
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+
+
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
+
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
+
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
+
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
+
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
+
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
+
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
+
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
+
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
+
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
+
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
+
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    span.math.inline a {
+      color: #000000;
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
+
+<body>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2025-11-17
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#windowed-sinc-フィルタの高速な計算"
+        id="toc-windowed-sinc-フィルタの高速な計算">Windowed Sinc
+        フィルタの高速な計算</a>
+        <ul>
+        <li><a href="#sinc-関数" id="toc-sinc-関数">sinc 関数</a></li>
+        <li><a href="#正確な実装"
+        id="toc-正確な実装">正確な実装</a></li>
+        <li><a href="#高速な実装" id="toc-高速な実装">高速な実装</a>
+        <ul>
+        <li><a href="#誤差と実装のバリエーション"
+        id="toc-誤差と実装のバリエーション">誤差と実装のバリエーション</a></li>
+        </ul></li>
+        <li><a href="#cosine-sum-窓" id="toc-cosine-sum-窓">Cosine-sum
+        窓</a>
+        <ul>
+        <li><a href="#他の-cosine-sum-窓"
+        id="toc-他の-cosine-sum-窓">他の cosine-sum 窓</a></li>
+        </ul></li>
+        <li><a href="#ディレイのアンチエイリアシング"
+        id="toc-ディレイのアンチエイリアシング">ディレイのアンチエイリアシング</a>
+        <ul>
+        <li><a href="#仕組み" id="toc-仕組み">仕組み</a></li>
+        <li><a href="#カットオフ周波数の設定"
+        id="toc-カットオフ周波数の設定">カットオフ周波数の設定</a></li>
+        <li><a href="#短いディレイ時間への対応"
+        id="toc-短いディレイ時間への対応">短いディレイ時間への対応</a></li>
+        <li><a href="#フィードバックコムフィルタ向きの窓関数"
+        id="toc-フィードバックコムフィルタ向きの窓関数">フィードバックコムフィルタ向きの窓関数</a></li>
+        <li><a href="#実装" id="toc-実装">実装</a></li>
+        </ul></li>
+        <li><a href="#参考サイト"
+        id="toc-参考サイト">参考サイト</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="windowed-sinc-フィルタの高速な計算"><a
+  href="#windowed-sinc-フィルタの高速な計算" class="header-anchor"
+  aria-hidden="true">Windowed Sinc フィルタの高速な計算</a></h1>
+  <p>再帰的に sin を計算する方法を使った windowed sinc
+  フィルタの高速な計算方法について紹介します。</p>
+  <p>ここではカットオフ周波数と群遅延が 1
+  サンプルごとに変更される応用を想定しています。以下は主な応用です。</p>
+  <ul>
+  <li>クロスオーバー周波数が可変のバンド分割</li>
+  <li>ディレイ時間変更時のアンチエイリアシング</li>
+  <li>楽器のサンプラーの補間</li>
+  </ul>
+  <p>ここで紹介する高速な計算方法を使うと計算精度は下がります。フィルタ係数を固定できるときには使わないでください。</p>
+  <p>検証に使ったすべてのコードは以下のリンクから閲覧できます。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/tree/master/fast_windowed_sinc">記事の内容の検証に使ったコード
+  (github.com)</a></li>
+  </ul>
+  <h2 id="sinc-関数"><a href="#sinc-関数" class="header-anchor"
+  aria-hidden="true">sinc 関数</a></h2>
+  <p>通常、 sinc 関数は以下のような形で定義されています。</p>
+  <p><span class="math display">\[
+  \mathrm{sinc}(x) = \frac{\sin(\pi x)}{\pi x}.
+  \]</span></p>
+  <p>ここではローパスのカットオフ周波数 <span
+  class="math inline">\(f_c\)</span> を考慮した以下の式を扱います。</p>
+  <p><span class="math display">\[
+  \mathrm{sinc}(x, f_c) = \frac{\sin(2 \pi f_c x)}{\pi x}.
+  \]</span></p>
+  <p><span class="math inline">\(f_c\)</span> の単位は rad / 2π
+  で、値の範囲が [0.0, 0.5] となるように正規化されてます。</p>
+  <h2 id="正確な実装"><a href="#正確な実装" class="header-anchor"
+  aria-hidden="true">正確な実装</a></h2>
+  <p>以下は矩形窓を用いた windowed sinc フィルタを設計する Python 3
+  のコードです。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> modifiedSinc(x, cutoff):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> cutoff</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sin(np.pi <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> cutoff <span class="op">*</span> x) <span class="op">/</span> (np.pi <span class="op">*</span> x)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lowpassFir(length, cutoff, fractionSample):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> fractionSample <span class="op">-</span> (length <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> length <span class="op">%</span> <span class="dv">2</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> np.zeros(length)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(length):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> i <span class="op">+</span> mid</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        fir[i] <span class="op">=</span> modifiedSinc(x, cutoff)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
+  <p>以下は <code>lowpassFir</code> のパラメータの意味です。</p>
+  <ul>
+  <li><code>length</code> : FIR フィルタのタップ数。</li>
+  <li><code>cutoff</code> : 正規化されたカットオフ周波数。単位は rad /
+  2π 。範囲は [0, 0.5] 。</li>
+  <li><code>fractionSample</code> :
+  サンプル数であらわされた小数点以下の群遅延の量。範囲は [0, 1] 。</li>
+  </ul>
+  <p><code>fractionSample</code> は向きがあります。ここでは配列
+  <code>fir</code> のインデックスをさかのぼる方向に固定しています。</p>
+  <h2 id="高速な実装"><a href="#高速な実装" class="header-anchor"
+  aria-hidden="true">高速な実装</a></h2>
+  <p>以下は biquad オシレータと呼ばれる再帰的に sin
+  を計算する方法を使った高速な実装です。見やすさのために Python
+  で書いていますが、特に CPython では <code>for</code>
+  が遅いので高速化の恩恵は薄いです。 C++ による実装は「<a
+  href="#ディレイのアンチエイリアシング">ディレイのアンチエイリアシング</a>」を参照してください。</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lowpassFirBiquadPede(length: <span class="bu">int</span>, cutoff: <span class="bu">float</span>, fractionSample: <span class="bu">float</span>):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> fractionSample <span class="op">-</span> length <span class="op">//</span> <span class="dv">2</span> <span class="op">-</span> length <span class="op">%</span> <span class="dv">2</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> cutoff</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> mid <span class="op">*</span> omega</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.cos(omega)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    u1 <span class="op">=</span> np.sin(phi <span class="op">-</span> omega)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    u2 <span class="op">=</span> np.sin(phi <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> omega)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> np.zeros(length)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(length):</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        u0 <span class="op">=</span> k <span class="op">*</span> u1 <span class="op">-</span> u2</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        u2 <span class="op">=</span> u1</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        u1 <span class="op">=</span> u0</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> i <span class="op">+</span> mid</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(x) <span class="op">&lt;</span> <span class="fl">0.1</span>:</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            q <span class="op">=</span> np.pi <span class="op">*</span> cutoff <span class="op">*</span> x</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>            q <span class="op">*=</span> q</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>            fir[i] <span class="op">=</span> (<span class="dv">2</span> <span class="op">/</span> <span class="dv">3</span>) <span class="op">*</span> cutoff <span class="op">*</span> (<span class="dv">15</span> <span class="op">-</span> <span class="dv">7</span> <span class="op">*</span> q) <span class="op">/</span> (<span class="dv">5</span> <span class="op">+</span> q)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            fir[i] <span class="op">=</span> u0 <span class="op">/</span> (np.pi <span class="op">*</span> x)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
+  <p>再帰的な sin の計算に biquad オシレータを使っています。</p>
+  <p><code>fractionSample</code> が 0 または 1 に近いときに
+  <code>x == 0</code> の周りで値がおかしくなるので、
+  <code>if abs(x) &lt; 0.1</code> の分岐を設けて <a
+  href="https://en.wikipedia.org/wiki/Pad%C3%A9_approximant">Padé
+  approximant</a> での計算に切り替えています。分岐での近似式は以下の <a
+  href="https://maxima.sourceforge.io/">Maxima</a>
+  のコードから出力されたものです。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cn">sinc</span>: <span class="fu">sin</span>(<span class="dv">2</span> * <span class="va">%pi</span> * <span class="cn">f_c</span> * <span class="cn">x</span>) / (<span class="va">%pi</span> * <span class="cn">x</span>);</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pade</span>(<span class="fu">taylor</span>(<span class="cn">sinc</span>, <span class="cn">x</span>, <span class="dv">0</span>, <span class="dv">4</span>), <span class="dv">2</span>, <span class="dv">2</span>);</span></code></pre></div>
+  <p>以下は整理した出力です。</p>
+  <p><span class="math display">\[
+  \mathrm{sinc} (x, f_c) \approx \frac{2}{3} f_c \frac{15 - 7 (\pi f_c
+  x)^2}{5 + (\pi f_c x)^2},
+  \enspace \text{only when} \ x\ \text{is close to 0}.
+  \]</span></p>
+  <p>Padé approximant への分岐 <code>if abs(x) &lt; 0.1</code>
+  のしきい値 <code>0.1</code> は適当に決めた値です。適切な分岐先は
+  <code>cutoff</code> に応じて変わります。 <code>cutoff</code>
+  が低くなるときはしきい値を上げて、 Padé approximant
+  によって計算する範囲を広くしたほうが誤差が減る傾向があります。逆に
+  <code>cutoff</code> が正規化されたナイキスト周波数 <code>0.5</code>
+  に近いときは、しきい値を下げて <code>0.001</code>
+  あたりに設定すると誤差が減る傾向があります。 <code>cutoff</code>
+  に応じた適切なしきい値を調べるコードを以下のリンク先の
+  <code>findBranchingThreshold</code> に掲載しています。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/a08bb919d2c2c07e7e21561fd7e3ee12d4c055b2/fast_windowed_sinc/fast_sinc_error/error.cpp#L435-L523">二分探索でしきい値を調べる
+  C++ のコード (github.com)</a></li>
+  </ul>
+  <h3 id="誤差と実装のバリエーション"><a
+  href="#誤差と実装のバリエーション" class="header-anchor"
+  aria-hidden="true">誤差と実装のバリエーション</a></h3>
+  <p>以下は誤差が変わる定性的な要素の一覧です。</p>
+  <ul>
+  <li>コンパイラの最適化オプション</li>
+  <li>再帰的な sin の計算方法</li>
+  <li>初期位相の計算方法</li>
+  </ul>
+  <p><code>/fp:fast</code> や <code>-ffast-math</code>
+  のような浮動小数点数の計算順序を入れ替えるコンパイラの最適化オプションを使うと、以下で検討するような計算方法の変更では誤差の低減が見込みにくくなります。したがって、以下、この節では
+  <code>/fp:fast</code> や <code>-ffast-math</code>
+  を使わないことを前提としています。</p>
+  <p>再帰的な sin の計算方法はいくつか種類があり、別記事の「 <a
+  href="../recursive_sine/recursive_sine.html">sin, cos
+  を反復的に計算するアルゴリズムのレシピ</a>」にレシピを載せています。簡単に調べたところでは
+  coupled form と呼ばれる形を使うと biquad よりは誤差が減ります。</p>
+  <p>再帰的な計算を行うので、初期位相の細かいずれによって誤差が変わります。例えば、上で紹介した
+  biquad オシレータを使った高速な実装は <code>u1</code> と
+  <code>u2</code> の計算において以下の形を使うことで、再帰的な sin
+  の計算精度を少し良くできます。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 変形した k, u1, u2 の初期値設定。</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cω <span class="op">=</span> np.cos(omega)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>sω <span class="op">=</span> np.sin(omega)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>cφ <span class="op">=</span> np.cos(phi)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>sφ <span class="op">=</span> np.sin(phi)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> cω</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>u1 <span class="op">=</span> sφ <span class="op">*</span> cω <span class="op">-</span> cφ <span class="op">*</span> sω    <span class="co"># ~= sin(phi - omega), 加法定理。</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>c2ω <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> cω <span class="op">*</span> cω <span class="op">-</span> <span class="dv">1</span>     <span class="co"># ~= cos(2 * omega), 倍角公式。</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>s2ω <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> sω <span class="op">*</span> cω         <span class="co"># ~= sin(2 * omega), 倍角公式。</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>u2 <span class="op">=</span> sφ <span class="op">*</span> c2ω <span class="op">-</span> cφ <span class="op">*</span> s2ω  <span class="co"># ~= sin(phi - 2 * omega), 加法定理。</span></span></code></pre></div>
+  <h2 id="cosine-sum-窓"><a href="#cosine-sum-窓" class="header-anchor"
+  aria-hidden="true">Cosine-sum 窓</a></h2>
+  <p>再帰的な sin の計算を行うオシレータを 1 つ増やすことで、 <a
+  href="https://en.wikipedia.org/wiki/Window_function#Cosine-sum_windows">cosine-sum
+  窓</a>と呼ばれる種類の窓関数を高速にかけることができます。ここでは
+  cosine-sum 窓の 1 つである Blackman-Harris
+  窓について具体的な実装を紹介します。</p>
+  <p>以下は Blackman-Harris 窓の計算式です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  w[n]&amp;=a_0 - a_1 \cos \left ( \frac{2 \pi n}{N} \right)+ a_2 \cos
+  \left ( \frac{4 \pi n}{N} \right)- a_3 \cos \left ( \frac{6 \pi n}{N}
+  \right),\\
+  a_0&amp;=0.35875,\quad a_1=0.48829,\quad a_2=0.14128,\quad
+  a_3=0.01168.
+  \end{aligned}
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(n\)</span>: インデックス。</li>
+  <li><span class="math inline">\(N\)</span>: 窓長。</li>
+  </ul>
+  <p>この式は <span class="math inline">\(\cos\)</span> の位相が 2 倍、
+  3 倍となっているので、以下のように <a
+  href="https://en.wikipedia.org/wiki/Chebyshev_polynomials">Chebyshev
+  多項式</a> <span class="math inline">\(T_k\)</span>
+  を使って書くことができます。 <span class="math inline">\(T_k\)</span>
+  の中身は <a
+  href="https://en.wikipedia.org/wiki/Chebyshev_polynomials#First_kind">Wikipedia
+  の記事</a>に掲載されています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  w[n] &amp;= a_0 - a_1 T_1(c) + a_2 T_2(c) - a_3 T_3(c)\\
+  &amp;\begin{aligned}
+  T_1(c) &amp;= c\\
+  T_2(c) &amp;= 2 c^2 - 1\\
+  T_3(c) &amp;= 4 c^3 - 3c\\
+  \end{aligned}\qquad
+  c = \cos \left ( \frac{2 \pi n}{N} \right).
+  \end{aligned}
+  \]</span></p>
+  <p>三角関数の計算を <span class="math inline">\(c\)</span> の 1
+  回のみに減らすことができました。 Chebyshev 多項式を Maxima
+  で展開します。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cn">T2</span>: <span class="dv">2</span>*<span class="cn">c</span>^<span class="dv">2</span> - <span class="dv">1</span>;</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cn">T3</span>: <span class="dv">4</span>*<span class="cn">c</span>^<span class="dv">3</span> - <span class="dv">3</span>*<span class="cn">c</span>;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cn">w</span>: <span class="fl">0.35875</span> - <span class="fl">0.48829</span> * <span class="cn">c</span> + <span class="fl">0.14128</span> * <span class="cn">T2</span> - <span class="fl">0.01168</span> * <span class="cn">T3</span>;</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ratsimp</span>(<span class="cn">w</span>);</span></code></pre></div>
+  <p>以下は整形した出力です。これで高速に計算できる形になりました。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  w[n] &amp;= 0.21747 - 0.45325 c + 0.28256 c^2 - 0.04672 c^3,\\
+  c    &amp;= \cos \left ( \frac{2 \pi n}{N} \right).
+  \end{aligned}
+  \]</span></p>
+  <p>以下は Python 3 による Blackman-Harris 窓のみの実装です。ここでは
+  windowed sinc
+  フィルタの設計に使うので、左右対称な窓関数を計算しています。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> blackmanHarris(length: <span class="bu">int</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    isEven <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> length <span class="op">%</span> <span class="dv">2</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    ω <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">/</span> <span class="bu">float</span>(length <span class="op">-</span> isEven)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    φ <span class="op">=</span> np.pi <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.cos(ω)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    u1 <span class="op">=</span> np.sin(φ <span class="op">-</span> ω)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    u2 <span class="op">=</span> np.sin(φ <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> ω)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    window <span class="op">=</span> np.zeros(length)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(length):</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        u0 <span class="op">=</span> k <span class="op">*</span> u1 <span class="op">-</span> u2</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        u2 <span class="op">=</span> u1</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        u1 <span class="op">=</span> u0</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        window[i] <span class="op">=</span> <span class="fl">0.21747</span> <span class="op">+</span> u0 <span class="op">*</span> (<span class="op">-</span><span class="fl">0.45325</span> <span class="op">+</span> u0 <span class="op">*</span> (<span class="fl">0.28256</span> <span class="op">+</span> u0 <span class="op">*</span> <span class="op">-</span><span class="fl">0.04672</span>))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> window</span></code></pre></div>
+  <p>以下は windowed sinc フィルタの設計と同時に Blackman-Harris
+  窓をかける実装です。上の <code>blackmanHarris</code> と、下の
+  <code>lowpassBlackmanHarrisBiquad</code>
+  では、窓関数の計算に使うオシレータの <code>omega, u1, u2</code>
+  の初期化が異なっています。 <code>blackmanHarris</code>
+  は定義通りに計算しているので窓の両端が 0
+  になりますが、これだと以下で紹介するディレイのアンチエイリアシングへの応用で
+  <code>length &lt;= 2</code>
+  のときに音が止まってしまうので、下では変えています。</p>
+  <div class="sourceCode" id="cb7"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lowpassBlackmanHarrisBiquad(length: <span class="bu">int</span>, cutoff: <span class="bu">float</span>, fractionSample: <span class="bu">float</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    isEven <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> length <span class="op">%</span> <span class="dv">2</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    mid <span class="op">=</span> fractionSample <span class="op">-</span> (length <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> length <span class="op">%</span> <span class="dv">2</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    o1_omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> cutoff</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    o1_phi <span class="op">=</span> mid <span class="op">*</span> o1_omega</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    o1_k <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.cos(o1_omega)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    o1_u1 <span class="op">=</span> np.sin(o1_phi <span class="op">-</span> o1_omega)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    o1_u2 <span class="op">=</span> np.sin(o1_phi <span class="op">-</span> <span class="dv">2</span> <span class="op">*</span> o1_omega)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    o2_omega <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">/</span> <span class="bu">float</span>(length <span class="op">+</span> isEven)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    o2_phi <span class="op">=</span> np.pi <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    o2_k <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.cos(o2_omega)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    o2_u1 <span class="op">=</span> np.sin(o2_phi <span class="op">-</span> (<span class="dv">1</span> <span class="op">-</span> isEven) <span class="op">*</span> o2_omega)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    o2_u2 <span class="op">=</span> np.sin(o2_phi <span class="op">-</span> (<span class="dv">2</span> <span class="op">-</span> isEven) <span class="op">*</span> o2_omega)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    fir <span class="op">=</span> np.zeros(length)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(length):</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        o1_u0 <span class="op">=</span> o1_k <span class="op">*</span> o1_u1 <span class="op">-</span> o1_u2</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        o1_u2 <span class="op">=</span> o1_u1</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        o1_u1 <span class="op">=</span> o1_u0</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        o2_u0 <span class="op">=</span> o2_k <span class="op">*</span> o2_u1 <span class="op">-</span> o2_u2</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        o2_u2 <span class="op">=</span> o2_u1</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        o2_u1 <span class="op">=</span> o2_u0</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> i <span class="op">+</span> mid</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(x) <span class="op">&lt;</span> <span class="fl">0.1</span>:</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>            q <span class="op">=</span> np.pi <span class="op">*</span> cutoff <span class="op">*</span> x</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            q <span class="op">*=</span> q</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>            fir[i] <span class="op">=</span> (<span class="dv">2</span> <span class="op">/</span> <span class="dv">3</span>) <span class="op">*</span> cutoff <span class="op">*</span> (<span class="dv">15</span> <span class="op">-</span> <span class="dv">7</span> <span class="op">*</span> q) <span class="op">/</span> (<span class="dv">5</span> <span class="op">+</span> q)</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>            fir[i] <span class="op">=</span> o1_u0 <span class="op">/</span> (np.pi <span class="op">*</span> x)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        window <span class="op">=</span> <span class="fl">0.21747</span> <span class="op">+</span> o2_u0 <span class="op">*</span> (<span class="op">-</span><span class="fl">0.45325</span> <span class="op">+</span> o2_u0 <span class="op">*</span> (<span class="fl">0.28256</span> <span class="op">+</span> o2_u0 <span class="op">*</span> <span class="op">-</span><span class="fl">0.04672</span>))</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        fir[i] <span class="op">*=</span> window</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fir</span></code></pre></div>
+  <h3 id="他の-cosine-sum-窓"><a href="#他の-cosine-sum-窓"
+  class="header-anchor" aria-hidden="true">他の cosine-sum 窓</a></h3>
+  <p>他の cosine-sum 窓について、 Chebyshev 多項式を展開して <a
+  href="https://en.wikipedia.org/wiki/Horner%27s_method">Horner’s
+  method</a> の形にした式を掲載します。</p>
+  <p>SymPy で式変形を行います。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sympy</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sympy.polys.orthopolys <span class="im">import</span> chebyshevt_poly</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sympy.polys.polyfuncs <span class="im">import</span> horner</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>cosineSumWindowCoefficients <span class="op">=</span> {</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;blackman&quot;</span>: [<span class="dv">7938</span> <span class="op">/</span> <span class="dv">18608</span>, <span class="dv">9240</span> <span class="op">/</span> <span class="dv">18608</span>, <span class="dv">1430</span> <span class="op">/</span> <span class="dv">18608</span>],</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;nuttall&quot;</span>: [<span class="fl">0.355768</span>, <span class="fl">0.487396</span>, <span class="fl">0.144232</span>, <span class="fl">0.012604</span>],</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;blackmannuttall&quot;</span>: [<span class="fl">0.3635819</span>, <span class="fl">0.4891775</span>, <span class="fl">0.1365995</span>, <span class="fl">0.0106411</span>],</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;blackmanharris&quot;</span>: [<span class="fl">0.35875</span>, <span class="fl">0.48829</span>, <span class="fl">0.14128</span>, <span class="fl">0.01168</span>],</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;flattop&quot;</span>: [<span class="fl">0.21557895</span>, <span class="fl">0.41663158</span>, <span class="fl">0.277263158</span>, <span class="fl">0.083578947</span>, <span class="fl">0.006947368</span>],</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>u0 <span class="op">=</span> sympy.symbols(<span class="st">&quot;u0&quot;</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> key, a_ <span class="kw">in</span> cosineSumWindowCoefficients.items():</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    expr <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(a_)):</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        expr <span class="op">+=</span> (<span class="op">-</span><span class="dv">1</span>) <span class="op">**</span> i <span class="op">*</span> a_[i] <span class="op">*</span> chebyshevt_poly(i, x<span class="op">=</span>u0)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>key<span class="sc">}</span><span class="ss"> = </span><span class="sc">{</span>horner(expr)<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+  <p>以下は出力です。検証を楽にするために整理せずに掲載しています。
+  <code>u0</code> は上に掲載している <code>blackmanharrisBiquad</code>
+  で使われている変数と同じで <span class="math inline">\(\cos(2\pi n
+  /N)\)</span> が入ります。 <span class="math inline">\(n\)</span>
+  はインデックス、 <span class="math inline">\(N\)</span>
+  はサンプル数で表された窓長です。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>blackman <span class="op">=</span> u0<span class="op">*</span>(<span class="fl">0.153697334479794</span><span class="op">*</span>u0 <span class="op">-</span> <span class="fl">0.496560619088564</span>) <span class="op">+</span> <span class="fl">0.349742046431642</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>nuttall <span class="op">=</span> u0<span class="op">*</span>(u0<span class="op">*</span>(<span class="fl">0.288464</span> <span class="op">-</span> <span class="fl">0.050416</span><span class="op">*</span>u0) <span class="op">-</span> <span class="fl">0.449584</span>) <span class="op">+</span> <span class="fl">0.211536</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>blackmanharris <span class="op">=</span> u0<span class="op">*</span>(u0<span class="op">*</span>(<span class="fl">0.28256</span> <span class="op">-</span> <span class="fl">0.04672</span><span class="op">*</span>u0) <span class="op">-</span> <span class="fl">0.45325</span>) <span class="op">+</span> <span class="fl">0.21747</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>blackmannuttall <span class="op">=</span> u0<span class="op">*</span>(u0<span class="op">*</span>(<span class="fl">0.273199</span> <span class="op">-</span> <span class="fl">0.0425644</span><span class="op">*</span>u0) <span class="op">-</span> <span class="fl">0.4572542</span>) <span class="op">+</span> <span class="fl">0.2269824</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>flattop <span class="op">=</span> u0<span class="op">*</span>(u0<span class="op">*</span>(u0<span class="op">*</span>(<span class="fl">0.055578944</span><span class="op">*</span>u0 <span class="op">-</span> <span class="fl">0.334315788</span>) <span class="op">+</span> <span class="fl">0.498947372</span>) <span class="op">-</span> <span class="fl">0.165894739</span>) <span class="op">-</span> <span class="fl">0.05473684</span></span></code></pre></div>
+  <h2 id="ディレイのアンチエイリアシング"><a
+  href="#ディレイのアンチエイリアシング" class="header-anchor"
+  aria-hidden="true">ディレイのアンチエイリアシング</a></h2>
+  <p>高速な windowed sinc
+  フィルタの計算を応用して、ディレイの時間変更時に生じるエイリアシングを低減します。</p>
+  <h3 id="仕組み"><a href="#仕組み" class="header-anchor"
+  aria-hidden="true">仕組み</a></h3>
+  <p>大まかなアイデアとしては 1
+  サンプルごとに変換レートが変わるダウンサンプラーを実装します。</p>
+  <p>ここでは音の信号を扱うので 0 Hz
+  からナイキスト周波数まで周波数成分が詰め込まれていることにします。</p>
+  <p>ディレイ時間の変化は 2 つに場合分けできます。</p>
+  <ol type="1">
+  <li>ディレイ時間の伸長。 1
+  倍速よりも遅い読み取り。低いほうへのピッチシフト。</li>
+  <li>ディレイ時間の短縮。 1
+  倍速よりも速い読み取り。高いほうへのピッチシフト。</li>
+  </ol>
+  <p>1 のときは通常の分数ディレイフィルタ (fractional delay fitler)
+  による補間で十分です。分数ディレイフィルタとは、カットオフがナイキスト周波数に固定されており、群遅延の大きさを与えると設計できるフィルタのことです。</p>
+  <p>2
+  のときはピッチシフトによってナイキスト周波数を超える周波数成分が現れます。これを抑えるために、カットオフを変更できる分数ディレイフィルタが必要です。また、ディレイ時間が変わるということは読み取り時刻の逆走もあり得ます。</p>
+  <p>以上より、補間に使うフィルタには以下が求められます。</p>
+  <ul>
+  <li>時間の逆走への対応</li>
+  <li>非整数サンプルの補間</li>
+  <li>カットオフ周波数が可変</li>
+  </ul>
+  <p>素朴に畳み込む windowed sinc
+  フィルタはこれらの要件に対応できます。素朴に畳み込むということは、読み取り時刻の周りのサンプルだけを使って計算できるので逆走に対応できます。また
+  windowed sinc フィルタは補間位置 (群遅延)
+  とカットオフ周波数を容易に変更できます。</p>
+  <h3 id="カットオフ周波数の設定"><a href="#カットオフ周波数の設定"
+  class="header-anchor"
+  aria-hidden="true">カットオフ周波数の設定</a></h3>
+  <p>ローパスフィルタのカットオフ周波数は、ディレイ時間の変化によるピッチシフトの量から設定できます。以降ではピッチシフトの量のことを単にピッチと呼びます。</p>
+  <p>ピッチは以下の式で計算できます。</p>
+  <p><span class="math display">\[
+  p = d_1 - d_0 + 1.
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(p\)</span> :
+  ピッチ。比率で表された信号の読み取り速度。</li>
+  <li><span class="math inline">\(d_0\)</span> :
+  現在のディレイ時間。単位はサンプル数。</li>
+  <li><span class="math inline">\(d_1\)</span> : 1
+  サンプル前のディレイ時間。単位はサンプル数。</li>
+  </ul>
+  <p>ここでのディレイ時間は、ある時点からの相対的な時間です。 <span
+  class="math inline">\(d_0\)</span> と <span
+  class="math inline">\(d_1\)</span> はディレイ時間の起点が 1
+  サンプルずれているので注意してください。この定義であればピッチ <span
+  class="math inline">\(p\)</span> の値をそのまま使って <span
+  class="math inline">\(p\)</span> 倍速という表現ができます。例えば:</p>
+  <ul>
+  <li><span class="math inline">\(d_1\)</span> が 100 、 <span
+  class="math inline">\(d_0\)</span> が 99 なら、ピッチは 2 倍速。</li>
+  <li><span class="math inline">\(d_1\)</span> が 100 、 <span
+  class="math inline">\(d_0\)</span> が 100 なら、ピッチは 1 倍速。</li>
+  <li><span class="math inline">\(d_1\)</span> が 100 、 <span
+  class="math inline">\(d_0\)</span> が 101 なら、ピッチは 0 倍速。</li>
+  <li><span class="math inline">\(d_1\)</span> が 100 、 <span
+  class="math inline">\(d_0\)</span> が 102 なら、ピッチは -1
+  倍速。</li>
+  </ul>
+  <p>以下は記号の定義を示した図です。</p>
+  <figure>
+  <img src="./img/delaytime_def.svg" alt="A plot to show the definition of delay times d_0 and d_1." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>アンチエイリアシングの実装ではピッチの絶対値をカットオフ周波数として使います。</p>
+  <p><span class="math display">\[
+  f_c = \begin{cases}
+  f_s / 2      &amp; \text{if}\ |p| \leq 1 \\
+  f_s 2^{-|p|} &amp; \text{otherwise.} \\
+  \end{cases}
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(f_c\)</span>: カットオフ周波数。</li>
+  <li><span class="math inline">\(f_s\)</span>:
+  サンプリング周波数。</li>
+  </ul>
+  <p>フィルタ設計時のサンプリング周波数を 1 にしてしまえば <span
+  class="math inline">\(f_s\)</span> の乗算を省略できます。</p>
+  <h3 id="短いディレイ時間への対応"><a href="#短いディレイ時間への対応"
+  class="header-anchor"
+  aria-hidden="true">短いディレイ時間への対応</a></h3>
+  <p>Windowed sinc
+  フィルタの長さを固定すると、安定してノイズの少ない出力が得られますが、フィルタの長さの半分よりも短いディレイ時間が指定できなくなります。</p>
+  <p>短いディレイ時間を設定したいときは、与えられたディレイ時間に応じてフィルタの長さを短くする仕組みが必要です。このとき、
+  1
+  サンプル単位でフィルタの長さを変えることも可能ですが、試した範囲では偶数長と奇数長のフィルタを混ぜるとノイズが増えました。よって、以下で紹介している実装ではフィルタの長さを偶数長に固定しています。</p>
+  <h3 id="フィードバックコムフィルタ向きの窓関数"><a
+  href="#フィードバックコムフィルタ向きの窓関数" class="header-anchor"
+  aria-hidden="true">フィードバックコムフィルタ向きの窓関数</a></h3>
+  <p>フィードバックコムフィルタへの応用では振幅特性が 0 dB
+  を超えていると、フィードバックゲインによっては発振します。高速に計算できる窓関数の向き、不向きを以下に示します。</p>
+  <ul>
+  <li>利用可: 三角, Blackman-Harris, Blackman-Nuttall, Nuttall, Flat
+  top.</li>
+  <li>不向き: 矩形, Blackman, Hamming, Hann, Lanczos, Welch.</li>
+  </ul>
+  <p>三角窓は振幅特性がほぼ確実に 0 dB
+  を下回るので安定を優先するときは選択肢になります。他の利用可の窓は振幅特性の通過域がほぼフラットになり、音への応用であればどれも似たような特性です。</p>
+  <h3 id="実装"><a href="#実装" class="header-anchor"
+  aria-hidden="true">実装</a></h3>
+  <p>以下は高速な windowed sinc
+  フィルタの計算を応用した、アンチエイリアシングされたディレイの実装です。
+  Blackman-Harris 窓を使っています。 Windowed sinc
+  フィルタの長さは偶数に固定しています。 CPU 負荷を減らしたいときは
+  <code>maxTap</code> を適当な偶数に減らしてください。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Sample<span class="op">,</span> <span class="dt">int</span> maxTap <span class="op">=</span> <span class="dv">256</span><span class="op">&gt;</span> <span class="kw">class</span> DelayBlackmanHarrisBiquadSine <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static_assert</span><span class="op">(</span>maxTap <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> maxTap <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> minTimeSample <span class="op">=</span> maxTap <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  Sample maxTime <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  Sample prevTime <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> buf<span class="op">;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setup<span class="op">(</span><span class="dt">size_t</span> maxTimeSample<span class="op">)</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    maxTime <span class="op">=</span> Sample<span class="op">(</span>maxTimeSample<span class="op">);</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">.</span>resize<span class="op">(</span><span class="bu">std::</span>max<span class="op">(</span><span class="dt">size_t</span><span class="op">(</span>maxTap<span class="op">),</span> maxTimeSample <span class="op">+</span> maxTap <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span><span class="op">));</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    prevTime <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>fill<span class="op">(</span>buf<span class="op">.</span>begin<span class="op">(),</span> buf<span class="op">.</span>end<span class="op">(),</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">));</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  Sample process<span class="op">(</span>Sample input<span class="op">,</span> Sample timeInSample<span class="op">)</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">int</span> size <span class="op">=</span> <span class="dt">int</span><span class="op">(</span>buf<span class="op">.</span>size<span class="op">());</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Write to buffer.</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(++</span>wptr <span class="op">&gt;=</span> size<span class="op">)</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    buf<span class="op">[</span>wptr<span class="op">]</span> <span class="op">=</span> input<span class="op">;</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Shorten FIR filter to some even number length depending on `timeInSample`.</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">int</span> localTap <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span><span class="dv">2</span> <span class="op">*</span> <span class="dt">int</span><span class="op">(</span>timeInSample<span class="op">),</span> <span class="dt">int</span><span class="op">(</span><span class="dv">2</span><span class="op">),</span> maxTap<span class="op">);</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">int</span> halfTap <span class="op">=</span> localTap <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample clamped <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>timeInSample<span class="op">,</span> Sample<span class="op">(</span>halfTap <span class="op">-</span> <span class="dv">1</span><span class="op">),</span> maxTime<span class="op">);</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Set cutoff frequency.</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample timeDiff <span class="op">=</span> <span class="bu">std::</span>abs<span class="op">(</span>prevTime <span class="op">-</span> clamped <span class="op">+</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    prevTime <span class="op">=</span> clamped<span class="op">;</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    Sample cutoff <span class="op">=</span> timeDiff <span class="op">&lt;=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">?</span> Sample<span class="op">(</span><span class="fl">0.5</span><span class="op">)</span> <span class="op">:</span> <span class="bu">std::</span>exp2<span class="op">(-</span>timeDiff<span class="op">);</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Early exit for bypass (0 sample delay) case.</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>timeInSample <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> input <span class="op">*</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> cutoff<span class="op">;</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Setup oscillator 1 for windowed sinc lowpass.</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">int</span> timeInt <span class="op">=</span> <span class="dt">int</span><span class="op">(</span>clamped<span class="op">);</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    Sample fraction <span class="op">=</span> clamped <span class="op">-</span> Sample<span class="op">(</span>timeInt<span class="op">);</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample mid <span class="op">=</span> fraction <span class="op">-</span> halfTap<span class="op">;</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> Sample pi <span class="op">=</span> <span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span>Sample<span class="op">&gt;;</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o1_omega <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> pi <span class="op">*</span> cutoff<span class="op">;</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o1_phi <span class="op">=</span> mid <span class="op">*</span> o1_omega<span class="op">;</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o1_k <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>cos<span class="op">(</span>o1_omega<span class="op">);</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>    Sample o1_u1 <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>o1_phi <span class="op">-</span> o1_omega<span class="op">);</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>    Sample o1_u2 <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>o1_phi <span class="op">-</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> o1_omega<span class="op">);</span></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Setup biquad oscillator 2 for cosine-sum window function.</span></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o2_omega <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> pi <span class="op">/</span> Sample<span class="op">(</span>localTap <span class="op">+</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o2_phi <span class="op">=</span> pi <span class="op">/</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o2_k <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>cos<span class="op">(</span>o2_omega<span class="op">);</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>    Sample o2_u1 <span class="op">=</span> Sample<span class="op">(</span><span class="dv">1</span><span class="op">);</span> <span class="co">// == sin(o2_phi).</span></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>    Sample o2_u2 <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>o2_phi <span class="op">-</span> o2_omega<span class="op">);</span></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>    <span class="co">// The rest is convolution.</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> rptr <span class="op">=</span> wptr <span class="op">-</span> timeInt <span class="op">-</span> halfTap<span class="op">;</span></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>rptr <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> rptr <span class="op">+=</span> size<span class="op">;</span></span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>    Sample sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> localTap<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>      <span class="at">const</span> Sample o1_u0 <span class="op">=</span> o1_k <span class="op">*</span> o1_u1 <span class="op">-</span> o1_u2<span class="op">;</span></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>      o1_u2 <span class="op">=</span> o1_u1<span class="op">;</span></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>      o1_u1 <span class="op">=</span> o1_u0<span class="op">;</span></span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">const</span> Sample o2_u0 <span class="op">=</span> o2_k <span class="op">*</span> o2_u1 <span class="op">-</span> o2_u2<span class="op">;</span></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>      o2_u2 <span class="op">=</span> o2_u1<span class="op">;</span></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>      o2_u1 <span class="op">=</span> o2_u0<span class="op">;</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>      <span class="at">const</span> Sample window <span class="op">=</span> Sample<span class="op">(</span><span class="fl">0.21747</span><span class="op">)</span></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> o2_u0</span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>          <span class="op">*</span> <span class="op">(</span>Sample<span class="op">(-</span><span class="fl">0.45325</span><span class="op">)</span> <span class="op">+</span> o2_u0 <span class="op">*</span> <span class="op">(</span>Sample<span class="op">(</span><span class="fl">0.28256</span><span class="op">)</span> <span class="op">+</span> o2_u0 <span class="op">*</span> Sample<span class="op">(-</span><span class="fl">0.04672</span><span class="op">)));</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>      <span class="at">const</span> Sample x <span class="op">=</span> Sample<span class="op">(</span>i<span class="op">)</span> <span class="op">+</span> mid<span class="op">;</span></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>      Sample sinc<span class="op">;</span></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span><span class="bu">std::</span>abs<span class="op">(</span>x<span class="op">)</span> <span class="op">&lt;=</span> Sample<span class="op">(</span><span class="fl">0.1</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Pade approximant of modified sinc when x is near 0.</span></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>        Sample q <span class="op">=</span> pi <span class="op">*</span> cutoff <span class="op">*</span> x<span class="op">;</span></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>        q <span class="op">*=</span> q<span class="op">;</span></span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>        sinc <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> Sample<span class="op">(</span><span class="dv">3</span><span class="op">)</span> <span class="op">*</span> cutoff <span class="op">*</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">15</span><span class="op">)</span> <span class="op">-</span> Sample<span class="op">(</span><span class="dv">7</span><span class="op">)</span> <span class="op">*</span> q<span class="op">)</span></span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>          <span class="op">/</span> <span class="op">(</span>Sample<span class="op">(</span><span class="dv">5</span><span class="op">)</span> <span class="op">+</span> q<span class="op">);</span></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>        sinc <span class="op">=</span> o1_u0 <span class="op">/</span> pi <span class="op">/</span> x<span class="op">;</span></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>      sum <span class="op">+=</span> window <span class="op">*</span> sinc <span class="op">*</span> buf<span class="op">[</span>rptr<span class="op">];</span></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(++</span>rptr <span class="op">&gt;=</span> size<span class="op">)</span> rptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum<span class="op">;</span></span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+  <p>以下は簡単な使用例です。</p>
+  <div class="sourceCode" id="cb11"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> processDelay<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> <span class="op">&amp;</span>in<span class="op">,</span> <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> <span class="op">&amp;</span>timeInSample<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  DelayBlackmanHarrisBiquadSine<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> delay<span class="op">;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  delay<span class="op">.</span>setup<span class="op">(</span><span class="dv">48000</span><span class="op">);</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> out<span class="op">{</span>in<span class="op">.</span>size<span class="op">(),</span> <span class="dt">double</span><span class="op">(</span><span class="dv">0</span><span class="op">)};</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> in<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> out<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> delay<span class="op">.</span>process<span class="op">(</span>in<span class="op">[</span>i<span class="op">],</span> timeInSample<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> out<span class="op">;</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <p>以下は他の補間方法とエイリアシングノイズを比較したスペクトログラムのプロットです。小さいときは
+  Ctrl + マウスホイールなどで拡大してください。</p>
+  <figure>
+  <img src="./img/aa_comparison_on_delaytime_mod.svg" alt="Comparison of aliasing noise produced on delay time change. 6 different interpolation types are tested, that are no interpolation (integer), linear interpolation, order 3 Lagrange interpolation, rectangular window sinc interpolation, triangle window sinc interpolation, and Blackman-Harris window sinc interpolation." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>大まかには明るく密度が高く見えるほどエイリアシングノイズが出ています。左上が補間なし、中央上が線形補間、右上が
+  3 次ラグランジュ補間で、この 3
+  つはエイリアシングが出ていることがはっきりとわかります。下の 3
+  つはすべて高速な windowed sinc
+  フィルタの計算を応用した実装の結果で、左下は矩形窓、中央下は三角窓、右下は
+  Blackman-Harris 窓 (上の C++ 実装)
+  です。矩形窓は横線がうねっている部分でのエイリアシングがぼんやりと見えますが、他の
+  2
+  つの窓とは異なり、縦の明るい線が見られません。縦の明るい線はフィルタの長さが切り替わるときに生じるポップノイズです。したがって、常にディレイ時間が変わり続けるときは矩形窓にも利点があると考えられますが、前述のようにフィードバックコムフィルタへの応用ではリップルによるフィードバックゲインの制限がかかります。</p>
+  <p>以下のコードを実行した結果からプロットしました。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/fast_windowed_sinc/delay/delay.cpp">アンチエイリアシングを施したディレイの
+  C++ 実装 (github.com)</a></li>
+  </ul>
+  <h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
+  aria-hidden="true">参考サイト</a></h2>
+  <ul>
+  <li><a href="https://en.wikipedia.org/wiki/Window_function">Window
+  function - Wikipedia</a></li>
+  <li><a
+  href="https://dsp.stackexchange.com/questions/95448/when-to-use-symmetric-vs-asymmetric-periodic-window-functions">fft
+  - When to use symmetric vs asymmetric (periodic) window functions? -
+  Signal Processing Stack Exchange</a></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
