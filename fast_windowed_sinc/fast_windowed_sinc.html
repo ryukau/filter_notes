@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2025-11-17" />
+      <meta name="dcterms.date" content="2025-11-22" />
       <title>fast_windowed_sinc</title>
 
   <style>
@@ -412,7 +412,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2025-11-17
+      Update: 2025-11-22
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -447,9 +447,12 @@
         <li><a href="#フィードバックコムフィルタ向きの窓関数"
         id="toc-フィードバックコムフィルタ向きの窓関数">フィードバックコムフィルタ向きの窓関数</a></li>
         <li><a href="#実装" id="toc-実装">実装</a></li>
+        <li><a href="#フィルタの長さが変わるときのノイズの低減"
+        id="toc-フィルタの長さが変わるときのノイズの低減">フィルタの長さが変わるときのノイズの低減</a></li>
         </ul></li>
         <li><a href="#参考サイト"
         id="toc-参考サイト">参考サイト</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -891,7 +894,7 @@
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  Sample maxTime <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  Sample prevTime <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> wptr <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> buf<span class="op">;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="bu">std::</span>vector<span class="op">&lt;</span>Sample<span class="op">&gt;</span> buf<span class="op">{</span>maxTap<span class="op">,</span> Sample<span class="op">(</span><span class="dv">0</span><span class="op">)};</span></span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> setup<span class="op">(</span><span class="dt">size_t</span> maxTimeSample<span class="op">)</span></span>
@@ -940,7 +943,7 @@
 <span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>    Sample o1_u1 <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>o1_phi <span class="op">-</span> o1_omega<span class="op">);</span></span>
 <span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>    Sample o1_u2 <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>o1_phi <span class="op">-</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> o1_omega<span class="op">);</span></span>
 <span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Setup biquad oscillator 2 for cosine-sum window function.</span></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Setup oscillator 2 for cosine-sum window function.</span></span>
 <span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o2_omega <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> pi <span class="op">/</span> Sample<span class="op">(</span>localTap <span class="op">+</span> <span class="dv">1</span><span class="op">);</span></span>
 <span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o2_phi <span class="op">=</span> pi <span class="op">/</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
 <span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> Sample o2_k <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>cos<span class="op">(</span>o2_omega<span class="op">);</span></span>
@@ -1015,6 +1018,25 @@
   href="https://github.com/ryukau/filter_notes/blob/master/fast_windowed_sinc/delay/delay.cpp">アンチエイリアシングを施したディレイの
   C++ 実装 (github.com)</a></li>
   </ul>
+  <h3 id="フィルタの長さが変わるときのノイズの低減"><a
+  href="#フィルタの長さが変わるときのノイズの低減" class="header-anchor"
+  aria-hidden="true">フィルタの長さが変わるときのノイズの低減</a></h3>
+  <p>以下のようにオシレータの初期設定を変更するとフィルタの長さが変わるときのノイズを減らせます。</p>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Setup oscillator 2 for cosine-sum window function.</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> Sample o2_omega <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> pi <span class="op">/</span> Sample<span class="op">(</span>maxTap <span class="op">+</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> Sample o2_phi <span class="op">=</span> pi <span class="op">/</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">+</span> o2_omega <span class="op">*</span> Sample<span class="op">(</span>maxTap <span class="op">/</span> <span class="dv">2</span> <span class="op">-</span> halfTap<span class="op">);</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> Sample o2_k <span class="op">=</span> Sample<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>cos<span class="op">(</span>o2_omega<span class="op">);</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>Sample o2_u1 <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>o2_phi<span class="op">);</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>Sample o2_u2 <span class="op">=</span> <span class="bu">std::</span>sin<span class="op">(</span>o2_phi <span class="op">-</span> o2_omega<span class="op">);</span></span></code></pre></div>
+  <p>この変更を行うとフィルタの長さが変わるときに窓関数の中央付近だけを切り出すようになります。以下は窓関数の切り詰めを示した図です。</p>
+  <figure>
+  <img src="./img/truncation_of_window.svg" alt="Plot of a truncation of Blackman-Harris window for smoother change of FIR length." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下はフィルタの長さが変わるときのノイズの低減の有無によるエイリアシングの違いを示したスペクトログラムです。上が低減なし、下が低減ありです。縦線が減っているのでポップノイズは減っていますが、エイリアシングは増えています。</p>
+  <figure>
+  <img src="./img/blackmanharris_full_vs_smooth.svg" alt="2 spectrograms to show the effect of the full window vs truncated window when reducing the FIR length." style="padding-bottom: 12px;"/>
+  </figure>
   <h2 id="参考サイト"><a href="#参考サイト" class="header-anchor"
   aria-hidden="true">参考サイト</a></h2>
   <ul>
@@ -1024,6 +1046,14 @@
   href="https://dsp.stackexchange.com/questions/95448/when-to-use-symmetric-vs-asymmetric-periodic-window-functions">fft
   - When to use symmetric vs asymmetric (periodic) window functions? -
   Signal Processing Stack Exchange</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2025/11/22
+  <ul>
+  <li>「フィルタの長さが変わるときのノイズの低減」の節を追加。</li>
+  </ul></li>
   </ul>
     <footer>
     <a href="../index.html">インデックスに戻る</a>

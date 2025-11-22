@@ -369,7 +369,7 @@ private:
   Sample maxTime = 0;
   Sample prevTime = 0;
   int wptr = 0;
-  std::vector<Sample> buf;
+  std::vector<Sample> buf{maxTap, Sample(0)};
 
 public:
   void setup(size_t maxTimeSample)
@@ -418,7 +418,7 @@ public:
     Sample o1_u1 = std::sin(o1_phi - o1_omega);
     Sample o1_u2 = std::sin(o1_phi - Sample(2) * o1_omega);
 
-    // Setup biquad oscillator 2 for cosine-sum window function.
+    // Setup oscillator 2 for cosine-sum window function.
     const Sample o2_omega = Sample(2) * pi / Sample(localTap + 1);
     const Sample o2_phi = pi / Sample(2);
     const Sample o2_k = Sample(2) * std::cos(o2_omega);
@@ -490,6 +490,34 @@ auto processDelay(const std::vector<double> &in, const std::vector<double> &time
 
 - [アンチエイリアシングを施したディレイの C++ 実装 (github.com)](https://github.com/ryukau/filter_notes/blob/master/fast_windowed_sinc/delay/delay.cpp)
 
+### フィルタの長さが変わるときのノイズの低減
+以下のようにオシレータの初期設定を変更するとフィルタの長さが変わるときのノイズを減らせます。
+
+```c++
+// Setup oscillator 2 for cosine-sum window function.
+const Sample o2_omega = Sample(2) * pi / Sample(maxTap + 1);
+const Sample o2_phi = pi / Sample(2) + o2_omega * Sample(maxTap / 2 - halfTap);
+const Sample o2_k = Sample(2) * std::cos(o2_omega);
+Sample o2_u1 = std::sin(o2_phi);
+Sample o2_u2 = std::sin(o2_phi - o2_omega);
+```
+
+この変更を行うとフィルタの長さが変わるときに窓関数の中央付近だけを切り出すようになります。以下は窓関数の切り詰めを示した図です。
+
+<figure>
+<img src="./img/truncation_of_window.svg" alt="Plot of a truncation of Blackman-Harris window for smoother change of FIR length." style="padding-bottom: 12px;"/>
+</figure>
+
+以下はフィルタの長さが変わるときのノイズの低減の有無によるエイリアシングの違いを示したスペクトログラムです。上が低減なし、下が低減ありです。縦線が減っているのでポップノイズは減っていますが、エイリアシングは増えています。
+
+<figure>
+<img src="./img/blackmanharris_full_vs_smooth.svg" alt="2 spectrograms to show the effect of the full window vs truncated window when reducing the FIR length." style="padding-bottom: 12px;"/>
+</figure>
+
 ## 参考サイト
 - [Window function - Wikipedia](https://en.wikipedia.org/wiki/Window_function)
 - [fft - When to use symmetric vs asymmetric (periodic) window functions? - Signal Processing Stack Exchange](https://dsp.stackexchange.com/questions/95448/when-to-use-symmetric-vs-asymmetric-periodic-window-functions)
+
+## 変更点
+- 2025/11/22
+  - 「フィルタの長さが変わるときのノイズの低減」の節を追加。

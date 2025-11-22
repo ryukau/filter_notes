@@ -22,7 +22,7 @@ def blackmanHarris(length: int):
 
 
 def testBlackmanHarris():
-    length = 8
+    length = 64
 
     ref = signal.get_window("blackmanharris", length, fftbins=False)
     fast = blackmanHarris(length)
@@ -90,7 +90,64 @@ def testBartlett():
     plt.show()
 
 
+def blackmanHarrisNarrow(length: int):
+    ω = 2 * np.pi / float(length + 1)
+    φ = np.pi / 2
+    k = 2 * np.cos(ω)
+    u1 = 1
+    u2 = np.sin(φ - ω)
+
+    window = np.zeros(length)
+    for i in range(length):
+        u0 = k * u1 - u2
+        u2 = u1
+        u1 = u0
+        window[i] = 0.21747 + u0 * (-0.45325 + u0 * (0.28256 + u0 * -0.04672))
+    return window
+
+
+def blackmanHarrisPartial(length: int, localTap: int):
+    ω = 2 * np.pi / float(length + 1)
+    φ = np.pi / 2 + ω * (length / 2 - localTap / 2)
+    k = 2 * np.cos(ω)
+    u1 = np.sin(φ)
+    u2 = np.sin(φ - ω)
+
+    window = np.zeros(localTap)
+    for i in range(localTap):
+        u0 = k * u1 - u2
+        u2 = u1
+        u1 = u0
+        window[i] = 0.21747 + u0 * (-0.45325 + u0 * (0.28256 + u0 * -0.04672))
+    return window
+
+
+def testBlackmanHarrisPartial():
+    length = 256
+
+    ref = signal.get_window("blackmanharris", length + 2, fftbins=False)[1:-1]
+    fast = blackmanHarrisNarrow(length)
+
+    localTap = 64
+    partial = blackmanHarrisPartial(length, localTap)
+    start = (length - localTap) / 2
+    xp = np.arange(start, start + localTap)
+
+    plt.figure(figsize=(6, 3))
+    # plt.plot(ref, label="ref.", color="black")
+    plt.plot(fast, label="fast", color="blue", alpha=0.5)
+    plt.plot(xp, partial, label="partial", color="orange", lw=4, alpha=0.5)
+    plt.title("Truncation of Blackman-Harris Window")
+    plt.xlabel("Tap [sample]")
+    plt.ylabel("Amplitude")
+    plt.grid()
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
-    testBlackmanHarris()
+    # testBlackmanHarris()
     # testTriangle()
     # testBartlett()
+    testBlackmanHarrisPartial()

@@ -69,13 +69,15 @@ def collageSpectrogram(fullData):
         "DelayAntialiasedBiquad2",
         "DelayTriangleBiquadSine",
         "DelayBlackmanHarrisBiquadSine",
+        # "DelayBlackmanHarrisSmoothBiquadSine",
     ]
     logMagOffset = 1e-5
 
     nSources = len(sources)
     nCol = int(np.ceil(np.sqrt(nSources)))
     nRow = nCol - (nCol * nCol - nSources) // nCol
-    fig, ax = plt.subplots(nRow, nCol, layout="compressed")
+    # nCol, nRow = nRow, nCol
+    fig, ax = plt.subplots(nRow, nCol, layout="compressed", squeeze=False)
     fig.set_size_inches((16, 8))
     im = None
     for idx, key in enumerate(sources):
