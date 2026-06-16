@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2025-01-07" />
+      <meta name="dcterms.date" content="2026-06-16" />
       <title>gibbs</title>
 
   <style>
@@ -328,8 +328,9 @@
       color: #000000;
     }
 
+    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -399,7 +400,7 @@
       }
     };
   </script>
-  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  <script defer="" src="../lib/MathJax/es5/tex-chtml-full.js"
   type="text/javascript"></script>
     </head>
 
@@ -411,14 +412,14 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2025-01-07
+      Update: 2026-06-16
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
       <nav id="TOC" role="doc-toc">
         <ul>
-        <li><a href="#ギブス現象を抑える"
-        id="toc-ギブス現象を抑える">ギブス現象を抑える</a>
+        <li><a href="#gibbs-現象を抑える"
+        id="toc-gibbs-現象を抑える">Gibbs 現象を抑える</a>
         <ul>
         <li><a href="#フィルタを使う方法"
         id="toc-フィルタを使う方法">フィルタを使う方法</a>
@@ -450,12 +451,13 @@
       </nav>
     </details>
       </header>
-  <h1 id="ギブス現象を抑える"><a href="#ギブス現象を抑える"
-  class="header-anchor" aria-hidden="true">ギブス現象を抑える</a></h1>
+  <h1 id="gibbs-現象を抑える"><a href="#gibbs-現象を抑える"
+  class="header-anchor" aria-hidden="true">Gibbs 現象を抑える</a></h1>
   <p>Gottleib と Shu の論文 <a
   href="https://citeseerx.ist.psu.edu/document?repid=rep1&amp;type=pdf&amp;doi=0aa153451c7fadf37cc0d2d48659e5bca0dec2e1">“ON
-  THE GIBBS PHENOMENON AND ITS RESOLUTION”</a> を基に<a
-  href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">ギブス現象</a>を抑える方法を試します。</p>
+  THE GIBBS PHENOMENON AND ITS RESOLUTION”</a> を基に <a
+  href="https://en.wikipedia.org/wiki/Gibbs_phenomenon">Gibbs
+  現象</a>を抑える方法を試します。</p>
   <p>この文章で実装したコードを <a
   href="https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py">GitHub
   で見る</a>ことができます。実行するには <a
@@ -609,8 +611,8 @@
   <h2 id="gegenbauer-polynomial-を使う方法"><a
   href="#gegenbauer-polynomial-を使う方法" class="header-anchor"
   aria-hidden="true">Gegenbauer Polynomial を使う方法</a></h2>
-  <p>Gottleib と Shu
-  の論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。ここでの解析的な形とは
+  <p>Gottleib と Shu の論文で提案されていた方法です。この方法は Gibbs
+  現象が発生する前の信号が解析的な形で表現できるときに使えます。ここでの解析的な形とは
   <span class="math inline">\(f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 +
   \dots\)</span> というような形、つまり<a
   href="https://en.wikipedia.org/wiki/Polynomial">多項式</a>のことです。</p>
@@ -715,32 +717,32 @@
   <p>以下は <code>additiveNoise</code> の結果です。
   <code>additiveNoise</code>
   は乱数で生成したノイズにローパスフィルタをかけた信号です。画像の
-  Filtered result
-  はギブス現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。</p>
+  Filtered result は Gibbs
+  現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。</p>
   <figure>
   <img src="img/result_gottleibShu_additiveNoise.png" alt="Image of a result of gottlieb and shu's gibbs suppression to additive noise." style="width: 600px; padding-bottom: 12px;"/>
   </figure>
-  <p><code>additiveNoise</code>
-  について入力信号と、ギブス現象を抑えた結果にフィルタをかけた信号の周波数の比較です。
-  power は周波数成分の大きさ、 phase は周波数成分の位相です。</p>
+  <p><code>additiveNoise</code> について入力信号と、 Gibbs
+  現象を抑えた結果にフィルタをかけた信号の周波数の比較です。 power
+  は周波数成分の大きさ、 phase は周波数成分の位相です。</p>
   <figure>
   <img src="img/spectrum_comparison_additiveNoise.png" alt="Image comparison of additive noise spectrum." style="width: 600px; padding-bottom: 12px;"/>
   </figure>
-  <p><code>additiveNoise</code>
-  ではギブス現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むので
+  <p><code>additiveNoise</code> では Gibbs
+  現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むので
   Gegenbauer Polynomial を使う方法をそのまま使うことはできません。</p>
   <p>以下は <code>analyticSignal</code> の結果です。
   <code>analyticSignal</code> は解析的な要素のみで合成した信号です。</p>
   <figure>
   <img src="img/result_gottleibShu_analyticSignal.png" alt="Image of a result of gottlieb and shu's gibbs suppression to analytic signal." style="width: 600px; padding-bottom: 12px;"/>
   </figure>
-  <p><code>analyticSignal</code>
-  について入力信号と、ギブス現象を抑えた結果にフィルタをかけた信号の周波数の比較です。</p>
+  <p><code>analyticSignal</code> について入力信号と、 Gibbs
+  現象を抑えた結果にフィルタをかけた信号の周波数の比較です。</p>
   <figure>
   <img src="img/spectrum_comparison_analyticSignal.png" alt="Image comparison of analytic signal spectrum." style="width: 600px; padding-bottom: 12px;"/>
   </figure>
-  <p><code>analyticSignal</code>
-  では理論どおりにギブス現象の抑制に成功していると言えそうです。ただし今回選んだパラメータでは目に見える誤差が出ています。
+  <p><code>analyticSignal</code> では理論どおりに Gibbs
+  現象の抑制に成功していると言えそうです。ただし今回選んだパラメータでは目に見える誤差が出ています。
   <span class="math inline">\(m\)</span>
   の値を大きくすれば誤差を減らすことができます。</p>
   <h3 id="問題点"><a href="#問題点" class="header-anchor"
@@ -769,6 +771,11 @@
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2026/06/16
+  <ul>
+  <li>「ギブス現象」の表記の誤りを修正。正しい読みはギブズ。誤りを避けるために
+  Gibbs 現象に統一。</li>
+  </ul></li>
   <li>2024/05/06
   <ul>
   <li>Daubechies フィルタの式の間違いを修正。</li>

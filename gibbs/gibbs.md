@@ -1,5 +1,5 @@
-# ギブス現象を抑える
-Gottleib と Shu の論文 ["ON THE GIBBS PHENOMENON AND ITS RESOLUTION"](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=0aa153451c7fadf37cc0d2d48659e5bca0dec2e1) を基に[ギブス現象](https://en.wikipedia.org/wiki/Gibbs_phenomenon)を抑える方法を試します。
+#  Gibbs 現象を抑える
+Gottleib と Shu の論文 ["ON THE GIBBS PHENOMENON AND ITS RESOLUTION"](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=0aa153451c7fadf37cc0d2d48659e5bca0dec2e1) を基に [Gibbs 現象](https://en.wikipedia.org/wiki/Gibbs_phenomenon)を抑える方法を試します。
 
 この文章で実装したコードを [GitHub で見る](https://github.com/ryukau/filter_notes/blob/master/gibbs/demo/gibbs.py)ことができます。実行するには [SciPy](https://www.scipy.org/) と [matplotlib](https://matplotlib.org/) が必要です。パラメータを変えて遊んでみてください。
 
@@ -174,7 +174,7 @@ def daubechies4(eta):
 </figure>
 
 ## Gegenbauer Polynomial を使う方法
-Gottleib と Shu の論文で提案されていた方法です。この方法はギブス現象が発生する前の信号が解析的な形で表現できるときに使えます。ここでの解析的な形とは $f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 + \dots$ というような形、つまり[多項式](https://en.wikipedia.org/wiki/Polynomial)のことです。
+Gottleib と Shu の論文で提案されていた方法です。この方法は Gibbs 現象が発生する前の信号が解析的な形で表現できるときに使えます。ここでの解析的な形とは $f(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^3 + \dots$ というような形、つまり[多項式](https://en.wikipedia.org/wiki/Polynomial)のことです。
 
 まず Gegenbauer 係数 $\hat{g}_k^{\lambda}$ を求めます。
 
@@ -269,19 +269,19 @@ plotGottleibShuNoise(1024, additiveNoise, 16)
 plotGottleibShuNoise(1024, analyticSignal, 16)
 ```
 
-以下は `additiveNoise` の結果です。 `additiveNoise` は乱数で生成したノイズにローパスフィルタをかけた信号です。画像の Filtered result はギブス現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。
+以下は `additiveNoise` の結果です。 `additiveNoise` は乱数で生成したノイズにローパスフィルタをかけた信号です。画像の Filtered result は Gibbs 現象を抑えた結果にフィルタをかけて、周波数成分の数を入力信号と揃えた信号です。
 
 <figure>
 <img src="img/result_gottleibShu_additiveNoise.png" alt="Image of a result of gottlieb and shu's gibbs suppression to additive noise." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 
-`additiveNoise` について入力信号と、ギブス現象を抑えた結果にフィルタをかけた信号の周波数の比較です。 power は周波数成分の大きさ、 phase は周波数成分の位相です。
+`additiveNoise` について入力信号と、 Gibbs 現象を抑えた結果にフィルタをかけた信号の周波数の比較です。 power は周波数成分の大きさ、 phase は周波数成分の位相です。
 
 <figure>
 <img src="img/spectrum_comparison_additiveNoise.png" alt="Image comparison of additive noise spectrum." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 
-`additiveNoise` ではギブス現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むので Gegenbauer Polynomial を使う方法をそのまま使うことはできません。
+`additiveNoise` では Gibbs 現象の抑制に失敗しています。乱数で生成したノイズは不連続点を含むので Gegenbauer Polynomial を使う方法をそのまま使うことはできません。
 
 以下は `analyticSignal` の結果です。 `analyticSignal` は解析的な要素のみで合成した信号です。
 
@@ -289,13 +289,13 @@ plotGottleibShuNoise(1024, analyticSignal, 16)
 <img src="img/result_gottleibShu_analyticSignal.png" alt="Image of a result of gottlieb and shu's gibbs suppression to analytic signal." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 
-`analyticSignal` について入力信号と、ギブス現象を抑えた結果にフィルタをかけた信号の周波数の比較です。
+`analyticSignal` について入力信号と、 Gibbs 現象を抑えた結果にフィルタをかけた信号の周波数の比較です。
 
 <figure>
 <img src="img/spectrum_comparison_analyticSignal.png" alt="Image comparison of analytic signal spectrum." style="width: 600px; padding-bottom: 12px;"/>
 </figure>
 
-`analyticSignal` では理論どおりにギブス現象の抑制に成功していると言えそうです。ただし今回選んだパラメータでは目に見える誤差が出ています。 $m$ の値を大きくすれば誤差を減らすことができます。
+`analyticSignal` では理論どおりに Gibbs 現象の抑制に成功していると言えそうです。ただし今回選んだパラメータでは目に見える誤差が出ています。 $m$ の値を大きくすれば誤差を減らすことができます。
 
 ### 問題点
 $\hat{g}_k^{\lambda}$ を求める式の中にある $f_N(x)$ は $[-1, 1]$ の区間で連続であることが求められています。つまり、この方法を現実の信号に適用するには不連続点を見つけて、連続な区間ごとに信号を分割する必要があります。
@@ -308,6 +308,8 @@ $\lambda$ と $m$ が大きいと Gegenbauer Polynomial の計算でオーバー
 Gegenbauer polynomial を使う方法の $m$ を増やしていくことで、 Gegenbauer polynomial による信号の加算合成ができます。ただし信号の両端の値が非常に大きくなるので [Tukey 窓](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.tukey.html#scipy.signal.tukey)などを掛け合わせて抑える必要があります。また $\lambda = 1$ とすることで、ある程度はオーバーフローを避けることができます。
 
 ## 変更点
+- 2026/06/16
+  - 「ギブス現象」の表記の誤りを修正。正しい読みはギブズ。誤りを避けるために Gibbs 現象に統一。
 - 2024/05/06
   - Daubechies フィルタの式の間違いを修正。
 - 2024/04/17
