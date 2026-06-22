@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2026-06-18" />
+      <meta name="dcterms.date" content="2026-06-22" />
       <title>ema_cutoff</title>
 
   <style>
@@ -412,7 +412,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2026-06-18
+      Update: 2026-06-22
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -438,6 +438,7 @@
         のサブノーマル数のバグ</a></li>
         <li><a href="#fma" id="toc-fma">FMA</a></li>
         </ul></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -609,9 +610,9 @@
 355 / 113 (f32) : 3.141592979e+00
 
 π - 355 / 113 (mp)  : -2.667641752e-07
-π - 355 / 113 (f32) : -2.384185791e-07 # 😱
+π - 355 / 113 (f32) : -2.384185791e-07
 
-Rel Error :  8.94e-01
+Rel Error :  1.06e-01
 ULP Error : -9.97e+05</code></pre>
   <p>mp が任意精度で計算した正確な値、 f32 が単精度 (32-bit float)
   で計算した値です。 😱 で示した行が単精度の計算結果です。
@@ -636,28 +637,29 @@ ULP Error : -9.97e+05</code></pre>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>x_np <span class="op">=</span> dtype(<span class="fl">355.0</span>) <span class="op">/</span> dtype(<span class="fl">113.0</span>)</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>y_np <span class="op">=</span> dtype(np.pi) <span class="op">-</span> x_np</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> np.<span class="bu">abs</span>(y_mp <span class="op">-</span> y_np <span class="op">/</span> y_mp, dtype<span class="op">=</span>dtype)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> np.<span class="bu">abs</span>((y_mp <span class="op">-</span> y_np) <span class="op">/</span> y_mp, dtype<span class="op">=</span>dtype)</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>ulp <span class="op">=</span> np.<span class="bu">abs</span>(y_mp <span class="op">-</span> y_np, dtype<span class="op">=</span>dtype) <span class="op">/</span> np.spacing(y_mp, dtype<span class="op">=</span>dtype)</span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="ss">f&quot;&quot;&quot;</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="ss">π (mp)  : </span><span class="sc">{</span>mp<span class="sc">.</span>pi<span class="sc">:.9e}</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="ss">π (f32) : </span><span class="sc">{</span>dtype(np.pi)<span class="sc">:.9e}</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="ss">355 / 113 (mp)  : </span><span class="sc">{</span>x_mp<span class="sc">:.9e}</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="ss">355 / 113 (f32) : </span><span class="sc">{</span>x_np<span class="sc">:.9e}</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="ss">π - 355 / 113 (mp)  : </span><span class="sc">{</span>y_mp<span class="sc">:.9e}</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="ss">π - 355 / 113 (f32) : </span><span class="sc">{</span>y_np<span class="sc">:.9e}</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="ss">Rel Error : </span><span class="sc">{</span>rel<span class="sc">: .2e}</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="ss">ULP Error : </span><span class="sc">{</span>ulp<span class="sc">: .2e}</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="ss">&quot;&quot;&quot;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="ss">f&quot;&quot;&quot;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="ss">π (mp)  : </span><span class="sc">{</span>mp<span class="sc">.</span>pi<span class="sc">:.9e}</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="ss">π (f32) : </span><span class="sc">{</span>dtype(np.pi)<span class="sc">:.9e}</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="ss">355 / 113 (mp)  : </span><span class="sc">{</span>x_mp<span class="sc">:.9e}</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="ss">355 / 113 (f32) : </span><span class="sc">{</span>x_np<span class="sc">:.9e}</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="ss">π - 355 / 113 (mp)  : </span><span class="sc">{</span>y_mp<span class="sc">:.9e}</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="ss">π - 355 / 113 (f32) : </span><span class="sc">{</span>y_np<span class="sc">:.9e}</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="ss">Rel Error : </span><span class="sc">{</span>rel<span class="sc">: .2e}</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="ss">ULP Error : </span><span class="sc">{</span>ulp<span class="sc">: .2e}</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="ss">&quot;&quot;&quot;</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text)</span></code></pre></div>
   </details>
   <h2 id="正確な計算"><a href="#正確な計算" class="header-anchor"
   aria-hidden="true">正確な計算</a></h2>
-  <p>桁落ちを避けるために、減算を使わないように式変形します。計算式を再掲します。</p>
+  <p>桁落ちを避けるために、減算を使わないように式変形します。 <span
+  class="math inline">\(\alpha\)</span> の計算式を再掲します。</p>
   <p><span class="math display">\[
   \alpha = \sqrt{(y + 2) y} - y, \quad y = 1 - \cos(\omega_c), \quad
   \omega_c = 2 \pi \frac{f_c}{f_s}.
@@ -675,14 +677,14 @@ ULP Error : -9.97e+05</code></pre>
   \alpha = \sqrt{(y + 2) y} - y = \frac{2y}{\sqrt{(y + 2) y} + y}.
   \]</span></p>
   <p><span class="math inline">\(y = 2 \sin^2(\omega_c/2)\)</span>
-  を代入して整理すると以下の式が得られます。式の簡略化のための <span
+  を代入して整理すると以下の式が得られます。式の簡略化のため <span
   class="math inline">\(s = \sin^2(\omega_c/2)\)</span> と置きます。</p>
   <p><span class="math display">\[
   \begin{aligned}
   \alpha
   &amp;= \frac{2y}{\sqrt{(y + 2) y} + y} \\
   &amp;= \frac{4 s^2}{\sqrt{4 s^4 + 4 s^2} + 2s^2} \\
-  &amp;= \frac{2 s}{\sqrt{s^2 + 1} + s} \\
+  &amp;= \frac{2 s}{\sqrt{s^2 + 1} + s}.
   \end{aligned}
   \]</span></p>
   <p>実装します。</p>
@@ -740,13 +742,13 @@ ULP Error : -9.97e+05</code></pre>
   class="math inline">\(x\)</span> がサブノーマル数のときに <span
   class="math inline">\(x^2\)</span> を計算すると 0
   にアンダーフローするため、計算する意味がないからです。 <span
-  class="math inline">\(2 \omega (\omega - 1)\)</span> の形で計算すると
-  <span class="math inline">\((\omega - 1)\)</span> が <span
-  class="math inline">\(-1\)</span> あるいは <span
-  class="math inline">\(\epsilon - 1\)</span> に丸められます。 <span
-  class="math inline">\(-1\)</span>
+  class="math inline">\(\omega (1 - \omega/2)\)</span> の形で計算すると
+  <span class="math inline">\((1 - \omega/2)\)</span> が <span
+  class="math inline">\(1\)</span> あるいは <span
+  class="math inline">\(1 - \epsilon\)</span> に丸められます。 <span
+  class="math inline">\(1\)</span>
   に丸められるときは意味のない計算となります。 <span
-  class="math inline">\(\epsilon - 1\)</span>
+  class="math inline">\(1 - \epsilon\)</span>
   の場合についてはここでは検討していません。</p>
   <p>よって、サブノーマル数の範囲をカバーするための近似式は以下となります。</p>
   <p><span class="math display">\[
@@ -856,6 +858,17 @@ ULP Error : -9.97e+05</code></pre>
   <code>sn * sn + 1</code> を <code>math.fma(sn, sn, 1)</code>
   と置き換える形で試してみましたが関数全体としての誤差は減らなかったです。
   <code>math.fma</code> は Python 3.13 で導入されました。</p>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2026/06/22
+  <ul>
+  <li>「桁落ち」の相対誤差の計算を修正。</li>
+  <li>「サブノーマル」の項の 2
+  次の項のアンダーフローに関する段落の式を修正。</li>
+  <li>文章の整理。</li>
+  </ul></li>
+  </ul>
     <footer>
     <a href="../index.html">インデックスに戻る</a>
   </footer>

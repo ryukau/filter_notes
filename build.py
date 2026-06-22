@@ -43,8 +43,9 @@ def pandoc_md_to_html5(md: Path, template_path: Path, rebuild=False, online=Fals
     if md.suffix != ".md":
         return
 
-    if str(md.name).lower() == "readme.md":
-        return
+    for ignore in ["readme.md", "scratch.md", "todo.md"]:
+        if str(md.name).lower() == ignore:
+            return
 
     html = md.parent / Path(md.stem + ".html")
     if not is_source_modified(md, html) and not rebuild:
