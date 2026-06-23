@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2026-06-23" />
+      <title>sum_of_square_roots</title>
+
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
+
+      audio,
+      code,
+      img,
+      .MathJax_ref,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
+
+      pre>code {
+        filter: invert(0);
+      }
+    }
+
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    video {
+      max-width: 100%;
+    }
+
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    :link {
+      color: var(--link-color);
+    }
+
+    :visited {
+      color: var(--visited-color);
+    }
+
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
+
+    .header-anchor {
+      color: var(--foreground-color);
+    }
+
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
+
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
+
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
+
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
+
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
+
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
+
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
+
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
+
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
+
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
+
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    dl {
+      padding-left: 2em;
+    }
+
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
+
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
+
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+
+
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
+
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
+
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
+
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
+
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
+
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
+
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
+
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
+
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
+
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
+
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
+
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    span.math.inline a {
+      color: #000000;
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script defer="" src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
+
+<body>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2026-06-23
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#sum-of-square-roots-の近似関数"
+        id="toc-sum-of-square-roots-の近似関数">Sum of Square Roots
+        の近似関数</a>
+        <ul>
+        <li><a href="#近似方法" id="toc-近似方法">近似方法</a>
+        <ul>
+        <li><a href="#euler-maclaurin-formula"
+        id="toc-euler-maclaurin-formula">Euler-Maclaurin
+        Formula</a></li>
+        <li><a href="#近似式の導出"
+        id="toc-近似式の導出">近似式の導出</a></li>
+        <li><a href="#誤差と級数の打ち切り"
+        id="toc-誤差と級数の打ち切り">誤差と級数の打ち切り</a></li>
+        <li><a href="#近似式の実装"
+        id="toc-近似式の実装">近似式の実装</a></li>
+        </ul></li>
+        <li><a href="#c-による実装" id="toc-c-による実装">C++
+        による実装</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="sum-of-square-roots-の近似関数"><a
+  href="#sum-of-square-roots-の近似関数" class="header-anchor"
+  aria-hidden="true">Sum of Square Roots の近似関数</a></h1>
+  <p>Sum of square roots は以下の関数です。</p>
+  <p><span class="math display">\[
+  S(N) = \sum_{n=1}^{N} \sqrt{n}.
+  \]</span></p>
+  <p><span class="math inline">\(N\)</span> は 0 以上の整数です。 <span
+  class="math inline">\(N=0\)</span> のときは足し合わせる項がないので
+  <span class="math inline">\(S(0) = 0\)</span> です。</p>
+  <p><span class="math inline">\(S\)</span> は <span
+  class="math inline">\(x^2 \bmod 1\)</span>
+  の逆微分を計算するときに使えます。</p>
+  <p>以下は検証に使ったコードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/tree/master/sum_of_square_roots">filter_notes/sum_of_square_roots
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <h2 id="近似方法"><a href="#近似方法" class="header-anchor"
+  aria-hidden="true">近似方法</a></h2>
+  <p><span class="math inline">\(S\)</span> は <a
+  href="https://en.wikipedia.org/wiki/Riemann_zeta_function">Riemann
+  zeta function</a> と似た形をしています。以下は <span
+  class="math inline">\(\mathrm{Re}(s) \ge 1\)</span> における Riemann
+  zeta function の定義です。</p>
+  <p><span class="math display">\[
+  \zeta(s) = \sum_{n=1}^\infty n^{-s}.
+  \]</span></p>
+  <p><span class="math inline">\(s=-1/2\)</span>
+  と代入すると、総和の上限以外は <span class="math inline">\(S\)</span>
+  と同じです。</p>
+  <p><span class="math display">\[
+  \zeta(-1/2) = \sum_{n=1}^\infty n^{1/2}.
+  \]</span></p>
+  <p>ここでは <span class="math inline">\(S\)</span> と <span
+  class="math inline">\(\zeta(-1/2)\)</span> を Euler-Maclaurin formula
+  でつなげて近似式を得るという方針を取っています。 Euler-Maclaurin
+  formula
+  は総和と積分の関係を表した式で、積分を総和に、あるいは総和を積分に変えて近似計算できる形が得られることがあります。
+  <span class="math inline">\(\zeta(-1/2)\)</span> は <span
+  class="math inline">\(\mathrm{Re}(s) \ge 1\)</span>
+  を満たしていませんが、以降の式変形で何とかします (<a
+  href="https://en.wikipedia.org/wiki/Analytic_continuation">analytic
+  continuation</a>) 。</p>
+  <h3 id="euler-maclaurin-formula"><a href="#euler-maclaurin-formula"
+  class="header-anchor" aria-hidden="true">Euler-Maclaurin
+  Formula</a></h3>
+  <p><a
+  href="https://people.csail.mit.edu/kuat/courses/euler-maclaurin.pdf">“Euler-Maclaurin
+  Formula” (people.csail.mit.edu/kuat)</a> に掲載されている
+  Euler-Maclaurin formula を使います。 <span class="math inline">\([a,
+  N]\)</span> の範囲の総和を近似する一般的な形です。 <span
+  class="math inline">\(\sum_{i=2}^k\)</span> の項は <span
+  class="math inline">\(i\)</span> が 3 以上の奇数のときに <span
+  class="math inline">\(b_i = 0\)</span> となるので、実質は 2
+  刻みで総和を取っています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \sum_{n=a}^N f(n) &amp;\sim
+  \int_a^N f(x)\;dx
+  + \frac{f(N) + f(a)}{2}
+  + \sum_{i=2}^{k} \frac{b_i}{i!} (f^{(i-1)}(N) - f^{(i-1)}(a))
+  + R_k.
+  \\
+  R_k &amp;= \int_a^N \frac{B_k(\{1 - t\})}{k!} f^{(k)}(t) dt.
+  \end{aligned}
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(b_n\)</span> : <a
+  href="https://en.wikipedia.org/wiki/Bernoulli_number">Bernoulli
+  numbers</a>.</li>
+  <li><span class="math inline">\(B_n\)</span> : <a
+  href="https://en.wikipedia.org/wiki/Bernoulli_polynomials">Bernoulli
+  polynomials</a>.</li>
+  <li><span class="math inline">\(R_n\)</span> : Remainder term.</li>
+  <li><span class="math inline">\(\{\}\)</span> :
+  実数から小数点以下の値を取り出す演算子。 <span
+  class="math inline">\(\{x\} = x - \lfloor x \rfloor\)</span>.</li>
+  <li><span class="math inline">\(f^{(n)}\)</span> : <span
+  class="math inline">\(S\)</span> の <span
+  class="math inline">\(n\)</span> 階微分。</li>
+  <li><span class="math inline">\(k\)</span> : 2 以上の偶数。以降「<a
+  href="#誤差と級数の打ち切り">誤差と級数の打ち切り</a>」に設定方法を掲載。</li>
+  </ul>
+  <p>式変形中に以下の関数を使います。</p>
+  <ul>
+  <li><span class="math inline">\(g(x) = x^{-s}.\)</span></li>
+  <li><span class="math inline">\(h(x) = x^{1/2}.\)</span></li>
+  </ul>
+  <h3 id="近似式の導出"><a href="#近似式の導出" class="header-anchor"
+  aria-hidden="true">近似式の導出</a></h3>
+  <p><span class="math inline">\(\zeta\)</span> に Euler-Maclaurin
+  formula を当てはめます。 <span class="math inline">\(g(x) =
+  x^{-s}\)</span> 、 <span class="math inline">\(a=1\)</span>
+  として以下のように式を立てます。 <span
+  class="math inline">\(g\)</span> は <span
+  class="math inline">\(\zeta\)</span> の総和の各項 <span
+  class="math inline">\((n^{-s})\)</span> と対応します。</p>
+  <p><span class="math display">\[
+  \sum_{n=1}^N n^{-s}
+  = \int_1^N g(x) dx + \frac{N^{-s} + 1}{2} + \sum_{i=2}^k
+  \frac{b_i}{i!} \left(g^{(i-1)}(N) - g^{(i-1)}(1)\right) + \int_1^N
+  \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
+  \]</span></p>
+  <p><span class="math inline">\(N \to \infty\)</span>
+  の極限を取ります。 <span class="math inline">\(\text{Re}(s) &gt;
+  1\)</span> であれば、以下の <span
+  class="math inline">\(\infty\)</span> が絡む項が収束します。</p>
+  <ul>
+  <li><span class="math inline">\(\displaystyle \lim_{N \to \infty}
+  \int_1^N g(x) dx = \lim_{N \to \infty} \int_1^N x^{-s} dx = \lim_{N
+  \to \infty} \left[ \frac{N^{1-s}}{1-s} - \frac{1}{1-s} \right] =
+  \frac{1}{s-1}.\)</span></li>
+  <li><span class="math inline">\(\displaystyle \lim_{N \to \infty}
+  N^{-s} = 0.\)</span></li>
+  <li><span class="math inline">\(\displaystyle \lim_{N \to \infty}
+  g^{(i-1)}(N) = \lim_{N \to \infty} N^{-s - i}= 0.\)</span></li>
+  </ul>
+  <p>先の式に代入すると <span class="math inline">\(\zeta(s)\)</span>
+  についての Euler-Maclaurin formula が得られます。この式は <span
+  class="math inline">\(\zeta\)</span> の analytic continuation の 1
+  つです。</p>
+  <p><span class="math display">\[
+  \zeta(s)
+  = \frac{1}{s-1} + \frac{1}{2}
+  - \sum_{i=2}^k \frac{b_i}{i!} g^{(i-1)}(1)
+  + \int_1^\infty \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
+  \]</span></p>
+  <p>ここで <span class="math inline">\(g(x) = x^{-s}\)</span>
+  の定義より、右辺の <span class="math inline">\(\int_1^\infty\)</span>
+  の項 (remainder term) は <span class="math inline">\(\mathrm{Re}(s)
+  &gt; 1 - k\)</span> のときに収束します。ターゲットとなる <span
+  class="math inline">\(\zeta(-1/2)\)</span> では <span
+  class="math inline">\(k \geq 2\)</span>
+  であれば収束するので計算できそうです。 <span
+  class="math inline">\(h(x) = x^{1/2}\)</span> です。</p>
+  <p><span class="math display">\[
+  \zeta(-1/2)
+  = -\frac{2}{3} + \frac{1}{2}
+  - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1)
+  + \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
+  \]</span></p>
+  <p>次に <span class="math inline">\(S\)</span> に Euler-Maclaurin
+  formula を当てはめます。</p>
+  <p><span class="math display">\[
+  \sum_{n=1}^N n^{1/2}
+  = \underbrace{\int_1^N x^{1/2} dx}_{\text{Integral term}}
+  + \frac{N^{1/2} + 1}{2}
+  + \sum_{i=2}^k \frac{b_i}{i!} \left(h^{(i-1)}(N) - h^{(i-1)}(1)\right)
+  + \underbrace{\int_1^N \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt}_{R_k}.
+  \]</span></p>
+  <p>1 つめの区間積分を展開し、もう一つの区間積分である remainder term
+  を <span class="math inline">\(\int_1^N = \int_1^\infty -
+  \int_N^\infty\)</span> と 2 つの区間に分割します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \sum_{n=1}^N n^{1/2}
+  =&amp; \underbrace{\left( \frac{2}{3}N^{3/2} - \frac{2}{3}
+  \right)}_{\text{Integral term}}
+  + \frac{N^{1/2}}{2} + \frac{1}{2}
+  + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
+  - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1) \\
+  &amp;+ \underbrace{\left(
+      \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
+    - \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
+  \right)}_{R_k}.
+  \end{aligned}
+  \]</span></p>
+  <p>項を並べ替えると <span class="math inline">\(\zeta(-1/2)\)</span>
+  が見つかります。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \sum_{n=1}^N n^{1/2}
+  =&amp; \frac{2}{3}N^{3/2} + \frac{N^{1/2}}{2}
+  + \underbrace{\left(
+    -\frac{2}{3} + \frac{1}{2}
+    - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1)
+    + \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
+  \right)}_{\zeta(-1/2)}\\
+  &amp;+ \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
+  - \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
+  \end{aligned}
+  \]</span></p>
+  <p>整理します。</p>
+  <p><span class="math display">\[
+  \sum_{n=1}^N n^{1/2}
+  = \frac{2}{3}N^{3/2}
+  + \frac{1}{2}N^{1/2}
+  + \zeta(-1/2)
+  + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
+  - \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
+  \]</span></p>
+  <p>以降では <span class="math inline">\(k \geq 2\)</span>
+  とします。また <span class="math inline">\(i\)</span> が 3
+  以上の奇数のとき <span class="math inline">\(b_i = 0\)</span> なので
+  <span class="math inline">\(k\)</span> を偶数に狭められます。</p>
+  <h3 id="誤差と級数の打ち切り"><a href="#誤差と級数の打ち切り"
+  class="header-anchor" aria-hidden="true">誤差と級数の打ち切り</a></h3>
+  <p>Remainder term <span class="math inline">\(R_k\)</span>
+  を解いて許容誤差 <span class="math inline">\(\epsilon\)</span>
+  が与えられたときに <span class="math inline">\(k\)</span>
+  を決める式を導きます。式の見通しをよくするため <span
+  class="math inline">\(1/k!\)</span> は積分の外に出しています。</p>
+  <p><span class="math display">\[
+  R_k = - \frac{1}{k!} \int_N^\infty B_k(\{1 - t\}) h^{(k)}(t) dt.
+  \]</span></p>
+  <p>ここで Bernoulli polynomial <span
+  class="math inline">\(B_k\)</span> について以下の性質があります。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \frac{d}{dx} B_k(t) &amp;= k B_{k - 1}(t). &amp;&amp;
+  \text{(recurrence relation)} \\
+  B_k(1 - t) &amp;= (-1)^k B_k(t).           &amp;&amp;
+  \text{(symmetry)} \\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(B_{k+1}(\{1 - t\})\)</span>
+  にあてはめると以下の式が得られます。</p>
+  <p><span class="math display">\[
+  \frac{d}{dt} B_{k+1}(\{1 - t\}) = -(k + 1) B_k(\{1 - t\}).
+  \]</span></p>
+  <p><span class="math inline">\(B_k\)</span> について解きます。</p>
+  <p><span class="math display">\[
+  B_k(\{1 - t\}) = -\frac{1}{k+1} \frac{d}{dt} B_{k+1}(\{1 - t\}).
+  \]</span></p>
+  <p><span class="math inline">\(R_k\)</span>
+  に代入します。積分の展開では <span class="math inline">\(u =
+  h^{(k)}(t)\)</span> かつ <span class="math inline">\(v&#39; =
+  \dfrac{d}{dt} B_{k+1}(\{1 - t\}) dt\)</span>
+  と置いて部分積分の公式を適用しています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  R_k
+  &amp;= - \frac{1}{(k+1)!}  \int_N^\infty \left( \frac{d}{dt}
+  B_{k+1}(\{1 - t\}) \right) h^{(k)}(t) dt.
+  \\&amp;=
+  - \frac{1}{(k+1)!} \left(
+      \left[ B_{k+1}(\{1 - t\}) h^{(k)}(t) \right]_N^\infty
+     - \int_N^\infty B_{k+1}(\{1 - t\}) h^{(k+1)}(t) dt
+  \right).
+  \end{aligned}
+  \]</span></p>
+  <p>角かっこの境界項 <span class="math inline">\(\left[\
+  \right]_N^\infty\)</span> について以下のことが言えます。</p>
+  <ul>
+  <li><span class="math inline">\(\infty\)</span> 側の項について、 <span
+  class="math inline">\(h^{(k)}(t) \propto t^{1/2 - k}\)</span> なので、
+  <span class="math inline">\(k \geq 2\)</span> の条件下では 0 。</li>
+  <li><span class="math inline">\(N\)</span> 側の項について、 <span
+  class="math inline">\(N\)</span> は整数なので <span
+  class="math inline">\(B_{k+1}(\{1 - N\}) = B_{k+1}(0) =
+  b_{k+1}\)</span> 。 <span class="math inline">\(k\)</span> が 2
+  以上の偶数という今回の条件と、 Bernoulli number <span
+  class="math inline">\(b_k\)</span> は <span
+  class="math inline">\(k\)</span> が 3 以上かつ奇数のときに 0
+  となる性質を組み合わせると、 <span class="math inline">\(b_{k+1} =
+  0\)</span> 。</li>
+  </ul>
+  <p>よって境界項は 0 になるので <span
+  class="math inline">\(R_k\)</span> が以下の形に変形できます。</p>
+  <p><span class="math display">\[
+  R_k = \frac{1}{(k+1)!} \int_N^\infty B_{k+1}(\{1 - t\}) h^{(k+1)}(t)
+  dt.
+  \]</span></p>
+  <p>さらにもう一度、同様の変形を行ってインデックス <span
+  class="math inline">\(k+2\)</span> が出てくるように <span
+  class="math inline">\(R_k\)</span> を変形します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  R_k
+  &amp;=
+  \frac{1}{(k+2)!}  \int_N^\infty \left( \frac{d}{dt} B_{k+2}(\{1 - t\})
+  \right) h^{(k+1)}(t) dt
+  \\&amp;=
+  \frac{1}{(k+2)!} \left(
+      \left[ B_{k+2}(\{1 - t\}) h^{(k+1)}(t) \right]_N^\infty
+    - \int_N^\infty B_{k+2}(\{1 - t\}) h^{(k+2)}(t) dt
+  \right).
+  \end{aligned}
+  \]</span></p>
+  <p>角かっこの境界項 <span class="math inline">\(\left[\
+  \right]_N^\infty\)</span> について以下のことが言えます。</p>
+  <ul>
+  <li><span class="math inline">\(\infty\)</span> 側の項については同様に
+  0 。</li>
+  <li><span class="math inline">\(N\)</span> 側の項については <span
+  class="math inline">\(k+2\)</span> が偶数となるので非ゼロ。</li>
+  </ul>
+  <p>展開します。</p>
+  <p><span class="math display">\[
+  \left[ \frac{B_{k+2}(\{1 - t\})}{(k+2)!} h^{(k+1)}(t) \right]_N^\infty
+  = 0 - \frac{B_{k+2}}{(k+2)!} h^{(k+1)}(N).
+  \]</span></p>
+  <p><span class="math inline">\(R_k\)</span> に代入します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  R_k &amp;= -\frac{B_{k+2}}{(k+2)!} h^{(k+1)}(N) - \int_N^\infty
+  \frac{B_{k+2}(\{1 - t\})}{(k+2)!} h^{(k+2)}(t) dt
+  \\&amp;= -\frac{B_{k+2}}{(k+2)!} h^{(k+1)}(N) + R_{k+2}.
+  \end{aligned}
+  \]</span></p>
+  <p>同様の変形を続けると以下の関係が現れます。</p>
+  <p><span class="math display">\[
+  R_k \sim - \frac{b_{k+2}}{(k+2)!} h^{(k+1)}(N) -
+  \frac{b_{k+4}}{(k+4)!} h^{(k+3)}(N) - \frac{b_{k+6}}{(k+6)!}
+  h^{(k+5)}(N) - \dots
+  \]</span></p>
+  <p>総和の形にします。この総和は <span class="math inline">\(S\)</span>
+  の Euler-Maclaurin formula の総和項 <span
+  class="math inline">\(\sum_{i=2}^k\)</span> の続きと同じ形です。</p>
+  <p><span class="math display">\[
+  R_k \sim -\sum_{i=k+2}^\infty \frac{b_i}{i!} h^{(i-1)}(N).
+  \]</span></p>
+  <p>総和の初項が誤差です。</p>
+  <p><span class="math display">\[R_k
+  \approx -\frac{B_{k+2}}{(k+2)!} h^{(k+1)}(N)
+  = -\frac{B_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)},
+  \quad P_{k} = \prod_{i=1}^{k} \left( \frac{3}{2} - i \right).
+  \]</span></p>
+  <p>誤差がマシンイプシロン <span
+  class="math inline">\(\epsilon\)</span>
+  以下となるように不等式を立てます。</p>
+  <p><span class="math display">\[
+  \epsilon \ge \left| -\frac{B_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)}
+  \right|.
+  \]</span></p>
+  <p><span class="math inline">\(N\)</span> について解きます。</p>
+  <p><span class="math display">\[
+  N \ge \left| \frac{B_{k+2} P_{k+1}}{(k+2)!} \cdot \frac{1}{\epsilon}
+  \right|^{1/(k + 1/2)}.
+  \]</span></p>
+  <p>これで <span class="math inline">\(\epsilon\)</span> から <span
+  class="math inline">\(N\)</span>
+  が得られるようになりました。実装します。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.special <span class="im">as</span> special</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute_min_n_table(epsilon: <span class="bu">float</span> <span class="op">=</span> np.finfo(np.float64).eps, max_order: <span class="bu">int</span> <span class="op">=</span> <span class="dv">20</span>):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    B <span class="op">=</span> special.bernoulli(max_order <span class="op">+</span> <span class="dv">2</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> [<span class="fl">1.0</span>]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, max_order <span class="op">+</span> <span class="dv">3</span>):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        value <span class="op">*=</span> <span class="fl">3.0</span> <span class="op">/</span> <span class="fl">2.0</span> <span class="op">-</span> i</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        P.append(value)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> []</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, max_order <span class="op">+</span> <span class="dv">2</span>, <span class="dv">2</span>):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        coeff <span class="op">=</span> <span class="bu">abs</span>((B[k <span class="op">+</span> <span class="dv">2</span>] <span class="op">/</span> special.factorial(k <span class="op">+</span> <span class="dv">2</span>)) <span class="op">*</span> P[k <span class="op">+</span> <span class="dv">1</span>])</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        power <span class="op">=</span> k <span class="op">+</span> <span class="fl">0.5</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        min_n <span class="op">=</span> (coeff <span class="op">/</span> np.finfo(dtype).eps) <span class="op">**</span> (<span class="fl">1.0</span> <span class="op">/</span> power)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        results.append(</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>            {</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;k&quot;</span>: k,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Term&quot;</span>: <span class="ss">f&quot;b_</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">&quot;</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Power&quot;</span>: power,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Coeff&quot;</span>: coeff,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Min_N&quot;</span>: min_n,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># print は省略。</span></span></code></pre></div>
+  <p>以下は整形した実行結果です。</p>
+  <pre><code>--- float32
+k    Term   Power  Coeff          Min N  LUT Size
+2    b_2    2.5    5.2083333e-04  29      116 B
+4    b_4    4.5    1.0850694e-04  5        20 B
+6    b_6    6.5    6.7138672e-05  3        12 B
+8    b_8    8.5    8.2651774e-05  3        12 B
+10   b_10   10.5   1.6893130e-04  2         8 B
+12   b_12   12.5   5.1660339e-04  2         8 B
+14   b_14   14.5   2.2081132e-03  2         8 B
+16   b_16   16.5   1.2570609e-02  3        12 B
+18   b_18   18.5   9.1942717e-02  3        12 B
+20   b_20   20.5   8.4016314e-01  3        12 B
+
+--- float64
+k    Term   Power  Coeff          Min N  LUT Size
+2    b_2    2.5    5.2083333e-04  88737   693 KiB
+4    b_4    4.5    1.0850694e-04  396       3 KiB
+6    b_6    6.5    6.7138672e-05  59      472 B
+8    b_8    8.5    8.2651774e-05  23      184 B
+10   b_10   10.5   1.6893130e-04  14      112 B
+12   b_12   12.5   5.1660339e-04  10       80 B
+14   b_14   14.5   2.2081132e-03  8        64 B
+16   b_16   16.5   1.2570609e-02  7        56 B
+18   b_18   18.5   9.1942717e-02  7        56 B
+20   b_20   20.5   8.4016314e-01  6        48 B</code></pre>
+  <p>ここでは <code>N &lt; (Min N)</code>
+  の範囲でルックアップテーブルを使います。 <code>LUT Size</code> は
+  <code>Min N</code> を下回る <span class="math inline">\(N\)</span>
+  の値をルックアップテーブルにしたときの大まかなサイズです。単位の
+  <code>B</code> はバイト、 <code>KiB</code> は kibibyte (2^10) です。
+  CPU の L1 キャッシュの大きさは数十から数百 KiB なので、 f64 では <span
+  class="math inline">\(k=6\)</span>
+  以上から実用的な近似となりそうです。 f32 は <span
+  class="math inline">\(k=4\)</span> で十分そうです。</p>
+  <h3 id="近似式の実装"><a href="#近似式の実装" class="header-anchor"
+  aria-hidden="true">近似式の実装</a></h3>
+  <p><span class="math inline">\(S\)</span> の近似式を再掲します。
+  Remainder term は <span class="math inline">\(R_k\)</span>
+  とします。</p>
+  <p><span class="math display">\[
+  \sum_{n=1}^N n^{1/2}
+  = \frac{2}{3}N^{3/2}
+  + \frac{1}{2}N^{1/2}
+  + \zeta(-1/2)
+  + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
+  + R_k.
+  \]</span></p>
+  <p>級数項 <span class="math inline">\(\sum_{i=2}^k\)</span>
+  を展開します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \sum_{i=2}^\infty \frac{b_i}{i!} h^{(i-1)}(N)
+  &amp;= \frac{1}{24} N^{-1/2} - \frac{1}{1920} N^{-5/2} +
+  \frac{1}{9216} N^{-9/2} - \frac{11}{163840} N^{-13/2} + \dots \\
+  &amp;= \sqrt{N} \left( \frac{1}{24} - \frac{1}{1920} N^{-2} +
+  \frac{1}{9216} N^{-4} - \frac{11}{163840} N^{-6} + \dots \right)
+  \end{aligned}
+  \]</span></p>
+  <pre><code>Order (k)  Power of N   Coefficient (Rational)    Coefficient (Float)
+---------------------------------------------------------------------------
+2          -1/2          1/24                     +4.16666666666666644e-02
+4          -5/2         -1/1920                   -5.20833333333333326e-04
+6          -9/2          1/9216                   +1.08506944444444438e-04
+8          -13/2        -11/163840                -6.71386718750000054e-05
+10         -17/2         65/786432                +8.26517740885416712e-05
+12         -21/2        -223193/1321205760        -1.68931295001317576e-04
+14         -25/2         52003/100663296          +5.16603390375773076e-04
+16         -29/2        -4741887/2147483648       -2.20811320468783379e-03
+18         -33/2         4535189795/360777252864  +1.25706090364560846e-02
+20         -37/2        -25273021529/274877906944 -9.19427167136745993e-02</code></pre>
+  <p>実装します。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mpmath <span class="im">import</span> mp</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sum_sqrt_mp_array(N: <span class="bu">int</span>):</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> [mp.mpf(<span class="dv">0</span>)]</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, N):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        y.append(y[<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> mp.sqrt(i))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="bu">float</span>(v) <span class="cf">for</span> v <span class="kw">in</span> y]</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>table_threshold <span class="op">=</span> <span class="dv">64</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> sum_sqrt_mp_array(table_threshold)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sum_of_sqrt_k2(N: <span class="bu">int</span>, dtype<span class="op">=</span>np.float32):</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;f32 approximation (table size can be reduced).&quot;&quot;&quot;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> N <span class="op">&lt;</span> table_threshold:</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dtype(table[N])</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> dtype(N)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    sqrt_n <span class="op">=</span> np.sqrt(N, dtype<span class="op">=</span>dtype)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    zeta_term <span class="op">=</span> dtype(<span class="op">-</span><span class="fl">0.2078862249773545660</span>)  <span class="co"># zeta(-0.5)</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> (dtype(<span class="fl">2.0</span>) <span class="op">/</span> dtype(<span class="fl">3.0</span>) <span class="op">*</span> N <span class="op">+</span> dtype(<span class="fl">0.5</span>)) <span class="op">*</span> sqrt_n <span class="op">+</span> zeta_term</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> (N <span class="op">*</span> N)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">24</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">+</span> (v <span class="op">/</span> sqrt_n)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sum_of_sqrt_k6(N: <span class="bu">int</span>, dtype<span class="op">=</span>np.float64):</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;f64 approximation.&quot;&quot;&quot;</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> N <span class="op">&lt;</span> table_threshold:</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dtype(table[N])</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> dtype(N)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    sqrt_n <span class="op">=</span> np.sqrt(N, dtype<span class="op">=</span>dtype)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    zeta_term <span class="op">=</span> dtype(<span class="op">-</span><span class="fl">0.2078862249773545660</span>)  <span class="co"># zeta(-0.5)</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> (dtype(<span class="fl">2.0</span>) <span class="op">/</span> dtype(<span class="fl">3.0</span>) <span class="op">*</span> N <span class="op">+</span> dtype(<span class="fl">0.5</span>)) <span class="op">*</span> sqrt_n <span class="op">+</span> zeta_term</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> (N <span class="op">*</span> N)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">9216</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> v <span class="op">*</span> m <span class="op">+</span> dtype(<span class="op">-</span><span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">1920</span>)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> v <span class="op">*</span> m <span class="op">+</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">24</span>)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">+</span> (v <span class="op">/</span> sqrt_n)</span></code></pre></div>
+  <p>以下は f32 かつ <span class="math inline">\(k=2\)</span>
+  とした近似の誤差のプロットです。</p>
+  <figure>
+  <img src="img/error_float32.svg" alt="32-bit float approximation errors of sum of square roots." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は f64 かつ <span class="math inline">\(k=6\)</span>
+  とした近似の誤差のプロットです。</p>
+  <figure>
+  <img src="img/error_float64.svg" alt="64-bit float approximation errors of sum of square roots." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>以下は誤差が最大となる <span class="math inline">\(N\)</span>
+  です。既知の値だけをリストしています。 f32, f64 ともに 3 ULP
+  を超える誤差は見つかっていません。</p>
+  <pre><code>--- f32, known max ULP arguments
+N = [1076, 1178, 1271, 1274, 1310, 50258, 50327, 51617, 51698, 52178, 52481, 52910, 53324, 53408, 53864, 53975, 13277116, 13308523, 13320373, 13378468, 13448086, 13469641, 13483714, 13486981, 13487779, 13491181, 13500715, 13507162, 13529779, 13533154, 13534018, 13537963, 13541224, 13546933, 13565488, 13566907, 13569166, 13570855, 13572724, 13573654, 13577083, 13580077, 13584736, 13594366, 13599022, 13602013, 13603198, 13609936, 13610671, 13623235, 13633360, 13636243, 13636939, 13638946, 13657138, 13657849, 13662052, 13662718, 13675669, 13678300, 13679212, 13680655, 13685221, 13687096, 13697017, 13698526, 13700176, 13700617, 13701349, 13702372, 13704814, 13708330, 13709017, 13710928, 13714660, 13717765, 13720429, 13721422, 13728352, 13728703, 13731739, 13735729, 13739935, 13745101, 13747516, 13754440, 13754641, 13754842, 13755043, 13755244, 13755445, 13756720, 13759558, 13761190, 13762054, 13765927, 13766389, 13766851, 13772071, 13773247, 13778452, 13778548, 13780714, 13782262, 13783453, 13787077, 13788484, 13789153, 13792018, 13795975, 13796608, 13797805, 13800163, 13805353, 13806193, 13806877, 13807561, 13808089, 13808617, 13808989, 13813747, 13814638, 13815805, 13816021, 13816756, 13817767, 13818562, 13819357, 13821067, 13823347, 13824046, 13824745, 13827679, 13829758, 13830301, 13832284, 13834051, 13835128, 13836472, 13842886, 13845484, 13845544, 13847221, 13847926, 13847986, 13848631]
+
+--- f64, known max ULP arguments
+N = [797, 812, 839, 4241, 32668, 130891]</code></pre>
+  <h2 id="c-による実装"><a href="#c-による実装" class="header-anchor"
+  aria-hidden="true">C++ による実装</a></h2>
+  <p>C++20 です。</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;array&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;concepts&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cstdint&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;type_traits&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="bu">std::</span>floating_point T<span class="op">&gt;</span> <span class="kw">inline</span> T sum_of_sqrt<span class="op">(</span><span class="dt">uint64_t</span> N<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">alignas</span><span class="op">(</span><span class="dv">64</span><span class="op">)</span> <span class="at">static</span> <span class="kw">constexpr</span> <span class="bu">std::</span>array<span class="op">&lt;</span>T<span class="op">,</span> <span class="dv">64</span><span class="op">&gt;</span> table<span class="op">{</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">0.00000000000000000e00</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.00000000000000000e00</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.41421356237309492e00</span><span class="op">),</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">4.14626436994197256e00</span><span class="op">),</span> T<span class="op">(</span><span class="fl">6.14626436994197256e00</span><span class="op">),</span> T<span class="op">(</span><span class="fl">8.38233234744176237e00</span><span class="op">),</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">1.08318220902249394e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.34775734012895310e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.63060005260357208e01</span><span class="op">),</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">1.93060005260357208e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.24682781862040990e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.57849029765595006e01</span><span class="op">),</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">2.92490045916972541e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">3.28545558671612454e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">3.65962132539351828e01</span><span class="op">),</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">4.04691966001426024e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">4.44691966001426024e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">4.85923022257602639e01</span><span class="op">),</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">5.28349429128795478e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">5.71938418564202209e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">6.16659778114198005e01</span><span class="op">),</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">6.62485535063756430e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">7.09389692661990665e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">7.57348007895117945e01</span><span class="op">),</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">8.06337802750781520e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">8.56337802750781520e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">9.07327997886709312e01</span><span class="op">),</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">9.59289522113775632e01</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.01220454833506750e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.06605619640641251e02</span><span class="op">),</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">1.12082845215692913e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.17650609578522932e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.23307463828015315e02</span><span class="op">),</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">1.29052026474553344e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.34882978369398643e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.40799058152498247e02</span><span class="op">),</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">1.46799058152498247e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.52881820682796473e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.59046234685765455e02</span><span class="op">),</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">1.65291232684163845e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.71615788004500615e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.78018912241933464e02</span><span class="op">),</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">1.84499652940341321e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.91057091464643321e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">1.97690341045354131e02</span><span class="op">),</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">2.04398544977853476e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.11180874960978770e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.18036529561379808e02</span><span class="op">),</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">2.24964732791655308e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.31964732791655308e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.39035800603520784e02</span><span class="op">),</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">2.46177229032063622e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.53388331582991611e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.60668441472272150e02</span><span class="op">),</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">2.68016910700621679e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.75433109187717321e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.82916423961265195e02</span><span class="op">),</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">2.90466258396535977e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">2.98082031502399843e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">3.05763177250268484e02</span><span class="op">),</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">3.13509143942683295e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">3.21319393618589970e02</span><span class="op">),</span> T<span class="op">(</span><span class="fl">3.29193401492601765e02</span><span class="op">),</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    T<span class="op">(</span><span class="fl">3.37130655425795567e02</span><span class="op">),</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>N <span class="op">&lt;</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">uint64_t</span><span class="op">&gt;(</span>table<span class="op">.</span>size<span class="op">()))</span> <span class="op">{</span> <span class="cf">return</span> table<span class="op">[</span>N<span class="op">];</span> <span class="op">}</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  T n <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>T<span class="op">&gt;(</span>N<span class="op">);</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  T sqrt_n <span class="op">=</span> <span class="bu">std::</span>sqrt<span class="op">(</span>n<span class="op">);</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> T zeta_term <span class="op">=</span> T<span class="op">(-</span><span class="fl">0.207886224977354566</span><span class="op">);</span> <span class="co">// zeta(-0.5).</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  T base <span class="op">=</span> <span class="op">((</span>T<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">/</span> T<span class="op">(</span><span class="dv">3</span><span class="op">))</span> <span class="op">*</span> n <span class="op">+</span> T<span class="op">(</span><span class="fl">0.5</span><span class="op">))</span> <span class="op">*</span> sqrt_n <span class="op">+</span> zeta_term<span class="op">;</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> T C3 <span class="op">=</span> T<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> T<span class="op">(</span><span class="dv">9216</span><span class="op">);</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> T C2 <span class="op">=</span> T<span class="op">(-</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> T<span class="op">(</span><span class="dv">1920</span><span class="op">);</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> T C1 <span class="op">=</span> T<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> T<span class="op">(</span><span class="dv">24</span><span class="op">);</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span><span class="bu">std::</span>is_same_v<span class="op">&lt;</span>T<span class="op">,</span> <span class="dt">float</span><span class="op">&gt;)</span> <span class="op">{</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">+</span> C1 <span class="op">/</span> sqrt_n<span class="op">;</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    T m <span class="op">=</span> T<span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span>n <span class="op">*</span> n<span class="op">);</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">+</span> <span class="op">(((</span>C3 <span class="op">*</span> m <span class="op">+</span> C2<span class="op">)</span> <span class="op">*</span> m <span class="op">+</span> C1<span class="op">)</span> <span class="op">/</span> sqrt_n<span class="op">);</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="https://people.csail.mit.edu/kuat/courses/euler-maclaurin.pdf">euler-maclaurin.pdf</a></li>
+  <li><a
+  href="https://math.stackexchange.com/questions/1241864/sum-of-square-roots-formula#1241976">sequences
+  and series - Sum of Square roots formula. - Mathematics Stack
+  Exchange</a></li>
+  <li><a
+  href="https://math.stackexchange.com/questions/1583452/assymptotics-of-the-generalized-harmonic-number-h-n-r-for-r-1">summation
+  - Assymptotics of the generalized harmonic number <span
+  class="math inline">\(H_{n,r}\)</span> for <span
+  class="math inline">\(r &lt; 1\)</span> - Mathematics Stack
+  Exchange</a></li>
+  <li><a
+  href="https://mathworld.wolfram.com/AnalyticContinuation.html">Analytic
+  Continuation – from Wolfram MathWorld</a></li>
+  <li><a
+  href="https://mathworld.wolfram.com/BernoulliPolynomial.html">Bernoulli
+  Polynomial – from Wolfram MathWorld</a></li>
+  <li><a
+  href="https://mathworld.wolfram.com/Euler-MaclaurinIntegrationFormulas.html">Euler-Maclaurin
+  Integration Formulas – from Wolfram MathWorld</a></li>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Analytic_continuation">Analytic
+  continuation - Wikipedia</a></li>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Bernoulli_polynomials">Bernoulli
+  polynomials - Wikipedia</a></li>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Euler%E2%80%93Maclaurin_formula">Euler–Maclaurin
+  formula - Wikipedia</a></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
