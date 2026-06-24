@@ -37,7 +37,7 @@ $$
 \int_a^N f(x)\;dx
 + \frac{f(N) + f(a)}{2}
 + \sum_{i=2}^{k} \frac{b_i}{i!} (f^{(i-1)}(N) - f^{(i-1)}(a))
-+ R_k.
+- R_k.
 \\
 R_k &= \int_a^N \frac{B_k(\{1 - t\})}{k!} f^{(k)}(t) dt.
 \end{aligned}
@@ -60,14 +60,14 @@ $\zeta$ に Euler-Maclaurin formula を当てはめます。 $g(x) = x^{-s}$ 、
 
 $$
 \sum_{n=1}^N n^{-s}
-= \int_1^N g(x) dx + \frac{N^{-s} + 1}{2} + \sum_{i=2}^k \frac{b_i}{i!} \left(g^{(i-1)}(N) - g^{(i-1)}(1)\right) + \int_1^N \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
+= \int_1^N g(x) dx + \frac{N^{-s} + 1}{2} + \sum_{i=2}^k \frac{b_i}{i!} \left(g^{(i-1)}(N) - g^{(i-1)}(1)\right) - \int_1^N \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
 $$
 
 $N \to \infty$ の極限を取ります。 $\text{Re}(s) > 1$ であれば、以下の $\infty$ が絡む項が収束します。
 
 - $\displaystyle \lim_{N \to \infty} \int_1^N g(x) dx = \lim_{N \to \infty} \int_1^N x^{-s} dx = \lim_{N \to \infty} \left[ \frac{N^{1-s}}{1-s} - \frac{1}{1-s} \right] = \frac{1}{s-1}.$
 - $\displaystyle \lim_{N \to \infty} N^{-s} = 0.$
-- $\displaystyle \lim_{N \to \infty} g^{(i-1)}(N) = \lim_{N \to \infty} N^{-s - i}= 0.$
+- $\displaystyle \lim_{N \to \infty} g^{(i-1)}(N) = \lim_{N \to \infty} N^{-s-i+1}= 0.$
 
 先の式に代入すると $\zeta(s)$ についての Euler-Maclaurin formula が得られます。この式は $\zeta$ の analytic continuation の 1 つです。
 
@@ -75,7 +75,7 @@ $$
 \zeta(s)
 = \frac{1}{s-1} + \frac{1}{2}
 - \sum_{i=2}^k \frac{b_i}{i!} g^{(i-1)}(1)
-+ \int_1^\infty \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
+- \int_1^\infty \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
 $$
 
 ここで $g(x) = x^{-s}$ の定義より、右辺の $\int_1^\infty$ の項 (remainder term) は $\mathrm{Re}(s) > 1 - k$ のときに収束します。ターゲットとなる $\zeta(-1/2)$ では $k \geq 2$ であれば収束するので計算できそうです。 $h(x) = x^{1/2}$ です。
@@ -84,7 +84,7 @@ $$
 \zeta(-1/2)
 = -\frac{2}{3} + \frac{1}{2}
 - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1)
-+ \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
+- \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
 $$
 
 次に $S$ に Euler-Maclaurin formula を当てはめます。
@@ -94,7 +94,7 @@ $$
 = \underbrace{\int_1^N x^{1/2} dx}_{\text{Integral term}}
 + \frac{N^{1/2} + 1}{2}
 + \sum_{i=2}^k \frac{b_i}{i!} \left(h^{(i-1)}(N) - h^{(i-1)}(1)\right)
-+ \underbrace{\int_1^N \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt}_{R_k}.
+- \underbrace{\int_1^N \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt}_{R_k}.
 $$
 
 1 つめの区間積分を展開し、もう一つの区間積分である remainder term を $\int_1^N = \int_1^\infty - \int_N^\infty$ と 2 つの区間に分割します。
@@ -106,7 +106,7 @@ $$
 + \frac{N^{1/2}}{2} + \frac{1}{2}
 + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
 - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1) \\
-&+ \underbrace{\left(
+&- \underbrace{\left(
     \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
   - \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
 \right)}_{R_k}.
@@ -122,10 +122,10 @@ $$
 + \underbrace{\left(
   -\frac{2}{3} + \frac{1}{2}
   - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1)
-  + \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
+  - \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
 \right)}_{\zeta(-1/2)}\\
 &+ \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
-- \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
++ \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
 \end{aligned}
 $$
 
@@ -137,7 +137,7 @@ $$
 + \frac{1}{2}N^{1/2}
 + \zeta(-1/2)
 + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
-- \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
++ \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
 $$
 
 以降では $k \geq 2$ とします。また $i$ が 3 以上の奇数のとき $b_i = 0$ なので $k$ を偶数に狭められます。
@@ -175,9 +175,9 @@ $R_k$ に代入します。積分の展開では $u = h^{(k)}(t)$ かつ $v' = \
 $$
 \begin{aligned}
 R_k
-&= - \frac{1}{(k+1)!}  \int_N^\infty \left( \frac{d}{dt} B_{k+1}(\{1 - t\}) \right) h^{(k)}(t) dt.
-\\&=
-- \frac{1}{(k+1)!} \left(
+&= \frac{1}{(k+1)!}  \int_N^\infty \left( \frac{d}{dt} B_{k+1}(\{1 - t\}) \right) h^{(k)}(t) dt.
+\\
+&= \frac{1}{(k+1)!} \left(
     \left[ B_{k+1}(\{1 - t\}) h^{(k)}(t) \right]_N^\infty
    - \int_N^\infty B_{k+1}(\{1 - t\}) h^{(k+1)}(t) dt
 \right).
@@ -192,7 +192,7 @@ $$
 よって境界項は 0 になるので $R_k$ が以下の形に変形できます。
 
 $$
-R_k = \frac{1}{(k+1)!} \int_N^\infty B_{k+1}(\{1 - t\}) h^{(k+1)}(t) dt.
+R_k = - \frac{1}{(k+1)!} \int_N^\infty B_{k+1}(\{1 - t\}) h^{(k+1)}(t) dt.
 $$
 
 さらにもう一度、同様の変形を行ってインデックス $k+2$ が出てくるように $R_k$ を変形します。
@@ -245,21 +245,21 @@ $$
 総和の初項が誤差です。
 
 $$R_k
-\approx -\frac{B_{k+2}}{(k+2)!} h^{(k+1)}(N)
-= -\frac{B_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)},
+\approx -\frac{b_{k+2}}{(k+2)!} h^{(k+1)}(N)
+= -\frac{b_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)},
 \quad P_{k} = \prod_{i=1}^{k} \left( \frac{3}{2} - i \right).
 $$
 
 誤差がマシンイプシロン $\epsilon$ 以下となるように不等式を立てます。
 
 $$
-\epsilon \ge \left| -\frac{B_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)} \right|.
+\epsilon \ge \left| -\frac{b_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)} \right|.
 $$
 
 $N$ について解きます。
 
 $$
-N \ge \left| \frac{B_{k+2} P_{k+1}}{(k+2)!} \cdot \frac{1}{\epsilon} \right|^{1/(k + 1/2)}.
+N \ge \left| \frac{b_{k+2} P_{k+1}}{(k+2)!} \cdot \frac{1}{\epsilon} \right|^{1/(k + 1/2)}.
 $$
 
 これで $\epsilon$ から $N$ が得られるようになりました。実装します。
@@ -268,7 +268,7 @@ $$
 import numpy as np
 import scipy.special as special
 
-def compute_min_n_table(epsilon: float = np.finfo(np.float64).eps, max_order: int = 20):
+def compute_min_n_table(max_order: int = 20, dtype=np.float64):
     B = special.bernoulli(max_order + 2)
 
     P = [1.0]
@@ -336,7 +336,7 @@ $$
 + \frac{1}{2}N^{1/2}
 + \zeta(-1/2)
 + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
-+ R_k.
+- R_k.
 $$
 
 級数項 $\sum_{i=2}^k$ を展開します。
@@ -389,8 +389,6 @@ def sum_of_sqrt_k2(N: int, dtype=np.float32):
     zeta_term = dtype(-0.2078862249773545660)  # zeta(-0.5)
 
     base = (dtype(2.0) / dtype(3.0) * N + dtype(0.5)) * sqrt_n + zeta_term
-
-    m = dtype(1) / (N * N)
 
     v = dtype(1) / dtype(24)
     return base + (v / sqrt_n)
@@ -502,3 +500,7 @@ template<std::floating_point T> inline T sum_of_sqrt(uint64_t N) {
 - [Analytic continuation - Wikipedia](https://en.wikipedia.org/wiki/Analytic_continuation)
 - [Bernoulli polynomials - Wikipedia](https://en.wikipedia.org/wiki/Bernoulli_polynomials)
 - [Euler–Maclaurin formula - Wikipedia](https://en.wikipedia.org/wiki/Euler%E2%80%93Maclaurin_formula)
+
+## 変更点
+- 2026/06/25
+  - $R_k$ の符号の誤りを修正。

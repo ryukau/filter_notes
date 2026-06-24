@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2026-06-23" />
+      <meta name="dcterms.date" content="2026-06-25" />
       <title>sum_of_square_roots</title>
 
   <style>
@@ -412,7 +412,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2026-06-23
+      Update: 2026-06-25
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -437,6 +437,7 @@
         <li><a href="#c-による実装" id="toc-c-による実装">C++
         による実装</a></li>
         <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        <li><a href="#変更点" id="toc-変更点">変更点</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -505,7 +506,7 @@
   \int_a^N f(x)\;dx
   + \frac{f(N) + f(a)}{2}
   + \sum_{i=2}^{k} \frac{b_i}{i!} (f^{(i-1)}(N) - f^{(i-1)}(a))
-  + R_k.
+  - R_k.
   \\
   R_k &amp;= \int_a^N \frac{B_k(\{1 - t\})}{k!} f^{(k)}(t) dt.
   \end{aligned}
@@ -544,7 +545,7 @@
   <p><span class="math display">\[
   \sum_{n=1}^N n^{-s}
   = \int_1^N g(x) dx + \frac{N^{-s} + 1}{2} + \sum_{i=2}^k
-  \frac{b_i}{i!} \left(g^{(i-1)}(N) - g^{(i-1)}(1)\right) + \int_1^N
+  \frac{b_i}{i!} \left(g^{(i-1)}(N) - g^{(i-1)}(1)\right) - \int_1^N
   \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
   \]</span></p>
   <p><span class="math inline">\(N \to \infty\)</span>
@@ -559,7 +560,7 @@
   <li><span class="math inline">\(\displaystyle \lim_{N \to \infty}
   N^{-s} = 0.\)</span></li>
   <li><span class="math inline">\(\displaystyle \lim_{N \to \infty}
-  g^{(i-1)}(N) = \lim_{N \to \infty} N^{-s - i}= 0.\)</span></li>
+  g^{(i-1)}(N) = \lim_{N \to \infty} N^{-s-i+1}= 0.\)</span></li>
   </ul>
   <p>先の式に代入すると <span class="math inline">\(\zeta(s)\)</span>
   についての Euler-Maclaurin formula が得られます。この式は <span
@@ -569,7 +570,7 @@
   \zeta(s)
   = \frac{1}{s-1} + \frac{1}{2}
   - \sum_{i=2}^k \frac{b_i}{i!} g^{(i-1)}(1)
-  + \int_1^\infty \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
+  - \int_1^\infty \frac{B_k(\{1 - t\})}{k!} g^{(k)}(t) dt.
   \]</span></p>
   <p>ここで <span class="math inline">\(g(x) = x^{-s}\)</span>
   の定義より、右辺の <span class="math inline">\(\int_1^\infty\)</span>
@@ -583,7 +584,7 @@
   \zeta(-1/2)
   = -\frac{2}{3} + \frac{1}{2}
   - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1)
-  + \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
+  - \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
   \]</span></p>
   <p>次に <span class="math inline">\(S\)</span> に Euler-Maclaurin
   formula を当てはめます。</p>
@@ -592,7 +593,7 @@
   = \underbrace{\int_1^N x^{1/2} dx}_{\text{Integral term}}
   + \frac{N^{1/2} + 1}{2}
   + \sum_{i=2}^k \frac{b_i}{i!} \left(h^{(i-1)}(N) - h^{(i-1)}(1)\right)
-  + \underbrace{\int_1^N \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt}_{R_k}.
+  - \underbrace{\int_1^N \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt}_{R_k}.
   \]</span></p>
   <p>1 つめの区間積分を展開し、もう一つの区間積分である remainder term
   を <span class="math inline">\(\int_1^N = \int_1^\infty -
@@ -605,7 +606,7 @@
   + \frac{N^{1/2}}{2} + \frac{1}{2}
   + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
   - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1) \\
-  &amp;+ \underbrace{\left(
+  &amp;- \underbrace{\left(
       \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
     - \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
   \right)}_{R_k}.
@@ -620,10 +621,10 @@
   + \underbrace{\left(
     -\frac{2}{3} + \frac{1}{2}
     - \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(1)
-    + \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
+    - \int_1^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt
   \right)}_{\zeta(-1/2)}\\
   &amp;+ \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
-  - \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
+  + \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
   \end{aligned}
   \]</span></p>
   <p>整理します。</p>
@@ -633,7 +634,7 @@
   + \frac{1}{2}N^{1/2}
   + \zeta(-1/2)
   + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
-  - \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
+  + \int_N^\infty \frac{B_k(\{1 - t\})}{k!} h^{(k)}(t) dt.
   \]</span></p>
   <p>以降では <span class="math inline">\(k \geq 2\)</span>
   とします。また <span class="math inline">\(i\)</span> が 3
@@ -676,10 +677,10 @@
   <p><span class="math display">\[
   \begin{aligned}
   R_k
-  &amp;= - \frac{1}{(k+1)!}  \int_N^\infty \left( \frac{d}{dt}
-  B_{k+1}(\{1 - t\}) \right) h^{(k)}(t) dt.
-  \\&amp;=
-  - \frac{1}{(k+1)!} \left(
+  &amp;= \frac{1}{(k+1)!}  \int_N^\infty \left( \frac{d}{dt} B_{k+1}(\{1
+  - t\}) \right) h^{(k)}(t) dt.
+  \\
+  &amp;= \frac{1}{(k+1)!} \left(
       \left[ B_{k+1}(\{1 - t\}) h^{(k)}(t) \right]_N^\infty
      - \int_N^\infty B_{k+1}(\{1 - t\}) h^{(k+1)}(t) dt
   \right).
@@ -704,7 +705,7 @@
   <p>よって境界項は 0 になるので <span
   class="math inline">\(R_k\)</span> が以下の形に変形できます。</p>
   <p><span class="math display">\[
-  R_k = \frac{1}{(k+1)!} \int_N^\infty B_{k+1}(\{1 - t\}) h^{(k+1)}(t)
+  R_k = - \frac{1}{(k+1)!} \int_N^\infty B_{k+1}(\{1 - t\}) h^{(k+1)}(t)
   dt.
   \]</span></p>
   <p>さらにもう一度、同様の変形を行ってインデックス <span
@@ -758,20 +759,20 @@
   \]</span></p>
   <p>総和の初項が誤差です。</p>
   <p><span class="math display">\[R_k
-  \approx -\frac{B_{k+2}}{(k+2)!} h^{(k+1)}(N)
-  = -\frac{B_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)},
+  \approx -\frac{b_{k+2}}{(k+2)!} h^{(k+1)}(N)
+  = -\frac{b_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)},
   \quad P_{k} = \prod_{i=1}^{k} \left( \frac{3}{2} - i \right).
   \]</span></p>
   <p>誤差がマシンイプシロン <span
   class="math inline">\(\epsilon\)</span>
   以下となるように不等式を立てます。</p>
   <p><span class="math display">\[
-  \epsilon \ge \left| -\frac{B_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)}
+  \epsilon \ge \left| -\frac{b_{k+2} P_{k+1}}{(k+2)!} N^{-(k+1/2)}
   \right|.
   \]</span></p>
   <p><span class="math inline">\(N\)</span> について解きます。</p>
   <p><span class="math display">\[
-  N \ge \left| \frac{B_{k+2} P_{k+1}}{(k+2)!} \cdot \frac{1}{\epsilon}
+  N \ge \left| \frac{b_{k+2} P_{k+1}}{(k+2)!} \cdot \frac{1}{\epsilon}
   \right|^{1/(k + 1/2)}.
   \]</span></p>
   <p>これで <span class="math inline">\(\epsilon\)</span> から <span
@@ -781,7 +782,7 @@
   class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.special <span class="im">as</span> special</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute_min_n_table(epsilon: <span class="bu">float</span> <span class="op">=</span> np.finfo(np.float64).eps, max_order: <span class="bu">int</span> <span class="op">=</span> <span class="dv">20</span>):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute_min_n_table(max_order: <span class="bu">int</span> <span class="op">=</span> <span class="dv">20</span>, dtype<span class="op">=</span>np.float64):</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    B <span class="op">=</span> special.bernoulli(max_order <span class="op">+</span> <span class="dv">2</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> [<span class="fl">1.0</span>]</span>
@@ -852,7 +853,7 @@ k    Term   Power  Coeff          Min N  LUT Size
   + \frac{1}{2}N^{1/2}
   + \zeta(-1/2)
   + \sum_{i=2}^k \frac{b_i}{i!} h^{(i-1)}(N)
-  + R_k.
+  - R_k.
   \]</span></p>
   <p>級数項 <span class="math inline">\(\sum_{i=2}^k\)</span>
   を展開します。</p>
@@ -902,29 +903,27 @@ k    Term   Power  Coeff          Min N  LUT Size
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> (dtype(<span class="fl">2.0</span>) <span class="op">/</span> dtype(<span class="fl">3.0</span>) <span class="op">*</span> N <span class="op">+</span> dtype(<span class="fl">0.5</span>)) <span class="op">*</span> sqrt_n <span class="op">+</span> zeta_term</span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> (N <span class="op">*</span> N)</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">24</span>)</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">+</span> (v <span class="op">/</span> sqrt_n)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sum_of_sqrt_k6(N: <span class="bu">int</span>, dtype<span class="op">=</span>np.float64):</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;f64 approximation.&quot;&quot;&quot;</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> N <span class="op">&lt;</span> table_threshold:</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dtype(table[N])</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> dtype(N)</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    sqrt_n <span class="op">=</span> np.sqrt(N, dtype<span class="op">=</span>dtype)</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    zeta_term <span class="op">=</span> dtype(<span class="op">-</span><span class="fl">0.2078862249773545660</span>)  <span class="co"># zeta(-0.5)</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">24</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">+</span> (v <span class="op">/</span> sqrt_n)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sum_of_sqrt_k6(N: <span class="bu">int</span>, dtype<span class="op">=</span>np.float64):</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;f64 approximation.&quot;&quot;&quot;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> N <span class="op">&lt;</span> table_threshold:</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dtype(table[N])</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> dtype(N)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    sqrt_n <span class="op">=</span> np.sqrt(N, dtype<span class="op">=</span>dtype)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    zeta_term <span class="op">=</span> dtype(<span class="op">-</span><span class="fl">0.2078862249773545660</span>)  <span class="co"># zeta(-0.5)</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> (dtype(<span class="fl">2.0</span>) <span class="op">/</span> dtype(<span class="fl">3.0</span>) <span class="op">*</span> N <span class="op">+</span> dtype(<span class="fl">0.5</span>)) <span class="op">*</span> sqrt_n <span class="op">+</span> zeta_term</span>
 <span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    base <span class="op">=</span> (dtype(<span class="fl">2.0</span>) <span class="op">/</span> dtype(<span class="fl">3.0</span>) <span class="op">*</span> N <span class="op">+</span> dtype(<span class="fl">0.5</span>)) <span class="op">*</span> sqrt_n <span class="op">+</span> zeta_term</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> (N <span class="op">*</span> N)</span>
 <span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> (N <span class="op">*</span> N)</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">9216</span>)</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> v <span class="op">*</span> m <span class="op">+</span> dtype(<span class="op">-</span><span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">1920</span>)</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> v <span class="op">*</span> m <span class="op">+</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">24</span>)</span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">+</span> (v <span class="op">/</span> sqrt_n)</span></code></pre></div>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">9216</span>)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> v <span class="op">*</span> m <span class="op">+</span> dtype(<span class="op">-</span><span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">1920</span>)</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> v <span class="op">*</span> m <span class="op">+</span> dtype(<span class="dv">1</span>) <span class="op">/</span> dtype(<span class="dv">24</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">+</span> (v <span class="op">/</span> sqrt_n)</span></code></pre></div>
   <p>以下は f32 かつ <span class="math inline">\(k=2\)</span>
   とした近似の誤差のプロットです。</p>
   <figure>
@@ -1029,6 +1028,14 @@ N = [797, 812, 839, 4241, 32668, 130891]</code></pre>
   <li><a
   href="https://en.wikipedia.org/wiki/Euler%E2%80%93Maclaurin_formula">Euler–Maclaurin
   formula - Wikipedia</a></li>
+  </ul>
+  <h2 id="変更点"><a href="#変更点" class="header-anchor"
+  aria-hidden="true">変更点</a></h2>
+  <ul>
+  <li>2026/06/25
+  <ul>
+  <li><span class="math inline">\(R_k\)</span> の符号の誤りを修正。</li>
+  </ul></li>
   </ul>
     <footer>
     <a href="../index.html">インデックスに戻る</a>
