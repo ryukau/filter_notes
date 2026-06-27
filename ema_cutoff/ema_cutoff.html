@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2026-06-22" />
+      <meta name="dcterms.date" content="2026-06-27" />
       <title>ema_cutoff</title>
 
   <style>
@@ -412,7 +412,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2026-06-22
+      Update: 2026-06-27
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -577,8 +577,9 @@
   <figure>
   <img src="img/naive_relative_errors.svg" alt="Relative errors of the naive implementation." style="padding-bottom: 12px;"/>
   </figure>
-  <p>n32 が単精度 (f32) 、 n64 が倍精度 (f64)
-  での誤差です。相対誤差がマシンイプシロンを下回っていれば正確と言えます。つまり、単精度では
+  <p>n32 が単精度 (f32) 、 n64 が倍精度 (f64) での誤差です。 n は naive
+  (素朴な実装) の略です。
+  相対誤差がマシンイプシロンを下回っていれば正確と言えます。つまり、単精度では
   f32 eps. 、 倍精度では f64 eps. のラインを下回る必要があります。 n32,
   n64 ともに正規化されたカットオフ周波数が 0.1
   を下回るところから正確さが落ち始めています。これはサンプリング周波数が
@@ -589,8 +590,8 @@
   0 にならないはずの入力で 0 が出ています。</p>
   <div class="sourceCode" id="cb5"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fl">3e-5</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>cutoffToAlphaReference(x)         <span class="co"># ref: 0.00018847779448563122</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>cutoffToAlphaNaive(x, np.float32) <span class="co"># n32: 0.0</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>cutoffToAlphaReference(<span class="fl">3e-5</span>, np.float32) <span class="co"># ref: 0.00018847778846975416</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>cutoffToAlphaNaive(x, np.float32)        <span class="co"># n32: 0.0</span></span></code></pre></div>
   <h2 id="桁落ち-catastrophic-cancellation"><a
   href="#桁落ち-catastrophic-cancellation" class="header-anchor"
   aria-hidden="true">桁落ち (Catastrophic Cancellation)</a></h2>
@@ -610,7 +611,7 @@
 355 / 113 (f32) : 3.141592979e+00
 
 π - 355 / 113 (mp)  : -2.667641752e-07
-π - 355 / 113 (f32) : -2.384185791e-07
+π - 355 / 113 (f32) : -2.384185791e-07 # 😱
 
 Rel Error :  1.06e-01
 ULP Error : -9.97e+05</code></pre>
@@ -861,6 +862,10 @@ ULP Error : -9.97e+05</code></pre>
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2028/06/27
+  <ul>
+  <li>文章の整理。</li>
+  </ul></li>
   <li>2026/06/22
   <ul>
   <li>「桁落ち」の相対誤差の計算を修正。</li>
