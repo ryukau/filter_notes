@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2025-01-07" />
+      <meta name="dcterms.date" content="2026-06-27" />
       <title>3pole_lowpass</title>
 
   <style>
@@ -328,8 +328,9 @@
       color: #000000;
     }
 
+    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -399,7 +400,7 @@
       }
     };
   </script>
-  <script src="../lib/MathJax/es5/tex-chtml-full.js"
+  <script defer="" src="../lib/MathJax/es5/tex-chtml-full.js"
   type="text/javascript"></script>
     </head>
 
@@ -411,7 +412,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2025-01-07
+      Update: 2026-06-27
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -448,6 +449,11 @@
   <h1 id="pole-ローパスフィルタ"><a href="#pole-ローパスフィルタ"
   class="header-anchor" aria-hidden="true">3-pole
   ローパスフィルタ</a></h1>
+  <p>追記 2026/06/27: このフィルタは <span
+  class="math inline">\(\alpha=1\)</span> のとき Chamberlin SVF
+  と等価です (<a
+  href="../chamberlin_svf/chamberlin_svf.html#異なるチューニング">詳細</a>)
+  。</p>
   <p>ばねとダンパの項を含んだ加速度の式がフィルタになりそうだと思いました。</p>
   <p><span class="math display">\[
   \ddot{u} = c \dot{u} + k u
@@ -1276,6 +1282,10 @@
   <h2 id="変更"><a href="#変更" class="header-anchor"
   aria-hidden="true">変更</a></h2>
   <ul>
+  <li>2026/06/27
+  <ul>
+  <li>Chamberlin SVF と等価であることに言及。</li>
+  </ul></li>
   <li>2020-04-15
   <ul>
   <li><span class="math inline">\(1 - k\)</span> となる箇所が <span

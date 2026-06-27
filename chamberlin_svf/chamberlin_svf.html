@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2026-06-27" />
+      <title>chamberlin_svf</title>
+
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
+
+      audio,
+      code,
+      img,
+      .MathJax_ref,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
+
+      pre>code {
+        filter: invert(0);
+      }
+    }
+
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    video {
+      max-width: 100%;
+    }
+
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    :link {
+      color: var(--link-color);
+    }
+
+    :visited {
+      color: var(--visited-color);
+    }
+
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
+
+    .header-anchor {
+      color: var(--foreground-color);
+    }
+
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
+
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
+
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
+
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
+
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
+
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
+
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
+
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
+
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
+
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
+
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    dl {
+      padding-left: 2em;
+    }
+
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
+
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
+
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+
+
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
+
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
+
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
+
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
+
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
+
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
+
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
+
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
+
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
+
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
+
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
+
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    span.math.inline a {
+      color: #000000;
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script defer="" src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
+
+<body>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2026-06-27
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#chamberlin-svf" id="toc-chamberlin-svf">Chamberlin
+        SVF</a>
+        <ul>
+        <li><a href="#伝達関数" id="toc-伝達関数">伝達関数</a></li>
+        <li><a href="#安定条件" id="toc-安定条件">安定条件</a></li>
+        <li><a href="#カットオフ周波数の範囲"
+        id="toc-カットオフ周波数の範囲">カットオフ周波数の範囲</a></li>
+        <li><a href="#q-の下限の簡略化" id="toc-q-の下限の簡略化"><span
+        class="math inline">\(Q\)</span> の下限の簡略化</a></li>
+        <li><a href="#高速な-f-の計算" id="toc-高速な-f-の計算">高速な
+        <span class="math inline">\(f\)</span> の計算</a></li>
+        <li><a href="#python-による実装"
+        id="toc-python-による実装">Python による実装</a></li>
+        <li><a href="#c-による実装" id="toc-c-による実装">C++
+        による実装</a></li>
+        <li><a href="#異なるチューニング"
+        id="toc-異なるチューニング">異なるチューニング</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="chamberlin-svf"><a href="#chamberlin-svf"
+  class="header-anchor" aria-hidden="true">Chamberlin SVF</a></h1>
+  <p><a
+  href="https://www.musicdsp.org/en/latest/Filters/142-state-variable-filter-chamberlin-version.html">Chamberlin
+  SVF</a> は 2
+  次のマルチモードフィルタです。以下はフィルタの計算を示す実装例です。例外処理を省いているのでそのままでは使えません。完全な実装は「<a
+  href="#python-による実装">Python による実装</a>」に掲載してます。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ChamberlinSVF:</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> process(<span class="va">self</span>, x0, cutoffNormalized, Q):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">        cutoffNormalized in [0, 0.5). [rad/2π].</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.sin(np.pi <span class="op">*</span> cutoffNormalized)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        hp <span class="op">=</span> x0 <span class="op">-</span> <span class="va">self</span>.lp <span class="op">-</span> <span class="va">self</span>.bp <span class="op">/</span> Q</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">+=</span> f <span class="op">*</span> hp</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">+=</span> f <span class="op">*</span> <span class="va">self</span>.bp</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.lp</span></code></pre></div>
+  <p>以下は検証に使ったコードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/tree/master/chamberlin_svf">filter_notes/chamberlin_svf
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <h2 id="伝達関数"><a href="#伝達関数" class="header-anchor"
+  aria-hidden="true">伝達関数</a></h2>
+  <p>以下は Chamberlin SVF の差分方程式です。</p>
+  <pre><code>hp = x0 - lp - bp / Q
+bp += f * hp
+lp += f * bp</code></pre>
+  <p>数式にします。 <span class="math inline">\(n\)</span>
+  はサンプル数で表された時刻です。 <span
+  class="math inline">\(n-1\)</span> は 1 サンプル前です。 <span
+  class="math inline">\(h\)</span> は <code>hp</code> 、 <span
+  class="math inline">\(b\)</span> は <code>bp</code> 、 <span
+  class="math inline">\(l\)</span> は <code>lp</code> に対応します。
+  <span class="math inline">\(x\)</span> は入力信号です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  h[n] &amp;= x[n] - l[n-1] - \frac{1}{Q} \cdot b[n-1] \\
+  b[n] &amp;= f \cdot h[n] + b[n-1] \\
+  l[n] &amp;= f \cdot b[n] + l[n-1]. \\
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(k\)</span> サンプルの遅延を <span
+  class="math inline">\(z^{-k}\)</span> に置き換えます。つまり <span
+  class="math inline">\([n] \to 1\)</span> 、 <span
+  class="math inline">\([n-1] \to z^{-1}\)</span> とします。</p>
+  <ol type="1">
+  <li><span class="math inline">\(h = x - l z^{-1} - \dfrac{1}{Q} b
+  z^{-1}\)</span>.</li>
+  <li><span class="math inline">\(b = f h + b z^{-1}\)</span>.</li>
+  <li><span class="math inline">\(l = f b + l z^{-1}\)</span>.</li>
+  </ol>
+  <p>式 2 を <span class="math inline">\(b\)</span>
+  について解きます。</p>
+  <p><span class="math display">\[
+  b = \frac{f}{1 - z^{-1}} h.
+  \]</span></p>
+  <p>式 3 を <span class="math inline">\(l\)</span>
+  について解きます。</p>
+  <p><span class="math display">\[
+  l = \frac{f}{1 - z^{-1}} b = \frac{f^2}{(1 - z^{-1})^2} h.
+  \]</span></p>
+  <p>式 1 に <span class="math inline">\(b, l\)</span>
+  を代入します。</p>
+  <p><span class="math display">\[
+  h = x - \frac{f^2}{(1 - z^{-1})^2} h z^{-1} - \frac{1}{Q} \frac{f}{1 -
+  z^{-1}} h z^{-1}.
+  \]</span></p>
+  <p>両辺に <span class="math inline">\((1 - z^{-1})^2\)</span>
+  を乗算して <span class="math inline">\(h\)</span>
+  について解きます。</p>
+  <p><span class="math display">\[
+  h = \frac{x (1 - z^{-1})^2}{(1 - z^{-1})^2 + f^2 z^{-1} + \dfrac{1}{Q}
+  (1 - z^{-1}) f z^{-1}}.
+  \]</span></p>
+  <p>整理します。</p>
+  <p><span class="math display">\[
+  h = \frac{
+    x (1 - z^{-1})^2
+  }{
+    1 + \left( - 2 + f^2 + \dfrac{f}{Q}\right) z^{-1} + \left( 1 -
+  \dfrac{f}{Q} \right) z^{-2}
+  }.
+  \]</span></p>
+  <p>この形は <span class="math inline">\(h \to Y(z),\,x \to
+  X(z)\)</span> と捉えるとハイパスの伝達関数になっています。上の <span
+  class="math inline">\(h\)</span> を <span class="math inline">\(b,
+  l\)</span>
+  に代入するとそれぞれバンドパス、ローパスの伝達関数が得られます。以下は
+  Chamberlin SVF の伝達関数です。 <span
+  class="math inline">\(f_c\)</span> がカットオフ周波数、 <span
+  class="math inline">\(f_s\)</span> がサンプリング周波数です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  H_{LP}(z) &amp;= \frac{f^2}{A(z)}, \quad
+  H_{BP}(z) = \frac{f(1 - z^{-1})}{A(z)}, \quad
+  H_{HP}(z) = \frac{(1 - z^{-1})^2}{A(z)},
+  \\
+  A(z) &amp;= 1 + \left( f^2 + \frac{f}{Q} - 2 \right)z^{-1} + \left( 1
+  - \frac{f}{Q} \right)z^{-2},
+  \\
+  f &amp;= 2 \sin \left(\pi \frac{f_c}{f_s} \right).
+  \end{aligned}
+  \]</span></p>
+  <h2 id="安定条件"><a href="#安定条件" class="header-anchor"
+  aria-hidden="true">安定条件</a></h2>
+  <p>安定条件から <span class="math inline">\(f\)</span> と <span
+  class="math inline">\(Q\)</span> の範囲を決めます。</p>
+  <p>まずは <span class="math inline">\(Q\)</span> の範囲を決めます。
+  <span class="math inline">\(A(z) = 0\)</span> の解の絶対値が 1
+  以下なら安定です。式を立てます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+    1 &amp;&gt; \left| \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} \right|, \\
+    a &amp;= 1 - \frac{f}{Q}, \quad
+    b = f^2 + \frac{f}{Q} - 2, \quad
+    c = 1. \\
+  \end{aligned}
+  \]</span></p>
+  <p>Maxima で解きます。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cn">a</span>: <span class="dv">1</span> - <span class="cn">f</span> / <span class="cn">Q</span>;</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cn">b</span>: <span class="cn">f</span>^<span class="dv">2</span> + <span class="cn">f</span> / <span class="cn">Q</span> - <span class="dv">2</span>;</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cn">case1</span>: (<span class="dv">2</span>*<span class="cn">a</span> + <span class="cn">b</span>)^<span class="dv">2</span> = +<span class="cn">b</span>^<span class="dv">2</span> - <span class="dv">4</span>*<span class="cn">a</span>;</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cn">case2</span>: (<span class="dv">2</span>*<span class="cn">a</span> + <span class="cn">b</span>)^<span class="dv">2</span> = -<span class="cn">b</span>^<span class="dv">2</span> + <span class="dv">4</span>*<span class="cn">a</span>;</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cn">case3</span>: (<span class="dv">2</span>*<span class="cn">a</span> - <span class="cn">b</span>)^<span class="dv">2</span> = -<span class="cn">b</span>^<span class="dv">2</span> + <span class="dv">4</span>*<span class="cn">a</span>;</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="cn">case4</span>: (<span class="dv">2</span>*<span class="cn">a</span> - <span class="cn">b</span>)^<span class="dv">2</span> = +<span class="cn">b</span>^<span class="dv">2</span> - <span class="dv">4</span>*<span class="cn">a</span>;</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">case1</span>, <span class="cn">Q</span>);</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">case2</span>, <span class="cn">Q</span>);</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">case3</span>, <span class="cn">Q</span>);</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">case4</span>, <span class="cn">Q</span>);</span></code></pre></div>
+  <p><code>case4</code> の解の 1 つが安定条件です。</p>
+  <p><span class="math display">\[
+  Q &gt; \frac{2f}{4 - f^2}.
+  \]</span></p>
+  <h2 id="カットオフ周波数の範囲"><a href="#カットオフ周波数の範囲"
+  class="header-anchor"
+  aria-hidden="true">カットオフ周波数の範囲</a></h2>
+  <p>Chamberlin SVF は <span class="math inline">\(Q =
+  \dfrac{1}{\sqrt{2}}\)</span> であれば maximally flat
+  な特性となります。振幅特性をプロットします。</p>
+  <figure>
+  <img src="img/amplitude_response.svg" alt="Amplitude response of Chamberlin SVF at Q = 1 / sqrt(2)." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>カットオフ周波数がナイキスト周波数に近づくと振幅特性がおかしくなっています。ここでは振幅特性がおかしくならない上限を求めます。安定条件に
+  <span class="math inline">\(Q = \dfrac{1}{\sqrt{2}}\)</span>
+  を代入して解くことで maximally flat
+  となるカットオフ周波数の上限を求めます。</p>
+  <p><span class="math display">\[
+  \frac{1}{\sqrt{2}} &gt; \frac{2f}{4 - f^2} \implies f &lt; \sqrt{6} -
+  \sqrt{2}.
+  \]</span></p>
+  <p><span class="math inline">\(f = 2 \sin(\pi f_c/f_x)\)</span>
+  なので、正規化されたカットオフ周波数の上限は以下になります。</p>
+  <p><span class="math display">\[
+  \frac{f_c}{f_s} &lt; \frac{1}{\pi} \arcsin \left( \frac{\sqrt{6} -
+  \sqrt{2}}{2} \right) \approx 0.1731886233119285.
+  \]</span></p>
+  <p>以下は正規化されたカットオフ周波数の上限の計算に使ったコードです。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mpmath <span class="im">import</span> mp</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>mp.dps<span class="op">=</span><span class="dv">50</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">float</span>(mp.asin((mp.sqrt(<span class="dv">6</span>) <span class="op">-</span> mp.sqrt(<span class="dv">2</span>)) <span class="op">/</span> <span class="dv">2</span>) <span class="op">/</span> mp.pi))</span></code></pre></div>
+  <h2 id="q-の下限の簡略化"><a href="#q-の下限の簡略化"
+  class="header-anchor" aria-hidden="true"><span
+  class="math inline">\(Q\)</span> の下限の簡略化</a></h2>
+  <p>安定な <span class="math inline">\(Q\)</span>
+  の下限を再掲します。</p>
+  <p><span class="math display">\[
+  Q &gt; \frac{2f}{4 - f^2}.
+  \]</span></p>
+  <p><span class="math inline">\(Q &lt; \dfrac{1}{\sqrt{2}}\)</span>
+  の範囲を使わなくていいのであれば、下限を簡略化できます。</p>
+  <p><span class="math display">\[
+  Q &gt; \frac{1}{2 - f}.
+  \]</span></p>
+  <p>さらに除算を避けるように <span class="math inline">\(q =
+  \dfrac{1}{Q}\)</span> とすれば音楽用途では十分な形が得られます。</p>
+  <p><span class="math display">\[
+  q &lt; 2 - f.
+  \]</span></p>
+  <p><span class="math inline">\(2 - f\)</span>
+  を導出します。安定条件の右辺の逆数から始めます。 <span
+  class="math inline">\(x = 2 - f\)</span> とします。</p>
+  <p><span class="math display">\[
+  q = \frac{1}{Q} &lt; \frac{4 - f^2}{2f}
+  = \frac{(2 - f) (2 + f)}{2f}
+  = \frac{x (4 - x)}{2 (2 - x)}
+  = x \left( \frac{1}{2} - \frac{1}{x - 2} \right)
+  = x \left( \frac{1}{2} + \frac{1/2}{1 - x/2} \right).
+  \]</span></p>
+  <p><span class="math inline">\(\dfrac{1/2}{1 - x/2}\)</span>
+  について、 <span class="math inline">\(f \in [0, 2)\)</span> より
+  <span class="math inline">\(|x/2| &lt; 1\)</span> なので <a
+  href="https://mathworld.wolfram.com/GeometricSeries.html">geometric
+  series</a> に変えられます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  x \left( \frac{1}{2} + \frac{1/2}{1 - x/2} \right)
+  &amp;= x \left(
+    \frac{1}{2} + \frac{1}{2} \left( \sum_{k=0}^\infty \left(
+  \frac{x}{2} \right)^k \right)
+  \right) \\
+  &amp;= \frac{x}{2} + \frac{x}{2} \left( 1 + \frac{x}{2^1} +
+  \frac{x^2}{2^2} + \frac{x^3}{2^3} + \dots \right) \\
+  &amp;= x + \frac{x^2}{2^2} + \frac{x^3}{2^3} + \frac{x^4}{2^4} + \dots
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(x\)</span>
+  を展開すると近似式が得られます。</p>
+  <p><span class="math display">\[
+  q \lesssim \sum_{i=1}^\infty \frac{(2 - f)^i}{2^{i-1}}
+  = (2 - f) + \frac{(2 - f)^2}{2^2} + \frac{(2 - f)^3}{2^3} + \frac{(2 -
+  f)^4}{2^4} + \dots
+  \]</span></p>
+  <p>以下は <span class="math inline">\(Q\)</span>
+  の下限のプロットです。近似式の項を増やすと <code>Exact</code>
+  に近づいていることが確認できます。この近似は除算を避けられることが利点ですが、カットオフ周波数が低いときに
+  <span class="math inline">\(Q\)</span>
+  を大きく下げることはできなくなります。</p>
+  <figure>
+  <img src="img/cutoff_vs_min_Q.svg" alt="Plot of normalized cutoff vs minimum Q." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="高速な-f-の計算"><a href="#高速な-f-の計算"
+  class="header-anchor" aria-hidden="true">高速な <span
+  class="math inline">\(f\)</span> の計算</a></h2>
+  <p><span class="math inline">\(f\)</span> の式を再掲します。</p>
+  <p><span class="math display">\[
+  f = 2 \sin \left(\pi \frac{f_c}{f_s} \right).
+  \]</span></p>
+  <p>Chamberlin SVF では <span class="math inline">\(\dfrac{f_c}{f_s}
+  \in [0, 0.5)\)</span> なので、 sin
+  のレンジリダクションなどを省いて高速に実装できます。以下は minimax
+  polynomial を用いた高速な <span class="math inline">\(f\)</span>
+  の実装例です。 cl.exe では <code>/O2</code> 、 g++ などでは
+  <code>-mfma</code> を明示的に指定すれば <code>std::sin</code>
+  より高速です。</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">inline</span> <span class="dt">float</span> chamberlin_svf_sin<span class="op">(</span><span class="dt">float</span> x<span class="op">)</span> <span class="kw">noexcept</span> <span class="op">{</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> t <span class="op">=</span> x <span class="op">*</span> x<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> res <span class="op">=</span>  <span class="fl">0.15512077399924159</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span> <span class="op">-</span><span class="fl">1.1964842528437377</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span>  <span class="fl">5.100139452670464</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span> <span class="op">-</span><span class="fl">10.335419369597881</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span>  <span class="fl">6.283185273790786</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">*</span> res<span class="op">;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="kw">inline</span> <span class="dt">double</span> chamberlin_svf_sin<span class="op">(</span><span class="dt">double</span> x<span class="op">)</span> <span class="kw">noexcept</span> <span class="op">{</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">double</span> t <span class="op">=</span> x <span class="op">*</span> x<span class="op">;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> res <span class="op">=</span> <span class="op">-</span><span class="fl">0.000042245905984219777</span><span class="op">;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span>  <span class="fl">0.0009319552340645613</span><span class="op">);</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span> <span class="op">-</span><span class="fl">0.014740722143372288</span><span class="op">);</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span>  <span class="fl">0.16429175651310609</span><span class="op">);</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span> <span class="op">-</span><span class="fl">1.1985290575514195</span><span class="op">);</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span>  <span class="fl">5.100328079719553</span><span class="op">);</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span> <span class="op">-</span><span class="fl">10.335425560099505</span><span class="op">);</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>res<span class="op">,</span> t<span class="op">,</span>  <span class="fl">6.283185307179586</span><span class="op">);</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">*</span> res<span class="op">;</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  <p>以下は <span class="math inline">\(x \in [0, 0.5)\)</span>
+  についての大まかな誤差の最大値です。</p>
+  <pre><code>--- float32
+linspace - [0, 0.5), Max ULP: 2.09, x: 0.4995349943637848
+Fuzzing  - [0, 0.5), Max ULP: 2.10, x: 0.4992143511772156
+
+--- float64
+linspace - [0, 0.5), Max ULP: 3.57, x: 0.46310463104631044
+Fuzzing  - [0, 0.5), Max ULP: 3.68, x: 0.46471753209606476</code></pre>
+  <p>以下は誤差の測定コードへのリンクです。</p>
+  <ul>
+  <li><a
+  href="https://github.com/ryukau/filter_notes/blob/master/chamberlin_svf/sin_approx/accuracy.py">filter_notes/chamberlin_svf/sin_approx/accuracy.py
+  at master · ryukau/filter_notes · GitHub</a></li>
+  </ul>
+  <p>この近似は Gemini 3.5 Flash
+  に以下のプロンプトを入力して得られました。</p>
+  <pre><code>Find a fast and accurate approximation of $2 \sin(\pi x)$ where $x \in [0, 0.5]$. Start from finding a minimax polynomial. Python, scalar function, f32 and f64. 4 or less ULP errors in the target region.</code></pre>
+  <h2 id="python-による実装"><a href="#python-による実装"
+  class="header-anchor" aria-hidden="true">Python による実装</a></h2>
+  <p>この実装は C++ へのポートを前提に書かれた検証用のコードです。</p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ChamberlinSVF:</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> process_fast(<span class="va">self</span>, x0, cutoffNormalized, Q):</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        cut <span class="op">=</span> np.clip(cutoffNormalized, <span class="dv">0</span>, <span class="fl">0.1731886233119285</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.sin(np.pi <span class="op">*</span> cut)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> <span class="bu">min</span>(<span class="dv">1</span> <span class="op">/</span> Q, <span class="dv">2</span> <span class="op">-</span> f)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        hp <span class="op">=</span> x0 <span class="op">-</span> <span class="va">self</span>.lp <span class="op">-</span> <span class="va">self</span>.bp <span class="op">*</span> q</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">+=</span> f <span class="op">*</span> hp</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">+=</span> f <span class="op">*</span> <span class="va">self</span>.bp</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.lp</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> process_full_range(<span class="va">self</span>, x0, cutoffNormalized, Q):</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        cut <span class="op">=</span> np.clip(cutoffNormalized, np.finfo(np.float64).eps, <span class="fl">0.4997</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> np.sin(np.pi <span class="op">*</span> cut)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> np.clip(<span class="dv">1</span> <span class="op">/</span> Q, <span class="dv">0</span>, ((<span class="dv">2</span> <span class="op">-</span> f) <span class="op">*</span> (<span class="dv">2</span> <span class="op">+</span> f)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> f))</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        hp <span class="op">=</span> x0 <span class="op">-</span> <span class="va">self</span>.lp <span class="op">-</span> <span class="va">self</span>.bp <span class="op">*</span> q</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">+=</span> f <span class="op">*</span> hp</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">+=</span> f <span class="op">*</span> <span class="va">self</span>.bp</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.lp</span></code></pre></div>
+  <h2 id="c-による実装"><a href="#c-による実装" class="header-anchor"
+  aria-hidden="true">C++ による実装</a></h2>
+  <p>C++20 です。 <code>process</code> がメインの実装です。</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;concepts&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numbers&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="bu">std::</span>floating_point T<span class="op">&gt;</span> <span class="kw">class</span> ChamberlinSvf <span class="op">{</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  T lp <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  T bp <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> reset<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    lp <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    bp <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cutoffNormalized [rad/2π] in [0, ~0.17].</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">// q = 1 / Q. Low q creates high resonance. Maximally flat when q = sqrt(2).</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  T process<span class="op">(</span>T input<span class="op">,</span> T cutoffNormalized<span class="op">,</span> T q<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> T cut <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>cutoffNormalized<span class="op">,</span> T<span class="op">(</span><span class="dv">0</span><span class="op">),</span> T<span class="op">(</span><span class="fl">0.1731886233119285</span><span class="op">));</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> T f <span class="op">=</span> T<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>sin<span class="op">(</span><span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">*</span> cut<span class="op">);</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>q<span class="op">,</span> T<span class="op">(</span><span class="dv">0</span><span class="op">),</span> T<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">-</span> f<span class="op">);</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> T hp <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(-</span>q<span class="op">,</span> bp<span class="op">,</span> input <span class="op">-</span> lp<span class="op">);</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    bp <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>f<span class="op">,</span> hp<span class="op">,</span> bp<span class="op">);</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    lp <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>f<span class="op">,</span> bp<span class="op">,</span> lp<span class="op">);</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lp<span class="op">;</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cutoffNormalized [rad/2π] in [eps, 0.5).</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  T process_full_range<span class="op">(</span>T input<span class="op">,</span> T cutoffNormalized<span class="op">,</span> T q<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> T eps <span class="op">=</span> <span class="bu">std::</span>numeric_limits<span class="op">&lt;</span>T<span class="op">&gt;::</span>epsilon<span class="op">();</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> T cut <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>cutoffNormalized<span class="op">,</span> eps<span class="op">,</span> T<span class="op">(</span><span class="fl">0.4997</span><span class="op">));</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> T f <span class="op">=</span> T<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> <span class="bu">std::</span>sin<span class="op">(</span><span class="bu">std::</span>numbers::pi_v<span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">*</span> cut<span class="op">);</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>q<span class="op">,</span> T<span class="op">(</span><span class="dv">0</span><span class="op">),</span> <span class="bu">std::</span>fma<span class="op">(-</span>f<span class="op">,</span> f<span class="op">,</span> T<span class="op">(</span><span class="dv">4</span><span class="op">))</span> <span class="op">/</span> <span class="op">(</span>T<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> f<span class="op">));</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> T hp <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(-</span>q<span class="op">,</span> bp<span class="op">,</span> input <span class="op">-</span> lp<span class="op">);</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    bp <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>f<span class="op">,</span> hp<span class="op">,</span> bp<span class="op">);</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    lp <span class="op">=</span> <span class="bu">std::</span>fma<span class="op">(</span>f<span class="op">,</span> bp<span class="op">,</span> lp<span class="op">);</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lp<span class="op">;</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+  <p>「高速な <span class="math inline">\(f\)</span> の計算」に掲載した
+  <code>chamberlin_svf_sin</code> を使うのであれば
+  <code>T(2) * std::sin(std::numbers::pi_v&lt;T&gt; * cut)</code> を
+  <code>chamberlin_svf_sin(cut)</code> とします。</p>
+  <p><code>std::fma</code> が使えないときは以下のように書けます。</p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// process_full_range の Q の下限は因数分解した形のほうが f ~ 2 のときに正確。</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>q<span class="op">,</span> T<span class="op">(</span><span class="dv">0</span><span class="op">),</span> <span class="op">((</span>T<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">-</span> f<span class="op">)</span> <span class="op">*</span> <span class="op">(</span>T<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">+</span> f<span class="op">))</span> <span class="op">/</span> <span class="op">(</span>T<span class="op">(</span><span class="dv">2</span><span class="op">)</span> <span class="op">*</span> f<span class="op">));</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">// 以下は process, process_full_range で共通。</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> T hp <span class="op">=</span> input <span class="op">-</span> lp <span class="op">-</span> bp <span class="op">*</span> q<span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>bp <span class="op">+=</span> f <span class="op">*</span> hp<span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>lp <span class="op">+=</span> f <span class="op">*</span> bp<span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> lp<span class="op">;</span></span></code></pre></div>
+  <h2 id="異なるチューニング"><a href="#異なるチューニング"
+  class="header-anchor" aria-hidden="true">異なるチューニング</a></h2>
+  <p>以下の <code>Lp3</code> と <code>ChamberlinLp3</code>
+  は計算誤差を除けば等価です。 <code>Lp3</code> は「<a
+  href="../3pole_lowpass/3pole_lowpass.html">3-pole
+  ローパスフィルタ</a>」で紹介したフィルタで、 -6 dB/oct
+  のスロープかつレゾナンスが調節できるフィルタです。リンク先の記事で導入しているパラメータ
+  <span class="math inline">\(\alpha\)</span> を 1
+  に固定しているので、以下の実装では <code>Lp3</code> と言いつつ 3-pole
+  ではなく 2-pole になっています。</p>
+  <div class="sourceCode" id="cb11"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Lp3:</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.reset()</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset(<span class="va">self</span>):</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.s0 <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.s1 <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.s2 <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x1 <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> process(<span class="va">self</span>, x0, A, B):</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.s0 <span class="op">=</span> A <span class="op">*</span> <span class="va">self</span>.s1 <span class="op">+</span> B <span class="op">*</span> <span class="va">self</span>.s0</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.s1 <span class="op">-=</span> <span class="va">self</span>.s0 <span class="op">+</span> x0 <span class="op">-</span> <span class="va">self</span>.x1</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.s2 <span class="op">-=</span> <span class="va">self</span>.s1 <span class="op">*</span> A <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">-</span> B)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x1 <span class="op">=</span> x0</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.s2</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ChamberlinLp3:</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.reset()</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset(<span class="va">self</span>):</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> process(<span class="va">self</span>, x0, A, B):</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> math.sqrt(A)</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> B) <span class="op">/</span> f</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>        hp <span class="op">=</span> x0 <span class="op">-</span> <span class="va">self</span>.lp <span class="op">-</span> q <span class="op">*</span> <span class="va">self</span>.bp</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">+=</span> f <span class="op">*</span> hp</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">+=</span> f <span class="op">*</span> <span class="va">self</span>.bp</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.lp <span class="op">+</span> B <span class="op">*</span> <span class="va">self</span>.bp <span class="op">/</span> q</span></code></pre></div>
+  <p><code>ChamberlinLp3</code> の <code>A</code> はカットオフ、
+  <code>B</code> はレゾナンスです。上の実装は <code>Lp3</code>
+  との対応をとるために安全対策をいくつか省略しています。</p>
+  <ul>
+  <li><code>A</code> は exponential moving average (EMA)
+  フィルタのカットオフの設定方法が流用可。</li>
+  <li><code>A</code> が 0 のときに <code>q</code> の計算で 0
+  除算が起こる。</li>
+  <li><code>B</code> の範囲は <span class="math inline">\([0,
+  1)\)</span> 。 <code>B ~ 0.99</code> あたりが発散しない上限。</li>
+  </ul>
+  <p>以下は上記の要素の実装例です。</p>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ema_alpha(cutoff_normalized):</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    sn <span class="op">=</span> np.sin(np.pi <span class="op">*</span> cutoff_normalized)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> sn <span class="op">/</span> (np.sqrt(sn <span class="op">*</span> sn <span class="op">+</span> <span class="dv">1</span>) <span class="op">+</span> sn)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ChamberlinLp3:</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.reset()</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset(<span class="va">self</span>):</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> process(<span class="va">self</span>, x0, cutoff_normalized, B):</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        B <span class="op">=</span> <span class="bu">min</span>(<span class="bu">max</span>(B, <span class="dv">0</span>), <span class="fl">0.99</span>)  <span class="co"># `bp / q` での 0 除算を避ける。</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> math.sqrt(ema_alpha(cutoff_normalized))</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> B) <span class="op">/</span> <span class="bu">max</span>(f, np.finfo(np.float64).eps)  <span class="co"># `f == 0` での 0 除算を避ける。</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        hp <span class="op">=</span> x0 <span class="op">-</span> <span class="va">self</span>.lp <span class="op">-</span> q <span class="op">*</span> <span class="va">self</span>.bp</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bp <span class="op">+=</span> f <span class="op">*</span> hp</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lp <span class="op">+=</span> f <span class="op">*</span> <span class="va">self</span>.bp</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.lp <span class="op">+</span> B <span class="op">*</span> <span class="va">self</span>.bp <span class="op">/</span> q</span></code></pre></div>
+  <p>以下は振幅特性です。カットオフ周波数が低いとレゾナンスが付かないので、音楽用のフィルタとしては癖があります。
+  <code>B = 0</code> とすると単調な振幅特性が得られます。</p>
+  <figure>
+  <img src="img/chamberlin_lp3_amplitude_response.svg" alt="Amplitude reponse of ChamberlinLp3 filter." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="https://www.musicdsp.org/en/latest/Filters/142-state-variable-filter-chamberlin-version.html">State
+  Variable Filter (Chamberlin version) — Musicdsp.org
+  documentation</a></li>
+  <li><a href="https://ccrma.stanford.edu/~jos/svf/svf.pdf">svf.pdf
+  (ccrma.stanford.edu/~jos)</a></li>
+  <li><a href="https://arxiv.org/abs/2111.05592">[2111.05592] Improving
+  the Chamberlin Digital State Variable Filter (arxiv.org)</a></li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
