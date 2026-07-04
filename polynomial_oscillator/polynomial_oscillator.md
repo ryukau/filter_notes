@@ -601,7 +601,13 @@ while (phase >= float(1)) phase -= float(1);
 `while` を使う方法は `frequencyHz` の大きさに比例して計算量が増えるので、使わないでください。似たようなコードを見たことがあるので一応紹介しています。
 
 #### `remainder`
-[`std::remainder`](https://en.cppreference.com/w/cpp/numeric/math/remainder) は引数が両方とも正の値のとき、出力が負の値となるので位相の回転には不適です。
+[`std::remainder`](https://en.cppreference.com/w/cpp/numeric/math/remainder) は引数が両方とも正の値のとき、出力が負の値となるので位相の回転には不適です。 2 つの位相の距離を計算するときは役立ちます。
+
+```c++
+distance = std::remainder(phase1 - phase2, float(1));
+```
+
+`phase1`, `phase2` ともに `[0, 1)` の範囲内であれば、数学的には `phase1 == phase2 + distance` です。実際には浮動小数点数の計算誤差によって `==` では true にならないことがあります。
 
 #### 符号なし整数
 符号なし整数を使えば丸めの処理はコンパイラが何とかしてくれます。 DSP のコードがすべて整数演算なら高速です。浮動小数点数を使っているときはキャストやスケーリングが入るので速度面での利点は微妙です。
@@ -668,6 +674,8 @@ Q フォーマットは [Texas Instruments の資料](https://www.ti.com/lit/ug/
 - [Wayback Machine](https://web.archive.org/web/20171104105632/http://infocenter.arm.com/help/topic/com.arm.doc.dui0066g/DUI0066.pdf)
 
 ## 変更点
+- 2026/07/02
+  - `std::remainder` について位相の距離の計算には使えることを追記。
 - 2024/04/10
   - 「位相の計算」のコードの `upperLimit` を `upperBound` に変更。
   - 文章の整理。

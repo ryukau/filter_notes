@@ -149,7 +149,7 @@ $$
 \frac{1}{\sqrt{2}} > \frac{2f}{4 - f^2} \implies f < \sqrt{6} - \sqrt{2}.
 $$
 
-$f = 2 \sin(\pi f_c/f_x)$ なので、正規化されたカットオフ周波数の上限は以下になります。
+$f = 2 \sin(\pi f_c/f_s)$ なので、正規化されたカットオフ周波数の上限は以下になります。
 
 $$
 \frac{f_c}{f_s} < \frac{1}{\pi} \arcsin \left( \frac{\sqrt{6} - \sqrt{2}}{2} \right) \approx 0.1731886233119285.
@@ -465,3 +465,7 @@ class ChamberlinLp3:
 - [State Variable Filter (Chamberlin version) — Musicdsp.org documentation](https://www.musicdsp.org/en/latest/Filters/142-state-variable-filter-chamberlin-version.html)
 - [svf.pdf (ccrma.stanford.edu/~jos)](https://ccrma.stanford.edu/~jos/svf/svf.pdf)
 - [[2111.05592] Improving the Chamberlin Digital State Variable Filter (arxiv.org)](https://arxiv.org/abs/2111.05592)
+
+## 変更点
+- 2026-07-02
+  - $f_s$ を $f_x$ としていた typo を修正。
