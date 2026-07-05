@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.special as special
 import sympy as sp
+import tabulate
 
 mp.dps = 720
 
@@ -217,31 +218,60 @@ def sum_sqrt_approx_f32(N, dtype=np.float32):
     return base + (dtype(1) / dtype(24) / sqrt_n)
 
 
-def relative_error(ref, approx, dtype=np.float64):
-    ref_arr = np.asarray(ref, dtype=dtype)
-    approx_arr = np.asarray(approx, dtype=dtype)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        error = np.abs((ref_arr - approx_arr) / ref_arr, dtype=dtype)
-    return np.nan_to_num(error, nan=0.0)
-
-
 def ulp_error(ref, approx, dtype=np.float64):
-    approx = np.asanyarray(approx, dtype=dtype)
-    ref = np.asanyarray(ref, dtype=dtype)
+    approx = dtype(approx)
 
-    eps = np.spacing(ref, dtype=dtype)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        error = np.abs(approx - ref, dtype=dtype) / eps
+    if approx == ref:
+        return 0.0
 
-    error = np.where(approx == ref, 0.0, error)
-    error = np.where(np.isinf(ref) & (approx != ref), np.inf, error)
+    if math.isnan(approx) or mp.isnan(ref):
+        return math.nan
 
-    return error.item() if error.ndim == 0 else error
+    ref_flt = dtype(ref)
+    if math.isinf(approx) or math.isinf(ref):
+        return math.inf
+
+    eps = abs(np.spacing(ref_flt, dtype=dtype))
+    ulp = abs(approx - ref) / eps
+    return dtype(ulp)
+
+
+def relative_error(ref, approx, signed_zero=True, dtype=np.float64):
+    approx = dtype(approx)
+
+    if math.isnan(approx) and mp.isnan(ref):
+        return 0.0
+    if math.isinf(approx) or mp.isinf(ref):
+        return 0.0 if dtype(ref) == approx else 1.0
+
+    if ref == 0.0:
+        if approx != 0.0:
+            return 1.0
+        if signed_zero and math.copysign(1.0, ref) != math.copysign(1.0, approx):
+            return 1.0  # Mismatching signs on 0.
+        return 0.0
+
+    diff = ref - approx
+    error = abs(diff / ref)
+    return dtype(error)
+
+
+def ulp_error_array(ref, approx, dtype=np.float64):
+    return [ulp_error(p, q, dtype) for p, q in zip(ref, approx)]
+
+
+def relative_error_array(ref, approx, signed_zero=True, dtype=np.float64):
+    return [relative_error(p, q, signed_zero, dtype) for p, q in zip(ref, approx)]
+
+
+def absolute_error_array(ref, approx, dtype=np.float64):
+    return [dtype(abs(p - q)) for p, q in zip(ref, approx)]
 
 
 def test_sum_sqrt_approx():
     N = 65536
-    fp_type = np.float64
+    fp_type = np.float32
+
     typename = np.dtype(fp_type).name
     fn_approx = sum_sqrt_approx_f64 if fp_type == np.float64 else sum_sqrt_approx_f32
 
@@ -249,11 +279,11 @@ def test_sum_sqrt_approx():
 
     # approx = np.array([sum_sqrt_approx_order10(n) for n in range(N)])
     approx = np.array([fn_approx(n, fp_type) for n in range(N)])
-    exact = np.array([fp_type(v) for v in sum_sqrt_mp_array(N)])
+    exact = [v for v in sum_sqrt_mp_array(N)]
 
-    abs_e = np.abs(approx - exact, dtype=fp_type)
-    rel_e = relative_error(exact, approx, dtype=fp_type)
-    ulp_e = ulp_error(exact, approx, dtype=fp_type)
+    abs_e = absolute_error_array(exact, approx, dtype=fp_type)
+    rel_e = relative_error_array(exact, approx, dtype=fp_type)
+    ulp_e = ulp_error_array(exact, approx, dtype=fp_type)
 
     x_N = np.arange(N)
 
@@ -262,7 +292,7 @@ def test_sum_sqrt_approx():
 
     ax[0][0].set_title(r"$f(N) = \sum_{i=1}^N \sqrt{i}$")
     ax[0][0].plot(approx, label="Approx.", color="red", alpha=0.5)
-    ax[0][0].plot(exact, label="Exact", color="blue", alpha=0.5)
+    ax[0][0].plot([fp_type(v) for v in exact], label="Exact", color="blue", alpha=0.5)
 
     ax[1][1].set_title(f"Relative Error")
     ax[1][1].plot(x_N, rel_e, label=f"Rel. error", color="orange", lw=1)
@@ -270,6 +300,7 @@ def test_sum_sqrt_approx():
         eps, label=f"{fp_type.__name__} eps.", color="black", alpha=0.5, ls="--", lw=1
     )
     ax[1][1].set_yscale("log")
+    ax[1][1].set_ylim([eps / 1.125, np.max(rel_e) * 1.125])
 
     ax[0][1].set_title(f"ULP Error")
     ax[0][1].plot(x_N, ulp_e, label=f"ULP error", color="orange", lw=1)
@@ -277,7 +308,12 @@ def test_sum_sqrt_approx():
     ax[1][0].set_title(f"Absolute Error")
     ax[1][0].plot(x_N, abs_e, label=f"Abs. error", color="orange", lw=1)
     ax[1][0].plot(
-        exact * eps, label="exact * eps", color="black", alpha=0.5, ls="--", lw=1
+        [fp_type(v * eps) for v in exact],
+        label="exact * eps",
+        color="black",
+        alpha=0.5,
+        ls="--",
+        lw=1,
     )
 
     for row in ax:
@@ -294,23 +330,6 @@ def test_sum_sqrt_approx():
     # print(f"Approximation: {approx:.15f}")
     # print(f"Absolute Error: {error:.5e}")
     # print(f"Relative Error: {error/exact:.5e}")
-
-
-def test_large_N():
-    N = 123456789
-    eps = np.finfo(np.float64).eps
-
-    approx = sum_sqrt_approx_f64(N)
-    exact = float(sum_sqrt_mp(N))
-
-    abs_error = abs(approx - exact)
-    rel_error = relative_error(exact, approx)
-
-    print(f"Exact     : {exact:1.17e}")
-    print(f"Approx.   : {approx:1.17e}")
-    print(f"Abs. Error: {abs_error:1.17e}")
-    print(f"Rel. Error: {rel_error:1.17e}")
-    print(f"Accurate? : {rel_error < eps}")
 
 
 def compute_min_n_table(max_order: int = 20, dtype=np.float64):
@@ -368,9 +387,51 @@ def compute_min_n_table(max_order: int = 20, dtype=np.float64):
         )
 
 
+def test_single(N, dtype=np.float64, print_result=True):
+    typename = np.dtype(dtype).name
+    fn_approx = sum_sqrt_approx_f64 if dtype == np.float64 else sum_sqrt_approx_f32
+
+    ref = sum_sqrt_mp(N)
+    approx = fn_approx(N)
+
+    ulp = ulp_error(ref, approx, dtype=dtype)
+    rel = relative_error(ref, approx, dtype=dtype)
+
+    result = {
+        "N": N,
+        "ulp error": ulp,
+        "rel error": rel,
+        "reference": float(ref),
+        "approx.": approx,
+    }
+
+    if print_result:
+        print(result)
+    return result
+
+
+def print_worst5():
+    def run(dtype, cases):
+        print(f"# {np.dtype(dtype).name}")
+
+        table = tabulate.tabulate(
+            [test_single(N, dtype, False) for N in cases],
+            tablefmt="rounded_outline",
+            floatfmt=[None, ".3e", ".3e", ".17e", ".17e"],
+            headers="keys",
+            # headersglobalalign="left",
+            colglobalalign="decimal",
+        )
+
+        print(table + "\n")
+
+    run(np.float32, [1271, 1178, 1274, 1310, 1076])
+    run(np.float64, [839, 812, 4898, 4283, 4457])
+
+
 if __name__ == "__main__":
     # compute_min_n_table()
     # print_sqrt_sum_coefficients()
     # print_table(64)
-    test_sum_sqrt_approx()
-    # test_large_N()
+    # test_sum_sqrt_approx()
+    print_worst5()

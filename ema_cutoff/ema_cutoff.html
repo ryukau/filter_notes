@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-      <meta name="dcterms.date" content="2026-06-27" />
+      <meta name="dcterms.date" content="2026-07-06" />
       <title>ema_cutoff</title>
 
   <style>
@@ -412,7 +412,7 @@
     <hr>
     <a href="../index.html">インデックスに戻る</a>
         <p>
-      Update: 2026-06-27
+      Update: 2026-07-06
     </p>
             <details>
       <summary translate="yes">Table of Contents</summary>
@@ -598,26 +598,20 @@
   <p><code>cutoffToAlphaNaive</code> が不正確な理由は減算による桁落ち
   (<a
   href="https://en.wikipedia.org/wiki/Catastrophic_cancellation">catastrophic
-  cancellation</a>) が原因です。</p>
-  <p>桁落ちとは、ある近似値から値が近い別の近似値を減算したときに有効桁数が落ちる計算誤差のことです。</p>
-  <p><span class="math inline">\(\pi - \dfrac{355}{113}\)</span>
-  を例に計算してみます。 <span
-  class="math inline">\(\dfrac{355}{113}\)</span> は <span
-  class="math inline">\(\pi\)</span> に近い値となる有理数です。</p>
-  <pre><code>π (mp)  : 3.141592654e+00
-π (f32) : 3.141592741e+00
+  cancellation</a>) が原因です。桁落ちとは、値が近い 2
+  つの近似値を減算したときに有効桁数が落ちる計算誤差のことです。</p>
+  <p><span class="math inline">\(1 - \cos(x)\)</span>
+  を例に計算してみます。</p>
+  <pre><code>x : 1.000000047e-03
 
-355 / 113 (mp)  : 3.141592920e+00
-355 / 113 (f32) : 3.141592979e+00
+1 - cos(x) (mp)  : 4.999999987e-07
+1 - cos(x) (f32) : 4.768371582e-07 # 😱
 
-π - 355 / 113 (mp)  : -2.667641752e-07
-π - 355 / 113 (f32) : -2.384185791e-07 # 😱
-
-Rel Error :  1.06e-01
-ULP Error : -9.97e+05</code></pre>
+Rel Error :  4.63e-02
+ULP Error :  4.07e+05</code></pre>
   <p>mp が任意精度で計算した正確な値、 f32 が単精度 (32-bit float)
   で計算した値です。 😱 で示した行が単精度の計算結果です。
-  <code>-2</code> までの 1
+  <code>4</code> までの 1
   桁だけ正確という、とんでもない桁落ちが起きています。</p>
   <details>
   <summary>
@@ -632,30 +626,25 @@ ULP Error : -9.97e+05</code></pre>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>dtype <span class="op">=</span> np.float32</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>mp.dps <span class="op">=</span> <span class="dv">50</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>x_mp <span class="op">=</span> mp.mpf(<span class="dv">355</span>) <span class="op">/</span> mp.mpf(<span class="dv">113</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>y_mp <span class="op">=</span> dtype(mp.pi <span class="op">-</span> x_mp)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>x_np <span class="op">=</span> dtype(<span class="fl">355.0</span>) <span class="op">/</span> dtype(<span class="fl">113.0</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>y_np <span class="op">=</span> dtype(np.pi) <span class="op">-</span> x_np</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> np.<span class="bu">abs</span>((y_mp <span class="op">-</span> y_np) <span class="op">/</span> y_mp, dtype<span class="op">=</span>dtype)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>ulp <span class="op">=</span> np.<span class="bu">abs</span>(y_mp <span class="op">-</span> y_np, dtype<span class="op">=</span>dtype) <span class="op">/</span> np.spacing(y_mp, dtype<span class="op">=</span>dtype)</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="ss">f&quot;&quot;&quot;</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="ss">π (mp)  : </span><span class="sc">{</span>mp<span class="sc">.</span>pi<span class="sc">:.9e}</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="ss">π (f32) : </span><span class="sc">{</span>dtype(np.pi)<span class="sc">:.9e}</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="ss">355 / 113 (mp)  : </span><span class="sc">{</span>x_mp<span class="sc">:.9e}</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="ss">355 / 113 (f32) : </span><span class="sc">{</span>x_np<span class="sc">:.9e}</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="ss">π - 355 / 113 (mp)  : </span><span class="sc">{</span>y_mp<span class="sc">:.9e}</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="ss">π - 355 / 113 (f32) : </span><span class="sc">{</span>y_np<span class="sc">:.9e}</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="ss">Rel Error : </span><span class="sc">{</span>rel<span class="sc">: .2e}</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="ss">ULP Error : </span><span class="sc">{</span>ulp<span class="sc">: .2e}</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="ss">&quot;&quot;&quot;</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text)</span></code></pre></div>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> dtype(<span class="fl">1e-3</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>y_mp <span class="op">=</span> mp.mpf(<span class="dv">1</span>) <span class="op">-</span> mp.cos(mp.mpf(<span class="bu">float</span>(x)))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>y_np <span class="op">=</span> dtype(<span class="dv">1</span> <span class="op">-</span> np.cos(x))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>rel <span class="op">=</span> <span class="bu">float</span>(<span class="bu">abs</span>(y_mp <span class="op">-</span> y_np) <span class="op">/</span> y_mp)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>ulp <span class="op">=</span> <span class="bu">float</span>(<span class="bu">abs</span>(y_mp <span class="op">-</span> y_np) <span class="op">/</span> np.spacing(dtype(y_mp), dtype<span class="op">=</span>dtype))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="ss">f&quot;&quot;&quot;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="ss">x : </span><span class="sc">{</span>x<span class="sc">:.9e}</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="ss">1 - cos(x) (mp)  : </span><span class="sc">{</span>dtype(y_mp)<span class="sc">:.9e}</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="ss">1 - cos(x) (f32) : </span><span class="sc">{</span>y_np<span class="sc">:.9e}</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="ss">Rel Error : </span><span class="sc">{</span>rel<span class="sc">: .2e}</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="ss">ULP Error : </span><span class="sc">{</span>ulp<span class="sc">: .2e}</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="ss">&quot;&quot;&quot;</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text)</span></code></pre></div>
   </details>
   <h2 id="正確な計算"><a href="#正確な計算" class="header-anchor"
   aria-hidden="true">正確な計算</a></h2>
@@ -703,21 +692,26 @@ ULP Error : -9.97e+05</code></pre>
   <p>以下は入力が [1e-53, 1e-7] のときの誤差のプロットです。 f32 tiny
   は単精度のノーマル数 (normal number) の最小値、 f32 min.
   は単精度のサブノーマル数 (subnormal number) の最小値です。つまり f32
-  はノーマル数の範囲であれば正確ですが、サブノーマル数の範囲では不正確です。</p>
+  はノーマル数の範囲であれば正確です。サブノーマル数の範囲については相対誤差ではうまく誤差を表現できないので、以降の
+  ULP 誤差のプロットを参照してください。</p>
   <figure>
-  <img src="img/c_relative_errors_small_f32.svg" alt="Relative errors of the improved implementation on the down to 1e-53." style="padding-bottom: 12px;"/>
+  <img src="img/c_relative_errors_small_f32.svg" alt="Relative errors of the improved implementation down to 1e-53." style="padding-bottom: 12px;"/>
   </figure>
   <p>以下は入力が [0, 1e-53] のときの誤差のプロットです。 f64 は f32
-  と同様にノーマル数の範囲であれば正確ですが、サブノーマル数の範囲では不正確です。</p>
+  と同様にノーマル数の範囲であれば正確です。</p>
   <figure>
-  <img src="img/c_relative_errors_small_f64.svg" alt="Relative errors of the improved implementation on the down to the smallest subnormal number on f64 (= 5e-324)." style="padding-bottom: 12px;"/>
+  <img src="img/c_relative_errors_small_f64.svg" alt="Relative errors of the improved implementation down to the smallest subnormal number on f64 (= 5e-324)." style="padding-bottom: 12px;"/>
   </figure>
-  <p>誤差は 1 ULP 以下ですが、サブノーマル数の範囲では値が小さくなるほど
-  1 ULP の誤差の重みが大きくなるため、 0
+  <p>以下はサブノーマル数の範囲における ULP 誤差のプロットです。</p>
+  <figure>
+  <img src="img/c_ulp_errors_subnormal.svg" alt="ULP errors of the improved implementation in the subnormal range." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>サブノーマル数の範囲では値が小さくなるほど 1 ULP
+  の誤差の重みが大きくなるため、 0
   に近づくほど不正確になります。工学的な視点から見ると、サブノーマル数の範囲が単調でさえあればフィルタの計算に差し支えないので
   <code>cutoffToAlphaC</code> は十分に正確です。 <span
   class="math inline">\(\alpha\)</span>
-  が小さいということは非常に低いカットオフ周波数となるわけですが、信号処理の視点から言えばサンプリング周波数を下げるなど、より効率のいい対処法が考えられるからです。</p>
+  がサブノーマル数ということは非常に低いカットオフ周波数となるわけですが、信号処理の視点から言えばサンプリング周波数を下げるなど、より効率のいい対処法が考えられます。</p>
   <h2 id="サブノーマル"><a href="#サブノーマル" class="header-anchor"
   aria-hidden="true">サブノーマル</a></h2>
   <p>サブノーマルの範囲を正確に計算するために 0
@@ -784,7 +778,7 @@ ULP Error : -9.97e+05</code></pre>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    sn <span class="op">=</span> np.sin(pi <span class="op">*</span> cn, dtype<span class="op">=</span>dtype)</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> sn <span class="op">/</span> (np.sqrt(sn <span class="op">*</span> sn <span class="op">+</span> <span class="dv">1</span>, dtype<span class="op">=</span>dtype) <span class="op">+</span> sn)</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">float</span>(result)</span></code></pre></div>
-  <p>相対誤差のプロットです。</p>
+  <p>以下は相対誤差のプロットです。</p>
   <figure>
   <img src="img/d_relative_errors.svg" alt="Relative errors of the subnormal accurate implementation where the normalized cutoff is in [1e-7, 0.5]." style="padding-bottom: 12px;"/>
   </figure>
@@ -794,9 +788,13 @@ ULP Error : -9.97e+05</code></pre>
   <figure>
   <img src="img/d_relative_errors_small_f64.svg" alt="Relative errors of the subnormal accurate implementation where the normalized cutoff is in [f64 minimum subnormal number, 1e-53]." style="padding-bottom: 12px;"/>
   </figure>
-  <p>プロット上ではサブノーマル数の範囲で相対誤差が 0
-  になっています。実際のところは総当たりで確認しなければ何とも言えません。
-  <code>nextafter</code> を使って数え上げる形で簡単に検証したところ、 0
+  <p>以下はサブノーマル数の範囲における ULP 誤差のプロットです。 0
+  に近い範囲では誤差が下がっています。</p>
+  <figure>
+  <img src="img/d_ulp_errors_subnormal.svg" alt="ULP errors of the improved implementation in the subnormal range." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>サブノーマル数の範囲について <code>nextafter</code>
+  を使って数え上げる形で簡単に検証したところ、 0
   に近い値では誤差が減っていました。</p>
   <div class="sourceCode" id="cb11"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> listSubnormalsFrom0(n: <span class="bu">int</span>, start: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span>, dtype<span class="op">=</span>np.float64):</span>
@@ -819,15 +817,15 @@ ULP Error : -9.97e+05</code></pre>
 <span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> <span class="bu">float</span>(v)</span>
 <span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> cutoffToAlphaReference(v)</span>
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> cutoffToAlphaD(v)</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        ulp <span class="op">=</span> ulp_error_array(r, a)</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        ulp <span class="op">=</span> ulp_error(r, a, dtype)</span>
 <span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ulp <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>            rel <span class="op">=</span> relative_error_array(r, a)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>            rel <span class="op">=</span> relative_error(r, a, dtype)</span>
 <span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> rel <span class="op">&gt;=</span> np.finfo(dtype).eps:</span>
 <span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(v, r, a, ulp, rel)</span>
 <span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(v)</span></code></pre></div>
-  <p>以下はサブノーマル数の範囲で 1 ULP
-  の誤差が現れる既知の最小の引数です。</p>
+  <p>以下はサブノーマル数の範囲で 0.5 ULP
+  を超える誤差が現れる既知の最小の引数です。</p>
   <div class="sourceCode" id="cb12"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>dtype <span class="op">=</span> np.float32</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fl">1.1675765e-41</span></span>
@@ -862,6 +860,13 @@ ULP Error : -9.97e+05</code></pre>
   <h2 id="変更点"><a href="#変更点" class="header-anchor"
   aria-hidden="true">変更点</a></h2>
   <ul>
+  <li>2028/07/06
+  <ul>
+  <li>桁落ちの例を <span class="math inline">\(\pi -
+  \dfrac{355}{113}\)</span> から <span class="math inline">\(1 -
+  \cos(x)\)</span> に変更。</li>
+  <li>ULP 誤差のプロットを追加。</li>
+  </ul></li>
   <li>2028/06/27
   <ul>
   <li>文章の整理。</li>
