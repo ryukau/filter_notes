@@ -201,7 +201,7 @@ $$
 \alpha = \sqrt{(y + 2) y} - y = \frac{2y}{\sqrt{(y + 2) y} + y}.
 $$
 
-$y = 2 \sin^2(\omega_c/2)$ を代入して整理すると以下の式が得られます。式の簡略化のため $s = \sin^2(\omega_c/2)$ と置きます。
+$y = 2 \sin^2(\omega_c/2)$ を代入して整理すると以下の式が得られます。式の簡略化のため $s = \sin(\omega_c/2)$ と置きます。
 
 $$
 \begin{aligned}
@@ -324,7 +324,7 @@ def cutoffToAlphaD(cutoffNormalized: float, dtype: Dtl = np.float64) -> float:
 <img src="img/d_ulp_errors_subnormal.svg" alt="ULP errors of the improved implementation in the subnormal range." style="padding-bottom: 12px;"/>
 </figure>
 
-サブノーマル数の範囲について `nextafter` を使って数え上げる形で簡単に検証したところ、 0 に近い値では誤差が減っていました。
+サブノーマル数の範囲については `nextafter` を使って 0 に近い値を数え上げる形でも検証しました。
 
 ```python
 def listSubnormalsFrom0(n: int, start: float = 0.0, dtype=np.float64):

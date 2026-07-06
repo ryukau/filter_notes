@@ -693,16 +693,16 @@
   aria-hidden="true">計算方法</a></h2>
   <p>高速で正確な計算方法を検討します。計算方法のバリエーションには以下の軸があります。</p>
   <ul>
-  <li>軸 1 : フィルタ係数の表現をすべて 2 次セクション (<a
-  href="https://docs.scipy.org/doc/scipy/tutorial/signal.html#second-order-sections-representation">sos</a>)
-  にするか、分子と分母を分けて計算 (ハイブリッド) するか。</li>
+  <li>軸 1 : フィルタ係数の表現をすべて <a
+  href="https://docs.scipy.org/doc/scipy/tutorial/signal.html#second-order-sections-representation">SOS</a>
+  にするか、分子と分母を分けて計算するか。</li>
   <li>軸 2 : 単純加算するか、 <a
   href="https://en.wikipedia.org/wiki/Kahan_summation_algorithm">Kahan
   summation</a> を使うか。</li>
   </ul>
   <p>以降では、軸 1 の分子と分母を分けて計算する方法のことをハイブリッド
   (hybrid) と呼ぶことにします。ハイブリッド形式では分子を FIR 、分母を
-  sos として計算します。分子を別に計算するため、分母の sos は 1
+  SOS として計算します。分子を別に計算するため、分母の SOS は 1
   セクションあたりの係数を <span class="math inline">\(a_1, a_2\)</span>
   の 2 つに減らせます。</p>
   <p>軸 2 の Kahan summation はポリフェイズ出力と、ハイブリッドの FIR
@@ -1003,7 +1003,7 @@
   aria-hidden="true">Butterworth, order = 16, M = 32, fc/fs =
   0.0078125</a></h5>
   <p>1 / 64 倍のダウンサンプリングの 1
-  ステージ目として設計したフィルタです。一応動きますが、 2
+  ステージ目として設計したフィルタです。 2
   ステージ以上に分割したほうが速いかもしれません。</p>
   <details>
   <summary>
@@ -1079,21 +1079,21 @@
   <p>Hybrid Simple が速いです。 Hybrid Simple は伝達関数の分子を FIR
   として計算しており、また FIR 内で Kahan summation
   を使っていない実装です。</p>
-  <p>SOS Simple が二番目に早いです。 <code>clang++</code> では order = 4
-  かつ f64 のフィルタで Hybrid Simple を上回る性能になっています。</p>
+  <p>SOS Simple が二番目に早いです。 <code>clang++</code> では f64,
+  order = 4, M = 2 のフィルタで Hybrid Simple
+  を上回る性能になっています。</p>
   <p>Kahan summation
-  については予想通り遅くなっています。正確さの向上については大きく向上するとは言い難く、一部のケースを除いて
+  については予想通り遅くなっています。正確さについては大きく向上するとは言い難く、一部のケースを除いて
   SOS Simple のほうが正確に見えます。</p>
   <p>f64 と f32 で実行速度がほぼ同じです。 IIR フィルタと Kahan
   summation は 1
   サンプル前の計算結果を利用するので自動ベクトル化が入らないことが原因と考えられます。
-  Hybrid Simple は FIR
-  部分で自動ベクトル化が入っていると捉えれば納得できる結果と言えます
-  (<code>g++</code> では確認) 。複数の信号を SIMD で並列計算するときは
-  f32 のほうが速くなると予想されます。</p>
-  <p>f32 では振幅特性がざっくりと 120 dB
-  を下回る範囲で、周波数特性が歪んでいます。周波数特性のプロットで暴れているのはすべて
-  f32 を表す点線です。</p>
+  Hybrid Simple は FIR 部分で自動ベクトル化が入っています
+  (<code>g++</code> で確認) 。複数の信号を SIMD で並列計算するときは f32
+  のほうが速くなると予想されます。</p>
+  <p>f32 の実装は振幅特性が -120 dB
+  を下回るあたりから周波数特性が歪んでいます。周波数特性がおかしく見えるフィルタはすべて
+  f32 の実装です。プロット上の点線が f32 、実線が f64 です。</p>
   <h3 id="係数の数"><a href="#係数の数" class="header-anchor"
   aria-hidden="true">係数の数</a></h3>
   <p>以下は軸 1

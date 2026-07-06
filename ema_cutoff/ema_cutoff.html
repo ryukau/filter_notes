@@ -668,7 +668,7 @@ ULP Error :  4.07e+05</code></pre>
   \]</span></p>
   <p><span class="math inline">\(y = 2 \sin^2(\omega_c/2)\)</span>
   を代入して整理すると以下の式が得られます。式の簡略化のため <span
-  class="math inline">\(s = \sin^2(\omega_c/2)\)</span> と置きます。</p>
+  class="math inline">\(s = \sin(\omega_c/2)\)</span> と置きます。</p>
   <p><span class="math display">\[
   \begin{aligned}
   \alpha
@@ -793,9 +793,8 @@ ULP Error :  4.07e+05</code></pre>
   <figure>
   <img src="img/d_ulp_errors_subnormal.svg" alt="ULP errors of the improved implementation in the subnormal range." style="padding-bottom: 12px;"/>
   </figure>
-  <p>サブノーマル数の範囲について <code>nextafter</code>
-  を使って数え上げる形で簡単に検証したところ、 0
-  に近い値では誤差が減っていました。</p>
+  <p>サブノーマル数の範囲については <code>nextafter</code> を使って 0
+  に近い値を数え上げる形でも検証しました。</p>
   <div class="sourceCode" id="cb11"><pre
   class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> listSubnormalsFrom0(n: <span class="bu">int</span>, start: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span>, dtype<span class="op">=</span>np.float64):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate(n: <span class="bu">int</span>, start: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span>, dtype<span class="op">=</span>np.float64):</span>
