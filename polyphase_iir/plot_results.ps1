@@ -1,5 +1,5 @@
 $compilers = "clang++", "g++", "cl"
-$configs = "4_2", "8_4", "12_4", "16_8"
+$configs = "4_2", "8_4", "12_4", "16_8", "16_32"
 
 foreach ($cc in $compilers) {
   foreach ($cfg in $configs) {

@@ -6,6 +6,7 @@ import subprocess
 import sys
 from mpmath import mp
 import numpy as np
+from tabulate import tabulate
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from signal_mp import (
@@ -242,22 +243,20 @@ def analyze_numerical_errors(ref_data, results_data, abs_tol):
     print(title_str)
     print("Results are shown as Max / Mean.")
     print("")
-    print(
-        f"{'Implementation':<22} | {'Abs Error':<26} | {'Rel Error, Tol=0':<28} | {f'Rel Error, Tol={abs_tol:.2e}':<30} | {'ULP':<16}"
-    )
-    print("-" * 136)
 
     ref_noise = np.array([float(x) for x in ref_data["outputs"]], dtype=np.float64)
     ref_ir = np.array(
         [float(x) for x in ref_data["impulse_response"]], dtype=np.float64
     )
 
-    columns_f64 = ""
-    columns_f32 = ""
-    for key, output_list in results_data.items():
-        is_f32 = "float" in key or "f32" in key
+    f64_rows = []
+    f32_rows = []
+    for name, output_list in results_data.items():
+        is_f32 = "float" in name or "f32" in name
 
-        if "_noise" in key:
+        impl_title = name.replace("_", " ").title()
+
+        if "_noise" in name:
             errs = measure(ref_noise, output_list, is_f32)
         else:
             if ref_ir is None:
@@ -270,25 +269,40 @@ def analyze_numerical_errors(ref_data, results_data, abs_tol):
         with_tol_str = (
             f"{errs['rel_with_tol_max']:.4e} / {errs['rel_with_tol_mean']:.4e}"
         )
-        ulp_str = f"{errs['ulp_max']:.2f} / {errs['ulp_mean']:.2f}"
+        ulp_str = f"{errs['ulp_max']:>.2e} / {errs['ulp_mean']:>.2e}"
 
-        column = f"{key:<22} | {abs_str:<26} | {no_tol_str:<28} | {with_tol_str:<30} | {ulp_str:<16}"
+        row = [impl_title, abs_str, no_tol_str, with_tol_str, ulp_str]
         if is_f32:
-            columns_f32 += column + "\n"
+            f32_rows.append(row)
         else:
-            columns_f64 += column + "\n"
+            f64_rows.append(row)
 
-    print(f"{columns_f64}{columns_f32}\n")
+    headers = [
+        "Implementation",
+        "Abs Error",
+        "Rel Error, Tol=0",
+        f"Rel Error, Tol={abs_tol:.2e}",
+        "ULP",
+    ]
+
+    table_data = f64_rows + f32_rows
+    table_str = tabulate(table_data, headers=headers, tablefmt="pipe")
+    print(table_str)
+    print("")
 
 
 def print_benchmark_results(benchmarks):
     print("\n## Benchmarks\n")
-    print(
-        f"{'Implementation':<22} | {'Time (ms)':<10} | {'ns / Sample':<12} | {'Throughput (MSps)':<18} | {'nSample':<8}"
-    )
-    print("-" * 90)
-    columns_f64 = ""
-    columns_f32 = ""
+    headers = [
+        "Implementation",
+        "Time (ms)",
+        "ns / Sample",
+        "Throughput (MSps)",
+        "nSample",
+    ]
+
+    f64_rows = []
+    f32_rows = []
     for name, stats in benchmarks.items():
         is_f32 = "float" in name or "f32" in name
         impl_title = name.replace("_", " ").title()
@@ -296,12 +310,17 @@ def print_benchmark_results(benchmarks):
         ns_per_sample = stats.get("ns_per_sample", 0.0)
         num_samples = stats.get("num_samples", 1)
         throughput_msps = (num_samples / time_ms) / 1000.0 if time_ms > 0 else 0.0
-        column = f"{impl_title:<22} | {time_ms:>10.2f} | {ns_per_sample:>12.2f} | {throughput_msps:>18.2f} | {num_samples:>8}"
+
+        row = [impl_title, time_ms, ns_per_sample, throughput_msps, num_samples]
         if is_f32:
-            columns_f32 += column + "\n"
+            f32_rows.append(row)
         else:
-            columns_f64 += column + "\n"
-    print(f"{columns_f64}{columns_f32}")
+            f64_rows.append(row)
+
+    table_data = f64_rows + f32_rows
+    # Using 'floatfmt' to apply identical decimal formatting to all float columns
+    table_str = tabulate(table_data, headers=headers, tablefmt="pipe", floatfmt=".2f")
+    print(table_str)
 
 
 def main():
@@ -352,7 +371,11 @@ def main():
 
     args = parser.parse_args()
 
-    if args.design:
+    if os.path.exists(args.ref):
+        print(f"Loading existing reference file from {args.ref}")
+        with open(args.ref) as f:
+            ref_data = json.load(f)
+    elif args.design:
         try:
             parts = args.design.split(",")
             filter_type = parts[0].strip().lower()
@@ -382,16 +405,11 @@ def main():
 
         ref_data = compute_reference_data(design_params, args.samples, args.ref)
     else:
-        if os.path.exists(args.ref):
-            print(f"Loading existing reference file from {args.ref}")
-            with open(args.ref) as f:
-                ref_data = json.load(f)
-        else:
-            print(
-                f"No reference data found at {args.ref}. Designing default filter 'butterworth,8,0.2,4'..."
-            )
-            default_design = ("butterworth", 8, 0.2, 4)
-            ref_data = compute_reference_data(default_design, args.samples, args.ref)
+        print(
+            f"No reference data found at {args.ref}. Designing default filter 'butterworth,8,0.2,4'..."
+        )
+        default_design = ("butterworth", 8, 0.2, 4)
+        ref_data = compute_reference_data(default_design, args.samples, args.ref)
 
     generate_cpp_header(ref_data)
 

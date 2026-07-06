@@ -413,7 +413,7 @@ def main():
         ax = cfg["ax"]
         ax.set_title(cfg["title"], fontsize=11, weight="bold")
         ax.set_yscale("log")
-        ax.set_ylabel("Numerical Precision: Max Absolute Error")
+        ax.set_ylabel("Max Absolute Error")
 
         if has_benchmarks:
             ax.set_xlabel("Execution Time per Sample (ns / sample)")

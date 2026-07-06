@@ -3,9 +3,13 @@ $configs = @(
   @{ order = 8; phase = 4; fc = 0.03125 }
   @{ order = 12; phase = 4; fc = 0.02 }
   @{ order = 16; phase = 8; fc = 0.015625 }
+  @{ order = 16; phase = 32; fc = 0.0078125 }
 )
 
-$compilers = @("cl", "clang++")
+$compilers = @(
+  "cl",
+  "clang++"
+)
 
 foreach ($cc in $compilers) {
   foreach ($cfg in $configs) {
