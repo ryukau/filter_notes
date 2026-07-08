@@ -60,9 +60,36 @@ $$
 分母を含めてポリフェイズ分解できています。
 
 ## 設計
-プロトタイプとなる [zpk 形式の伝達関数](https://www.mathworks.com/help/control/ref/zpk.html)から $A_M$ と $Q_k$ を求めれば計算できる形になります。 zpk は MATLAB や SciPy で使われている伝達関数のゼロ、極、ゲイン (zero, pole, gain) の組です。 SciPy では [`scipy.signal.butter`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html) や [`scipy.signal.ellip`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.ellip.html) の引数に `output="zpk"` を指定すれば zpk の組が得られます。
+以下は SciPy, NumPy を使ったフィルタ設計の実装例です。「[実装](#実装)」の節に mpmath を使った任意制度計算の実装例を掲載しています。
 
-「[実装](#実装)」の節にコード例と、完全な設計コードへのリンクを掲載しています。
+```python
+import numpy as np
+from scipy import signal
+
+def design_polyphase_butterworth_numpy(order, cutoff, M):
+    z, p, k = signal.butter(order, cutoff, btype="low", output="zpk", analog=False)
+
+    p_new = p**M
+    denom_low = np.real(np.poly(p_new))
+
+    s = np.array([1.0], dtype=complex)
+    for pi in p:
+        S_i = pi ** np.arange(M)
+        s = np.convolve(s, S_i)
+    s = np.real(s)  # Imaginary parts cancel out since poles occur in conjugate pairs
+
+    b = np.real(np.poly(z)) * k
+    q = np.convolve(b, s)
+
+    polyphase_branches = []
+    for k in range(M):
+        coeffs = q[k::M]
+        polyphase_branches.append(coeffs)
+
+    return polyphase_branches, denom_low
+```
+
+プロトタイプとなる [zpk 形式の伝達関数](https://www.mathworks.com/help/control/ref/zpk.html)から $A_M$ と $Q_k$ を求めれば計算できる形になります。 zpk は MATLAB や SciPy で使われている伝達関数のゼロ、極、ゲイン (zero, pole, gain) の組です。 SciPy では [`scipy.signal.butter`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html) や [`scipy.signal.ellip`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.ellip.html) の引数に `output="zpk"` を指定すれば zpk の組が得られます。
 
 ## 計算方法
 高速で正確な計算方法を検討します。計算方法のバリエーションには以下の軸があります。
@@ -394,6 +421,7 @@ Order \ M | 1 |  2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |  12 |
 
 次数が高いフィルタは正確に設計できないことがあるので mpmath を使っています。 `tf2sos_mp` を省略しているので、そのままでは動きません。
 
+
 ```python
 from mpmath import mp
 
@@ -462,7 +490,7 @@ def design_polyphase_iir(
                     c[i] -= r * c[i - 1]
             return c
 
-        def mp_convolve(a, b):
+        def convolve(a, b):
             len_a = len(a)
             len_b = len(b)
             out = [mp.mpf(0.0)] * (len_a + len_b - 1)
@@ -471,38 +499,18 @@ def design_polyphase_iir(
                     out[i + j] += a[i] * b[j]
             return out
 
-        def mp_deconvolve(num, den):
-            """
-            Polynomial division: num(z) / den(z).
-            Returns (quotient, remainder).
-            Assumes coefficients are in descending order of powers (highest power first).
-            """
-            div = list(num)
-            sz = len(div) - len(den) + 1
-            if sz <= 0:
-                return [mp.mpf(0)], div
-
-            q = [mp.mpf(0)] * sz
-            for k in range(sz):
-                q[k] = div[k] / den[0]
-                for j, val in enumerate(den):
-                    div[k + j] -= q[k] * val
-
-            return q, div
-
         b_poly = [mp.re(x * k_mp) for x in poly_from_roots(z_mp)]
-        a_poly = [mp.re(x) for x in poly_from_roots(p_mp)]
 
         p_new = [p**M for p in p_mp]
         a_low_poly = [mp.re(x) for x in poly_from_roots(p_new)]
 
-        deg_low = len(a_low_poly) - 1
-        a_high_poly = [mp.mpf(0.0)] * (deg_low * M + 1)
-        for i, val in enumerate(a_low_poly):
-            a_high_poly[i * M] = val
+        s_poly = [mp.mpc(1.0)]
+        for pi in p_mp:
+            S_i = [pi**k for k in range(M)]
+            s_poly = convolve(s_poly, S_i)
+        s_poly = [mp.re(x) for x in s_poly]
 
-        s_poly, remainder = mp_deconvolve(a_high_poly, a_poly)
-        q_poly = mp_convolve(b_poly, s_poly)
+        q_poly = [mp.re(x) for x in convolve(b_poly, s_poly)]
 
         q_polyphase = []
         for k in range(M):
@@ -1443,6 +1451,8 @@ Results are shown as Max / Mean.
 - [Msps | Analog Devices](https://www.analog.com/en/resources/glossary/msps.html)
 
 ## 変更点
+- 2026/07/08
+  - 「設計」に SciPy 実装を追加。 `deconvolve` を使わない計算方法に変更。
 - 2026/07/06
   - `Butterworth, order = 16, M = 32, fc/fs = 0.0078125` のテストを追加。
   - 「テスト結果の詳細」を追加。
