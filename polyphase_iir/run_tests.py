@@ -22,6 +22,7 @@ from design import (
     design_polyphase_elliptic,
     generate_polyphase_cpp_struct,
     generate_polyphase_sos_cpp_struct,
+    generate_polyphase_sos2_cpp_struct,
     format_cpp_array_2d,
 )
 
@@ -156,6 +157,11 @@ def generate_cpp_header(ref_data, header_path="coefficients.hpp"):
         code += "\n\n" + generate_polyphase_sos_cpp_struct(
             apply(ref_data["polyphase_sos"], lambda x: mp.mpf(x)),
             "PolyphaseSos",
+        )
+
+        code += "\n\n" + generate_polyphase_sos2_cpp_struct(
+            apply(ref_data["polyphase_sos"], lambda x: mp.mpf(x)),
+            "PolyphaseSos2",
         )
 
         code += "\n\n" + generate_serial_sos_cpp_struct(
@@ -351,7 +357,7 @@ def main():
     parser.add_argument(
         "--samples",
         type=int,
-        default=1000,
+        default=48000,
         help="Number of signal samples to generate",
     )
     parser.add_argument(

@@ -728,3 +728,165 @@ public:
 };
 
 } // namespace SosKahanSum
+
+namespace SosSimple2 {
+
+template<typename T> inline constexpr T constexpr_abs(T val) { return val < 0 ? -val : val; }
+
+template<std::floating_point T, typename Coefficients> class PolyphaseIirSos {
+public:
+  static constexpr std::size_t nPhase = Coefficients::nPhase;
+  static constexpr std::size_t nSections = Coefficients::nSections;
+
+private:
+  // Structure of Arrays (SoA) layout for states
+  struct SectionState {
+    alignas(64) std::array<T, nPhase> s1{};
+    alignas(64) std::array<T, nPhase> s2{};
+  };
+
+  alignas(64) std::array<SectionState, nSections> states{};
+
+  // Process all phases for a specific section index at compile-time
+  template<std::size_t SecIdx, std::size_t... PhaseIdxs>
+  inline void process_section_phases(std::array<T, nPhase>& x, std::index_sequence<PhaseIdxs...>) {
+    constexpr auto& a = Coefficients::a[SecIdx]; // [a1, a2] shared by all phases
+    constexpr T a1 = a[0];
+    constexpr T a2 = a[1];
+    auto& st = states[SecIdx];
+
+    auto process_one = [&](auto phase_idx_constant) {
+      constexpr std::size_t p = phase_idx_constant.value;
+      constexpr auto& b = Coefficients::b[p][SecIdx]; // [b0, b1, b2]
+
+      T x_val = x[p];
+      T y = std::fma(b[0], x_val, st.s1[p]);
+
+      // Preserves original FMA ordering heuristic at compile-time per phase
+      if constexpr (constexpr_abs(b[1]) > constexpr_abs(a1)) {
+        st.s1[p] = std::fma(-a1, y, std::fma(b[1], x_val, st.s2[p]));
+      } else {
+        st.s1[p] = std::fma(b[1], x_val, std::fma(-a1, y, st.s2[p]));
+      }
+
+      if constexpr (constexpr_abs(b[2]) > constexpr_abs(a2)) {
+        st.s2[p] = std::fma(b[2], x_val, -a2 * y);
+      } else {
+        st.s2[p] = std::fma(-a2, y, b[2] * x_val);
+      }
+
+      x[p] = y;
+    };
+
+    ((process_one(std::integral_constant<std::size_t, PhaseIdxs>{})), ...);
+  }
+
+  template<std::size_t SecIdx> inline void process_all_sections(std::array<T, nPhase>& x) {
+    if constexpr (SecIdx < nSections) {
+      process_section_phases<SecIdx>(x, std::make_index_sequence<nPhase>{});
+      process_all_sections<SecIdx + 1>(x);
+    }
+  }
+
+public:
+  void reset() {
+    for (auto& sec_state : states) {
+      sec_state.s1.fill(T(0));
+      sec_state.s2.fill(T(0));
+    }
+  }
+
+  inline T process(const std::array<T, nPhase>& inputs) {
+    std::array<T, nPhase> x = inputs;
+    process_all_sections<0>(x);
+
+    T sum = T(0);
+    for (std::size_t p = 0; p < nPhase; ++p) { sum += x[p]; }
+    return sum;
+  }
+};
+
+} // namespace SosSimple2
+
+namespace SosKahanSum2 {
+
+template<typename T> inline constexpr T constexpr_abs(T val) { return val < 0 ? -val : val; }
+
+template<std::floating_point T, typename Coefficients> class PolyphaseIirSos {
+public:
+  static constexpr std::size_t nPhase = Coefficients::nPhase;
+  static constexpr std::size_t nSections = Coefficients::nSections;
+
+private:
+  struct SectionState {
+    alignas(64) std::array<T, nPhase> s1{};
+    alignas(64) std::array<T, nPhase> s2{};
+  };
+
+  alignas(64) std::array<SectionState, nSections> states{};
+
+  template<std::size_t SecIdx, std::size_t... PhaseIdxs>
+  inline void process_section_phases(std::array<T, nPhase>& x, std::index_sequence<PhaseIdxs...>) {
+    constexpr auto& a = Coefficients::a[SecIdx]; // [a1, a2] shared by all phases
+    constexpr T a1 = a[0];
+    constexpr T a2 = a[1];
+    auto& st = states[SecIdx];
+
+    auto process_one = [&](auto phase_idx_constant) {
+      constexpr std::size_t p = phase_idx_constant.value;
+      constexpr auto& b = Coefficients::b[p][SecIdx]; // [b0, b1, b2]
+
+      T x_val = x[p];
+      T y = std::fma(b[0], x_val, st.s1[p]);
+
+      if constexpr (constexpr_abs(b[1]) > constexpr_abs(a1)) {
+        st.s1[p] = std::fma(-a1, y, std::fma(b[1], x_val, st.s2[p]));
+      } else {
+        st.s1[p] = std::fma(b[1], x_val, std::fma(-a1, y, st.s2[p]));
+      }
+
+      if constexpr (constexpr_abs(b[2]) > constexpr_abs(a2)) {
+        st.s2[p] = std::fma(b[2], x_val, -a2 * y);
+      } else {
+        st.s2[p] = std::fma(-a2, y, b[2] * x_val);
+      }
+
+      x[p] = y;
+    };
+
+    ((process_one(std::integral_constant<std::size_t, PhaseIdxs>{})), ...);
+  }
+
+  template<std::size_t SecIdx> inline void process_all_sections(std::array<T, nPhase>& x) {
+    if constexpr (SecIdx < nSections) {
+      process_section_phases<SecIdx>(x, std::make_index_sequence<nPhase>{});
+      process_all_sections<SecIdx + 1>(x);
+    }
+  }
+
+public:
+  void reset() {
+    for (auto& sec_state : states) {
+      sec_state.s1.fill(T(0));
+      sec_state.s2.fill(T(0));
+    }
+  }
+
+  inline T process(const std::array<T, nPhase>& inputs) {
+    std::array<T, nPhase> x = inputs;
+    process_all_sections<0>(x);
+
+    // Accumulate the final phase outputs using Kahan summation
+    T sum = T(0);
+    T c = T(0);
+    for (std::size_t p = 0; p < nPhase; ++p) {
+      T y = x[p] - c;
+      T t = sum + y;
+      c = (t - sum) - y;
+      sum = t;
+    }
+    return sum;
+  }
+};
+
+} // namespace SosKahanSum2

@@ -50,7 +50,7 @@ def design_polyphase_iir(
     M : int
         Down-sampling factor.
     output : str, optional
-        Format of the output filter: "ba", "sos", or "hybrid".
+        Format of the output filter: "ba", "sos", "sos2", or "hybrid".
     as_float : bool, optional
         Cast the coefficients to Python float.
     workdps : int, optional
@@ -67,6 +67,12 @@ def design_polyphase_iir(
             - `a_low_poly` (list): Denominator coefficients shared by all branches (expressed in powers of z^-M).
         * If "sos":
           Returns `sos_polyphase` (list of lists of lists): A list of length `M` containing the Second-Order Section (SOS) representations for each polyphase branch.
+        * If "sos2":
+          Returns a tuple `(b_all, a_all)` optimized for shared denominators:
+            - `b_all` (list of lists of lists): For each of the `M` branches, a list
+              of numerator coefficients `[b0, b1, b2]` for each SOS section.
+            - `a_all` (list of lists): A single list of denominator coefficients
+              `[a1, a2]` for each SOS section (normalized $a0=1$), shared by all branches.
         * If "hybrid":
           Returns a tuple `(q_polyphase, sos_sections)` where:
             - `q_polyphase` (list of lists): Numerator coefficients for each of the `M` polyphase branches.
@@ -74,8 +80,8 @@ def design_polyphase_iir(
 
         Coefficients are returned as standard Python floats if `as_float` is True; otherwise, they are `mpmath` types.
     """
-    if output not in ("ba", "sos", "hybrid"):
-        raise ValueError("output must be one of 'ba', 'sos', or 'hybrid'")
+    if output not in ("ba", "sos", "sos2", "hybrid"):
+        raise ValueError("output must be one of 'ba', 'sos', 'sos2', or 'hybrid'")
 
     with mp.workdps(workdps):
 
@@ -133,6 +139,34 @@ def design_polyphase_iir(
             if as_float:
                 sos_polyphase = apply(sos_polyphase, float)
             return sos_polyphase
+
+        elif output == "sos2":
+            sos_polyphase = []
+            for k in range(M):
+                q_k = q_poly[k::M]
+                sos_section = tf2sos_mp(q_k, a_low_poly)
+                sos_polyphase.append(sos_section)
+
+            b_all = []
+            a_all = []
+            nSections = len(sos_polyphase[0]) if len(sos_polyphase) > 0 else 0
+
+            for phase in sos_polyphase:
+                b_phase = []
+                for sec in phase:
+                    b0, b1, b2, a0, a1, a2 = sec
+                    b_phase.append([b0 / a0, b1 / a0, b2 / a0])
+                b_all.append(b_phase)
+
+            if nSections > 0:
+                for s_idx in range(nSections):
+                    b0, b1, b2, a0, a1, a2 = sos_polyphase[0][s_idx]
+                    a_all.append([a1 / a0, a2 / a0])
+
+            if as_float:
+                b_all = apply(b_all, float)
+                a_all = apply(a_all, float)
+            return b_all, a_all
 
         elif output == "hybrid":
             sos_sections = []
@@ -203,12 +237,13 @@ def design_polyphase_butterworth(
         The structured output depending on the `output` parameter (refer to `design_polyphase_iir` for details):
         * If "ba": A tuple `(q_polyphase, a_low_poly)`.
         * If "sos": A list `sos_polyphase` containing SOS representations for each branch.
+        * If "sos2": A tuple `(b_all, a_all)` separating numerator and shared denominator sections.
         * If "hybrid": A tuple `(q_polyphase, sos_sections)`.
 
         Coefficients are returned as standard Python floats if `as_float` is True; otherwise, they are high-precision `mpmath` types.
     """
-    if output not in ("ba", "sos", "hybrid"):
-        raise ValueError("output must be one of 'ba', 'sos', or 'hybrid'")
+    if output not in ("ba", "sos", "sos2", "hybrid"):
+        raise ValueError("output must be one of 'ba', 'sos', 'sos2', or 'hybrid'")
 
     if workdps is None:
         f_min = min(cutoff, 1.0 - cutoff)
@@ -269,12 +304,13 @@ def design_polyphase_elliptic(
         The structured output depending on the `output` parameter (refer to `design_polyphase_iir` for details):
         * If "ba": A tuple `(q_polyphase, a_low_poly)`.
         * If "sos": A list `sos_polyphase` containing SOS representations for each branch.
+        * If "sos2": A tuple `(b_all, a_all)` separating numerator and shared denominator sections.
         * If "hybrid": A tuple `(q_polyphase, sos_sections)`.
 
         Coefficients are returned as standard Python floats if `as_float` is True; otherwise, they are high-precision `mpmath` types.
     """
-    if output not in ("ba", "sos", "hybrid"):
-        raise ValueError("output must be one of 'ba', 'sos', or 'hybrid'")
+    if output not in ("ba", "sos", "sos2", "hybrid"):
+        raise ValueError("output must be one of 'ba', 'sos', 'sos2', or 'hybrid'")
 
     if workdps is None:
         f_min = min(cutoff, 1.0 - cutoff)
@@ -453,7 +489,7 @@ def format_cpp_array_2d(matrix, type_cast="T", indent="    "):
 
 
 def generate_polyphase_cpp_struct(
-    branches, denom_sections, struct_name="ButterworthCoefficients"
+    branches, denom_sections, struct_name="HybridCoefficients"
 ):
     """Generates the C++ template struct code for PolyphaseIir coefficients."""
     padded_branches, max_len = pad_branches_to_equal_length(branches, 0.0)
@@ -497,9 +533,7 @@ def generate_sos_cpp_struct(sos_matrix, struct_name="SosTest"):
     return code
 
 
-def generate_polyphase_sos_cpp_struct(
-    sos_polyphase, struct_name="ButterworthSosCoefficients"
-):
+def generate_polyphase_sos_cpp_struct(sos_polyphase, struct_name="SosCoefficients"):
     M, NSOS = len(sos_polyphase), len(sos_polyphase[0])
     lines = []
     indent = "    "
@@ -519,6 +553,44 @@ def generate_polyphase_sos_cpp_struct(
     code += "  static constexpr int nSections = " + str(NSOS) + ";\n\n"
     code += "  static constexpr std::array<std::array<std::array<T, 5>, nSections>, nPhase> co{{\n"
     code += "\n".join(lines) + "\n"
+    code += "  }};\n"
+    code += "};"
+    return code
+
+
+def generate_polyphase_sos2_cpp_struct(sos_polyphase, struct_name="SosCoefficients2"):
+    M, NSOS = len(sos_polyphase), len(sos_polyphase[0])
+
+    b_lines = []
+    indent = "    "
+    for p_idx, phase in enumerate(sos_polyphase):
+        b_lines.append(indent + "{{ // Phase " + str(p_idx))
+        for s_idx, sec in enumerate(phase):
+            b0, b1, b2, a0, a1, a2 = sec
+            b0_n, b1_n, b2_n = b0 / a0, b1 / a0, b2 / a0
+            formatted_sec = ", ".join(
+                "T(" + f"{float(x):.17e}" + ")" for x in [b0_n, b1_n, b2_n]
+            )
+            b_lines.append(indent + indent + "{{" + formatted_sec + "}},")
+        b_lines.append(indent + "}},")
+
+    a_lines = []
+    for s_idx in range(NSOS):
+        b0, b1, b2, a0, a1, a2 = sos_polyphase[0][s_idx]
+        a1_n, a2_n = a1 / a0, a2 / a0
+        formatted_sec = ", ".join("T(" + f"{float(x):.17e}" + ")" for x in [a1_n, a2_n])
+        a_lines.append(indent + "{{" + formatted_sec + "}},")
+
+    code = "template<typename T> struct " + struct_name + " {\n"
+    code += "  static constexpr int nPhase = " + str(M) + ";\n"
+    code += "  static constexpr int nSections = " + str(NSOS) + ";\n\n"
+    code += "  // Numerators: b0, b1, b2 per phase and section\n"
+    code += "  static constexpr std::array<std::array<std::array<T, 3>, nSections>, nPhase> b{{\n"
+    code += "\n".join(b_lines) + "\n"
+    code += "  }};\n\n"
+    code += "  // Denominators: a1, a2 per section, shared across all phases\n"
+    code += "  static constexpr std::array<std::array<T, 2>, nSections> a{{\n"
+    code += "\n".join(a_lines) + "\n"
     code += "  }};\n"
     code += "};"
     return code
@@ -555,6 +627,7 @@ def print_coefficient_counts_table(max_order=16):
 
     hybrid_results = {}
     sos_results = {}
+    sos2_results = {}
 
     for order in range(1, max_order + 1):
         for M in sympy.divisors(order):
@@ -578,6 +651,15 @@ def print_coefficient_counts_table(max_order=16):
                 pass
             else:
                 sos_results[(order, M)] = (count_elements(sos_full) // 6) * 5
+
+            try:
+                sos2b, sos2a = design_polyphase_butterworth(
+                    order, fc, M, output="sos2", workdps=16
+                )
+            except ValueError:
+                pass
+            else:
+                sos2_results[(order, M)] = count_elements(sos2b) + count_elements(sos2a)
 
     def render_markdown_table(title, results):
         lines = []
@@ -608,6 +690,12 @@ def print_coefficient_counts_table(max_order=16):
     print(
         render_markdown_table(
             "SOS Coefficient Counts (Full SOS per branch)", sos_results
+        )
+    )
+    print("\n")
+    print(
+        render_markdown_table(
+            "SOS2 Coefficient Counts (Shared denominators)", sos2_results
         )
     )
 

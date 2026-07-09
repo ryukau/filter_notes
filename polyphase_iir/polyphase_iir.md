@@ -1,5 +1,5 @@
 # Polyphase IIR フィルタ
-ダウンサンプリングにつかう IIR (infinite impulse response) フィルタをポリフェイズ (polyphase) 化して direct form による実装と比べます。
+ダウンサンプリングにつかう IIR (infinite impulse response) フィルタをポリフェイズ (polyphase) 化して direct form による実装と比べます。この手法は [scattered look-ahead](https://www.researchgate.net/profile/Kai-Yuan-Jheng/publication/4337591_A_universal_look-ahead_algorithm_for_pipelining_IIR_filters/links/0fcfd5059e6edccded000000/A-universal-look-ahead-algorithm-for-pipelining-IIR-filters.pdf) (SLA) と呼ばれる IIR フィルタの並列計算アルゴリズムの応用です。
 
 ## 理論
 IIR フィルタの伝達関数から始めます。
@@ -14,7 +14,7 @@ $$
 A(z) = \prod_{i=1}^{N} (1 - p_i z^{-1}).
 $$
 
-$z^M$ にあわせて極をスケーリングした伝達関数 $A_M$ を定義します。 $M$ はダウンサンプリングの倍率です。
+$z^M$ にあわせて極をスケーリングした関数 $A_M$ を定義します。 $M$ はダウンサンプリングの倍率です。
 
 $$
 A_M(z^M) = \prod_{i=1}^{N} (1 - p_i^M z^{-M}).
@@ -25,7 +25,7 @@ $$
 $$
 H(z)
 = \frac{B(z)}{A(z)} \cdot \frac{A_M(z^{-M})}{A_M(z^{-M})}
-= \frac{Q(z)}{A_M(z^{-M})}, \quad \text{where} \enspace Q(z) = B(z) \dfrac{A_M(z^{-M})}{A(z)}.
+= \frac{Q(z)}{A_M(z^{-M})}, \enspace \text{where} \enspace Q(z) = B(z) \dfrac{A_M(z^{-M})}{A(z)}.
 $$
 
 ここで $Q$ について以下の変形ができます。
@@ -59,6 +59,96 @@ $$
 
 分母を含めてポリフェイズ分解できています。
 
+### 補足
+
+<details>
+<summary>$A_M$ の由来</summary>
+
+$A$ のみの伝達関数を変形。 $\hat{B}$ は部分分数分解によって現れる何らかの値。
+
+$$
+\frac{1}{A(z)} = \frac{1}{\prod_{i=1}^{N} (1 - p_i z^{-1})} = \sum_{k=1}^{N} \frac{\hat{B}_k}{1 - p_k z^{-1}}.
+$$
+
+逆 Z 変換。 $u$ はステップ関数。
+
+$$
+h[n] = \left( \sum_{k=1}^{N} \hat{B}_k p_k^n \right) u[n].
+$$
+
+$M$ サンプル間隔に変形。式の形はデシメーションと同じ。
+
+$$
+h[nM] = \left( \sum_{k=1}^{N} \hat{B}_k p_k^{nM} \right) u[nM].
+$$
+
+サンプルを間引かないように Z 変換すると $A_M$ が現れる。今回の応用では $\dfrac{A_M}{A_M}$ として使うので、分子は $?$ として省略。
+
+$$
+\sum_{k=1}^{N} \frac{\hat{B}_k}{1 - p_k^{M} z^{-M}} = \frac{?}{\prod_{i=1}^{N} (1 - p_i^M z^{-M})} = \frac{?}{A_M(z^M)}.
+$$
+
+</details>
+
+<details>
+<summary>ポリフェイズ分解した形の $H$ は実数の係数しか持たない</summary>
+
+$a_i \in \Reals$ なので [complex conjugate root theorem](https://en.wikipedia.org/wiki/Complex_conjugate_root_theorem) により以下が成立。 $\bar{p}$ は $p$ の複素共役。 $\Phi$ は複素数かつ虚部の符号が $+$ となる極の集合 : $\{p_i \in \Complex \backslash \Reals \mid \mathrm{Im}(p_i) > 0 \}$。
+
+$$
+\def\rpole {p_i \in \Reals}
+\def\cpole {p_i \in \Phi}
+$$
+
+$$
+\begin{aligned}
+A(z)
+&= \prod_{i=1}^{N} (1 - p_i z^{-1}) \\
+&=
+\underbrace{\left( \prod_{\rpole} (1 - p_i z^{-1}) \right)}_{\text{Real roots}}
+\
+\underbrace{\left( \prod_{\cpole} (1 - p_i z^{-1}) (1 - \bar{p}_i z^{-1}) \right)}_{\text{Complex roots}} \\
+&=
+\left( \prod_{\rpole} (1 - p_i z^{-1}) \right)
+\left( \prod_{\cpole} (1 - (p_i + \bar{p}_i) z^{-1} + p_i \bar{p}_i z^{-2}) \right) \\
+&=
+\left( \prod_{\rpole} (1 - p_i z^{-1}) \right)
+\left( \prod_{\cpole} (1 - 2 \mathrm{Re}(p_i) z^{-1} + |p_i|^2 z^{-2}) \right).
+\end{aligned}
+$$
+
+$p_i z^{-1} \to (p_i z^{-1})^M$ としても同様なので $A_M$ の係数もすべて実数。
+
+$\dfrac{A_M(z^M)}{A(z)}$ はどうか。
+
+$$
+\begin{aligned}
+\frac{A_M(z^M)}{A(z)}
+&= \prod_{i=1}^{N} \left( \sum_{k=0}^{M-1} p_i^k z^{-k} \right) \\
+&=
+\underbrace{
+  \left( \prod_{\rpole} \left( \sum_{k=0}^{M-1} p_i^k z^{-k} \right) \right)
+}_{\text{Real roots}}
+\
+\underbrace{
+  \left( \prod_{\cpole}
+    \left( \sum_{k=0}^{M-1} p_i^k z^{-k} \right)
+    \left( \sum_{k=0}^{M-1} \bar{p}_i^k z^{-k} \right)
+  \right)
+}_{\text{Complex roots}}.
+\end{aligned}
+$$
+
+Complex roots 側の $z^{-r}$ の係数を $c_r$ とすると以下が成立。 $0 \le k, l < M$ 。
+
+$$
+c_r = \sum_{k+l=r} p_c^k \bar{p}_c^l = \sum_{k+l=r} \bar{p}_c^k p_c^l = \bar{c}_r.
+$$
+
+$c_r = \bar{c}_r$ ということは実数。よって $\dfrac{A_M(z^M)}{A(z)}$ の係数はすべて実数。計算上は虚部が完全に 0 にならないことがある。
+
+</details>
+
 ## 設計
 以下は SciPy, NumPy を使ったフィルタ設計の実装例です。「[実装](#実装)」の節に mpmath を使った任意制度計算の実装例を掲載しています。
 
@@ -76,7 +166,7 @@ def design_polyphase_butterworth_numpy(order, cutoff, M):
     for pi in p:
         S_i = pi ** np.arange(M)
         s = np.convolve(s, S_i)
-    s = np.real(s)  # Imaginary parts cancel out since poles occur in conjugate pairs
+    s = np.real(s)
 
     b = np.real(np.poly(z)) * k
     q = np.convolve(b, s)
@@ -92,12 +182,15 @@ def design_polyphase_butterworth_numpy(order, cutoff, M):
 プロトタイプとなる [zpk 形式の伝達関数](https://www.mathworks.com/help/control/ref/zpk.html)から $A_M$ と $Q_k$ を求めれば計算できる形になります。 zpk は MATLAB や SciPy で使われている伝達関数のゼロ、極、ゲイン (zero, pole, gain) の組です。 SciPy では [`scipy.signal.butter`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html) や [`scipy.signal.ellip`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.ellip.html) の引数に `output="zpk"` を指定すれば zpk の組が得られます。
 
 ## 計算方法
-高速で正確な計算方法を検討します。計算方法のバリエーションには以下の軸があります。
+高速で正確な計算方法を検討します。以下は計算方法のバリエーションです。
 
-- 軸 1 : フィルタ係数の表現をすべて [SOS](https://docs.scipy.org/doc/scipy/tutorial/signal.html#second-order-sections-representation) にするか、分子と分母を分けて計算するか。
-- 軸 2 : 単純加算するか、 [Kahan summation](https://en.wikipedia.org/wiki/Kahan_summation_algorithm) を使うか。
+- フィルタ係数の表現
+  - [SOS](https://docs.scipy.org/doc/scipy/tutorial/signal.html#second-order-sections-representation)
+  - SOS2
+  - ハイブリッド
+- 単純加算するか、 [Kahan summation](https://en.wikipedia.org/wiki/Kahan_summation_algorithm) を使うか。
 
-以降では、軸 1 の分子と分母を分けて計算する方法のことをハイブリッド (hybrid) と呼ぶことにします。ハイブリッド形式では分子を FIR 、分母を SOS として計算します。分子を別に計算するため、分母の SOS は 1 セクションあたりの係数を $a_1, a_2$ の 2 つに減らせます。
+SOS は各フェイズを 2 次セクションに分割します。今回のフィルタでは SOS の分母がすべてのフェイズで共通なので、データ構造の上で分母の係数をひとまとめにしたものを SOS2 形式としています。ハイブリッド形式では分子を FIR 、分母を SOS として計算します。
 
 軸 2 の Kahan summation はポリフェイズ出力と、ハイブリッドの FIR の計算に適用できます。単純加算に比べると遅くなりますが、その遅さが許容範囲内か、また意味のある正確さの向上が得られるかについて調べます。
 
@@ -352,9 +445,9 @@ def design_polyphase_butterworth_numpy(order, cutoff, M):
 #### 所見
 Butterworth フィルタについては、どの polyphase IIR の実装であっても速度、正確さ共に transposed direct form II (TDF-II) を超える性能と言えそうです。
 
-Hybrid Simple が速いです。 Hybrid Simple は伝達関数の分子を FIR として計算しており、また FIR 内で Kahan summation を使っていない実装です。
+`cl` を使うとき、あるいは次数が高いときは Hybrid Simple が速いです。 Hybrid Simple は伝達関数の分子を FIR として計算しており、また FIR 内で Kahan summation を使っていない実装です。
 
-SOS Simple が二番目に早いです。 `clang++` では f64, order = 4, M = 2 のフィルタで Hybrid Simple を上回る性能になっています。
+`clang++` では 12 次、 `g++` では 8 次までは SOS2 Simple が早いです。
 
 Kahan summation については予想通り遅くなっています。正確さについては大きく向上するとは言い難く、一部のケースを除いて SOS Simple のほうが正確に見えます。
 
@@ -413,6 +506,30 @@ Order \ M | 1 |  2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |  12 |
 
 </details>
 
+<details>
+<summary>SOS2 形式の係数の数の表</summary>
+
+Order \ M | 1 |  2 |  3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |  12 |  13 |  14 |  15 | 16
+---------:|--:|---:|---:|----:|----:|----:|----:|----:|----:|----:|----:|----:|----:|----:|----:|--:
+1         |   |    |    |     |     |     |     |     |     |     |     |     |     |     |     |   
+2         |   |  8 |    |     |     |     |     |     |     |     |     |     |     |     |     |   
+3         |   |    | 22 |     |     |     |     |     |     |     |     |     |     |     |     |   
+4         |   | 16 |    |  28 |     |     |     |     |     |     |     |     |     |     |     |   
+5         |   |    |    |     |  51 |     |     |     |     |     |     |     |     |     |     |   
+6         |   | 24 | 33 |     |     |  60 |     |     |     |     |     |     |     |     |     |   
+7         |   |    |    |     |     |     |  92 |     |     |     |     |     |     |     |     |   
+8         |   | 32 |    |  56 |     |     |     | 104 |     |     |     |     |     |     |     |   
+9         |   |    | 55 |     |     |     |     |     | 145 |     |     |     |     |     |     |   
+10        |   | 40 |    |     |  85 |     |     |     |     | 160 |     |     |     |     |     |   
+11        |   |    |    |     |     |     |     |     |     |     | 210 |     |     |     |     |   
+12        |   | 48 | 66 |  84 |     | 120 |     |     |     |     |     | 228 |     |     |     |   
+13        |   |    |    |     |     |     |     |     |     |     |     |     | 287 |     |     |   
+14        |   |    |    |     |     |     | 161 |     |     |     |     |     |     | 308 |     |   
+15        |   |    | 88 |     | 136 |     |     |     |     |     |     |     |     |     | 376 |   
+16        |   |    |    | 112 |     |     |     | 208 |     |     |     |     |     |     |     |   
+
+</details>
+
 ## 実装
 以下は Python による設計コードと C++20 による Hybrid Simple のフィルタ実装です。
 
@@ -424,6 +541,7 @@ Order \ M | 1 |  2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |  12 |
 
 ```python
 from mpmath import mp
+
 
 def design_polyphase_iir(
     z_mp,
@@ -449,7 +567,7 @@ def design_polyphase_iir(
     M : int
         Down-sampling factor.
     output : str, optional
-        Format of the output filter: "ba", "sos", or "hybrid".
+        Format of the output filter: "ba", "sos", "sos2", or "hybrid".
     as_float : bool, optional
         Cast the coefficients to Python float.
     workdps : int, optional
@@ -466,6 +584,12 @@ def design_polyphase_iir(
             - `a_low_poly` (list): Denominator coefficients shared by all branches (expressed in powers of z^-M).
         * If "sos":
           Returns `sos_polyphase` (list of lists of lists): A list of length `M` containing the Second-Order Section (SOS) representations for each polyphase branch.
+        * If "sos2":
+          Returns a tuple `(b_all, a_all)` optimized for shared denominators:
+            - `b_all` (list of lists of lists): For each of the `M` branches, a list
+              of numerator coefficients `[b0, b1, b2]` for each SOS section.
+            - `a_all` (list of lists): A single list of denominator coefficients
+              `[a1, a2]` for each SOS section (normalized $a0=1$), shared by all branches.
         * If "hybrid":
           Returns a tuple `(q_polyphase, sos_sections)` where:
             - `q_polyphase` (list of lists): Numerator coefficients for each of the `M` polyphase branches.
@@ -473,8 +597,8 @@ def design_polyphase_iir(
 
         Coefficients are returned as standard Python floats if `as_float` is True; otherwise, they are `mpmath` types.
     """
-    if output not in ("ba", "sos", "hybrid"):
-        raise ValueError("output must be one of 'ba', 'sos', or 'hybrid'")
+    if output not in ("ba", "sos", "sos2", "hybrid"):
+        raise ValueError("output must be one of 'ba', 'sos', 'sos2', or 'hybrid'")
 
     with mp.workdps(workdps):
 
@@ -532,6 +656,34 @@ def design_polyphase_iir(
             if as_float:
                 sos_polyphase = apply(sos_polyphase, float)
             return sos_polyphase
+
+        elif output == "sos2":
+            sos_polyphase = []
+            for k in range(M):
+                q_k = q_poly[k::M]
+                sos_section = tf2sos_mp(q_k, a_low_poly)
+                sos_polyphase.append(sos_section)
+
+            b_all = []
+            a_all = []
+            nSections = len(sos_polyphase[0]) if len(sos_polyphase) > 0 else 0
+
+            for phase in sos_polyphase:
+                b_phase = []
+                for sec in phase:
+                    b0, b1, b2, a0, a1, a2 = sec
+                    b_phase.append([b0 / a0, b1 / a0, b2 / a0])
+                b_all.append(b_phase)
+
+            if nSections > 0:
+                for s_idx in range(nSections):
+                    b0, b1, b2, a0, a1, a2 = sos_polyphase[0][s_idx]
+                    a_all.append([a1 / a0, a2 / a0])
+
+            if as_float:
+                b_all = apply(b_all, float)
+                a_all = apply(a_all, float)
+            return b_all, a_all
 
         elif output == "hybrid":
             sos_sections = []
@@ -749,16 +901,20 @@ Running: ./test_runner.exe data/reference_4_2.json data/results_4_2_cl.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |      7.62 |        7.94 |            126.01 |  960000 |
-| Hybrid Simple F64 |      2.98 |        3.11 |            321.68 |  960000 |
-| Hybrid Kahan F64  |      4.84 |        5.04 |            198.34 |  960000 |
-| Sos Simple F64    |      3.89 |        4.05 |            246.91 |  960000 |
-| Sos Kahan F64     |      4.02 |        4.18 |            239.08 |  960000 |
-| Tdf2 F32          |      7.61 |        7.93 |            126.13 |  960000 |
-| Hybrid Simple F32 |      2.98 |        3.10 |            322.27 |  960000 |
-| Hybrid Kahan F32  |      4.79 |        4.99 |            200.59 |  960000 |
-| Sos Simple F32    |      3.86 |        4.02 |            248.79 |  960000 |
-| Sos Kahan F32     |      4.08 |        4.25 |            235.20 |  960000 |
+| Tdf2 F64          |      7.65 |        7.96 |            125.56 |  960000 |
+| Hybrid Simple F64 |      3.02 |        3.15 |            317.66 |  960000 |
+| Hybrid Kahan F64  |      4.90 |        5.10 |            195.98 |  960000 |
+| Sos Simple F64    |      4.10 |        4.27 |            233.98 |  960000 |
+| Sos Kahan F64     |      5.87 |        6.11 |            163.67 |  960000 |
+| Sos2 Simple F64   |      4.02 |        4.19 |            238.66 |  960000 |
+| Sos2 Kahan F64    |      3.97 |        4.14 |            241.67 |  960000 |
+| Tdf2 F32          |      7.58 |        7.90 |            126.63 |  960000 |
+| Hybrid Simple F32 |      3.01 |        3.13 |            319.39 |  960000 |
+| Hybrid Kahan F32  |      4.97 |        5.17 |            193.33 |  960000 |
+| Sos Simple F32    |      4.08 |        4.25 |            235.35 |  960000 |
+| Sos Kahan F32     |      5.39 |        5.62 |            178.03 |  960000 |
+| Sos2 Simple F32   |      3.97 |        4.14 |            241.66 |  960000 |
+| Sos2 Kahan F32    |      3.96 |        4.12 |            242.73 |  960000 |
 
 ## Filter=butterworth, Order=4, Cutoff=0.125, M=2
 Results are shown as Max / Mean.
@@ -775,6 +931,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
 | Sos Kahan F64 Noise     | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
 | Sos Kahan F64 Ir        | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
+| Sos2 Simple F64 Noise   | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
+| Sos2 Simple F64 Ir      | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
+| Sos2 Kahan F64 Noise    | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
+| Sos2 Kahan F64 Ir       | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
 | Tdf2 F32 Noise          | 5.1665e-07 / 5.4255e-08 | 1.5986e-03 / 1.6617e-06   | 1.5986e-03 / 1.6617e-06 | 2.14e+04 / 2.01e+01 |
 | Tdf2 F32 Ir             | 7.0847e-08 / 9.8666e-12 | 1.7018e+280 / 3.9754e+277 | 1.1847e-04 / 2.9145e-06 | 3.24e+04 / 6.23e+01 |
 | Hybrid Simple F32 Noise | 1.4772e-07 / 1.7340e-08 | 8.5024e-04 / 5.6744e-07   | 8.5024e-04 / 5.6744e-07 | 1.03e+04 / 6.98e+00 |
@@ -785,6 +945,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
 | Sos Kahan F32 Noise     | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
 | Sos Kahan F32 Ir        | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
+| Sos2 Simple F32 Noise   | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
+| Sos2 Simple F32 Ir      | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
+| Sos2 Kahan F32 Noise    | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
+| Sos2 Kahan F32 Ir       | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
 
 Loading existing reference file from data/reference_8_4.json
 Code-generated coefficients header written to coefficients.hpp
@@ -795,16 +959,20 @@ Running: ./test_runner.exe data/reference_8_4.json data/results_8_4_cl.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |     15.52 |       16.16 |             61.87 |  960000 |
-| Hybrid Simple F64 |      5.41 |        5.63 |            177.48 |  960000 |
-| Hybrid Kahan F64  |     15.79 |       16.45 |             60.79 |  960000 |
-| Sos Simple F64    |     10.79 |       11.23 |             89.01 |  960000 |
-| Sos Kahan F64     |     12.44 |       12.96 |             77.15 |  960000 |
-| Tdf2 F32          |     15.52 |       16.17 |             61.86 |  960000 |
-| Hybrid Simple F32 |      5.87 |        6.12 |            163.46 |  960000 |
-| Hybrid Kahan F32  |     15.84 |       16.50 |             60.62 |  960000 |
-| Sos Simple F32    |     10.73 |       11.18 |             89.45 |  960000 |
-| Sos Kahan F32     |     12.04 |       12.54 |             79.72 |  960000 |
+| Tdf2 F64          |     15.85 |       16.51 |             60.56 |  960000 |
+| Hybrid Simple F64 |      5.47 |        5.70 |            175.49 |  960000 |
+| Hybrid Kahan F64  |     16.19 |       16.87 |             59.29 |  960000 |
+| Sos Simple F64    |     11.07 |       11.53 |             86.74 |  960000 |
+| Sos Kahan F64     |     12.44 |       12.95 |             77.20 |  960000 |
+| Sos2 Simple F64   |     12.04 |       12.54 |             79.74 |  960000 |
+| Sos2 Kahan F64    |     12.74 |       13.27 |             75.38 |  960000 |
+| Tdf2 F32          |     15.70 |       16.35 |             61.16 |  960000 |
+| Hybrid Simple F32 |      6.06 |        6.31 |            158.40 |  960000 |
+| Hybrid Kahan F32  |     16.25 |       16.93 |             59.07 |  960000 |
+| Sos Simple F32    |     11.01 |       11.46 |             87.23 |  960000 |
+| Sos Kahan F32     |     12.44 |       12.96 |             77.16 |  960000 |
+| Sos2 Simple F32   |     11.96 |       12.46 |             80.24 |  960000 |
+| Sos2 Kahan F32    |     12.55 |       13.07 |             76.50 |  960000 |
 
 ## Filter=butterworth, Order=8, Cutoff=0.03125, M=4
 Results are shown as Max / Mean.
@@ -821,6 +989,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
 | Sos Kahan F64 Noise     | 6.6613e-16 / 1.0235e-16 | 5.3068e-11 / 9.1886e-15   | 5.3068e-11 / 9.1888e-15 | 2.85e+05 / 5.81e+01 |
 | Sos Kahan F64 Ir        | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
+| Sos2 Simple F64 Noise   | 6.6613e-16 / 1.0237e-16 | 5.9176e-11 / 9.3084e-15   | 5.9176e-11 / 9.3086e-15 | 3.17e+05 / 5.87e+01 |
+| Sos2 Simple F64 Ir      | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
+| Sos2 Kahan F64 Noise    | 6.6613e-16 / 1.0235e-16 | 5.3068e-11 / 9.1886e-15   | 5.3068e-11 / 9.1888e-15 | 2.85e+05 / 5.81e+01 |
+| Sos2 Kahan F64 Ir       | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
 | Tdf2 F32 Noise          | 5.1536e-06 / 7.3137e-07 | 1.8354e-01 / 5.8974e-05   | 1.8354e-01 / 5.8975e-05 | 2.22e+06 / 6.95e+02 |
 | Tdf2 F32 Ir             | 2.9897e-07 / 3.2180e-10 | 2.1295e+287 / 4.8353e+284 | 5.9291e-02 / 2.8324e-04 | 7.53e+08 / 7.01e+08 |
 | Hybrid Simple F32 Noise | 3.6682e-07 / 5.5855e-08 | 2.5796e-02 / 5.1922e-06   | 2.5796e-02 / 5.1923e-06 | 2.58e+05 / 6.15e+01 |
@@ -831,6 +1003,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
 | Sos Kahan F32 Noise     | 4.1194e-07 / 5.8238e-08 | 6.2561e-02 / 6.5598e-06   | 6.2561e-02 / 6.5600e-06 | 6.25e+05 / 7.78e+01 |
 | Sos Kahan F32 Ir        | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
+| Sos2 Simple F32 Noise   | 4.1194e-07 / 5.8273e-08 | 6.2561e-02 / 6.5822e-06   | 6.2561e-02 / 6.5824e-06 | 6.25e+05 / 7.80e+01 |
+| Sos2 Simple F32 Ir      | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
+| Sos2 Kahan F32 Noise    | 4.1194e-07 / 5.8238e-08 | 6.2561e-02 / 6.5598e-06   | 6.2561e-02 / 6.5600e-06 | 6.25e+05 / 7.78e+01 |
+| Sos2 Kahan F32 Ir       | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
 
 Loading existing reference file from data/reference_12_4.json
 Code-generated coefficients header written to coefficients.hpp
@@ -841,16 +1017,20 @@ Running: ./test_runner.exe data/reference_12_4.json data/results_12_4_cl.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |     19.40 |       20.20 |             49.49 |  960000 |
-| Hybrid Simple F64 |      6.72 |        7.00 |            142.95 |  960000 |
-| Hybrid Kahan F64  |     22.15 |       23.07 |             43.35 |  960000 |
-| Sos Simple F64    |     20.52 |       21.38 |             46.78 |  960000 |
-| Sos Kahan F64     |     20.91 |       21.78 |             45.92 |  960000 |
-| Tdf2 F32          |     19.28 |       20.09 |             49.78 |  960000 |
-| Hybrid Simple F32 |      6.66 |        6.94 |            144.19 |  960000 |
-| Hybrid Kahan F32  |     22.04 |       22.96 |             43.56 |  960000 |
-| Sos Simple F32    |     20.33 |       21.18 |             47.23 |  960000 |
-| Sos Kahan F32     |     20.86 |       21.73 |             46.01 |  960000 |
+| Tdf2 F64          |     19.86 |       20.69 |             48.33 |  960000 |
+| Hybrid Simple F64 |      6.91 |        7.20 |            138.94 |  960000 |
+| Hybrid Kahan F64  |     23.38 |       24.35 |             41.06 |  960000 |
+| Sos Simple F64    |     21.14 |       22.02 |             45.41 |  960000 |
+| Sos Kahan F64     |     21.60 |       22.50 |             44.43 |  960000 |
+| Sos2 Simple F64   |     17.93 |       18.68 |             53.54 |  960000 |
+| Sos2 Kahan F64    |     18.81 |       19.59 |             51.04 |  960000 |
+| Tdf2 F32          |     19.91 |       20.74 |             48.22 |  960000 |
+| Hybrid Simple F32 |      6.92 |        7.21 |            138.76 |  960000 |
+| Hybrid Kahan F32  |     22.61 |       23.55 |             42.46 |  960000 |
+| Sos Simple F32    |     20.97 |       21.84 |             45.78 |  960000 |
+| Sos Kahan F32     |     21.48 |       22.38 |             44.69 |  960000 |
+| Sos2 Simple F32   |     17.79 |       18.53 |             53.96 |  960000 |
+| Sos2 Kahan F32    |     18.68 |       19.46 |             51.39 |  960000 |
 
 ## Filter=butterworth, Order=12, Cutoff=0.02, M=4
 Results are shown as Max / Mean.
@@ -867,6 +1047,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
 | Sos Kahan F64 Noise     | 1.7764e-15 / 3.6172e-16 | 2.0608e-10 / 3.6150e-14   | 2.0608e-10 / 3.6155e-14 | 1.25e+06 / 2.27e+02 |
 | Sos Kahan F64 Ir        | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
+| Sos2 Simple F64 Noise   | 1.7764e-15 / 3.6169e-16 | 2.0337e-10 / 3.6090e-14   | 2.0337e-10 / 3.6096e-14 | 1.23e+06 / 2.26e+02 |
+| Sos2 Simple F64 Ir      | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
+| Sos2 Kahan F64 Noise    | 1.7764e-15 / 3.6172e-16 | 2.0608e-10 / 3.6150e-14   | 2.0608e-10 / 3.6155e-14 | 1.25e+06 / 2.27e+02 |
+| Sos2 Kahan F64 Ir       | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
 | Tdf2 F32 Noise          | 1.4400e-05 / 2.7513e-06 | 1.6942e+00 / 2.7431e-04   | 1.6942e+00 / 2.7435e-04 | 1.91e+07 / 3.21e+03 |
 | Tdf2 F32 Ir             | 8.3569e-07 / 9.9827e-10 | 9.9321e+207 / 3.9802e+203 | 3.7025e-03 / 5.1473e-05 | 5.11e+15 / 4.33e+15 |
 | Hybrid Simple F32 Noise | 7.3536e-07 / 1.5246e-07 | 1.3288e-01 / 1.9056e-05   | 1.3288e-01 / 1.9059e-05 | 1.48e+06 / 2.21e+02 |
@@ -877,6 +1061,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
 | Sos Kahan F32 Noise     | 7.4956e-07 / 1.5556e-07 | 1.4809e-01 / 1.8415e-05   | 1.4809e-01 / 1.8418e-05 | 1.45e+06 / 2.12e+02 |
 | Sos Kahan F32 Ir        | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
+| Sos2 Simple F32 Noise   | 7.6446e-07 / 1.5557e-07 | 1.5147e-01 / 1.8520e-05   | 1.5147e-01 / 1.8522e-05 | 1.47e+06 / 2.13e+02 |
+| Sos2 Simple F32 Ir      | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
+| Sos2 Kahan F32 Noise    | 7.4956e-07 / 1.5556e-07 | 1.4809e-01 / 1.8415e-05   | 1.4809e-01 / 1.8418e-05 | 1.45e+06 / 2.12e+02 |
+| Sos2 Kahan F32 Ir       | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
 
 Loading existing reference file from data/reference_16_8.json
 Code-generated coefficients header written to coefficients.hpp
@@ -887,16 +1075,20 @@ Running: ./test_runner.exe data/reference_16_8.json data/results_16_8_cl.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |     44.33 |       46.18 |             21.65 |  960000 |
-| Hybrid Simple F64 |     16.53 |       17.22 |             58.06 |  960000 |
-| Hybrid Kahan F64  |     54.14 |       56.39 |             17.73 |  960000 |
-| Sos Simple F64    |     51.86 |       54.02 |             18.51 |  960000 |
-| Sos Kahan F64     |     53.76 |       56.00 |             17.86 |  960000 |
-| Tdf2 F32          |     44.36 |       46.21 |             21.64 |  960000 |
-| Hybrid Simple F32 |     16.04 |       16.71 |             59.85 |  960000 |
-| Hybrid Kahan F32  |     53.97 |       56.22 |             17.79 |  960000 |
-| Sos Simple F32    |     51.42 |       53.56 |             18.67 |  960000 |
-| Sos Kahan F32     |     53.46 |       55.69 |             17.96 |  960000 |
+| Tdf2 F64          |     45.72 |       47.63 |             21.00 |  960000 |
+| Hybrid Simple F64 |     16.74 |       17.43 |             57.36 |  960000 |
+| Hybrid Kahan F64  |     55.46 |       57.77 |             17.31 |  960000 |
+| Sos Simple F64    |     53.35 |       55.57 |             17.99 |  960000 |
+| Sos Kahan F64     |     55.67 |       57.99 |             17.24 |  960000 |
+| Sos2 Simple F64   |     43.67 |       45.49 |             21.98 |  960000 |
+| Sos2 Kahan F64    |     50.95 |       53.08 |             18.84 |  960000 |
+| Tdf2 F32          |     45.60 |       47.50 |             21.05 |  960000 |
+| Hybrid Simple F32 |     16.60 |       17.29 |             57.83 |  960000 |
+| Hybrid Kahan F32  |     55.24 |       57.54 |             17.38 |  960000 |
+| Sos Simple F32    |     53.22 |       55.44 |             18.04 |  960000 |
+| Sos Kahan F32     |     55.27 |       57.57 |             17.37 |  960000 |
+| Sos2 Simple F32   |     43.70 |       45.52 |             21.97 |  960000 |
+| Sos2 Kahan F32    |     50.74 |       52.86 |             18.92 |  960000 |
 
 ## Filter=butterworth, Order=16, Cutoff=0.015625, M=8
 Results are shown as Max / Mean.
@@ -913,6 +1105,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
 | Sos Kahan F64 Noise     | 6.6613e-16 / 1.2492e-16 | 1.9339e-11 / 1.2186e-14   | 1.9339e-11 / 1.2187e-14 | 1.28e+05 / 7.98e+01 |
 | Sos Kahan F64 Ir        | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
+| Sos2 Simple F64 Noise   | 6.6613e-16 / 1.2498e-16 | 1.9339e-11 / 1.2139e-14   | 1.9339e-11 / 1.2140e-14 | 1.28e+05 / 7.94e+01 |
+| Sos2 Simple F64 Ir      | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
+| Sos2 Kahan F64 Noise    | 6.6613e-16 / 1.2492e-16 | 1.9339e-11 / 1.2186e-14   | 1.9339e-11 / 1.2187e-14 | 1.28e+05 / 7.98e+01 |
+| Sos2 Kahan F64 Ir       | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
 | Tdf2 F32 Noise          | 1.8867e-05 / 3.4714e-06 | 5.3377e-01 / 2.8083e-04   | 5.3377e-01 / 2.8087e-04 | 5.91e+06 / 3.43e+03 |
 | Tdf2 F32 Ir             | 7.8856e-07 / 2.9234e-09 | 2.3669e+120 / 1.0827e+116 | 1.8765e-01 / 1.1667e-03 | 1.10e+24 / 8.17e+23 |
 | Hybrid Simple F32 Noise | 5.7314e-07 / 3.8357e-08 | 6.7349e-03 / 3.5871e-06   | 6.7349e-03 / 3.5876e-06 | 8.00e+04 / 4.37e+01 |
@@ -923,6 +1119,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
 | Sos Kahan F32 Noise     | 2.6635e-07 / 5.0221e-08 | 6.5164e-03 / 4.7892e-06   | 6.5164e-03 / 4.7899e-06 | 6.65e+04 / 5.86e+01 |
 | Sos Kahan F32 Ir        | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
+| Sos2 Simple F32 Noise   | 2.6263e-07 / 5.0319e-08 | 6.6350e-03 / 4.7720e-06   | 6.6350e-03 / 4.7727e-06 | 6.65e+04 / 5.84e+01 |
+| Sos2 Simple F32 Ir      | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
+| Sos2 Kahan F32 Noise    | 2.6635e-07 / 5.0221e-08 | 6.5164e-03 / 4.7892e-06   | 6.5164e-03 / 4.7899e-06 | 6.65e+04 / 5.86e+01 |
+| Sos2 Kahan F32 Ir       | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
 
 Loading existing reference file from data/reference_16_32.json
 Code-generated coefficients header written to coefficients.hpp
@@ -933,16 +1133,20 @@ Running: ./test_runner.exe data/reference_16_32.json data/results_16_32_cl.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |    177.36 |      184.75 |              5.41 |  960000 |
-| Hybrid Simple F64 |     64.10 |       66.77 |             14.98 |  960000 |
-| Hybrid Kahan F64  |    206.29 |      214.89 |              4.65 |  960000 |
-| Sos Simple F64    |    207.75 |      216.40 |              4.62 |  960000 |
-| Sos Kahan F64     |    215.72 |      224.71 |              4.45 |  960000 |
-| Tdf2 F32          |    176.51 |      183.86 |              5.44 |  960000 |
-| Hybrid Simple F32 |     60.95 |       63.49 |             15.75 |  960000 |
-| Hybrid Kahan F32  |    214.71 |      223.65 |              4.47 |  960000 |
-| Sos Simple F32    |    205.52 |      214.09 |              4.67 |  960000 |
-| Sos Kahan F32     |    212.54 |      221.40 |              4.52 |  960000 |
+| Tdf2 F64          |    185.14 |      192.85 |              5.19 |  960000 |
+| Hybrid Simple F64 |     67.84 |       70.66 |             14.15 |  960000 |
+| Hybrid Kahan F64  |    216.86 |      225.89 |              4.43 |  960000 |
+| Sos Simple F64    |    216.13 |      225.14 |              4.44 |  960000 |
+| Sos Kahan F64     |    223.41 |      232.72 |              4.30 |  960000 |
+| Sos2 Simple F64   |    178.89 |      186.34 |              5.37 |  960000 |
+| Sos2 Kahan F64    |    220.35 |      229.54 |              4.36 |  960000 |
+| Tdf2 F32          |    184.90 |      192.60 |              5.19 |  960000 |
+| Hybrid Simple F32 |     63.73 |       66.39 |             15.06 |  960000 |
+| Hybrid Kahan F32  |    216.61 |      225.63 |              4.43 |  960000 |
+| Sos Simple F32    |    214.38 |      223.31 |              4.48 |  960000 |
+| Sos Kahan F32     |    223.17 |      232.47 |              4.30 |  960000 |
+| Sos2 Simple F32   |    165.50 |      172.40 |              5.80 |  960000 |
+| Sos2 Kahan F32    |    216.23 |      225.24 |              4.44 |  960000 |
 
 ## Filter=butterworth, Order=16, Cutoff=0.0078125, M=32
 Results are shown as Max / Mean.
@@ -959,6 +1163,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
 | Sos Kahan F64 Noise     | 1.9429e-16 / 3.1039e-17 | 5.1262e-10 / 1.6396e-14 | 3.0657e-11 / 5.7171e-15 | 4.14e+06 / 1.24e+02 |
 | Sos Kahan F64 Ir        | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
+| Sos2 Simple F64 Noise   | 2.2204e-16 / 3.1908e-17 | 2.5298e-10 / 1.1297e-14 | 3.8464e-11 / 6.0268e-15 | 2.04e+06 / 8.15e+01 |
+| Sos2 Simple F64 Ir      | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
+| Sos2 Kahan F64 Noise    | 1.9429e-16 / 3.1039e-17 | 5.1262e-10 / 1.6396e-14 | 3.0657e-11 / 5.7171e-15 | 4.14e+06 / 1.24e+02 |
+| Sos2 Kahan F64 Ir       | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
 | Tdf2 F32 Noise          | 5.5132e-05 / 1.0150e-05 | 6.5225e+01 / 3.2258e-03 | 1.5678e+01 / 1.8671e-03 | 9.81e+08 / 4.33e+04 |
 | Tdf2 F32 Ir             | 1.8805e-06 / 1.0204e-08 | 3.6484e+56 / 2.4955e+52 | 4.1459e-01 / 2.2100e-03 | 1.95e+28 / 9.50e+27 |
 | Hybrid Simple F32 Noise | 1.1897e-07 / 1.5931e-08 | 4.3539e-02 / 4.3015e-06 | 4.3539e-02 / 4.0815e-06 | 5.48e+05 / 5.26e+01 |
@@ -969,6 +1177,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
 | Sos Kahan F32 Noise     | 1.1233e-07 / 1.8619e-08 | 2.6820e-01 / 1.0027e-05 | 4.7246e-02 / 4.4396e-06 | 4.04e+06 / 1.34e+02 |
 | Sos Kahan F32 Ir        | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
+| Sos2 Simple F32 Noise   | 1.0855e-07 / 1.9015e-08 | 4.0759e-01 / 1.2837e-05 | 4.9000e-02 / 4.3462e-06 | 6.13e+06 / 1.77e+02 |
+| Sos2 Simple F32 Ir      | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
+| Sos2 Kahan F32 Noise    | 1.1233e-07 / 1.8619e-08 | 2.6820e-01 / 1.0027e-05 | 4.7246e-02 / 4.4396e-06 | 4.04e+06 / 1.34e+02 |
+| Sos2 Kahan F32 Ir       | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
 ```
 
 </details>
@@ -986,16 +1198,20 @@ Running: ./test_runner data/reference_4_2.json data/results_4_2_clang++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |      4.45 |        4.64 |            215.59 |  960000 |
-| Hybrid Simple F64 |      2.64 |        2.75 |            363.31 |  960000 |
-| Hybrid Kahan F64  |      3.15 |        3.28 |            304.44 |  960000 |
-| Sos Simple F64    |      2.39 |        2.49 |            401.40 |  960000 |
-| Sos Kahan F64     |      2.44 |        2.55 |            392.77 |  960000 |
-| Tdf2 F32          |      4.90 |        5.10 |            196.11 |  960000 |
-| Hybrid Simple F32 |      2.02 |        2.10 |            475.81 |  960000 |
-| Hybrid Kahan F32  |      3.33 |        3.47 |            288.31 |  960000 |
-| Sos Simple F32    |      2.45 |        2.55 |            392.62 |  960000 |
-| Sos Kahan F32     |      2.45 |        2.55 |            392.19 |  960000 |
+| Tdf2 F64          |      4.55 |        4.74 |            210.85 |  960000 |
+| Hybrid Simple F64 |      2.61 |        2.72 |            367.32 |  960000 |
+| Hybrid Kahan F64  |      3.30 |        3.44 |            291.09 |  960000 |
+| Sos Simple F64    |      2.40 |        2.50 |            399.25 |  960000 |
+| Sos Kahan F64     |      2.43 |        2.53 |            394.92 |  960000 |
+| Sos2 Simple F64   |      2.72 |        2.83 |            352.75 |  960000 |
+| Sos2 Kahan F64    |      2.75 |        2.86 |            349.40 |  960000 |
+| Tdf2 F32          |      4.99 |        5.20 |            192.37 |  960000 |
+| Hybrid Simple F32 |      2.03 |        2.11 |            473.49 |  960000 |
+| Hybrid Kahan F32  |      3.32 |        3.46 |            288.92 |  960000 |
+| Sos Simple F32    |      2.43 |        2.53 |            395.76 |  960000 |
+| Sos Kahan F32     |      2.50 |        2.60 |            384.26 |  960000 |
+| Sos2 Simple F32   |      2.74 |        2.85 |            350.60 |  960000 |
+| Sos2 Kahan F32    |      2.76 |        2.88 |            347.61 |  960000 |
 
 ## Filter=butterworth, Order=4, Cutoff=0.125, M=2
 Results are shown as Max / Mean.
@@ -1012,6 +1228,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
 | Sos Kahan F64 Noise     | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
 | Sos Kahan F64 Ir        | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
+| Sos2 Simple F64 Noise   | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
+| Sos2 Simple F64 Ir      | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
+| Sos2 Kahan F64 Noise    | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
+| Sos2 Kahan F64 Ir       | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
 | Tdf2 F32 Noise          | 5.1665e-07 / 5.4255e-08 | 1.5986e-03 / 1.6617e-06   | 1.5986e-03 / 1.6617e-06 | 2.14e+04 / 2.01e+01 |
 | Tdf2 F32 Ir             | 7.0847e-08 / 9.8666e-12 | 1.7018e+280 / 3.9754e+277 | 1.1847e-04 / 2.9145e-06 | 3.24e+04 / 6.23e+01 |
 | Hybrid Simple F32 Noise | 1.4772e-07 / 1.7340e-08 | 8.5024e-04 / 5.6744e-07   | 8.5024e-04 / 5.6744e-07 | 1.03e+04 / 6.98e+00 |
@@ -1022,6 +1242,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
 | Sos Kahan F32 Noise     | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
 | Sos Kahan F32 Ir        | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
+| Sos2 Simple F32 Noise   | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
+| Sos2 Simple F32 Ir      | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
+| Sos2 Kahan F32 Noise    | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
+| Sos2 Kahan F32 Ir       | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
 
 Loading existing reference file from data/reference_8_4.json
 Code-generated coefficients header written to coefficients.hpp
@@ -1032,16 +1256,20 @@ Running: ./test_runner data/reference_8_4.json data/results_8_4_clang++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |      8.92 |        9.29 |            107.60 |  960000 |
-| Hybrid Simple F64 |      6.04 |        6.29 |            158.93 |  960000 |
-| Hybrid Kahan F64  |      7.72 |        8.04 |            124.33 |  960000 |
-| Sos Simple F64    |      8.10 |        8.43 |            118.57 |  960000 |
-| Sos Kahan F64     |      8.61 |        8.97 |            111.54 |  960000 |
-| Tdf2 F32          |      9.66 |       10.06 |             99.37 |  960000 |
-| Hybrid Simple F32 |      4.76 |        4.96 |            201.74 |  960000 |
-| Hybrid Kahan F32  |      7.75 |        8.07 |            123.92 |  960000 |
-| Sos Simple F32    |      8.04 |        8.38 |            119.40 |  960000 |
-| Sos Kahan F32     |      8.55 |        8.91 |            112.23 |  960000 |
+| Tdf2 F64          |      8.96 |        9.33 |            107.19 |  960000 |
+| Hybrid Simple F64 |      6.05 |        6.30 |            158.79 |  960000 |
+| Hybrid Kahan F64  |      8.01 |        8.34 |            119.85 |  960000 |
+| Sos Simple F64    |      8.36 |        8.71 |            114.87 |  960000 |
+| Sos Kahan F64     |      8.95 |        9.33 |            107.24 |  960000 |
+| Sos2 Simple F64   |      2.51 |        2.62 |            381.92 |  960000 |
+| Sos2 Kahan F64    |      2.65 |        2.76 |            362.69 |  960000 |
+| Tdf2 F32          |      8.86 |        9.23 |            108.31 |  960000 |
+| Hybrid Simple F32 |      4.90 |        5.10 |            195.91 |  960000 |
+| Hybrid Kahan F32  |      7.93 |        8.26 |            121.13 |  960000 |
+| Sos Simple F32    |      8.30 |        8.65 |            115.59 |  960000 |
+| Sos Kahan F32     |      8.85 |        9.22 |            108.52 |  960000 |
+| Sos2 Simple F32   |      2.66 |        2.77 |            361.38 |  960000 |
+| Sos2 Kahan F32    |      2.64 |        2.75 |            362.98 |  960000 |
 
 ## Filter=butterworth, Order=8, Cutoff=0.03125, M=4
 Results are shown as Max / Mean.
@@ -1058,6 +1286,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
 | Sos Kahan F64 Noise     | 6.6613e-16 / 1.0235e-16 | 5.3068e-11 / 9.1886e-15   | 5.3068e-11 / 9.1888e-15 | 2.85e+05 / 5.81e+01 |
 | Sos Kahan F64 Ir        | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
+| Sos2 Simple F64 Noise   | 6.6613e-16 / 1.0237e-16 | 5.9176e-11 / 9.3084e-15   | 5.9176e-11 / 9.3086e-15 | 3.17e+05 / 5.87e+01 |
+| Sos2 Simple F64 Ir      | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
+| Sos2 Kahan F64 Noise    | 6.6613e-16 / 1.0235e-16 | 5.3068e-11 / 9.1886e-15   | 5.3068e-11 / 9.1888e-15 | 2.85e+05 / 5.81e+01 |
+| Sos2 Kahan F64 Ir       | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
 | Tdf2 F32 Noise          | 5.1536e-06 / 7.3137e-07 | 1.8354e-01 / 5.8974e-05   | 1.8354e-01 / 5.8975e-05 | 2.22e+06 / 6.95e+02 |
 | Tdf2 F32 Ir             | 2.9897e-07 / 3.2180e-10 | 2.1295e+287 / 4.8353e+284 | 5.9291e-02 / 2.8324e-04 | 7.53e+08 / 7.01e+08 |
 | Hybrid Simple F32 Noise | 3.6682e-07 / 5.5855e-08 | 2.5796e-02 / 5.1922e-06   | 2.5796e-02 / 5.1923e-06 | 2.58e+05 / 6.15e+01 |
@@ -1068,6 +1300,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
 | Sos Kahan F32 Noise     | 4.1194e-07 / 5.8238e-08 | 6.2561e-02 / 6.5598e-06   | 6.2561e-02 / 6.5600e-06 | 6.25e+05 / 7.78e+01 |
 | Sos Kahan F32 Ir        | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
+| Sos2 Simple F32 Noise   | 4.1194e-07 / 5.8273e-08 | 6.2561e-02 / 6.5822e-06   | 6.2561e-02 / 6.5824e-06 | 6.25e+05 / 7.80e+01 |
+| Sos2 Simple F32 Ir      | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
+| Sos2 Kahan F32 Noise    | 4.1194e-07 / 5.8238e-08 | 6.2561e-02 / 6.5598e-06   | 6.2561e-02 / 6.5600e-06 | 6.25e+05 / 7.78e+01 |
+| Sos2 Kahan F32 Ir       | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
 
 Loading existing reference file from data/reference_12_4.json
 Code-generated coefficients header written to coefficients.hpp
@@ -1078,16 +1314,20 @@ Running: ./test_runner data/reference_12_4.json data/results_12_4_clang++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |     12.15 |       12.65 |             79.03 |  960000 |
-| Hybrid Simple F64 |     10.68 |       11.12 |             89.92 |  960000 |
-| Hybrid Kahan F64  |     16.38 |       17.07 |             58.59 |  960000 |
-| Sos Simple F64    |     14.40 |       15.00 |             66.65 |  960000 |
-| Sos Kahan F64     |     14.77 |       15.39 |             64.98 |  960000 |
-| Tdf2 F32          |     12.11 |       12.61 |             79.28 |  960000 |
-| Hybrid Simple F32 |      6.82 |        7.10 |            140.81 |  960000 |
-| Hybrid Kahan F32  |     11.39 |       11.86 |             84.28 |  960000 |
-| Sos Simple F32    |     14.38 |       14.98 |             66.74 |  960000 |
-| Sos Kahan F32     |     14.72 |       15.34 |             65.20 |  960000 |
+| Tdf2 F64          |     12.43 |       12.95 |             77.23 |  960000 |
+| Hybrid Simple F64 |     10.42 |       10.85 |             92.14 |  960000 |
+| Hybrid Kahan F64  |     13.87 |       14.45 |             69.19 |  960000 |
+| Sos Simple F64    |     14.86 |       15.48 |             64.59 |  960000 |
+| Sos Kahan F64     |     15.23 |       15.86 |             63.04 |  960000 |
+| Sos2 Simple F64   |      3.08 |        3.21 |            311.63 |  960000 |
+| Sos2 Kahan F64    |      3.48 |        3.62 |            275.86 |  960000 |
+| Tdf2 F32          |     12.46 |       12.98 |             77.02 |  960000 |
+| Hybrid Simple F32 |      7.03 |        7.33 |            136.51 |  960000 |
+| Hybrid Kahan F32  |     11.76 |       12.25 |             81.63 |  960000 |
+| Sos Simple F32    |     14.85 |       15.47 |             64.63 |  960000 |
+| Sos Kahan F32     |     15.21 |       15.84 |             63.12 |  960000 |
+| Sos2 Simple F32   |      3.06 |        3.19 |            313.47 |  960000 |
+| Sos2 Kahan F32    |      3.63 |        3.78 |            264.70 |  960000 |
 
 ## Filter=butterworth, Order=12, Cutoff=0.02, M=4
 Results are shown as Max / Mean.
@@ -1104,6 +1344,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
 | Sos Kahan F64 Noise     | 1.7764e-15 / 3.6172e-16 | 2.0608e-10 / 3.6150e-14   | 2.0608e-10 / 3.6155e-14 | 1.25e+06 / 2.27e+02 |
 | Sos Kahan F64 Ir        | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
+| Sos2 Simple F64 Noise   | 1.7764e-15 / 3.6169e-16 | 2.0337e-10 / 3.6090e-14   | 2.0337e-10 / 3.6096e-14 | 1.23e+06 / 2.26e+02 |
+| Sos2 Simple F64 Ir      | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
+| Sos2 Kahan F64 Noise    | 1.7764e-15 / 3.6172e-16 | 2.0608e-10 / 3.6150e-14   | 2.0608e-10 / 3.6155e-14 | 1.25e+06 / 2.27e+02 |
+| Sos2 Kahan F64 Ir       | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
 | Tdf2 F32 Noise          | 1.4400e-05 / 2.7513e-06 | 1.6942e+00 / 2.7431e-04   | 1.6942e+00 / 2.7435e-04 | 1.91e+07 / 3.21e+03 |
 | Tdf2 F32 Ir             | 8.3569e-07 / 9.9827e-10 | 9.9321e+207 / 3.9802e+203 | 3.7025e-03 / 5.1473e-05 | 5.11e+15 / 4.33e+15 |
 | Hybrid Simple F32 Noise | 7.3536e-07 / 1.5246e-07 | 1.3288e-01 / 1.9056e-05   | 1.3288e-01 / 1.9059e-05 | 1.48e+06 / 2.21e+02 |
@@ -1114,6 +1358,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
 | Sos Kahan F32 Noise     | 7.4956e-07 / 1.5556e-07 | 1.4809e-01 / 1.8415e-05   | 1.4809e-01 / 1.8418e-05 | 1.45e+06 / 2.12e+02 |
 | Sos Kahan F32 Ir        | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
+| Sos2 Simple F32 Noise   | 7.6446e-07 / 1.5557e-07 | 1.5147e-01 / 1.8520e-05   | 1.5147e-01 / 1.8522e-05 | 1.47e+06 / 2.13e+02 |
+| Sos2 Simple F32 Ir      | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
+| Sos2 Kahan F32 Noise    | 7.4956e-07 / 1.5556e-07 | 1.4809e-01 / 1.8415e-05   | 1.4809e-01 / 1.8418e-05 | 1.45e+06 / 2.12e+02 |
+| Sos2 Kahan F32 Ir       | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
 
 Loading existing reference file from data/reference_16_8.json
 Code-generated coefficients header written to coefficients.hpp
@@ -1124,16 +1372,20 @@ Running: ./test_runner data/reference_16_8.json data/results_16_8_clang++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |     25.69 |       26.76 |             37.37 |  960000 |
-| Hybrid Simple F64 |     13.94 |       14.52 |             68.89 |  960000 |
-| Hybrid Kahan F64  |     43.59 |       45.41 |             22.02 |  960000 |
-| Sos Simple F64    |     28.34 |       29.52 |             33.88 |  960000 |
-| Sos Kahan F64     |     33.83 |       35.24 |             28.38 |  960000 |
-| Tdf2 F32          |     31.43 |       32.74 |             30.55 |  960000 |
-| Hybrid Simple F32 |     11.14 |       11.61 |             86.16 |  960000 |
-| Hybrid Kahan F32  |     33.22 |       34.60 |             28.90 |  960000 |
-| Sos Simple F32    |     31.64 |       32.96 |             30.34 |  960000 |
-| Sos Kahan F32     |     34.11 |       35.53 |             28.14 |  960000 |
+| Tdf2 F64          |     26.48 |       27.59 |             36.25 |  960000 |
+| Hybrid Simple F64 |     16.19 |       16.86 |             59.31 |  960000 |
+| Hybrid Kahan F64  |     45.17 |       47.05 |             21.25 |  960000 |
+| Sos Simple F64    |     29.47 |       30.70 |             32.57 |  960000 |
+| Sos Kahan F64     |     35.25 |       36.72 |             27.23 |  960000 |
+| Sos2 Simple F64   |     39.58 |       41.23 |             24.26 |  960000 |
+| Sos2 Kahan F64    |     45.76 |       47.66 |             20.98 |  960000 |
+| Tdf2 F32          |     32.15 |       33.49 |             29.86 |  960000 |
+| Hybrid Simple F32 |     11.67 |       12.16 |             82.26 |  960000 |
+| Hybrid Kahan F32  |     34.37 |       35.80 |             27.93 |  960000 |
+| Sos Simple F32    |     35.47 |       36.95 |             27.06 |  960000 |
+| Sos Kahan F32     |     37.04 |       38.59 |             25.91 |  960000 |
+| Sos2 Simple F32   |     39.30 |       40.93 |             24.43 |  960000 |
+| Sos2 Kahan F32    |     45.44 |       47.33 |             21.13 |  960000 |
 
 ## Filter=butterworth, Order=16, Cutoff=0.015625, M=8
 Results are shown as Max / Mean.
@@ -1150,6 +1402,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
 | Sos Kahan F64 Noise     | 6.6613e-16 / 1.2492e-16 | 1.9339e-11 / 1.2186e-14   | 1.9339e-11 / 1.2187e-14 | 1.28e+05 / 7.98e+01 |
 | Sos Kahan F64 Ir        | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
+| Sos2 Simple F64 Noise   | 6.6613e-16 / 1.2498e-16 | 1.9339e-11 / 1.2139e-14   | 1.9339e-11 / 1.2140e-14 | 1.28e+05 / 7.94e+01 |
+| Sos2 Simple F64 Ir      | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
+| Sos2 Kahan F64 Noise    | 6.6613e-16 / 1.2492e-16 | 1.9339e-11 / 1.2186e-14   | 1.9339e-11 / 1.2187e-14 | 1.28e+05 / 7.98e+01 |
+| Sos2 Kahan F64 Ir       | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
 | Tdf2 F32 Noise          | 1.8867e-05 / 3.4714e-06 | 5.3377e-01 / 2.8083e-04   | 5.3377e-01 / 2.8087e-04 | 5.91e+06 / 3.43e+03 |
 | Tdf2 F32 Ir             | 7.8856e-07 / 2.9234e-09 | 2.3669e+120 / 1.0827e+116 | 1.8765e-01 / 1.1667e-03 | 1.10e+24 / 8.17e+23 |
 | Hybrid Simple F32 Noise | 5.7314e-07 / 3.8357e-08 | 6.7349e-03 / 3.5871e-06   | 6.7349e-03 / 3.5876e-06 | 8.00e+04 / 4.37e+01 |
@@ -1160,6 +1416,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
 | Sos Kahan F32 Noise     | 2.6635e-07 / 5.0221e-08 | 6.5164e-03 / 4.7892e-06   | 6.5164e-03 / 4.7899e-06 | 6.65e+04 / 5.86e+01 |
 | Sos Kahan F32 Ir        | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
+| Sos2 Simple F32 Noise   | 2.6263e-07 / 5.0319e-08 | 6.6350e-03 / 4.7720e-06   | 6.6350e-03 / 4.7727e-06 | 6.65e+04 / 5.84e+01 |
+| Sos2 Simple F32 Ir      | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
+| Sos2 Kahan F32 Noise    | 2.6635e-07 / 5.0221e-08 | 6.5164e-03 / 4.7892e-06   | 6.5164e-03 / 4.7899e-06 | 6.65e+04 / 5.86e+01 |
+| Sos2 Kahan F32 Ir       | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
 
 Loading existing reference file from data/reference_16_32.json
 Code-generated coefficients header written to coefficients.hpp
@@ -1170,16 +1430,20 @@ Running: ./test_runner data/reference_16_32.json data/results_16_32_clang++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |    102.32 |      106.58 |              9.38 |  960000 |
-| Hybrid Simple F64 |     47.89 |       49.89 |             20.05 |  960000 |
-| Hybrid Kahan F64  |     90.11 |       93.86 |             10.65 |  960000 |
-| Sos Simple F64    |    114.99 |      119.78 |              8.35 |  960000 |
-| Sos Kahan F64     |    134.80 |      140.42 |              7.12 |  960000 |
-| Tdf2 F32          |    127.32 |      132.62 |              7.54 |  960000 |
-| Hybrid Simple F32 |     36.76 |       38.30 |             26.11 |  960000 |
-| Hybrid Kahan F32  |     71.91 |       74.90 |             13.35 |  960000 |
-| Sos Simple F32    |    124.87 |      130.07 |              7.69 |  960000 |
-| Sos Kahan F32     |    143.01 |      148.97 |              6.71 |  960000 |
+| Tdf2 F64          |    106.16 |      110.58 |              9.04 |  960000 |
+| Hybrid Simple F64 |     49.76 |       51.83 |             19.29 |  960000 |
+| Hybrid Kahan F64  |    101.38 |      105.61 |              9.47 |  960000 |
+| Sos Simple F64    |    120.71 |      125.74 |              7.95 |  960000 |
+| Sos Kahan F64     |    140.46 |      146.31 |              6.83 |  960000 |
+| Sos2 Simple F64   |    160.53 |      167.22 |              5.98 |  960000 |
+| Sos2 Kahan F64    |    211.52 |      220.34 |              4.54 |  960000 |
+| Tdf2 F32          |    127.58 |      132.89 |              7.52 |  960000 |
+| Hybrid Simple F32 |     38.38 |       39.98 |             25.01 |  960000 |
+| Hybrid Kahan F32  |     74.44 |       77.54 |             12.90 |  960000 |
+| Sos Simple F32    |    124.63 |      129.82 |              7.70 |  960000 |
+| Sos Kahan F32     |    144.64 |      150.66 |              6.64 |  960000 |
+| Sos2 Simple F32   |    158.99 |      165.61 |              6.04 |  960000 |
+| Sos2 Kahan F32    |    212.90 |      221.77 |              4.51 |  960000 |
 
 ## Filter=butterworth, Order=16, Cutoff=0.0078125, M=32
 Results are shown as Max / Mean.
@@ -1196,6 +1460,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
 | Sos Kahan F64 Noise     | 1.9429e-16 / 3.1039e-17 | 5.1262e-10 / 1.6396e-14 | 3.0657e-11 / 5.7171e-15 | 4.14e+06 / 1.24e+02 |
 | Sos Kahan F64 Ir        | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
+| Sos2 Simple F64 Noise   | 2.2204e-16 / 3.1908e-17 | 2.5298e-10 / 1.1297e-14 | 3.8464e-11 / 6.0268e-15 | 2.04e+06 / 8.15e+01 |
+| Sos2 Simple F64 Ir      | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
+| Sos2 Kahan F64 Noise    | 1.9429e-16 / 3.1039e-17 | 5.1262e-10 / 1.6396e-14 | 3.0657e-11 / 5.7171e-15 | 4.14e+06 / 1.24e+02 |
+| Sos2 Kahan F64 Ir       | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
 | Tdf2 F32 Noise          | 5.5132e-05 / 1.0150e-05 | 6.5225e+01 / 3.2258e-03 | 1.5678e+01 / 1.8671e-03 | 9.81e+08 / 4.33e+04 |
 | Tdf2 F32 Ir             | 1.8805e-06 / 1.0204e-08 | 3.6484e+56 / 2.4955e+52 | 4.1459e-01 / 2.2100e-03 | 1.95e+28 / 9.50e+27 |
 | Hybrid Simple F32 Noise | 1.1897e-07 / 1.5931e-08 | 4.3539e-02 / 4.3015e-06 | 4.3539e-02 / 4.0815e-06 | 5.48e+05 / 5.26e+01 |
@@ -1206,6 +1474,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
 | Sos Kahan F32 Noise     | 1.1233e-07 / 1.8619e-08 | 2.6820e-01 / 1.0027e-05 | 4.7246e-02 / 4.4396e-06 | 4.04e+06 / 1.34e+02 |
 | Sos Kahan F32 Ir        | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
+| Sos2 Simple F32 Noise   | 1.0855e-07 / 1.9015e-08 | 4.0759e-01 / 1.2837e-05 | 4.9000e-02 / 4.3462e-06 | 6.13e+06 / 1.77e+02 |
+| Sos2 Simple F32 Ir      | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
+| Sos2 Kahan F32 Noise    | 1.1233e-07 / 1.8619e-08 | 2.6820e-01 / 1.0027e-05 | 4.7246e-02 / 4.4396e-06 | 4.04e+06 / 1.34e+02 |
+| Sos2 Kahan F32 Ir       | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
 ```
 
 </details>
@@ -1223,16 +1495,20 @@ Running: ./test_runner data/reference_4_2.json data/results_4_2_g++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |      5.09 |        5.30 |            188.60 |  960000 |
-| Hybrid Simple F64 |      1.37 |        1.43 |            698.88 |  960000 |
-| Hybrid Kahan F64  |      2.84 |        2.95 |            338.47 |  960000 |
-| Sos Simple F64    |      2.46 |        2.56 |            390.30 |  960000 |
-| Sos Kahan F64     |      2.53 |        2.64 |            378.87 |  960000 |
-| Tdf2 F32          |      4.59 |        4.78 |            209.31 |  960000 |
-| Hybrid Simple F32 |      1.97 |        2.06 |            486.52 |  960000 |
-| Hybrid Kahan F32  |      3.30 |        3.44 |            290.55 |  960000 |
-| Sos Simple F32    |      2.50 |        2.60 |            383.95 |  960000 |
-| Sos Kahan F32     |      2.48 |        2.59 |            386.68 |  960000 |
+| Tdf2 F64          |      4.57 |        4.77 |            209.85 |  960000 |
+| Hybrid Simple F64 |      1.57 |        1.64 |            611.13 |  960000 |
+| Hybrid Kahan F64  |      3.22 |        3.35 |            298.17 |  960000 |
+| Sos Simple F64    |      2.43 |        2.53 |            394.74 |  960000 |
+| Sos Kahan F64     |      2.45 |        2.55 |            391.42 |  960000 |
+| Sos2 Simple F64   |      2.51 |        2.61 |            383.13 |  960000 |
+| Sos2 Kahan F64    |      2.42 |        2.52 |            396.85 |  960000 |
+| Tdf2 F32          |      4.94 |        5.15 |            194.26 |  960000 |
+| Hybrid Simple F32 |      1.50 |        1.56 |            640.88 |  960000 |
+| Hybrid Kahan F32  |      3.17 |        3.30 |            303.29 |  960000 |
+| Sos Simple F32    |      2.47 |        2.57 |            388.62 |  960000 |
+| Sos Kahan F32     |      2.63 |        2.74 |            365.21 |  960000 |
+| Sos2 Simple F32   |      3.64 |        3.79 |            264.04 |  960000 |
+| Sos2 Kahan F32    |      3.11 |        3.24 |            308.98 |  960000 |
 
 ## Filter=butterworth, Order=4, Cutoff=0.125, M=2
 Results are shown as Max / Mean.
@@ -1249,6 +1525,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
 | Sos Kahan F64 Noise     | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
 | Sos Kahan F64 Ir        | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
+| Sos2 Simple F64 Noise   | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
+| Sos2 Simple F64 Ir      | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
+| Sos2 Kahan F64 Noise    | 2.2204e-16 / 3.1004e-17 | 2.0056e-12 / 1.0310e-15   | 2.0056e-12 / 1.0310e-15 | 1.66e+04 / 6.81e+00 |
+| Sos2 Kahan F64 Ir       | 2.7756e-17 / 4.1063e-21 | 1.0000e+00 / 1.0944e-03   | 1.3014e-13 / 2.5965e-15 | 4.67e+05 / 9.41e+01 |
 | Tdf2 F32 Noise          | 5.1665e-07 / 5.4255e-08 | 1.5986e-03 / 1.6617e-06   | 1.5986e-03 / 1.6617e-06 | 2.14e+04 / 2.01e+01 |
 | Tdf2 F32 Ir             | 7.0847e-08 / 9.8666e-12 | 1.7018e+280 / 3.9754e+277 | 1.1847e-04 / 2.9145e-06 | 3.24e+04 / 6.23e+01 |
 | Hybrid Simple F32 Noise | 1.4772e-07 / 1.7340e-08 | 8.5024e-04 / 5.6744e-07   | 8.5024e-04 / 5.6744e-07 | 1.03e+04 / 6.98e+00 |
@@ -1259,6 +1539,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
 | Sos Kahan F32 Noise     | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
 | Sos Kahan F32 Ir        | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
+| Sos2 Simple F32 Noise   | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
+| Sos2 Simple F32 Ir      | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
+| Sos2 Kahan F32 Noise    | 1.5548e-07 / 2.0679e-08 | 6.1845e-04 / 6.4430e-07   | 6.1845e-04 / 6.4430e-07 | 9.55e+03 / 7.89e+00 |
+| Sos2 Kahan F32 Ir       | 2.4993e-08 / 3.0269e-12 | 2.8363e+278 / 5.7710e+275 | 1.8559e-05 / 5.6913e-07 | 4.93e+03 / 1.02e+00 |
 
 Loading existing reference file from data/reference_8_4.json
 Code-generated coefficients header written to coefficients.hpp
@@ -1269,16 +1553,20 @@ Running: ./test_runner data/reference_8_4.json data/results_8_4_g++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |     10.56 |       11.00 |             90.92 |  960000 |
-| Hybrid Simple F64 |      6.09 |        6.34 |            157.65 |  960000 |
-| Hybrid Kahan F64  |     11.93 |       12.43 |             80.47 |  960000 |
-| Sos Simple F64    |      8.64 |        9.00 |            111.10 |  960000 |
-| Sos Kahan F64     |     10.49 |       10.92 |             91.54 |  960000 |
-| Tdf2 F32          |     10.57 |       11.01 |             90.82 |  960000 |
-| Hybrid Simple F32 |      5.73 |        5.97 |            167.49 |  960000 |
-| Hybrid Kahan F32  |     11.74 |       12.23 |             81.75 |  960000 |
-| Sos Simple F32    |      8.56 |        8.92 |            112.12 |  960000 |
-| Sos Kahan F32     |     10.56 |       11.00 |             90.89 |  960000 |
+| Tdf2 F64          |     10.46 |       10.89 |             91.82 |  960000 |
+| Hybrid Simple F64 |      6.07 |        6.32 |            158.15 |  960000 |
+| Hybrid Kahan F64  |     12.34 |       12.86 |             77.77 |  960000 |
+| Sos Simple F64    |      8.89 |        9.26 |            107.98 |  960000 |
+| Sos Kahan F64     |     11.29 |       11.76 |             85.04 |  960000 |
+| Sos2 Simple F64   |     11.35 |       11.82 |             84.61 |  960000 |
+| Sos2 Kahan F64    |      4.39 |        4.57 |            218.82 |  960000 |
+| Tdf2 F32          |     10.41 |       10.84 |             92.22 |  960000 |
+| Hybrid Simple F32 |      5.68 |        5.92 |            168.87 |  960000 |
+| Hybrid Kahan F32  |     12.23 |       12.74 |             78.47 |  960000 |
+| Sos Simple F32    |      9.54 |        9.94 |            100.62 |  960000 |
+| Sos Kahan F32     |     11.20 |       11.67 |             85.72 |  960000 |
+| Sos2 Simple F32   |     11.23 |       11.70 |             85.46 |  960000 |
+| Sos2 Kahan F32    |      4.13 |        4.30 |            232.60 |  960000 |
 
 ## Filter=butterworth, Order=8, Cutoff=0.03125, M=4
 Results are shown as Max / Mean.
@@ -1295,6 +1583,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
 | Sos Kahan F64 Noise     | 6.6613e-16 / 1.0235e-16 | 5.3068e-11 / 9.1886e-15   | 5.3068e-11 / 9.1888e-15 | 2.85e+05 / 5.81e+01 |
 | Sos Kahan F64 Ir        | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
+| Sos2 Simple F64 Noise   | 6.6613e-16 / 1.0237e-16 | 5.9176e-11 / 9.3084e-15   | 5.9176e-11 / 9.3086e-15 | 3.17e+05 / 5.87e+01 |
+| Sos2 Simple F64 Ir      | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
+| Sos2 Kahan F64 Noise    | 6.6613e-16 / 1.0235e-16 | 5.3068e-11 / 9.1886e-15   | 5.3068e-11 / 9.1888e-15 | 2.85e+05 / 5.81e+01 |
+| Sos2 Kahan F64 Ir       | 5.5511e-17 / 2.7522e-20 | 8.9710e+03 / 5.2861e+00   | 1.3756e-12 / 6.7579e-15 | 5.65e+06 / 1.90e+03 |
 | Tdf2 F32 Noise          | 5.1536e-06 / 7.3137e-07 | 1.8354e-01 / 5.8974e-05   | 1.8354e-01 / 5.8975e-05 | 2.22e+06 / 6.95e+02 |
 | Tdf2 F32 Ir             | 2.9897e-07 / 3.2180e-10 | 2.1295e+287 / 4.8353e+284 | 5.9291e-02 / 2.8324e-04 | 7.53e+08 / 7.01e+08 |
 | Hybrid Simple F32 Noise | 3.6682e-07 / 5.5855e-08 | 2.5796e-02 / 5.1922e-06   | 2.5796e-02 / 5.1923e-06 | 2.58e+05 / 6.15e+01 |
@@ -1305,6 +1597,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
 | Sos Kahan F32 Noise     | 4.1194e-07 / 5.8238e-08 | 6.2561e-02 / 6.5598e-06   | 6.2561e-02 / 6.5600e-06 | 6.25e+05 / 7.78e+01 |
 | Sos Kahan F32 Ir        | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
+| Sos2 Simple F32 Noise   | 4.1194e-07 / 5.8273e-08 | 6.2561e-02 / 6.5822e-06   | 6.2561e-02 / 6.5824e-06 | 6.25e+05 / 7.80e+01 |
+| Sos2 Simple F32 Ir      | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
+| Sos2 Kahan F32 Noise    | 4.1194e-07 / 5.8238e-08 | 6.2561e-02 / 6.5598e-06   | 6.2561e-02 / 6.5600e-06 | 6.25e+05 / 7.78e+01 |
+| Sos2 Kahan F32 Ir       | 3.0918e-08 / 2.4070e-11 | 4.8784e+280 / 7.4343e+277 | 2.2240e-03 / 1.7322e-05 | 1.20e+06 / 3.30e+02 |
 
 Loading existing reference file from data/reference_12_4.json
 Code-generated coefficients header written to coefficients.hpp
@@ -1315,16 +1611,20 @@ Running: ./test_runner data/reference_12_4.json data/results_12_4_g++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |     13.11 |       13.65 |             73.24 |  960000 |
-| Hybrid Simple F64 |      9.33 |        9.72 |            102.85 |  960000 |
-| Hybrid Kahan F64  |     17.98 |       18.73 |             53.40 |  960000 |
-| Sos Simple F64    |     13.33 |       13.88 |             72.04 |  960000 |
-| Sos Kahan F64     |     14.81 |       15.43 |             64.82 |  960000 |
-| Tdf2 F32          |     12.89 |       13.42 |             74.49 |  960000 |
-| Hybrid Simple F32 |      9.00 |        9.37 |            106.68 |  960000 |
-| Hybrid Kahan F32  |     16.54 |       17.23 |             58.04 |  960000 |
-| Sos Simple F32    |     13.44 |       14.00 |             71.41 |  960000 |
-| Sos Kahan F32     |     14.70 |       15.32 |             65.29 |  960000 |
+| Tdf2 F64          |     12.44 |       12.96 |             77.17 |  960000 |
+| Hybrid Simple F64 |      9.72 |       10.13 |             98.74 |  960000 |
+| Hybrid Kahan F64  |     18.60 |       19.37 |             51.62 |  960000 |
+| Sos Simple F64    |     13.77 |       14.35 |             69.70 |  960000 |
+| Sos Kahan F64     |     15.10 |       15.72 |             63.60 |  960000 |
+| Sos2 Simple F64   |     16.52 |       17.21 |             58.11 |  960000 |
+| Sos2 Kahan F64    |     19.79 |       20.62 |             48.50 |  960000 |
+| Tdf2 F32          |     13.23 |       13.79 |             72.54 |  960000 |
+| Hybrid Simple F32 |     15.30 |       15.94 |             62.73 |  960000 |
+| Hybrid Kahan F32  |     18.13 |       18.88 |             52.96 |  960000 |
+| Sos Simple F32    |     13.79 |       14.37 |             69.59 |  960000 |
+| Sos Kahan F32     |     15.06 |       15.69 |             63.74 |  960000 |
+| Sos2 Simple F32   |     16.38 |       17.06 |             58.60 |  960000 |
+| Sos2 Kahan F32    |     15.38 |       16.02 |             62.42 |  960000 |
 
 ## Filter=butterworth, Order=12, Cutoff=0.02, M=4
 Results are shown as Max / Mean.
@@ -1341,6 +1641,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
 | Sos Kahan F64 Noise     | 1.7764e-15 / 3.6172e-16 | 2.0608e-10 / 3.6150e-14   | 2.0608e-10 / 3.6155e-14 | 1.25e+06 / 2.27e+02 |
 | Sos Kahan F64 Ir        | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
+| Sos2 Simple F64 Noise   | 1.7764e-15 / 3.6169e-16 | 2.0337e-10 / 3.6090e-14   | 2.0337e-10 / 3.6096e-14 | 1.23e+06 / 2.26e+02 |
+| Sos2 Simple F64 Ir      | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
+| Sos2 Kahan F64 Noise    | 1.7764e-15 / 3.6172e-16 | 2.0608e-10 / 3.6150e-14   | 2.0608e-10 / 3.6155e-14 | 1.25e+06 / 2.27e+02 |
+| Sos2 Kahan F64 Ir       | 1.1276e-16 / 1.7343e-19 | 7.3666e-08 / 6.5299e-12   | 7.7483e-12 / 5.5984e-14 | 4.04e+08 / 4.18e+04 |
 | Tdf2 F32 Noise          | 1.4400e-05 / 2.7513e-06 | 1.6942e+00 / 2.7431e-04   | 1.6942e+00 / 2.7435e-04 | 1.91e+07 / 3.21e+03 |
 | Tdf2 F32 Ir             | 8.3569e-07 / 9.9827e-10 | 9.9321e+207 / 3.9802e+203 | 3.7025e-03 / 5.1473e-05 | 5.11e+15 / 4.33e+15 |
 | Hybrid Simple F32 Noise | 7.3536e-07 / 1.5246e-07 | 1.3288e-01 / 1.9056e-05   | 1.3288e-01 / 1.9059e-05 | 1.48e+06 / 2.21e+02 |
@@ -1351,6 +1655,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
 | Sos Kahan F32 Noise     | 7.4956e-07 / 1.5556e-07 | 1.4809e-01 / 1.8415e-05   | 1.4809e-01 / 1.8418e-05 | 1.45e+06 / 2.12e+02 |
 | Sos Kahan F32 Ir        | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
+| Sos2 Simple F32 Noise   | 7.6446e-07 / 1.5557e-07 | 1.5147e-01 / 1.8520e-05   | 1.5147e-01 / 1.8522e-05 | 1.47e+06 / 2.13e+02 |
+| Sos2 Simple F32 Ir      | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
+| Sos2 Kahan F32 Noise    | 7.4956e-07 / 1.5556e-07 | 1.4809e-01 / 1.8415e-05   | 1.4809e-01 / 1.8418e-05 | 1.45e+06 / 2.12e+02 |
+| Sos2 Kahan F32 Ir       | 5.8301e-08 / 7.8061e-11 | 8.8089e+201 / 4.1385e+197 | 1.1617e-03 / 1.8998e-05 | 2.44e+10 / 6.26e+09 |
 
 Loading existing reference file from data/reference_16_8.json
 Code-generated coefficients header written to coefficients.hpp
@@ -1361,16 +1669,20 @@ Running: ./test_runner data/reference_16_8.json data/results_16_8_g++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |     34.81 |       36.26 |             27.58 |  960000 |
-| Hybrid Simple F64 |     28.03 |       29.20 |             34.25 |  960000 |
-| Hybrid Kahan F64  |     49.09 |       51.13 |             19.56 |  960000 |
-| Sos Simple F64    |     36.87 |       38.41 |             26.04 |  960000 |
-| Sos Kahan F64     |     37.58 |       39.15 |             25.55 |  960000 |
-| Tdf2 F32          |     32.58 |       33.94 |             29.47 |  960000 |
-| Hybrid Simple F32 |     23.66 |       24.64 |             40.58 |  960000 |
-| Hybrid Kahan F32  |     46.39 |       48.33 |             20.69 |  960000 |
-| Sos Simple F32    |     36.73 |       38.26 |             26.13 |  960000 |
-| Sos Kahan F32     |     37.57 |       39.14 |             25.55 |  960000 |
+| Tdf2 F64          |     32.97 |       34.34 |             29.12 |  960000 |
+| Hybrid Simple F64 |     27.36 |       28.50 |             35.08 |  960000 |
+| Hybrid Kahan F64  |     51.17 |       53.31 |             18.76 |  960000 |
+| Sos Simple F64    |     37.94 |       39.52 |             25.30 |  960000 |
+| Sos Kahan F64     |     40.27 |       41.95 |             23.84 |  960000 |
+| Sos2 Simple F64   |     41.30 |       43.02 |             23.24 |  960000 |
+| Sos2 Kahan F64    |     46.67 |       48.62 |             20.57 |  960000 |
+| Tdf2 F32          |     33.91 |       35.33 |             28.31 |  960000 |
+| Hybrid Simple F32 |     23.80 |       24.79 |             40.33 |  960000 |
+| Hybrid Kahan F32  |     48.48 |       50.50 |             19.80 |  960000 |
+| Sos Simple F32    |     38.06 |       39.65 |             25.22 |  960000 |
+| Sos Kahan F32     |     38.68 |       40.29 |             24.82 |  960000 |
+| Sos2 Simple F32   |     41.04 |       42.75 |             23.39 |  960000 |
+| Sos2 Kahan F32    |     46.23 |       48.16 |             20.77 |  960000 |
 
 ## Filter=butterworth, Order=16, Cutoff=0.015625, M=8
 Results are shown as Max / Mean.
@@ -1387,6 +1699,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
 | Sos Kahan F64 Noise     | 6.6613e-16 / 1.2492e-16 | 1.9339e-11 / 1.2186e-14   | 1.9339e-11 / 1.2187e-14 | 1.28e+05 / 7.98e+01 |
 | Sos Kahan F64 Ir        | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
+| Sos2 Simple F64 Noise   | 6.6613e-16 / 1.2498e-16 | 1.9339e-11 / 1.2139e-14   | 1.9339e-11 / 1.2140e-14 | 1.28e+05 / 7.94e+01 |
+| Sos2 Simple F64 Ir      | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
+| Sos2 Kahan F64 Noise    | 6.6613e-16 / 1.2492e-16 | 1.9339e-11 / 1.2186e-14   | 1.9339e-11 / 1.2187e-14 | 1.28e+05 / 7.98e+01 |
+| Sos2 Kahan F64 Ir       | 4.5103e-17 / 8.1975e-20 | 1.8493e-08 / 1.4545e-12   | 3.8108e-12 / 1.7116e-14 | 8.54e+07 / 8.94e+03 |
 | Tdf2 F32 Noise          | 1.8867e-05 / 3.4714e-06 | 5.3377e-01 / 2.8083e-04   | 5.3377e-01 / 2.8087e-04 | 5.91e+06 / 3.43e+03 |
 | Tdf2 F32 Ir             | 7.8856e-07 / 2.9234e-09 | 2.3669e+120 / 1.0827e+116 | 1.8765e-01 / 1.1667e-03 | 1.10e+24 / 8.17e+23 |
 | Hybrid Simple F32 Noise | 5.7314e-07 / 3.8357e-08 | 6.7349e-03 / 3.5871e-06   | 6.7349e-03 / 3.5876e-06 | 8.00e+04 / 4.37e+01 |
@@ -1397,6 +1713,10 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
 | Sos Kahan F32 Noise     | 2.6635e-07 / 5.0221e-08 | 6.5164e-03 / 4.7892e-06   | 6.5164e-03 / 4.7899e-06 | 6.65e+04 / 5.86e+01 |
 | Sos Kahan F32 Ir        | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
+| Sos2 Simple F32 Noise   | 2.6263e-07 / 5.0319e-08 | 6.6350e-03 / 4.7720e-06   | 6.6350e-03 / 4.7727e-06 | 6.65e+04 / 5.84e+01 |
+| Sos2 Simple F32 Ir      | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
+| Sos2 Kahan F32 Noise    | 2.6635e-07 / 5.0221e-08 | 6.5164e-03 / 4.7892e-06   | 6.5164e-03 / 4.7899e-06 | 6.65e+04 / 5.86e+01 |
+| Sos2 Kahan F32 Ir       | 1.4410e-08 / 2.6087e-11 | 1.8275e+109 / 4.6586e+104 | 1.5984e-03 / 6.3569e-06 | 1.99e+13 / 1.85e+12 |
 
 Loading existing reference file from data/reference_16_32.json
 Code-generated coefficients header written to coefficients.hpp
@@ -1407,16 +1727,20 @@ Running: ./test_runner data/reference_16_32.json data/results_16_32_g++.json
 
 | Implementation    | Time (ms) | ns / Sample | Throughput (MSps) | nSample |
 |:------------------|----------:|------------:|------------------:|--------:|
-| Tdf2 F64          |    130.59 |      136.03 |              7.35 |  960000 |
-| Hybrid Simple F64 |    107.12 |      111.59 |              8.96 |  960000 |
-| Hybrid Kahan F64  |    184.16 |      191.83 |              5.21 |  960000 |
-| Sos Simple F64    |    145.88 |      151.96 |              6.58 |  960000 |
-| Sos Kahan F64     |    148.01 |      154.18 |              6.49 |  960000 |
-| Tdf2 F32          |    132.92 |      138.46 |              7.22 |  960000 |
-| Hybrid Simple F32 |     91.71 |       95.54 |             10.47 |  960000 |
-| Hybrid Kahan F32  |    124.17 |      129.34 |              7.73 |  960000 |
-| Sos Simple F32    |    144.73 |      150.76 |              6.63 |  960000 |
-| Sos Kahan F32     |    146.71 |      152.82 |              6.54 |  960000 |
+| Tdf2 F64          |    152.09 |      158.43 |              6.31 |  960000 |
+| Hybrid Simple F64 |    114.24 |      119.00 |              8.40 |  960000 |
+| Hybrid Kahan F64  |    217.85 |      226.92 |              4.41 |  960000 |
+| Sos Simple F64    |    151.56 |      157.88 |              6.33 |  960000 |
+| Sos Kahan F64     |    153.91 |      160.32 |              6.24 |  960000 |
+| Sos2 Simple F64   |    162.66 |      169.44 |              5.90 |  960000 |
+| Sos2 Kahan F64    |    213.75 |      222.66 |              4.49 |  960000 |
+| Tdf2 F32          |    152.50 |      158.85 |              6.30 |  960000 |
+| Hybrid Simple F32 |     92.58 |       96.43 |             10.37 |  960000 |
+| Hybrid Kahan F32  |    130.09 |      135.51 |              7.38 |  960000 |
+| Sos Simple F32    |    150.60 |      156.88 |              6.37 |  960000 |
+| Sos Kahan F32     |    152.59 |      158.95 |              6.29 |  960000 |
+| Sos2 Simple F32   |    159.93 |      166.60 |              6.00 |  960000 |
+| Sos2 Kahan F32    |    212.23 |      221.07 |              4.52 |  960000 |
 
 ## Filter=butterworth, Order=16, Cutoff=0.0078125, M=32
 Results are shown as Max / Mean.
@@ -1433,6 +1757,10 @@ Results are shown as Max / Mean.
 | Sos Simple F64 Ir       | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
 | Sos Kahan F64 Noise     | 1.9429e-16 / 3.1039e-17 | 5.1262e-10 / 1.6396e-14 | 3.0657e-11 / 5.7171e-15 | 4.14e+06 / 1.24e+02 |
 | Sos Kahan F64 Ir        | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
+| Sos2 Simple F64 Noise   | 2.2204e-16 / 3.1908e-17 | 2.5298e-10 / 1.1297e-14 | 3.8464e-11 / 6.0268e-15 | 2.04e+06 / 8.15e+01 |
+| Sos2 Simple F64 Ir      | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
+| Sos2 Kahan F64 Noise    | 1.9429e-16 / 3.1039e-17 | 5.1262e-10 / 1.6396e-14 | 3.0657e-11 / 5.7171e-15 | 4.14e+06 / 1.24e+02 |
+| Sos2 Kahan F64 Ir       | 6.5052e-18 / 2.9118e-20 | 3.8356e-10 / 2.6157e-13 | 2.1530e-12 / 9.4861e-15 | 2.23e+06 / 1.69e+03 |
 | Tdf2 F32 Noise          | 5.5132e-05 / 1.0150e-05 | 6.5225e+01 / 3.2258e-03 | 1.5678e+01 / 1.8671e-03 | 9.81e+08 / 4.33e+04 |
 | Tdf2 F32 Ir             | 1.8805e-06 / 1.0204e-08 | 3.6484e+56 / 2.4955e+52 | 4.1459e-01 / 2.2100e-03 | 1.95e+28 / 9.50e+27 |
 | Hybrid Simple F32 Noise | 1.1897e-07 / 1.5931e-08 | 4.3539e-02 / 4.3015e-06 | 4.3539e-02 / 4.0815e-06 | 5.48e+05 / 5.26e+01 |
@@ -1443,14 +1771,24 @@ Results are shown as Max / Mean.
 | Sos Simple F32 Ir       | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
 | Sos Kahan F32 Noise     | 1.1233e-07 / 1.8619e-08 | 2.6820e-01 / 1.0027e-05 | 4.7246e-02 / 4.4396e-06 | 4.04e+06 / 1.34e+02 |
 | Sos Kahan F32 Ir        | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
+| Sos2 Simple F32 Noise   | 1.0855e-07 / 1.9015e-08 | 4.0759e-01 / 1.2837e-05 | 4.9000e-02 / 4.3462e-06 | 6.13e+06 / 1.77e+02 |
+| Sos2 Simple F32 Ir      | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
+| Sos2 Kahan F32 Noise    | 1.1233e-07 / 1.8619e-08 | 2.6820e-01 / 1.0027e-05 | 4.7246e-02 / 4.4396e-06 | 4.04e+06 / 1.34e+02 |
+| Sos2 Kahan F32 Ir       | 5.3084e-09 / 1.6376e-11 | 4.8573e+35 / 9.8900e+31 | 4.5751e-04 / 2.2852e-06 | 1.53e+09 / 9.58e+07 |
 ```
 
 </details>
 
 ## 参考文献
+- Chen, Yen-Liang, et al. "[A universal look-ahead algorithm for pipelining IIR filters.](https://www.researchgate.net/profile/Kai-Yuan-Jheng/publication/4337591_A_universal_look-ahead_algorithm_for_pipelining_IIR_filters/links/0fcfd5059e6edccded000000/A-universal-look-ahead-algorithm-for-pipelining-IIR-filters.pdf)" 2008 IEEE International Symposium on VLSI Design, Automation and Test (VLSI-DAT). IEEE, 2008.
+- [Complex conjugate root theorem - Wikipedia](https://en.wikipedia.org/wiki/Complex_conjugate_root_theorem)
 - [Msps | Analog Devices](https://www.analog.com/en/resources/glossary/msps.html)
 
 ## 変更点
+- 2026/07/09
+  - SLA アルゴリズムであることを追記。
+  - 理論の補足を追加。
+  - SOS2 を追加。
 - 2026/07/08
   - 「設計」に SciPy 実装を追加。 `deconvolve` を使わない計算方法に変更。
 - 2026/07/06

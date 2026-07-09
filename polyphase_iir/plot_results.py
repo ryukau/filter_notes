@@ -82,6 +82,18 @@ FILTER_STYLES = {
         "label": "SOS Kahan (f64)",
         "linestyle": "-",
     },
+    "sos2_simple_f64": {
+        "color": "#7846b5",
+        "marker": "P",
+        "label": "SOS2 Simple (f64)",
+        "linestyle": "-",
+    },
+    "sos2_kahan_f64": {
+        "color": "#6a195b",
+        "marker": "X",
+        "label": "SOS2 Kahan (f64)",
+        "linestyle": "-",
+    },
     "tdf2_f32": {
         "color": "#1f77b4",
         "marker": "o",
@@ -114,6 +126,20 @@ FILTER_STYLES = {
         "color": "#2ca02c",
         "marker": "v",
         "label": "SOS Kahan (f32)",
+        "linestyle": "--",
+        "fillstyle": "none",
+    },
+    "sos2_simple_f32": {
+        "color": "#7846b5",
+        "marker": "P",
+        "label": "SOS2 Simple (f32)",
+        "linestyle": "--",
+        "fillstyle": "none",
+    },
+    "sos2_kahan_f32": {
+        "color": "#6a195b",
+        "marker": "X",
+        "label": "SOS2 Kahan (f32)",
         "linestyle": "--",
         "fillstyle": "none",
     },
@@ -202,11 +228,15 @@ def main():
         "hybrid_kahan_f64",
         "sos_simple_f64",
         "sos_kahan_f64",
+        "sos2_simple_f64",
+        "sos2_kahan_f64",
         "tdf2_f32",
         "hybrid_simple_f32",
         "hybrid_kahan_f32",
         "sos_simple_f32",
         "sos_kahan_f32",
+        "sos2_simple_f32",
+        "sos2_kahan_f32",
     ]
 
     for name in base_names:

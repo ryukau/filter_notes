@@ -432,7 +432,11 @@ int main(int argc, char* argv[]) {
       TestCase<double, SosSimple::PolyphaseIirSos, Co::PolyphaseSos>("sos_simple_f64"),
       TestCase<float, SosSimple::PolyphaseIirSos, Co::PolyphaseSos>("sos_simple_f32"),
       TestCase<double, SosKahanSum::PolyphaseIirSos, Co::PolyphaseSos>("sos_kahan_f64"),
-      TestCase<float, SosKahanSum::PolyphaseIirSos, Co::PolyphaseSos>("sos_kahan_f32"));
+      TestCase<float, SosKahanSum::PolyphaseIirSos, Co::PolyphaseSos>("sos_kahan_f32"),
+      TestCase<double, SosSimple2::PolyphaseIirSos, Co::PolyphaseSos2>("sos2_simple_f64"),
+      TestCase<float, SosSimple2::PolyphaseIirSos, Co::PolyphaseSos2>("sos2_simple_f32"),
+      TestCase<double, SosKahanSum2::PolyphaseIirSos, Co::PolyphaseSos2>("sos2_kahan_f64"),
+      TestCase<float, SosKahanSum2::PolyphaseIirSos, Co::PolyphaseSos2>("sos2_kahan_f32"));
 
     JsonValue ref = parse_json_file(ref_path);
 
