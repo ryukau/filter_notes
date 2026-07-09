@@ -93,10 +93,10 @@ $$
 <details>
 <summary>ポリフェイズ分解した形の $H$ は実数の係数しか持たない</summary>
 
-$a_i \in \Reals$ なので [complex conjugate root theorem](https://en.wikipedia.org/wiki/Complex_conjugate_root_theorem) により以下が成立。 $\bar{p}$ は $p$ の複素共役。 $\Phi$ は複素数かつ虚部の符号が $+$ となる極の集合 : $\{p_i \in \Complex \backslash \Reals \mid \mathrm{Im}(p_i) > 0 \}$。
+$a_i \in \mathbb{R}$ なので [complex conjugate root theorem](https://en.wikipedia.org/wiki/Complex_conjugate_root_theorem) により以下が成立。 $\bar{p}$ は $p$ の複素共役。 $\Phi$ は複素数かつ虚部の符号が $+$ となる極の集合 : $\{p_i \in \mathbb{C} \backslash \mathbb{R} \mid \mathrm{Im}(p_i) > 0 \}$。
 
 $$
-\def\rpole {p_i \in \Reals}
+\def\rpole {p_i \in \mathbb{R}}
 \def\cpole {p_i \in \Phi}
 $$
 
