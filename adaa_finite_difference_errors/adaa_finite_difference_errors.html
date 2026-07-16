@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" >
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+      <meta name="dcterms.date" content="2026-07-17" />
+      <title>adaa_finite_difference_errors</title>
+
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --foreground-color: #000000;
+      --table-odd-background-color: #eeeeee;
+      --link-color: #0000ee;
+      --visited-color: #551a8b;
+      --active-color: #ff0000;
+      --border-color: #888888;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #202020;
+        --foreground-color: #eeeeee;
+        --table-odd-background-color: #333333;
+        --link-color: #88aaee;
+        --visited-color: #dd77cc;
+        --active-color: #ff6666;
+        --border-color: #888888;
+      }
+
+      audio,
+      code,
+      img,
+      .MathJax_ref,
+      .sourceCode {
+        /*
+        0.8745 ~= 1 - 0x20 / 0xff.
+        0x20 and 0xff are brightness of dark and light theme.
+        */
+        filter: invert(0.8745098039215686);
+      }
+
+      pre>code {
+        filter: invert(0);
+      }
+    }
+
+    body {
+      max-width: 704px;
+      margin: auto;
+      padding: 32px 8px;
+
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    video {
+      max-width: 100%;
+    }
+
+    kbd {
+      font-family: inherit;
+      border-style: solid;
+      border-width: 1px 2px 2px 1px;
+      border-radius: 2px;
+      padding: 4px;
+      margin: 2px;
+      line-height: calc(1em + 16px);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    :link {
+      color: var(--link-color);
+    }
+
+    :visited {
+      color: var(--visited-color);
+    }
+
+    :link:active,
+    :visited:active {
+      color: var(--active-color);
+    }
+
+    .header-anchor {
+      color: var(--foreground-color);
+    }
+
+    .header-anchor:hover {
+      color: var(--link-color);
+    }
+
+    .header-anchor:hover::after {
+      display: inline-block;
+      font-size: min(1em, 1rem);
+      content: '(クリックでここへリンク)';
+      padding-left: 1em;
+      color: var(--link-color);
+    }
+
+    h2 {
+      border-left: solid 32px #000000;
+      padding-left: 24px;
+    }
+
+    h3 {
+      border-left: solid 20px #404040;
+      padding-left: 16px;
+    }
+
+    h4 {
+      font-size: 100%;
+      border-left: solid 12px #606060;
+      padding-left: 8px;
+    }
+
+    h5 {
+      font-size: 90%;
+      border-left: solid 8px #808080;
+      padding-left: 8px;
+    }
+
+    h6 {
+      font-size: 80%;
+      border-left: solid 4px #a0a0a0;
+      padding-left: 4px;
+    }
+
+    table {
+      border-spacing: 0px;
+      border-collapse: separate;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: hidden;
+    }
+
+    tr:nth-child(odd) {
+      background: var(--table-odd-background-color);
+    }
+
+    tr:nth-child(even) {
+      background: var(--background-color);
+    }
+
+    th {
+      height: 2em;
+      padding: 4px 1em 4px 1em;
+      background: var(--background-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    td {
+      height: 1.5em;
+      padding: 4px 1em 4px 1em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td:not(:first-child) {
+      border-left: 1px solid var(--border-color);
+    }
+
+    dl {
+      padding-left: 2em;
+    }
+
+    dt {
+      font-weight: bold;
+      border-bottom: 1px dashed #000000;
+      margin-top: 2em;
+    }
+
+    dd {
+      border-left: 1px dotted #000000;
+      margin-left: 1em;
+      padding-left: 1em;
+    }
+
+    audio {
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+    }
+
+    :not(.sourceCode)>pre {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    div.sourceCode {
+      overflow: auto;
+      border: 1px solid var(--border-color);
+      padding: 8px;
+    }
+
+    pre>code.sourceCode>span>a:first-child::before {
+      border-right: 1px solid var(--border-color);
+      padding-right: 1em;
+      margin-right: 1em;
+      text-decoration: none;
+    }
+
+    :not(pre)>code {
+      color: #163eac;
+    }
+
+    li {
+      margin: 8px;
+    }
+
+    summary:hover {
+      background-color: var(--table-odd-background-color);
+    }
+
+    header {
+      border-bottom: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    footer {
+      border-top: 1px var(--border-color) solid;
+      padding: 0.5em;
+      margin-top: 1em;
+    }
+
+
+    canvas {
+      /* image-rendering: pixelated; */
+      display: inline-block;
+      border-style: solid;
+      border-width: 1px;
+      border-color: #627f84;
+    }
+
+    .controlBlock {
+      display: inline-block;
+      width: 450px;
+      text-align: left;
+      vertical-align: top;
+      margin-left: 4px;
+    }
+
+    input[type="button"] {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      font-size: 16px;
+      height: 32px;
+    }
+
+    input[type="button"]:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    div.numberInput {
+      display: block;
+      white-space: nowrap;
+    }
+
+    div.numberInput:hover {
+      background-color: #e0ecff;
+    }
+
+    .numberInputLabel {
+      /* max 12 letter  */
+      display: inline-block;
+      margin: 0 8px 0 8px;
+      text-align: left;
+      vertical-align: middle;
+      width: 100px;
+
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .numberInputNumber {
+      display: inline-block;
+      vertical-align: middle;
+      width: 120px;
+    }
+
+    .numberInputRange {
+      display: inline-block;
+      vertical-align: middle;
+      width: 160px;
+    }
+
+    .pullDownMenu {
+      display: inline-block;
+      text-align: center;
+    }
+
+    .pullDownMenu:hover {
+      background-color: #e0ecff;
+    }
+
+    select {
+      background-color: #ffffff;
+      border: 2px solid #aaaaaa;
+      height: 24px;
+      vertical-align: middle;
+      font-size: 12px;
+    }
+
+    select:hover {
+      background-color: #ffffff;
+      border: 2px solid #aaccff;
+    }
+
+    span.math.inline a {
+      color: #000000;
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        background-color: #ffffff;
+        color: #666666;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #666666;  padding-left: 4px; }
+    div.sourceCode
+      { color: #000000; background-color: #ffffff; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; text-decoration: underline; } /* Alert */
+    code span.an { color: #666666; text-decoration: underline; } /* Annotation */
+    code span.at { color: #333333; } /* Attribute */
+    code span.bu { color: #000000; } /* BuiltIn */
+    code span.cf { color: #666666; } /* ControlFlow */
+    code span.ch { color: #b000b0; } /* Char */
+    code span.cn { color: #000000; } /* Constant */
+    code span.co { color: #008800; } /* Comment */
+    code span.cv { color: #008800; } /* CommentVar */
+    code span.do { color: #008800; } /* Documentation */
+    code span.dt { color: #333333; } /* DataType */
+    code span.dv { color: #0000ff; } /* DecVal */
+    code span.er { color: #ffffff; background-color: #ff0000; } /* Error */
+    code span.ex { color: #000000; } /* Extension */
+    code span.fl { color: #0000ff; } /* Float */
+    code span.im { color: #666666; } /* Import */
+    code span.in { color: #666666; } /* Information */
+    code span.kw { color: #666666; } /* Keyword */
+    code span.op { color: #000000; } /* Operator */
+    code span.ot { color: #000000; } /* Other */
+    code span.pp { color: #666666; } /* Preprocessor */
+    code span.sc { color: #b000b0; } /* SpecialChar */
+    code span.ss { color: #b000b0; } /* SpecialString */
+    code span.st { color: #b000b0; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #b000b0; } /* VerbatimString */
+    code span.wa { color: #000000; background-color: #ffff00; text-decoration: underline; } /* Warning */
+  </style>
+
+    <script>
+    MathJax = {
+      tex: {
+        tags: 'ams'
+      }
+    };
+  </script>
+  <script defer="" src="../lib/MathJax/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+    </head>
+
+<body>
+    <header>
+    <p>
+      何かあれば <a href="https://github.com/ryukau/filter_notes">GitHub のリポジトリ</a>に issue を作るか ryukau@gmail.com までお気軽にどうぞ。
+    </p>
+    <hr>
+    <a href="../index.html">インデックスに戻る</a>
+        <p>
+      Update: 2026-07-17
+    </p>
+            <details>
+      <summary translate="yes">Table of Contents</summary>
+      <nav id="TOC" role="doc-toc">
+        <ul>
+        <li><a href="#有限差分に基づく-adaa-の誤差"
+        id="toc-有限差分に基づく-adaa-の誤差">有限差分に基づく ADAA
+        の誤差</a>
+        <ul>
+        <li><a href="#記号" id="toc-記号">記号</a></li>
+        <li><a href="#有限差分に基づく-adaa"
+        id="toc-有限差分に基づく-adaa">有限差分に基づく ADAA</a></li>
+        <li><a href="#計算方法" id="toc-計算方法">計算方法</a></li>
+        <li><a href="#桁落ちの誤差"
+        id="toc-桁落ちの誤差">桁落ちの誤差</a></li>
+        <li><a href="#次の-divided-difference-の誤差"
+        id="toc-次の-divided-difference-の誤差">1 次の Divided
+        Difference の誤差</a></li>
+        <li><a href="#次以降の-divided-difference-の誤差"
+        id="toc-次以降の-divided-difference-の誤差">2 次以降の Divided
+        Difference の誤差</a></li>
+        <li><a href="#分析" id="toc-分析">分析</a></li>
+        <li><a href="#フォールバック"
+        id="toc-フォールバック">フォールバック</a></li>
+        <li><a href="#フォールバックへの分岐点"
+        id="toc-フォールバックへの分岐点">フォールバックへの分岐点</a>
+        <ul>
+        <li><a href="#h-ll-1" id="toc-h-ll-1"><span
+        class="math inline">\(|h| \ll 1\)</span></a></li>
+        <li><a href="#h-1" id="toc-h-1"><span class="math inline">\(|h|
+        &lt; 1\)</span></a></li>
+        <li><a href="#問題点" id="toc-問題点">問題点</a></li>
+        </ul></li>
+        <li><a href="#実装例" id="toc-実装例">実装例</a></li>
+        <li><a href="#一般的な-adaa-と特殊化の方針"
+        id="toc-一般的な-adaa-と特殊化の方針">一般的な ADAA
+        と特殊化の方針</a></li>
+        <li><a href="#参考文献" id="toc-参考文献">参考文献</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+    </details>
+      </header>
+  <h1 id="有限差分に基づく-adaa-の誤差"><a
+  href="#有限差分に基づく-adaa-の誤差" class="header-anchor"
+  aria-hidden="true">有限差分に基づく ADAA の誤差</a></h1>
+  <p>この文章の主な目的は有限差分に基づく antiderivative antialiasing
+  (ADAA) の誤差を洗い出して、使いどころをはっきりさせることです。 ADAA
+  は連続系でローパスフィルタをかけた信号を離散系で近似的に微分することで周波数領域でのエイリアシングを減らす手法のことです。</p>
+  <p>高次の ADAA を計算する方法を調べていたところ divided difference
+  に基づく一般化の方法を見つけました。 Divided difference に基づく方法は
+  <a
+  href="https://drive.google.com/file/d/1SaqbMpxitC8QECkF3OfzHu7cDCnmpzY7/view">Bilbao
+  らの有限差分に基づく方法</a>と似ていますが、 3
+  次以上の実装がフォールバックも含めて簡潔に行えるという長所があります。様々な非線形関数を試してみたところ
+  2 次以上の ADAA
+  には計算誤差の問題があることが経験的にわかりました。この文章の主な目的は理論的な誤差の導出です。</p>
+  <p>ここでは行いませんが ADAA
+  は非線形関数ごとに特殊化して計算するのが妥当です。</p>
+  <h2 id="記号"><a href="#記号" class="header-anchor"
+  aria-hidden="true">記号</a></h2>
+  <p>記号が多いのでまとめました。 <kbd>Ctrl</kbd> + <kbd>F</kbd>
+  などでハイライトすると楽です。</p>
+  <ul>
+  <li><span class="math inline">\(a, b\)</span> :
+  プレースホルダー。</li>
+  <li><span class="math inline">\(x\)</span> : 入力信号。</li>
+  <li><span class="math inline">\(y\)</span> : 出力信号。</li>
+  <li><span class="math inline">\(i, j\)</span> :
+  時間のインデックス。サンプル数。</li>
+  <li><span class="math inline">\(f\)</span> :
+  アンチエイリアシングを行う関数。</li>
+  <li><span class="math inline">\(F_k\)</span> : <span
+  class="math inline">\(f\)</span> の <span
+  class="math inline">\(k\)</span> 階逆微分 (antiderivative) 。</li>
+  <li><span class="math inline">\(e_i\)</span> : <span
+  class="math inline">\(F_k(x_i)\)</span> の誤差。</li>
+  <li><span class="math inline">\(N\)</span> : ADAA の次数。</li>
+  <li><span class="math inline">\(n\)</span> : 計算中の ADAA
+  のステージ。</li>
+  <li><span class="math inline">\(R\)</span> : 差分の相対誤差。</li>
+  <li><span class="math inline">\(D_{n,i}\)</span> : Divided difference
+  の <span class="math inline">\(n\)</span> ステージ目、インデックス
+  <span class="math inline">\(i\)</span> についての真値。</li>
+  <li><span class="math inline">\(E_{n,i}\)</span> : Divided difference
+  の <span class="math inline">\(n\)</span> ステージ目、インデックス
+  <span class="math inline">\(i\)</span> についての誤差。</li>
+  <li><span class="math inline">\(h_{i,j}\)</span> : 入力の差。 <span
+  class="math inline">\(x_i - x_j\)</span>
+  。インデックスを省略することがある。</li>
+  <li><span class="math inline">\(p\)</span> :
+  フォールバックの中点近似の次数。</li>
+  <li><span class="math inline">\(m\)</span> : 中点近似の中点。</li>
+  </ul>
+  <p><span class="math inline">\(\phi\)</span> は divided difference
+  内の再帰を表す関数。 <span class="math inline">\(f^{(a)}\)</span>
+  のように丸括弧 <span class="math inline">\(()\)</span>
+  で囲った上付き文字は <span class="math inline">\(a\)</span>
+  階微分。</p>
+  <p><span class="math display">\[
+  \phi^{(p)}(x) = \begin{cases}
+  F_{n-p}(x)   &amp; p \le n, \\
+  f^{(p-n)}(x) &amp; p &gt; n.
+  \end{cases}
+  \]</span></p>
+  <h2 id="有限差分に基づく-adaa"><a href="#有限差分に基づく-adaa"
+  class="header-anchor" aria-hidden="true">有限差分に基づく
+  ADAA</a></h2>
+  <p>以下は Bilbao らの “<a
+  href="https://drive.google.com/file/d/1SaqbMpxitC8QECkF3OfzHu7cDCnmpzY7/view">Antiderivative
+  antialiasing for memoryless nonlinearities</a>” の式 14 から 16
+  に記載されている ADAA です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  y^n
+  &amp;= \frac{F_1^n - F_1^{n-1}}{x^n - x^{n-1}},
+  &amp;&amp; \text{(order 1)}. \\
+  y^n
+  &amp;= \frac{2}{x^n - x^{n-2}} \left(
+    \frac{F_2^n - F_2^{n-1}}{x^n - x^{n-1}} - \frac{F_2^{n-1} -
+  F_2^{n-2}}{x^{n-1} - x^{n-2}}
+  \right),
+  &amp;&amp; \text{(order 2)}. \\
+  y^n
+  &amp;= \frac{1}{x^{n-1} - x^{n-2}} \left[
+    \frac{2}{x^n - x^{n-2}} \left(
+      \frac{F_3^n - F_3^{n-1}}{x^n - x^{n-1}} - \frac{F_3^{n-1} -
+  F_3^{n-2}}{x^{n-1} - x^{n-2}}
+    \right)
+    -
+    \frac{2}{x^{n-1} - x^{n-3}} \left(
+      \frac{F_3^{n-1} - F_3^{n-2}}{x^{n-1} - x^{n-2}} - \frac{F_3^{n-2}
+  - F_3^{n-3}}{x^{n-2} - x^{n-3}}
+    \right)
+  \right],
+  &amp;&amp; \text{(order 3)}. \\
+  \end{aligned}
+  \]</span></p>
+  <p>論文との整合性を保つために、上の式だけ他の式と記号の表記が異なっています。上付き文字が時間のインデックス、下付き文字が逆微分の階数
+  (<span class="math inline">\(k\)</span> と対応) です。</p>
+  <p>これらの式は <a
+  href="https://en.wikipedia.org/wiki/Divided_differences#Peano_form">divided
+  difference の Peano form</a> と似ています。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  0! f[x_0] &amp;= f(x_0).
+  \\
+  1! F_1[x_0,x_1] &amp;= \frac{F_1(x_1)-F_1(x_0)}{x_1-x_0}.
+  \\
+  2! F_2[x_0,x_1,x_2] &amp;= 2 \frac{F_2[x_1,x_2]-F_2[x_0,x_1]}{x_2-x_0}
+  = 2 \frac{
+      \left(\cfrac{F_2(x_2)-F_2(x_1)}{x_2-x_1}\right)
+    - \left(\cfrac{F_2(x_1)-F_2(x_0)}{x_1-x_0}\right)
+  }{x_2-x_0}.
+  \\
+  3! F_3[x_0,x_1,x_2,x_3] &amp;= 6
+  \frac{F_3[x_1,x_2,x_3]-F_3[x_0,x_1,x_2]}{x_3-x_0}
+  = 6 \frac{
+    \left(\cfrac{
+        \left(\cfrac{F_3(x_3)-F_3(x_2)}{x_3-x_2}\right)
+      - \left(\cfrac{F_3(x_2)-F_3(x_1)}{x_2-x_1}\right)
+    }{x_3-x_1}\right)
+    - \left(\cfrac{
+        \left(\cfrac{F_3(x_2)-F_3(x_1)}{x_2-x_1}\right)
+      - \left(\cfrac{F_3(x_1)-F_3(x_0)}{x_1-x_0}\right)
+    }{x_2-x_0}\right)
+  }{x_3-x_0}.
+  \end{aligned}
+  \]</span></p>
+  <p>2 次までは等価です。 3
+  次からは有限差分のかけ方が異なるので式が変わります。以下は divided
+  difference による ADAA の一般的な形です。 <span
+  class="math inline">\(B\)</span> は <a
+  href="https://en.wikipedia.org/wiki/B-spline">B-spline</a> です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  n! F_n[x_0, x_1, \dots]
+  &amp;= \sum_{i=0}^{n-1} \left( \int_{x_i}^{x_{i+1}} B_{i,n-1}(t) f(t)
+  dt \right) \\
+  &amp;= \sum_{i=0}^{n-1} (x_{i+1} - x_i) \int_0^1 \bar{B}_{i,n-1}(u)
+  f\big(x_i + u(x_{i+1} - x_i)\big) du.
+  \end{aligned}
+  \]</span></p>
+  <p>Divided difference に基づく ADAA ではローパスフィルタとして
+  B-spline カーネルを畳み込んでいると言えます。</p>
+  <h2 id="計算方法"><a href="#計算方法" class="header-anchor"
+  aria-hidden="true">計算方法</a></h2>
+  <p>再帰の部分を <span class="math inline">\(S\)</span> とします。</p>
+  <p><span class="math display">\[
+  S_{i,j} = F_N [ x_i, \dots, x_j ].
+  \]</span></p>
+  <p>以下は計算方法を示した表です。 <span
+  class="math inline">\(n=1\)</span>
+  のときだけ明示的に展開して書いています。</p>
+  <table>
+  <colgroup>
+  <col style="width: 4%" />
+  <col style="width: 27%" />
+  <col style="width: 32%" />
+  <col style="width: 32%" />
+  <col style="width: 3%" />
+  </colgroup>
+  <thead>
+  <tr>
+  <th></th>
+  <th>n=1</th>
+  <th>n=2</th>
+  <th>n=3</th>
+  <th>…</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>time=0</td>
+  <td><span class="math inline">\(S_{0, -1} = F_N [x_0, x_{-1}] /
+  h_{0,-1}\)</span></td>
+  <td><span class="math inline">\(S_{0, -2} = (S_{0, -1} - S_{-1, -2}) /
+  h_{0, -2}\)</span></td>
+  <td><span class="math inline">\(S_{0, -3} = (S_{0, -2} - S_{-1, -3}) /
+  h_{0, -3}\)</span></td>
+  <td>…</td>
+  </tr>
+  <tr>
+  <td>time=1</td>
+  <td><span class="math inline">\(S_{1,  0} = F_N [x_1, x_0   ] /
+  h_{1,0}\)</span></td>
+  <td><span class="math inline">\(S_{1, -1} = (S_{1,  0} - S_{ 0, -1}) /
+  h_{1, -1}\)</span></td>
+  <td><span class="math inline">\(S_{1, -2} = (S_{1, -1} - S_{ 0, -2}) /
+  h_{1, -2}\)</span></td>
+  <td>…</td>
+  </tr>
+  <tr>
+  <td>time=2</td>
+  <td><span class="math inline">\(S_{2,  1} = F_N [x_2, x_1   ] /
+  h_{2,1}\)</span></td>
+  <td><span class="math inline">\(S_{2,  0} = (S_{2,  1} - S_{ 1,  0}) /
+  h_{2,  0}\)</span></td>
+  <td><span class="math inline">\(S_{2, -1} = (S_{2,  0} - S_{ 1, -1}) /
+  h_{2, -1}\)</span></td>
+  <td>…</td>
+  </tr>
+  <tr>
+  <td>time=3</td>
+  <td><span class="math inline">\(S_{3,  2} = F_N [x_3, x_2   ] /
+  h_{3,2}\)</span></td>
+  <td><span class="math inline">\(S_{3,  1} = (S_{3,  2} - S_{ 2,  1}) /
+  h_{3,  1}\)</span></td>
+  <td><span class="math inline">\(S_{3,  0} = (S_{3,  1} - S_{ 2,  0}) /
+  h_{3,  0}\)</span></td>
+  <td>…</td>
+  </tr>
+  <tr>
+  <td>⋮</td>
+  <td>⋮</td>
+  <td>⋮</td>
+  <td>⋮</td>
+  <td>⋱</td>
+  </tr>
+  </tbody>
+  </table>
+  <p>以下は変数の依存関係を示した図です。</p>
+  <figure>
+  <img src="img/dependency.svg" alt="A diagram that shows the dependencies of variables in the table above." style="padding-bottom: 12px;"/>
+  </figure>
+  <p>時刻 <span class="math inline">\(t\)</span> において <span
+  class="math inline">\(x_t\)</span>
+  が与えられたとき、上の表を左上から横書きする順に計算を行えば値が求まります。負のインデックスを持つ
+  <span class="math inline">\(x\)</span> を 0
+  に初期化するならインデックスが両方とも負の値の <span
+  class="math inline">\(S\)</span> も 0 です。 <span
+  class="math inline">\(x\)</span> と <span
+  class="math inline">\(S\)</span> は長さ <span
+  class="math inline">\(N\)</span>
+  のリングバッファとして実装できます。</p>
+  <h2 id="桁落ちの誤差"><a href="#桁落ちの誤差" class="header-anchor"
+  aria-hidden="true">桁落ちの誤差</a></h2>
+  <p>有限差分に基づく ADAA は減算と除算が入れ子になっているので、桁落ち
+  (<a
+  href="https://en.wikipedia.org/wiki/Catastrophic_cancellation">catastrophic
+  cancellation</a>)
+  による誤差が再帰的に増幅されます。桁落ちの相対誤差は以下のように定義されています。
+  <span class="math inline">\(a, b\)</span> は何らかの真値、 <span
+  class="math inline">\(\delta_a\)</span> は <span
+  class="math inline">\(a\)</span> に付随する誤差、 <span
+  class="math inline">\(\delta_b\)</span> は <span
+  class="math inline">\(b\)</span> に付随する誤差です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \mathrm{subtraction}(a, b) &amp;= a - b \\
+  &amp;\approx a (1 + \delta_a) - b (1 + \delta_b)
+  = (a - b) \left( 1 + \frac{a \delta_a - b \delta_b}{a - b} \right).
+  \end{aligned}
+  \]</span></p>
+  <p>減算の相対誤差を関数にします。</p>
+  <p><span class="math display">\[
+  R(a, b) = \dfrac{a \delta_a - b \delta_b}{a - b}.
+  \]</span></p>
+  <p>以降では <span class="math inline">\(x\)</span>
+  について以下の表記を使います。</p>
+  <p><span class="math display">\[
+  R_{i,j} = R(x_i, x_j).
+  \]</span></p>
+  <h2 id="次の-divided-difference-の誤差"><a
+  href="#次の-divided-difference-の誤差" class="header-anchor"
+  aria-hidden="true">1 次の Divided Difference の誤差</a></h2>
+  <p>Divided difference の真値を以下のように定義します。</p>
+  <p><span class="math display">\[
+  D_{k,i} = k! F_k [ x_i, \dots, x_{i+k} ].
+  \]</span></p>
+  <p><span class="math inline">\(F_1(x_n) \approx y_n + e_n\)</span>
+  とします。 <span class="math inline">\(y_n\)</span> は真値、 <span
+  class="math inline">\(e_n\)</span> は <span
+  class="math inline">\(F_1(x_n)\)</span>
+  の計算によって現れる絶対誤差で、近似誤差と丸め誤差を両方含んでいます。
+  <span class="math inline">\(h_{i,j} = x_i - x_j\)</span> です。</p>
+  <p><span class="math display">\[
+  D_{1,0} = \frac{F_1(x_1) - F_1(x_0)}{x_1 - x_0}
+  \approx \frac{(y_1 - y_0) + (e_1 - e_0)}{h_{1,0}(1 + R_{1,0})} =
+  \hat{D}_{1,0}.
+  \]</span></p>
+  <p><span class="math inline">\(|R_{1,0}| &lt; 1\)</span> として <span
+  class="math inline">\(\dfrac{1}{1 + R_{1,0}}\)</span>
+  をテイラー展開して分母から <span
+  class="math inline">\(R_{1,0}\)</span> を動かします。 <span
+  class="math inline">\(R\)</span> は相対誤差なので通常は 1
+  以上とはなりません。</p>
+  <p><span class="math display">\[
+  \dfrac{1}{1 + R_{1,0}} = \sum_{i=0}^\infty (-R_{1,0})^i = 1 - R_{1,0}
+  + R_{1,0}^2 - R_{1,0}^3 + \dots
+  \]</span></p>
+  <p>これで真値 <span class="math inline">\(D_1\)</span>
+  と誤差を分けられます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \hat{D}_{1,0}
+  &amp;\approx \left( D_{1,0} + \frac{e_1 - e_0}{h_{1,0}} \right) (1 -
+  R_{1,0} \dots) \\
+  &amp;= (D_{1,0} + E_{1,0}) (1 - R_{1,0} \dots).
+  \end{aligned}
+  \]</span></p>
+  <h2 id="次以降の-divided-difference-の誤差"><a
+  href="#次以降の-divided-difference-の誤差" class="header-anchor"
+  aria-hidden="true">2 次以降の Divided Difference の誤差</a></h2>
+  <p>2 次の divided difference の真値を以下のように表します。 <span
+  class="math inline">\(D\)</span> の内部で計算される関数が <span
+  class="math inline">\(F_1\)</span> から <span
+  class="math inline">\(F_2\)</span> に変わります。</p>
+  <p><span class="math display">\[
+  D_{2,0} = 2 \frac{D_{1,1} - D_{1,0}}{h_{2,0}}.
+  \]</span></p>
+  <p>誤差を含む 1 次の divided difference の値を再掲します。</p>
+  <p><span class="math display">\[
+  \hat{D}_{1, i} = (D_{1,0} + E_{1,0}) (1 - R_{1,0} \dots), \quad i \in
+  \{0, 1\}.
+  \]</span></p>
+  <p>2 次の divided difference の計算値を求めます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  D_{2,0} &amp;= 2 \frac{\hat{D}_{1,1} - \hat{D}_{1,0}}{x_2 - x_0} \\
+  &amp;\approx 2 \frac{(D_{1,1} - D_{1,0}) + (E_{1,1} -
+  E_{1,0})}{h_{2,0}(1 + R_{2,0})} \\
+  &amp;= \left( D_{2,0} + 2 \frac{E_{1,1} - E_{1,0}}{h_{2,0}} \right) (1
+  - R_{2,0} + \dots) \\
+  &amp;= \left( D_{2,0} + E_{2,0} \right) (1 - R_{2,0} + \dots) =
+  \hat{D}_{2,0}.
+  \end{aligned}
+  \]</span></p>
+  <p>規則性が見えます。</p>
+  <p><span class="math display">\[
+  \hat{D}_{N,0} \approx \left( D_{N,0} + E_{N,0} \right) (1 - R_{N,0} +
+  \dots),
+  \quad
+  E_{N,i} = \begin{cases}
+  \cfrac{e_{i+1} - e_i}{h_{i+1,i}}, &amp; N = 1\\
+  N \cfrac{E_{N-1,i+1} - E_{N-1,i}}{h_{N+i,i}}, &amp; N &gt; 1. \\
+  \end{cases}
+  \]</span></p>
+  <h2 id="分析"><a href="#分析" class="header-anchor"
+  aria-hidden="true">分析</a></h2>
+  <p>誤差を含む値の式を再掲します。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \hat{D}_{1,0} &amp;\approx (D_{1,0} + E_{1,0}) (1 - R_{1,0} \dots) \\
+  \hat{D}_{2,0} &amp;\approx (D_{2,0} + E_{2,0}) (1 - R_{2,0} \dots) \\
+  \hat{D}_{3,0} &amp;\approx (D_{3,0} + E_{3,0}) (1 - R_{3,0} \dots) \\
+  &amp;\vdots
+  \end{aligned}
+  \]</span></p>
+  <p><span class="math inline">\(\hat{D}_{1,0}\)</span>
+  の誤差を取り出します。</p>
+  <p><span class="math display">\[
+  \hat{D}_{1,0} - D_{1,0}
+  = \left(
+    D_{1,0} + \frac{e_1 - e_0}{h_{1,0}}
+  \right) (1 - R_{1,0} \dots) - D_{1,0}.
+  \]</span></p>
+  <p><span class="math inline">\(F_1\)</span> が <span
+  class="math inline">\(C^0\)</span> continuous であれば <span
+  class="math inline">\(h_{1,0} \to 0\)</span> のとき <span
+  class="math inline">\(e_1 - e_0 \to 0\)</span> です。このとき <span
+  class="math inline">\(F_1\)</span> の近似精度が高く <span
+  class="math inline">\(e_1 - e_0 \ll h_{1,0}\)</span>
+  であれば、ある程度は 0 に近づいても正確です。丸め誤差によって <span
+  class="math inline">\(e_1 - e_0\)</span> がすべて 0
+  になることは無いので、 <span class="math inline">\(h_{1,0}\)</span> が
+  <span class="math inline">\(0\)</span> に近いと誤差の爆発は防げません
+  (ill-conditioned) 。 <span class="math inline">\(F_1\)</span> が <span
+  class="math inline">\(C^0\)</span> continuous でないときは <span
+  class="math inline">\(F_1(x_1)\)</span> と <span
+  class="math inline">\(F_1(x_0)\)</span>
+  の間に不連続点があると爆発します。</p>
+  <p><span class="math inline">\(1 + R_{1,0} \cdots\)</span> は <span
+  class="math inline">\(\dfrac{1}{1 + R_{1,0}}\)</span>
+  のテイラー展開であるため、 <span class="math inline">\(R_{1,0} \to
+  -1\)</span> のときに誤差が増幅されます。</p>
+  <p><span class="math display">\[
+  R_{1,0} = R(x_1, x_0) = \frac{x_1 \delta_1 - x_0 \delta_0}{h_{1,0}}.
+  \]</span></p>
+  <p><span class="math inline">\(D_{1,0}\)</span>
+  の項を括り直します。</p>
+  <p><span class="math display">\[
+  D_{1,0} (1 - R_{1,0} \dots) - D_{1,0}
+  = D_{1,0} \left(\frac{1}{1 + R_{1,0}} - 1 \right)
+  = -D_{1,0} \frac{1}{(1 / R_{1,0}) + 1}.
+  \]</span></p>
+  <p>つまり <span class="math inline">\(E = 0\)</span>
+  という都合の良い条件を仮定しても <span class="math inline">\(R_{1,0}
+  \le -\dfrac{1}{2}\)</span> のときに誤差が増幅されます。</p>
+  <p><span class="math inline">\(N\)</span>
+  次のときの誤差を取り出します。</p>
+  <p><span class="math display">\[
+  \hat{D}_{N,0} - D_{N,0}
+  = \left(
+    D_{N,0} + N \frac{E_{N-1,1} - E_{N-1,0}}{h_{N,0}}
+  \right) (1 - R_{N,0} \dots) - D_{N,0}.
+  \]</span></p>
+  <p><span class="math inline">\(h_{N,0} \to 0\)</span> のときに <span
+  class="math inline">\(E\)</span> が増幅されます。 <span
+  class="math inline">\(E\)</span> の内部ではインデックスの異なる <span
+  class="math inline">\(h\)</span>
+  が分母に来るため、誤差のオーダーはざっくりと <span
+  class="math inline">\(O \left(\dfrac{1}{h^N}\right), |h| \ll
+  1\)</span> です。つまり、入力 <span class="math inline">\(x\)</span>
+  がほぼ一定のとき divided difference の誤差は爆発します。</p>
+  <p>以下は大まかに誤差の入れ子を表した形です。例なので片側だけ展開して残りは
+  <span class="math inline">\(\circ\)</span>
+  とし、記号のインデックスを省略しています。</p>
+  <p><span class="math display">\[
+  \frac{\cfrac{\cfrac{\cfrac{\cfrac{\left(\cfrac{e}{h (1 + R)} -
+  D\,\text{term} \right) + \circ}{\ddots} + \circ}{h (1 + R)} + \circ}{h
+  (1 + R)} + \circ}{h (1 + R)} + \circ}{h (1 + R)} - D\,\text{term}.
+  \]</span></p>
+  <h2 id="フォールバック"><a href="#フォールバック"
+  class="header-anchor" aria-hidden="true">フォールバック</a></h2>
+  <p><span class="math inline">\(h\)</span> が 0 に近いときは中点近似
+  (midpoint approximation) を使います。 Divided difference の 1
+  ステージあたりの計算式は以下の形をしています。 <span
+  class="math inline">\(n\)</span> は計算中のステージ 、 <span
+  class="math inline">\(\phi\)</span> は <span
+  class="math inline">\(F_n\)</span> か <span
+  class="math inline">\(\hat{D}_n\)</span> です。</p>
+  <p><span class="math display">\[
+  s_n = \frac{\phi(x_i) - \phi(x_j)}{h}.
+  \]</span></p>
+  <p><span class="math inline">\(\phi(x_i)\)</span> と <span
+  class="math inline">\(\phi(x_j)\)</span> を中点 <span
+  class="math inline">\(m\)</span> の周りでテイラー展開します。 <span
+  class="math inline">\(m = \dfrac{x_i + x_j}{2}\)</span> です。</p>
+  <p><span class="math display">\[
+  \phi(x_i)
+  = \phi\left(m + \frac{h}{2}\right)
+  = \phi(m) + \phi^{(1)}(m)\left(\frac{h}{2}\right) +
+  \frac{\phi^{(2)}(m)}{2!}\left(\frac{h}{2}\right)^2 +
+  \frac{\phi^{(3)}(m)}{3!}\left(\frac{h}{2}\right)^3 + \dots
+  \]</span></p>
+  <p><span class="math display">\[
+  \phi(x_j)
+  = \phi\left(m - \frac{h}{2}\right)
+  = \phi(m) - \phi^{(1)}(m)\left(\frac{h}{2}\right) +
+  \frac{\phi^{(2)}(m)}{2!}\left(\frac{h}{2}\right)^2 -
+  \frac{\phi^{(3)}(m)}{3!}\left(\frac{h}{2}\right)^3 + \dots
+  \]</span></p>
+  <p><span class="math inline">\(s_n\)</span>
+  に代入します。偶数次の項は消えます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  \frac{\phi(x_i) - \phi(x_j)}{h}
+  &amp;= \frac{2}{h}\left[ \phi^{(1)}(m)\frac{h}{2} +
+  \frac{\phi^{(3)}(m)}{3!} \left(\frac{h}{2}\right)^3 +
+  \frac{\phi^{(5)}(m)}{5!} \left(\frac{h}{2}\right)^5 + \dots \right] \\
+  &amp;= \phi^{(1)}(m) + \frac{\phi^{(3)}(m)}{3!\,2^{3-1}} h^2 +
+  \frac{\phi^{(5)}(m)}{5!\,2^{5-1}} h^4 + \dots \\
+  &amp;= \sum_{p\,\in\,\text{odd}} \frac{\phi^{(p)}(m)}{p!\,2^{p-1}}
+  h^{p - 1}.
+  \end{aligned}
+  \]</span></p>
+  <p>7 次まで展開します。</p>
+  <p><span class="math display">\[
+  s_n = \phi^{(1)}(m) + \frac{h^2}{24} \phi^{(3)} + \frac{h^4}{1920}
+  \phi^{(5)} + \frac{h^6}{322560} \phi^{(7)} + \dots
+  \]</span></p>
+  <h2 id="フォールバックへの分岐点"><a href="#フォールバックへの分岐点"
+  class="header-anchor"
+  aria-hidden="true">フォールバックへの分岐点</a></h2>
+  <p>分岐点となる <span class="math inline">\(h\)</span>
+  を決める関数を組み立てます。</p>
+  <p>以下はフォールバック側の近似を <span
+  class="math inline">\(p\)</span>
+  次で打ち切ったときの、誤差のおよその上限です。 <span
+  class="math inline">\(|h| \ll 1\)</span>
+  であれば、打ち切った次の次数の項で誤差を近似できます。以降では <span
+  class="math inline">\(\phi\)</span> の引数 <span
+  class="math inline">\((m)\)</span> を省略します。</p>
+  <p><span class="math display">\[
+  E_{\text{fallback}} \approx \frac{h^{p+1}}{(p+2)!\,2^{p+1}}
+  |\phi^{(p+2)}(m)|.
+  \]</span></p>
+  <p>Divided difference の <span class="math inline">\(n\)</span>
+  ステージ目での誤差を再掲します。</p>
+  <p><span class="math display">\[
+  E_{\text{DD}}
+  = \left(
+    D_{n,0} + \frac{E_{n-1,1} - E_{n-1,0}}{h_{n,0}}
+  \right) \frac{1}{1 + R_{n,0}} - D_{n,0}.
+  \]</span></p>
+  <p>フォールバック側の誤差 <span
+  class="math inline">\(E_{\text{fallback}}\)</span> が divided
+  difference 側の誤差 <span class="math inline">\(E_{\text{DD}}\)</span>
+  より小さくなる点が分岐点です。</p>
+  <p><span class="math display">\[
+  E_{\text{fallback}} &lt; E_{\text{DD}}.
+  \]</span></p>
+  <p>Maxima で解きます。 <span class="math inline">\(h =
+  h_{n,0}\)</span> とします。</p>
+  <div class="sourceCode" id="cb1"><pre
+  class="sourceCode maxima"><code class="sourceCode maxima"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cn">E_fallback</span>: <span class="cn">h</span>^(<span class="cn">p</span><span class="dv">+1</span>) / ((<span class="cn">p</span> + <span class="dv">2</span>)! * <span class="dv">2</span>^(<span class="cn">p</span><span class="dv">+1</span>)) * <span class="fu">abs</span>(<span class="cn">phi</span>^(<span class="cn">p</span><span class="dv">+2</span>));</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cn">E_DD</span>: (<span class="cn">D</span>(<span class="cn">n</span>, <span class="dv">0</span>) + (<span class="cn">E</span>(<span class="cn">n</span><span class="dv">-1</span>, <span class="dv">1</span>) - <span class="cn">E</span>(<span class="cn">n</span><span class="dv">-1</span>, <span class="dv">0</span>)) / <span class="cn">h</span>) / (<span class="dv">1</span> + <span class="cn">R</span>(<span class="cn">n</span>, <span class="dv">0</span>)) - <span class="cn">D</span>(<span class="cn">n</span>, <span class="dv">0</span>);</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(<span class="cn">E_fallback</span> = <span class="cn">E_DD</span>, <span class="cn">h</span>);</span></code></pre></div>
+  <p>整形した出力です。解けていません。</p>
+  <p><span class="math display">\[
+  h &lt;
+    \frac{E_{n-1,1} - E_{n-1,0}}{D_{n,0} R_{n,0}}
+  - \frac{2^{-p-1} |\phi^{(p+2)}|}{(p+2)! D_{n,0}} \cdot \frac{R_{n,0} +
+  1}{R_{n,0}} \cdot h^{p+2}
+  .
+  \]</span></p>
+  <h3 id="h-ll-1"><a href="#h-ll-1" class="header-anchor"
+  aria-hidden="true"><span class="math inline">\(|h| \ll
+  1\)</span></a></h3>
+  <p><span class="math inline">\(|h| \ll 1\)</span> なら <span
+  class="math inline">\(h^{p+2}\)</span> の項は無視できます。</p>
+  <p><span class="math display">\[
+  h &lt; \frac{E_{n-1,1} - E_{n-1,0}}{D_{n,0} R_{n,0}}.
+  \]</span></p>
+  <p>分母の誤差が最悪となるケースを <span
+  class="math inline">\(E_{n-1,1} - E_{n-1,0} \approx 2 E_{n-1}\)</span>
+  とします。 <span class="math inline">\(e\)</span> は <span
+  class="math inline">\(F_n\)</span> の誤差の最大値です。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  E_1 &amp;\le \frac{2e}{h} \\
+  E_2 &amp;\le \frac{2 E_1}{h} = \frac{2^2 e}{h^2} \\
+  E_3 &amp;\le \frac{2 E_1}{h} = \frac{2^3 e}{h^3} \\
+  &amp;\vdots \\
+  E_n &amp;\le \frac{2 E_{n-1}}{h} = \frac{2^n e}{h^n}.
+  \end{aligned}
+  \]</span></p>
+  <p>代入して解きます。</p>
+  <p><span class="math display">\[
+  h &lt; \left( \frac{2^n e}{D_{n,0} R_{n,0}} \right)^{1 / (1+n)}.
+  \]</span></p>
+  <p>この不等式が真のとき、中点近似にフォールバックします。この形は
+  <span class="math inline">\(D, R\)</span>
+  が含まれているので実用性が低いです。十分な精度の <span
+  class="math inline">\(D\)</span>
+  を求めるには任意精度計算が必要ですが、そもそも任意精度計算ができるならフォールバックしなくていいです。</p>
+  <h3 id="h-1"><a href="#h-1" class="header-anchor"
+  aria-hidden="true"><span class="math inline">\(|h| &lt;
+  1\)</span></a></h3>
+  <p>分岐点の不等式を再掲します。</p>
+  <p><span class="math display">\[
+  h &lt;
+    \frac{E_{n-1,1} - E_{n-1,0}}{D_{n,0} R_{n,0}}
+  - \frac{2^{-p-1} |\phi^{(p+2)}|}{(p+2)! D_{n,0}} \cdot \frac{R_{n,0} +
+  1}{R_{n,0}} \cdot h^{p+2}
+  .
+  \]</span></p>
+  <p>適当に <span class="math inline">\(R \to 0\)</span> とします。</p>
+  <p><span class="math display">\[
+  D_{n,0} R_{n,0} h =
+    E_{n-1,1} - E_{n-1,0}
+  - \frac{2^{-p-1} |\phi^{(p+2)}|}{(p+2)!} \cdot (R_{n,0} + 1) \cdot
+  h^{p+2}.
+  \]</span></p>
+  <p><span class="math display">\[
+  h^{p+2} &lt; \frac{(p+2)!}{2^{-p-1} |\phi^{(p+2)}|} \left( E_{n-1,1} -
+  E_{n-1,0} \right).
+  \]</span></p>
+  <p><span class="math inline">\(E_{n-1,1} - E_{n-1,0} \approx 2
+  E_{n-1}\)</span> とします。</p>
+  <p><span class="math display">\[
+  h^{p+2} &lt; 2^{p+2} (p+2)! \frac{E_{n-1}}{|\phi^{(p+2)}|}.
+  \]</span></p>
+  <p><span class="math inline">\(E_{n-1} = \dfrac{2^{n-1}}{h^{n-1}}
+  e\)</span> を代入して整理します。</p>
+  <p><span class="math display">\[
+  h &lt; 2 \left( (p+2)! \frac{e}{|\phi^{(p+2)}|} \right)^{1 / (p + n +
+  1)}.
+  \]</span></p>
+  <p><span class="math inline">\(|\phi^{(p+2)}|\)</span>
+  が扱いづらいです。例えば音楽で歪みを加えることが目的であれば [-1, 1]
+  の範囲に振幅が収まっている信号に対して +60 dB
+  のゲインをかけるので入力信号の最大振幅は 1e+3
+  、といった形での仮定ができます。しかし、これだと <span
+  class="math inline">\(|h| \ge 1\)</span>
+  となるので中点近似が収束しません。現実的には任意精度実装と比較しながら決めるしかないように思えます。</p>
+  <details>
+  <summary>
+  分岐点での誤差を比較するコード
+  </summary>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> branching_point(p, n, e<span class="op">=</span>sys.float_info.epsilon, phi<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Assuming |h| &lt; 1. This may not work for |h| &gt;= 1.&quot;&quot;&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> (math.factorial(p <span class="op">+</span> <span class="dv">2</span>) <span class="op">*</span> e <span class="op">/</span> phi)<span class="op">**</span>(<span class="dv">1</span> <span class="op">/</span> (p <span class="op">+</span> n <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fallback_error(h, p, e<span class="op">=</span>sys.float_info.epsilon, phi<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> phi <span class="op">*</span> h<span class="op">**</span>(p <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> (math.factorial(p) <span class="op">*</span> <span class="dv">2</span><span class="op">**</span>(p <span class="op">-</span> <span class="dv">1</span>))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare(p, n, phi<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> branching_point(p, n, phi<span class="op">=</span>phi)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> fallback_error(h, p, phi<span class="op">=</span>phi)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>h<span class="sc">:.2e}</span><span class="ss">, </span><span class="sc">{</span>t<span class="sc">:.2e}</span><span class="ss">, h &gt; t: </span><span class="sc">{</span>h <span class="op">&gt;</span> t<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+  </details>
+  <h3 id="問題点"><a href="#問題点" class="header-anchor"
+  aria-hidden="true">問題点</a></h3>
+  <p>式変形のために <span class="math inline">\(F_n\)</span>
+  の絶対誤差を導入したのですが、分岐点を決める式はそれが仇となって入力信号の振幅が大きいときに対応できない形になっています。相対誤差を使うと以下のような形になります。</p>
+  <p><span class="math display">\[
+  D_{1,0} = \frac{F_1(x_1) - F_1(x_0)}{x_1 - x_0}
+  \approx \frac{(F_1(x_1) - F_1(x_0)) (1 + R_F)}{(x_1 - x_0) (1 + R_x)}
+  = D_{1,0} \frac{1 + R_F}{1 + R_x}.
+  \]</span></p>
+  <p><span class="math inline">\(|R_x| &lt; 1\)</span> なので <span
+  class="math inline">\(\dfrac{1}{1 + R_x}\)</span>
+  をテイラー展開できます。</p>
+  <p><span class="math display">\[
+  \begin{aligned}
+  E_{\text{rel},1} = D_{1,0} \frac{1 + R_F}{1 + R_x} - D_{1,0}
+  &amp;= D_{1,0} \left( (1 + R_F) (1 - R_x \dots) - 1 \right) \\
+  &amp;= D_{1,0} \left( (1 + R_F) ( - R_x \dots) + R_F \right).
+  \end{aligned}
+  \]</span></p>
+  <p>ここから <span class="math inline">\(D\)</span>
+  を消す方法がわからないです。</p>
+  <h2 id="実装例"><a href="#実装例" class="header-anchor"
+  aria-hidden="true">実装例</a></h2>
+  <p>Python による実装例です。分岐点は中点近似側の <span
+  class="math inline">\(\phi\)</span> を 1 、許容誤差を <span
+  class="math inline">\(\sqrt{\epsilon}\)</span> として固定しています。
+  divided difference
+  側の誤差が分岐点の近くで大きくなるケースについては無視しています。</p>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Adaa_DividedDifference:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, order, funcs):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;funcs.fN are N-th antiderivatives. funcs.gN are N-th derivatives.&quot;&quot;&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.order <span class="op">=</span> order</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.funcs <span class="op">=</span> funcs</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x <span class="op">=</span> [<span class="fl">0.0</span>] <span class="op">*</span> order</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.f <span class="op">=</span> [<span class="fl">0.0</span>] <span class="op">*</span> order</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        e <span class="op">=</span> math.sqrt(sys.float_info.epsilon)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.threshold <span class="op">=</span> (<span class="dv">1920</span> <span class="op">*</span> e) <span class="op">**</span> (<span class="dv">1</span> <span class="op">/</span> <span class="dv">5</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.reset()</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _call_f(<span class="va">self</span>, n, val):</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">getattr</span>(<span class="va">self</span>.funcs, <span class="ss">f&quot;f</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">&quot;</span>)(val)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _call_correction(<span class="va">self</span>, n, val):</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._call_f(n, val) <span class="cf">if</span> n <span class="op">&gt;=</span> <span class="dv">0</span> <span class="cf">else</span> <span class="bu">getattr</span>(<span class="va">self</span>.funcs, <span class="ss">f&quot;g</span><span class="sc">{</span><span class="op">-</span>n<span class="sc">}</span><span class="ss">&quot;</span>)(val)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset(<span class="va">self</span>, input_val<span class="op">=</span><span class="fl">0.0</span>):</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x <span class="op">=</span> [input_val] <span class="op">*</span> <span class="va">self</span>.order</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.f <span class="op">=</span> [<span class="va">self</span>._call_f(<span class="va">self</span>.order <span class="op">-</span> i, input_val) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.order)]</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> process(<span class="va">self</span>, input_val):</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        curr <span class="op">=</span> <span class="va">self</span>._call_f(<span class="va">self</span>.order, input_val)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        next_f <span class="op">=</span> [<span class="fl">0.0</span>] <span class="op">*</span> <span class="va">self</span>.order</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> step <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.order):</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>            target <span class="op">=</span> <span class="va">self</span>.order <span class="op">-</span> <span class="dv">1</span> <span class="op">-</span> step</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>            next_f[step] <span class="op">=</span> curr</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            d <span class="op">=</span> input_val <span class="op">-</span> <span class="va">self</span>.x[step]</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">abs</span>(d) <span class="op">&lt;</span> <span class="va">self</span>.threshold:</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>                mid <span class="op">=</span> (input_val <span class="op">+</span> <span class="va">self</span>.x[step]) <span class="op">*</span> <span class="fl">0.5</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>                curr <span class="op">=</span> <span class="va">self</span>._call_f(target, mid) <span class="op">+</span> (</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>                    (d <span class="op">*</span> d) <span class="op">/</span> <span class="fl">24.0</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>                ) <span class="op">*</span> <span class="va">self</span>._call_correction(target <span class="op">-</span> <span class="dv">2</span>, mid)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>                curr <span class="op">*=</span> step <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>                curr <span class="op">=</span> (step <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> (curr <span class="op">-</span> <span class="va">self</span>.f[step]) <span class="op">/</span> d</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.f <span class="op">=</span> next_f</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.x <span class="op">=</span> [input_val] <span class="op">+</span> <span class="va">self</span>.x[:<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> curr</span></code></pre></div>
+  <p>ハードクリップで試してみます。</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Hardclip:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f0(x):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> x <span class="op">&lt;=</span> <span class="op">-</span><span class="fl">1.0</span>:</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="op">-</span><span class="fl">1.0</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> x <span class="op">&gt;=</span> <span class="fl">1.0</span>:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">1.0</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f1(x):</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        z <span class="op">=</span> <span class="bu">abs</span>(x)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> z <span class="op">&lt;</span> <span class="fl">1.0</span>:</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">0.5</span> <span class="op">*</span> x <span class="op">*</span> x</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> z <span class="op">-</span> <span class="fl">0.5</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f2(x):</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(x) <span class="op">&lt;</span> <span class="fl">1.0</span>:</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> (x <span class="op">*</span> x <span class="op">*</span> x) <span class="op">/</span> <span class="fl">6.0</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> <span class="fl">1.0</span> <span class="cf">if</span> x <span class="op">&gt;=</span> <span class="dv">0</span> <span class="cf">else</span> <span class="op">-</span><span class="fl">1.0</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (s <span class="op">*</span> x <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> x <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> s <span class="op">/</span> <span class="dv">6</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f3(x):</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        x2 <span class="op">=</span> x <span class="op">*</span> x</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> x2 <span class="op">&lt;</span> <span class="fl">1.0</span>:</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> (x2 <span class="op">*</span> x2) <span class="op">/</span> <span class="fl">24.0</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> <span class="fl">1.0</span> <span class="cf">if</span> x <span class="op">&gt;=</span> <span class="dv">0</span> <span class="cf">else</span> <span class="op">-</span><span class="fl">1.0</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (((s <span class="op">*</span> <span class="dv">4</span> <span class="op">*</span> x <span class="op">-</span> <span class="dv">6</span>) <span class="op">*</span> x <span class="op">+</span> s <span class="op">*</span> <span class="dv">4</span>) <span class="op">*</span> x <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> <span class="dv">24</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f4(x):</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        z <span class="op">=</span> <span class="bu">abs</span>(x)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> z <span class="op">&lt;</span> <span class="fl">1.0</span>:</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> (x<span class="op">**</span><span class="dv">5</span>) <span class="op">/</span> <span class="fl">120.0</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> <span class="fl">1.0</span> <span class="cf">if</span> x <span class="op">&gt;=</span> <span class="dv">0</span> <span class="cf">else</span> <span class="op">-</span><span class="fl">1.0</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> s <span class="op">*</span> (((((z <span class="op">-</span> <span class="fl">2.0</span>) <span class="op">*</span> z <span class="op">+</span> <span class="fl">2.0</span>) <span class="op">*</span> z <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">*</span> z <span class="op">/</span> <span class="fl">24.0</span>) <span class="op">+</span> <span class="fl">1.0</span> <span class="op">/</span> <span class="fl">120.0</span>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> g1(x):</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">abs</span>(x) <span class="op">&gt;=</span> <span class="fl">1.0</span>:</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">0.0</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fl">1.0</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> g2(x):</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fl">0.0</span></span></code></pre></div>
+  <p>以下は結果の一例です。上は 1234.56 Hz のサイン波にゲイン 1e+3
+  をかけたときの周波数領域での振幅のプロット、下は 2 Hz
+  のサイン波にゲイン 1e+3
+  をかけたときの時間領域での振幅のプロットです。サイン波の山と谷の部分、つまり位相が
+  <span class="math inline">\(1/2\pi\)</span> と <span
+  class="math inline">\(3/2\pi\)</span> の周りで 3 次以上の ADAA
+  は値がおかしくなっています。計算誤差によるノイズやスパイクが途切れているように見えるのは中点近似の分岐に切り替わっているからです。ゲインを上げると中点近似でカバーできる範囲が狭まるため、状況が悪化します。
+  2 次の ADAA についてはゲインが 1e+5
+  を超えるあたりからプロット上でズームすると計算誤差によるノイズが見えます。</p>
+  <figure>
+  <img src="img/adaa.svg" alt="A plot showing the stability issue of higher order ADAA using divided differences." style="padding-bottom: 12px;"/>
+  </figure>
+  <h2 id="一般的な-adaa-と特殊化の方針"><a
+  href="#一般的な-adaa-と特殊化の方針" class="header-anchor"
+  aria-hidden="true">一般的な ADAA と特殊化の方針</a></h2>
+  <p>Parker らによる “<a
+  href="https://dafx16.vutbr.cz/dafxpapers/20-DAFx-16_paper_41-PN.pdf">Reducing
+  the Aliasing of Nonlinear Waveshaping using Continuous-Time
+  Convolution</a>” の式 12 (§3, p.139) より、一般的な ADAA
+  の式は以下のように書けます。</p>
+  <p><span class="math display">\[
+  y = \sum_{i=0}^{N-1} \int_0^1 A_i(t) f(x_i + t (x_{i+1} - x_i)) dt.
+  \]</span></p>
+  <ul>
+  <li><span class="math inline">\(y\)</span> : 出力信号 (1 サンプル)
+  。</li>
+  <li><span class="math inline">\(x\)</span> : 入力信号。</li>
+  <li><span class="math inline">\(N\)</span> : ADAA の次数。</li>
+  <li><span class="math inline">\(i\)</span> :
+  サンプル数で表された相対的な時刻。 <span class="math inline">\(i +
+  j\)</span> は <span class="math inline">\(j\)</span>
+  サンプル前を表す。</li>
+  <li><span class="math inline">\(A\)</span> :
+  畳み込むフィルタ関数。</li>
+  <li><span class="math inline">\(f\)</span> :
+  アンチエイリアシングを行う非線形関数。</li>
+  </ul>
+  <p>ADAA の特殊化とは、 <span class="math inline">\(y\)</span>
+  の積分を解いて、式変形によって安定して計算できる形を探すことです。</p>
+  <h2 id="参考文献"><a href="#参考文献" class="header-anchor"
+  aria-hidden="true">参考文献</a></h2>
+  <ul>
+  <li><a
+  href="https://en.wikipedia.org/wiki/Divided_differences">Divided
+  difference - Wikipedia</a></li>
+  <li><a
+  href="https://mathworld.wolfram.com/DividedDifference.html">Divided
+  Difference – from Wolfram MathWorld</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Peano_kernel_theorem">Peano
+  kernel theorem - Wikipedia</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/B-spline">B-spline -
+  Wikipedia</a></li>
+  <li>Parker, J. D., Zavalishin, V., &amp; Le Bivic, E. (2016,
+  September). <a
+  href="https://dafx16.vutbr.cz/dafxpapers/20-DAFx-16_paper_41-PN.pdf">Reducing
+  the aliasing of nonlinear waveshaping using continuous-time
+  convolution</a>. In Proc. Int. Conf. Digital Audio Effects (DAFx-16),
+  Brno, Czech Republic (pp. 137-144).</li>
+  <li>Bilbao, S., Esqueda, F., Parker, J. D., &amp; Välimäki, V. (2017).
+  <a
+  href="https://drive.google.com/file/d/1SaqbMpxitC8QECkF3OfzHu7cDCnmpzY7/view">Antiderivative
+  antialiasing for memoryless nonlinearities</a>. IEEE Signal Processing
+  Letters, 24(7), 1049-1053.</li>
+  </ul>
+    <footer>
+    <a href="../index.html">インデックスに戻る</a>
+  </footer>
+</body>
+
+</html>
