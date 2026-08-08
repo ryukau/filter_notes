@@ -425,7 +425,7 @@ def testSingle():
     ulp = ulp_error(r, a, dtype)
 
     decimal_digits = 9 if dtype == np.float32 else 17
-    print(f"{r:.{decimal_digits}e}")
+    print(f"{dtype(r):.{decimal_digits}e}")
     print(f"{a:.{decimal_digits}e}")
     print(ulp)
 

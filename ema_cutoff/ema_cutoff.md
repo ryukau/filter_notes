@@ -3,7 +3,7 @@ Exponential moving average (EMA) フィルタのカットオフ周波数から�
 
 以下は Python 3 による実装へのリンクです。 `cutoffToAlphaC` と `cutoffToAlphaD` が正確な計算を行う実装です。
 
-- [filter_notes/ema_cutoff/emaaccuratecutoff.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/ema_cutoff/emaaccuratecutoff.py)
+- [filter_notes/ema_cutoff/ema_cutoff.py at master · ryukau/filter_notes · GitHub](https://github.com/ryukau/filter_notes/blob/master/ema_cutoff/ema_cutoff.py#L195-L225)
 
 ## 素朴な計算
 以下は C++20 による EMA フィルタの実装です。 `x` は入力信号、 `y` は出力信号、 `alpha` は EMA フィルタ係数です。
