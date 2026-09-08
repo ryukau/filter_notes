@@ -14,8 +14,7 @@
 #include <string>
 #include <vector>
 
-template<typename Sample> inline Sample modifiedSinc(Sample x, Sample cutoff)
-{
+template<typename Sample> inline Sample modifiedSinc(Sample x, Sample cutoff) {
   constexpr Sample pi = std::numbers::pi_v<Sample>;
   return std::abs(x) < std::numeric_limits<Sample>::epsilon()
     ? Sample(2) * cutoff
@@ -24,9 +23,7 @@ template<typename Sample> inline Sample modifiedSinc(Sample x, Sample cutoff)
 
 // `length` may be shorter than `size`. `0 <= length < size`.
 template<typename Sample, size_t size>
-inline void
-fillFirEven(std::array<Sample, size> &fir, int length, Sample cutoff, Sample fraction)
-{
+inline void fillFirEven(std::array<Sample, size>& fir, int length, Sample cutoff, Sample fraction) {
   const Sample mid = Sample(length / 2) - fraction;
   for (int i = 0; i < length; ++i) {
     const Sample x = Sample(i) - mid;
@@ -44,26 +41,24 @@ private:
 public:
   std::string name() { return "int"; }
 
-  void setup(Sample maxTimeSamples)
-  {
+  void setup(Sample maxTimeSamples) {
     buf.resize(std::max(size_t(1), size_t(maxTimeSamples) + 1));
     reset();
   }
 
   void reset() { std::fill(buf.begin(), buf.end(), Sample(0)); }
 
-  Sample process(Sample input, Sample timeInSamples)
-  {
+  Sample process(Sample input, Sample timeInSamples) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
     const Sample clamped = std::clamp(timeInSamples, Sample(0), Sample(size - 1));
     auto rptr0 = wptr - int(clamped);
-    if (rptr0 < 0) rptr0 += size;
+    if (rptr0 < 0) { rptr0 += size; }
     return buf[rptr0];
   }
 };
@@ -78,30 +73,28 @@ private:
 public:
   std::string name() { return "linear"; }
 
-  void setup(Sample maxTimeSamples)
-  {
+  void setup(Sample maxTimeSamples) {
     buf.resize(std::max(size_t(2), size_t(maxTimeSamples) + 2));
     reset();
   }
 
   void reset() { std::fill(buf.begin(), buf.end(), Sample(0)); }
 
-  Sample process(Sample input, Sample timeInSamples)
-  {
+  Sample process(Sample input, Sample timeInSamples) {
     const int size = int(buf.size());
     const Sample clamped = std::clamp(timeInSamples, Sample(0), Sample(size - 1));
     const int timeInt = int(clamped);
     const Sample rFraction = clamped - Sample(timeInt);
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
     auto rptr0 = wptr - timeInt;
     auto rptr1 = rptr0 - 1;
-    if (rptr0 < 0) rptr0 += size;
-    if (rptr1 < 0) rptr1 += size;
+    if (rptr0 < 0) { rptr0 += size; }
+    if (rptr1 < 0) { rptr1 += size; }
     return std::lerp(buf[rptr0], buf[rptr1], rFraction);
   }
 };
@@ -115,43 +108,38 @@ private:
   int wptr = 0;
   std::vector<Sample> buf{Sample(0), Sample(0)};
 
-  inline Sample lagrange3Interp(Sample y0, Sample y1, Sample y2, Sample y3, Sample t)
-  {
+  inline Sample lagrange3Interp(Sample y0, Sample y1, Sample y2, Sample y3, Sample t) {
     auto u = Sample(1) + t;
     auto d0 = y0 - y1;
     auto d1 = d0 - (y1 - y2);
     auto d2 = d1 - ((y1 - y2) - (y2 - y3));
-    return y0
-      - u * (d0 + (Sample(1) - u) / Sample(2) * (d1 + (Sample(2) - u) / Sample(3) * d2));
+    return y0 - u * (d0 + (Sample(1) - u) / Sample(2) * (d1 + (Sample(2) - u) / Sample(3) * d2));
   }
 
 public:
   std::string name() { return "lagrange3"; }
 
-  void setup(Sample maxTimeSamples)
-  {
+  void setup(Sample maxTimeSamples) {
     buf.resize(std::max(size_t(4), size_t(maxTimeSamples) + 4));
     reset();
   }
 
   void reset() { std::fill(buf.begin(), buf.end(), Sample(0)); }
 
-  Sample process(Sample input, Sample timeInSamples)
-  {
+  Sample process(Sample input, Sample timeInSamples) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
-    const Sample clamped
-      = std::clamp(timeInSamples - Sample(1), Sample(-1), Sample(size - 4));
+    const Sample clamped = std::clamp(timeInSamples - Sample(1), Sample(-1), Sample(size - 4));
     const Sample rFraction = clamped - std::floor(clamped);
 
     if (clamped < 0) { // Linear interpolation when delay time is less than 1 sample.
       auto rptr1 = wptr - 1;
-      if (rptr1 < 0) rptr1 += size;
+      if (rptr1 < 0) { rptr1 += size; }
       return std::lerp(buf[wptr], buf[rptr1], rFraction);
     }
 
@@ -159,23 +147,21 @@ public:
     auto rptr1 = rptr0 - 1;
     auto rptr2 = rptr0 - 2;
     auto rptr3 = rptr0 - 3;
-    if (rptr0 < 0) rptr0 += size;
-    if (rptr1 < 0) rptr1 += size;
-    if (rptr2 < 0) rptr2 += size;
-    if (rptr3 < 0) rptr3 += size;
+    if (rptr0 < 0) { rptr0 += size; }
+    if (rptr1 < 0) { rptr1 += size; }
+    if (rptr2 < 0) { rptr2 += size; }
+    if (rptr3 < 0) { rptr3 += size; }
     return lagrange3Interp(buf[rptr0], buf[rptr1], buf[rptr2], buf[rptr3], rFraction);
   }
 
-  Sample process1(Sample input, Sample timeInSamples)
-  {
+  Sample process1(Sample input, Sample timeInSamples) {
     const int size = int(buf.size());
-    const Sample clamped
-      = std::clamp(timeInSamples - Sample(1), Sample(0), Sample(size - 4));
+    const Sample clamped = std::clamp(timeInSamples - Sample(1), Sample(0), Sample(size - 4));
     const int timeInt = int(clamped);
     const Sample rFraction = clamped - Sample(timeInt);
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -183,10 +169,10 @@ public:
     auto rptr1 = rptr0 - 1;
     auto rptr2 = rptr0 - 2;
     auto rptr3 = rptr0 - 3;
-    if (rptr0 < 0) rptr0 += size;
-    if (rptr1 < 0) rptr1 += size;
-    if (rptr2 < 0) rptr2 += size;
-    if (rptr3 < 0) rptr3 += size;
+    if (rptr0 < 0) { rptr0 += size; }
+    if (rptr1 < 0) { rptr1 += size; }
+    if (rptr2 < 0) { rptr2 += size; }
+    if (rptr3 < 0) { rptr3 += size; }
     return lagrange3Interp(buf[rptr0], buf[rptr1], buf[rptr2], buf[rptr3], rFraction);
   }
 };
@@ -207,26 +193,23 @@ private:
 public:
   std::string name() { return "naive"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
     fir.fill(Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -237,19 +220,19 @@ public:
     const Sample timeDiff = std::abs(prevTime - clamped + Sample(1));
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
-    if (timeInSample <= 0) return input * modifiedSinc(Sample(0), cutoff);
+    if (timeInSample <= 0) { return input * modifiedSinc(Sample(0), cutoff); }
 
     const int timeInt = int(clamped);
     const Sample fraction = clamped - timeInt;
     fillFirEven(fir, localTap, cutoff, fraction);
 
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sig = 0;
     for (int idx = 0; idx < localTap; ++idx) {
       sig += fir[idx] * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sig;
   }
@@ -272,14 +255,12 @@ private:
 public:
   std::string name() { return "inner_product"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
@@ -288,12 +269,11 @@ public:
   }
 
   // Using `std::inner_product`.
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -304,17 +284,17 @@ public:
     const Sample timeDiff = std::abs(prevTime - clamped + Sample(1));
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     const int timeInt = int(clamped);
     const Sample fraction = clamped - timeInt;
     fillFirEven(fir, localTap, cutoff, fraction);
 
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
     for (int idx = 0; idx < localTap; ++idx) {
       read[idx] = buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
 
     return std::inner_product(read.begin(), read.end(), fir.begin(), Sample(0));
@@ -336,26 +316,23 @@ private:
 public:
   std::string name() { return "inlined"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
   // FIR coefficient computations are inlined into a loop.
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -366,19 +343,19 @@ public:
     const Sample timeDiff = std::abs(prevTime - clamped + Sample(1));
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     const int timeInt = int(clamped);
     const Sample mid = halfTap + timeInt - clamped;
 
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     for (int i = 0; i < localTap; ++i) {
       const Sample sinc = modifiedSinc(Sample(i) - mid, cutoff);
       sum += sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
@@ -399,25 +376,22 @@ private:
 public:
   std::string name() { return "biquad_sine"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -429,7 +403,7 @@ public:
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     // Setup recursive sine oscillator.
     const int timeInt = int(clamped);
@@ -445,7 +419,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     for (int i = 0; i < localTap; ++i) {
@@ -456,7 +430,7 @@ public:
       const Sample x = Sample(i) + mid;
       const Sample sinc = x == 0 ? Sample(2) * cutoff : u0 / (pi * x);
       sum += sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
@@ -477,25 +451,22 @@ private:
 public:
   std::string name() { return "biquad_less_error"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -507,7 +478,7 @@ public:
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     // Setup recursive sine oscillator.
     const int timeInt = int(clamped);
@@ -529,7 +500,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     for (int i = 0; i < localTap; ++i) {
@@ -542,15 +513,119 @@ public:
       if (std::abs(x) <= Sample(0.1)) {
         Sample q = pi * cutoff * x;
         q *= q;
-        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)
-          / (Sample(5) + q);
+        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);
       } else {
         sinc = u0 / (pi * x);
       }
       sum += sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
+  }
+};
+
+// Fast implementation with empirically stable loop gain.
+template<typename Sample, int maxTap = 256> class DelayAntialiasedBiquad2Stabilized {
+private:
+  static_assert(maxTap > 0 && maxTap % 2 == 0);
+
+  static constexpr int minTimeSample = maxTap / 2 - 1;
+  static constexpr Sample G_inf = Sample(1.1789797444721673);     // (2 / pi) * Si(pi)
+  static constexpr Sample C_excess = Sample(0.09425980026299558); // (4 / pi) - G_inf
+
+  Sample maxTime = 0;
+  Sample prevTime = 0;
+  int wptr = 0;
+  std::vector<Sample> buf;
+
+public:
+  std::string name() { return "biquad_stabilized"; }
+
+  void setup(size_t maxTimeSample) {
+    maxTime = Sample(maxTimeSample);
+    buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
+  }
+
+  void reset() {
+    prevTime = 0;
+    wptr = 0;
+    std::fill(buf.begin(), buf.end(), Sample(0));
+  }
+
+  Sample process(Sample input, Sample timeInSample) {
+    const int size = int(buf.size());
+
+    // Write to buffer.
+    if (++wptr >= size) { wptr = 0; }
+    buf[wptr] = input;
+
+    // Read from buffer.
+    const int localTap = std::clamp(2 * int(timeInSample), int(2), maxTap);
+    const int halfTap = localTap / 2;
+    const Sample clamped = std::clamp(timeInSample, Sample(halfTap - 1), maxTime);
+
+    const Sample timeDiff = std::abs(prevTime - clamped + Sample(1));
+    prevTime = clamped;
+    Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
+
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
+
+    // Setup recursive sine oscillator.
+    const int timeInt = int(clamped);
+    const Sample fraction = clamped - Sample(timeInt);
+    const Sample mid = fraction - halfTap;
+
+    constexpr Sample pi = std::numbers::pi_v<Sample>;
+    const Sample omega = Sample(2) * pi * cutoff;
+    const Sample phi = mid * omega;
+    const Sample cs_o = std::cos(omega);
+    const Sample sn_o = std::sin(omega);
+    const Sample cs_p = std::cos(phi);
+    const Sample sn_p = std::sin(phi);
+    const Sample k = Sample(2) * cs_o;
+    Sample u1 = sn_p * cs_o - cs_p * sn_o;
+    const Sample cs_o2 = Sample(2) * cs_o * cs_o - Sample(1);
+    const Sample sn_o2 = Sample(2) * sn_o * cs_o;
+    Sample u2 = sn_p * cs_o2 - cs_p * sn_o2;
+
+    // Convolution.
+    int rptr = wptr - timeInt - halfTap;
+    if (rptr < 0) { rptr += size; }
+
+    Sample sum = 0;
+    for (int i = 0; i < localTap; ++i) {
+      const Sample u0 = k * u1 - u2;
+      u2 = u1;
+      u1 = u0;
+
+      const Sample x = Sample(i) + mid;
+      Sample sinc;
+      if (std::abs(x) <= Sample(0.1)) {
+        Sample q = pi * cutoff * x;
+        q *= q;
+        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);
+      } else {
+        sinc = u0 / (pi * x);
+      }
+      sum += sinc * buf[rptr];
+      if (++rptr >= size) { rptr = 0; }
+    }
+
+    // A normalization to stabilize loop gain (|H(w)| <= 1.0).
+    // G_inf - 1 = (2 / pi) * Si(pi) - 1 ~= 0.1789797445.
+    // 4 * ((4 / pi) - G_inf) ~= 0.3770392011.
+    const Sample maxOvershoot
+      = (G_inf - Sample(1)) + C_excess * Sample(4) / Sample(localTap * localTap);
+
+    Sample normGain;
+    if (cutoff >= Sample(0.5)) {
+      const Sample p = Sample(4) * fraction * (Sample(1) - fraction);
+      normGain = Sample(1) / (Sample(1) + maxOvershoot * p);
+    } else {
+      normGain = Sample(1) / (Sample(1) + maxOvershoot);
+    }
+
+    return sum * normGain;
   }
 };
 
@@ -569,25 +644,22 @@ private:
 public:
   std::string name() { return "reinsch_sine"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -599,7 +671,7 @@ public:
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     // Setup recursive sine oscillator.
     const int timeInt = int(clamped);
@@ -616,7 +688,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     for (int i = 0; i < localTap; ++i) {
@@ -628,14 +700,13 @@ public:
       if (std::abs(x) <= Sample(0.1)) {
         Sample q = pi * cutoff * x;
         q *= q;
-        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)
-          / (Sample(5) + q);
+        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);
       } else {
         sinc = u / (pi * x);
       }
 
       sum += sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
@@ -656,25 +727,22 @@ private:
 public:
   std::string name() { return "magic_circle"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -686,7 +754,7 @@ public:
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     // Setup recursive sine oscillator.
     const int timeInt = int(clamped);
@@ -702,7 +770,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     for (int i = 0; i < localTap; ++i) {
@@ -714,14 +782,13 @@ public:
       if (std::abs(x) <= Sample(0.1)) {
         Sample q = pi * cutoff * x;
         q *= q;
-        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)
-          / (Sample(5) + q);
+        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);
       } else {
         sinc = v / (pi * x);
       }
 
       sum += sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
@@ -745,25 +812,22 @@ private:
 public:
   std::string name() { return "stable_quad_sine"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -775,7 +839,7 @@ public:
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     // Setup recursive sine oscillator.
     const int timeInt = int(clamped);
@@ -792,7 +856,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     for (int i = 0; i < localTap; ++i) {
@@ -805,14 +869,13 @@ public:
       if (std::abs(x) <= Sample(0.1)) {
         Sample q = pi * cutoff * x;
         q *= q;
-        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)
-          / (Sample(5) + q);
+        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);
       } else {
         sinc = v / pi / x;
       }
 
       sum += sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
@@ -834,25 +897,22 @@ private:
 public:
   std::string name() { return "fast_lanczosA"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -864,7 +924,7 @@ public:
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     // Setup convolution filter parameters.
     const int timeInt = int(clamped);
@@ -890,7 +950,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     const Sample A = lanczos_a / (Sample(2) * cutoff * pi * pi);
@@ -908,8 +968,7 @@ public:
       if (std::abs(x) <= Sample(0.1)) {
         Sample q = pi * x * cutoff;
         q *= q;
-        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)
-          / (Sample(5) + q);
+        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);
 
         Sample p = pi * x * cutoff / lanczos_a;
         p *= p;
@@ -920,7 +979,7 @@ public:
       }
 
       sum += sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
@@ -941,25 +1000,22 @@ private:
 public:
   std::string name() { return "fast_lanczos1"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -971,7 +1027,7 @@ public:
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     // Setup convolution filter parameters.
     const int timeInt = int(clamped);
@@ -996,7 +1052,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     const Sample A = lanczos_a / (Sample(2) * pi * pi);
@@ -1014,8 +1070,7 @@ public:
       if (std::abs(x) <= Sample(0.1)) {
         Sample q = pi * x * cutoff;
         q *= q;
-        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)
-          / (Sample(5) + q);
+        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);
 
         Sample p = pi * x / lanczos_a;
         p *= p;
@@ -1026,225 +1081,212 @@ public:
       }
 
       sum += sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
 };
 
-#define DELAY_COSINE_SUM(WINDOW_NAME, WINDOW_POLYNOMIAL)                                 \
-  template<typename Sample, int maxTap = 256> class Delay##WINDOW_NAME##BiquadSine {     \
-  private:                                                                               \
-    static_assert(maxTap > 0 && maxTap % 2 == 0);                                        \
-                                                                                         \
-    static constexpr int minTimeSample = maxTap / 2 - 1;                                 \
-                                                                                         \
-    Sample maxTime = 0;                                                                  \
-    Sample prevTime = 0;                                                                 \
-    int wptr = 0;                                                                        \
-    std::vector<Sample> buf;                                                             \
-                                                                                         \
-  public:                                                                                \
-    std::string name() { return "fast_" #WINDOW_NAME; }                                  \
-                                                                                         \
-    void setup(size_t maxTimeSample)                                                     \
-    {                                                                                    \
-      maxTime = Sample(maxTimeSample);                                                   \
-      buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));              \
-    }                                                                                    \
-                                                                                         \
-    void reset()                                                                         \
-    {                                                                                    \
-      prevTime = 0;                                                                      \
-      wptr = 0;                                                                          \
-      std::fill(buf.begin(), buf.end(), Sample(0));                                      \
-    }                                                                                    \
-                                                                                         \
-    Sample process(Sample input, Sample timeInSample)                                    \
-    {                                                                                    \
-      const int size = int(buf.size());                                                  \
-                                                                                         \
-      if (++wptr >= size) wptr = 0;                                                      \
-      buf[wptr] = input;                                                                 \
-                                                                                         \
-      const int localTap = std::clamp(2 * int(timeInSample), int(2), maxTap);            \
-      const int halfTap = localTap / 2;                                                  \
-      const Sample clamped = std::clamp(timeInSample, Sample(halfTap - 1), maxTime);     \
-                                                                                         \
-      const Sample timeDiff = std::abs(prevTime - clamped + Sample(1));                  \
-      prevTime = clamped;                                                                \
-      Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);        \
-                                                                                         \
-      if (timeInSample <= 0) return input * Sample(2) * cutoff;                          \
-                                                                                         \
-      const int timeInt = int(clamped);                                                  \
-      Sample fraction = clamped - Sample(timeInt);                                       \
-      const Sample mid = fraction - halfTap;                                             \
-                                                                                         \
-      constexpr Sample pi = std::numbers::pi_v<Sample>;                                  \
-      const Sample o1_omega = Sample(2) * pi * cutoff;                                   \
-      const Sample o1_phi = mid * o1_omega;                                              \
-      const Sample o1_k = Sample(2) * std::cos(o1_omega);                                \
-      Sample o1_u1 = std::sin(o1_phi - o1_omega);                                        \
-      Sample o1_u2 = std::sin(o1_phi - Sample(2) * o1_omega);                            \
-                                                                                         \
-      const Sample o2_omega = Sample(2) * pi / Sample(localTap + 1);                     \
-      const Sample o2_phi = pi / Sample(2);                                              \
-      const Sample o2_k = Sample(2) * std::cos(o2_omega);                                \
-      Sample o2_u1 = Sample(1);                                                          \
-      Sample o2_u2 = std::sin(o2_phi - o2_omega);                                        \
-                                                                                         \
-      int rptr = wptr - timeInt - halfTap;                                               \
-      if (rptr < 0) rptr += size;                                                        \
-                                                                                         \
-      Sample sum = 0;                                                                    \
-      for (int i = 0; i < localTap; ++i) {                                               \
-        const Sample o1_u0 = o1_k * o1_u1 - o1_u2;                                       \
-        o1_u2 = o1_u1;                                                                   \
-        o1_u1 = o1_u0;                                                                   \
-                                                                                         \
-        const Sample o2_u0 = o2_k * o2_u1 - o2_u2;                                       \
-        o2_u2 = o2_u1;                                                                   \
-        o2_u1 = o2_u0;                                                                   \
-                                                                                         \
-        const Sample window = WINDOW_POLYNOMIAL;                                         \
-                                                                                         \
-        const Sample x = Sample(i) + mid;                                                \
-        Sample sinc;                                                                     \
-        if (std::abs(x) <= Sample(0.1)) {                                                \
-          Sample q = pi * cutoff * x;                                                    \
-          q *= q;                                                                        \
-          sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)           \
-            / (Sample(5) + q);                                                           \
-        } else {                                                                         \
-          sinc = o1_u0 / (pi * x);                                                       \
-        }                                                                                \
-                                                                                         \
-        sum += window * sinc * buf[rptr];                                                \
-        if (++rptr >= size) rptr = 0;                                                    \
-      }                                                                                  \
-      return sum;                                                                        \
-    }                                                                                    \
+#define DELAY_COSINE_SUM(WINDOW_NAME, WINDOW_POLYNOMIAL)                                           \
+  template<typename Sample, int maxTap = 256> class Delay##WINDOW_NAME##BiquadSine {               \
+  private:                                                                                         \
+    static_assert(maxTap > 0 && maxTap % 2 == 0);                                                  \
+                                                                                                   \
+    static constexpr int minTimeSample = maxTap / 2 - 1;                                           \
+                                                                                                   \
+    Sample maxTime = 0;                                                                            \
+    Sample prevTime = 0;                                                                           \
+    int wptr = 0;                                                                                  \
+    std::vector<Sample> buf;                                                                       \
+                                                                                                   \
+  public:                                                                                          \
+    std::string name() { return "fast_" #WINDOW_NAME; }                                            \
+                                                                                                   \
+    void setup(size_t maxTimeSample) {                                                             \
+      maxTime = Sample(maxTimeSample);                                                             \
+      buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));                        \
+    }                                                                                              \
+                                                                                                   \
+    void reset() {                                                                                 \
+      prevTime = 0;                                                                                \
+      wptr = 0;                                                                                    \
+      std::fill(buf.begin(), buf.end(), Sample(0));                                                \
+    }                                                                                              \
+                                                                                                   \
+    Sample process(Sample input, Sample timeInSample) {                                            \
+      const int size = int(buf.size());                                                            \
+                                                                                                   \
+      if (++wptr >= size) wptr = 0;                                                                \
+      buf[wptr] = input;                                                                           \
+                                                                                                   \
+      const int localTap = std::clamp(2 * int(timeInSample), int(2), maxTap);                      \
+      const int halfTap = localTap / 2;                                                            \
+      const Sample clamped = std::clamp(timeInSample, Sample(halfTap - 1), maxTime);               \
+                                                                                                   \
+      const Sample timeDiff = std::abs(prevTime - clamped + Sample(1));                            \
+      prevTime = clamped;                                                                          \
+      Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);                  \
+                                                                                                   \
+      if (timeInSample <= 0) return input * Sample(2) * cutoff;                                    \
+                                                                                                   \
+      const int timeInt = int(clamped);                                                            \
+      Sample fraction = clamped - Sample(timeInt);                                                 \
+      const Sample mid = fraction - halfTap;                                                       \
+                                                                                                   \
+      constexpr Sample pi = std::numbers::pi_v<Sample>;                                            \
+      const Sample o1_omega = Sample(2) * pi * cutoff;                                             \
+      const Sample o1_phi = mid * o1_omega;                                                        \
+      const Sample o1_k = Sample(2) * std::cos(o1_omega);                                          \
+      Sample o1_u1 = std::sin(o1_phi - o1_omega);                                                  \
+      Sample o1_u2 = std::sin(o1_phi - Sample(2) * o1_omega);                                      \
+                                                                                                   \
+      const Sample o2_omega = Sample(2) * pi / Sample(localTap + 1);                               \
+      const Sample o2_phi = pi / Sample(2);                                                        \
+      const Sample o2_k = Sample(2) * std::cos(o2_omega);                                          \
+      Sample o2_u1 = Sample(1);                                                                    \
+      Sample o2_u2 = std::sin(o2_phi - o2_omega);                                                  \
+                                                                                                   \
+      int rptr = wptr - timeInt - halfTap;                                                         \
+      if (rptr < 0) rptr += size;                                                                  \
+                                                                                                   \
+      Sample sum = 0;                                                                              \
+      for (int i = 0; i < localTap; ++i) {                                                         \
+        const Sample o1_u0 = o1_k * o1_u1 - o1_u2;                                                 \
+        o1_u2 = o1_u1;                                                                             \
+        o1_u1 = o1_u0;                                                                             \
+                                                                                                   \
+        const Sample o2_u0 = o2_k * o2_u1 - o2_u2;                                                 \
+        o2_u2 = o2_u1;                                                                             \
+        o2_u1 = o2_u0;                                                                             \
+                                                                                                   \
+        const Sample window = WINDOW_POLYNOMIAL;                                                   \
+                                                                                                   \
+        const Sample x = Sample(i) + mid;                                                          \
+        Sample sinc;                                                                               \
+        if (std::abs(x) <= Sample(0.1)) {                                                          \
+          Sample q = pi * cutoff * x;                                                              \
+          q *= q;                                                                                  \
+          sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);  \
+        } else {                                                                                   \
+          sinc = o1_u0 / (pi * x);                                                                 \
+        }                                                                                          \
+                                                                                                   \
+        sum += window * sinc * buf[rptr];                                                          \
+        if (++rptr >= size) rptr = 0;                                                              \
+      }                                                                                            \
+      return sum;                                                                                  \
+    }                                                                                              \
   };
 
-#define DELAY_COSINE_SUM_SMOOTH(WINDOW_NAME, WINDOW_POLYNOMIAL)                          \
-  template<typename Sample, int maxTap = 256>                                            \
-  class Delay##WINDOW_NAME##SmoothBiquadSine {                                           \
-  private:                                                                               \
-    static_assert(maxTap > 0 && maxTap % 2 == 0);                                        \
-                                                                                         \
-    static constexpr int minTimeSample = maxTap / 2 - 1;                                 \
-                                                                                         \
-    Sample maxTime = 0;                                                                  \
-    Sample prevTime = 0;                                                                 \
-    int wptr = 0;                                                                        \
-    std::vector<Sample> buf;                                                             \
-                                                                                         \
-  public:                                                                                \
-    std::string name() { return "smoo_" #WINDOW_NAME; }                                  \
-                                                                                         \
-    void setup(size_t maxTimeSample)                                                     \
-    {                                                                                    \
-      maxTime = Sample(maxTimeSample);                                                   \
-      buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));              \
-    }                                                                                    \
-                                                                                         \
-    void reset()                                                                         \
-    {                                                                                    \
-      prevTime = 0;                                                                      \
-      wptr = 0;                                                                          \
-      std::fill(buf.begin(), buf.end(), Sample(0));                                      \
-    }                                                                                    \
-                                                                                         \
-    Sample process(Sample input, Sample timeInSample)                                    \
-    {                                                                                    \
-      const int size = int(buf.size());                                                  \
-                                                                                         \
-      if (++wptr >= size) wptr = 0;                                                      \
-      buf[wptr] = input;                                                                 \
-                                                                                         \
-      const int localTap = std::clamp(2 * int(timeInSample), int(2), maxTap);            \
-      const int halfTap = localTap / 2;                                                  \
-      const Sample clamped = std::clamp(timeInSample, Sample(halfTap - 1), maxTime);     \
-                                                                                         \
-      const Sample timeDiff = std::abs(prevTime - clamped + Sample(1));                  \
-      prevTime = clamped;                                                                \
-      Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);        \
-                                                                                         \
-      if (timeInSample <= 0) return input * Sample(2) * cutoff;                          \
-                                                                                         \
-      const int timeInt = int(clamped);                                                  \
-      Sample fraction = clamped - Sample(timeInt);                                       \
-      const Sample mid = fraction - halfTap;                                             \
-                                                                                         \
-      constexpr Sample pi = std::numbers::pi_v<Sample>;                                  \
-      const Sample o1_omega = Sample(2) * pi * cutoff;                                   \
-      const Sample o1_k = Sample(2) * std::cos(o1_omega);                                \
-      Sample o1_u1 = std::sin((mid - Sample(1)) * o1_omega);                             \
-      Sample o1_u2 = std::sin((mid - Sample(2)) * o1_omega);                             \
-                                                                                         \
-      const Sample o2_omega = Sample(2) * pi / Sample(maxTap + 1);                       \
-      const Sample o2_phi = o2_omega * Sample(maxTap / 2 - halfTap);                     \
-      const Sample o2_k = Sample(2) * std::cos(o2_omega);                                \
-      Sample o2_u1 = std::cos(o2_phi);                                                   \
-      Sample o2_u2 = std::cos(o2_phi - o2_omega);                                        \
-                                                                                         \
-      int rptr = wptr - timeInt - halfTap;                                               \
-      if (rptr < 0) rptr += size;                                                        \
-                                                                                         \
-      Sample sum = 0;                                                                    \
-      for (int i = 0; i < localTap; ++i) {                                               \
-        const Sample o1_u0 = o1_k * o1_u1 - o1_u2;                                       \
-        o1_u2 = o1_u1;                                                                   \
-        o1_u1 = o1_u0;                                                                   \
-                                                                                         \
-        const Sample o2_u0 = o2_k * o2_u1 - o2_u2;                                       \
-        o2_u2 = o2_u1;                                                                   \
-        o2_u1 = o2_u0;                                                                   \
-                                                                                         \
-        const Sample window = WINDOW_POLYNOMIAL;                                         \
-                                                                                         \
-        const Sample x = Sample(i) + mid;                                                \
-        Sample sinc;                                                                     \
-        if (std::abs(x) <= Sample(0.1)) {                                                \
-          Sample q = pi * cutoff * x;                                                    \
-          q *= q;                                                                        \
-          sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)           \
-            / (Sample(5) + q);                                                           \
-        } else {                                                                         \
-          sinc = o1_u0 / (pi * x);                                                       \
-        }                                                                                \
-                                                                                         \
-        sum += window * sinc * buf[rptr];                                                \
-        if (++rptr >= size) rptr = 0;                                                    \
-      }                                                                                  \
-      return sum;                                                                        \
-    }                                                                                    \
+#define DELAY_COSINE_SUM_SMOOTH(WINDOW_NAME, WINDOW_POLYNOMIAL)                                    \
+  template<typename Sample, int maxTap = 256> class Delay##WINDOW_NAME##SmoothBiquadSine {         \
+  private:                                                                                         \
+    static_assert(maxTap > 0 && maxTap % 2 == 0);                                                  \
+                                                                                                   \
+    static constexpr int minTimeSample = maxTap / 2 - 1;                                           \
+                                                                                                   \
+    Sample maxTime = 0;                                                                            \
+    Sample prevTime = 0;                                                                           \
+    int wptr = 0;                                                                                  \
+    std::vector<Sample> buf;                                                                       \
+                                                                                                   \
+  public:                                                                                          \
+    std::string name() { return "smoo_" #WINDOW_NAME; }                                            \
+                                                                                                   \
+    void setup(size_t maxTimeSample) {                                                             \
+      maxTime = Sample(maxTimeSample);                                                             \
+      buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));                        \
+    }                                                                                              \
+                                                                                                   \
+    void reset() {                                                                                 \
+      prevTime = 0;                                                                                \
+      wptr = 0;                                                                                    \
+      std::fill(buf.begin(), buf.end(), Sample(0));                                                \
+    }                                                                                              \
+                                                                                                   \
+    Sample process(Sample input, Sample timeInSample) {                                            \
+      const int size = int(buf.size());                                                            \
+                                                                                                   \
+      if (++wptr >= size) wptr = 0;                                                                \
+      buf[wptr] = input;                                                                           \
+                                                                                                   \
+      const int localTap = std::clamp(2 * int(timeInSample), int(2), maxTap);                      \
+      const int halfTap = localTap / 2;                                                            \
+      const Sample clamped = std::clamp(timeInSample, Sample(halfTap - 1), maxTime);               \
+                                                                                                   \
+      const Sample timeDiff = std::abs(prevTime - clamped + Sample(1));                            \
+      prevTime = clamped;                                                                          \
+      Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);                  \
+                                                                                                   \
+      if (timeInSample <= 0) return input * Sample(2) * cutoff;                                    \
+                                                                                                   \
+      const int timeInt = int(clamped);                                                            \
+      Sample fraction = clamped - Sample(timeInt);                                                 \
+      const Sample mid = fraction - halfTap;                                                       \
+                                                                                                   \
+      constexpr Sample pi = std::numbers::pi_v<Sample>;                                            \
+      const Sample o1_omega = Sample(2) * pi * cutoff;                                             \
+      const Sample o1_k = Sample(2) * std::cos(o1_omega);                                          \
+      Sample o1_u1 = std::sin((mid - Sample(1)) * o1_omega);                                       \
+      Sample o1_u2 = std::sin((mid - Sample(2)) * o1_omega);                                       \
+                                                                                                   \
+      const Sample o2_omega = Sample(2) * pi / Sample(maxTap + 1);                                 \
+      const Sample o2_phi = o2_omega * Sample(maxTap / 2 - halfTap);                               \
+      const Sample o2_k = Sample(2) * std::cos(o2_omega);                                          \
+      Sample o2_u1 = std::cos(o2_phi);                                                             \
+      Sample o2_u2 = std::cos(o2_phi - o2_omega);                                                  \
+                                                                                                   \
+      int rptr = wptr - timeInt - halfTap;                                                         \
+      if (rptr < 0) rptr += size;                                                                  \
+                                                                                                   \
+      Sample sum = 0;                                                                              \
+      for (int i = 0; i < localTap; ++i) {                                                         \
+        const Sample o1_u0 = o1_k * o1_u1 - o1_u2;                                                 \
+        o1_u2 = o1_u1;                                                                             \
+        o1_u1 = o1_u0;                                                                             \
+                                                                                                   \
+        const Sample o2_u0 = o2_k * o2_u1 - o2_u2;                                                 \
+        o2_u2 = o2_u1;                                                                             \
+        o2_u1 = o2_u0;                                                                             \
+                                                                                                   \
+        const Sample window = WINDOW_POLYNOMIAL;                                                   \
+                                                                                                   \
+        const Sample x = Sample(i) + mid;                                                          \
+        Sample sinc;                                                                               \
+        if (std::abs(x) <= Sample(0.1)) {                                                          \
+          Sample q = pi * cutoff * x;                                                              \
+          q *= q;                                                                                  \
+          sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);  \
+        } else {                                                                                   \
+          sinc = o1_u0 / (pi * x);                                                                 \
+        }                                                                                          \
+                                                                                                   \
+        sum += window * sinc * buf[rptr];                                                          \
+        if (++rptr >= size) rptr = 0;                                                              \
+      }                                                                                            \
+      return sum;                                                                                  \
+    }                                                                                              \
   };
 
-#define BLACKMAN_POLY                                                                    \
-  Sample(0.349742046431642)                                                              \
-    + o2_u0 *(Sample(-0.496560619088564) + Sample(0.153697334479794) * o2_u0)
+#define BLACKMAN_POLY                                                                              \
+  Sample(0.349742046431642) + o2_u0*(Sample(-0.496560619088564) + Sample(0.153697334479794) * o2_u0)
 
-#define NUTTALL_POLY                                                                     \
-  Sample(0.211536)                                                                       \
-    + o2_u0 *(                                                                           \
-      Sample(-0.449584) + o2_u0 * (Sample(0.288464) + o2_u0 * Sample(-0.050416)))
+#define NUTTALL_POLY                                                                               \
+  Sample(0.211536)                                                                                 \
+    + o2_u0*(Sample(-0.449584) + o2_u0 * (Sample(0.288464) + o2_u0 * Sample(-0.050416)))
 
-#define BLACKMANHARRIS_POLY                                                              \
-  Sample(0.21747)                                                                        \
-    + o2_u0 *(Sample(-0.45325) + o2_u0 * (Sample(0.28256) + o2_u0 * Sample(-0.04672)))
+#define BLACKMANHARRIS_POLY                                                                        \
+  Sample(0.21747) + o2_u0*(Sample(-0.45325) + o2_u0 * (Sample(0.28256) + o2_u0 * Sample(-0.04672)))
 
-#define BLACKMANNUTTALL_POLY                                                             \
-  Sample(0.2269824)                                                                      \
-    + o2_u0 *(                                                                           \
-      Sample(-0.4572542) + o2_u0 * (Sample(0.273199) + o2_u0 * Sample(-0.0425644)))
+#define BLACKMANNUTTALL_POLY                                                                       \
+  Sample(0.2269824)                                                                                \
+    + o2_u0*(Sample(-0.4572542) + o2_u0 * (Sample(0.273199) + o2_u0 * Sample(-0.0425644)))
 
-#define FLATTOP_POLY                                                                     \
-  Sample(-0.05473684)                                                                    \
-    + o2_u0 *(                                                                           \
-      Sample(-0.165894739)                                                               \
-      + o2_u0                                                                            \
+#define FLATTOP_POLY                                                                               \
+  Sample(-0.05473684)                                                                              \
+    + o2_u0*(                                                                                      \
+      Sample(-0.165894739)                                                                         \
+      + o2_u0                                                                                      \
         * (Sample(0.498947372) + o2_u0 * (Sample(-0.334315788) + o2_u0 * (Sample(0.055578944)))))
 
 // Fast implementation with Blackman window.
@@ -1282,25 +1324,22 @@ private:
 public:
   std::string name() { return "fast_triangle"; }
 
-  void setup(size_t maxTimeSample)
-  {
+  void setup(size_t maxTimeSample) {
     maxTime = Sample(maxTimeSample);
     buf.resize(std::max(size_t(maxTap), maxTimeSample + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Sample(0));
   }
 
-  Sample process(Sample input, Sample timeInSample)
-  {
+  Sample process(Sample input, Sample timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -1312,7 +1351,7 @@ public:
     prevTime = clamped;
     Sample cutoff = timeDiff <= Sample(1) ? Sample(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Sample(2) * cutoff;
+    if (timeInSample <= 0) { return input * Sample(2) * cutoff; }
 
     // Setup convolution filter parameters.
     const int timeInt = int(clamped);
@@ -1329,7 +1368,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Sample sum = 0;
     const int tri_N = std::max(2, localTap + 1);
@@ -1344,15 +1383,14 @@ public:
       if (std::abs(x) <= Sample(0.1)) {
         Sample q = pi * cutoff * x;
         q *= q;
-        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q)
-          / (Sample(5) + q);
+        sinc = Sample(2) / Sample(3) * cutoff * (Sample(15) - Sample(7) * q) / (Sample(5) + q);
       } else {
         sinc = u0 / (pi * x);
       }
 
       const Sample window = Sample(1) - std::abs(Sample(2 * (i + 1) - tri_N) * inv_N);
       sum += window * sinc * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
@@ -1373,25 +1411,22 @@ private:
 public:
   std::string name() { return "centered_window"; }
 
-  void setup(Real maxTimeSample)
-  {
+  void setup(Real maxTimeSample) {
     maxTime = maxTimeSample;
     buf.resize(std::max(size_t(maxTap), size_t(maxTime) + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Real(0));
   }
 
-  Real process(Real input, Real timeInSample)
-  {
+  Real process(Real input, Real timeInSample) {
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Start reading from buffer. Setup convolution filter parameters.
@@ -1403,7 +1438,7 @@ public:
     prevTime = clamped;
     const Real cutoff = timeDiff <= Real(1) ? Real(0.5) : std::exp2(-timeDiff);
 
-    if (timeInSample <= 0) return input * Real(2) * cutoff;
+    if (timeInSample <= 0) { return input * Real(2) * cutoff; }
 
     const int timeInt = int(clamped);
     const Real fraction = clamped - Real(timeInt);
@@ -1425,7 +1460,7 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Real sum = 0;
     for (int i = 0; i < localTap; ++i) {
@@ -1450,7 +1485,7 @@ public:
         sinc = o1_u0 / (pi * x);
       }
       sum += sinc * window * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
@@ -1471,25 +1506,21 @@ private:
 public:
   std::string name() { return "centered_window_ref"; }
 
-  void setup(Real maxTimeSample)
-  {
+  void setup(Real maxTimeSample) {
     maxTime = maxTimeSample;
     buf.resize(std::max(size_t(maxTap), size_t(maxTime) + maxTap / 2 + 1));
   }
 
-  void reset()
-  {
+  void reset() {
     prevTime = 0;
     wptr = 0;
     std::fill(buf.begin(), buf.end(), Real(0));
   }
 
-  Real process(Real input, Real timeInSample)
-  {
+  Real process(Real input, Real timeInSample) {
     constexpr Real pi = std::numbers::pi_v<Real>;
 
-    const auto modifiedSinc = [&](Real x, Real cutoff)
-    {
+    const auto modifiedSinc = [&](Real x, Real cutoff) {
       const Real u = Real(2) * cutoff * x;
       const Real theta = pi * u;
       if (std::abs(theta) < Real(0.32)) {
@@ -1512,7 +1543,7 @@ public:
     const int size = int(buf.size());
 
     // Write to buffer.
-    if (++wptr >= size) wptr = 0;
+    if (++wptr >= size) { wptr = 0; }
     buf[wptr] = input;
 
     // Read from buffer.
@@ -1523,7 +1554,7 @@ public:
     const Real timeDiff = std::abs(prevTime - clamped + Real(1));
     prevTime = clamped;
     Real cutoff = timeDiff <= Real(1) ? Real(0.5) : std::exp2(-timeDiff);
-    if (timeInSample <= 0) return input * Real(2) * cutoff;
+    if (timeInSample <= 0) { return input * Real(2) * cutoff; }
 
     const int timeInt = int(clamped);
     const Real fraction = clamped - Real(timeInt);
@@ -1531,36 +1562,34 @@ public:
 
     // Convolution.
     int rptr = wptr - timeInt - halfTap;
-    if (rptr < 0) rptr += size;
+    if (rptr < 0) { rptr += size; }
 
     Real sum = 0;
     const Real window_omega = Real(2) * pi / Real(maxTap + 1);
     const Real window_phase = window_omega * Real(maxTap / 2 - halfTap);
     for (int i = 0; i < localTap; ++i) {
       const Real cn = std::cos((Real(i) + fraction) * window_omega + window_phase);
-      const Real window = Real(0.21747)
-        + cn * (Real(-0.45325) + cn * (Real(0.28256) + cn * Real(-0.04672)));
+      const Real window
+        = Real(0.21747) + cn * (Real(-0.45325) + cn * (Real(0.28256) + cn * Real(-0.04672)));
 
       const Real sinc = modifiedSinc(Real(i) + mid, cutoff);
       sum += sinc * window * buf[rptr];
-      if (++rptr >= size) rptr = 0;
+      if (++rptr >= size) { rptr = 0; }
     }
     return sum;
   }
 };
 
 template<typename Float>
-std::string vectorToJsonList(const std::string &name, const std::vector<Float> &data)
-{
+std::string vectorToJsonList(const std::string& name, const std::vector<Float>& data) {
   std::string text = std::format("\"{}\":[", name);
-  for (const auto &value : data) text += std::format("{},", value);
+  for (const auto& value : data) { text += std::format("{},", value); }
   text.pop_back();
   text += "],";
   return text;
 }
 
-template<typename Delay, typename Sample> std::string testDelayTime()
-{
+template<typename Delay, typename Sample> std::string testDelayTime() {
   Delay delay;
   delay.setup(8);
 
@@ -1575,9 +1604,7 @@ template<typename Delay, typename Sample> std::string testDelayTime()
 
   constexpr Sample fraction = Sample(0.25);
   for (Sample time = fraction; time < Sample(4); ++time) {
-    for (size_t i = 0; i < sig.size(); ++i) {
-      sig[i] = delay.process(impulse[i], time);
-    }
+    for (size_t i = 0; i < sig.size(); ++i) { sig[i] = delay.process(impulse[i], time); }
     delay.reset();
 
     text += vectorToJsonList(std::to_string(int(time)), sig);
@@ -1588,9 +1615,7 @@ template<typename Delay, typename Sample> std::string testDelayTime()
 }
 
 template<typename Sample>
-std::vector<Sample>
-generateSawtooth(Sample sampleRate, Sample frequencyHz, Sample durationSecond)
-{
+std::vector<Sample> generateSawtooth(Sample sampleRate, Sample frequencyHz, Sample durationSecond) {
   int period = int(sampleRate / frequencyHz);
   int durationSample = int(sampleRate * durationSecond);
   if (period == 0) {
@@ -1601,14 +1626,11 @@ generateSawtooth(Sample sampleRate, Sample frequencyHz, Sample durationSecond)
   std::vector<Sample> sig(durationSample);
   Sample gain = 2 / Sample(period);
   constexpr Sample dcOffset = Sample(1);
-  for (int i = 0; i < durationSample; ++i) {
-    sig[i] = Sample(i % period) * gain - dcOffset;
-  }
+  for (int i = 0; i < durationSample; ++i) { sig[i] = Sample(i % period) * gain - dcOffset; }
   return sig;
 }
 
-template<typename Delay, typename Sample> std::string testAntialiasing()
-{
+template<typename Delay, typename Sample> std::string testAntialiasing() {
   constexpr Sample sampleRate{48000};
 
   Delay delay;
@@ -1637,8 +1659,7 @@ template<typename Delay, typename Sample> std::string testAntialiasing()
 
 #define ROW_FORMAT_STR "|{:20}|{:20}|{:20}|{:20}|\n"
 
-template<typename Delay, typename Sample> void benchmark()
-{
+template<typename Delay, typename Sample> void benchmark() {
   constexpr Sample pi = std::numbers::pi_v<Sample>;
 
   constexpr Sample sampleRate = Sample(48000);
@@ -1662,19 +1683,18 @@ template<typename Delay, typename Sample> void benchmark()
     sumElapsed += elapsed.count();
   }
 
-  std::cout << std::format(
-    ROW_FORMAT_STR, delay.name(), sumElapsed, nSample, delay.process(0, Sample(1)));
+  std::cout << std::format(ROW_FORMAT_STR, delay.name(), sumElapsed, nSample,
+                           delay.process(0, Sample(1)));
 }
 
-void testAll()
-{
+void testAll() {
   std::string text{"{"};
 
-#define ADD_DATA(DELAY_TYPE)                                                             \
-  text += "\"" #DELAY_TYPE "\":{";                                                       \
-  text += testDelayTime<DELAY_TYPE<double, 8>, double>();                                \
-  text += testAntialiasing<DELAY_TYPE<double, 256>, double>();                           \
-  text.pop_back();                                                                       \
+#define ADD_DATA(DELAY_TYPE)                                                                       \
+  text += "\"" #DELAY_TYPE "\":{";                                                                 \
+  text += testDelayTime<DELAY_TYPE<double, 8>, double>();                                          \
+  text += testAntialiasing<DELAY_TYPE<double, 256>, double>();                                     \
+  text.pop_back();                                                                                 \
   text += "},";
 
   // ADD_DATA(DelayInt);
@@ -1711,15 +1731,13 @@ void testAll()
   ofs << text;
 }
 
-void benchmarkAll()
-{
+void benchmarkAll() {
   std::cout << "--- Warm up ";
   std::mt19937 rng(std::random_device{}());
   rng.discard(700000);
   std::cout << std::uniform_int_distribution<int>{0, 2147483647}(rng) << "\n";
 
-  std::cout << std::format(
-    ROW_FORMAT_STR, "Name", "Time [ms]", "Sample Count", "Last Output")
+  std::cout << std::format(ROW_FORMAT_STR, "Name", "Time [ms]", "Sample Count", "Last Output")
             << std::format(ROW_FORMAT_STR, "--", "--", "--", "--");
 
   // benchmark<DelayInt<double>, double>();
@@ -1750,8 +1768,7 @@ void benchmarkAll()
   benchmark<DelayCenteredWindowReference<double>, double>();
 }
 
-int main()
-{
+int main() {
   testAll();
   benchmarkAll();
   return 0;

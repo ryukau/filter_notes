@@ -23,7 +23,7 @@ Lookahead Limiter の記事の訳を別ページに掲載しています。
 
 - [ピークホールド](../peak_hold_envelope/peak_hold_envelope.html) (Peak Hold)
 - 特性曲線 (Characteristic Curve)
-- [スムーシングフィルタ](../s_curve_step_response_filter/s_curve_step_response_filter.html) (Smoothing Filter)
+- [スムージングフィルタ](../s_curve_step_response_filter/s_curve_step_response_filter.html) (Smoothing Filter)
 - [ディレイ](../delay/delay.html) (Delay)
 
 ### 特性曲線
@@ -36,7 +36,7 @@ C(x) = \begin{cases}
 \end{cases}
 $$
 
-実装では $x \to |x|$ と置き換えて、 $C$ を $|x|$ で除算すればゲインへの変換もまとめてしまえるので、以下のように書けます。
+実装では $\dfrac{|C(x)|}{|x|}$ としてゲインへ変換します。
 
 $$
 G(x) = \begin{cases}
@@ -45,94 +45,7 @@ G(x) = \begin{cases}
 \end{cases}
 $$
 
-上の式について $|x| \geq T$ のときに $\dfrac{R^{-1}(|x| - T) + T}{|x|}$ とすれば、レシオ $R$ のコンプレッサになります。
-
-振幅の制限だけが目的であれば $|x| < T$ のときに $T$ を超える値さえ出てこなければ、どんな曲線でも使えます。例えば味付けとして、以下のように歪みを加えた曲線が考えられます。 $\epsilon$ はマシンイプシロンです。
-
-$$
-\begin{aligned}
-G_{\tanh}(x) &= \begin{cases}
-  1 & \text{if}\ |x| < \epsilon && \quad \text{(to avoid division by 0)}\\\\
-  \dfrac{\tanh(|x|)}{|x|} & \text{if}\ \epsilon \leq |x| < T \\\\
-  \tanh(T) & \text{if}\ |x| \geq T
-\end{cases}
-\end{aligned}
-$$
-
-#### ソフトクリップ
-この節で出てくる式とコードはゲインへの変換を行っていないので注意してください。ゲインへと変換するには $x \to |x|$ と置き換えて、 $|x|$ で除算してください。
-
-以下のソフトクリップ曲線を紹介します。
-
-<figure>
-<img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
-</figure>
-
-以下はソフトクリップ曲線 $S$ の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。[単調](https://en.wikipedia.org/wiki/Monotonic_function)かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。 $\mathrm{sgn}$ は[符号関数](https://en.wikipedia.org/wiki/Sign_function)です。
-
-$$
-\begin{aligned}
-S(x) &= \begin{cases}
-  x & \text{if}\ |x| < a_1
-    && \text{(linear region)}\\
-  h + \mathrm{sgn}(x) \dfrac{0.25 (a_2 - |x|)^2}{a_1 - h}  & \text{if}\ a_1 \leq|x| < a_2
-    && \text{(2nd order region)}\\
-  h & \text{if}\ a_2 \leq |x|
-    && \text{(clipping region)}\\
-\end{cases}
-\\
-a_1 &= rh\\
-a_2 &= 2h - a_1
-\end{aligned}
-$$
-
-変数の一覧です。
-
-- $x$: 入力信号
-- $h$: リミッタのしきい値
-- $r$: しきい値以下の非線形領域の割合。
-
-2 次曲線領域 (2nd order region) の両端の傾きが、前後の領域の傾きと一致することを確認します。まず $L = h - a_1 = a_2 - h$ と置きます。このとき 2 次曲線領域は入力に対して $a_1 \text{--} a_2$ 間で $2L$ 、出力に対して $a_1 \text{--} h$ 間で $L$ の幅を持っています。
-
-$\xi = a_2 - |x|$ とすると、曲線 $S$ の 2 次曲線領域の式 $S_2$ は以下のように変形できます。
-
-$$
-S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
-$$
-
-$\xi$ について微分します。
-
-$$
-\frac{d S_2}{d \xi} = - \mathrm{sgn}(x) \frac{0.5}{L} \xi
-$$
-
-- $|x| = a_1$ のとき $\xi = a_2 - a_1 = 2L$ なので、傾きは $-\mathrm{sgn}(x)$ 。
-- $|x| = a_2$ のとき $\xi = 0$ なので、傾きは 0 。
-
-$-\mathrm{sgn}(x)$ は $x$ の符号が - のときに 1 、 + のときに -1 になります。下の図で言うと $x$ が負のときは左から右、 $x$ が正のときは右から左に向かって $\xi$ が増えるので線形領域と傾きが一致します。
-
-<figure>
-<img src="img/softclip_smoothness.svg" alt="Image of soft-clipping curve with the direction of ξ depending on the sign of x." style="padding-bottom: 12px;"/>
-</figure>
-
-
-以下はソフトクリッピングのコードです。
-
-```c++
-template<typename T> inline T softClip(T x0, T ratio)
-{
-  const auto absed = std::fabs(x0);
-
-  const auto a1 = threshold * ratio;
-  if (absed <= a1) return x0;
-
-  const auto a2 = 2 * threshold - a1;
-  if (absed >= a2) return threshold;
-
-  return std::copysign(
-    threshold + (a2 - absed) * (a2 - absed) / T(4) / (a1 - threshold), x0);
-}
-```
+$|x|$ による除算は非線形な計算です。したがってスムージングのあとにゲインへと変換すると歪みが加わるので注意してください。つまり、スムージングを $S$ とすると $S(G(x))$ なら適切、 $S(|C(x)|) / |x|$ とすると歪みます。
 
 ## 実装
 C++17 で実装します。コンパイルして実行できる完全なコードを以下のリンクに掲載しています。
@@ -143,7 +56,7 @@ VST 3 プラグインとしての実装した BasicLimiter のコードも以下
 
 - [BasicLimiter の実装を読む (github.com)](https://github.com/ryukau/VSTPlugins/tree/master/BasicLimiter/source/dsp)
 
-アタックとサステインの時間を固定することで `std::array` を使ってメモリ使用量を減らした実装を以下のリンクに掲載しています。この実装はシンセサイザやエフェクタの内部に組み込んで使うことを想定しています。ベンチマークをとってみないとわかりませんが、スムーシング用の FIR フィルタはバッファ長を 64 から 256 サンプル程度で固定した二重移動平均フィルタを使うほうが速いかもしれません。
+アタックとサステインの時間を固定することで `std::array` を使ってメモリ使用量を減らした実装を以下のリンクに掲載しています。この実装はシンセサイザやエフェクタの内部に組み込んで使うことを想定しています。ベンチマークをとってみないとわかりませんが、スムージング用の FIR フィルタはバッファ長を 64 から 256 サンプル程度で固定した二重移動平均フィルタを使うほうが速いかもしれません。
 
 - [メモリ使用量を減らしたリミッタの実装を読む (github.com)](https://github.com/ryukau/VSTPlugins/blob/master/common/dsp/lightlimiter.hpp)
 
@@ -626,8 +539,8 @@ fir = np.roll(fir, len(fir) // 2 - 1)
 
 継時マスキングは、[突然の大きい音の前では 20 ms 以下、後では 200 ms 以下の長さにわたって起こる](https://ccrma.stanford.edu/~bosse/proj/node21.html)そうです。よってリミッタを耳で評価するときはアタック時間を 20 ms 以下、リリース時間を 200 ms 以下に設定してドラムなどの音を入力したときに違和感を感じないことが一つの目安になります。アタックが遅い音は継時マスキングの条件から外れるので、より長いアタック時間やリリース時間が使えるかもしれません。
 
-### スムーシングフィルタの選定
-ピークホールドのスムーシングを行うときに正面から FIR フィルタを畳み込むのであれば任意のフィルタ係数が使えます。オーバーシュートしない係数として[窓関数]([Window function - Wikipedia](https://en.wikipedia.org/wiki/Window_function))が使えますが、数があるので選定が必要です。
+### スムージングフィルタの選定
+ピークホールドのスムージングを行うときに正面から FIR フィルタを畳み込むのであれば任意のフィルタ係数が使えます。オーバーシュートしない係数として[窓関数]([Window function - Wikipedia](https://en.wikipedia.org/wiki/Window_function))が使えますが、数があるので選定が必要です。
 
 選定の際は、まず Kaiser 窓の `β = 0.5 * π` と `β = 1.5 * π` を比較することをお勧めします。今回使ったテスト信号では `β = 0.5 * π` のほうが低域に入り込むノイズが少ない分だけ違和感が少なく聞こえました。どちらかというと、ストップバンドでの低減率よりも、カットオフ周波数が低めになることのほうが低域に出てくるノイズを抑える点では優れているようです。
 
@@ -642,7 +555,82 @@ fir = np.roll(fir, len(fir) // 2 - 1)
 
 - [Dynamic range limiter - MATLAB](https://www.mathworks.com/help/audio/ref/limiter-system-object.html)
 
-実装して試してみたのですが入力信号によっては振幅がしきい値を超えるケースがありました。フィルタ出力がピーク振幅に到達するまでピークホールドを行っておらず、また入力にディレイをかけてピークを合わせてもいません。スムーシングには 1 次ローパス (exponential moving average フィルタ) が使われています。 1 次ローパスの出力は指数曲線を描くので、振幅を確実に制限するときには使えないです。
+実装して試してみたのですが入力信号によっては振幅がしきい値を超えるケースがありました。フィルタ出力がピーク振幅に到達するまでピークホールドを行っておらず、また入力にディレイをかけてピークを合わせてもいません。スムージングには 1 次ローパス (exponential moving average フィルタ) が使われています。 1 次ローパスの出力は指数曲線を描くので、振幅を確実に制限するときには使えないです。
+
+### ソフトクリップ
+古い版の記事で使用していた特性曲線です。通常のリミッタであれば[特性曲線](#特性曲線)の節の $G$ で十分です。
+
+以下のソフトクリップ曲線を紹介します。
+
+<figure>
+<img src="img/softclip.svg" alt="Image of soft-clippging curve." style="padding-bottom: 12px;"/>
+</figure>
+
+以下はソフトクリップ曲線 $S$ の計算式です。上の図のオレンジの部分では 2 次曲線を使っています。[単調](https://en.wikipedia.org/wiki/Monotonic_function)かつ、両端で傾きが一致するように繋がればどんな曲線でも使えます。 $\mathrm{sgn}$ は[符号関数](https://en.wikipedia.org/wiki/Sign_function)です。
+
+$$
+\begin{aligned}
+S(x) &= \begin{cases}
+  x & \text{if}\ |x| < a_1
+    && \text{(linear region)}\\
+  h + \mathrm{sgn}(x) \dfrac{0.25 (a_2 - |x|)^2}{a_1 - h}  & \text{if}\ a_1 \leq|x| < a_2
+    && \text{(2nd order region)}\\
+  h & \text{if}\ a_2 \leq |x|
+    && \text{(clipping region)}\\
+\end{cases}
+\\
+a_1 &= rh\\
+a_2 &= 2h - a_1
+\end{aligned}
+$$
+
+変数の一覧です。
+
+- $x$: 入力信号
+- $h$: リミッタのしきい値
+- $r$: しきい値以下の非線形領域の割合。
+
+2 次曲線領域 (2nd order region) の両端の傾きが、前後の領域の傾きと一致することを確認します。まず $L = h - a_1 = a_2 - h$ と置きます。このとき 2 次曲線領域は入力に対して $a_1 \text{--} a_2$ 間で $2L$ 、出力に対して $a_1 \text{--} h$ 間で $L$ の幅を持っています。
+
+$\xi = a_2 - |x|$ とすると、曲線 $S$ の 2 次曲線領域の式 $S_2$ は以下のように変形できます。
+
+$$
+S_2(x) = h - \mathrm{sgn}(x) \frac{0.25}{L} \xi^2
+$$
+
+$\xi$ について微分します。
+
+$$
+\frac{d S_2}{d \xi} = - \mathrm{sgn}(x) \frac{0.5}{L} \xi
+$$
+
+- $|x| = a_1$ のとき $\xi = a_2 - a_1 = 2L$ なので、傾きは $-\mathrm{sgn}(x)$ 。
+- $|x| = a_2$ のとき $\xi = 0$ なので、傾きは 0 。
+
+$-\mathrm{sgn}(x)$ は $x$ の符号が - のときに 1 、 + のときに -1 になります。下の図で言うと $x$ が負のときは左から右、 $x$ が正のときは右から左に向かって $\xi$ が増えるので線形領域と傾きが一致します。
+
+<figure>
+<img src="img/softclip_smoothness.svg" alt="Image of soft-clipping curve with the direction of ξ depending on the sign of x." style="padding-bottom: 12px;"/>
+</figure>
+
+
+以下はソフトクリッピングのコードです。
+
+```c++
+template<typename T> inline T softClip(T x0, T ratio)
+{
+  const auto absed = std::fabs(x0);
+
+  const auto a1 = threshold * ratio;
+  if (absed <= a1) return x0;
+
+  const auto a2 = 2 * threshold - a1;
+  if (absed >= a2) return threshold;
+
+  return std::copysign(
+    threshold + (a2 - absed) * (a2 - absed) / T(4) / (a1 - threshold), x0);
+}
+```
 
 ## 参考文献
 - [Lookahead Limiter — Musicdsp.org documentation](https://www.musicdsp.org/en/latest/Effects/274-lookahead-limiter.html)
@@ -654,6 +642,10 @@ fir = np.roll(fir, len(fir) // 2 - 1)
 - [Fruity Limiter - Effect Plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/Fruity%20Limiter.htm)
 
 ## 変更点
+- 2026/09/08
+  - 特性曲線の節を整理。未検証の式を削除。
+  - ソフトクリップの項をその他に移動。
+  - スムーシングをスムージングに変更。 Smooth の発音は /smuːð/ 。
 - 2024/05/20
   - 特性曲線の項を追加。
   - ソフトクリップの項を特性曲線に移動。
@@ -674,7 +666,7 @@ fir = np.roll(fir, len(fir) // 2 - 1)
     - `DoubleAverageFilter` での丸め誤差によって振幅の制限に失敗する問題を修正。
     - ソフトクリッピングの廃止。
   - トゥルーピークモードの節を追加。
-  - スムーシングフィルタの選定の項を追加。
+  - スムージングフィルタの選定の項を追加。
   - 文章の整理。
 - 2021/01/09
   - Lookahead Limiter の記事の訳へのリンクを文脈に沿った位置に変更。
